@@ -1,0 +1,39 @@
+name: Verify Foundry
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  research:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate research backlog
+        run: python3 tools/validate_ideas.py docs/ideas/candidates.csv
+      - name: Unit tests for research tooling
+        run: python3 -m unittest discover -s tools/tests -v
+
+  godot:
+    runs-on: ubuntu-24.04
+    env:
+      GODOT_VERSION: "4.7.2"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned official Godot editor
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 --retry-delay 2 -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d /tmp
+          sudo install -m 0755 "/tmp/Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
+          godot --version
+      - name: Import scene in headless editor
+        run: godot --headless --path games/takuzu-lab --editor --import --quit
+      - name: Run deterministic game rules tests
+        run: godot --headless --path games/takuzu-lab --script res://tests/test_rules.gd

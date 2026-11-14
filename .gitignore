@@ -1,0 +1,32 @@
+# Godot 4
+**/.godot/
+**/.import/
+**/export.cfg
+**/export_presets.cfg
+**/*.translation
+# Exported binaries and bundles
+build/
+dist/
+*.apk
+*.aab
+*.ipa
+*.pck
+*.app/
+*.dmg
+*.zip
+# Python / OS / editors
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
+# Never commit Apple certificates, keys or store credentials
+*.p12
+*.mobileprovision
+AuthKey_*.p8
+google-services.json
+GoogleService-Info.plist
