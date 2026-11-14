@@ -30,3 +30,7 @@ __pycache__/
 AuthKey_*.p8
 google-services.json
 GoogleService-Info.plist
+
+# Authenticated Apple research exports: keep snapshots local/private
+.apple-results/
+docs/research/raw/
