@@ -19,10 +19,9 @@
    ```bash
    python3 tools/fetch_apple_popularity.py --month 2026-10 --dry-run
    # With a valid Apple Ads OAuth token and App Store ad-account access:
-   export APPLE_ADS_ACCESS_TOKEN=<your-access-token>
-   export APPLE_ADS_ACCOUNT_ID=<your-ad-account-id>
-   python3 tools/fetch_apple_popularity.py --month 2026-10 \\
-     --countries US,GB,AU,DE,JP --output .apple-results/apple-2026-10.json
+   export APPLE_ADS_ACCESS_TOKEN="REPLACE_WITH_YOUR_TOKEN"
+   export APPLE_ADS_ACCOUNT_ID="REPLACE_WITH_AD_ACCOUNT_ID"
+   python3 tools/fetch_apple_popularity.py --month 2026-10 --countries US,GB,AU,DE,JP --output .apple-results/apple-2026-10.json
    ```
 
    The tool queries **read-only search popularity**. It does not create campaigns, spend money, modify CSV priorities or commit responses. OAuth onboarding and ad-account permissions are required; see [Apple API access overview](https://developer.apple.com/documentation/apple-ads-platform-api/access-overview). Review each response against the official API schema; retain evidence snapshots securely.
