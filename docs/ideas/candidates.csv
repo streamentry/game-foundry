@@ -35,7 +35,7 @@ GF-033,word,acrostic puzzles,Quotation crossword,Original licensed quotations an
 GF-034,word,cryptic crossword for beginners,Cryptic clues,Teach cryptic clue types with feedback,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
 GF-035,word,fill in crossword,Word placement,Large-format word lists and forgiving placement,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
 GF-036,word,codeword puzzles,Substitution word puzzle,Elegant number-to-letter mapping and hints,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
-GF-037,word,large print crosswords,Crossword,Resizable clues and high-contrast grid,low_to_medium,explore,store_listing_observed,Logic Grid Puzzles: Word Games,https://apps.apple.com/us/app/logic-grid-puzzles-word-games/id704673019,2026-11-15,,,,,unvalidated
+GF-037,word,large print crosswords,Crossword,Resizable clues and high-contrast grid,low_to_medium,explore,store_listing_observed,Large Print Word Games,https://apps.apple.com/us/app/large-print-word-games/id6818025555,2026-11-15,,,,,unvalidated
 GF-038,word,word squares,Square word arrangement,Progressive word-square challenge packs,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
 GF-039,word,anagram chains,Anagram paths,Teach word transformations without countdown,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
 GF-040,word,word path puzzle,Adjacent-letter word routes,Smooth finger path and dictionary explanations,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
