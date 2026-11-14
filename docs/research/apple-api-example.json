@@ -10,7 +10,7 @@
     ],
     "timeRange": {
       "start": "2026-10-01",
-      "end": "2026-10-31",
+      "end": "2026-11-01",
       "granularity": "MONTHLY"
     },
     "sorting": [
