@@ -1,0 +1,22 @@
+{
+  "description": "ILLUSTRATIVE REQUEST BODY ONLY - not an API response or validated live data",
+  "endpoint": "POST https://api.ads.apple.com/v1/insights/apps/search-term-popularity/query",
+  "documentation": "https://developer.apple.com/documentation/apple-ads-platform-api/query-app-search-term-popularity-data",
+  "headers_required_by_apple": ["Authorization", "X-Ap-Context", "Content-Type"],
+  "body": {
+    "filters": [
+      {"field": "countryOrRegion", "operator": "IN", "value": ["US", "GB", "AU", "DE", "JP", "VN"]},
+      {"field": "genre", "operator": "EQUALS", "value": "GAMES"}
+    ],
+    "timeRange": {
+      "start": "2026-10-01",
+      "end": "2026-10-31",
+      "granularity": "MONTHLY"
+    },
+    "sorting": [
+      {"field": "searchPopularity1to100", "order": "DESC"}
+    ],
+    "pagination": {"offset": 0, "pageSize": 1000}
+  },
+  "notes": "Confirm supported timeRange and account permission with Apple docs; paginate and filter results by the candidate keywords. Never commit credentials or claim an example request was executed."
+}

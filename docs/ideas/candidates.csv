@@ -1,0 +1,101 @@
+id,family,primary_search_keyword,mechanic,differentiation_hypothesis,engineering_effort_estimate,research_queue,listing_evidence_level,example_competitor,example_competitor_url,observed_on,apple_popularity_1to100,popularity_country,popularity_month,popularity_source_url,research_status
+GF-001,logic,kakuro,Cross-sum deduction,Explain deductions instead of revealing solutions,low_to_medium,screen_first,store_listing_observed,Kakuro Endless,https://apps.apple.com/us/app/kakuro-endless/id1327617338,2026-11-15,,,,,unvalidated
+GF-002,logic,kakuro for beginners,Cross-sum deduction,Adaptive tutorial with small first grids,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-003,logic,cross sums puzzle,Cross-sum deduction,Touch-first number entry and candidate totals,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-004,logic,futoshiki,Inequality Latin squares,One-screen inequalities with accessible notes,low_to_medium,screen_first,store_listing_observed,The Futoshiki,https://apps.apple.com/us/app/the-futoshiki/id1398126397,2026-11-15,,,,,unvalidated
+GF-005,logic,star battle puzzle,Region placement,Region patterns plus human-readable hints,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-006,logic,tents and trees puzzle,Tree-tent placement,Calm camp-themed presentation and uniqueness-tested seeds,low_to_medium,screen_first,store_listing_observed,Tents and Trees Puzzles,https://apps.apple.com/us/app/tents-and-trees-puzzles/id1279378379,2026-11-15,,,,,unvalidated
+GF-007,logic,hashi bridges,Island connection,Gesture-first bridge construction with error previews,low_to_medium,screen_first,store_listing_observed,Hashi: Bridges,https://apps.apple.com/us/app/hashi-bridges/id567583852,2026-11-15,,,,,unvalidated
+GF-008,logic,slitherlink,Single-loop drawing,Cross-free one-stroke drawing with explainable hints,low_to_medium,screen_first,store_listing_observed,Slitherlink: Daily Logic,https://apps.apple.com/us/app/slitherlink-daily-logic/id1645673398,2026-11-15,,,,,unvalidated
+GF-009,logic,hitori puzzle,Number elimination,Transparent connectivity reasoning and note tools,low_to_medium,screen_first,store_listing_observed,Hitori - Logic Puzzles,https://apps.apple.com/us/app/hitori-logic-puzzles/id1250981450,2026-11-15,,,,,unvalidated
+GF-010,logic,nurikabe,Island and wall deduction,Make wall-connectivity constraints visible,low_to_medium,screen_first,store_listing_observed,Nurikabe: Islands & Walls,https://apps.apple.com/us/app/nurikabe-islands-walls/id581912445,2026-11-15,,,,,unvalidated
+GF-011,logic,takuzu,Binary grid,Readable zero-one board with immediate contradiction cues,low_to_medium,screen_first,store_listing_observed,Takuzu,https://apps.apple.com/us/app/takuzu/id614338213,2026-11-15,,,,,unvalidated
+GF-012,logic,binary puzzle,Binary grid,Fast offline micro-puzzles without pressure,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-013,logic,hidato,Consecutive number path,Accessible large-digit path input,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-014,logic,numberlink,Pair connection,Precise drag controls on compact screens,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-015,logic,masyu,Pearl loop deduction,Small tactile grids plus technique cards,low_to_medium,screen_first,store_listing_observed,MASYU: Loop Logic Puzzle,https://apps.apple.com/us/app/masyu-loop-logic-puzzle/id6788580685,2026-11-15,,,,,unvalidated
+GF-016,logic,yajilin,Arrow-count loop puzzle,Visible clue propagation and light annotation,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-017,logic,fillomino,Polyomino region filling,Clear equal-size region marking,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-018,logic,shikaku,Rectangle partition,Fast rectangle placement and keyboard-like touch controls,low_to_medium,screen_first,store_listing_observed,Shikaku Puzzle,https://apps.apple.com/us/app/shikaku-puzzle/id6785451354,2026-11-15,,,,,unvalidated
+GF-019,logic,skyscrapers puzzle,Visibility Latin square,Visual building heights instead of abstract symbols,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-020,logic,kropki sudoku,Dot-adjacency Sudoku,Teach ratio and consecutive logic with animated examples,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-021,logic,thermometers puzzle,Thermometer fill logic,Direct fill interactions and proven valid generators,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-022,logic,ripple effect puzzle,Distance-constrained numbering,Grid zoom and distance overlays,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-023,logic,kenken,Arithmetic cages,Friendly arithmetic explanations and no timers,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-024,logic,calcudoku,Arithmetic cages,Small device-friendly grid and handholding for first play,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-025,logic,renzoku puzzle,Consecutive-digit clues,Minimal board design with guided hints,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-026,logic,battleships logic puzzle,Fleet deduction,No-guess fleet puzzles and naval chart aesthetic,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-027,logic,tapa puzzle,Island shading,Explain connectivity and no-2x2 patterns,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-028,logic,kuromasu,Number visibility shading,Visualize number sight-lines before guessing,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-029,logic,range puzzle,Range-limited deduction,Illustrate forbidden neighborhoods around clues,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-030,logic,star battle two stars,Multi-star region placement,Advanced progression with technique practice,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-031,word,word ladder,Single-letter transformations,Clue-led ladders with short daily play,low_to_medium,screen_first,store_listing_observed,Word Ladder,https://apps.apple.com/us/app/word-ladder/id1527106984,2026-11-15,,,,,unvalidated
+GF-032,word,daily word ladder,Single-letter transformations,Fixed offline daily seeds with no streak pressure,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-033,word,acrostic puzzles,Quotation crossword,Original licensed quotations and calm typography,low_to_medium,screen_first,store_listing_observed,Acrostic Crossword Puzzles,https://apps.apple.com/us/app/acrostic-crossword-puzzles/id580847667,2026-11-15,,,,,unvalidated
+GF-034,word,cryptic crossword for beginners,Cryptic clues,Teach cryptic clue types with feedback,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-035,word,fill in crossword,Word placement,Large-format word lists and forgiving placement,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-036,word,codeword puzzles,Substitution word puzzle,Elegant number-to-letter mapping and hints,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-037,word,large print crosswords,Crossword,Resizable clues and high-contrast grid,low_to_medium,explore,store_listing_observed,Logic Grid Puzzles: Word Games,https://apps.apple.com/us/app/logic-grid-puzzles-word-games/id704673019,2026-11-15,,,,,unvalidated
+GF-038,word,word squares,Square word arrangement,Progressive word-square challenge packs,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-039,word,anagram chains,Anagram paths,Teach word transformations without countdown,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-040,word,word path puzzle,Adjacent-letter word routes,Smooth finger path and dictionary explanations,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-041,word,word wheel puzzle,Wheel anagrams,One-hand wheel with uncommon-word explanations,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-042,word,word links puzzle,Word association,Curated clear semantic connections,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-043,word,missing vowels game,Vowel reconstruction,Daily short puzzles and language modes,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-044,word,cipher word puzzles,Substitution decoding,Explain frequency clues instead of autoplay,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-045,word,logic grid puzzles,Text-clue deduction,Original mini mysteries and mobile-first grids,low_to_medium,screen_first,store_listing_observed,Logic Grid Puzzles: Word Games,https://apps.apple.com/us/app/logic-grid-puzzles-word-games/id704673019,2026-11-15,,,,,unvalidated
+GF-046,word,detective logic puzzles,Story deduction,Original stories where clues map to verifiable logic,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-047,word,story logic riddles,Narrative inference,Clear puzzle explanations and fair answers,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-048,word,word search offline,Word search,Lightweight truly-offline packs,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-049,word,word search no timer,Word search,"No pressure with readable, resizable letters",low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-050,word,bilingual word ladder,Cross-language word transformations,Locale-specific dictionaries and verified vocabulary,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-051,word,ESL vocabulary puzzle,Language learning wordplay,CEFR-aligned clues and genuine learning feedback,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-052,word,homophone word game,Sound-alike deduction,Locale-specific homophone explanations,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-053,word,idiom matching game,Expression knowledge,Context-rich idioms and localized examples,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-054,word,rebus word puzzles,Visual word riddles,Original icon-based clues with accessible text alternatives,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-055,word,geography word puzzles,Place names and clues,Verified place facts and map hints,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-056,spatial,nonogram picture cross,Picture logic grid,Original procedural pixel artwork and readable controls,medium,screen_first,store_listing_observed,Nonogram.com - Number Games,https://apps.apple.com/us/app/nonogram-com-number-games/id1452992954,2026-11-15,,,,,unvalidated
+GF-057,spatial,colorblind nonogram,Picture logic grid,Patterns and symbols beyond hue distinctions,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-058,spatial,link a pix,Number-pair path picture,Clear paths without crowded touch overlap,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-059,spatial,pic a pix,Picture logic grid,High-contrast logic-first interface,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-060,spatial,cross a pix,Cross-shaped picture deduction,Precise tap targets and explainable clues,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-061,spatial,sym a pix,Symmetry-based picture deduction,Clear center-of-symmetry hints,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-062,spatial,akari light up puzzle,Lamp illumination,Visual proof of illumination and exclusions,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-063,spatial,laser mirror puzzle,Beam reflection,Original hand-authored beam challenges,medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-064,spatial,pipe connect puzzle,Connection routing,Fast and accessible rotate/tap mechanics,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-065,spatial,polyomino packing,Tile fitting,Verifiable level generator and rotation preview,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-066,spatial,pentomino puzzle,Pentomino tiling,Small number of elegant difficulty tiers,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-067,spatial,tangram puzzle,Silhouette geometry,"Distinctive original shape art, no cloned levels",medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-068,spatial,sliding block puzzle,Block sliding,Reachability-checked levels and undo,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-069,spatial,rush hour traffic puzzle,Vehicle sliding,Original visual language and verified minimal moves,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-070,spatial,sokoban puzzle,Push boxes,No-deadlock restart and shortest-path hints,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-071,spatial,jigsaw offline,Image assembly,"Original or properly licensed art, offline packs",medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-072,spatial,large piece jigsaw,Image assembly,Large irregular pieces and one-handed options,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-073,spatial,spot the difference no timer,Visual comparison,"Original pairs, no pressure, adaptive zoom",medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-074,spatial,hidden objects no timer,Object finding,Original illustrated scenes with strong accessibility,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-075,spatial,rotate rings puzzle,Ring rotation,Short sessions with robust gesture handling,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-076,education,math crossword,Crossnumber deduction,Number puzzles with worked rationale,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-077,education,multiplication crossword,Arithmetic crossing,Age-appropriate multiplication mastery,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-078,education,fraction puzzle game,Fraction reasoning,Visual equivalence learning without speed pressure,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-079,education,number pyramid puzzle,Number sum pyramids,Transparent scaffolded arithmetic hints,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-080,education,crossnumber puzzle,Crossword-style numbers,Original crossnumber grids and pencil marks,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-081,education,math path puzzle,Calculation routes,Explain arithmetic operator sequences,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-082,education,mental arithmetic game,Arithmetic strategy,Accuracy-centered practice instead of forced speed,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-083,education,clock reading puzzle,Analog time reading,Hands-on clock tasks and immediate feedback,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-084,education,money change game,Cash change calculation,Localizable currency denominations,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-085,education,map jigsaw puzzle,Map assembly,Public-domain map assets and geography labels,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-086,education,flag logic puzzle,Flag identification,Current and source-verified country sets,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-087,education,geography deduction game,Place constraint deduction,Clue-based regional geography and sourced facts,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-088,education,history timeline puzzle,Chronological ordering,Fact-checked short historical cards,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-089,education,element puzzle game,Chemistry symbol patterns,Periodic table literacy with source-checked facts,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-090,education,coding logic puzzles,Algorithmic pattern solving,No-code sequencing with transparent logic,medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-091,audience,logic games for seniors,Accessible logic collection,"Large type, forgiving input and optional audio",low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-092,audience,mahjong large tiles,Mahjong solitaire,Oversized tiles and clear visual matching,low_to_medium,screen_first,hypothesis_only,,,,,,,,unvalidated
+GF-093,audience,memory match for seniors,Matching pairs,Calm sessions without medical or cognitive claims,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-094,audience,one handed logic puzzle,Touch-first grid puzzle,Bottom-reachable controls and simple gestures,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-095,audience,offline brain puzzle games,Offline game collection,"Zero sign-in, tiny bundles and honest offline promise",low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-096,audience,no timer puzzle games,Low-pressure puzzle collection,No forced timers or intrusive streak mechanics,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-097,audience,family cooperative puzzle,Co-play logic challenges,Conversation-first play across ages,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-098,audience,accessible logic puzzle,Accessible grid games,Screen reader labels and non-color feedback,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-099,audience,printable logic puzzle app,Digital-plus-print puzzle,Print-friendly layouts and QR resume,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
+GF-100,audience,daily five minute puzzle,Daily short game,Small guaranteed solvable puzzles without compulsive pressure,low_to_medium,explore,hypothesis_only,,,,,,,,unvalidated
