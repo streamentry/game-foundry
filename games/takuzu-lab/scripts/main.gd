@@ -143,8 +143,14 @@ func _refresh() -> void:
             style.content_margin_right = 4
             style.content_margin_top = 4
             style.content_margin_bottom = 4
-            for state in ["normal", "hover", "pressed", "disabled", "focus"]:
+            for state in ["normal", "hover", "pressed", "disabled"]:
                 cell.add_theme_stylebox_override(state, style)
+            var focus_outline := StyleBoxFlat.new()
+            focus_outline.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+            focus_outline.border_color = INK
+            focus_outline.set_border_width_all(3)
+            focus_outline.set_corner_radius_all(10)
+            cell.add_theme_stylebox_override("focus", focus_outline)
             cell.add_theme_color_override("font_color", INK)
             cell.add_theme_color_override("font_disabled_color", INK)
     if Rules.is_solved(board):
