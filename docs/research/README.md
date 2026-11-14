@@ -14,11 +14,23 @@
 
 1. Start with the [candidate list](../ideas/candidates.csv). Deduplicate keywords per locale; cluster synonyms rather than build multiple clones.
 2. Query the **official Apple Ads Platform API** `POST /v1/insights/apps/search-term-popularity/query` with `genre=GAMES`, `countryOrRegion` (US, GB, AU, DE, JP, VN), and recent `MONTHLY` or `WEEKLY_SUN_SAT` data. Requires account authentication and permissions. Follow the [official request format](https://developer.apple.com/documentation/apple-ads-platform-api/query-app-search-term-popularity-data); see [example query](apple-api-example.json).
-3. Export source-backed observations to a private research notes store or [measurements.csv](measurements.csv) with data provenance. This repository contains **no credential**, token or invented API response. Relative popularity values are not absolute volumes; missing results are not proofs of zero demand.
-4. Inspect **10 organic results per keyword/country**, not only an app name or a browser result. Record dates and links in a new per-candidate evidence note.
-5. Sample approximately 20 recent reviews across relevant competitors (when available). Classify issues such as intrusive ads, broken controls, tiny text, stale content, unreliable hints, paywall friction, retention or offline expectations. Don't cherry-pick one complaint.
-6. Score only after recording demand, competitor and review sources. Run `python3 tools/rank_ideas.py --input docs/research/measurements.csv`.
-7. Choose at most three research hypotheses to prototype. For each, define a 1-week proof-of-play and an organic launch experiment. Record an explicit continue/stop decision.
+3. Use the read-only helper (dry-run needs no account):
+
+   ```bash
+   python3 tools/fetch_apple_popularity.py --month 2026-10 --dry-run
+   # With a valid Apple Ads OAuth token and App Store ad-account access:
+   export APPLE_ADS_ACCESS_TOKEN=<your-access-token>
+   export APPLE_ADS_ACCOUNT_ID=<your-ad-account-id>
+   python3 tools/fetch_apple_popularity.py --month 2026-10 \\
+     --countries US,GB,AU,DE,JP --output .apple-results/apple-2026-10.json
+   ```
+
+   The tool queries **read-only search popularity**. It does not create campaigns, spend money, modify CSV priorities or commit responses. OAuth onboarding and ad-account permissions are required; see [Apple API access overview](https://developer.apple.com/documentation/apple-ads-platform-api/access-overview). Review each response against the official API schema; retain evidence snapshots securely.
+4. Export source-backed observations to a private research notes store or [measurements.csv](measurements.csv) with data provenance. This repository contains **no credential**, token or invented API response. Relative popularity values are not absolute volumes; missing results are not proofs of zero demand.
+5. Inspect **10 organic results per keyword/country**, not only an app name or a browser result. Record dates and links in a new per-candidate evidence note.
+6. Sample approximately 20 recent reviews across relevant competitors (when available). Classify issues such as intrusive ads, broken controls, tiny text, stale content, unreliable hints, paywall friction, retention or offline expectations. Don't cherry-pick one complaint.
+7. Score only after recording demand, competitor and review sources. Run `python3 tools/rank_ideas.py --input docs/research/measurements.csv`.
+8. Choose at most three research hypotheses to prototype. For each, define a 1-week proof-of-play and an organic launch experiment. Record an explicit continue/stop decision.
 
 ## Scoring (heuristic, not predictive)
 
