@@ -156,6 +156,7 @@ func _build_view() -> void:
 func _action(title: String, callback: Callable) -> Button:
     var button := Button.new()
     button.text = title
+    button.accessibility_name = title
     button.custom_minimum_size = Vector2(64, 48)
     button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     button.pressed.connect(callback)
@@ -251,6 +252,9 @@ func _refresh() -> void:
             var given: bool = puzzle["givens"][r][c] != -1
             cell.disabled = given
             cell.text = "·" if board[r][c] == -1 else str(board[r][c])
+            var spoken_value: String = "empty" if board[r][c] == -1 else str(board[r][c])
+            cell.accessibility_name = "Row %d, column %d: %s" % [r + 1, c + 1, spoken_value]
+            cell.accessibility_description = "Fixed clue" if given else "Editable cell. Activate to cycle empty, zero, one."
             cell.tooltip_text = "Row %d, column %d, %s" % [
                 r + 1, c + 1, "fixed clue" if given else "editable"
             ]
