@@ -46,14 +46,15 @@ func _initialize() -> void:
     _expect(Store.validate(payload).is_empty(), "unsupported save version rejected")
     payload["version"] = 1
     payload["board"] = board.duplicate(true)
+    var corrupted_clue: bool = false
     for r in range(4):
+        if corrupted_clue:
+            break
         for c in range(4):
             if generated["givens"][r][c] != -1:
                 payload["board"][r][c] = 1 - int(generated["givens"][r][c])
-                r = 4
+                corrupted_clue = true
                 break
-        if r == 4:
-            break
     _expect(Store.validate(payload).is_empty(), "tampered fixed clues rejected")
 
     var date: String = "2026-11-15"
