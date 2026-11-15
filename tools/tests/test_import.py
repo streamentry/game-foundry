@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
 
 from import_apple_popularity import parse_snapshot, API_URL  # noqa: E402
+from fetch_apple_popularity import extract_rows  # noqa: E402
 
 
 def sample():
@@ -71,6 +72,17 @@ class ImportTests(unittest.TestCase):
         payload["source"] = "https://example.org/synth"
         with self.assertRaises(ValueError):
             parse_snapshot(payload, {"kakuro": "GF-001"}, "sample.json", "abc")
+
+
+class RequestIntegrityTests(unittest.TestCase):
+    def test_empty_success_is_distinct_from_error(self):
+        self.assertEqual([], extract_rows({"result": {"rows": []}}))
+        with self.assertRaises(ValueError):
+            extract_rows({"error": {"code": "FORBIDDEN"}})
+        with self.assertRaises(ValueError):
+            extract_rows({})
+        with self.assertRaises(ValueError):
+            extract_rows({"result": {"rows": [None]}})
 
 
 if __name__ == "__main__":
