@@ -12,6 +12,15 @@
 
 ## Data acquisition, 7-day batch
 
+0. To cheaply collect reproducible *competitor catalog* evidence (without Apple Ads credentials):
+
+   ```bash
+   python3 tools/scan_storefront.py --country US --max-keywords 5 --dry-run
+   python3 tools/scan_storefront.py --country US --max-keywords 5 --live --output .apple-results/us-5-queries.json
+   ```
+
+   This uses [Apple's public Search API](https://performance-partners.apple.com/search-api), throttles requests and writes only local snapshots. **The returned order is not official organic App Store ranking and the count is not keyword volume.** See [the dated competitor snapshot](catalog-snapshot-2026-11-15.md).
+
 1. Start with the [candidate list](../ideas/candidates.csv). Deduplicate keywords per locale; cluster synonyms rather than build multiple clones.
 2. Query the **official Apple Ads Platform API** `POST /v1/insights/apps/search-term-popularity/query` with `genre=GAMES`, `countryOrRegion` (US, GB, AU, DE, JP, VN), and recent `MONTHLY` or `WEEKLY_SUN_SAT` data. Requires account authentication and permissions. Follow the [official request format](https://developer.apple.com/documentation/apple-ads-platform-api/query-app-search-term-popularity-data); see [example query](apple-api-example.json).
 3. Use the read-only helper (dry-run needs no account):
