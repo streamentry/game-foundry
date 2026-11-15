@@ -47,3 +47,5 @@ jobs:
         run: godot --headless --path games/takuzu-lab --script res://tests/test_factory.gd
       - name: Validate offline progress and corrupted save handling
         run: godot --headless --path games/takuzu-lab --script res://tests/test_progress.gd
+      - name: Smoke test playable scene and player flows
+        run: godot --headless --path games/takuzu-lab --script res://tests/test_scene.gd
