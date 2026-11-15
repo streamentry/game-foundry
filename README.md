@@ -24,6 +24,13 @@
    ```
 
 4. Read [AGENTS.md](AGENTS.md), [DESIGN.md](DESIGN.md), [docs/architecture.md](docs/architecture.md), and [docs/research/README.md](docs/research/README.md).
+5. Run an offline, read-only App Store competitor catalog request preview:
+
+   ```bash
+   python3 tools/scan_storefront.py --country US --max-keywords 5 --dry-run
+   ```
+
+   See [observed 2026-11-15 US competitor snapshot](docs/research/catalog-snapshot-2026-11-15.md). Apple's public catalog matches are NOT search volume or official organic keyword ranks.
 
 ## Repository
 

@@ -22,6 +22,10 @@
 
 **What we have not established:** monthly searches, top-10 ranking concentration, review complaint frequency, last-90-day growth, actual downloads, CAC, LTV, organic conversion or financial viability.
 
+## Correction: separate the exact app from the broad keyword
+
+The initial Logic Grid example with about 1.4K ratings is **not the leading competitive signal for the generic query**. Our [2026-11-15 catalog API sample](catalog-snapshot-2026-11-15.md) surfaced multiple much larger competitors (about 39K, 59K and 49K US ratings respectively). **Generic Logic Grid should not be considered low competition.**
+
 ## Counterexamples to easy ASO narratives
 
 - A listing with **few ratings** may signal limited demand, low conversion or newness rather than an opening.

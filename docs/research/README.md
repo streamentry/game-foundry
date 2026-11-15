@@ -12,6 +12,15 @@
 
 ## Data acquisition, 7-day batch
 
+0. To cheaply collect reproducible *competitor catalog* evidence (without Apple Ads credentials):
+
+   ```bash
+   python3 tools/scan_storefront.py --country US --max-keywords 5 --dry-run
+   python3 tools/scan_storefront.py --country US --max-keywords 5 --live --output .apple-results/us-5-queries.json
+   ```
+
+   This uses [Apple's public Search API](https://performance-partners.apple.com/search-api), throttles requests and writes only local snapshots. **The returned order is not official organic App Store ranking and the count is not keyword volume.** See [the dated competitor snapshot](catalog-snapshot-2026-11-15.md).
+
 1. Start with the [candidate list](../ideas/candidates.csv). Deduplicate keywords per locale; cluster synonyms rather than build multiple clones.
 2. Query the **official Apple Ads Platform API** `POST /v1/insights/apps/search-term-popularity/query` with `genre=GAMES`, `countryOrRegion` (US, GB, AU, DE, JP, VN), and recent `MONTHLY` or `WEEKLY_SUN_SAT` data. Requires account authentication and permissions. Follow the [official request format](https://developer.apple.com/documentation/apple-ads-platform-api/query-app-search-term-popularity-data); see [example query](apple-api-example.json).
 3. Use the read-only helper (dry-run needs no account):
@@ -25,11 +34,18 @@
    ```
 
    The tool queries **read-only search popularity**. It does not create campaigns, spend money, modify CSV priorities or commit responses. OAuth onboarding and ad-account permissions are required; see [Apple API access overview](https://developer.apple.com/documentation/apple-ads-platform-api/access-overview). Review each response against the official API schema; retain evidence snapshots securely.
-4. Export source-backed observations to a private research notes store or [measurements.csv](measurements.csv) with data provenance. This repository contains **no credential**, token or invented API response. Relative popularity values are not absolute volumes; missing results are not proofs of zero demand.
-5. Inspect **10 organic results per keyword/country**, not only an app name or a browser result. Record dates and links in a new per-candidate evidence note.
-6. Sample approximately 20 recent reviews across relevant competitors (when available). Classify issues such as intrusive ads, broken controls, tiny text, stale content, unreliable hints, paywall friction, retention or offline expectations. Don't cherry-pick one complaint.
-7. Score only after recording demand, competitor and review sources. Run `python3 tools/rank_ideas.py --input docs/research/measurements.csv`.
-8. Choose at most three research hypotheses to prototype. For each, define a 1-week proof-of-play and an organic launch experiment. Record an explicit continue/stop decision.
+4. Convert the official authenticated JSON response into a structured **unscored** research worksheet without typing numbers by hand:
+
+   ```bash
+   python3 tools/import_apple_popularity.py --snapshot .apple-results/apple-2026-10.json --output .apple-results/measurements-draft-2026-10.csv
+   ```
+
+   The importer checks country, month, genre, numeric range, duplicate observations and exact candidate keyword matches. It records the source snapshot's SHA-256 hash for traceability. Competitor-audit and review columns remain **blank**, so the ranker refuses to score these rows until evidence is added. This prevents an Apple popularity observation from being mistaken for a viable game opportunity.
+5. Export source-backed observations to a private research notes store or [measurements.csv](measurements.csv) with data provenance. This repository contains **no credential**, token or invented API response. Relative popularity values are not absolute volumes; missing results are not proofs of zero demand.
+6. Inspect **10 organic results per keyword/country**, not only an app name or a browser result. Record dates and links in a new per-candidate evidence note.
+7. Sample approximately 20 recent reviews across relevant competitors (when available). Classify issues such as intrusive ads, broken controls, tiny text, stale content, unreliable hints, paywall friction, retention or offline expectations. Don't cherry-pick one complaint.
+8. Score only after recording demand, competitor and review sources. Run `python3 tools/rank_ideas.py --input docs/research/measurements.csv`.
+9. Choose at most three research hypotheses to prototype. For each, define a 1-week proof-of-play and an organic launch experiment. Record an explicit continue/stop decision.
 
 ## Scoring (heuristic, not predictive)
 
