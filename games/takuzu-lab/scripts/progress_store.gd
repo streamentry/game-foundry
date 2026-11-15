@@ -59,10 +59,9 @@ static func validate(raw: Dictionary) -> Dictionary:
         return {}
     var size: int = int(raw["size"])
     var seed_value: int = int(raw["seed"])
-    if not Factory.SUPPORTED_SIZES.has(size) or seed_value < 0 or seed_value > 2147483647:
-        # Daily seeds from the factory may exceed this bound; reject only unbounded integers.
-        if mode != "daily" or seed_value < 0 or seed_value > 999999999999:
-            return {}
+    # Covers RandomNumberGenerator.randi() (unsigned 32-bit) and calendar seeds.
+    if not Factory.SUPPORTED_SIZES.has(size) or seed_value < 0 or seed_value > 999999999999:
+        return {}
     var puzzle: Dictionary
     if mode == "daily":
         puzzle = Factory.for_day(day, size)
