@@ -67,6 +67,11 @@ func _initialize() -> void:
     }
     _expect(Store.validate(forged).is_empty(), "daily date/seed mismatch rejected")
 
+    var high_seed: Dictionary = Factory.make(4294967295, 6)
+    _expect(not high_seed.is_empty(), "large unsigned random seed generates puzzle")
+    _expect(Store.write("free", "", high_seed, high_seed["givens"], path), "high random seed saved")
+    _expect(not Store.restore(path).is_empty(), "high random seed restored correctly")
+
     DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
     if failures == 0:
         print("PASS: %d offline progress and integrity checks" % checks)
