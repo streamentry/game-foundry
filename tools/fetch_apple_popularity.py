@@ -77,14 +77,13 @@ def make_request(month: str, spec: dict, offset: int, page_size: int) -> dict:
             "field": "searchTerm",
             "operator": "CONTAINS" if mode == "contains" else "STARTS_WITH",
             "value": spec["terms"][0],
-            "ignoreCase": True,
         })
     return {
         "filters": filters,
         "timeRange": {"start": start, "end": end, "granularity": "MONTHLY"},
         "fields": FIELDS,
         "sorting": [{"field": "rankInGenre", "order": "ASC"}],
-        "pagination": {"offset": offset, "pageSize": page_size, "fetchTotalCount": True},
+        "pagination": {"offset": offset, "pageSize": page_size},
     }
 
 
