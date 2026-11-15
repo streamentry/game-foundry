@@ -130,7 +130,7 @@ def run_scan(
             "country": country.upper(),
             "requested_url": url,
             "queried_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-            "api_result_count": payload["resultCount"],
+            "returned_sample_count": payload["resultCount"],
             "returned_apps": normalize_results(payload),
         })
         print(f"{candidate_id} {country}: {keyword!r} -> {len(observations[-1]['returned_apps'])} catalog results", file=sys.stderr)
