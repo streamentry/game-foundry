@@ -43,3 +43,7 @@ jobs:
         run: godot --headless --path games/takuzu-lab --editor --import --quit
       - name: Run deterministic game rules tests
         run: godot --headless --path games/takuzu-lab --script res://tests/test_rules.gd
+      - name: Validate deterministic generated puzzle uniqueness
+        run: godot --headless --path games/takuzu-lab --script res://tests/test_factory.gd
+      - name: Validate offline progress and corrupted save handling
+        run: godot --headless --path games/takuzu-lab --script res://tests/test_progress.gd
