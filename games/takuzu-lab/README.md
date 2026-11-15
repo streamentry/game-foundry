@@ -29,6 +29,10 @@ Open `games/takuzu-lab/project.godot` in Godot and press **F5** for the playable
 
 The generator handles small 4×4 and 6×6 grids, and no difficulty claims, published daily puzzle service, iOS/Android signed binaries, monetization, analytics, or app-store listing are implied. **Do not launch this engineering reference as dozens of near-identical games.**
 
+## Share with early testers
+
+Use [the browser playtest workflow](../../.github/workflows/web-preview.yml) to produce a private downloadable WebGL2 artifact, then follow [the session protocol](../../docs/playtest.md). The build does not require Godot on the tester's device, but it does require a local HTTP server or an explicitly approved static host.
+
 ## Next real validation
 
 1. Test on a physical iPhone and Android device, including safe areas, screen readers, low-memory and suspended-app recovery.
