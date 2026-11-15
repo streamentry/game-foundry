@@ -13,11 +13,13 @@ jobs:
   research:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate research backlog
         run: python3 tools/validate_ideas.py docs/ideas/candidates.csv
       - name: Apple Ads API dry-run (no credentials, no network)
         run: python3 tools/fetch_apple_popularity.py --month 2026-10 --dry-run > /dev/null
+      - name: Public catalog scanner dry-run (no network)
+        run: python3 tools/scan_storefront.py --country US --max-keywords 5 --dry-run > /dev/null
       - name: Unit tests for research tooling
         run: python3 -m unittest discover -s tools/tests -v
 
@@ -26,7 +28,7 @@ jobs:
     env:
       GODOT_VERSION: "4.7.2"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install pinned official Godot editor
         run: |
           set -euo pipefail
