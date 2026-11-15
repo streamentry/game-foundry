@@ -9,6 +9,7 @@
 - **Opportunity hypotheses:** 100 in [docs/ideas/candidates.csv](docs/ideas/candidates.csv). Search demand is **unmeasured** until imported from a primary source.
 - **Backend:** none; local-first is the default.
 - **Distribution:** iOS first, Android where economics justify it.
+- **Mobile export:** physical iOS/Android builds are not yet verified; see the [toolchain and SDK assessment](docs/mobile-validation.md).
 
 ## Get started
 
