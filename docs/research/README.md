@@ -37,9 +37,7 @@
 4. Convert the official authenticated JSON response into a structured **unscored** research worksheet without typing numbers by hand:
 
    ```bash
-   python3 tools/import_apple_popularity.py \\
-     --snapshot .apple-results/apple-2026-10.json \\
-     --output .apple-results/measurements-draft-2026-10.csv
+   python3 tools/import_apple_popularity.py --snapshot .apple-results/apple-2026-10.json --output .apple-results/measurements-draft-2026-10.csv
    ```
 
    The importer checks country, month, genre, numeric range, duplicate observations and exact candidate keyword matches. It records the source snapshot's SHA-256 hash for traceability. Competitor-audit and review columns remain **blank**, so the ranker refuses to score these rows until evidence is added. This prevents an Apple popularity observation from being mistaken for a viable game opportunity.
