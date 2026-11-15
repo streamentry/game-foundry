@@ -62,6 +62,12 @@ python3 tools/discover_ideas.py --snapshot .apple-results/genre-2026-10.json --o
 
 For specialist subgenres, consider `--mode contains --patterns puzzle,word,logic`, with careful attention to API **top-500-per-genre** coverage. See [the discovery playbook](docs/research/discovery-playbook.md).
 
+## Share a tested browser-playtest build
+
+The [Browser Playtest Build workflow](.github/workflows/web-preview.yml) exports Takuzu Lab to WebGL2 from pinned Godot 4.7.2 after running gameplay integrity tests. It uploads a downloadable artifact; **it does not publish a public website or App Store app**.
+
+See [the 5-player playtest protocol](docs/playtest.md). This is the shortest route from working code to observing whether people can play and enjoy it.
+
 ## Launch gate
 
 No app is greenlit on ratings, Google Trends, or a developer's gut feeling alone. Require **measured non-branded App Store demand**, a documented competitor gap, a distinctive product promise, and a plausible organic distribution route. Don't mistake **lower competition** for **unmet demand**.
