@@ -1,8 +1,8 @@
 # Godot 4
+# Version export_presets.cfg; confidential export_credentials.cfg lives in ignored .godot/.
 **/.godot/
 **/.import/
 **/export.cfg
-**/export_presets.cfg
 **/*.translation
 # Exported binaries and bundles
 build/
