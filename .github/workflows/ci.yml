@@ -20,6 +20,8 @@ jobs:
         run: python3 tools/fetch_apple_popularity.py --month 2026-10 --dry-run > /dev/null
       - name: Public catalog scanner dry-run (no network)
         run: python3 tools/scan_storefront.py --country US --max-keywords 5 --dry-run > /dev/null
+      - name: Genre-first Apple Ads discovery dry-run
+        run: python3 tools/fetch_apple_popularity.py --mode genre --month 2026-10 --countries US,GB --dry-run > /dev/null
       - name: Unit tests for research tooling
         run: python3 -m unittest discover -s tools/tests -v
 
