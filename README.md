@@ -45,6 +45,23 @@ docs/                      Architecture, quality bar, roadmap, release checklist
 
 Each actual shipped game gets its **own Godot project, identity, app-store listing, and design system**. Shared systems emerge from repeated, tested needs—not premature abstractions. Reuse engine code, not indistinguishable App Store submissions.
 
+## Market discovery (source-first, not idea-first)
+
+Explore the **actual** most-searched game terms in Apple's Ads Insights API, then filter for specialist puzzles. This avoids over-indexing on our invented list of 100 niche queries.
+
+```bash
+# Offline, no credentials, no network:
+python3 tools/fetch_apple_popularity.py --mode genre --month 2026-10 --countries US,GB,AU --dry-run
+
+# Authenticated, read-only Apple Ads account:
+export APPLE_ADS_ACCESS_TOKEN="YOUR_OAUTH_TOKEN"
+export APPLE_ADS_ACCOUNT_ID="YOUR_ACCOUNT_ID"
+python3 tools/fetch_apple_popularity.py --mode genre --month 2026-10 --countries US,GB,AU --page-size 200 --max-pages 3 --output .apple-results/genre-2026-10.json
+python3 tools/discover_ideas.py --snapshot .apple-results/genre-2026-10.json --output .apple-results/opportunity-queue-2026-10.csv
+```
+
+For specialist subgenres, consider `--mode contains --patterns puzzle,word,logic`, with careful attention to API **top-500-per-genre** coverage. See [the discovery playbook](docs/research/discovery-playbook.md).
+
 ## Launch gate
 
 No app is greenlit on ratings, Google Trends, or a developer's gut feeling alone. Require **measured non-branded App Store demand**, a documented competitor gap, a distinctive product promise, and a plausible organic distribution route. Don't mistake **lower competition** for **unmet demand**.
