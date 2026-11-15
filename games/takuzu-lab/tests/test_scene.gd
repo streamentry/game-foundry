@@ -38,6 +38,8 @@ func _run() -> void:
     await process_frame
     _expect(app.board.size() == 6, "new practice switches to 6x6")
     _expect(app.cell_buttons.size() == 36, "6x6 grid creates 36 controls")
+    _expect(app.cell_buttons[0].accessibility_name.begins_with("Row 1, column 1:"), "cells have meaningful screen-reader labels")
+    _expect(not app.cell_buttons[0].accessibility_description.is_empty(), "screen readers get cell instructions")
     _expect(FileAccess.file_exists(path), "new board is saved")
 
     var edited: bool = false
