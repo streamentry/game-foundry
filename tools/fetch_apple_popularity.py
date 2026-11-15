@@ -78,6 +78,18 @@ def call_api(body: dict, token: str, account_id: str) -> dict:
     raise RuntimeError("Exhausted retry attempts")
 
 
+def extract_rows(response: dict) -> list[dict]:
+    """Fail closed on error envelopes or absent success rows."""
+    if not isinstance(response, dict) or response.get("error") is not None:
+        raise ValueError("Apple Ads response contains an error or is not an object")
+    result = response.get("result")
+    if not isinstance(result, dict) or not isinstance(result.get("rows"), list):
+        raise ValueError("Missing result.rows in Apple Ads response")
+    if not all(isinstance(row, dict) for row in result["rows"]):
+        raise ValueError("Apple Ads result.rows includes a non-object value")
+    return result["rows"]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--month", required=True, help="YYYY-MM, e.g. 2026-10")
@@ -125,14 +137,17 @@ def main() -> int:
             except RuntimeError as exc:
                 print(f"ERROR in batch {i}, page {page+1}: {exc}", file=sys.stderr)
                 return 1
-            result = response.get("result", {})
-            batch_rows = result.get("rows", []) if isinstance(result, dict) else []
-            if not isinstance(batch_rows, list):
-                print(f"ERROR: unexpected Apple response structure in batch {i}", file=sys.stderr)
+            try:
+                batch_rows = extract_rows(response)
+            except ValueError as exc:
+                print(f"ERROR: invalid Apple response in batch {i}, page {page+1}: {exc}", file=sys.stderr)
                 return 1
             rows.extend(batch_rows)
             if len(batch_rows) < args.page_size:
                 break
+            if page == args.max_pages - 1:
+                print(f"ERROR: max-pages reached with full final page in batch {i}; snapshot would be incomplete", file=sys.stderr)
+                return 1
 
     report = {
         "source": API_URL,
