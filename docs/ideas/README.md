@@ -35,7 +35,7 @@ These are cheap to prototype **if demand is confirmed**, but face nontrivial inc
 - **Masyu / Shikaku:** elegant mechanics and small new listings, but demand remains unknown.
 - **Large-print/adaptive variants:** may address accessibility needs, but do **not** rely on unsubstantiated cognition or dementia-treatment claims.
 
-See [the market scan](../research/market-scan-2026-11-15.md), [research method](../research/README.md), and [decision log](../research/decision-log.md).
+See [the latest catalog scan](../research/catalog-snapshot-2026-11-15.md), [the initial market scan](../research/market-scan-2026-11-15.md), [research method](../research/README.md), and [decision log](../research/decision-log.md).
 
 ## Why 100 candidates, not 100 apps?
 
