@@ -10,6 +10,12 @@
 4. **Observed unmet need:** repeatable issue reported in dated reviews, accompanied by a proposed solution; sample negative and positive reviews to avoid cherry-picking.
 5. **Validated product/distribution:** installs attributed to organic search and cohort retention, actual devices, and a differentiated product—not opinion or ratings.
 
+## The source-first research order
+
+**First discover actual demand, then inspect supply.** A list of 100 plausible game mechanics is useful for creative research but does not reveal what App Store users search for.
+
+Follow [the source-first discovery playbook](discovery-playbook.md), using `--mode genre` or `--mode contains` before relying on `--mode exact`. Apple's insights query only exposes a limited popular-term universe (up to approximately 500 terms per country/genre). Absence in this API **cannot** establish zero demand for a niche.
+
 ## Data acquisition, 7-day batch
 
 0. To cheaply collect reproducible *competitor catalog* evidence (without Apple Ads credentials):
