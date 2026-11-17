@@ -1,0 +1,2 @@
+audit_id,country,month,search_term,apple_popularity_global_1to100,apple_popularity_in_games_1to100,apple_genre_rank,source_snapshot_sha256,status
+VN-COTUONG-OFFLINE,VN,2026-10,cờ tướng offline,58,61,472,b74303ab748e2a86d92abcc1565fca66909412ecfed86bb82f03c03285c714a7,pending_physical_storefront_audit
