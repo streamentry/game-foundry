@@ -13,6 +13,7 @@ import hashlib
 import json
 import re
 import sys
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
@@ -38,6 +39,12 @@ def family_of(term: str) -> str:
     matches = [family for family, patterns in FAMILIES.items()
                if any(re.search(pattern, term, re.IGNORECASE) for pattern in patterns)]
     return ",".join(matches) if matches else "uncategorized"
+
+
+def term_key(term: str) -> str:
+    # Casefold expands characters such as German ß to "ss", which would merge
+    # distinct observed App Store queries like "fußball" and "fussball".
+    return unicodedata.normalize("NFC", term.strip().lower())
 
 
 def extract_candidates(snapshot: dict, source_hash: str, *, min_popularity: int = 1) -> tuple[list[dict], list[str]]:
@@ -74,7 +81,7 @@ def extract_candidates(snapshot: dict, source_hash: str, *, min_popularity: int 
             continue
         if pop < min_popularity:
             continue
-        key = (country, month, term.casefold().strip())
+        key = (country, month, term_key(term))
         if key in found:
             old = found[key]
             if old["search_popularity_global_1to100"] != pop or old["rank_in_genre"] != rank:
