@@ -96,10 +96,24 @@ class DiscoveryTests(unittest.TestCase):
     def test_duplicate_conflict_is_error(self):
         fixture = {
             "source": SOURCE, "period": "2026-10", "countries": ["US"],
-            "queries": [], "rows": [row("word ladder", 20), row("word ladder", 30)],
+            "queries": [], "rows": [row("Word Ladder", 20), row("word ladder", 30)],
         }
         _, notes = extract_candidates(fixture, "abc")
         self.assertTrue(any("conflicting duplicate" in n for n in notes))
+
+    def test_unicode_casefold_does_not_merge_distinct_search_terms(self):
+        fixture = {
+            "source": SOURCE, "period": "2026-10", "countries": ["DE"],
+            "queries": [],
+            "rows": [
+                row("fussball", 67, country="DE", rank=44),
+                row("fußball", 61, country="DE", rank=149),
+            ],
+        }
+        found, notes = extract_candidates(fixture, "abc")
+        self.assertEqual(2, len(found))
+        self.assertEqual({"fussball", "fußball"}, {r["observed_search_term"] for r in found})
+        self.assertFalse(any("conflicting duplicate" in note for note in notes))
 
     def test_incorrect_source_fails(self):
         with self.assertRaises(ValueError):

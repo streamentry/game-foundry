@@ -42,3 +42,53 @@ Actual outcome & model update:
 **Stop condition:** If the Apple Ads source cannot produce enough specialist keywords, sample public storefront search suggestions/ASO sources and test organic acquisition experimentally; do not infer absent demand as zero.
 
 **Next real action:** Obtain a valid Apple Ads API token via an authorized account, run a read-only monthly genre discovery, then audit the top observed non-branded queries.
+
+## 2026-11-15 — Storefront audit evidence pack
+
+**Decision:** Add a structured audit template and a fail-closed validator for issue #3. Do not add result or review observations until they are captured from the target storefront on a physical device.
+
+**What changed:** The validator requires ten distinct unsponsored result positions, the physical device/storefront and capture timestamp, listing metadata and local screenshots, a mixed-sentiment review sample or a stated sampling limit, and a wedge/no-wedge finding with a falsifier.
+
+**Evidence status:** The measurement worksheet remains header-only with 0 measured popularity rows. No organic ranks, review themes, or wedge claims were created. The tool checks structure and file paths; a human still needs to compare entries with source screenshots and App Store pages.
+
+**Opposing case:** A detailed pack adds capture effort and cannot prevent a person from entering false ranks. Its value is the audit trail and missing-field gate, not automated proof.
+
+**Cheapest falsification:** Complete one audit pack from a real device for a measured non-branded query; check whether the template captures the evidence needed to decide continue or no-wedge without rework.
+
+**Next real action:** First obtain a measured keyword from the authorized Apple Ads collection in issue #2, then capture its ten organic results and reviews on a controlled physical device. Until then, keep issue #3's opportunity score unranked.
+
+## 2026-11-17 — Read-only demand scan; no game selected
+
+**Decision:** Keep the first release unselected. Apple Ads now supplies measured search signals, but the organic competition and unmet need gates are still open.
+
+**Evidence:** A read-only API user returned 2,500 genre observations for October 2026 across US, GB, AU, DE and JP; all five country queries were marked truncated to top-K. Exact searches for the 100 brainstormed candidates returned no rows, which remains **unknown**, not zero. Contains searches returned 113 observations for 40 queries; six localized Japanese patterns returned 12 more. The ten measured query/storefront pairs to audit are recorded in [the capture queue](storefront-capture-queue-2026-11-17.csv), with source snapshot hashes and no scores.
+
+**Competition signal:** A separate public catalog scan found large, recently updated listings in Sudoku, Mahjong, color-by-number, word search, block puzzle, jigsaw and nonogram. The catalog API is not official organic rank, and ratings are not downloads or revenue. The findings justify a competition check, not a conclusion that a category is open or closed.
+
+**Why no game is chosen:** No physical-device organic result set or balanced recent-review sample has been captured. Without those, we cannot support a product wedge, acquisition path or Apple 4.3 distinctness decision. `Takuzu Lab` remains an engineering reference.
+
+**Engineering correction:** The unscored opportunity exporter now keeps distinct Unicode query terms such as `fussball` and `fußball` separate. The full research suite passes 42 tests.
+
+**Next real action:** Capture the ten queued keyword/storefront pairs on controlled physical devices, record ten unsponsored results and a mixed review sample for each, then decide `wedge` or `no wedge`. Do not start a game-specific production project before that review.
+
+## 2026-11-17 — Vietnam cờ tướng offline as a follow-up audit lead
+
+**Decision:** Prioritize one Vietnam storefront audit for `cờ tướng offline` before building a game. This is an audit lead, not a product selection.
+
+**Observed demand:** October Apple Ads reports `cờ tướng` at 83/100 within Games (genre rank 19) and `cờ tướng offline` at 61/100 (rank 472). The score is relative, not volume. Search patterns for `cờ thế`, `tàn cuộc`, `khai cuộc`, `học cờ tướng` and `luyện cờ tướng` returned no rows; demand for those sub-intents remains unknown.
+
+**Observed supply:** Haga already offers offline play, thousands of board puzzles, AI and hints, has 12K ratings at 4.8, and sells a remove-ads purchase. Ziga has a large online community. Visible ad complaints are a lead for review sampling, not proof of frequency. Details and the proposed falsification threshold are in [the VN niche hypothesis](vn-niche-hypothesis-2026-11-17.md).
+
+**Next real action:** Capture the top ten unsponsored Vietnam App Store results for the exact offline query and a balanced recent-review sample for Haga and the top two direct alternatives. Continue only if a distinct training need repeats and current listings do not already solve it.
+
+## 2026-11-17 — Vietnam cờ tướng offline: audit lead only
+
+**Decision:** Add offline cờ tướng tactics training as a Vietnam storefront audit hypothesis, not as the first game selection.
+
+**Evidence:** October Apple Ads data reports `cờ tướng` at 83/100 within Games and `cờ tướng offline` at 61/100. The public catalog sample shows Haga with 12K ratings, 4.8 stars, offline puzzles, AI and replay; Ziga has 130K ratings and online matchmaking. Haga's listing shows a remove-ads purchase. A few visible recent reviews complain about ads, but the sample is too small to infer how common the issue is. See [VN niche hypothesis](vn-niche-hypothesis-2026-11-17.md).
+
+**Strongest counterargument:** Haga already offers offline board puzzles and AI with a high rating. A clone or an ad-free claim alone is unlikely to be a sufficient wedge.
+
+**Unknown:** Organic App Store positions, review frequency, absolute search volume, willingness to pay, and whether a structured training loop is missing.
+
+**Next real action:** Audit the top ten unsponsored results for `cờ tướng offline` on a physical Vietnam storefront device and sample 20 recent positive and negative reviews from the top three relevant apps. Use the predeclared screening rule in the hypothesis note before prototyping.

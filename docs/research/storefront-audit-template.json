@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "candidate_id": "",
+  "keyword": "",
+  "query_classification": "non_branded",
+  "country": "",
+  "captured_at": "",
+  "device": {
+    "kind": "iphone",
+    "model": "",
+    "os_version": "",
+    "storefront_country": ""
+  },
+  "search_page_screenshot": "",
+  "results": [
+    {"organic_rank": 1, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 2, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 3, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 4, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 5, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 6, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 7, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 8, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 9, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""},
+    {"organic_rank": 10, "is_sponsored": false, "name": "", "publisher": "", "app_id": "", "listing_url": "", "rating_count": "", "average_rating": "", "price": "", "currency": "", "last_updated": "", "aso_messaging": "", "screenshot": ""}
+  ],
+  "reviews": [],
+  "review_sampling_limitation": "",
+  "synthesis": {
+    "judgment": "undetermined",
+    "differentiator": "",
+    "acquisition_path": "",
+    "no_wedge_reason": "",
+    "falsifier": ""
+  }
+}
