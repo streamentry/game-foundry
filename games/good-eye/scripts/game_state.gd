@@ -28,7 +28,7 @@ static func restore(raw: Variant, day: String, fallback_seed: int) -> Dictionary
         return fallback
     if saved.get("mode", "") not in ["daily", "practice"]:
         return fallback
-    if typeof(saved.get("practice_seed", null)) != TYPE_INT:
+    if not _valid_whole(saved.get("practice_seed", null), 1, MAX_SEED):
         return fallback
     if saved["practice_seed"] < 1 or saved["practice_seed"] > MAX_SEED:
         return fallback
@@ -36,7 +36,7 @@ static func restore(raw: Variant, day: String, fallback_seed: int) -> Dictionary
         return fallback
     if typeof(saved.get("daily_day", null)) != TYPE_STRING:
         return fallback
-    if typeof(saved.get("daily_index", null)) != TYPE_INT:
+    if not _valid_whole(saved.get("daily_index", null), 0, DAILY_ROUNDS - 1):
         return fallback
     if typeof(saved.get("daily_percents", null)) != TYPE_ARRAY:
         return fallback
@@ -49,11 +49,24 @@ static func restore(raw: Variant, day: String, fallback_seed: int) -> Dictionary
     for percentage in percents:
         if not _valid_percent(percentage):
             return fallback
+    # JSON parsers may decode whole numbers as floats. Normalize after validation.
+    saved["version"] = VERSION
+    saved["practice_seed"] = int(saved["practice_seed"])
+    saved["daily_index"] = int(saved["daily_index"])
     if saved["daily_day"] != day:
         saved["daily_day"] = day
         saved["daily_index"] = 0
         saved["daily_percents"] = []
     return saved
+
+
+static func _valid_whole(value: Variant, minimum: int, maximum: int) -> bool:
+    if typeof(value) != TYPE_INT and typeof(value) != TYPE_FLOAT:
+        return false
+    var number: float = float(value)
+    if not is_finite(number):
+        return false
+    return number >= float(minimum) and number <= float(maximum) and floorf(number) == number
 
 
 static func _valid_percent(value: Variant, allow_unset: bool = false) -> bool:
