@@ -2,9 +2,10 @@
 
 **Research-first, Godot-powered mobile games.** We don't mass-clone winners. We identify search intent that existing games serve poorly, ship distinctive experiences, and let organic market feedback decide what deserves investment.
 
-## Status — 2026-11-15
+## Status — 2026-11-21
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
+- **First gated game experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
 - **Production games:** 0. The included **Takuzu Lab** is a playable engineering reference, **not** a validated game opportunity or App Store release.
 - **Opportunity hypotheses:** 100 in [docs/ideas/candidates.csv](docs/ideas/candidates.csv). Search demand is **unmeasured** until imported from a primary source.
 - **Backend:** none; local-first is the default.

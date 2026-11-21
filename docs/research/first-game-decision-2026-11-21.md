@@ -2,6 +2,14 @@
 
 **Choose Kakuro as the first game to build, starting with an English proof of play for U.S. adults aged 50–75.** Validate the UK next with the same English build. Japan is the first localization candidate. Production depends on the storefront and player gates below. Confidence is moderate in the order of the three concepts and low in acquisition or commercial outcomes.
 
+## Supply recheck — 2026-11-21 (strengthens the stop rule)
+
+The initial differentiator (“guided next-step hints”) is **already advertised by direct entrants**: [Kakuro Grid, France](https://apps.apple.com/fr/app/id6817269735) claims to explain the next logical deduction; [Conceptis Kakuro, U.S.](https://apps.apple.com/us/app/id1197071375) has offered Assistant next-step hints since 2025; [Kakuro++, France](https://apps.apple.com/fr/app/id1445001139) offers a beginner tutorial and intelligent hints. [Zenkuro, Germany](https://apps.apple.com/de/app/id6787019507) also claims quiet play and unique generated boards. These are *listing claims*, not hands-on audits.
+
+**Updated working hypothesis:** a persistent, readable *intersection clue inspector* that displays both sums and candidate elimination rationale **without repeated zoom/pan** might beat those apps for some adults 50-75. This must be proven head-to-head. A generic hints/large-print/offline claim is **not** a credible wedge. Japan's [Conceptis listing](https://apps.apple.com/jp/app/id1197071375) is titled `加算パズル`, and also calls the mechanic `カックロ` and `クロスサム`: measure local synonym intent separately before writing Japanese ASO metadata.
+
+**Decision unchanged but conditional:** Kakuro remains the **first proof-of-play candidate**, not an approved production release. If real App Store demand or comparative player preference fails, park it and advance Shikaku. All worldwide keyword hypotheses, sources, and 7/30/90-day gates are in [the Kakuro global ASO dossier](kakuro-global-aso-45plus-2026-11-21.md).
+
 ## Demand and competition
 
 Google Keyword Planner estimates for Google Search, November 2025–October 2026. The U.S. run reported its language as “English (All languages)” and the U.K. and Japan runs displayed All languages. Ranges may include close variants. Searcher age, organic store ranks, and installs are unknown.

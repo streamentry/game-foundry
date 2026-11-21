@@ -2,7 +2,7 @@
 
 See the [first-game decision](first-game-decision-2026-11-21.md) for the newer U.K. and Japan measurements and the Kakuro recommendation.
 
-The user selected three concepts for further research: accessible large-print word search, Shikaku, and Kakuro. The first product is not selected. Adults 45+ remain the primary audience; first player research should include adults 50–75. Avoid treating age as a proxy for ability or preferences.
+The user selected three concepts for further research: accessible large-print word search, Shikaku, and Kakuro. Kakuro is the current **conditional first proof-of-play candidate**, not a production greenlight; Shikaku is the fallback. See the [Kakuro global ASO-only recheck](kakuro-global-aso-45plus-2026-11-21.md) for newer direct competitors and unmeasured local keyword synonyms. Adults 45+ remain the primary audience; first player research should include adults 50–75. Avoid treating age as a proxy for ability or preferences.
 
 ## Market selection
 

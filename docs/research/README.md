@@ -4,6 +4,8 @@
 
 The current first screen compares 30 U.S. and regional queries across adult-oriented familiar puzzles, regional/traditional games, and specialized logic puzzles. The U.S. adult-game evidence primarily covers ages 50+; do not imply ages 45–49 are directly validated. General search volumes and speaker counts are not age-specific evidence.
 
+**Current focused experiment:** [Kakuro global ASO-only recheck for adults 45+](kakuro-global-aso-45plus-2026-11-21.md), including the exact-query worksheet, direct new-entrant evidence, falsification gate, and the difference between accessibility and search acquisition. Kakuro is an experiment candidate, not proven ASO demand.
+
 ## Evidence labels (never conflate)
 
 1. **Observed listing:** a publicly accessible App Store product exists. Not evidence of demand, keyword ranking, profitability or market weakness.

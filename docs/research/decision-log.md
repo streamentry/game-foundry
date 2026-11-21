@@ -152,3 +152,13 @@ Actual outcome & model update:
 **Decision:** Start with an English Kakuro concept for U.S. adults aged 50–75. The U.K. is the English follow-up and Japan the first localization candidate. Pick Shikaku as the fallback if the player test fails.
 
 **Evidence:** Kakuro reached 1K–10K monthly Google searches in the U.S., U.K. and Japan, with the same numeric grids usable in each language. Mature apps already offer tutorials, zoom and hints. The [first-game decision](first-game-decision-2026-11-21.md) records the country coverage, the proposed guided first solve and the conditions for moving into production.
+
+## 2026-11-21 — Kakuro global ASO supply correction
+
+**Decision:** Keep Kakuro as the first **gated** U.S. 50-75 proof-of-play candidate, but **withdraw any assumption that explainable hints or large numbers are unique differentiators**. Production stays blocked by search, competitor and head-to-head player evidence; Shikaku remains the fallback.
+
+**New evidence:** [Kakuro Grid in France](https://apps.apple.com/fr/app/id6817269735) already advertises next-deduction explanations; [Conceptis](https://apps.apple.com/us/app/id1197071375) has an Assistant and strong existing ratings; [Zenkuro in Germany](https://apps.apple.com/de/app/id6787019507) pitches calm generated puzzles. Japan's [Conceptis listing](https://apps.apple.com/jp/app/id1197071375) uses the title `加算パズル`, not `カックロ`. Public listing descriptions and rating counts are **not** physical App Store ranks, actual installs, tested product quality or 45+ fit.
+
+**Revised wedge to falsify:** visible intersecting sums + transparent candidate elimination without zoom/pan. Test against incumbents and newer explainable-hint competitors before writing production code. Measure `カックロ`, `加算パズル` and equivalent local native queries separately. The 2025-11 to 2026-10 GKP 1K-10K bands for U.S., U.K. and Japan are **Google Search** estimates only. No verified ASO-only acquisition gap has been established.
+
+**Cheapest next action:** acquire official Apple popularity, capture ten unsponsored results for U.S. `kakuro`/`kakuro puzzle`, and compare a tiny intersection-clue prototype against existing apps with five target players. Park on the predeclared gate if the problem does not reproduce. [Full dossier](kakuro-global-aso-45plus-2026-11-21.md); [query queue](kakuro-aso-keyword-queue-2026-11-21.csv).
