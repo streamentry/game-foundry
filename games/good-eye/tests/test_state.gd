@@ -23,7 +23,8 @@ func _initialize() -> void:
     expect(state["mode"] == "practice", "first launch practice")
     expect(Model.current_seed(state) == 12345, "initial practice seed")
     expect(not Model.advance(state, 999), "unplayed shape cannot advance")
-    expect(Model.record_cut(state, 48.2), "practice cut accepted")
+    expect(Model.record_cut(state, 48.2, 10.0, 0.04), "practice cut accepted")
+    expect(Model.current_cut(state) == [10.0, 0.04], "practice cut placement stored")
     expect(not Model.record_cut(state, 50.0), "practice rescore rejected")
     expect(Model.retry(state), "practice retry")
     expect(Model.current_seed(state) == 12345 and not Model.revealed(state), "retry keeps seed")
@@ -47,10 +48,11 @@ func _initialize() -> void:
     expect(Save.write(state), "atomic local save")
     var recovered: Dictionary = Save.read(Model.fresh(day, 2345))
     expect(Model.daily_complete(recovered), "daily progress restored")
+    expect(recovered["daily_cuts"].size() == 5, "all daily cut positions restored")
     expect(recovered["practice_seed"] == 6789, "practice preserved in save")
 
     var next_day: Dictionary = Model.restore(state.duplicate(true), "2026-11-22", 23)
-    expect(next_day["daily_percents"].is_empty(), "UTC day rolls over")
+    expect(next_day["daily_percents"].is_empty() and next_day["daily_cuts"].is_empty(), "UTC day rolls over")
     expect(next_day["practice_seed"] == 6789, "day change preserves practice")
     var invalid: Dictionary = state.duplicate(true)
     invalid["daily_index"] = 10

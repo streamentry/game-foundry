@@ -219,6 +219,10 @@ func _build_view() -> void:
 
 func _load_round() -> void:
     board.set_round(Factory.make(Model.current_seed(state)))
+    if Model.revealed(state):
+        var previous_cut: Array = Model.current_cut(state)
+        board.angle_degrees = float(previous_cut[0])
+        board.offset = float(previous_cut[1])
     board.revealed = Model.revealed(state)
     board.queue_redraw()
     _refresh()
@@ -267,7 +271,7 @@ func _cut_shape() -> void:
     if not calculation.get("valid", false):
         status_label.text = "Move the line so it crosses the shape and try again."
         return
-    if Model.record_cut(state, float(calculation["percent_a"])):
+    if Model.record_cut(state, float(calculation["percent_a"]), board.angle_degrees, board.offset):
         board.revealed = true
         board.queue_redraw()
         _persist()
