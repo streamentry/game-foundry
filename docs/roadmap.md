@@ -1,5 +1,10 @@
 # Roadmap — evidence before inventory
 
+## Current research priorities
+
+- **Search-led:** [Kakuro with Shikaku as fallback](research/first-game-decision-2026-11-21.md), conditional on the existing demand, competitor and player gates.
+- **Global visual exploration:** [Good Eye → Quiet Shot → One Path](research/global-45plus-top-three-games-2026-11-21.md). Start with the cheapest Good Eye comparison; test subsequent mechanics sequentially. These are proposed playtest hypotheses, not three production projects. Record real return and referral behavior before expanding.
+
 ## Phase 0: research and verification (7 days, time-boxed)
 - Collect official Apple Ads popularity for target non-branded terms (US, GB, AU, DE, JP), when credentials are available.
 - Audit the top 10 organic App Store results per keyword and recurring negative review themes.

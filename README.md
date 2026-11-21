@@ -5,7 +5,8 @@
 ## Status — 2026-11-21
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
-- **First gated game experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Global visual playtest shortlist:** **1. Good Eye → 2. Quiet Shot → 3. One Path.** [Strategy and first three experiments](docs/research/global-45plus-top-three-games-2026-11-21.md) document the mechanics, direct competitors, proposed seven-day test and stop conditions. This is a separate exploratory ranking; acquisition, 45+ fit and economics are unvalidated, and the ASO production gate remains in force.
 - **Production games:** 0. The included **Takuzu Lab** is a playable engineering reference, **not** a validated game opportunity or App Store release.
 - **Opportunity hypotheses:** 100 in [docs/ideas/candidates.csv](docs/ideas/candidates.csv). Search demand is **unmeasured** until imported from a primary source.
 - **Backend:** none; local-first is the default.

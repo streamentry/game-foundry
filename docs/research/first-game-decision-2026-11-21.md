@@ -2,6 +2,8 @@
 
 **Choose Kakuro as the first game to build, starting with an English proof of play for U.S. adults aged 50–75.** Validate the UK next with the same English build. Japan is the first localization candidate. Production depends on the storefront and player gates below. Confidence is moderate in the order of the three concepts and low in acquisition or commercial outcomes.
 
+**Scope clarification:** this remains the first candidate under the search-led track. The later [global visual playtest shortlist](global-45plus-top-three-games-2026-11-21.md) orders Good Eye, Quiet Shot and One Path as exploratory mechanic tests. It does not supersede this track's evidence or production gates.
+
 ## Supply recheck — 2026-11-21 (strengthens the stop rule)
 
 The initial differentiator (“guided next-step hints”) is **already advertised by direct entrants**: [Kakuro Grid, France](https://apps.apple.com/fr/app/id6817269735) claims to explain the next logical deduction; [Conceptis Kakuro, U.S.](https://apps.apple.com/us/app/id1197071375) has offered Assistant next-step hints since 2025; [Kakuro++, France](https://apps.apple.com/fr/app/id1445001139) offers a beginner tutorial and intelligent hints. [Zenkuro, Germany](https://apps.apple.com/de/app/id6787019507) also claims quiet play and unique generated boards. These are *listing claims*, not hands-on audits.

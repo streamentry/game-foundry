@@ -6,6 +6,8 @@ The current first screen compares 30 U.S. and regional queries across adult-orie
 
 **Current focused experiment:** [Kakuro global ASO-only recheck for adults 45+](kakuro-global-aso-45plus-2026-11-21.md), including the exact-query worksheet, direct new-entrant evidence, falsification gate, and the difference between accessibility and search acquisition. Kakuro is an experiment candidate, not proven ASO demand.
 
+**Proposed global visual playtests:** [Good Eye, Quiet Shot and One Path](global-45plus-top-three-games-2026-11-21.md), in that order. This user-requested exploration tests comprehension, voluntary replay, return and referred players. Its ranking reflects test cost and learning value, not measured ASO opportunity. The search-led method and production gates below remain in force; a different commercial acquisition route needs a documented distribution decision before production.
+
 ## Evidence labels (never conflate)
 
 1. **Observed listing:** a publicly accessible App Store product exists. Not evidence of demand, keyword ranking, profitability or market weakness.

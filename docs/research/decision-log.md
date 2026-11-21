@@ -182,3 +182,19 @@ Actual outcome & model update:
 **Revised wedge to falsify:** visible intersecting sums + transparent candidate elimination without zoom/pan. Test against incumbents and newer explainable-hint competitors before writing production code. Measure `カックロ`, `加算パズル` and equivalent local native queries separately. The 2025-11 to 2026-10 GKP 1K-10K bands for U.S., U.K. and Japan are **Google Search** estimates only. No verified ASO-only acquisition gap has been established.
 
 **Cheapest next action:** acquire official Apple popularity, capture ten unsponsored results for U.S. `kakuro`/`kakuro puzzle`, and compare a tiny intersection-clue prototype against existing apps with five target players. Park on the predeclared gate if the problem does not reproduce. [Full dossier](kakuro-global-aso-45plus-2026-11-21.md); [query queue](kakuro-aso-keyword-queue-2026-11-21.csv).
+
+## 2026-11-21 — Document three global visual playtest hypotheses
+
+**Decision:** At the user's request, document **Good Eye → Quiet Shot → One Path** as the exploratory playtest order for a simple global game serving adults 45+. The ranking buys information about three different experiences: estimation, trajectory prediction and route planning. It is not a measured ASO ranking or a production approval. Kakuro remains the conditional first candidate in the search-led track.
+
+**Evidence:** AARP's October 2026 U.S. 50+ study supports testing varied motivations and comfortable solo play, not any particular mechanic or worldwide age fit. Direct listings already cover 50/50 cutting, shared daily challenges, one-shot board clearing and one-stroke graph puzzles. Public cumulative download bands demonstrate historical reach of some competitors; they do not measure current organic demand, profitability or 45+ adoption. Sources and limits are in [the strategy and three game briefs](global-45plus-top-three-games-2026-11-21.md).
+
+**Strongest counterargument:** Good Eye may be a brief novelty; Quiet Shot may reward fine motor precision more than planning; One Path may feel familiar and repetitive. Comfortable controls and daily sharing are not established differentiators. A low-cost prototype can still distract from the harder work of reaching and retaining players.
+
+**Assumptions:** people voluntarily replay, can control the intended action fairly, return without reminders and sometimes introduce another player. Repeat use and referrals remain separate from willingness to pay. A primarily referral-led commercial route would require its own recorded distribution decision; the existing ASO production gate is not waived.
+
+**Cheapest falsification / seven-day action:** compare the Good Eye interaction against an existing 50/50 game on target players' own phones, fix one clear input problem, then decide whether to run a fresh 30-person cohort. Proposed cohort gates are 24/30 unaided first attempts, 18/30 voluntarily completing five cuts, 9/30 next-day return, 6/30 day-three return and three additional referred players completing an attempt. These are internal spending gates, not benchmarks. Observe comparative preference as well. Participant day-seven return must be measured later than a project-day-seven review when recruitment starts on day 2 or 3.
+
+**Continue / stop:** good early replay, return and referrals justify a larger independent cohort and a second market. Persistent control problems or boredom after one deliberate revision park the mechanic. Good retention without referrals requires acquisition work before expansion. Test subsequent mechanics sequentially and predeclare comparable engagement measures.
+
+**Actual outcome:** documentation completed; no target-player results, keyword measurements, new production projects or release claims are added by this decision.

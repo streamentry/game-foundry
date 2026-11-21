@@ -2,6 +2,8 @@
 
 The [100-row candidate backlog](candidates.csv) is a **discovery queue**, not a list of games to clone or ship. It was seeded on **2026-11-15**. All 100 are **unvalidated** for App Store search demand; 15 have a **real US App Store listing anchor**, which proves only the genre exists.
 
+The separate [global 45+ playtest shortlist](../research/global-45plus-top-three-games-2026-11-21.md) proposes **Good Eye, Quiet Shot and One Path** as three distinct visual experiments. Their `GV-01`–`GV-03` identifiers belong to that note, not the `GF-` keyword catalog. Their ranking does not supply measured demand or change the 100-row research dataset.
+
 ## Data dictionary
 
 | Field | Meaning |
