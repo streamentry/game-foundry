@@ -1,6 +1,8 @@
 # Research method — topic selection like a PhD
 
-**Research question:** Which niche game search needs have *measurable App Store demand* and a *genuinely underserved user experience*, where a small original product can reach players organically?
+**Research question:** Which familiar game search needs have *measurable App Store demand*, a *genuinely underserved user experience*, and evidence of fit for adults aged 45+, where a small original product can reach players organically?
+
+The current first screen compares 30 U.S. and regional queries across adult-oriented familiar puzzles, regional/traditional games, and specialized logic puzzles. The U.S. adult-game evidence primarily covers ages 50+; do not imply ages 45–49 are directly validated. General search volumes and speaker counts are not age-specific evidence.
 
 ## Evidence labels (never conflate)
 
@@ -52,12 +54,15 @@ Follow [the source-first discovery playbook](discovery-playbook.md), using `--mo
 7. Sample approximately 20 recent reviews across relevant competitors (when available). Classify issues such as intrusive ads, broken controls, tiny text, stale content, unreliable hints, paywall friction, retention or offline expectations. Paraphrase the review substance, keep quoted excerpts short, and record any sampling limits. Don't cherry-pick one complaint.
 8. Score only after recording demand, competitor and review sources. Run `python3 tools/rank_ideas.py --input docs/research/measurements.csv`.
 9. Choose at most three research hypotheses to prototype. For each, define a 1-week proof-of-play and an organic launch experiment. Record an explicit continue/stop decision.
+10. Validate fit with adults aged 45+ in the intended segment before production. Record age bands and recruitment limits. Accessibility features are a product hypothesis until players confirm which barriers matter.
 
 ## Scoring (heuristic, not predictive)
 
 When all evidence is present: **Demand 30 + competition weakness 25 + unmet need 20 + repeat-use potential 15 + development efficiency 10** (0–100 scale). Demand uses Apple's 1–100 index; other dimensions require analyst scores from 0 to 5 and supporting notes/sources. A threshold of **20/100 popularity** is an initial **screening heuristic**—not a guarantee of enough search volume. Test sensitivity to the threshold and country.
 
 The ranker **refuses to score** unmeasured rows. Do not rank missing data as low demand. Score a *keyword–country–month* observation, not a game title globally. Guard against dominant brand-name searches that a new entrant cannot capture.
+
+Age fit is a qualitative readiness gate, not a guessed score. Keep unsegmented search, store, and market totals labeled as broad evidence. The proposed first-launch target of 1,000 non-branded organic installs within 60 days is a product experiment goal, not a market benchmark; choose and predeclare a numeric Day-7 retention threshold before release.
 
 ## Validation decisions
 

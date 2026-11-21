@@ -1,0 +1,28 @@
+# First game decision — Kakuro
+
+**Choose Kakuro as the first game to build, starting with an English proof of play for U.S. adults aged 50–75.** Validate the UK next with the same English build. Japan is the first localization candidate. Production depends on the storefront and player gates below. Confidence is moderate in the order of the three concepts and low in acquisition or commercial outcomes.
+
+## Demand and competition
+
+Google Keyword Planner estimates for Google Search, November 2025–October 2026. The U.S. run reported its language as “English (All languages)” and the U.K. and Japan runs displayed All languages. Ranges may include close variants. Searcher age, organic store ranks, and installs are unknown.
+
+| Market | Large-print word search | Shikaku | Kakuro | Storefront evidence and action |
+| --- | --- | --- | --- | --- |
+| U.S. | 1K–10K | 1K–10K | 1K–10K | Start comparison with [Conceptis Kakuro](https://apps.apple.com/us/app/kakuro-number-crossword/id1197071375). [Word search](https://apps.apple.com/us/app/large-print-word-search-daily/id6759038491) and [Shikaku](https://apps.apple.com/us/app/shikaku-rectangles/id6762503436) already offer much of the proposed comfort and convenience. |
+| U.K. | 100–1K | 100–1K | 1K–10K | English follow-up. [Conceptis serves the U.K.](https://apps.apple.com/gb/app/kakuro-number-crossword/id1197071375) with zoom and combination aids. |
+| Japan | Unknown for large print. Broad `文字探し`: 1K–10K | `四角に切れ`: 100–1K | `カックロ`: 1K–10K | Test Japanese instructions only after English player evidence. [Kakuro Haven](https://apps.apple.com/jp/app/kakuro-haven-%E6%AF%8E%E6%97%A5%E3%81%AE%E3%82%AB%E3%83%83%E3%82%AF%E3%83%AD/id6800144243) offers larger digits and zoom. [Shikaku Daily](https://apps.apple.com/jp/app/shikaku-daily/id6824700536) offers explanatory hints. |
+| Germany | Unknown | Unknown | Unknown | Existing [large-print word search](https://apps.apple.com/de/app/wortsuche-das-r%C3%A4tselheft/id6824551291) and [Kakuro++](https://apps.apple.com/de/app/kakuro-kreuzsummen-r%C3%A4tsel/id1445001139). Test `Kakuro` and `Kreuzsummenrätsel` separately. |
+| France | Unknown | Unknown | Unknown | Existing [accessible Shikaku](https://apps.apple.com/fr/app/shikaku/id6761045775), [large-print words](https://apps.apple.com/fr/app/jeux-de-mots-gros-caract%C3%A8res/id6818025555) and [Kakuro++](https://apps.apple.com/fr/app/kakuro-nombres-fl%C3%A9ch%C3%A9s/id1445001139). |
+| South Korea | Unknown | Unknown | Unknown | [Kakuro++](https://apps.apple.com/kr/app/kakuro-%EC%B9%B4%EC%BF%A0%EB%A1%9C-%ED%81%AC%EB%A1%9C%EC%8A%A4%EC%84%AC/id1445001139) offers localized beginner lessons and next-step hints. |
+| Canada | Unknown | Unknown | Unknown | [Conceptis](https://apps.apple.com/ca/app/kakuro-number-crossword/id1197071375) and [Large Print Word Search Daily](https://apps.apple.com/ca/app/large-print-word-search-daily/id6759038491) are present. Validate English and French queries separately. |
+| Australia | Unknown | Unknown | Unknown | Direct listings include [Conceptis](https://apps.apple.com/au/app/kakuro-number-crossword/id1197071375), [Shikaku Daily](https://apps.apple.com/au/app/shikaku-daily/id6824700536), and [BigWord](https://apps.apple.com/au/app/bigword-word-search-large/id6818606625). Validate independently of UK volumes. |
+
+The Germany follow-up returned Vietnam settings after two attempts, so its rows were excluded. France, South Korea, Canada and Australia have catalog evidence only in this round. Physical iOS device discovery timed out again, leaving actual store search positions unverified.
+
+Kakuro returned the same upper search band in three distinct markets and can reuse the same original grids across languages. Shikaku shares that content advantage and may be simpler to teach, but its UK and Japan search bands were lower and competitors already explain deductions. Word search fits the readability brief directly, but its UK search band was lower and curated lists and grid checks must be repeated for each language. Japan's broad word-search query cannot stand in for the large-print concept.
+
+The strongest objection is Kakuro's mature supply. [Conceptis on Google Play](https://play.google.com/store/apps/details?hl=en_US&id=com.conceptispuzzles.kakuro) shows 100K+ downloads and offers zoom, combinations and no ads. Kakuro++ adds a beginner tutorial and next-step hints. Store listing claims require hands-on checks. The proposed difference is a guided first solve: keep both intersecting clues readable in a small grid, and show which candidates each clue rules out before revealing a digit. The added cost is building an explainable solver and verifying original grids. The payoff, if players prefer it, is that tutorial puzzles can travel across languages with translated explanations.
+
+## First week and stop rule
+
+Capture ten unsponsored storefront results for the US query, then sample about 20 recent mixed reviews across direct competitors. Test five U.S. adults aged 50–75 on their own phones with a small original Kakuro board and an existing app using comparable beginner boards. Alternate app order. Record first correct placement, requested help, hint comprehension and first-board completion. Continue to the one-week offline proof of play if at least three of five reproduce the same reading or deduction problem in an incumbent and at least four of five can complete the first board unaided and explain the guided deduction in the test concept. These are pilot thresholds. If the incumbent already solves the problem or the thresholds fail, park Kakuro and run the same comparison for Shikaku. Keep the physical storefront audit and a credible discovery path as production gates.

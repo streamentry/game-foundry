@@ -1,5 +1,7 @@
 # Vietnam niche hypothesis — 2026-11-17
 
+> Follow-up on 2026-11-21: Google Keyword Planner data now makes Nối Từ the first audit lead; this cờ tướng hypothesis remains a backup. See [the GKP niche scan](gkp-niche-scan-vn-2026-11-21.md).
+
 ## Conclusion
 
 No niche is proven to be both underserved and large enough to build yet. If Vietnam is an acceptable first storefront, **offline cờ tướng tactical training** is the strongest lead to audit first. It has measured search interest and a specific use case, but a strong direct competitor already offers offline puzzles and AI. This is an audit hypothesis, not a game selection.
