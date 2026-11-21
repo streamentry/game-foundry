@@ -1,0 +1,31 @@
+rank,language,ethnologue_2026_total_speakers_m,representative_market,planner_language_filter,word_play_seed,logic_puzzle_seed,offline_game_seed,daily_puzzle_seed,localization_status,coverage_note
+1,English,1493,United States,English,word game,logic puzzle,offline game,daily puzzle,draft_native review not done,US is an anchor market not total English reach
+2,Mandarin Chinese,1183,China,Chinese (Simplified),文字游戏,逻辑谜题,离线游戏,每日谜题,draft_native review not done,Mainland China Google Planner coverage and storefront path need verification
+3,Hindi,611,India,Hindi,शब्दों का खेल,तर्क पहेली,ऑफलाइन गेम,दैनिक पहेली,draft_native review not done,India anchor; language-specific search may mix Hindi and English
+4,Spanish,561,Mexico,Spanish,juego de palabras,rompecabezas de lógica,juego sin internet,rompecabezas diario,draft_native review not done,Mexico anchor; not a global Spanish total
+5,Modern Standard Arabic,335,Saudi Arabia,Arabic,ألعاب الكلمات,ألغاز منطقية,ألعاب بدون إنترنت,لغز يومي,draft_native review not done,MSA is a written/formal proxy; users search in regional dialects
+6,French,334,France,French,jeu de lettres,énigme logique,jeu hors ligne,énigme quotidienne,draft_native review not done,France anchor; not total Francophone reach
+7,Bengali,274,Bangladesh,Bengali,শব্দের খেলা,যুক্তির ধাঁধা,অফলাইন গেম,দৈনিক ধাঁধা,draft_native review not done,Bangladesh anchor; India Bengali is excluded from this proxy
+8,Portuguese,269,Brazil,Portuguese,jogo de palavras,quebra-cabeça de lógica,jogo offline,desafio diário,draft_native review not done,Brazil anchor; Portuguese variants differ across markets
+9,Indonesian,255,Indonesia,Indonesian,permainan kata,teka-teki logika,game offline,teka-teki harian,draft_native review not done,Indonesia anchor
+10,Urdu,246,Pakistan,Urdu,الفاظ کا کھیل,منطقی پہیلی,آف لائن گیم,روزانہ پہیلی,draft_native review not done,Pakistan anchor; Urdu searches may use Latin transliteration
+11,Russian,210,Russia,Russian,игра в слова,логическая головоломка,офлайн игра,ежедневная головоломка,draft_native review not done,Planner availability and store access need current verification
+12,Standard German,133,Germany,German,Wortspiel,Logikrätsel,Offline-Spiel,tägliches Rätsel,draft_native review not done,Germany anchor
+13,Japanese,126,Japan,Japanese,言葉ゲーム,ロジックパズル,オフラインゲーム,毎日のパズル,draft_native review not done,Use local puzzle terms as Planner suggestions expand
+14,Nigerian Pidgin,121,Nigeria,English,word game,logic puzzle,offline game,daily puzzle,proxy_only_native review needed,Pidgin has no single standard written search form; English results cannot be attributed to Pidgin
+15,Egyptian Arabic,118,Egypt,Arabic,لعبة كلمات,ألغاز ذكاء,ألعاب من غير نت,لغز اليوم,draft_native review not done,Arabic setting may combine dialect and MSA queries
+16,Marathi,99,India,Marathi,शब्दांचा खेळ,तर्क कोडे,ऑफलाइन गेम,रोजचे कोडे,draft_native review not done,India anchor
+17,Vietnamese,97,Vietnam,Vietnamese,trò chơi chữ,nối từ,game offline,câu đố hằng ngày,draft_native review not done,Retain Nối Từ as a Vietnam-specific candidate
+18,Telugu,96,India,Telugu,పదాల ఆట,తర్క పజిల్,ఆఫ్‌లైన్ గేమ్,రోజువారీ పజిల్,draft_native review not done,India anchor
+19,Swahili,95,Tanzania,Swahili,mchezo wa maneno,fumbo la mantiki,mchezo bila intaneti,fumbo la kila siku,draft_native review not done,Tanzania anchor; Kenya is a separate Swahili/English market
+20,Hausa,94,Nigeria,Hausa,wasan kalmomi,wasan tunani,wasan ba tare da intanet ba,wasa na yau da kullum,draft_native review not done,Nigeria anchor
+21,Turkish,94,Türkiye,Turkish,kelime oyunu,mantık bulmacası,internetsiz oyun,günlük bulmaca,draft_native review not done,One-country market anchor
+22,Western Punjabi,90,Pakistan,Punjabi,پنجابی لفظی کھیل,پنجابی دماغی پہیلی,پنجابی آف لائن کھیل,روزانہ پنجابی پہیلی,draft_native review needed,Shahmukhi terms need native validation; Punjabi and Urdu results can overlap
+23,Tagalog,87,Philippines,Filipino,larong salita,palaisipang lohikal,larong walang internet,palaisipan araw-araw,draft_native review not done,Filipino storefront filter may include Tagalog variants
+24,Tamil,86,India,Tamil,சொல் விளையாட்டு,தர்க்கப் புதிர்,இணையமில்லா விளையாட்டு,தினசரி புதிர்,draft_native review not done,India anchor; Sri Lanka and diaspora are not included
+25,Yue Chinese,86,Hong Kong,Chinese (Traditional),文字遊戲,邏輯謎題,離線遊戲,每日一題,draft_native review needed,Written Traditional Chinese does not isolate Cantonese speech
+26,Wu Chinese,83,China,Chinese (Simplified),文字游戏,逻辑谜题,离线游戏,每日谜题,proxy_only_native review needed,Standard written Chinese cannot isolate Wu-speaking demand; China Planner coverage needs verification
+27,Iranian Persian,82,Iran,Persian,بازی کلمات,معمای منطقی,بازی آفلاین,معمای روزانه,draft_native review needed,Planner and storefront availability need current verification
+28,Korean,82,South Korea,Korean,단어 게임,논리 퍼즐,오프라인 게임,오늘의 퍼즐,draft_native review not done,Korean game-specific query forms may differ
+29,Amharic,78,Ethiopia,Amharic,የቃላት ጨዋታ,የአመክንዮ እንቆቅልሽ,ያለ ኢንተርኔት ጨዋታ,የዕለት እንቆቅልሽ,draft_native review needed,Native spelling and transliteration variants need review
+30,Thai,71,Thailand,Thai,เกมคำศัพท์,เกมปริศนา,เกมออฟไลน์,ปริศนาประจำวัน,draft_native review not done,Thailand anchor

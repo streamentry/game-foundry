@@ -1,0 +1,20 @@
+market,locale,keyword,google_web_monthly_band,google_period,apple_popularity_1to100,organic_top10_audit,status,notes
+US,en-US,kakuro puzzle,1K-10K,2025-11 to 2026-10,,,pending,Measured Google Search only; not App Store demand
+US,en-US,kakuro,,,,,pending,Unmeasured alternative
+US,en-US,cross sums,,,,,pending,Check whether query is dominated by different game types
+US,en-US,number crossword,,,,,pending,Ambiguous cross-genre intent
+GB,en-GB,kakuro,1K-10K,2025-11 to 2026-10,,,pending,Measured Google Search only
+GB,en-GB,kakuro puzzle,,,,,pending,Unmeasured
+GB,en-GB,cross sums,,,,,pending,Unmeasured
+JP,ja-JP,カックロ,1K-10K,2025-11 to 2026-10,,,pending,Measured Google Search only
+JP,ja-JP,加算パズル,,,,,pending,Conceptis Japanese app title; popularity unknown
+JP,ja-JP,クロスサム,,,,,pending,Term used in Conceptis listing; popularity unknown
+JP,ja-JP,足し算クロス,,,,,pending,Term used in Conceptis listing; popularity unknown
+DE,de-DE,Kakuro,,,,,pending,Unmeasured
+DE,de-DE,Kreuzsummen,,,,,pending,Direct existing app title; popularity unknown
+DE,de-DE,Kreuzsummenrätsel,,,,,pending,Unmeasured
+FR,fr-FR,Kakuro,,,,,pending,Unmeasured
+FR,fr-FR,Sommes croisées,,,,,pending,Direct existing app title; popularity unknown
+FR,fr-FR,Nombres fléchés,,,,,pending,Check search intent ambiguity
+KR,ko-KR,카쿠로,,,,,pending,Native terminology and popularity unverified
+KR,ko-KR,크로스섬,,,,,pending,Native terminology and popularity unverified

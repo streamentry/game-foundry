@@ -2,14 +2,16 @@
 
 **Research-first, Godot-powered mobile games.** We don't mass-clone winners. We identify search intent that existing games serve poorly, ship distinctive experiences, and let organic market feedback decide what deserves investment.
 
-## Status — 2026-11-15
+## Status — 2026-11-21
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
+- **First gated game experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
 - **Production games:** 0. The included **Takuzu Lab** is a playable engineering reference, **not** a validated game opportunity or App Store release.
 - **Opportunity hypotheses:** 100 in [docs/ideas/candidates.csv](docs/ideas/candidates.csv). Search demand is **unmeasured** until imported from a primary source.
 - **Backend:** none; local-first is the default.
 - **Distribution:** iOS first, Android where economics justify it.
-- **Mobile export:** physical iOS/Android builds are not yet verified; see the [toolchain and SDK assessment](docs/mobile-validation.md).
+
+- **Mobile export:** physical iOS/Android builds remain unverified; see the [dated toolchain and SDK assessment](docs/mobile-validation.md). The reference currently has only a Web export preset.
 
 ## Get started
 
@@ -62,6 +64,12 @@ python3 tools/discover_ideas.py --snapshot .apple-results/genre-2026-10.json --o
 ```
 
 For specialist subgenres, consider `--mode contains --patterns puzzle,word,logic`, with careful attention to API **top-500-per-genre** coverage. See [the discovery playbook](docs/research/discovery-playbook.md).
+
+## Share a tested browser-playtest build
+
+The [Browser Playtest Build workflow](.github/workflows/web-preview.yml) exports Takuzu Lab to WebGL2 from pinned Godot 4.7.2 after running gameplay integrity tests. It uploads a downloadable artifact; **it does not publish a public website or App Store app**.
+
+See [the 5-player playtest protocol](docs/playtest.md). This is the shortest route from working code to observing whether people can play and enjoy it.
 
 ## Launch gate
 

@@ -8,9 +8,11 @@
 
 ## Current project
 
-Takuzu Lab is an engineering reference, not a release candidate. Its project file uses the Compatibility renderer, but has no native export presets, app identifiers, signing setup, persistence, or SDK plugins. No platform SDK should be added until a real game needs it.
+Takuzu Lab is an engineering reference, not a release candidate. It uses the Compatibility renderer and **already has local, versioned JSON progress save/resume** (`scripts/progress_store.gd`) plus a **Web Playtest export preset** (`export_presets.cfg`). It has **no iOS or Android export presets**, platform app identifiers, mobile signing setup, or SDK plugins yet. No platform SDK should be added until a real game needs it.
 
-## Local preflight
+The environment observations below reflect **one development-machine preflight on 2026-11-15**, not a fresh scan of today's devices or toolchain. Headless and CI evidence is not proof of native mobile readiness.
+
+## Historical local preflight (2026-11-15)
 
 | Item | Observation |
 | --- | --- |
@@ -74,7 +76,7 @@ Godot's editor settings must point to that SDK root and the local JDK 17 install
 
 Apple requires App Store privacy disclosures to include data practices of third-party SDK partners. Google Play also requires a Data safety disclosure. An MIT plugin license does not license the vendor SDKs or remove those disclosure duties; audit each bundled dependency separately.
 
-## Remaining acceptance work
+## Remaining acceptance work (not yet signed off)
 
 - [ ] Install Godot 4.7.2 and matching standard templates; capture the exact installed template version.
 - [ ] Export, sign, install, and launch on a physical iPhone; record iOS deployment target, Xcode project settings, and blockers.
