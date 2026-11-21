@@ -52,3 +52,14 @@ Ask **what they expected to happen**, not whether they like the colors. Watch fo
 Godot Web exports use WebAssembly and WebGL2; browsers without adequate graphics support may fail. Thread support is disabled to avoid cross-origin isolation headers, at a possible cost to performance. The local save uses Godot's `user://` storage mapped to browser storage and is **not guaranteed durable across incognito mode, cache clearing or storage eviction**. This is not a native iOS/Android distribution test.
 
 References: [Godot 4.7 Web export](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_web.html) · [Godot export automation](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_projects.html).
+
+
+## Good Eye: first global visual experiment
+
+Good Eye is a separate, original Godot project under `games/good-eye/`. Its [design](../games/good-eye/DESIGN.md), [run instructions](../games/good-eye/README.md) and [market test plan](research/global-45plus-top-three-games-2026-11-21.md) are independent from Takuzu Lab.
+
+- Trigger **GitHub Actions → Good Eye Web Playtest** via `workflow_dispatch` or a PR affecting `games/good-eye/`.
+- Download the `good-eye-web-playtest` artifact from a successful run, extract it and serve it over localhost with the same Python HTTP server command above.
+- When hosted as an actual HTTP(S) page, `?seed=12345` opens a reproducible practice silhouette. The Share button prepares a URL with the current seed where browser clipboard access permits. A localhost link does not recruit another person.
+- For initial research, compare first-play comprehension and optional replay with a direct 50/50 competitor using real phones. Do not label the artifact public, production-ready or clinically beneficial.
+- The GitHub workflow saves an artifact only. Do **not** assume a public challenge domain, App Store app, real-world referral metrics or physical-device accessibility checks exists.

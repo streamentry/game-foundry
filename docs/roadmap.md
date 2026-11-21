@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## First playable global visual experiment
+
+[Good Eye](../games/good-eye/README.md) is the first original, stand-alone game **prototype**, implementing the [ranked global playtest brief](research/global-45plus-top-three-games-2026-11-21.md). It tests geometry-based judgment with local practice and daily play. Building the prototype does not approve production or replace the conditional Kakuro search-led track. Run the comparative five-player screen, then the independently recruited 30-person observation only if warranted; log actual results before expanding features.
+
 ## Phase 1: vertical-slice proof
 - Reference Takuzu Lab demonstrates Godot scenes, pure rules and CI. **Not a market selection.**
 - Ship one original prototype on real iOS and Android test devices.

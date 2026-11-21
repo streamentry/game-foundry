@@ -198,3 +198,16 @@ Actual outcome & model update:
 **Continue / stop:** good early replay, return and referrals justify a larger independent cohort and a second market. Persistent control problems or boredom after one deliberate revision park the mechanic. Good retention without referrals requires acquisition work before expansion. Test subsequent mechanics sequentially and predeclare comparable engagement measures.
 
 **Actual outcome:** documentation completed; no target-player results, keyword measurements, new production projects or release claims are added by this decision.
+
+
+## 2026-11-21 — Implement Good Eye as an original first-play experiment
+
+**Decision:** At user direction, implement the first ranked global visual experiment, **Good Eye**, as a separate Godot 4.7.2/GDScript project under `games/good-eye/`. This is a player-research prototype, not a production greenlight, store release or override of the Kakuro ASO evidence gates.
+
+**What is implemented:** deterministic convex shapes; a draggable/rotatable line with large precision controls; two true clipped areas and complementary percentage/score feedback; freely retryable practice; five UTC daily first attempts locked locally; resume through a versioned on-device JSON save; seed-based web links when hosted; independent design brief; pure geometry/round-state tests, scene smoke tests and web-artifact CI. No SDK, backend, account or forced timer.
+
+**Why:** the fastest inspectable falsification of the proposal that adults 45+ will voluntarily make and repeat an understandable visual judgment. The pure geometric scoring prevents the biggest avoidable product error: scoring a silhouette by its bounding box.
+
+**Still unknown:** age-specific comprehension, comparative preference, physical-device controls, real referral activation, return, Android/iOS exports, ASO acquisition and willingness to pay. A successful software test cannot validate any of these.
+
+**Next real action:** play against an existing 50/50 competitor on actual target players' phones. Apply the predeclared [playtest gates](global-45plus-top-three-games-2026-11-21.md) before expanding content or beginning a new game. Keep the search-led Kakuro decision conditional.
