@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Three separate global visual prototypes (not three production approvals)
+
+[Good Eye](../games/good-eye/README.md), [Quiet Shot](../games/quiet-shot/README.md), and [One Path](../games/one-path/README.md) are independently runnable Godot projects with original small test sets. They test visual estimation, predicted reflections, and discrete Euler-trail planning respectively. They were built at the user's direction; no market, retention or competitor-preference gate has been passed. Do not build further catalog games merely because the engineering scaffolds work. Recruit target adults, compare direct alternatives and log actual behavior before choosing whether any deserves production.
+
 ## First playable global visual experiment
 
 [Good Eye](../games/good-eye/README.md) is the first original, stand-alone game **prototype**, implementing the [ranked global playtest brief](research/global-45plus-top-three-games-2026-11-21.md). It tests geometry-based judgment with local practice and daily play. Building the prototype does not approve production or replace the conditional Kakuro search-led track. Run the comparative five-player screen, then the independently recruited 30-person observation only if warranted; log actual results before expanding features.

@@ -193,3 +193,10 @@ Sources were checked on **2026-11-21**. Store descriptions are developer claims;
 | S9 | [One Line, Google Play](https://play.google.com/store/apps/details?id=com.owen.oneline) | Direct every-edge-once, untimed graph-puzzle competition. |
 
 Older marketplace assumptions should be rechecked before a spending or launch decision. None of these sources supplies an exact-query ASO opportunity, a representative competitor-quality comparison or a measured 45+ cohort for the proposed products.
+
+
+## Implementation status — 2026-11-21
+
+At user direction, **all three mechanic experiments now have source projects**: [Good Eye](../../games/good-eye/), [Quiet Shot](../../games/quiet-shot/), and [One Path](../../games/one-path/). The latter two have original eight-board test sets, deterministic rule engines, offline persistence, independent design notes, and separate verification/web-preview workflows.
+
+**This is engineering implementation, not behavioral validation.** In particular, it does not imply that 45+ users will prefer these games to direct competitors, return, invite others, or pay; nor does it establish a search-acquisition opportunity. Run sequential real-player comparisons and retain the stop rules above.

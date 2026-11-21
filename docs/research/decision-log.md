@@ -224,3 +224,16 @@ Actual outcome & model update:
 **Strongest objection:** mirrors may require too precise an angle or feel indistinguishable from established one-shot games. The current automated tolerance test checks only narrow perturbations and cannot replace actual phone usability testing.
 
 **Next real action:** observe 6–10 target players attempt a few original boards, note input-vs-reasoning failures, compare against an established competitor and apply the stop conditions in [the global visual experiment note](global-45plus-top-three-games-2026-11-21.md). Good Eye and the earlier conditional Kakuro search track remain unchanged.
+
+
+## 2026-11-21 — One Path original playtest prototype
+
+**Decision:** Implement the third global-visual hypothesis as an **independent** Godot 4.7.2 Euler-trail game. Eight original small graphs, including a deliberate drawing crossing that has no vertex, demonstrate route planning with large touch targets, drag/tap and letter-button alternatives.
+
+**Core rules:** every edge must be traversed exactly once; revisiting vertices is allowed; an actual node marks the only legal junction. The pure engine validates connected 0/2-odd Eulerian levels, rejects repeated edges, understands partial/dead-end paths, and accepts more than one valid completed trail where appropriate.
+
+**Scope:** game scenes and individual design spec, guided start markers, undo/restart, saved local progress with validation, simple browser level links when hosted, unit and scene tests and downloadable WebGL2 artifacts. No external backend, ad SDK, account or health claims.
+
+**Unverified:** target-audience comprehension, native device usability and screen-reader parity, present competitor gaps, organic acquisition, return and willingness to pay. Code validity does not establish differentiation.
+
+**Next real action:** comparative real-device playtests with 6–10 adults in appropriate age bands, including tap-versus-drag preference and confusion about crossings. Record failures and park if the rule remains unclear after one presentation revision. Do not infer a global hit from the existence of eight working levels.
