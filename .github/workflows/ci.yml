@@ -49,3 +49,11 @@ jobs:
         run: godot --headless --path games/takuzu-lab --script res://tests/test_progress.gd
       - name: Smoke test playable scene and player flows
         run: godot --headless --path games/takuzu-lab --script res://tests/test_scene.gd
+      - name: Import Good Eye scene in headless editor
+        run: godot --headless --path games/good-eye --editor --import --quit
+      - name: Verify Good Eye geometric clipping and deterministic shapes
+        run: godot --headless --path games/good-eye --script res://tests/test_geometry.gd
+      - name: Verify Good Eye local progress and daily first-attempt rules
+        run: godot --headless --path games/good-eye --script res://tests/test_state.gd
+      - name: Smoke test Good Eye scene and first play
+        run: godot --headless --path games/good-eye --script res://tests/test_scene.gd

@@ -6,6 +6,7 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **First playable new game:** [Good Eye](games/good-eye/) — an original, offline-first 50/50 shape-cutting playtest with accurate polygon-area scoring, practice, five UTC daily challenges, local progress, and deterministic challenge links. **Prototype only; not launched or market-validated.**
 - **Global visual playtest shortlist:** **1. Good Eye → 2. Quiet Shot → 3. One Path.** [Strategy and first three experiments](docs/research/global-45plus-top-three-games-2026-11-21.md) document the mechanics, direct competitors, proposed seven-day test and stop conditions. This is a separate exploratory ranking; acquisition, 45+ fit and economics are unvalidated, and the ASO production gate remains in force.
 - **Production games:** 0. The included **Takuzu Lab** is a playable engineering reference, **not** a validated game opportunity or App Store release.
 - **Opportunity hypotheses:** 100 in [docs/ideas/candidates.csv](docs/ideas/candidates.csv). Search demand is **unmeasured** until imported from a primary source.
@@ -40,6 +41,7 @@
 
 ```text
 games/takuzu-lab/          Playable Godot reference (independent project)
+games/good-eye/            First playable original visual-judgment experiment
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -65,6 +67,10 @@ python3 tools/discover_ideas.py --snapshot .apple-results/genre-2026-10.json --o
 ```
 
 For specialist subgenres, consider `--mode contains --patterns puzzle,word,logic`, with careful attention to API **top-500-per-genre** coverage. See [the discovery playbook](docs/research/discovery-playbook.md).
+
+## Play Good Eye locally
+
+Open `games/good-eye/project.godot` in Godot 4.7.2 and press **F5**, or run its [four local validation commands](games/good-eye/README.md). The separate [Good Eye Web Playtest](.github/workflows/good-eye-preview.yml) workflow can produce a **downloadable** WebGL2 build; it does not publish a public URL. Practice and daily modes are playable without an account or network connection.
 
 ## Share a tested browser-playtest build
 
