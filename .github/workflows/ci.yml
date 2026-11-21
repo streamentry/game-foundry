@@ -65,3 +65,11 @@ jobs:
         run: godot --headless --path games/quiet-shot --script res://tests/test_progress.gd
       - name: Smoke test Quiet Shot scene, fire, retry and advance
         run: godot --headless --path games/quiet-shot --script res://tests/test_scene.gd
+      - name: Import One Path independently
+        run: godot --headless --path games/one-path --editor --import --quit
+      - name: Validate One Path graph theory and eight original puzzle routes
+        run: godot --headless --path games/one-path --script res://tests/test_rules.gd
+      - name: Verify One Path save, resume and guarded progression
+        run: godot --headless --path games/one-path --script res://tests/test_progress.gd
+      - name: Smoke test One Path board, letter controls, undo and advance
+        run: godot --headless --path games/one-path --script res://tests/test_scene.gd
