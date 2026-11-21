@@ -11,6 +11,8 @@
 - **Backend:** none; local-first is the default.
 - **Distribution:** iOS first, Android where economics justify it.
 
+- **Mobile export:** physical iOS/Android builds remain unverified; see the [dated toolchain and SDK assessment](docs/mobile-validation.md). The reference currently has only a Web export preset.
+
 ## Get started
 
 1. Install [Godot 4.7.2](https://godotengine.org/download/archive/) (standard, non-.NET).
