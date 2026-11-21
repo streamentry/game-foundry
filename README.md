@@ -6,6 +6,7 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Second visual playtest:** [Quiet Shot](games/quiet-shot/) — eight original ricochet boards, deterministic ray–mirror physics, large aim controls, offline progress and a verified browser export. **Playtest only, not market validated.**
 - **First playable new game:** [Good Eye](games/good-eye/) — an original, offline-first 50/50 shape-cutting playtest with accurate polygon-area scoring, practice, five UTC daily challenges, local progress, and deterministic challenge links. **Prototype only; not launched or market-validated.**
 - **Global visual playtest shortlist:** **1. Good Eye → 2. Quiet Shot → 3. One Path.** [Strategy and first three experiments](docs/research/global-45plus-top-three-games-2026-11-21.md) document the mechanics, direct competitors, proposed seven-day test and stop conditions. This is a separate exploratory ranking; acquisition, 45+ fit and economics are unvalidated, and the ASO production gate remains in force.
 - **Production games:** 0. The included **Takuzu Lab** is a playable engineering reference, **not** a validated game opportunity or App Store release.
@@ -42,6 +43,7 @@
 ```text
 games/takuzu-lab/          Playable Godot reference (independent project)
 games/good-eye/            First playable original visual-judgment experiment
+games/quiet-shot/          Second visual-planning experiment (one planned shot)
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -71,6 +73,10 @@ For specialist subgenres, consider `--mode contains --patterns puzzle,word,logic
 ## Play Good Eye locally
 
 Open `games/good-eye/project.godot` in Godot 4.7.2 and press **F5**, or run its [four local validation commands](games/good-eye/README.md). The separate [Good Eye Web Playtest](.github/workflows/good-eye-preview.yml) workflow can produce a **downloadable** WebGL2 build; it does not publish a public URL. Practice and daily modes are playable without an account or network connection.
+
+## Play Quiet Shot locally
+
+Open `games/quiet-shot/project.godot` in Godot 4.7.2 and press **F5**. Its [game README](games/quiet-shot/README.md) describes validation and the independent [Quiet Shot browser export workflow](.github/workflows/quiet-shot-preview.yml). A GitHub Actions artifact does not publish a playable public website.
 
 ## Share a tested browser-playtest build
 
