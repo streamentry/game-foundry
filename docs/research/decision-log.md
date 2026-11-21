@@ -211,3 +211,16 @@ Actual outcome & model update:
 **Still unknown:** age-specific comprehension, comparative preference, physical-device controls, real referral activation, return, Android/iOS exports, ASO acquisition and willingness to pay. A successful software test cannot validate any of these.
 
 **Next real action:** play against an existing 50/50 competitor on actual target players' phones. Apply the predeclared [playtest gates](global-45plus-top-three-games-2026-11-21.md) before expanding content or beginning a new game. Keep the search-led Kakuro decision conditional.
+
+
+## 2026-11-21 — Quiet Shot original playtest prototype
+
+**Decision:** Implement the second visual-mechanic hypothesis as an independent Godot 4.7.2/GDScript prototype. The player's decision is a single aim; fixed mirrors reflect the ball, round targets clear on contact, and failed shots show exactly where the ray traveled.
+
+**Evidence standard:** eight authored arrangements with targets placed along known physical trajectories are verified by deterministic tests. This verifies rule correctness and baseline solvability, *not* a commercially appealing difficulty progression. No App Store demand, 45+ retention, preferences against Okay?, or referral activation has been measured.
+
+**Engineering scope:** correct ray/segment intersections, two-dimensional reflection, target-circle entry, a four-reflection budget, trace drawing, angle adjustments, repeatable retries, progression, local JSON save/recovery, deep-linked challenge level, independent design brief, smoke tests and downloadable web artifact. No backend, ads, analytics SDK or native-signed builds.
+
+**Strongest objection:** mirrors may require too precise an angle or feel indistinguishable from established one-shot games. The current automated tolerance test checks only narrow perturbations and cannot replace actual phone usability testing.
+
+**Next real action:** observe 6–10 target players attempt a few original boards, note input-vs-reasoning failures, compare against an established competitor and apply the stop conditions in [the global visual experiment note](global-45plus-top-three-games-2026-11-21.md). Good Eye and the earlier conditional Kakuro search track remain unchanged.

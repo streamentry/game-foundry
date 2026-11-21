@@ -57,3 +57,11 @@ jobs:
         run: godot --headless --path games/good-eye --script res://tests/test_state.gd
       - name: Smoke test Good Eye scene and first play
         run: godot --headless --path games/good-eye --script res://tests/test_scene.gd
+      - name: Import Quiet Shot independently
+        run: godot --headless --path games/quiet-shot --editor --import --quit
+      - name: Validate Quiet Shot physical trajectories and authored boards
+        run: godot --headless --path games/quiet-shot --script res://tests/test_ray.gd
+      - name: Verify Quiet Shot progression and save recovery
+        run: godot --headless --path games/quiet-shot --script res://tests/test_progress.gd
+      - name: Smoke test Quiet Shot scene, fire, retry and advance
+        run: godot --headless --path games/quiet-shot --script res://tests/test_scene.gd
