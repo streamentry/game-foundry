@@ -304,6 +304,15 @@ namespace Evergrove.UnityClient
                     diorama = stage.AddComponent<VillageDiorama>();
                 }
                 renderedMiniature = diorama.Show(VillageScenePlan.From(world), animateMiniature);
+                if (!renderedMiniature)
+                {
+                    // No missing graphics feature should block the offline game.
+                    // Fall back honestly, including the visible preference label.
+                    showMiniature = false;
+                    PlayerPrefs.SetInt("evergrove:visual-miniature", 0);
+                    PlayerPrefs.Save();
+                    Debug.LogWarning("Miniature renderer unavailable; keeping the 2D garden.");
+                }
                 if (renderedMiniature)
                 {
                     var raw = illustration.AddComponent<RawImage>();
