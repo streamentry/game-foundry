@@ -245,7 +245,7 @@ namespace Evergrove.Core
         public bool NextPuzzle()
         {
             if (Mode != PlayMode.PuzzleOnly || Completed || !Solved ||
-                !PipeRules.IsComplete(PuzzleCatalog.Get(Round), state.rotations)) return false;
+                !PipeRules.IsComplete(CurrentPuzzle, state.rotations)) return false;
             Advance();
             return true;
         }
