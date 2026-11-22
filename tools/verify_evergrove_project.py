@@ -31,8 +31,15 @@ study = (game / "Assets" / "Scripts" / "Core" / "LocalPlaytest.cs").read_text().
 for forbidden in ("httprequest", "deviceuniqueidentifier", "unityanalytics", "webrequest"):
     assert forbidden not in study, forbidden
 editor = (game / "Assets" / "Editor" / "EvergroveBuild.cs").read_text()
-for required in ("public static void Build()", "BuildPipeline.BuildPlayer", "BuildTarget.Android", "BuildTarget.WebGL", "BuildTarget.iOS"):
+for required in ("public static void Build()", "BuildPipeline.BuildPlayer", "BuildTarget.Android", "BuildTarget.WebGL", "BuildTarget.iOS", "EvergroveSceneSetup.ValidateImportedProject()"):
     assert required in editor, required
+editor_smoke = (game / "Assets/Editor/EvergroveSceneSetup.cs").read_text()
+for required in (
+    "Application.unityVersion", "JsonUtility.ToJson", "JsonUtility.FromJson",
+    "Resources.Load<TextAsset>", "GameLocalization.Register",
+    "EVERGROVE_UNITY_IMPORT_CHECK_OK", "ValidateImportedProject()",
+):
+    assert required in editor_smoke, "Unity import smoke lost a validation: " + required
 workflow = (root / ".github" / "workflows" / "evergrove-unity-playtest.yml").read_text()
 for required in ("workflow_dispatch:", "game-ci/unity-builder@v4", "buildMethod: Evergrove.UnityClient.Editor.EvergroveBuild.Build", "secrets.UNITY_LICENSE", "secrets.UNITY_SERIAL"):
     assert required in workflow, required

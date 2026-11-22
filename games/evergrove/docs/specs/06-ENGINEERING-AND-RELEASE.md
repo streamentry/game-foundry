@@ -17,6 +17,7 @@
 | Language selection and fonts | [LocaleRuntime.cs](../../Assets/Scripts/Unity/LocaleRuntime.cs), [LOCALIZATION.md](../../LOCALIZATION.md) | Locale changes cannot alter world; current shaping is not certified |
 | Consent-first local study counters | [LocalPlaytest.cs](../../Assets/Scripts/Core/LocalPlaytest.cs) | In memory, no identifiers or automatic upload |
 | Domain regression | [Tests/Program.cs](../../Tests/Program.cs) | Pure-C# correctness; **not** Unity/device coverage |
+| Licensed Unity import/serialization smoke | [EvergroveSceneSetup.cs](../../Assets/Editor/EvergroveSceneSetup.cs) | Exact Editor version, real Unity JsonUtility snapshot round trips, all 29 imported locale TextAssets and puzzle invariants; **not** device/UI coverage |
 
 **Architecture rule:** domain model is authoritative. Renderer, language, haptic/sound, test mode and future store entitlement must not rewrite ecology choices or solution history. No backend dependency for core play. Optional Cloudflare preview is not connected to game state.
 

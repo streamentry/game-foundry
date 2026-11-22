@@ -20,7 +20,7 @@ The automated Unity build method creates the otherwise empty bootstrap scene. **
 
 When GameCI **actually succeeds**, the workflow runs `tools/evergrove_build_provenance.py` and uploads `evergrove-build-provenance.json` alongside the APK/WebGL/Xcode output. The manifest lists source commit, run URL, **requested** editor version, relative paths and SHA256 of every exported file plus a stable content-tree hash. Verify actual editor version in GameCI logs and actual device behavior separately; the provenance file does **not** certify `BLD-004/005/006` or `M2`.
 
-The Unity 6.3 uGUI core package pin was corrected from `2.6.0` (Unity 6.6 core line) to `2.0.0`, with a static CI gate. This repairs a source-level package compatibility risk, **not** a proven successful Editor import.
+The Unity 6.3 uGUI core package pin was corrected from `2.6.0` (Unity 6.6 core line) to `2.0.0`, with a static CI gate. **The shared Unity Editor/build smoke now also requires the exact editor version and checks actual Unity JsonUtility v4 round trips (including branch + hint), all 12 puzzles, and import/registration of 29 locale TextAssets.** This strengthens a *future* real Unity run; no licensed Editor import has yet been executed here.
 
 ## Manual first-play acceptance checklist
 

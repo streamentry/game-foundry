@@ -27,7 +27,7 @@ UNITY_BIN="/Applications/Unity/Hub/Editor/6000.3.0f1/Unity.app/Contents/MacOS/Un
   -logFile "$PWD/evergrove-unity-smoke.log"
 ```
 
-- [ ] Confirm installed Editor version, package resolution and **zero compiler errors** in the complete log; verify scene creation and 12-puzzle smoke message. Record the exact command, shell exit status and log checksum.
+- [ ] Confirm installed Editor version, package resolution and **zero compiler errors** in the complete log; verify scene creation and 12-puzzle smoke marker **plus `EVERGROVE_UNITY_IMPORT_CHECK_OK`**, actual `JsonUtility` v4 snapshot round trips, all 29 `Resources` locale imports, and 12-puzzle invariants. Record exact command, shell exit status and log checksum. The same checks must run before a Unity export.
 - [ ] In the graphical Editor, open the created scene, press Play, and verify at least one real interaction. Batchmode method alone verifies bootstrap/domain integration, **not** rendering, focus, native input or 12-chapter gameplay.
 - [ ] Keep generated logs, scene outputs and credentials out of unrelated source commits. If the Editor generates new project files, review and explicitly classify them rather than silently staging everything.
 
