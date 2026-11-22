@@ -164,7 +164,7 @@
     },
     {
       "id": "EG-008",
-      "title": "Crash-safe offline saves",
+      "title": "Recoverable saves under interruption and corruption",
       "owner_role": "Unity/Release Engineer",
       "decision_gate": "M2",
       "status": "Implemented-Unverified",
