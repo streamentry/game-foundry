@@ -14,6 +14,12 @@ Once credentials are configured, visit **Actions → Build Evergrove Unity Playt
 
 The automated Unity build method creates the otherwise empty bootstrap scene. **No manually authored scene asset is needed in the repository.** Runtime UI is constructed in code. This is a conscious temporary workflow; final studio-quality work should be imported into proper scenes, prefabs and assets after player validation.
 
+## Traceable output (after a licensed build)
+
+When GameCI **actually succeeds**, the workflow runs `tools/evergrove_build_provenance.py` and uploads `evergrove-build-provenance.json` alongside the APK/WebGL/Xcode output. The manifest lists source commit, run URL, **requested** editor version, relative paths and SHA256 of every exported file plus a stable content-tree hash. Verify actual editor version in GameCI logs and actual device behavior separately; the provenance file does **not** certify `BLD-004/005/006` or `M2`.
+
+The Unity 6.3 uGUI core package pin was corrected from `2.6.0` (Unity 6.6 core line) to `2.0.0`, with a static CI gate. This repairs a source-level package compatibility risk, **not** a proven successful Editor import.
+
 ## Manual first-play acceptance checklist
 
 - [ ] Opens on a compact Android phone and at least one iPhone in the Unity Editor / local Xcode workflow.

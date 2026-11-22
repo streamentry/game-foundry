@@ -50,6 +50,18 @@ jobs:
           buildMethod: Evergrove.UnityClient.Editor.EvergroveBuild.Build
           buildsPath: build
           versioning: None
+      - name: Generate SHA256 provenance from actual Unity export (not device QA)
+        shell: bash
+        env:
+          EVERGROVE_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          python3 tools/evergrove_build_provenance.py \
+            --platform "$EVERGROVE_PLATFORM" \
+            --directory "build/$EVERGROVE_PLATFORM" \
+            --source-sha "$GITHUB_SHA" \
+            --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          sha256sum "build/$EVERGROVE_PLATFORM/evergrove-build-provenance.json"
       - name: Upload PRIVATE preview artifact (not App Store/Play Store)
         uses: actions/upload-artifact@v4
         with:

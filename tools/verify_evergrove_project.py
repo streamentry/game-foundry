@@ -37,6 +37,10 @@ workflow = (root / ".github" / "workflows" / "evergrove-unity-playtest.yml").rea
 for required in ("workflow_dispatch:", "game-ci/unity-builder@v4", "buildMethod: Evergrove.UnityClient.Editor.EvergroveBuild.Build", "secrets.UNITY_LICENSE", "secrets.UNITY_SERIAL"):
     assert required in workflow, required
 assert "buildsPath: build" in workflow
+assert "tools/evergrove_build_provenance.py" in workflow, (
+    "Successful licensed Unity build must upload hashed export provenance"
+)
+assert "sha256sum" in workflow, "Upload workflow must hash the generated evidence manifest"
 print("Evergrove manifest, rendering, consent and manual Unity build contracts: OK (static only)")
 
 # A separate `dotnet run` test exercises the C# translation registry at

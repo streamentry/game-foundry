@@ -80,6 +80,10 @@ No placeholder in this template is evidence. Only a real record tied to the sour
 
 **Pure C# metadata guard:** `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release -- --check-puzzle-catalog` must reproduce all 45 authored/choice-conditioned profiles from deterministic code. This proves catalog/source parity, **not experienced difficulty**.
 
+## M1 build provenance — exact new deliverable
+
+On a licensed GameCI run, `tools/evergrove_build_provenance.py` must verify platform-specific nonempty output, hash each exported file, and create a machine-readable manifest shipped **inside the private artifact**. Its `source_commit_sha` is not the binary's SHA256; `payload_tree_sha256` is a content-tree digest, not the GitHub artifact ZIP checksum. Use the workflow run logs to confirm the actual editor version and `BuildResult.Succeeded`. Synthetic script tests are run in normal CI, but **BLD-001/002/003 remain unverified** without real licensed export and reviewer evidence. See [release packet](11-EVIDENCE-AND-RELEASE-PACKETS.md).
+
 ## Save integrity (EG-008)
 
 Current `WorldStore` writes `evergrove-world-v2.json` (filename is v2; **snapshot schema is v4**), validates JSON via `WorldModel.TryRestore`, writes a temporary file, attempts replacement with backup and has a copy-based fallback. It can recover a previous valid backup and migrate old PlayerPrefs v1 data. **This is an implemented strategy, not a verified atomic guarantee on every mobile filesystem.**
