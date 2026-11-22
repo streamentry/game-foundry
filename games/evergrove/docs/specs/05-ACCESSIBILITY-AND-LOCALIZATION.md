@@ -42,6 +42,31 @@ The current UI uses **legacy Unity uGUI Text** and best-effort OS fonts. Right a
 
 Reference: [Unity Advanced Text Generator](https://docs.unity.com/en-us/engine/6000.0/manual/uitoolkits/uielements/uie-work-with-text/uie-advanced-text-generator) and [language direction](https://docs.unity.com/en-us/engine/6000.3/manual/uitoolkits/uielements/uie-work-with-text/language-direction). Do not distribute system fonts or assume OS availability.
 
+## Test every platform and script family — not just catalog completeness
+
+The 44×44 **points** iOS and 48×48 **density-independent pixels** Android guidelines are independent physical/UX checks, not interchangeable numeric units. Inspect actual UI hit rectangles rather than artwork bounds. System-wide text scaling **does not automatically enlarge Unity legacy uGUI Text**; an in-game text-size implementation is required before claiming it.
+
+| Test viewport | Default and largest in-game text | High contrast / grayscale | Reduced motion | Screen reader | Script certification |
+| --- | --- | --- | --- | --- | --- |
+| Compact physical iPhone | Pending | Pending | Pending | VoiceOver pending | Each enabled locale pending |
+| Large iPhone | Pending | Pending | Pending | VoiceOver pending | Each enabled locale pending |
+| Compact physical Android | Pending | Pending | Pending | TalkBack pending | Each enabled locale pending |
+| Larger Android / tablet layout | Pending | Pending | Pending | TalkBack pending | Each enabled locale pending |
+
+**Pending** means no test evidence, not a known failure. Core device tests use `A11Y-001..005` and `LOC-002`. A screen reader cannot be certified merely because Unity `GameObject.name` contains coordinates; a semantic accessibility adapter needs an architecture spike (`EG-113`).
+
+### Locale state machine
+
+`Draft → Technical QA → Native QA → Store QA → Certified` (also `Rejected / Deferred`). Production builds must expose **only Certified locales**, not all 30 draft entries. A certified record needs reviewer identity outside public participant data, date, exact source/build hash, screenshot set, placeholders, glyph coverage, bidi/Indic shaping, line breaks, compact-layout and store-copy approval. Initially **no locale has such a record**.
+
+Current first-stream markers in the code branch have been changed from text `S/G` to **blue waves (spring) and green sprout (garden)**; the first-stream copy has been updated in all 30 draft languages. This resolves Latin-letter dependence **in source only**. The art's contrast, recognizability and screen-reader equivalents still require device QA (`PUZ-007`, `A11Y-002`).
+
+`pt-PT` → `pt-BR` is a **regional fallback**, not native European Portuguese. A Portugal launch must explicitly approve that fallback with a qualified reviewer, add a separate `pt-PT` catalog, or avoid claiming regional Portuguese support (`LOC-004`). Never silently equate catalog completeness with regional appropriateness.
+
+### Complex text architecture decision
+
+The current app still uses generated uGUI Text controls and best-effort OS fonts. **Correct direction/alignment alone is not shaping.** Evaluate Unity UI Toolkit Advanced Text Generator or a tested equivalent in an architecture spike: record shaping screenshot tests, fallback font licensing, binary/memory costs and screen-reader interaction. Native review follows technical shape/readability review. Until then, Arabic, Persian, Urdu, Hebrew and Indic scripts are **unverified release blockers if enabled**.
+
 ## Launch locale certification, not catalog count (EG-010)
 
 A locale is **enabled for production** only after:
