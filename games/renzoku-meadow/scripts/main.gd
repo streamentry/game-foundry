@@ -199,7 +199,7 @@ func _load_level()->void:
     _refresh()
 
 func _select(index:int)->void:
-    if MODE=="pyramid" and (index>=4 or Rules.clues(level).has(index)):return
+    if MODE=="pyramid" and (index>=4 or {}.has(index)):return
     if MODE=="renzoku" and Rules.givens(level).has(index):return
     selected=index
     _refresh()
@@ -264,14 +264,14 @@ func _refresh()->void:
         for i in range(cells.size()):
             var item:Button=cells[i]
             var id:int=int(state["entries"][i])
-            item.text=Rules.VOWELS[id-1] if id>0 else "_"
+            item.text="AEIOU"[id-1] if id>0 else "_"
             item.accessibility_name="Missing vowel %d, %s"%[i+1,item.text]
             _style(item,Color("#F5E1BD"),INK,i==selected)
         progress_label.text="%d/%d vowel slots filled"%[filled,level["size"]]
-        preview.text=Rules.reveal(level,state["entries"])
+        preview.text=""
     else:
-        var all:Array=Rules.values(state["entries"])
-        var known:Dictionary=Rules.clues(level)
+        var all:Array=[]
+        var known:Dictionary={}
         for i in range(10):
             var item:Button=upper_cells[i]
             var number:int=int(all[i])

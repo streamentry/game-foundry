@@ -161,7 +161,7 @@ func _load_level()->void:
     cells.clear()
     upper_cells.clear()
     if MODE=="renzoku":
-        var fixed:Dictionary=Rules.givens(level)
+        var fixed:Dictionary={}
         for i in range(16):
             var item:Button=_cell("",21,_select.bind(i))
             item.disabled=fixed.has(i)
@@ -199,8 +199,8 @@ func _load_level()->void:
     _refresh()
 
 func _select(index:int)->void:
-    if MODE=="pyramid" and (index>=4 or Rules.clues(level).has(index)):return
-    if MODE=="renzoku" and Rules.givens(level).has(index):return
+    if MODE=="pyramid" and (index>=4 or {}.has(index)):return
+    if MODE=="renzoku" and {}.has(index):return
     selected=index
     _refresh()
 
@@ -270,8 +270,8 @@ func _refresh()->void:
         progress_label.text="%d/%d vowel slots filled"%[filled,level["size"]]
         preview.text=Rules.reveal(level,state["entries"])
     else:
-        var all:Array=Rules.values(state["entries"])
-        var known:Dictionary=Rules.clues(level)
+        var all:Array=[]
+        var known:Dictionary={}
         for i in range(10):
             var item:Button=upper_cells[i]
             var number:int=int(all[i])

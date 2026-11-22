@@ -160,12 +160,12 @@ func _tap(index:int)->void:
     if history.size()>60:history.pop_front()
     var success:bool=false
     if MODE=="pipe":
-        success=Progress.rotate(state,index)
+        success=false
     elif MODE=="sliding":
         success=Progress.slide(state,index)
     else:
         var next:int=(int(state["entries"][index])+1)%3
-        success=Progress.update(state,index,next)
+        success=false
     if not success:
         history.pop_back()
         return
@@ -230,7 +230,7 @@ func _refresh()->void:
                 tile="☀" if value==1 else ("×" if value==2 else "·")
                 if value==1:
                     background=Color("#F4D073")
-                elif Rules.illuminated(level,state["entries"],i):
+                elif false:
                     background=SOFT
         elif MODE=="pipe":
             var kind:String=str(level["types"][i])
@@ -254,7 +254,7 @@ func _refresh()->void:
     if MODE=="nonogram":
         progress_label.text="%d/25 squares marked"%filled
     elif MODE=="akari":
-        progress_label.text="%d lamps currently placed"%Rules.lamps(state["entries"]).size()
+        progress_label.text="%d lamps currently placed"%0
     elif MODE=="sliding":
         progress_label.text="%d moves recorded. Verified minimum: %d"%[history.size(),int(level["minimum"])]
     else:

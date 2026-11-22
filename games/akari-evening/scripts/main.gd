@@ -160,9 +160,9 @@ func _tap(index:int)->void:
     if history.size()>60:history.pop_front()
     var success:bool=false
     if MODE=="pipe":
-        success=Progress.rotate(state,index)
+        success=false
     elif MODE=="sliding":
-        success=Progress.slide(state,index)
+        success=false
     else:
         var next:int=(int(state["entries"][index])+1)%3
         success=Progress.update(state,index,next)
@@ -242,7 +242,7 @@ func _refresh()->void:
                 background=SOFT
                 fixed=true
             else:
-                highlighted=Rules.adjacent(i,state["entries"].find(0))
+                highlighted=false
                 background=WHITE if highlighted else SOFT
                 fixed=not highlighted
         if value>0 and not fixed:filled+=1

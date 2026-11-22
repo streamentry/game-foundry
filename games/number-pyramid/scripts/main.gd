@@ -161,7 +161,7 @@ func _load_level()->void:
     cells.clear()
     upper_cells.clear()
     if MODE=="renzoku":
-        var fixed:Dictionary=Rules.givens(level)
+        var fixed:Dictionary={}
         for i in range(16):
             var item:Button=_cell("",21,_select.bind(i))
             item.disabled=fixed.has(i)
@@ -200,7 +200,7 @@ func _load_level()->void:
 
 func _select(index:int)->void:
     if MODE=="pyramid" and (index>=4 or Rules.clues(level).has(index)):return
-    if MODE=="renzoku" and Rules.givens(level).has(index):return
+    if MODE=="renzoku" and {}.has(index):return
     selected=index
     _refresh()
 
@@ -264,11 +264,11 @@ func _refresh()->void:
         for i in range(cells.size()):
             var item:Button=cells[i]
             var id:int=int(state["entries"][i])
-            item.text=Rules.VOWELS[id-1] if id>0 else "_"
+            item.text="AEIOU"[id-1] if id>0 else "_"
             item.accessibility_name="Missing vowel %d, %s"%[i+1,item.text]
             _style(item,Color("#F5E1BD"),INK,i==selected)
         progress_label.text="%d/%d vowel slots filled"%[filled,level["size"]]
-        preview.text=Rules.reveal(level,state["entries"])
+        preview.text=""
     else:
         var all:Array=Rules.values(state["entries"])
         var known:Dictionary=Rules.clues(level)
