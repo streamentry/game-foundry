@@ -46,6 +46,7 @@ This is an **implementation map**, not a guarantee everything is visible without
 
 ### Interaction states
 
+- **Leak visibility:** unmatched/out-of-bounds water ports also show a per-tile **!** marker, supplementing shape, color and global leak feedback. Phone grayscale/readability test is still open.
 - **Rotatable tile:** tap turns it clockwise by its allowed orientation cycle.
 - **Protected landscape tile:** after chapter one, one non-endpoint tile is fixed, amber/marked and non-interactable. The explanation references roots/foundation/sanctuary.
 - **Solved board:** current water path is complete, no leaks; further rotate is blocked, undo may reopen a previous move.

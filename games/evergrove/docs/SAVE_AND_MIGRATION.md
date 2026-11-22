@@ -1,12 +1,12 @@
 # Evergrove — save contract, corruption handling and historical compatibility
 
-**Source of truth:** [WorldModel.cs](../Assets/Scripts/Core/WorldModel.cs) and [WorldStore.cs](../Assets/Scripts/Unity/WorldStore.cs). **Current snapshot schema: v3**. Filename `evergrove-world-v2.json` intentionally persists for compatibility.
+**Source of truth:** [WorldModel.cs](../Assets/Scripts/Core/WorldModel.cs) and [WorldStore.cs](../Assets/Scripts/Unity/WorldStore.cs). **Current snapshot schema: v4**. Filename `evergrove-world-v2.json` intentionally persists for compatibility.
 
 ## 1. What is saved
 
 ```json
 {
-  "version": 3,
+  "version": 4,
   "mode": "living",
   "round": 1,
   "solved": false,
@@ -15,7 +15,9 @@
   "choices": [0],
   "hintsUsed": 0,
   "boardVariant": 1,
-  "lastSolvedVariant": 0
+  "lastSolvedVariant": 0,
+  "hintStep": 0,
+  "hintTile": -1
 }
 ```
 
@@ -30,7 +32,9 @@
 | `rotations` | Current puzzle orientation per tile | Length = current board cells (9/16), range and anchor valid; empty at completion |
 | `previous` | One-step undo board snapshot | Empty or same valid grid size; empty at completion |
 | `choices` | Ordered `ShadeTree=0, Bridge=1, Flowers=2` | Living: one choice per advanced chapter, length = round; PuzzleOnly: empty |
-| `hintsUsed` | Total guide actions | Nonnegative and limited by loader sanity bound |
+| `hintsUsed` | Number of actual helped tile corrections | First two clue stages do not increment it; nonnegative and bounded |
+| `hintStep` | 0 idle; 1 row notice; 2 tile focus | Both preview stages preserve tile rotations and are saved |
+| `hintTile` | Target tile index, -1 at idle | Must be currently wrong and not anchored whenever stage is 1 or 2 |
 | `boardVariant` | Active puzzle geometry from prior choice | 0 base/legacy; 1 tree; 2 bridge; 3 flowers; 0 on first and completed chapter |
 | `lastSolvedVariant` | Variant of previous completed board | Restores exact board on `ReconsiderLatestChoice` |
 
@@ -60,16 +64,21 @@ PuzzleOnly advances after a win without a choice and always uses `boardVariant=0
 | --- | --- | --- |
 | v1 six-chapter PlayerPrefs prototype | Imports from `evergrove:unity:world:v1` if no valid JSON primary or backup; finished chapter 6 becomes the new 4×4 chapter 7, preserving six choices | Legacy key deleted only when new file saved successfully |
 | v2 twelve-chapter local JSON | Reads active board **unchanged** as variant 0; after next committed Living choice, subsequent board uses new branch variant | No retroactive rotation of an in-progress puzzle |
-| v3 current local JSON | Reads current `boardVariant`, previous variant, choices and active grid | Reject invalid orientation, nonexistent chapter, incompatible variant/history |
+| v3 historical JSON | Active ecological board is preserved exactly, with staged hint reset to idle | No retroactive reorientation |
+| v4 current JSON | Persists current board, last choice, hint stage and target | Reject inconsistent, anchored or already-solved hint targets |
 | Unknown/faulty data | Primary then `.bak` fallback; if both invalid and no valid legacy save, starts a new world | **Potential lost-progress experience**; must surface and test device recovery before release |
 
-The save file lives under `Application.persistentDataPath/evergrove-world-v2.json`. `.bak` contains a previous save, and `.tmp` is the transient write file. The versioned content in the file is **v3**; renaming the file to `v3` without a migration route would orphan existing progress.
+The save file lives under `Application.persistentDataPath/evergrove-world-v2.json`. `.bak` contains a previous save, and `.tmp` is the transient write file. The versioned content in the file is **v4**; renaming the file to `v4` without a migration route would orphan existing progress.
 
-## 4. Write, recovery and failure sequence
+## 4. Progressive hint durability and visible save failures
+
+`WorldModel.AdvanceGentleHint()` persists `hintStep` and `hintTile` in schema v4. Step 1 identifies a row; step 2 focuses an unanchored, incorrect tile; step 3 aligns that tile, increases `hintsUsed` and resets the staged hint. Player rotation, Undo, Restart and chapter advancement clear the hint. Migrating v1/v2/v3 retains the active board and resets staged help to idle. The Unity UI now shows a localized warning when `WorldStore.Save` returns false; this does **not** make all device writes crash-atomic or guarantee recovery.
+
+## 5. Write, recovery and failure sequence
 
 ```mermaid
 flowchart TD
-  X["Action changes WorldModel"] --> E["Export v3 snapshot"]
+  X["Action changes WorldModel"] --> E["Export v4 snapshot"]
   E --> V{"JsonUtility round-trip passes TryRestore?"}
   V -->|No| F["Save returns false; warning only"]
   V -->|Yes| T["Write .tmp"]
@@ -116,7 +125,7 @@ Manual fault-injection matrix:
 2. Keep explicit migration cases for every shipped historical version, including an old *partially solved* board.
 3. Generate a unique test for new puzzle variants before persisting them.
 4. Add round-trip, corruption, undo, reconsider, backup and power-loss regression tests; inspect platform storage behavior.
-5. Document forward/backward compatibility of game upgrades and rollback; older binaries may **not** recognize v3 saves.
+5. Document forward/backward compatibility of game upgrades and rollback; older binaries may **not** recognize v4 saves.
 6. Never silently turn an old garden into a new topology merely because the code became more expressive.
 
 ## 7. Settings vs progress

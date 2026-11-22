@@ -18,7 +18,7 @@
 | [Product brief and positioning](PRODUCT.md) | Audience, promise, differentiation, non-goals, commercial assumptions | Founder, producer, marketing |
 | [Gameplay and world rules](GAMEPLAY_AND_WORLD_RULES.md) | Exact puzzle math, branching, consequences, limits, state transitions | Game design, gameplay programmer, QA |
 | [Architecture and source map](ARCHITECTURE.md) | Components, rendering, localization, optional backend, trust boundaries | Engineers, AI agents |
-| [Save state and migration](SAVE_AND_MIGRATION.md) | v1 → v2 → v3, invariants, backup, restore, failures | Client engineer, QA |
+| [Save state and migration](SAVE_AND_MIGRATION.md) | v1 → v2 → v3 → v4, invariants, backup, restore, failures | Client engineer, QA |
 | [Player experience and content](PLAYER_EXPERIENCE.md) | First-use, screens, inclusive interaction, narrative and 30-locale status | Design, writing, accessibility |
 | [Validation and distribution](VALIDATION.md) | Experiments, metrics, confounds, falsification, ASO/distribution | Founder, product research |
 | [Build and QA runbook](BUILD_AND_QA.md) | Commands, exact acceptance checks, release gates, rollback | Engineers, QA, release |
@@ -62,7 +62,7 @@ To get a real player: open `games/evergrove` in Unity Hub with the version in `P
 
 ## Automated documentation integrity
 
-`python3 tools/check_evergrove_docs.py` runs in repository CI and checks all canonical handbook files, relative links, Markdown code fences, and current 12-puzzle / v3-save / 30-language / 76-key source contracts. These checks **do not validate product claims or native device behavior**; they only prevent simple drift and broken handoffs.
+`python3 tools/check_evergrove_docs.py` runs in repository CI and checks all canonical handbook files, relative links, Markdown code fences, and current 12-puzzle / v4-save / 30-language / 81-key source contracts. These checks **do not validate product claims or native device behavior**; they only prevent simple drift and broken handoffs.
 
 ## Documentation rules
 
