@@ -18,6 +18,8 @@ jobs:
         run: python3 tools/validate_ideas.py docs/ideas/candidates.csv
       - name: Static Unity preview contract (does not compile Unity runtime)
         run: python3 tools/verify_evergrove_project.py
+      - name: Syntax-check local licensed Unity preflight (does not run Unity)
+        run: bash -n tools/evergrove_unity_local_preflight.sh
       - name: Validate Evergrove handbook and source links
         run: python3 tools/check_evergrove_docs.py
       - name: Apple Ads API dry-run (no credentials, no network)

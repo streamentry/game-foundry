@@ -21,7 +21,7 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 | [09 — Execution control](09-EXECUTION-CONTROL.md) | Immutable audit baseline, lifecycle, owners, milestone gates, defect severity, proof artifacts, release vs research build contract |
 | [10 — Research protocols](10-EXPERIMENT-PROTOCOLS.md) | Preregistration, matched conditions, denominators, consent, missingness and go/no-go |
 | [11 — Evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) | Actual build proof, platform QA, test ownership, sign-off and rollback |
-| [12 — M1/M2 execution checklist](12-M1-M2-EXECUTION-CHECKLIST.md) | Operator-ready Unity 6.3 preflight, licensed Editor/Android/iOS build proof and compact-phone test campaign |
+| [12 — M1/M2 execution checklist](12-M1-M2-EXECUTION-CHECKLIST.md) | Operator-ready Unity 6.3 preflight, one-command local probe, licensed Editor/Android/iOS build proof and compact-phone test campaign |
 | [Verification matrix](verification-matrix.json) | Machine-checked 37-feature × 46-test contracts; no fabricated verification evidence |
 
 ## Current-state reconciliation and two practical playbooks
