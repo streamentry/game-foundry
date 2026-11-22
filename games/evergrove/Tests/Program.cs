@@ -243,6 +243,51 @@ internal static class Program
                "puzzle-only control begins with identical scenery");
     }
 
+    private static void PrivatePlaytestReport()
+    {
+        var notes = new LocalPlaytest(PlayMode.Living, false, 0, 10.0);
+        string empty = notes.Report(10.0);
+        Expect(empty.Contains("first_tap_seconds=not_observed"),
+            "empty private session never invents first moves");
+        Expect(empty.Contains("condition=LivingWorld") &&
+               empty.Contains("visual=Storybook"),
+            "playtest defaults reflect consent-time configuration");
+        notes.Rotate(11.5);
+        notes.Rotate(13.5);
+        notes.Hint(20.0);
+        notes.Undo(21.0);
+        notes.Restart(22.0);
+        notes.Solve(49.0);
+        notes.Choose(50.0);
+        notes.Reconsider(51.0);
+        notes.Talk(53.0);
+        notes.ChangeVisual(true, 54.0);
+        notes.ChangeMode(PlayMode.PuzzleOnly, 55.0);
+        string report = notes.Report(60.0);
+        Expect(report.Contains("session_seconds=50.0") &&
+               report.Contains("first_tap_seconds=1.5") &&
+               report.Contains("first_solve_seconds=39.0"),
+            "times are relative and invariant-culture formatted");
+        Expect(report.Contains("rotations=2") && report.Contains("hints=1") &&
+               report.Contains("undos=1") && report.Contains("puzzle_restarts=1"),
+            "local research counters count only observed actions");
+        Expect(report.Contains("village_choices=1") &&
+               report.Contains("choice_corrections=1") &&
+               report.Contains("npc_conversations_opened=1"),
+            "counters include consequential actions");
+        Expect(report.Contains("visual_mode_switches=1") &&
+               report.Contains("experiment_condition_switches=1") &&
+               report.Contains("condition=PuzzleOnly"),
+            "condition switching remains disclosed in report");
+        Expect(!report.Contains("device_id") && !report.Contains("email=") &&
+               !report.Contains("latitude") && !report.Contains("IP="),
+            "report contains no device identifiers or personal location");
+        bool rejected = false;
+        try { notes.Rotate(9.0); }
+        catch (ArgumentOutOfRangeException) { rejected = true; }
+        Expect(rejected, "invalid monotonic time is rejected");
+    }
+
     public static int Main()
     {
         try
@@ -251,6 +296,7 @@ internal static class Program
             RestoreAndMigration();
             StoryAndCompleteRun();
             ScenicCausality();
+            PrivatePlaytestReport();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }
