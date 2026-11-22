@@ -226,3 +226,83 @@ jobs:
         run: godot --headless --path games/kuromasu-windows --script res://tests/test_progress.gd
       - name: Smoke test Kuromasu Windows real UI playthrough
         run: godot --headless --path games/kuromasu-windows --script res://tests/test_scene.gd
+      - name: Import Renzoku Meadow independent project
+        run: godot --headless --path games/renzoku-meadow --editor --import --quit
+      - name: Verify Renzoku Meadow exact rules or authored content
+        run: godot --headless --path games/renzoku-meadow --script res://tests/test_rules.gd
+      - name: Verify Renzoku Meadow saved progress and recovery
+        run: godot --headless --path games/renzoku-meadow --script res://tests/test_progress.gd
+      - name: Smoke test Renzoku Meadow UI playthrough
+        run: godot --headless --path games/renzoku-meadow --script res://tests/test_scene.gd
+      - name: Import Word Ladder Lane independent project
+        run: godot --headless --path games/word-ladder-lane --editor --import --quit
+      - name: Verify Word Ladder Lane exact rules or authored content
+        run: godot --headless --path games/word-ladder-lane --script res://tests/test_rules.gd
+      - name: Verify Word Ladder Lane saved progress and recovery
+        run: godot --headless --path games/word-ladder-lane --script res://tests/test_progress.gd
+      - name: Smoke test Word Ladder Lane UI playthrough
+        run: godot --headless --path games/word-ladder-lane --script res://tests/test_scene.gd
+      - name: Import Word Square Studio independent project
+        run: godot --headless --path games/word-square-studio --editor --import --quit
+      - name: Verify Word Square Studio exact rules or authored content
+        run: godot --headless --path games/word-square-studio --script res://tests/test_rules.gd
+      - name: Verify Word Square Studio saved progress and recovery
+        run: godot --headless --path games/word-square-studio --script res://tests/test_progress.gd
+      - name: Smoke test Word Square Studio UI playthrough
+        run: godot --headless --path games/word-square-studio --script res://tests/test_scene.gd
+      - name: Import Vowel Garden independent project
+        run: godot --headless --path games/vowel-garden --editor --import --quit
+      - name: Verify Vowel Garden exact rules or authored content
+        run: godot --headless --path games/vowel-garden --script res://tests/test_rules.gd
+      - name: Verify Vowel Garden saved progress and recovery
+        run: godot --headless --path games/vowel-garden --script res://tests/test_progress.gd
+      - name: Smoke test Vowel Garden UI playthrough
+        run: godot --headless --path games/vowel-garden --script res://tests/test_scene.gd
+      - name: Import Word Search Shores independent project
+        run: godot --headless --path games/word-search-shores --editor --import --quit
+      - name: Verify Word Search Shores exact rules or authored content
+        run: godot --headless --path games/word-search-shores --script res://tests/test_rules.gd
+      - name: Verify Word Search Shores saved progress and recovery
+        run: godot --headless --path games/word-search-shores --script res://tests/test_progress.gd
+      - name: Smoke test Word Search Shores UI playthrough
+        run: godot --headless --path games/word-search-shores --script res://tests/test_scene.gd
+      - name: Import Nonogram Canvas independent project
+        run: godot --headless --path games/nonogram-canvas --editor --import --quit
+      - name: Verify Nonogram Canvas exact rules or authored content
+        run: godot --headless --path games/nonogram-canvas --script res://tests/test_rules.gd
+      - name: Verify Nonogram Canvas saved progress and recovery
+        run: godot --headless --path games/nonogram-canvas --script res://tests/test_progress.gd
+      - name: Smoke test Nonogram Canvas UI playthrough
+        run: godot --headless --path games/nonogram-canvas --script res://tests/test_scene.gd
+      - name: Import Akari Evening independent project
+        run: godot --headless --path games/akari-evening --editor --import --quit
+      - name: Verify Akari Evening exact rules or authored content
+        run: godot --headless --path games/akari-evening --script res://tests/test_rules.gd
+      - name: Verify Akari Evening saved progress and recovery
+        run: godot --headless --path games/akari-evening --script res://tests/test_progress.gd
+      - name: Smoke test Akari Evening UI playthrough
+        run: godot --headless --path games/akari-evening --script res://tests/test_scene.gd
+      - name: Import Pipe Garden independent project
+        run: godot --headless --path games/pipe-garden --editor --import --quit
+      - name: Verify Pipe Garden exact rules or authored content
+        run: godot --headless --path games/pipe-garden --script res://tests/test_rules.gd
+      - name: Verify Pipe Garden saved progress and recovery
+        run: godot --headless --path games/pipe-garden --script res://tests/test_progress.gd
+      - name: Smoke test Pipe Garden UI playthrough
+        run: godot --headless --path games/pipe-garden --script res://tests/test_scene.gd
+      - name: Import Sliding Tiles independent project
+        run: godot --headless --path games/sliding-tiles --editor --import --quit
+      - name: Verify Sliding Tiles exact rules or authored content
+        run: godot --headless --path games/sliding-tiles --script res://tests/test_rules.gd
+      - name: Verify Sliding Tiles saved progress and recovery
+        run: godot --headless --path games/sliding-tiles --script res://tests/test_progress.gd
+      - name: Smoke test Sliding Tiles UI playthrough
+        run: godot --headless --path games/sliding-tiles --script res://tests/test_scene.gd
+      - name: Import Number Pyramid independent project
+        run: godot --headless --path games/number-pyramid --editor --import --quit
+      - name: Verify Number Pyramid exact rules or authored content
+        run: godot --headless --path games/number-pyramid --script res://tests/test_rules.gd
+      - name: Verify Number Pyramid saved progress and recovery
+        run: godot --headless --path games/number-pyramid --script res://tests/test_progress.gd
+      - name: Smoke test Number Pyramid UI playthrough
+        run: godot --headless --path games/number-pyramid --script res://tests/test_scene.gd

@@ -124,3 +124,19 @@ Each downloadable WebGL2 ZIP includes `serve.py` and verified HTTP `.wasm`/`.pck
 - [Kuromasu Windows](../games/kuromasu-windows/README.md): Tap a blank square black → white → unknown. Numbered clues remain fixed white; text reports sight-line and connectivity violations. **Compare against a direct Kuromasu / Kurodoko alternative** on actual target-player phones and record first unassisted correct action, friction, voluntary second puzzle and any next-day unsponsored return.
 
 Each per-game workflow produces a full downloadable WebGL2 ZIP with `serve.py` and verified HTTP asset loading. None is publicly hosted or physically phone-verified. Extract the entire ZIP first; opening `index.html` via `file://` may produce a NetworkError.
+
+
+## Ten new prototype playtests (23–32)
+
+- [Renzoku Meadow](../games/renzoku-meadow/README.md): Select a square, enter a digit 1–4; in-cell arrows identify marked right/below edges. Compare unassisted clarity and voluntary additional play to a direct consecutive Latin squares alternative on a real phone.
+- [Word Ladder Lane](../games/word-ladder-lane/README.md): Tap an eligible next-word card; each move shows the current ladder, goal and step count. Compare unassisted clarity and voluntary additional play to a direct four-letter word transformations alternative on a real phone.
+- [Word Square Studio](../games/word-square-studio/README.md): Tap the unplaced word cards in top-to-bottom order; the board shows row positions immediately. Compare unassisted clarity and voluntary additional play to a direct symmetric word squares alternative on a real phone.
+- [Vowel Garden](../games/vowel-garden/README.md): Tap a visible underscore, then the large A/E/I/O/U keypad. Undo, Erase and Restart recover choices. Compare unassisted clarity and voluntary additional play to a direct missing-vowel phrase restoration alternative on a real phone.
+- [Word Search Shores](../games/word-search-shores/README.md): Tap the first and last letters of a target word, in either direction; found words become visibly highlighted. Compare unassisted clarity and voluntary additional play to a direct offline word search alternative on a real phone.
+- [Nonogram Canvas](../games/nonogram-canvas/README.md): Tap a cell filled → crossed empty → unknown. Ten row/column clue lines stay visible. Compare unassisted clarity and voluntary additional play to a direct picture cross / Nonogram alternative on a real phone.
+- [Akari Evening](../games/akari-evening/README.md): Tap an open cell to cycle lamp → cross note → empty; the board highlights lit cells. Compare unassisted clarity and voluntary additional play to a direct Light Up / Akari alternative on a real phone.
+- [Pipe Garden](../games/pipe-garden/README.md): Tap a tile to rotate; curved and end pieces have four orientations, straights have two. Compare unassisted clarity and voluntary additional play to a direct pipe rotation alternative on a real phone.
+- [Sliding Tiles](../games/sliding-tiles/README.md): Tap only a tile adjacent to the blank; Undo and Restart are always available. Compare unassisted clarity and voluntary additional play to a direct 8-puzzle sliding blocks alternative on a real phone.
+- [Number Pyramid](../games/number-pyramid/README.md): Select a bottom stone and enter a digit 1–9; upper stones show live derived sums and fixed clue labels. Compare unassisted clarity and voluntary additional play to a direct number sum pyramid alternative on a real phone.
+
+The ten independent downloadable WebGL2 builds include an HTTP `serve.py` smoke test; these are **not publicly deployed**, signed app-store releases or age-45+ user studies. Their seven-day GitHub Actions retention may expire: preserve findings in research docs, not in ephemeral download URLs.

@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Ten original game prototypes 23–32 — still experimental
+
+At the user's request, implement [Renzoku Meadow](../games/renzoku-meadow/), [Word Ladder Lane](../games/word-ladder-lane/), [Word Square Studio](../games/word-square-studio/), [Vowel Garden](../games/vowel-garden/), [Word Search Shores](../games/word-search-shores/), [Nonogram Canvas](../games/nonogram-canvas/), [Akari Evening](../games/akari-evening/), [Pipe Garden](../games/pipe-garden/), [Sliding Tiles](../games/sliding-tiles/), and [Number Pyramid](../games/number-pyramid/) as small distinct standalone experiments. Unique-solution claims apply **only** where mathematically meaningful; curated word answers and reachable sliding boards are qualified. They are not business opportunities or production approvals. Follow the [experiment decision and stop tests](research/game-experiments-23-to-32-2026-11-22.md) before larger levels or publishing.
+
 ## Five further independently playable puzzle experiments — games 18–22
 
 [Numberlink Paths](../games/numberlink-paths/), [Kropki Pairs](../games/kropki-pairs/), [Ripple Rooms](../games/ripple-rooms/), [Battleship Harbor](../games/battleship-harbor/), and [Kuromasu Windows](../games/kuromasu-windows/) implement the existing GF-014, GF-020, GF-022, GF-026 and GF-028 hypotheses as user-requested, isolated Godot research prototypes, **not new store-launch approvals**. They test five distinct deduction mechanisms and six original uniquely-solvable fixtures per game. Age-specific fit, differentiating value, official search popularity and real retention remain unknown. See the [latest comparison and stop gates](research/game-experiments-18-to-22-2026-11-22.md).

@@ -26,6 +26,10 @@ The separate [global 45+ playtest shortlist](../research/global-45plus-top-three
 
 Run `python3 tools/validate_ideas.py docs/ideas/candidates.csv` after editing.
 
+## Ten additional independent experimental implementations (2026-11-22)
+
+[Renzoku Meadow](../../games/renzoku-meadow/) (GF-025) · [Word Ladder Lane](../../games/word-ladder-lane/) (GF-031) · [Word Square Studio](../../games/word-square-studio/) (GF-038) · [Vowel Garden](../../games/vowel-garden/) (GF-043) · [Word Search Shores](../../games/word-search-shores/) (GF-048) · [Nonogram Canvas](../../games/nonogram-canvas/) (GF-056) · [Akari Evening](../../games/akari-evening/) (GF-062) · [Pipe Garden](../../games/pipe-garden/) (GF-064) · [Sliding Tiles](../../games/sliding-tiles/) (GF-068) · [Number Pyramid](../../games/number-pyramid/) (GF-079). The word-ladder, missing-vowels and sliding games do not pretend their answers are uniquely determined over all language or movement possibilities. All 100 keyword rows remain **hypotheses**: actual App Store popularity, adults-45+ relative preference, retention, willingness to pay and acquisition remain unknown. [Read the decision and stop rules](../research/game-experiments-23-to-32-2026-11-22.md).
+
 ## Independent game implementations, 18–22 (2026-11-22)
 
 [Numberlink Paths](../../games/numberlink-paths/) (GF-014) · [Kropki Pairs](../../games/kropki-pairs/) (GF-020) · [Ripple Rooms](../../games/ripple-rooms/) (GF-022) · [Battleship Harbor](../../games/battleship-harbor/) (GF-026) · [Kuromasu Windows](../../games/kuromasu-windows/) (GF-028) are playable engineering experiments from already listed hypotheses. All five remain **unvalidated** for age 45+, official Apple keyword popularity, competitor preference, voluntary return or paying demand. The Numberlink and Kropki projects explicitly implement **variants**, not the full range of classical rules. [Research brief and stop rule](../research/game-experiments-18-to-22-2026-11-22.md).

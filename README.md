@@ -6,6 +6,16 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Prototype 32:** [Number Pyramid](games/number-pyramid/) — Reconstruct four bottom digits 1–9 from scattered clues; each of the six upper numbers equals the sum of the two directly below. **6 independent original pyramid clues with exactly one four-digit base solution each.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 31:** [Sliding Tiles](games/sliding-tiles/) — Slide numbered tiles orthogonally into the empty square to reconstruct the ordered 1–8 board. **6 original scrambled starts with verified shortest solution depths of 4,6,8,10,12 and 14 moves.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 30:** [Pipe Garden](games/pipe-garden/) — Rotate nine pipes on a 3×3 board into a single continuous, leak-free route from one endpoint to the other. **6 original 3×3 pipe layouts with one distinct valid port-direction solution each.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 29:** [Akari Evening](games/akari-evening/) — Place lamps that illuminate all open cells without any pair seeing each other, while honoring numbered wall adjacency. **6 original 4×4 numbered-wall boards with one valid lamp arrangement each.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 28:** [Nonogram Canvas](games/nonogram-canvas/) — Fill a 5×5 image using exact row/column runs separated by at least one empty cell. **6 original 5×5 pixel designs with uniquely determined row and column clues.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 27:** [Word Search Shores](games/word-search-shores/) — Find three target words in a 6×6 original letter grid by tapping their start and end along a straight horizontal, vertical or diagonal line. **6 original 6×6 boards; each target word appears exactly once in the accepted straight-line directions.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 26:** [Vowel Garden](games/vowel-garden/) — Reconstruct original short phrases by inserting A/E/I/O/U into a visible consonant skeleton using topic clues. **6 original authored phrases with one accepted canonical restoration each, not proof of linguistic uniqueness.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 25:** [Word Square Studio](games/word-square-studio/) — Arrange three 3-letter English words so each vertical column matches the corresponding horizontal row. **6 original word-card arrangements with a single valid permutation each.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 24:** [Word Ladder Lane](games/word-ladder-lane/) — Change exactly one letter at a time, using only available word cards, to reach a given goal in an exact shortest move budget. **6 original small curated word graphs with one accepted shortest path each.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
+- **Prototype 23:** [Renzoku Meadow](games/renzoku-meadow/) — 4×4 full Renzoku: fill 1–4 once per row/column, with marked consecutive edges and unmarked nonconsecutive edges. **6 independently generated Latin/dot layouts with exactly one solution.** Engineering proof only; real player/45+ acquisition and retention unmeasured.
 - **Prototype 22:** [Kuromasu Windows](games/kuromasu-windows/) — Shade black cells so black cells never share an edge, all white cells stay connected, and each numbered white square sees exactly its indicated white squares in its row and column. 6 original uniquely determined 4×4 visibility boards; original engineer-tested playtest only. **45+ preference and organic acquisition unmeasured.**
 - **Prototype 21:** [Battleship Harbor](games/battleship-harbor/) — Find a fleet of exactly one length-3, one length-2, and one single-cell ship on a 5×5 chart, with no ship touching another even diagonally and exact line totals. 6 original 5×5 unique fleet layouts; original engineer-tested playtest only. **45+ preference and organic acquisition unmeasured.**
 - **Prototype 20:** [Ripple Rooms](games/ripple-rooms/) — Fill irregular connected rooms with 1 through the room size, ensuring any repeated k in the same row or column has at least k cells between it. 6 original irregular-room 4×4 unique puzzles; original engineer-tested playtest only. **45+ preference and organic acquisition unmeasured.**
@@ -84,6 +94,16 @@ games/kropki-pairs/         Kropki Pairs independent prototype
 games/ripple-rooms/         Ripple Rooms independent prototype
 games/battleship-harbor/    Battleship Harbor independent prototype
 games/kuromasu-windows/     Kuromasu Windows independent prototype
+games/renzoku-meadow/        Renzoku Meadow standalone proof of play
+games/word-ladder-lane/      Word Ladder Lane standalone proof of play
+games/word-square-studio/    Word Square Studio standalone proof of play
+games/vowel-garden/          Vowel Garden standalone proof of play
+games/word-search-shores/    Word Search Shores standalone proof of play
+games/nonogram-canvas/       Nonogram Canvas standalone proof of play
+games/akari-evening/         Akari Evening standalone proof of play
+games/pipe-garden/           Pipe Garden standalone proof of play
+games/sliding-tiles/         Sliding Tiles standalone proof of play
+games/number-pyramid/        Number Pyramid standalone proof of play
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -159,6 +179,10 @@ Each of the five new games has a separate Godot 4.7.2 project and its own verifi
 ## Play prototypes 18–22 locally
 
 Each is an independent Godot 4.7.2 project at `games/<slug>/project.godot`; open one in Godot and press **F5**. Each successful per-game GitHub Action produces a downloadable ZIP containing `serve.py`: extract the ZIP, run `python3 serve.py`, and open `http://127.0.0.1:8000/`. This is **not public hosting**. Review the [experiment decision](docs/research/game-experiments-18-to-22-2026-11-22.md) before investing in broader content.
+
+## Play prototypes 23–32
+
+Each has a Godot 4.7.2 project at `games/<slug>/project.godot`. Press **F5** in Godot, or download the successful per-game Web Playtest artifact from GitHub Actions, extract the entire ZIP, run `python3 serve.py`, and visit `http://127.0.0.1:8000/`. The ZIP is **not** a public HTTPS play URL. For exact rule variants, how the different puzzle types were validated, and stopping conditions, see [the ten-game research decision](docs/research/game-experiments-23-to-32-2026-11-22.md).
 
 ## Share a tested browser-playtest build
 
