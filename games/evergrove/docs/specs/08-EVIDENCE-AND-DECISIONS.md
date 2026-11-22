@@ -76,6 +76,11 @@ Evergrove could be **two weak experiences joined together**: familiar pipe rotat
 - **EG-008, partial:** Failed writes now trigger a visible localized warning; v4 adds hint progress. Disk-full/force-kill/atomicity checks remain open.
 - **EG-001/006/007/009/010** remain independent shipping gates; compiled .NET domain tests cannot prove native Unity or actual accessibility.
 
+## 2026-11-22 — incremental source improvements, still partial
+
+- **EG-011:** [PipeRules](../../Assets/Scripts/Core/PipeRules.cs) computes per-tile leak flags; [EvergroveApp](../../Assets/Scripts/Unity/EvergroveApp.cs) uses a non-color ! marker. This does **not** establish real-device contrast, screen-reader or disability accessibility.
+- **EG-101:** [LocalizedVillage](../../Assets/Scripts/Core/LocalizedVillage.cs) derives journal entries from real saved choices + immediate environmental effects; only latest active and provenance-confirmed board gets a puzzle-rule line. Old saves do not carry complete past board-variant history; do not retrofit fictional gameplay consequences.
+
 ## Current decision register (documentation only)
 
 | Decision | State | Next evidence |

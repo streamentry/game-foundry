@@ -68,7 +68,7 @@ Each saved chapter entry should answer:
 3. **Who noticed:** one truthful NPC line, not generated memory.
 4. **What it changed next:** name the protected root/bridge/meadow rule in the next stream, if one actually exists.
 
-The current journal already records ordered memories. The four-link causal presentation is proposed. A returning player should reconstruct a past decision without replaying the whole campaign (exploratory target ≥80%). The journal must not imply a puzzle effect that the current board logic does not implement.
+The journal now records ordered choices and their immediate state-grounded scene effect. For the **latest** event only, a current next-puzzle rule is shown when the saved board variant proves it; earlier history (particularly migrated v3 puzzles) must **not** invent a branch never experienced. Visual before/after and full four-link historical reconstruction remain proposed. A returning player should reconstruct a past decision without replaying the whole campaign (exploratory target ≥80%). The journal must not imply a puzzle effect that the current board logic does not implement.
 
 ## State machine and integrity
 

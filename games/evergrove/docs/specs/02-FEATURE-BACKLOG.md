@@ -18,10 +18,10 @@
 | [EG-008](#eg-008--crash-safe-offline-saves) | Crash-safe offline saves | P0 | v4 + warning; device fault tests open | Reliability | 5/5/5/2 | 62.5 |
 | [EG-009](#eg-009--offlineprivacy-binary-verification) | Offline/privacy binary verification | P0 | Offline design and opt-in in-memory playtest exist | Trust | 5/5/5/2 | 62.5 |
 | [EG-010](#eg-010--native-certified-launch-locale-subset) | Native-certified launch locale subset | P0 | 30 complete draft catalogs | Release quality | 4/4/5/3 | 26.7 |
-| [EG-011](#eg-011--non-color-connectivity-and-contrast) | Non-color connectivity and contrast | P0 | Color-coded scene/pipe UI exists | Release quality | 5/4/5/2 | 50.0 |
+| [EG-011](#eg-011--non-color-connectivity-and-contrast) | Non-color connectivity and contrast | P0 | Per-tile leak ! in source; device audit open | Release quality | 5/4/5/2 | 50.0 |
 | [EG-012](#eg-012--subtle-audio-feedback-and-ambience) | Subtle audio feedback and ambience | P0 | Optional gentle completion chime exists | Polish | 4/3/3/3 | 12.0 |
 | [EG-013](#eg-013--optional-haptic-response) | Optional haptic response | P0 | Proposed | Polish | 3/2/3/1 | 18.0 |
-| [EG-101](#eg-101--causal-journal) | Causal journal | P1 | Ordered journal exists | Differentiation | 5/4/3/2 | 30.0 |
+| [EG-101](#eg-101--causal-journal) | Causal journal | P1 | True choice/scene/latest rule in code | Differentiation | 5/4/3/2 | 30.0 |
 | [EG-102](#eg-102--three-depth-authored-consequences) | Three-depth authored consequences | P1 | Immediate/next/ending hooks partly exist | Differentiation | 5/5/3/4 | 18.8 |
 | [EG-103](#eg-103--bounded-npc-memory-tokens) | Bounded NPC memory tokens | P1 | State-dependent authored conversations exist | Differentiation | 4/4/3/3 | 16.0 |
 | [EG-104](#eg-104--distinct-character-values-and-voices) | Distinct character values and voices | P1 | Mira/Orin/Fen have authored distinct responses | Differentiation | 4/3/3/3 | 12.0 |
@@ -154,10 +154,10 @@ This pass adds source-derived puzzle metadata, staged help, a shortened initial 
 
 ### EG-011 — Non-color connectivity and contrast
 
-**State:** Color-coded scene/pipe UI exists; formal audit proposed. **Type:** Release quality. **Risk:** Extra strokes obscure small boards. **Evidence:** P1,Q1. **R/I/C/E:** 5/4/5/2; **illustrative score:** 50.0.
+**State:** Pipe rule engine now computes which tiles have unmatched ports, and Unity source displays a visible ! marker per leaking tile. Contrast, grayscale, screen-reader and real-device audits remain open. **Type:** Release quality. **Risk:** Extra strokes obscure small boards. **Evidence:** P1,Q1. **R/I/C/E:** 5/4/5/2; **illustrative score:** 50.0.
 
 - **Player problem:** Players may not distinguish connected, leaking and anchored tiles by hue.
-- **Player-visible behavior:** Use pipe shape, port outline, water movement/pattern and labels in addition to color; provide high-contrast mode.
+- **Player-visible behavior:** Port geometry, S/G text, global leak count, and new visible ! per leaking tile are present in source. High-contrast preference, adaptive visual feedback and device verification are still proposed.
 - **Acceptance criteria:** Solve full sample in grayscale/color-filter conditions; all states recognizable without audio or color.
 - **Success signal:** No critical state-confusion failures in accessibility test.
 - **Dependencies:** PipeGraphic, EG-007, user testing.
@@ -187,7 +187,7 @@ This pass adds source-derived puzzle metadata, staged help, a shortened initial 
 
 ### EG-101 — Causal journal
 
-**State:** Ordered journal exists; causal chain view proposed. **Type:** Differentiation. **Risk:** Text overload; offer compact visual summary. **Evidence:** R1,H1. **R/I/C/E:** 5/4/3/2; **illustrative score:** 30.0.
+**State:** Localized journal now shows recorded choice, truthful immediate scene effect and only a *currently validated* next-board rule. Historical migrated saves cannot prove old variants; a full retrospective still needs additional persisted event information and player UX evidence. **Type:** Differentiation. **Risk:** Text overload; offer compact visual summary. **Evidence:** R1,H1. **R/I/C/E:** 5/4/3/2; **illustrative score:** 30.0.
 
 - **Player problem:** Returning players may forget why the world looks different.
 - **Player-visible behavior:** For each choice show Choice → World effect → NPC memory → Next-puzzle effect; all derived from saved events.
