@@ -35,8 +35,12 @@ if [ ! -x "$UNITY_BIN" ]; then
   echo "Install the exact project editor and required platform module with Unity Hub, or set UNITY_BIN." >&2
   exit 2
 fi
-EVIDENCE="$ROOT/.evergrove-evidence/$SOURCE_SHA/$MODE"
-mkdir -p "$EVIDENCE"
+# Every invocation gets a fresh, isolated directory. A successful old APK,
+# Xcode export or Unity log must NEVER satisfy a new build's gate.
+EVIDENCE_ROOT="$ROOT/.evergrove-evidence/$SOURCE_SHA/$MODE"
+mkdir -p "$EVIDENCE_ROOT"
+EVIDENCE="$(mktemp -d "$EVIDENCE_ROOT/run-XXXXXX")"
+export EVERGROVE_OUTPUT_ROOT="$EVIDENCE/output"
 
 # Unity legitimately creates .meta files, package lockfiles and fresh
 # ProjectSettings/*.asset when importing this minimal scaffold. Do not let
@@ -97,6 +101,12 @@ if ! git diff --quiet HEAD -- games/evergrove tools/evergrove_unity_local_prefli
   exit 1
 fi
 record_untracked_inputs after || exit 1
+# The importer itself validates actual Unity JsonUtility and 29 bundled
+# locale TextAssets. Exit code alone is insufficient if that probe was skipped.
+if ! grep -Fq "EVERGROVE_UNITY_IMPORT_CHECK_OK editor=$EXPECTED_VERSION" "$LOG"; then
+  echo "Pinned-version Unity import/serialization marker missing from this run." >&2
+  exit 1
+fi
 if [ "$MODE" = "smoke" ]; then
   if ! grep -Fq "Evergrove Unity Editor compilation, scene setup and puzzle smoke passed." "$LOG"; then
     echo "Expected scene/bootstrap success marker absent; inspect the Editor log." >&2
@@ -107,12 +117,27 @@ else
     echo "Expected Unity BuildResult success marker absent; inspect the Editor log." >&2
     exit 1
   fi
-  OUTDIR="$ROOT/build/$MODE"
+  OUTDIR="$EVERGROVE_OUTPUT_ROOT/$MODE"
   case "$MODE" in
-    Android) MARKER="$OUTDIR/Evergrove-Playtest.apk" ;;
-    iOS) MARKER="$OUTDIR/Evergrove-Xcode/Unity-iPhone.xcodeproj/project.pbxproj" ;;
-    WebGL) MARKER="$OUTDIR/Evergrove-Playtest/index.html" ;;
+    Android)
+      OUTPUT="$OUTDIR/Evergrove-Playtest.apk"
+      MARKER="$OUTPUT"
+      ;;
+    iOS)
+      OUTPUT="$OUTDIR/Evergrove-Xcode"
+      MARKER="$OUTPUT/Unity-iPhone.xcodeproj/project.pbxproj"
+      ;;
+    WebGL)
+      OUTPUT="$OUTDIR/Evergrove-Playtest"
+      MARKER="$OUTPUT/index.html"
+      ;;
   esac
+  # Check the EXACT unique path that this invocation requested, not a
+  # generic success log from a different output directory.
+  if ! grep -Fq "EVERGROVE_BUILD_SUCCEEDED $OUTPUT" "$LOG"; then
+    echo "Unity success marker does not identify this invocation's output: $OUTPUT" >&2
+    exit 1
+  fi
   if [ ! -s "$MARKER" ]; then
     echo "Expected nonempty export marker missing: $MARKER" >&2
     exit 1
@@ -163,8 +188,8 @@ PY
 fi
 
 shasum -a 256 "$LOG" > "$EVIDENCE/editor-log.sha256"
-printf 'source_commit_sha=%s\nrequested_unity_editor_version=%s\nmode=%s\n' \
-  "$SOURCE_SHA" "$EXPECTED_VERSION" "$MODE" > "$EVIDENCE/probe-context.txt"
+printf 'source_commit_sha=%s\nrequested_unity_editor_version=%s\nmode=%s\nlocal_run_dir=%s\n' \
+  "$SOURCE_SHA" "$EXPECTED_VERSION" "$MODE" "$EVIDENCE" > "$EVIDENCE/probe-context.txt"
 if [ -s "$EVIDENCE/untracked-unity-inputs.after.sha256" ]; then
   printf 'provenance_status=PROVISIONAL_GENERATED_INPUTS_NOT_IN_GIT\n' >> "$EVIDENCE/probe-context.txt"
   echo "WARNING: imported Unity .meta / settings / package-lock files are untracked." >&2

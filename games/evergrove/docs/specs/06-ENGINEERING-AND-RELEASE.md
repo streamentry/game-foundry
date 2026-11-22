@@ -85,6 +85,9 @@ No placeholder in this template is evidence. Only a real record tied to the sour
 
 ## M1 build provenance — exact new deliverable
 
+**Local stale-build protection:** `tools/evergrove_unity_local_preflight.sh` now creates a unique `run-*/` directory and sets an absolute `EVERGROVE_OUTPUT_ROOT` only for that licensed Editor invocation. `EvergroveBuild.Build()` honors that root; the log must match its precise platform output path and the resulting artifact bytes must exist in the same run folder. Unrelated previous APKs/Xcode exports no longer satisfy a later M1 attempt. GameCI does not set this override and continues producing its expected `build/<platform>/` tree. Synthetic wrapper tests cover stale artifacts, **not** actual Unity output.
+
+
 On a licensed GameCI run, `tools/evergrove_build_provenance.py` must verify platform-specific nonempty output, hash each exported file, and create a machine-readable manifest shipped **inside the private artifact**. Its `source_commit_sha` is not the binary's SHA256; `payload_tree_sha256` is a content-tree digest, not the GitHub artifact ZIP checksum. Use the workflow run logs to confirm the actual editor version and `BuildResult.Succeeded`. Synthetic script tests are run in normal CI, but **BLD-001/002/003 remain unverified** without real licensed export and reviewer evidence. See [release packet](11-EVIDENCE-AND-RELEASE-PACKETS.md).
 
 ## Save integrity (EG-008)

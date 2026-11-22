@@ -34,7 +34,21 @@ namespace Evergrove.UnityClient.Editor
             string repositoryRoot = Path.GetFullPath(
                 Path.Combine(Application.dataPath, "..", "..", ".."));
             string platform = target.ToString();
-            string outDir = Path.Combine(repositoryRoot, "build", platform);
+            // GameCI keeps its default repo/build/<platform> convention.
+            // Local preflight isolates every attempt under a unique private
+            // directory so old successful artifacts cannot fake a new pass.
+            string privateRoot = Environment.GetEnvironmentVariable("EVERGROVE_OUTPUT_ROOT");
+            if (!string.IsNullOrWhiteSpace(privateRoot) && !Path.IsPathRooted(privateRoot))
+                throw new InvalidOperationException("EVERGROVE_OUTPUT_ROOT must be absolute.");
+            string outputRoot = string.IsNullOrWhiteSpace(privateRoot)
+                ? Path.Combine(repositoryRoot, "build")
+                : Path.GetFullPath(privateRoot);
+            string assetsPath = Path.GetFullPath(Application.dataPath)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+            if (outputRoot.StartsWith(assetsPath, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Never export builds into Unity Assets.");
+            string outDir = Path.Combine(outputRoot, platform);
             Directory.CreateDirectory(outDir);
             string output = target == BuildTarget.Android
                 ? Path.Combine(outDir, "Evergrove-Playtest.apk")
