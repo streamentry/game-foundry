@@ -43,7 +43,7 @@ namespace Evergrove.UnityClient
         public bool Initialize()
         {
             if (initialized) return Ready;
-            if (!SystemInfo.supportsRenderTextures) return false;
+            if (!SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB32)) return false;
             Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) shader = Shader.Find("Unlit/Color");
             if (shader == null) shader = Shader.Find("Standard");
@@ -314,7 +314,8 @@ namespace Evergrove.UnityClient
         {
             if (stage != null)
             {
-                stage.gameObject.SetActive(false); // old geometry must not ghost during a choice frame
+                stage.gameObject.SetActive(false); // avoid one-frame ghosting
+                ReleaseRiverMesh();
                 Destroy(stage.gameObject);
             }
             var root = new GameObject("Your little village — a stateful miniature");
@@ -458,6 +459,21 @@ namespace Evergrove.UnityClient
             RenderFrame();
         }
 
+        private void ReleaseRiverMesh()
+        {
+            if (stage == null) return;
+            // Primitive meshes are Unity-owned and must never be destroyed.
+            foreach (MeshFilter filter in stage.GetComponentsInChildren<MeshFilter>(true))
+            {
+                Mesh mesh = filter.sharedMesh;
+                if (mesh != null && mesh.name == "Evergrove winding water")
+                {
+                    filter.sharedMesh = null;
+                    Destroy(mesh);
+                }
+            }
+        }
+
         private void ReleaseResources()
         {
             if (sceneCamera != null) sceneCamera.targetTexture = null;
@@ -474,14 +490,7 @@ namespace Evergrove.UnityClient
             }
             if (stage != null)
             {
-                // Own the explicit river mesh; primitive meshes are Unity built-ins.
-                MeshFilter[] filters = stage.GetComponentsInChildren<MeshFilter>(true);
-                foreach (MeshFilter filter in filters)
-                {
-                    Mesh mesh = filter.sharedMesh;
-                    if (mesh != null && mesh.name == "Evergrove winding water")
-                        Destroy(mesh);
-                }
+                ReleaseRiverMesh();
                 Destroy(stage.gameObject);
                 stage = null;
             }
