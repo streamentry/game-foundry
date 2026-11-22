@@ -26,3 +26,6 @@ Graph checks validate Eulerian connectivity and degrees, every original level's 
 [One Path Web Playtest](../../.github/workflows/one-path-preview.yml) creates a **downloadable** Godot 4.7.2 single-threaded WebGL2 artifact. Extract `one-path-web-playtest`, serve its directory using `python3 -m http.server 8000` and open `http://localhost:8000` in a WebGL2-capable browser. Avoid `file://`, which cannot load the WASM export correctly. The workflow does not host publicly or sign Android/iOS builds.
 
 See [independent visual design](DESIGN.md), [global three-game research strategy](../../docs/research/global-45plus-top-three-games-2026-11-21.md) and the [playtest protocol](../../docs/playtest.md). The game still requires physical 45+ usability sessions and an acquisition/retention experiment before any shipping decision.
+
+
+**New artifacts contain `serve.py`:** Extract the entire ZIP, open a terminal in the same directory as `index.html`, run `python3 serve.py`, and visit `http://127.0.0.1:8000/`. Do not open the HTML file directly with `file://`. If loading fails, run `python3 serve.py --smoke` and follow [the browser NetworkError guide](../../docs/web-networkerror.md). Actions artifacts are downloads, not live websites.

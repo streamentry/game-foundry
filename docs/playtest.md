@@ -5,16 +5,16 @@
 ## Produce a preview
 
 - Use [GitHub Actions → Browser Playtest Build](https://github.com/streamentry/game-foundry/actions/workflows/web-preview.yml) and select **Run workflow**, or open a PR touching `games/takuzu-lab/`.
-- CI imports the Godot 4.7.2 project, runs rules/uniqueness/save/scene tests, installs the **official matching export template** with a SHA-512 checksum verification and exports a **single-threaded** WebGL2 build.
+- CI imports the Godot 4.7.2 project, runs rules/uniqueness/save/scene tests, installs the **official matching export template** with a SHA-512 checksum verification, exports a **single-threaded** WebGL2 build, and smoke-tests every exported asset over loopback HTTP.
 - Download the `takuzu-lab-web-playtest` artifact from the successful workflow run (retained for 7 days). It includes the exported `index.html`, `index.js`, `index.wasm`, `index.pck`, build provenance and checksums.
 - Extract the artifact and host it locally:
 
   ```bash
   cd path/to/extracted/artifact
-  python3 -m http.server 8000 --bind 127.0.0.1
+  python3 serve.py
   ```
 
-  Open `http://127.0.0.1:8000/index.html` in a WebGL2-capable browser. Do not double-click the HTML file and expect WASM to load over `file://`.
+  Open `http://127.0.0.1:8000/` in a WebGL2-capable browser. **New artifacts** include the local `serve.py` launcher, which checks all required files and optional SHA-256 hashes. Run `python3 serve.py --smoke` to test the same asset URLs the browser requests. Older artifacts without `serve.py` can still be run with `python3 -m http.server 8000 --bind 127.0.0.1`. Do not double-click `index.html` or load it via `file://`. See [the NetworkError troubleshooting guide](web-networkerror.md).
 
 **This workflow creates a downloadable build only.** It does **not** deploy a website, create a public playable URL, collect player analytics, or submit anything to an App Store. Any external hosting needs an explicitly approved destination and privacy review.
 

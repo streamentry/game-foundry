@@ -25,3 +25,6 @@ Physics tests check actual ray–segment collisions, hit/miss cases, board solva
 A [GitHub Actions browser-playtest workflow](../../.github/workflows/quiet-shot-preview.yml) exports a WebGL2 ZIP artifact, **not** a public site. Download the resulting `quiet-shot-web-playtest` artifact, extract and serve via `python3 -m http.server 8000`; visit `http://localhost:8000/` in a WebGL2-capable browser (not a local `file://` URL). Mobile native export and physical-device QA are not complete.
 
 See [the ranked strategy, competitor caveats and stop conditions](../../docs/research/global-45plus-top-three-games-2026-11-21.md) and [this game's design](DESIGN.md). This does **not** constitute measured 45+ interest, app-store demand or retention.
+
+
+**New artifacts contain `serve.py`:** Extract the entire ZIP, open a terminal in the same directory as `index.html`, run `python3 serve.py`, and visit `http://127.0.0.1:8000/`. Do not open the HTML file directly with `file://`. If loading fails, run `python3 serve.py --smoke` and follow [the browser NetworkError guide](../../docs/web-networkerror.md). Actions artifacts are downloads, not live websites.

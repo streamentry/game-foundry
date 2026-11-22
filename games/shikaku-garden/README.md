@@ -23,6 +23,10 @@ godot --headless --path games/shikaku-garden --script res://tests/test_scene.gd
 
 The tests verify **eight exact-cover unique solutions**, playable reference rectangles, invalid moves, save/resume and the actual screen. [Shikaku Garden Web Playtest](../../.github/workflows/shikaku-garden-preview.yml) exports the single-threaded WebGL2 build as a downloadable GitHub Actions artifact; it does not publish a website. Extract and serve the artifact using `python3 -m http.server 8000`, then open `http://localhost:8000`.
 
+
+
+**New artifacts contain `serve.py`:** Extract the entire ZIP, open a terminal in the same directory as `index.html`, run `python3 serve.py`, and visit `http://127.0.0.1:8000/`. Do not open the HTML file directly with `file://`. If loading fails, run `python3 serve.py --smoke` and follow [the browser NetworkError guide](../../docs/web-networkerror.md). Actions artifacts are downloads, not live websites.
+
 ## Limits and evidence
 
 This is a prototype from the GF-018 research backlog, not measured ASO demand or a production selection. Differences from established Shikaku titles remain hypotheses. Phone ergonomics, target-age comprehension, store acquisition, return, willingness to pay and native iOS/Android signing **are unverified**. Compare user behavior against a direct incumbent before building content automation.

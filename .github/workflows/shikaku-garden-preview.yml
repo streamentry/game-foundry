@@ -54,6 +54,8 @@ jobs:
           printf 'Game: Shikaku Garden\nEngine: Godot %s\nCommit: %s\nMode: offline-only, no ads or analytics\n' \
             "$GODOT_VERSION" "$GITHUB_SHA" > build/shikaku-garden-web/BUILD.txt
           (cd build/shikaku-garden-web && sha256sum index.html index.js index.wasm index.pck > SHA256SUMS.txt)
+          cp tools/web_playtest.py build/shikaku-garden-web/serve.py
+          python3 tools/web_playtest.py --directory build/shikaku-garden-web --smoke
       - name: Upload downloadable playtest only (no public deployment)
         uses: actions/upload-artifact@v6
         with:
