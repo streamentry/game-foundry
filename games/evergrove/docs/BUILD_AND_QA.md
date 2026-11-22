@@ -7,7 +7,7 @@
 | Component | Location / version | Purpose |
 | --- | --- | --- |
 | Unity Editor | `ProjectSettings/ProjectVersion.txt` → `6000.3.0f1` | Actual Unity import, compile, UI, device builds |
-| uGUI | `Packages/manifest.json` → `com.unity.ugui 2.6.0` | Interactive UI |
+| uGUI | `Packages/manifest.json` → `com.unity.ugui 2.0.0` | Interactive UI |
 | Input System | `com.unity.inputsystem 1.20.1` | New input touch event handling |
 | .NET SDK | 8.x via CI | Pure C# gameplay/locale test runner; **not** a Unity compiler |
 | Python | 3.x | Static Unity/locale Resources contract verifier |
@@ -49,6 +49,8 @@ Source: `.github/workflows/evergrove-unity-playtest.yml` and `Assets/Editor/Ever
 - Preview artifact retention is **7 days**, not permanent distribution. Inspect the actual workflow and output paths rather than assuming success.
 - Workflow source avoids silently deploying Cloudflare, generating accounts or submitting store applications.
 
+For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [the execution checklist](specs/12-M1-M2-EXECUTION-CHECKLIST.md). A correct manifest pin or artifact marker is not proof that the Editor and phone launch successfully.
+
 **Potential build risks to test:** compatibility of Unity 6.3 with the pinned packages; platform modules and license activation; whether GameCI output directory corresponds to the custom `build/<platform>` location; iOS export support and host OS; import/packaging of Resources locale catalogs; missing font/renderer APIs.
 
 ## 3. Automated test map
@@ -56,7 +58,7 @@ Source: `.github/workflows/evergrove-unity-playtest.yml` and `Assets/Editor/Ever
 | Suite / command | Current scope | Does not prove |
 | --- | --- | --- |
 | `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release` | Fixture shape, exhaustive uniqueness, leaks/connectivity, 33 branch variants, immutable landmarks, campaign completion, Hint/Undo/Restart/Choice/Reconsider, save v1/v2/v3 rules, scene flags and local playtest counters; catalog validation for 29 non-English languages | Unity UI compile, gameplay feel, device performance, bilingual rendering |
-| `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 76 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
+| `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 81 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
 | `npm test` under `backend/evergrove` | Separate optional Worker model API behavior | Any linkage to actual offline game; cloud security or billing |
 | `.github/workflows/ci.yml` | Repo-wide research tooling and unrelated Godot game jobs | Unity-native correctness |
 
@@ -66,7 +68,7 @@ Source: `.github/workflows/evergrove-unity-playtest.yml` and `Assets/Editor/Ever
 
 | ID | Test | Expected observation |
 | --- | --- | --- |
-| EG-01 | Fresh install, Chapter 1, no prior save | Dry riverbed; 3×3 S/G grid; default 2D; sound/motion off; no account prompt |
+| EG-01 | Fresh install, Chapter 1, no prior save | Dry riverbed; 3×3 puzzle with wave/sprout endpoint icons; default 2D; sound/motion off; no account prompt |
 | EG-02 | Tap each kind (corner, straight, endpoint) | Correct clockwise rotation/port; live water reach and leak count; no false “solved” |
 | EG-03 | Solve Chapter 1 | Water visibly returns to village; exactly three choice actions; no timed paywall |
 | EG-04 | Choose tree | Next chapter uses variant 1 (90° rotated); one amber locked root connection; Mira acknowledges tree |
@@ -79,13 +81,13 @@ Source: `.github/workflows/evergrove-unity-playtest.yml` and `Assets/Editor/Ever
 | EG-11 | PuzzleOnly mode | Original authored puzzles throughout; no village art/branch rule/choice, no fabricated NPC memories |
 | EG-12 | 2D ↔ 2.5D | Same history and facts; default still; gracefully return to 2D if rendering unsupported |
 | EG-13 | Kill/relaunch after move and choice | Rotations, variant, history survive or explicit save error surfaced; no inconsistent character |
-| EG-14 | v1 six-chapter save, v2 mid-chapter save | Six choices remain; old active board not silently transformed; v3 branch only after next choice |
+| EG-14 | v1 six-chapter save, v2 mid-chapter save | Six choices remain; old active board not silently transformed; new branch rules only after the next eligible choice; no rewrite of saved active board |
 | EG-15 | Corrupt primary, valid backup | Recover previous valid garden; log and note discrepancy as user-impacting limitation |
-| EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 76 keys load correctly |
-| EG-17 | 320px phone + tablets + cutout devices | No clipped/out-of-view actionable puzzle, controls, S/G markers or choices |
+| EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 81 keys load correctly |
+| EG-17 | 320px phone + tablets + cutout devices | No clipped/out-of-view actionable puzzle, controls, wave/sprout endpoint icons or choices |
 | EG-18 | VoiceOver/TalkBack, keyboard and RTL/Indic | Accessible names, focus order and shaped text actually correct; **currently unverified** |
 | EG-19 | In-game local playtest report | Zero counters without opt-in; copy only when tapped; no network/identifiers |
-| EG-20 | Disk full / unavailable storage | No silent impression that progress is safe; **currently needs product-level warning UI** |
+| EG-20 | Disk full / unavailable storage | No silent impression that progress is safe; a localized save-error warning exists in source, but visibility and recovery require device proof |
 
 **Cross-platform matrix:** at least one small/older Android phone, one recent Android, one small iPhone, one large iPhone, relevant tablet, and WebGL when chosen as distribution. Capture OS build/version, device class, repro steps, screenshot, memory and frame-time evidence. Avoid invented “60 FPS on all phones” claims.
 
@@ -99,7 +101,7 @@ Source: `.github/workflows/evergrove-unity-playtest.yml` and `Assets/Editor/Ever
 
 For each launch language:
 
-- Native speaker approves all 76 compact keys, actual runtime combinations and tone.
+- Native speaker approves all 81 compact keys, actual runtime combinations and tone.
 - Screenshot test: language picker, board, ecological rule, decision cards, conversations, journal, end screen.
 - Correct font shaping, bidi order, line breaks and numerical placeholders, especially Arabic/Persian/Hebrew/Urdu, Hindi/Bengali/Tamil/Telugu and Thai.
 - Focus order, readable contrast, large touch targets and safe-area handling on small phones.
@@ -107,7 +109,7 @@ For each launch language:
 
 For the 2.5D art option: compare same world state with 2D, record memory/CPU/GPU/thermal cost and exact visual benefits. If it is slower or no clearer, keep 2D.
 
-## 6. Release gating and rollback
+## 7. Release gating and rollback
 
 **Gate A: logic.** All .NET branch, save and locale tests pass; no unexplained changes to existing 12 fixtures.
 
@@ -121,7 +123,7 @@ For the 2.5D art option: compare same world state with 2D, record memory/CPU/GPU
 
 **Rollback path:** Keep prior git commit/tag and compatible local save fixtures; if later Unity build is broken, revert the code while noting that v3 save may not be readable by an older binary. Do not roll back gameplay without a save-format compatibility check. Do not delete player data or publish cloud changes to solve a rendering issue.
 
-## 7. Who signs off?
+## 8. Who signs off?
 
 - **Engineering:** reproducible Unity build and tests, battery/memory/crash/performance logs.
 - **Game design:** mechanics are understandable and consequences causal, not deceptive.

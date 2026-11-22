@@ -8,7 +8,7 @@
 
 ## Gate start versus final verification
 
-A feature's machine-register `decision_gate` is its **earliest work/evidence gate**, not automatically the final milestone needed to verify it. For example `EG-001` starts at M1 but requires BLD-004–006 physical tests at M2; `EG-007` begins at M2 but includes A11Y-005 in M5. Only after **all required** tests have real build-linked evidence may a feature become `Verified`.
+A feature's machine-register `decision_gate` is its **feature-specific planning/authorization milestone**, not a computed minimum or maximum of its linked test gates. Prerequisite tests may be assigned to earlier milestones (for example, `EG-107` is considered at M5 but relies on puzzle/device tests at M2/M3); some feature tests finish later (`EG-001` begins at M1, while BLD-004–006 finish at M2). **Never** infer a feature is `Verified` from reaching its decision gate: every linked test must have build/source-linked reviewed evidence.
 
 **Fresh source caution:** the current repository also includes **v4 state, 81-key locales and 45 source-derived puzzle profiles**. This changes the historical audit baseline but **does not mean** Unity has compiled or players were tested. Open feature PRs may still be changing the same source. See [experiment protocols](10-EXPERIMENT-PROTOCOLS.md) and [release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md).
 
@@ -61,7 +61,7 @@ One person may hold several roles, but **native-language QA and matched human ob
 
 The gates are **sequential evidence requirements**, not calendar milestones. M1/M2 have not been independently verified. M3/M4/M5/M6 must not be marked complete by a successful .NET test.
 
-**Immediate highest-value action:** use [manual Unity playtest workflow](../../../../.github/workflows/evergrove-unity-playtest.yml) with maintainer-controlled Unity activation. It generates research/development artifacts, **not** signed store releases. The connector cannot supply private Unity license, Android signing or Xcode credentials. Record blockers and do not bypass the gate.
+**Immediate highest-value action:** follow the [M1/M2 execution checklist](12-M1-M2-EXECUTION-CHECKLIST.md), beginning with the [manual Unity playtest workflow](../../../../.github/workflows/evergrove-unity-playtest.yml) with maintainer-controlled Unity activation. It generates research/development artifacts, **not** signed store releases. The connector cannot supply private Unity license, Android signing or Xcode credentials. Record blockers and do not bypass the gate.
 
 ## Concrete M1 source repair and next blocked proof
 
@@ -117,7 +117,7 @@ For **EG-001**, the mandatory first evidence set is:
 | BLD-005 | Full 12-stream physical iPhone session |
 | BLD-006 | Suspend/resume + force-close/reopen without lost progress |
 
-**Do not manufacture files or placeholder `PASS` records.** `games/evergrove/docs/evidence/<BUILD_SHA>/<FEATURE_ID>/verification.md` is a *future evidence location*, not an existing artifact. The machine-readable file uses `evidence_artifacts: []` and `verified: false` until tests have actually happened. CI requires an existing, linked artifact before any feature/test may be marked verified.
+**Do not manufacture files or placeholder `PASS` records.** `games/evergrove/docs/evidence/<SOURCE_SHA>/<FEATURE_ID>/verification.md` is a *future evidence location*, not an existing artifact. The machine-readable file uses `evidence_artifacts: []` and `verified: false` until tests have actually happened. For a future `verified: true` test, the checker also requires a full source SHA, review timestamp/role, a source-SHA-scoped evidence file recording `result: PASS`, and an artifact SHA-256 for non-automated tests. These are **necessary documentation controls**, not proof that the observation is authentic.
 
 Minimum record, when a real run exists:
 
@@ -125,13 +125,14 @@ Minimum record, when a real run exists:
 feature: EG-001
 test_id: BLD-004
 source_commit_sha: <full SHA of exact tested source>
-candidate_build_sha: <full SHA of exact binary>
+build_artifact_sha256: <SHA-256 of the tested artifact; null for source-only tests>
 platform: Android
 device_model: <actual model>
 os_version: <actual OS version>
 unity_version: <actual Unity version>
 run_url: <actual GitHub Actions or session record URL>
-artifact_sha256: <actual checksum>
+reviewer_role: <actual accountable role>
+reviewed_at_utc: <actual ISO 8601 UTC timestamp>
 tester: <real reviewer role/person>
 test_date_utc: <real ISO 8601 UTC time>
 result: PASS | FAIL | BLOCKED

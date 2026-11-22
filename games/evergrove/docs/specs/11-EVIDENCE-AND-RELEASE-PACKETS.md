@@ -22,6 +22,8 @@
 
 **M5–M6: release proof** requires locale certification only for enabled storefront locales, platform accessibility, app/privacy declarations, name clearance, final product QA and real approval to distribute. Nothing in `docs/specs` grants that approval.
 
+For the exact runner actions and two-phone QA procedure, follow [12 — M1/M2 execution checklist](12-M1-M2-EXECUTION-CHECKLIST.md).
+
 ### iOS host caveat
 
 The current manual Unity workflow declares `runs-on: ubuntu-24.04` and exposes an iOS option. A YAML option **does not prove** that the installed Unity modules and export path support this combination. Treat iOS export as **unverified until a real successful log exists**. If Linux cannot produce the required Xcode project, configure a supported macOS/Unity export route, verify it, then document exact commands and signing requirements; do not claim an iOS build exists simply because the workflow UI lists it.
@@ -36,7 +38,7 @@ The standard-library script has **synthetic unit tests in ordinary CI**, coverin
 
 ## 3. Minimum reproducibility packet for every test result
 
-Save a redacted packet at `games/evergrove/docs/evidence/<SOURCE_SHA>/<FEATURE_ID>/verification.md` **only when actual test evidence exists**. The path is an instruction, not an existing directory.
+Save a redacted packet at `games/evergrove/docs/evidence/<SOURCE_SHA>/<FEATURE_ID>/verification.md` **only when actual test evidence exists**. The path is an instruction, not an existing directory. One feature packet may index several independent test observations; for tests owned only by a milestone, use `games/evergrove/docs/evidence/<SOURCE_SHA>/_gates/<TEST_ID>/verification.md`. Never make a failed or blocked test disappear simply because `verified` is false.
 
 ```yaml
 # Example schema. Replace every placeholder with observed evidence; do not commit placeholders as PASS.
@@ -44,13 +46,15 @@ feature_id: EG-001
 test_id: BLD-002
 result: BLOCKED                 # PASS | FAIL | BLOCKED | NOT_RUN
 source_commit_sha: REQUIRED_FULL_SHA
-build_artifact_sha256: null    # actual hex hash or null when not built
+build_artifact_sha256: null    # actual hex hash; null only for source-only/NOT_RUN records
 platform: Android
 device_model: null
 os_version: null
 unity_editor_version: null
 build_channel: research       # editor | research | consumer
 test_date_utc: null
+reviewed_at_utc: null           # required on real PASS
+reviewer_role: UNASSIGNED       # required on real PASS
 operator: UNASSIGNED          # actual accountable reviewer role/person
 run_url: null
 artifact_reference: null      # permissioned retention location, not private data in repo
@@ -59,7 +63,7 @@ known_failures: []
 next_action: "Configure licensed Unity runner and run Editor import."
 ```
 
-Never commit this example with a fabricated SHA, result or tester name and then promote a feature to `Verified`. The machine register `verification-matrix.json` retains `verified: false`, null evidence path and empty feature evidence arrays until independent review.
+Never commit this example with a fabricated SHA, result or tester name and then promote a feature to `Verified`. The machine register `verification-matrix.json` retains `verified: false`, null evidence path and empty feature evidence arrays until independent review. When a test has actually passed, set `tests[].source_commit_sha` to the **full 40-character Git SHA**, `tests[].build_artifact_sha256` to the real **64-character digest for Unity/device/human/manual tests** (or null for source-only automated checks), `tests[].reviewed_at_utc`, `tests[].reviewer_role`, `tests[].evidence_path` under `docs/evidence/<SOURCE_SHA>/`, and `tests[].verified=true`. The packet must record `test_id`, `source_commit_sha`, `result: PASS`, and the relevant artifact digest. The checker validates structure; reviewers must independently validate the underlying evidence. A feature remains unverified until **every** referenced test passes and its evidence artifacts are indexed.
 
 ### Evidence quality checklist
 
@@ -82,11 +86,11 @@ Not every named test belongs naturally to one feature. The canonical register ex
 | M1 — Unity compilation | BLD-001–003, native Editor build logs, outputs and hashes | Unity/Release Engineer | **Unverified** |
 | M2 — physical alpha | BLD-004–006, SAVE, PRIV, A11Y touch | Device QA / engineer | **Unverified** |
 | M3 — uncoached first session | VAL-001, PUZ, WLD first-payoff and evidence | UX researcher | **Unverified** |
-| M4 — fair value comparison | VAL-002 / VAL-003 and truly matched fixtures | Research owner / PO | **Unverified**; baseline confounded |
-| M5 — launch quality | Native-shaping, RTL/Indic, platform accessibility, performance, privacy | Locale native reviewers + QA | **Unverified** |
+| M4 — fair value comparison | VAL-002, identical gameplay fixtures and recorded allocation | Research owner / PO | **Unverified**; baseline confounded |
+| M5 — launch quality | VAL-003 visual comparison, native-shaping, RTL/Indic, platform accessibility, performance, privacy | Locale native reviewers + QA | **Unverified** |
 | M6 — consumer release | Signed target binaries, naming rights, listing disclosures, purchase design, 0 S0/S1 | Product + release + store/legal | **Not authorized** |
 
-**Gate semantics:** a feature's `decision_gate` in the machine register is the **earliest milestone that needs/starts work**. It is **not necessarily the milestone where the feature may be declared fully Verified**. For example `EG-001` starts in **M1** but its BLD-004/005/006 physical-device tests belong to **M2**. The feature remains `Implemented-Unverified` or `Proposed` until every required verification ID is evidenced. The same applies to `EG-007`: core touch starts M2, scaling/advanced text checks complete at M5.
+**Gate semantics:** a feature's `decision_gate` is the milestone for its **feature-specific planning/authorization decision**, not the minimum/maximum gate of referenced tests. Some prerequisites occurred at earlier gates (`EG-107` targets M5 but references M2/M3); some feature tests finish later (`EG-001` begins M1 but has M2 device checks; `EG-007` begins M2 but has an M5 text check). All linked tests must pass against appropriate source/build evidence before the feature is `Verified`. The 2D/2.5D comparison `VAL-003` is assigned to **M5**, not M4.
 
 ## 5. Explicit stop conditions and rollback routes
 

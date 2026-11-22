@@ -21,6 +21,7 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 | [09 — Execution control](09-EXECUTION-CONTROL.md) | Immutable audit baseline, lifecycle, owners, milestone gates, defect severity, proof artifacts, release vs research build contract |
 | [10 — Research protocols](10-EXPERIMENT-PROTOCOLS.md) | Preregistration, matched conditions, denominators, consent, missingness and go/no-go |
 | [11 — Evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) | Actual build proof, platform QA, test ownership, sign-off and rollback |
+| [12 — M1/M2 execution checklist](12-M1-M2-EXECUTION-CHECKLIST.md) | Operator-ready Unity 6.3 preflight, licensed Editor/Android/iOS build proof and compact-phone test campaign |
 | [Verification matrix](verification-matrix.json) | Machine-checked 37-feature × 46-test contracts; no fabricated verification evidence |
 
 ## Current-state reconciliation and two practical playbooks
@@ -29,6 +30,7 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 
 - [10 — Preregistered experiments](10-EXPERIMENT-PROTOCOLS.md): matched-board controls, allocation, neutral observation and truthful denominators.
 - [11 — Build evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md): artifact checksums, physical device QA, sign-off, rollback and unverified iOS-export caveat.
+- [12 — M1/M2 execution checklist](12-M1-M2-EXECUTION-CHECKLIST.md): concrete commands and evidence capture for the presently blocked build/device gates.
 
 **A complete specification does not mean 37 completed features.** No feature is `Verified` without real evidence tied to the target build. The as-built [handbook](../README.md) was updated for v4 in PR #49; keep it synchronized with subsequent changes. **The exact source commit remains the authority** whenever documentation and code differ.
 

@@ -42,7 +42,7 @@
         "BLD-006"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-001/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-001/verification.md",
       "stop_or_rollback": "Build failure, device blocker or missing Unity evidence"
     },
     {
@@ -62,7 +62,7 @@
         "VAL-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-002/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-002/verification.md",
       "stop_or_rollback": "First action is delayed or first-puzzle comprehension regresses"
     },
     {
@@ -83,7 +83,7 @@
         "VAL-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-003/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-003/verification.md",
       "stop_or_rollback": "Consequence recall does not improve after two iterations"
     },
     {
@@ -101,7 +101,7 @@
         "PUZ-003"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-004/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-004/verification.md",
       "stop_or_rollback": "Any authored board loses unique solution or observed difficulty spikes unexplained"
     },
     {
@@ -121,7 +121,7 @@
         "VAL-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-005/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-005/verification.md",
       "stop_or_rollback": "Hint reveals unwanted solutions or becomes misleading"
     },
     {
@@ -139,7 +139,7 @@
         "A11Y-005"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-006/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-006/verification.md",
       "stop_or_rollback": "Any enabled script renders broken glyphs or uncontrolled overflow"
     },
     {
@@ -159,7 +159,7 @@
         "A11Y-005"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-007/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-007/verification.md",
       "stop_or_rollback": "Targets remain inaccessible or mis-taps block play"
     },
     {
@@ -178,7 +178,7 @@
         "SAVE-003"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-008/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-008/verification.md",
       "stop_or_rollback": "Previously valid progress is irrecoverable after interruption"
     },
     {
@@ -196,7 +196,7 @@
         "PRIV-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-009/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-009/verification.md",
       "stop_or_rollback": "Unexplained network transmission or undeclared collection"
     },
     {
@@ -219,7 +219,7 @@
         "LOC-004"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-010/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-010/verification.md",
       "stop_or_rollback": "An enabled locale lacks native/technical/store signoff"
     },
     {
@@ -238,7 +238,7 @@
         "A11Y-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-011/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-011/verification.md",
       "stop_or_rollback": "Flow or protected state is indistinguishable without hue"
     },
     {
@@ -257,7 +257,7 @@
         "UX-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-012/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-012/verification.md",
       "stop_or_rollback": "Sound distracts, annoys or is required to understand play"
     },
     {
@@ -277,7 +277,7 @@
         "UX-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-013/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-013/verification.md",
       "stop_or_rollback": "Haptics reduce accessibility or have no measurable touch benefit"
     },
     {
@@ -297,7 +297,7 @@
         "VAL-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-101/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-101/verification.md",
       "stop_or_rollback": "Journal invents causes or players ignore it"
     },
     {
@@ -318,7 +318,7 @@
         "VAL-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-102/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-102/verification.md",
       "stop_or_rollback": "Delayed effects fail causal recognition or contradict history"
     },
     {
@@ -338,7 +338,7 @@
         "VAL-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-103/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-103/verification.md",
       "stop_or_rollback": "NPC remembers unmade events or dialogue adds no player value"
     },
     {
@@ -358,7 +358,7 @@
         "VAL-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-104/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-104/verification.md",
       "stop_or_rollback": "Characters are interchangeable or constrain choices"
     },
     {
@@ -379,7 +379,7 @@
         "VAL-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-105/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-105/verification.md",
       "stop_or_rollback": "Extra ecology rules reduce comprehension or are merely board rotation"
     },
     {
@@ -400,7 +400,7 @@
         "PUZ-004"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-106/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-106/verification.md",
       "stop_or_rollback": "Combined rules create unteachable difficulty or unfair solutions"
     },
     {
@@ -421,7 +421,7 @@
         "A11Y-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-107/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-107/verification.md",
       "stop_or_rollback": "Mode switching corrupts state or increases confusion"
     },
     {
@@ -440,7 +440,7 @@
         "VAL-004"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-108/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-108/verification.md",
       "stop_or_rollback": "Return feature requires streaks or no one voluntarily reopens"
     },
     {
@@ -462,7 +462,7 @@
         "WLD-004"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-109/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-109/verification.md",
       "stop_or_rollback": "Replay differs only cosmetically or reduces first-run quality"
     },
     {
@@ -482,7 +482,7 @@
         "PUZ-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-110/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-110/verification.md",
       "stop_or_rollback": "Generated puzzles bypass human review or unique-solution proof"
     },
     {
@@ -502,7 +502,7 @@
         "PUZ-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-111/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-111/verification.md",
       "stop_or_rollback": "Expanded undo corrupts saves or loses valid history"
     },
     {
@@ -523,7 +523,7 @@
         "A11Y-005"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-112/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-112/verification.md",
       "stop_or_rollback": "Board zoom hides controls or adds mis-taps"
     },
     {
@@ -540,7 +540,7 @@
         "A11Y-003"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-113/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-113/verification.md",
       "stop_or_rollback": "Screen reader cannot complete first three boards"
     },
     {
@@ -559,7 +559,7 @@
         "A11Y-004"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-114/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-114/verification.md",
       "stop_or_rollback": "Reduced motion hides causal effects or still causes discomfort"
     },
     {
@@ -580,7 +580,7 @@
         "WLD-003"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-115/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-115/verification.md",
       "stop_or_rollback": "Postcard misstates world or distracts from completion"
     },
     {
@@ -600,7 +600,7 @@
         "WLD-004"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-116/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-116/verification.md",
       "stop_or_rollback": "Epilogue describes choices the player did not make"
     },
     {
@@ -619,7 +619,7 @@
         "WLD-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-201/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-201/verification.md",
       "stop_or_rollback": "Micro-events invent time or become chores"
     },
     {
@@ -638,7 +638,7 @@
         "A11Y-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-202/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-202/verification.md",
       "stop_or_rollback": "Seasonal color harms contrast or gates content"
     },
     {
@@ -658,7 +658,7 @@
         "PRIV-002"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-203/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-203/verification.md",
       "stop_or_rollback": "Sharing is automatic, identifiable or unwanted"
     },
     {
@@ -680,7 +680,7 @@
         "A11Y-005"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-204/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-204/verification.md",
       "stop_or_rollback": "Presets delay first input or are irreversible"
     },
     {
@@ -698,7 +698,7 @@
         "SAVE-003"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-205/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-205/verification.md",
       "stop_or_rollback": "Purchase dependency breaks offline base or requires paid hints"
     },
     {
@@ -719,7 +719,7 @@
         "LOC-003"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-206/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-206/verification.md",
       "stop_or_rollback": "Localized screenshots are misleading or uncertified"
     },
     {
@@ -739,7 +739,7 @@
         "VAL-005"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-207/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-207/verification.md",
       "stop_or_rollback": "Traffic is too small for a credible test or creative is misleading"
     },
     {
@@ -758,7 +758,7 @@
         "PERF-001"
       ],
       "evidence_artifacts": [],
-      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-208/verification.md",
+      "expected_artifact": "games/evergrove/docs/evidence/<SOURCE_SHA>/EG-208/verification.md",
       "stop_or_rollback": "Porting consumes resources before mobile product proof"
     }
   ],

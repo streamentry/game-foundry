@@ -80,6 +80,17 @@ def main() -> int:
     if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 81:
         fail("Localization key count changed; update documentation and catalog validator")
 
+    # Compare the legacy build handbook against the actual dependency manifest.
+    # This would have caught stale uGUI 2.6.0 / 76-key instructions on main.
+    manifest = json.loads(source_text(GAME / "Packages/manifest.json"))
+    build_handbook = source_text(DOCS / "BUILD_AND_QA.md")
+    ugui = manifest["dependencies"]["com.unity.ugui"]
+    if f"com.unity.ugui {ugui}" not in build_handbook:
+        fail("Build handbook uGUI version differs from the actual manifest")
+    canonical_key_count = len(re.findall(r'"[^"]+"', keys.group(1)))
+    if f"{canonical_key_count} keys each" not in build_handbook:
+        fail("Build handbook key count differs from the localization registry")
+
     check_specification_contract()
 
     print(
@@ -103,6 +114,7 @@ SPEC_DOCUMENTS = [
     "09-EXECUTION-CONTROL.md",
     "10-EXPERIMENT-PROTOCOLS.md",
     "11-EVIDENCE-AND-RELEASE-PACKETS.md",
+    "12-M1-M2-EXECUTION-CHECKLIST.md",
 ]
 
 
@@ -155,17 +167,46 @@ def check_specification_contract() -> None:
             fail(f"Unknown test gate: {test_id}")
         if not case.get("method") or not case.get("passing_criteria") or not case.get("evidence_required"):
             fail(f"Verification case is not actionable: {test_id}")
+        if type(case.get("verified")) is not bool:
+            fail(f"Verified flag must be boolean: {test_id}")
         if case.get("verified"):
-            if not case.get("evidence_path") or not case.get("build_sha"):
-                fail(f"A verified test needs real dated build evidence: {test_id}")
-            evidence = (ROOT / case["evidence_path"]).resolve()
+            source_sha = case.get("source_commit_sha", "")
+            artifact_sha = case.get("build_artifact_sha256")
+            if not re.fullmatch(r"[a-f0-9]{40}", source_sha):
+                fail(f"Verified test must pin the exact source commit: {test_id}")
+            if case.get("method") != "Automated" and not (
+                isinstance(artifact_sha, str) and
+                re.fullmatch(r"[a-f0-9]{64}", artifact_sha)
+            ):
+                fail(f"Non-automated verified test must pin an actual artifact hash: {test_id}")
+            if artifact_sha is not None and not re.fullmatch(r"[a-f0-9]{64}", artifact_sha):
+                fail(f"Malformed verified artifact digest: {test_id}")
+            if not case.get("reviewer_role") or not re.match(
+                r"^\d{4}-\d{2}-\d{2}T", case.get("reviewed_at_utc", "")
+            ):
+                fail(f"Missing verified test reviewer or UTC time: {test_id}")
+            path = case.get("evidence_path", "")
+            if not path.startswith(f"games/evergrove/docs/evidence/{source_sha}/"):
+                fail(f"Verified evidence is not scoped to its source SHA: {test_id}")
+            evidence = (ROOT / path).resolve()
             if not evidence.is_relative_to(ROOT) or not evidence.is_file():
                 fail(f"Missing verified test evidence: {test_id}")
-            if not re.fullmatch(r"[a-f0-9]{40,64}", case["build_sha"]):
-                fail(f"Invalid verified test build SHA: {test_id}")
+            proof = source_text(evidence)
+            for required in (
+                f"test_id: {test_id}",
+                f"source_commit_sha: {source_sha}",
+                "result: PASS",
+            ):
+                if required not in proof:
+                    fail(f"Evidence packet missing {required}: {test_id}")
+            if artifact_sha and f"build_artifact_sha256: {artifact_sha}" not in proof:
+                fail(f"Evidence packet hash mismatch: {test_id}")
     for id, feature in feature_by_id.items():
         if feature.get("status") not in states or feature.get("decision_gate") not in gates:
             fail(f"Feature lifecycle/gate invalid: {id}")
+        expected_evidence = f"games/evergrove/docs/evidence/<SOURCE_SHA>/{id}/verification.md"
+        if feature.get("expected_artifact") != expected_evidence:
+            fail(f"Noncanonical source-SHA-scoped evidence path: {id}")
         if type(feature.get("blocked")) is not bool:
             fail(f"Blocked must be an independent boolean for {id}")
         for required in (
@@ -190,6 +231,8 @@ def check_specification_contract() -> None:
         block = backlog[start:end if end >= 0 else len(backlog)]
         if "**Execution:**" not in block or feature["owner_role"] not in block:
             fail(f"Missing human-visible execution contract for {id}")
+        if expected_evidence not in block:
+            fail(f"Backlog evidence path disagrees with registry: {id}")
         if feature["decision_gate"] not in block or any(ref not in block for ref in refs):
             fail(f"Stale gate/test ID in human feature spec: {id}")
         if feature.get("status") == "Verified":

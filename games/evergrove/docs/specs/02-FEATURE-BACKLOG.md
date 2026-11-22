@@ -54,7 +54,7 @@
 
 **State:** Scaffolded; no Unity Editor/device pass recorded. **Type:** Reliability. **Risk:** Build/signing/toolchain delays. **Evidence:** R1,R2. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
 
-**Execution:** `Proposed`; **M1**; owner role **Unity/Release Engineer**; verification **`BLD-001`, `BLD-002`, `BLD-003`, `BLD-004`, `BLD-005`, `BLD-006`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-001/verification.md` (**NOT COLLECTED**); **rollback/stop:** Build failure, device blocker or missing Unity evidence.
+**Execution:** `Proposed`; **M1**; owner role **Unity/Release Engineer**; verification **`BLD-001`, `BLD-002`, `BLD-003`, `BLD-004`, `BLD-005`, `BLD-006`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-001/verification.md` (**NOT COLLECTED**); **rollback/stop:** Build failure, device blocker or missing Unity evidence.
 
 - **Player problem:** A plausible prototype may not compile or handle real touch.
 - **Player-visible behavior:** Launch and finish the campaign on a compact Android and an iPhone; respect safe areas, back navigation and resume.
@@ -66,7 +66,7 @@
 
 **State:** Proposed UX change; dry→flowing water already exists. **Type:** Core quality. **Risk:** Over-directed opening may feel trivial. **Evidence:** R1,R3,Q1. **R/I/C/E:** 5/5/3/2; **illustrative score:** 37.5.
 
-**Execution:** `Implemented-Unverified`; **M3**; owner role **UX & Accessibility QA**; verification **`PUZ-005`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-002/verification.md` (**NOT COLLECTED**); **rollback/stop:** First action is delayed or first-puzzle comprehension regresses.
+**Execution:** `Implemented-Unverified`; **M3**; owner role **UX & Accessibility QA**; verification **`PUZ-005`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-002/verification.md` (**NOT COLLECTED**); **rollback/stop:** First action is delayed or first-puzzle comprehension regresses.
 
 - **Player problem:** Players may see menus or a generic pipe board before Evergrove's value.
 - **Player-visible behavior:** Start at dry creek with obvious first tile; first rotations extend water; first solve visibly revives a village detail.
@@ -78,7 +78,7 @@
 
 **State:** Scene changes exist; reveal sequence needs device/player verification. **Type:** Core quality. **Risk:** Visual clutter or longer forced cutscene. **Evidence:** R1,R4,H1. **R/I/C/E:** 5/5/3/2; **illustrative score:** 37.5.
 
-**Execution:** `Proposed`; **M3**; owner role **Product Owner**; verification **`WLD-001`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-003/verification.md` (**NOT COLLECTED**); **rollback/stop:** Consequence recall does not improve after two iterations.
+**Execution:** `Proposed`; **M3**; owner role **Product Owner**; verification **`WLD-001`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-003/verification.md` (**NOT COLLECTED**); **rollback/stop:** Consequence recall does not improve after two iterations.
 
 - **Player problem:** Text-only explanation makes choices feel cosmetic.
 - **Player-visible behavior:** After tree/bridge/meadow selection, frame and highlight the changed landscape before one brief NPC response.
@@ -90,7 +90,7 @@
 
 **State:** Unique-solution solver tests exist; authoring metadata proposed. **Type:** Core quality. **Risk:** Solver complexity mistaken for felt difficulty. **Evidence:** R1,Q2,H1. **R/I/C/E:** 5/4/4/3; **illustrative score:** 26.7.
 
-**Execution:** `Implemented-Unverified`; **M3**; owner role **Gameplay Engineer**; verification **`PUZ-001`, `PUZ-003`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-004/verification.md` (**NOT COLLECTED**); **rollback/stop:** Any authored board loses unique solution or observed difficulty spikes unexplained.
+**Execution:** `Implemented-Unverified`; **M3**; owner role **Gameplay Engineer**; verification **`PUZ-001`, `PUZ-003`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-004/verification.md` (**NOT COLLECTED**); **rollback/stop:** Any authored board loses unique solution or observed difficulty spikes unexplained.
 
 - **Player problem:** Unique solution does not guarantee fair or engaging difficulty.
 - **Player-visible behavior:** Store solution proof, minimum rotations, error traps, hint path, ecological rule, target band and observed solve times per board.
@@ -102,7 +102,7 @@
 
 **State:** One-tile Guide Me exists; 3-stage ladder proposed. **Type:** Core quality. **Risk:** Hint reveals too much or implies a unique move when multiple are possible. **Evidence:** R1,Q1,H1. **R/I/C/E:** 5/4/4/2; **illustrative score:** 40.0.
 
-**Execution:** `Implemented-Unverified`; **M3**; owner role **Gameplay Engineer**; verification **`PUZ-002`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-005/verification.md` (**NOT COLLECTED**); **rollback/stop:** Hint reveals unwanted solutions or becomes misleading.
+**Execution:** `Implemented-Unverified`; **M3**; owner role **Gameplay Engineer**; verification **`PUZ-002`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-005/verification.md` (**NOT COLLECTED**); **rollback/stop:** Hint reveals unwanted solutions or becomes misleading.
 
 - **Player problem:** One hint may spoil a puzzle or fail to unstick a player.
 - **Player-visible behavior:** Stage 1 highlights a useful region; stage 2 names a tile; stage 3 performs one correct rotation; no penalty/currency.
@@ -114,7 +114,7 @@
 
 **State:** Legacy uGUI Text and best-effort OS fonts; shipping blocker. **Type:** Release quality. **Risk:** Text migration changes layout, focus or performance. **Evidence:** R3,U1. **R/I/C/E:** 4/5/5/4; **illustrative score:** 25.0.
 
-**Execution:** `Proposed`; **M5**; owner role **Localization Lead**; verification **`LOC-002`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-006/verification.md` (**NOT COLLECTED**); **rollback/stop:** Any enabled script renders broken glyphs or uncontrolled overflow.
+**Execution:** `Proposed`; **M5**; owner role **Localization Lead**; verification **`LOC-002`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-006/verification.md` (**NOT COLLECTED**); **rollback/stop:** Any enabled script renders broken glyphs or uncontrolled overflow.
 
 - **Player problem:** RTL and Indic strings can be unreadable despite complete catalogs.
 - **Player-visible behavior:** Use Unity Advanced Text Generator/UI Toolkit or a tested equivalent for all player-facing dynamic text, bidi and shaping.
@@ -126,7 +126,7 @@
 
 **State:** Safe-area scroll and large controls exist; device audit unverified. **Type:** Release quality. **Risk:** Larger targets crowd 4×4 board. **Evidence:** R2,P1,Q1. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
 
-**Execution:** `Proposed`; **M2**; owner role **UX & Accessibility QA**; verification **`A11Y-001`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-007/verification.md` (**NOT COLLECTED**); **rollback/stop:** Targets remain inaccessible or mis-taps block play.
+**Execution:** `Proposed`; **M2**; owner role **UX & Accessibility QA**; verification **`A11Y-001`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-007/verification.md` (**NOT COLLECTED**); **rollback/stop:** Targets remain inaccessible or mis-taps block play.
 
 - **Player problem:** Small taps, complex gestures and low text size exclude casual/older users.
 - **Player-visible behavior:** One-tap rotation; minimum frequent-action hit areas 44pt iOS/48dp Android; visible pressed state; scalable text.
@@ -138,7 +138,7 @@
 
 **State:** Versioned JSON v3, backup and migration implemented; device fault tests open. **Type:** Reliability. **Risk:** Platform-specific File.Replace/fallback semantics. **Evidence:** R1,R2. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
 
-**Execution:** `Implemented-Unverified`; **M2**; owner role **Unity/Release Engineer**; verification **`SAVE-001`, `SAVE-002`, `SAVE-003`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-008/verification.md` (**NOT COLLECTED**); **rollback/stop:** Previously valid progress is irrecoverable after interruption.
+**Execution:** `Implemented-Unverified`; **M2**; owner role **Unity/Release Engineer**; verification **`SAVE-001`, `SAVE-002`, `SAVE-003`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-008/verification.md` (**NOT COLLECTED**); **rollback/stop:** Previously valid progress is irrecoverable after interruption.
 
 - **Player problem:** Lost garden history destroys trust and emotional ownership.
 - **Player-visible behavior:** Write validated snapshots, recover previous valid save, migrate v1/v2, confirm destructive reset.
@@ -150,7 +150,7 @@
 
 **State:** Offline design and opt-in in-memory playtest exist; network audit open. **Type:** Trust. **Risk:** Platform service traffic confused with app traffic. **Evidence:** R1,R2,P2. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
 
-**Execution:** `Proposed`; **M2**; owner role **Unity/Release Engineer**; verification **`PRIV-001`, `PRIV-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-009/verification.md` (**NOT COLLECTED**); **rollback/stop:** Unexplained network transmission or undeclared collection.
+**Execution:** `Proposed`; **M2**; owner role **Unity/Release Engineer**; verification **`PRIV-001`, `PRIV-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-009/verification.md` (**NOT COLLECTED**); **rollback/stop:** Unexplained network transmission or undeclared collection.
 
 - **Player problem:** Offline promise can be broken by SDKs or unexpected traffic.
 - **Player-visible behavior:** Full campaign works in airplane mode; no ad/analytics SDK; session notes exist only after consent and export only on request.
@@ -162,7 +162,7 @@
 
 **State:** 30 complete draft catalogs; no native/device sign-off. **Type:** Release quality. **Risk:** Fewer initial markets; QA cost. **Evidence:** R3,U1,P2. **R/I/C/E:** 4/4/5/3; **illustrative score:** 26.7.
 
-**Execution:** `Proposed`; **M5**; owner role **Localization Lead**; verification **`LOC-001`, `LOC-002`, `LOC-003`, `LOC-004`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-010/verification.md` (**NOT COLLECTED**); **rollback/stop:** An enabled locale lacks native/technical/store signoff.
+**Execution:** `Proposed`; **M5**; owner role **Localization Lead**; verification **`LOC-001`, `LOC-002`, `LOC-003`, `LOC-004`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-010/verification.md` (**NOT COLLECTED**); **rollback/stop:** An enabled locale lacks native/technical/store signoff.
 
 - **Player problem:** Thirty selectable languages can create thirty broken first impressions.
 - **Player-visible behavior:** Enable only locales passing translation, shaping, native editorial and screenshot QA; retain draft files in repo.
@@ -174,7 +174,7 @@
 
 **State:** Color-coded scene/pipe UI exists; formal audit proposed. **Type:** Release quality. **Risk:** Extra strokes obscure small boards. **Evidence:** P1,Q1. **R/I/C/E:** 5/4/5/2; **illustrative score:** 50.0.
 
-**Execution:** `Implemented-Unverified`; **M3**; owner role **UX & Accessibility QA**; verification **`A11Y-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-011/verification.md` (**NOT COLLECTED**); **rollback/stop:** Flow or protected state is indistinguishable without hue.
+**Execution:** `Implemented-Unverified`; **M3**; owner role **UX & Accessibility QA**; verification **`A11Y-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-011/verification.md` (**NOT COLLECTED**); **rollback/stop:** Flow or protected state is indistinguishable without hue.
 
 - **Player problem:** Players may not distinguish connected, leaking and anchored tiles by hue.
 - **Player-visible behavior:** Use pipe shape, port outline, water movement/pattern and labels in addition to color; provide high-contrast mode.
@@ -186,7 +186,7 @@
 
 **State:** Optional gentle completion chime exists; richer sound proposed. **Type:** Polish. **Risk:** Cost, repetition, sensory overload; defer behind blockers. **Evidence:** R1,H1. **R/I/C/E:** 4/3/3/3; **illustrative score:** 12.0.
 
-**Execution:** `Implemented-Unverified`; **M6**; owner role **Unity/Release Engineer**; verification **`UX-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-012/verification.md` (**NOT COLLECTED**); **rollback/stop:** Sound distracts, annoys or is required to understand play.
+**Execution:** `Implemented-Unverified`; **M6**; owner role **Unity/Release Engineer**; verification **`UX-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-012/verification.md` (**NOT COLLECTED**); **rollback/stop:** Sound distracts, annoys or is required to understand play.
 
 - **Player problem:** Water restoration can lack sensory satisfaction.
 - **Player-visible behavior:** Add quiet rotation/water/success cues and state-dependent ambience; muted by default until preference, with independent mute.
@@ -198,7 +198,7 @@
 
 **State:** Proposed. **Type:** Polish. **Risk:** Battery/annoyance; defer if costly. **Evidence:** P1,H1. **R/I/C/E:** 3/2/3/1; **illustrative score:** 18.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Unity/Release Engineer**; verification **`UX-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-013/verification.md` (**NOT COLLECTED**); **rollback/stop:** Haptics reduce accessibility or have no measurable touch benefit.
+**Execution:** `Proposed`; **M6**; owner role **Unity/Release Engineer**; verification **`UX-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-013/verification.md` (**NOT COLLECTED**); **rollback/stop:** Haptics reduce accessibility or have no measurable touch benefit.
 
 - **Player problem:** Touch rotation can feel imprecise.
 - **Player-visible behavior:** Light tick per valid rotation and distinct completion pulse; easy toggle and OS respect.
@@ -213,7 +213,7 @@
 
 **State:** Ordered journal exists; causal chain view proposed. **Type:** Differentiation. **Risk:** Text overload; offer compact visual summary. **Evidence:** R1,H1. **R/I/C/E:** 5/4/3/2; **illustrative score:** 30.0.
 
-**Execution:** `Implemented-Unverified`; **M4**; owner role **Gameplay Engineer**; verification **`WLD-003`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-101/verification.md` (**NOT COLLECTED**); **rollback/stop:** Journal invents causes or players ignore it.
+**Execution:** `Implemented-Unverified`; **M4**; owner role **Gameplay Engineer**; verification **`WLD-003`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-101/verification.md` (**NOT COLLECTED**); **rollback/stop:** Journal invents causes or players ignore it.
 
 - **Player problem:** Returning players may forget why the world looks different.
 - **Player-visible behavior:** For each choice show Choice → World effect → NPC memory → Next-puzzle effect; all derived from saved events.
@@ -225,7 +225,7 @@
 
 **State:** Immediate/next/ending hooks partly exist; full contract proposed. **Type:** Differentiation. **Risk:** Combinatorial content burden. **Evidence:** R1,H1. **R/I/C/E:** 5/5/3/4; **illustrative score:** 18.8.
 
-**Execution:** `Proposed`; **M4**; owner role **Product Owner**; verification **`WLD-001`, `WLD-004`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-102/verification.md` (**NOT COLLECTED**); **rollback/stop:** Delayed effects fail causal recognition or contradict history.
+**Execution:** `Proposed`; **M4**; owner role **Product Owner**; verification **`WLD-001`, `WLD-004`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-102/verification.md` (**NOT COLLECTED**); **rollback/stop:** Delayed effects fail causal recognition or contradict history.
 
 - **Player problem:** One-step choices can feel like decorative rewards.
 - **Player-visible behavior:** Every major choice has immediate visual, later puzzle/systemic and chapter-ending consequences, authored and deterministic.
@@ -237,7 +237,7 @@
 
 **State:** State-dependent authored conversations exist; formal memory tokens proposed. **Type:** Differentiation. **Risk:** Repetitive dialogue or token-state complexity. **Evidence:** R1,H1. **R/I/C/E:** 4/4/3/3; **illustrative score:** 16.0.
 
-**Execution:** `Proposed`; **M4**; owner role **Gameplay Engineer**; verification **`WLD-002`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-103/verification.md` (**NOT COLLECTED**); **rollback/stop:** NPC remembers unmade events or dialogue adds no player value.
+**Execution:** `Proposed`; **M4**; owner role **Gameplay Engineer**; verification **`WLD-002`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-103/verification.md` (**NOT COLLECTED**); **rollback/stop:** NPC remembers unmade events or dialogue adds no player value.
 
 - **Player problem:** Dialogue may sound generic or falsely imply memory.
 - **Player-visible behavior:** Mira/Orin/Fen reference at most 3–5 salient real choice events each; no chat-history illusion.
@@ -249,7 +249,7 @@
 
 **State:** Mira/Orin/Fen have authored distinct responses; attribution untested. **Type:** Differentiation. **Risk:** Stereotypes or forced conflict. **Evidence:** R1,H1. **R/I/C/E:** 4/3/3/3; **illustrative score:** 12.0.
 
-**Execution:** `Proposed`; **M4**; owner role **Product Owner**; verification **`WLD-002`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-104/verification.md` (**NOT COLLECTED**); **rollback/stop:** Characters are interchangeable or constrain choices.
+**Execution:** `Proposed`; **M4**; owner role **Product Owner**; verification **`WLD-002`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-104/verification.md` (**NOT COLLECTED**); **rollback/stop:** Characters are interchangeable or constrain choices.
 
 - **Player problem:** Three NPCs can feel interchangeable.
 - **Player-visible behavior:** Mira favors habitat, Orin practical access, Fen community/beauty; each responds honestly without a morality meter.
@@ -261,7 +261,7 @@
 
 **State:** Rotated topologies and fixed landmark implemented; richer rules proposed. **Type:** Differentiation. **Risk:** Complexity undermines accessible core. **Evidence:** R1,H1. **R/I/C/E:** 5/5/3/4; **illustrative score:** 18.8.
 
-**Execution:** `Proposed`; **M4**; owner role **Gameplay Engineer**; verification **`PUZ-004`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-105/verification.md` (**NOT COLLECTED**); **rollback/stop:** Extra ecology rules reduce comprehension or are merely board rotation.
+**Execution:** `Proposed`; **M4**; owner role **Gameplay Engineer**; verification **`PUZ-004`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-105/verification.md` (**NOT COLLECTED**); **rollback/stop:** Extra ecology rules reduce comprehension or are merely board rotation.
 
 - **Player problem:** Current branches are mathematically similar and may feel cosmetic.
 - **Player-visible behavior:** Roots restrict rotations, bridge creates a meaningful crossing, meadow protects fragile routes; constraints interact in later puzzles.
@@ -273,7 +273,7 @@
 
 **State:** Proposed; current 12 boards are fixed authored fixtures. **Type:** Core quality. **Risk:** Over-complex boards for casual cohort. **Evidence:** Q2,H1. **R/I/C/E:** 5/4/3/4; **illustrative score:** 15.0.
 
-**Execution:** `Proposed`; **M4**; owner role **Gameplay Engineer**; verification **`PUZ-003`, `PUZ-004`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-106/verification.md` (**NOT COLLECTED**); **rollback/stop:** Combined rules create unteachable difficulty or unfair solutions.
+**Execution:** `Proposed`; **M4**; owner role **Gameplay Engineer**; verification **`PUZ-003`, `PUZ-004`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-106/verification.md` (**NOT COLLECTED**); **rollback/stop:** Combined rules create unteachable difficulty or unfair solutions.
 
 - **Player problem:** New puzzle rules can be introduced then abandoned.
 - **Player-visible behavior:** Final third combines two or three previously taught ecology constraints with readable previews.
@@ -285,7 +285,7 @@
 
 **State:** Proposed. **Type:** Accessibility. **Risk:** Triple content/QA burden. **Evidence:** Q1,H1. **R/I/C/E:** 4/4/3/3; **illustrative score:** 16.0.
 
-**Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`PUZ-003`, `A11Y-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-107/verification.md` (**NOT COLLECTED**); **rollback/stop:** Mode switching corrupts state or increases confusion.
+**Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`PUZ-003`, `A11Y-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-107/verification.md` (**NOT COLLECTED**); **rollback/stop:** Mode switching corrupts state or increases confusion.
 
 - **Player problem:** Fixed ladder may bore experts and overwhelm new players.
 - **Player-visible behavior:** Offer Gentle / Standard / Thoughtful; optionally ask about a calmer board after repeated hints; never silently change difficulty.
@@ -297,7 +297,7 @@
 
 **State:** Proposed. **Type:** Expansion. **Risk:** Repetition and pseudo-retention. **Evidence:** Q3,H1. **R/I/C/E:** 4/3/2/3; **illustrative score:** 8.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Product Owner**; verification **`VAL-004`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-108/verification.md` (**NOT COLLECTED**); **rollback/stop:** Return feature requires streaks or no one voluntarily reopens.
+**Execution:** `Proposed`; **M6**; owner role **Product Owner**; verification **`VAL-004`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-108/verification.md` (**NOT COLLECTED**); **rollback/stop:** Return feature requires streaks or no one voluntarily reopens.
 
 - **Player problem:** A 12-chapter campaign may have no reason to reopen.
 - **Player-visible behavior:** Offer an optional short authored/verified stream accessible anytime; no streak, calendar lock, expiration or penalty.
@@ -309,7 +309,7 @@
 
 **State:** Replay via reset exists; seeded ecology/replay variety proposed. **Type:** Expansion. **Risk:** Content explosion; not before first-run quality. **Evidence:** R1,H1. **R/I/C/E:** 4/4/2/4; **illustrative score:** 8.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Gameplay Engineer**; verification **`PUZ-003`, `WLD-004`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-109/verification.md` (**NOT COLLECTED**); **rollback/stop:** Replay differs only cosmetically or reduces first-run quality.
+**Execution:** `Proposed`; **M6**; owner role **Gameplay Engineer**; verification **`PUZ-003`, `WLD-004`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-109/verification.md` (**NOT COLLECTED**); **rollback/stop:** Replay differs only cosmetically or reduces first-run quality.
 
 - **Player problem:** Repeating same boards may not justify second run.
 - **Player-visible behavior:** After ending, begin an alternate authored ecological route with different puzzle and consequence combinations.
@@ -321,7 +321,7 @@
 
 **State:** Existing solver checks; generation/editor workflow proposed. **Type:** Tooling. **Risk:** Optimization for solver scores over human fun. **Evidence:** R1,H1. **R/I/C/E:** 5/4/3/4; **illustrative score:** 15.0.
 
-**Execution:** `Proposed`; **M5**; owner role **Gameplay Engineer**; verification **`TOOL-001`, `PUZ-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-110/verification.md` (**NOT COLLECTED**); **rollback/stop:** Generated puzzles bypass human review or unique-solution proof.
+**Execution:** `Proposed`; **M5**; owner role **Gameplay Engineer**; verification **`TOOL-001`, `PUZ-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-110/verification.md` (**NOT COLLECTED**); **rollback/stop:** Generated puzzles bypass human review or unique-solution proof.
 
 - **Player problem:** Manual high-quality puzzle production may be too slow.
 - **Player-visible behavior:** Offline generator proposes candidates; exact solver checks uniqueness/rotation cost; human approves and themes every shipped board.
@@ -333,7 +333,7 @@
 
 **State:** One-step undo implemented. **Type:** Accessibility. **Risk:** Save compatibility and larger history state. **Evidence:** R1,Q1. **R/I/C/E:** 3/3/4/2; **illustrative score:** 18.0.
 
-**Execution:** `Proposed`; **M5**; owner role **Gameplay Engineer**; verification **`SAVE-003`, `PUZ-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-111/verification.md` (**NOT COLLECTED**); **rollback/stop:** Expanded undo corrupts saves or loses valid history.
+**Execution:** `Proposed`; **M5**; owner role **Gameplay Engineer**; verification **`SAVE-003`, `PUZ-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-111/verification.md` (**NOT COLLECTED**); **rollback/stop:** Expanded undo corrupts saves or loses valid history.
 
 - **Player problem:** An accidental tap can force a restart.
 - **Player-visible behavior:** Undo up to ten tile rotations; keep choice reconsideration as a separate, explicit action.
@@ -345,7 +345,7 @@
 
 **State:** Proposed. **Type:** Accessibility. **Risk:** Scrolling conflicts with tile taps. **Evidence:** Q1,P1. **R/I/C/E:** 4/4/4/3; **illustrative score:** 21.3.
 
-**Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-001`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-112/verification.md` (**NOT COLLECTED**); **rollback/stop:** Board zoom hides controls or adds mis-taps.
+**Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-001`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-112/verification.md` (**NOT COLLECTED**); **rollback/stop:** Board zoom hides controls or adds mis-taps.
 
 - **Player problem:** Whole 4×4 board may be hard to read with low vision.
 - **Player-visible behavior:** Offer 1.25×/1.5× board, thicker channels, clear focus; pan only if necessary.
@@ -357,7 +357,7 @@
 
 **State:** Unverified; current generated uGUI has no certified screen-reader path. **Type:** Accessibility. **Risk:** Screen-reader interaction with dynamic puzzle may require substantial redesign. **Evidence:** R2,P1. **R/I/C/E:** 3/5/4/4; **illustrative score:** 15.0.
 
-**Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-003`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-113/verification.md` (**NOT COLLECTED**); **rollback/stop:** Screen reader cannot complete first three boards.
+**Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-003`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-113/verification.md` (**NOT COLLECTED**); **rollback/stop:** Screen reader cannot complete first three boards.
 
 - **Player problem:** A purely visual pipe board excludes nonvisual players.
 - **Player-visible behavior:** Expose tile coordinates, ports, rotation state, connected/leak status, action labels and journal meaning to VoiceOver/TalkBack.
@@ -369,7 +369,7 @@
 
 **State:** 2.5D motion toggle exists; broader mode proposed. **Type:** Accessibility. **Risk:** Separate animation QA paths. **Evidence:** R1,P1. **R/I/C/E:** 3/4/4/2; **illustrative score:** 24.0.
 
-**Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-004`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-114/verification.md` (**NOT COLLECTED**); **rollback/stop:** Reduced motion hides causal effects or still causes discomfort.
+**Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-004`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-114/verification.md` (**NOT COLLECTED**); **rollback/stop:** Reduced motion hides causal effects or still causes discomfort.
 
 - **Player problem:** Shimmer, camera movement and insects can distract or discomfort.
 - **Player-visible behavior:** One reduced-motion preference disables nonessential camera drift, butterflies, water shimmer and transitions without hiding game state.
@@ -381,7 +381,7 @@
 
 **State:** Proposed. **Type:** Polish. **Risk:** Scope distracts from gameplay; optional. **Evidence:** H1. **R/I/C/E:** 4/3/2/2; **illustrative score:** 12.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Product Owner**; verification **`UX-002`, `WLD-003`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-115/verification.md` (**NOT COLLECTED**); **rollback/stop:** Postcard misstates world or distracts from completion.
+**Execution:** `Proposed`; **M6**; owner role **Product Owner**; verification **`UX-002`, `WLD-003`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-115/verification.md` (**NOT COLLECTED**); **rollback/stop:** Postcard misstates world or distracts from completion.
 
 - **Player problem:** Session payoff may be forgotten or difficult to share.
 - **Player-visible behavior:** Show optional still image plus one truthful sentence about today's world change, stored locally.
@@ -393,7 +393,7 @@
 
 **State:** Multiple authored endings exist; comparative epilogue proposed. **Type:** Differentiation. **Risk:** Spoiling alternatives or judging choices. **Evidence:** R1,H1. **R/I/C/E:** 3/3/3/2; **illustrative score:** 13.5.
 
-**Execution:** `Proposed`; **M6**; owner role **Product Owner**; verification **`WLD-004`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-116/verification.md` (**NOT COLLECTED**); **rollback/stop:** Epilogue describes choices the player did not make.
+**Execution:** `Proposed`; **M6**; owner role **Product Owner**; verification **`WLD-004`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-116/verification.md` (**NOT COLLECTED**); **rollback/stop:** Epilogue describes choices the player did not make.
 
 - **Player problem:** Ending may feel generic and replay reason unclear.
 - **Player-visible behavior:** Show 'the village you made' with three major choice consequences, optionally compare alternate possible paths without moral score.
@@ -408,7 +408,7 @@
 
 **State:** Proposed; some existing scene-state visitors/butterflies. **Type:** Expansion. **Risk:** Art/content maintenance. **Evidence:** R1,H1. **R/I/C/E:** 3/3/2/3; **illustrative score:** 6.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Product Owner**; verification **`WLD-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-201/verification.md` (**NOT COLLECTED**); **rollback/stop:** Micro-events invent time or become chores.
+**Execution:** `Proposed`; **M6**; owner role **Product Owner**; verification **`WLD-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-201/verification.md` (**NOT COLLECTED**); **rollback/stop:** Micro-events invent time or become chores.
 
 - **Player problem:** Village may feel static between large choices.
 - **Player-visible behavior:** Trigger visitor, repaired bench, bird or shade gathering from exact state combinations; no clock-based chores.
@@ -420,7 +420,7 @@
 
 **State:** Proposed; chapter landscape phases exist. **Type:** Polish. **Risk:** Palette QA overhead. **Evidence:** H1. **R/I/C/E:** 2/2/2/3; **illustrative score:** 2.7.
 
-**Execution:** `Proposed`; **M6**; owner role **UX & Accessibility QA**; verification **`A11Y-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-202/verification.md` (**NOT COLLECTED**); **rollback/stop:** Seasonal color harms contrast or gates content.
+**Execution:** `Proposed`; **M6**; owner role **UX & Accessibility QA**; verification **`A11Y-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-202/verification.md` (**NOT COLLECTED**); **rollback/stop:** Seasonal color harms contrast or gates content.
 
 - **Player problem:** Long-run visual repetition.
 - **Player-visible behavior:** Optional local palette change without real-world time gate or seasonal exclusives.
@@ -432,7 +432,7 @@
 
 **State:** Proposed. **Type:** Distribution. **Risk:** Low share motivation. **Evidence:** H1. **R/I/C/E:** 3/3/2/2; **illustrative score:** 9.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Store/Legal Owner**; verification **`UX-002`, `PRIV-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-203/verification.md` (**NOT COLLECTED**); **rollback/stop:** Sharing is automatic, identifiable or unwanted.
+**Execution:** `Proposed`; **M6**; owner role **Store/Legal Owner**; verification **`UX-002`, `PRIV-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-203/verification.md` (**NOT COLLECTED**); **rollback/stop:** Sharing is automatic, identifiable or unwanted.
 
 - **Player problem:** Organic discovery is difficult for small indie games.
 - **Player-visible behavior:** Generate local image of the player's real village and use OS share sheet only on explicit tap.
@@ -444,7 +444,7 @@
 
 **State:** Proposed. **Type:** Accessibility. **Risk:** Conflicts with fast first-minute goal. **Evidence:** Q1,H1. **R/I/C/E:** 3/3/3/3; **illustrative score:** 9.0.
 
-**Execution:** `Proposed`; **M6**; owner role **UX & Accessibility QA**; verification **`A11Y-001`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-204/verification.md` (**NOT COLLECTED**); **rollback/stop:** Presets delay first input or are irreversible.
+**Execution:** `Proposed`; **M6**; owner role **UX & Accessibility QA**; verification **`A11Y-001`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-204/verification.md` (**NOT COLLECTED**); **rollback/stop:** Presets delay first input or are irreversible.
 
 - **Player problem:** Accessibility settings can be difficult to discover.
 - **Player-visible behavior:** Optional Calm / Large Text / High Contrast quick preset, skippable and editable later.
@@ -456,7 +456,7 @@
 
 **State:** Proposed business architecture. **Type:** Commercial. **Risk:** Entitlement/offline complexity and support. **Evidence:** H1,P2. **R/I/C/E:** 3/3/2/3; **illustrative score:** 6.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Store/Legal Owner**; verification **`STORE-004`, `SAVE-003`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-205/verification.md` (**NOT COLLECTED**); **rollback/stop:** Purchase dependency breaks offline base or requires paid hints.
+**Execution:** `Proposed`; **M6**; owner role **Store/Legal Owner**; verification **`STORE-004`, `SAVE-003`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-205/verification.md` (**NOT COLLECTED**); **rollback/stop:** Purchase dependency breaks offline base or requires paid hints.
 
 - **Player problem:** Need sustainable revenue without pressure mechanics.
 - **Player-visible behavior:** Offer optional substantial new authored chapter packs after the base experience; offline access once entitled.
@@ -468,7 +468,7 @@
 
 **State:** Proposed. **Type:** Distribution. **Risk:** Translation and creative cost. **Evidence:** P2,H1. **R/I/C/E:** 4/3/3/2; **illustrative score:** 18.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Store/Legal Owner**; verification **`STORE-003`, `LOC-003`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-206/verification.md` (**NOT COLLECTED**); **rollback/stop:** Localized screenshots are misleading or uncertified.
+**Execution:** `Proposed`; **M6**; owner role **Store/Legal Owner**; verification **`STORE-003`, `LOC-003`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-206/verification.md` (**NOT COLLECTED**); **rollback/stop:** Localized screenshots are misleading or uncertified.
 
 - **Player problem:** An English-only store page underuses certified locales.
 - **Player-visible behavior:** Localize the first three causal-loop screenshots for each launch-certified market.
@@ -480,7 +480,7 @@
 
 **State:** Proposed. **Type:** Distribution. **Risk:** Low traffic yields inconclusive tests. **Evidence:** P2,H1. **R/I/C/E:** 4/4/3/2; **illustrative score:** 24.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Store/Legal Owner**; verification **`STORE-003`, `VAL-005`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-207/verification.md` (**NOT COLLECTED**); **rollback/stop:** Traffic is too small for a credible test or creative is misleading.
+**Execution:** `Proposed`; **M6**; owner role **Store/Legal Owner**; verification **`STORE-003`, `VAL-005`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-207/verification.md` (**NOT COLLECTED**); **rollback/stop:** Traffic is too small for a credible test or creative is misleading.
 
 - **Player problem:** One listing may not communicate both puzzle and village appeal.
 - **Player-visible behavior:** Test truthful 'water puzzle', 'cozy offline', and 'choices change village' creative/metadata variants via store-supported experiments.
@@ -492,7 +492,7 @@
 
 **State:** Proposed. **Type:** Expansion. **Risk:** Platform maintenance splits founder focus. **Evidence:** H1. **R/I/C/E:** 2/3/2/4; **illustrative score:** 3.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Unity/Release Engineer**; verification **`BLD-004`, `BLD-005`, `PERF-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-208/verification.md` (**NOT COLLECTED**); **rollback/stop:** Porting consumes resources before mobile product proof.
+**Execution:** `Proposed`; **M6**; owner role **Unity/Release Engineer**; verification **`BLD-004`, `BLD-005`, `PERF-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-208/verification.md` (**NOT COLLECTED**); **rollback/stop:** Porting consumes resources before mobile product proof.
 
 - **Player problem:** Potential premium audience beyond phone.
 - **Player-visible behavior:** Adapt layout/input only after a mobile product/price/retention threshold is met.
