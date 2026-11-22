@@ -35,7 +35,7 @@ def main() -> int:
 
     target_docs = [DOCS / name for name in REQUIRED] + [
         GAME / "README.md", GAME / "AGENTS.md",
-    ]
+    ] + sorted((DOCS / "specs").glob("*.md"))
     checked_links = 0
     for path in target_docs:
         body = source_text(path)

@@ -45,4 +45,4 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 
 The next real milestone is **one build in target players' hands**, not 37 completed tickets. Validate whether people can solve a stream, recognize the village change, remember why it happened, and **voluntarily want to return**. If the living-world layer does not outperform a matched puzzle-only experience, simplify it instead of adding features.
 
-**Documentation change only:** this directory adds no runtime code, asset, SDK, telemetry, license, service or release approval.
+**Scope and authorization:** The specs directory itself is a future-feature proposal and cannot authorize releases, SDKs, live services or production approval. A separately reviewed implementation PR may change client code and test artifacts; completed source changes are listed above, and native Unity/device/player evidence remains an explicit external gate.
