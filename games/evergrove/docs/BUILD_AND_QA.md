@@ -89,7 +89,13 @@ Source: `.github/workflows/evergrove-unity-playtest.yml` and `Assets/Editor/Ever
 
 **Cross-platform matrix:** at least one small/older Android phone, one recent Android, one small iPhone, one large iPhone, relevant tablet, and WebGL when chosen as distribution. Capture OS build/version, device class, repro steps, screenshot, memory and frame-time evidence. Avoid invented “60 FPS on all phones” claims.
 
-## 5. Visual and language quality gate
+## 5. Additional non-color and journal regression
+
+- [ ] Every unmatched/open connection marks a tile with !; completed puzzles have no false exclamation. Verify the result with grayscale, magnification and a device screen reader.
+- [ ] The optional journal contains a real player choice and scene effect. It may name a current puzzle constraint only if the saved variant proves it, never a fabricated past effect for migrated older saves.
+- [ ] Expanded journal rows and translated hint notices remain readable at 320px and through font scaling.
+
+## 6. Visual and language quality gate
 
 For each launch language:
 

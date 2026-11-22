@@ -25,6 +25,8 @@ Undo   -> restore immediately previous board snapshot (one step)
 Restart-> original initial rotations for THIS specific board variant
 ```
 
+The `PipeInsight.Leaking[]` array marks which tiles participate in a mismatch or expose a port outside the board. Unity displays a textual **!** over those tiles, providing an additional non-color clue; this is **not** a certified accessibility or contrast test.
+
 The game does **not** rely on a score, time limit, luck or hidden randomness. The board source and renderer receive a copied rotation array, not permission to mutate authoritative state.
 
 ## 2. The causal loop introduced in v3
