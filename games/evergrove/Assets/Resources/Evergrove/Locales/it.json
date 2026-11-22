@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Capitolo {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Le radici fissano questo tubo. Non può ruotare."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Le fondamenta del ponte bloccano questo tubo. Non può ruotare."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "I fiori proteggono questo tratto. Non può ruotare."
     }
   ]
 }

@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Hoofdstuk {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Boomwortels houden deze buis vast. Draaien kan niet."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "De brugfundering houdt deze buis vast. Draaien kan niet."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Wilde bloemen beschermen dit stuk. Draaien kan niet."
     }
   ]
 }

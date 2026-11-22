@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Rozdział {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Korzenie unieruchamiają tę rurę. Nie można jej obrócić."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Fundament mostu unieruchamia tę rurę. Nie można jej obrócić."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Dzikie kwiaty chronią ten odcinek. Nie można go obrócić."
     }
   ]
 }

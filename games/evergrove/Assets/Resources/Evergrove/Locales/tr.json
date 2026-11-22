@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Bölüm {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Ağaç kökleri bu boruyu sabitliyor. Döndürülemez."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Köprünün temeli bu boruyu sabitliyor. Döndürülemez."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Kır çiçekleri bu akışı koruyor. Döndürülemez."
     }
   ]
 }
