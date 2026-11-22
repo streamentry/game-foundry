@@ -86,7 +86,7 @@ A source-controlled, deterministic record for every authored puzzle and variant:
 
 ### Important current-hint behavior (audited source)
 
-`WorldModel.GuideOneConnection()` now uses `HintPlanner.SelectTarget()` to prefer an incorrect, non-anchored tile near the connected-water frontier, then **sets its orientation directly to `puzzle.Solution[tile]`**, increments `hintsUsed`, saves the previous rotations for one undo and re-evaluates the solved board. It does **not** just highlight a region, and can skip multiple clockwise rotations. `Undo()` restores the tile state but does **not** refund the recorded hint. The normal UI uses `AdvanceGentleHint()` to expose the first two non-mutating stages before this mutation.
+`WorldModel.GuideOneConnection()` is a **legacy compatibility helper** that selects the first incorrect non-anchored tile, **sets its orientation directly to `puzzle.Solution[tile]`**, increments `hintsUsed`, saves the previous rotations for one undo and re-evaluates the solved board. The **new staged UI** uses `HintPlanner.SelectTarget()` to prefer an incorrect tile at the connected-water frontier. It does **not** just highlight a region, and can skip multiple clockwise rotations. `Undo()` restores the tile state but does **not** refund the recorded hint. The normal UI uses `AdvanceGentleHint()` to expose the first two non-mutating stages before this mutation.
 
 Therefore the proposed three-stage ladder has three **distinct mutation contracts**:
 
