@@ -63,3 +63,10 @@ Good Eye is a separate, original Godot project under `games/good-eye/`. Its [des
 - When hosted as an actual HTTP(S) page, `?seed=12345` opens a reproducible practice silhouette. The Share button prepares a URL with the current seed where browser clipboard access permits. A localhost link does not recruit another person.
 - For initial research, compare first-play comprehension and optional replay with a direct 50/50 competitor using real phones. Do not label the artifact public, production-ready or clinically beneficial.
 - The GitHub workflow saves an artifact only. Do **not** assume a public challenge domain, App Store app, real-world referral metrics or physical-device accessibility checks exists.
+
+
+## Shikaku Garden — rectangle logic pilot
+
+The independent [Shikaku Garden prototype](../games/shikaku-garden/README.md) can be exported with [Shikaku Garden Web Playtest](../.github/workflows/shikaku-garden-preview.yml) to a downloadable artifact. To run it, extract it, serve over local HTTP and open in a WebGL2 browser. No public deployment, iOS signing, app-store publication or analytics is performed.
+
+Watch the first tap and second-corner intent, note number/area confusion, record puzzle completion versus assistance and compare optional replay with a direct Shikaku competitor. The authored levels must pass uniqueness tests before recruitment. Do not treat a completed rectangle as a proven paid-product feature.

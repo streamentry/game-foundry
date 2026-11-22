@@ -73,3 +73,11 @@ jobs:
         run: godot --headless --path games/one-path --script res://tests/test_progress.gd
       - name: Smoke test One Path board, letter controls, undo and advance
         run: godot --headless --path games/one-path --script res://tests/test_scene.gd
+      - name: Import Shikaku Garden independent project
+        run: godot --headless --path games/shikaku-garden --editor --import --quit
+      - name: Verify Shikaku exact-cover uniqueness and rules
+        run: godot --headless --path games/shikaku-garden --script res://tests/test_rules.gd
+      - name: Verify Shikaku local progress and restoration
+        run: godot --headless --path games/shikaku-garden --script res://tests/test_progress.gd
+      - name: Smoke test Shikaku Garden playable scene and navigation
+        run: godot --headless --path games/shikaku-garden --script res://tests/test_scene.gd

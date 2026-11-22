@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Additional playtest prototypes (not production approvals)
+
+At user request, build [Shikaku Garden](../games/shikaku-garden/README.md) as a small, **gated** logic prototype. GF-018 search demand and comparative user preference remain unknown. Record real-world outcomes, especially whether a 45+ player chooses this game over a mature Shikaku alternative. Do not conflate the ability to ship a solver with organic acquisition.
+
 ## Three separate global visual prototypes (not three production approvals)
 
 [Good Eye](../games/good-eye/README.md), [Quiet Shot](../games/quiet-shot/README.md), and [One Path](../games/one-path/README.md) are independently runnable Godot projects with original small test sets. They test visual estimation, predicted reflections, and discrete Euler-trail planning respectively. They were built at the user's direction; no market, retention or competitor-preference gate has been passed. Do not build further catalog games merely because the engineering scaffolds work. Recruit target adults, compare direct alternatives and log actual behavior before choosing whether any deserves production.

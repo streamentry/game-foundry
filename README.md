@@ -6,6 +6,7 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Fourth game prototype:** [Shikaku Garden](games/shikaku-garden/) — eight independently authored, uniqueness-checked rectangle-partition puzzles with corner-to-corner controls, undo and offline progression. **Not market-validated; the GF-018 ASO research gate remains open.**
 - **Third visual playtest:** [One Path](games/one-path/) — eight verified Euler-trail graphs, non-junction crossings, tap/drag and letter-button entry, undo and offline resume. **Prototype only; user demand untested.**
 - **Second visual playtest:** [Quiet Shot](games/quiet-shot/) — eight original ricochet boards, deterministic ray–mirror physics, large aim controls, offline progress and a verified browser export. **Playtest only, not market validated.**
 - **First playable new game:** [Good Eye](games/good-eye/) — an original, offline-first 50/50 shape-cutting playtest with accurate polygon-area scoring, practice, five UTC daily challenges, local progress, and deterministic challenge links. **Prototype only; not launched or market-validated.**
@@ -46,6 +47,7 @@ games/takuzu-lab/          Playable Godot reference (independent project)
 games/good-eye/            First playable original visual-judgment experiment
 games/quiet-shot/          Second visual-planning experiment (one planned shot)
 games/one-path/            Third visual logic experiment (Euler trail)
+games/shikaku-garden/      Fourth experiment (numbered rectangular partitions)
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -83,6 +85,10 @@ Open `games/quiet-shot/project.godot` in Godot 4.7.2 and press **F5**. Its [game
 ## Play One Path locally
 
 Open `games/one-path/project.godot` in Godot 4.7.2 and press **F5**. Follow the [One Path playtest instructions](games/one-path/README.md) or generate a downloadable, verified WebGL2 artifact with [One Path Web Playtest](.github/workflows/one-path-preview.yml).
+
+## Play Shikaku Garden locally
+
+Open `games/shikaku-garden/project.godot` in Godot 4.7.2 and press **F5**, or follow the [game instructions](games/shikaku-garden/README.md). The [Shikaku Garden Web Playtest](.github/workflows/shikaku-garden-preview.yml) workflow exports a downloadable web build, **not a public website**.
 
 ## Share a tested browser-playtest build
 
