@@ -8,6 +8,8 @@ The [ten-year global gaming thesis and seven detailed game briefs](ten-year-glob
 
 The [four-genre 2026–2036 outlook](four-genre-outlook-2026-2036.md) adds **Simulation, Role-Playing, Strategy, and Puzzle** as speculative research territories, with twelve cross-genre `GX-001`–`GX-012` experiments. These do not duplicate or promote the existing `GC-*` and `GF-*` backlogs to production.
 
+The [50 global franchise and genre benchmarks](global-franchise-benchmarks-2026-2036.md) are competitive references with transferable mechanics and explicit speculation cautions. Their `BR-*` IDs are **not original build ideas**, and hypothetical sequels are not confirmed releases.
+
 ## Data dictionary
 
 | Field | Meaning |
