@@ -12,7 +12,7 @@ Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006
 
 ## Canonical documentation (2026-11-22)
 
-**Read the [full Evergrove product and engineering handbook](docs/README.md)**: [product](docs/PRODUCT.md), [game rules](docs/GAMEPLAY_AND_WORLD_RULES.md), [architecture](docs/ARCHITECTURE.md), [save v3/migrations](docs/SAVE_AND_MIGRATION.md), [UX and localization](docs/PLAYER_EXPERIENCE.md), [validation](docs/VALIDATION.md), [build QA](docs/BUILD_AND_QA.md), [risk review](docs/DECISIONS_AND_RISKS.md) and [tóm tắt tiếng Việt](docs/TOM_TAT.vi.md).
+**Read the [full Evergrove product and engineering handbook](docs/README.md)**: [product](docs/PRODUCT.md), [game rules](docs/GAMEPLAY_AND_WORLD_RULES.md), [architecture](docs/ARCHITECTURE.md), [save v4/migrations](docs/SAVE_AND_MIGRATION.md), [UX and localization](docs/PLAYER_EXPERIENCE.md), [validation](docs/VALIDATION.md), [build QA](docs/BUILD_AND_QA.md), [risk review](docs/DECISIONS_AND_RISKS.md) and [tóm tắt tiếng Việt](docs/TOM_TAT.vi.md).
 
 These documents clearly label implemented code, independent C# checks, unverified Unity/device behavior and commercial hypotheses.
 
@@ -31,10 +31,10 @@ These documents clearly label implemented code, independent C# checks, unverifie
 ### Content and accessibility
 
 - **12 authored puzzle chapters and 33 branch-sensitive follow-up variants:** six 3×3 fixtures from our own Pipe Garden research and six 4×4 fixtures. From chapters 2–12, the prior ecological choice selects one of three rotated topologies with a visibly protected connection. All variants are deterministic and have unique-solution tests; symmetry preserves difficulty broadly, not perfectly.
-- **Causal memories:** three characters, explicit combination rules, four landscape phases, multiple epilogues and an ordered journal.
+- **Causal memories:** three characters, explicit combination rules, four landscape phases, multiple epilogues and an ordered journal linking saved choices to the resulting scene. Only a currently evidenced next puzzle variant is named as its consequence; historical migrations never fabricate old effects.
 - **Visual design:** procedurally drawn original river, village, tree canopy, flowers, bridge, visitors and butterflies. No third-party visual assets.
-- **Player respect:** large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, optional hints, sound **off by default** with an opt-in gentle chime. No streak anxiety.
-- **Offline-first:** a versioned JSON save (v3 retains original v1/v2 puzzles in progress) in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
+- **Player respect:** non-color ! markers now identify mismatched water ports in the Unity UI source, in addition to pipe geometry and text feedback; device readability remains unverified.  large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, three-stage optional hints, visible save-error warning, sound **off by default** with an opt-in gentle chime. No streak anxiety.
+- **Offline-first:** a versioned JSON save (v4 preserves in-progress v1/v2/v3 puzzles and optional hint stage) in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
 
 The experience supports **Living World** and **Puzzle Only** for exploratory comparison. They share chapter 1; after that Living uses ecology-shaped boards while Puzzle Only uses originals. This is **not a clean narrative-only A/B** after chapter 1. See [experimental plan](docs/VALIDATION.md).
 
@@ -63,13 +63,13 @@ The Game Foundry's other Godot games remain unchanged.
 dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release
 ```
 
-This validates all 12 board shapes and unique solutions, source connectivity, hint/undo, consequence interactions, complete campaign, legacy saved-game migration and corrupted-save rejection. See [CI workflow](../../.github/workflows/ci.yml). These tests **do not compile the UnityEngine-specific UI or verify native builds**; Godot's tests do not test Evergrove.
+The checked-in [45-profile source-derived puzzle metadata](docs/specs/puzzle-catalog.generated.json) is also checked against C# source by CI; human solve times remain unknown. This validates all 12 board shapes and unique solutions, source connectivity, hint/undo, consequence interactions, complete campaign, legacy saved-game migration and corrupted-save rejection. See [CI workflow](../../.github/workflows/ci.yml). These tests **do not compile the UnityEngine-specific UI or verify native builds**; Godot's tests do not test Evergrove.
 
 ## Language support: 30 locale choices
 
 Evergrove now includes **English plus 29 additional offline translation catalogs**, with **automatic device-language selection** and an explicit **Language** button near the top of the game. You can change languages without losing your garden or restarting progression. The chosen language is saved separately from the world; **Automatic** follows the device language on future launches. Unrecognized locales fall back to English. For example, `zh-TW` → Traditional Chinese, `zh-CN` → Simplified Chinese, `pt-PT` → Brazilian Portuguese (the only supported Portuguese catalog).
 
-The complete 76-key catalog covers the primary interface, all water-puzzle interaction copy, choices, compact localized NPC responses, world consequences, memories, journal and endings. The original, longer English narrative manuscript is preserved in source but not yet professionally translated: localization uses the same shorter authored game script for all 30 languages to keep gameplay meaning consistent. **Every catalog is draft quality until native-speaker review.** See [localization coverage, language list and QA gates](LOCALIZATION.md).
+The complete 81-key catalog covers the primary interface, all water-puzzle interaction copy, choices, compact localized NPC responses, world consequences, memories, journal and endings. The original, longer English narrative manuscript is preserved in source but not yet professionally translated: localization uses the same shorter authored game script for all 30 languages to keep gameplay meaning consistent. **Every catalog is draft quality until native-speaker review.** See [localization coverage, language list and QA gates](LOCALIZATION.md).
 
 **Important rendering limitation:** Unity's current uGUI `Text` controls do not automatically provide the full advanced shaping required for Arabic, Persian, Hebrew, Urdu and Indic scripts. The implementation aligns RTL labels and selects available system fonts where possible, but **a proper advanced-text renderer and real-device font QA are release blockers** for those languages. Having a translation file is not the same as production-ready language support.
 

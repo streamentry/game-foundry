@@ -17,6 +17,9 @@ The automated Unity build method creates the otherwise empty bootstrap scene. **
 ## Manual first-play acceptance checklist
 
 - [ ] Opens on a compact Android phone and at least one iPhone in the Unity Editor / local Xcode workflow.
+- [ ] The three-stage hint identifies a row, focuses a tile, then fixes one connection; v4 saves resume the same stage.
+- [ ] First-puzzle layout puts the board before language/settings controls, while showing a compact dry creek.
+- [ ] Simulated persistence failure shows a visible, translated warning rather than pretending to save.
 - [ ] Touching the spring's tiles actually rotates them. There are **no input-system exceptions**.
 - [ ] Before the first completion the creek is visibly dry. Complete stream 1: the creek visibly fills in 2D and 2.5D.
 - [ ] Can solve all 12 boards. Real players should be able to infer *why* water flows; use hints without feeling penalized.
@@ -52,7 +55,7 @@ References: [GameCI Unity Builder](https://game.ci/docs/github/builder/), [Unity
 - [ ] First launch honors device language including `vi-VN`, `ja-JP`, `zh-Hant-TW`, `es-MX`, `pt-BR`.
 - [ ] In-game language list shows all 30 **native names** legibly; auto mode and manual override survive restart.
 - [ ] Changing language mid-puzzle, after choosing a tree and at the ending **never changes event history or solved state**.
-- [ ] Translation coverage tests pass for **all canonical runtime keys** across all 29 JSON catalogs, including placeholders (currently 76; the static validator is authoritative).
+- [ ] Translation coverage tests pass for all 81 keys × 29 JSON catalogs, including placeholders.
 - [ ] Validate language width and dynamic text on a compact device; no clipped buttons or title collisions.
 - [ ] Native-script glyph coverage: Chinese, Japanese, Korean, Thai, Vietnamese.
 - [ ] **RTL blocker:** Arabic, Persian, Hebrew and Urdu must be tested with a correct shaping/bidi engine. A right-aligned legacy uGUI Text alone is not enough.
