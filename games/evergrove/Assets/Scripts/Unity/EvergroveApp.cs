@@ -45,6 +45,8 @@ namespace Evergrove.UnityClient
         private VillageDiorama diorama;
         private AudioSource sound;
         private AudioClip chime;
+        private LocalPlaytest localPlaytest; // opt-in, in-memory only
+        private bool playtestCopied;
         // Keep live puzzle controls mounted during every tap. Recreating the
         // entire uGUI hierarchy on each rotation would cause GC, jank and
         // scroll-position jumps on older phones.
@@ -364,6 +366,7 @@ namespace Evergrove.UnityClient
                 }, 62, true);
                 Button(content, "Change your choice", "Change this choice", () => {
                     if (!world.ReconsiderLatestChoice()) return;
+                    if (localPlaytest != null) localPlaytest.Reconsider(Time.unscaledTime);
                     SaveWorld();
                     showingMemory = false;
                     Rebuild(false);
@@ -442,6 +445,7 @@ namespace Evergrove.UnityClient
                 showMiniature ? "Visual: 2.5D miniature (tap for 2D)" :
                     "Visual: 2D storybook (tap for 2.5D)", () => {
                     showMiniature = !showMiniature;
+                    if (localPlaytest != null) localPlaytest.ChangeVisual(showMiniature, Time.unscaledTime);
                     PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
                     PlayerPrefs.Save();
                     Rebuild();
@@ -481,6 +485,34 @@ namespace Evergrove.UnityClient
                         confirmReset = false;
                         Rebuild();
                     }, 44);
+            }
+            if (localPlaytest == null)
+            {
+                Button(content, "Playtest consent", "Optional: record a private playtest session",
+                    () => {
+                        localPlaytest = new LocalPlaytest(world.Mode, showMiniature,
+                            world.Round, Time.unscaledTime);
+                        playtestCopied = false;
+                        Rebuild();
+                    }, 44);
+                Label(content, "No tracking by default",
+                    "Only starts when you tap. Nothing is uploaded, saved or tied to an identity.",
+                    12, 43, Moss, TextAnchor.MiddleCenter);
+            }
+            else
+            {
+                Button(content, "Copy playtest", "Copy my local playtest notes",
+                    () => {
+                        GUIUtility.systemCopyBuffer = localPlaytest.Report(Time.unscaledTime);
+                        playtestCopied = true;
+                        Rebuild();
+                    }, 48);
+                if (playtestCopied)
+                    Label(content, "Copied privately",
+                        "Copied to clipboard. Paste into your own research notes when ready.",
+                        12, 43, Moss, TextAnchor.MiddleCenter);
+                Button(content, "Stop playtest", "Stop and clear local playtest notes",
+                    () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
             }
             Label(content, "Respectful play", "Offline by default  ·  No pressure  ·  No ads  ·  No account",
                 12, 36, Moss, TextAnchor.MiddleCenter);
@@ -579,7 +611,7 @@ namespace Evergrove.UnityClient
             if (world.Solved)
             {
                 Button(content, "Revisit water", "Undo the last water turn",
-                    () => Act(() => world.Undo()), 44).interactable = world.CanUndo;
+                    () => Act(() => world.Undo(), "undo"), 44).interactable = world.CanUndo;
                 if (world.Mode == PlayMode.PuzzleOnly)
                     Button(content, "Next stream", "Next stream", () => {
                         if (!world.NextPuzzle()) return;
@@ -603,11 +635,11 @@ namespace Evergrove.UnityClient
             else
             {
                 var tools = Row(content, "Gentle controls");
-                undoButton = Button(tools.transform, "Undo", "Undo", () => Act(() => world.Undo()),
+                undoButton = Button(tools.transform, "Undo", "Undo", () => Act(() => world.Undo(), "undo"),
                     52);
                 undoButton.interactable = world.CanUndo;
-                Button(tools.transform, "Hint", "Guide me", () => Act(() => world.GuideOneConnection()), 52);
-                Button(content, "Restart", "Start this stream again", () => Act(() => world.Restart()), 46);
+                Button(tools.transform, "Hint", "Guide me", () => Act(() => world.GuideOneConnection(), "hint"), 52);
+                Button(content, "Restart", "Start this stream again", () => Act(() => world.Restart(), "restart"), 46);
             }
             Label(content, "How to play", "Tap to rotate. The spring and outlet have one open end. " +
                 "Connect every channel without a leak. Take as long as you like.",
@@ -617,6 +649,7 @@ namespace Evergrove.UnityClient
         private void OpenConversation(int villagerIndex)
         {
             speakingWith = villagerIndex;
+            if (localPlaytest != null) localPlaytest.Talk(Time.unscaledTime);
             Rebuild();
         }
 
@@ -625,6 +658,7 @@ namespace Evergrove.UnityClient
             if (!world.CanSwitchMode) return;
             speakingWith = -1;
             world = WorldModel.New(mode);
+            if (localPlaytest != null) localPlaytest.ChangeMode(mode, Time.unscaledTime);
             SaveWorld();
             Rebuild();
         }
@@ -659,6 +693,7 @@ namespace Evergrove.UnityClient
                 Rebuild();
                 if (!wasSolved && world.Solved)
                 {
+                    if (localPlaytest != null) localPlaytest.Solve(Time.unscaledTime);
                     PlayChime();
                     StartCoroutine(ScrollToDecision());
                 }
@@ -670,13 +705,23 @@ namespace Evergrove.UnityClient
         {
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
+            if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
             AfterPuzzleAction(before);
         }
 
-        private void Act(Func<bool> action)
+        private void Act(Func<bool> action, string actionKind)
         {
             bool before = world.Solved;
             if (!action()) return;
+            if (localPlaytest != null)
+            {
+                switch (actionKind)
+                {
+                    case "undo": localPlaytest.Undo(Time.unscaledTime); break;
+                    case "hint": localPlaytest.Hint(Time.unscaledTime); break;
+                    case "restart": localPlaytest.Restart(Time.unscaledTime); break;
+                }
+            }
             AfterPuzzleAction(before);
         }
 
@@ -689,6 +734,7 @@ namespace Evergrove.UnityClient
         private void MakeChoice(VillageChoice choice)
         {
             if (!world.Choose(choice)) return;
+            if (localPlaytest != null) localPlaytest.Choose(Time.unscaledTime);
             SaveWorld();
             showingMemory = true;
             showJournal = false;
