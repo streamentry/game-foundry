@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Die Wildblumen schützen diese Stelle. Sie lässt sich nicht drehen."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Sieh dir Reihe {0} an. Eine Verbindung stimmt noch nicht."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Reihe {0}, Spalte {1}: Vergleiche die offenen Enden."
+    },
+    {
+      "key": "hint_more",
+      "value": "Noch ein Hinweis"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Eine Verbindung korrigieren"
+    },
+    {
+      "key": "save_warning",
+      "value": "Fortschritt konnte nicht gespeichert werden. Prüfe den Gerätespeicher."
     }
   ]
 }
