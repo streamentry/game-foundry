@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "野花保护着这段河道，无法旋转。"
+    },
+    {
+      "key": "hint_notice",
+      "value": "看看第 {0} 行，有一处水道需要注意。"
+    },
+    {
+      "key": "hint_focus",
+      "value": "第 {0} 行、第 {1} 列：比较水道开口。"
+    },
+    {
+      "key": "hint_more",
+      "value": "再给一点提示"
+    },
+    {
+      "key": "hint_turn",
+      "value": "修正一处连接"
+    },
+    {
+      "key": "save_warning",
+      "value": "无法保存进度，请检查设备存储空间。"
     }
   ]
 }

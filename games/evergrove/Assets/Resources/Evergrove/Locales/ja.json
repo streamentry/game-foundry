@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "野の花がこの場所を守っています。回転できません。"
+    },
+    {
+      "key": "hint_notice",
+      "value": "{0}行目を見てください。つながりを確かめましょう。"
+    },
+    {
+      "key": "hint_focus",
+      "value": "{0}行{1}列：水路の開いた端を比べてください。"
+    },
+    {
+      "key": "hint_more",
+      "value": "もう少しヒントを見る"
+    },
+    {
+      "key": "hint_turn",
+      "value": "水路を1か所直す"
+    },
+    {
+      "key": "save_warning",
+      "value": "進行状況を保存できませんでした。端末の空き容量をご確認ください。"
     }
   ]
 }

@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "As flores protegem este trecho. Não é possível girá-lo."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Observe a linha {0}. Há uma conexão para conferir."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Linha {0}, coluna {1}: compare as pontas abertas."
+    },
+    {
+      "key": "hint_more",
+      "value": "Mostrar outra dica"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Corrigir uma conexão"
+    },
+    {
+      "key": "save_warning",
+      "value": "Não foi possível salvar o progresso. Verifique o armazenamento do aparelho."
     }
   ]
 }

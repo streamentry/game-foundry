@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Las flores protegen este cauce. No se puede girar."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Mira la fila {0}. Hay una conexión que revisar."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Fila {0}, columna {1}: compara los extremos abiertos."
+    },
+    {
+      "key": "hint_more",
+      "value": "Ver otra pista"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Corregir una conexión"
+    },
+    {
+      "key": "save_warning",
+      "value": "No se pudo guardar el progreso. Revisa el espacio del dispositivo."
     }
   ]
 }
