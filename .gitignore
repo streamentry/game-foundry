@@ -43,6 +43,9 @@ docs/research/raw/
 /games/evergrove/Build/
 /games/evergrove/Builds/
 /games/evergrove/UserSettings/
+/games/evergrove/Assets/Scenes/
+/.evergrove-evidence/
+/evergrove-unity*.log
 /games/evergrove/.vs/
 /games/evergrove/*.sln
 /games/evergrove/Assembly-CSharp*.csproj

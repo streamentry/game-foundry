@@ -23,6 +23,18 @@ python3 tools/verify_evergrove_project.py
 
 These commands validate domain logic, 12 source puzzles + 33 branch presentation variants, **100 simulated save-journal interruptions**, migration, locale catalogs and structural configuration. They **cannot** inspect real Unity shader imports, UI text shaping, audio, native signing or phone touch behavior.
 
+### One-command local licensed preflight
+
+From the repository root of a **clean committed checkout** with Unity 6000.3.0f1 and relevant platform modules installed:
+
+```bash
+bash tools/evergrove_unity_local_preflight.sh smoke
+bash tools/evergrove_unity_local_preflight.sh Android
+bash tools/evergrove_unity_local_preflight.sh iOS
+```
+
+The tool accepts `UNITY_BIN=/path/to/Unity` when Unity Hub installs to another path. It records logs, requested version, exact source commit and per-file hashes in ignored `.evergrove-evidence/<SOURCE_SHA>/`; it deliberately does **not** install a license, sign, distribute or inspect a physical phone. A successful batch import is not proof that game interactions render correctly. Follow [M1/M2 execution criteria](specs/12-M1-M2-EXECUTION-CHECKLIST.md) and retain sensitive logs privately.
+
 ### Unity Editor manual smoke
 
 1. In **Unity Hub**, open `games/evergrove` using the pinned Unity version and required platform modules.

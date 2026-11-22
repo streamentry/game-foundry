@@ -41,4 +41,6 @@ The separate [37-feature product specifications](docs/specs/README.md) are **pro
 
 ## Highest-leverage unfinished action
 
+With a licensed Unity 6.3 Editor on a maintainer Mac, run `bash tools/evergrove_unity_local_preflight.sh smoke` then `Android`/`iOS` to collect actual private build logs/hashes; the unlicensed source CI cannot satisfy M1. Preserve `.evergrove-evidence/` locally and keep it out of the public repo.
+
 Produce an actual Unity build, verify input/save/text on one phone, watch an uncoached relevant adult navigate chapters 1 and 2, and record whether the **previous village choice** is understood without hints. The next branch should respond to that evidence, not to speculative scope.
