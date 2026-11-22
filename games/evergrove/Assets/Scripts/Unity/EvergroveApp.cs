@@ -48,6 +48,7 @@ namespace Evergrove.UnityClient
         private bool showMiniature;
         private bool animateMiniature;
         private VillageDiorama diorama;
+        private VillageIllustration activeIllustration;
         private AudioSource sound;
         private AudioClip chime;
         private LocalPlaytest localPlaytest; // opt-in, in-memory only
@@ -392,6 +393,7 @@ namespace Evergrove.UnityClient
             UpdateSaveWarning();
             float previousPosition = scroll.verticalNormalizedPosition;
             visibleTiles = null;
+            activeIllustration = null;
             tileBackgrounds = null;
             tileArtwork = null;
             visibleLeaks = null;
@@ -443,6 +445,7 @@ namespace Evergrove.UnityClient
 
             if (living)
             {
+                VillageScenePlan scenePlan = VillageScenePlan.From(world);
                 var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
                 Height(illustration, firstPuzzle ? 96 : 193);
                 bool renderedMiniature = false;
@@ -454,7 +457,7 @@ namespace Evergrove.UnityClient
                         stage.transform.SetParent(transform, false);
                         diorama = stage.AddComponent<VillageDiorama>();
                     }
-                    renderedMiniature = diorama.Show(VillageScenePlan.From(world), animateMiniature);
+                    renderedMiniature = diorama.Show(scenePlan, animateMiniature);
                     if (!renderedMiniature)
                     {
                         // No missing graphics feature should block the offline game.
@@ -476,9 +479,10 @@ namespace Evergrove.UnityClient
                 {
                     if (diorama != null) diorama.Hide();
                     var art = illustration.AddComponent<VillageIllustration>();
-                    art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
-                        world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers),
-                        world.Round > 0 || world.Solved);
+                    activeIllustration = art;
+                    art.Show(scenePlan.Chapter, scenePlan.TreeCount,
+                        scenePlan.CrossingCount, scenePlan.FlowerCount,
+                        scenePlan.WaterRestored, scenePlan.WaterReachPercent);
                 }
             }
             else if (diorama != null)
@@ -756,7 +760,8 @@ namespace Evergrove.UnityClient
                 var pipeNode = Node("Visible channel", tileNode.transform);
                 Fill(pipeNode.GetComponent<RectTransform>());
                 var pipe = pipeNode.AddComponent<PipeGraphic>();
-                pipe.Configure(puzzle.Kinds[index], rotations[index], world.Solved);
+                pipe.Configure(puzzle.Kinds[index], rotations[index],
+                    insight.Flowing[index], world.Solved);
                 pipe.raycastTarget = false;
                 tileArtwork[index] = pipe;
                 // A visible ! denotes any unmatched/out-of-bounds connection.
@@ -951,7 +956,8 @@ namespace Evergrove.UnityClient
                     world.Solved ? Hex("#D1E6C8") :
                     insight.Flowing[i] ? Hex("#D8EFED") : Hex("#F0F1E8");
                 visibleTiles[i].interactable = !world.Solved && !puzzle.IsAnchored(i);
-                tileArtwork[i].Configure(puzzle.Kinds[i], angles[i], world.Solved);
+                tileArtwork[i].Configure(puzzle.Kinds[i], angles[i],
+                    insight.Flowing[i], world.Solved);
                 if (visibleLeaks != null && visibleLeaks[i] != null)
                     visibleLeaks[i].text = insight.Leaking[i] ? "!" : "";
             }
@@ -959,6 +965,15 @@ namespace Evergrove.UnityClient
                 feedbackText.text = GameLocalization.Text("progress",
                     insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
             if (undoButton != null) undoButton.interactable = world.CanUndo;
+            if (activeIllustration != null)
+            {
+                // The world responds to meaningful changes in reachable water
+                // without rebuilding the puzzle or moving the scroll position.
+                VillageScenePlan plan = VillageScenePlan.From(world);
+                activeIllustration.Show(plan.Chapter, plan.TreeCount,
+                    plan.CrossingCount, plan.FlowerCount,
+                    plan.WaterRestored, plan.WaterReachPercent);
+            }
         }
 
         private void AfterPuzzleAction(bool wasSolved)

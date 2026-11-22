@@ -17,11 +17,16 @@ namespace Evergrove.Core
         public readonly bool NeighborsGather;
         public readonly int LandscapePhase;
         public readonly bool WaterRestored;
+        // How much of the *current spring-connected route* reaches the
+        // village before chapter one is completed. Full restoration stays
+        // a separate, solved-only event. Integer for deterministic tests.
+        public readonly int WaterReachPercent;
 
-        private VillageScenePlan(int chapter, bool restoredWater, int trees, int crossings, int flowers)
+        private VillageScenePlan(int chapter, bool restoredWater, int reachPercent, int trees, int crossings, int flowers)
         {
             Chapter = chapter;
             WaterRestored = restoredWater;
+            WaterReachPercent = restoredWater ? 100 : reachPercent;
             TreeCount = trees;
             CrossingCount = crossings;
             FlowerCount = flowers;
@@ -34,9 +39,21 @@ namespace Evergrove.Core
 
         public static VillageScenePlan From(WorldModel world)
         {
+            // An earlier completed stream keeps the village creek flowing.
+            // On the first puzzle, show truthful incremental reach instead
+            // of waiting for the final turn to paint every channel blue.
+            bool restored = world.Round > 0 || world.Solved;
+            int percent = 100;
+            if (!restored)
+            {
+                int total = world.CurrentPuzzle.CellCount;
+                int connectedBeyondSpring = world.Insight.ConnectedCount - 1;
+                percent = total < 2 ? 0 :
+                    System.Math.Min(99, System.Math.Max(0,
+                        connectedBeyondSpring * 100 / (total - 1)));
+            }
             return new VillageScenePlan(
-                world.Round,
-                world.Round > 0 || world.Solved,
+                world.Round, restored, percent,
                 world.Count(VillageChoice.ShadeTree),
                 world.Count(VillageChoice.Bridge),
                 world.Count(VillageChoice.Flowers));

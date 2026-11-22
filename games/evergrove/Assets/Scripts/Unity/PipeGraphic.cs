@@ -10,12 +10,14 @@ namespace Evergrove.UnityClient
         private PipeKind kind;
         private int orientation;
         private bool completed;
+        private bool hasWater;
 
-        public void Configure(PipeKind pipeKind, int rotation, bool solved)
+        public void Configure(PipeKind pipeKind, int rotation, bool sourceConnected, bool solved)
         {
             kind = pipeKind;
             orientation = rotation;
             completed = solved;
+            hasWater = sourceConnected || solved;
             raycastTarget = false;
             SetVerticesDirty();
         }
@@ -23,8 +25,15 @@ namespace Evergrove.UnityClient
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();
-            Color32 outer = completed ? new Color32(28, 100, 84, 255) : new Color32(40, 117, 139, 255);
-            Color32 inner = new Color32(191, 229, 226, 255);
+            // Dry pipes are warm/earthen. Only genuinely spring-connected
+            // pipes receive teal water, and completion uses deeper green.
+            // The channel geometry remains readable without any color.
+            Color32 outer = completed ? new Color32(28, 100, 84, 255) :
+                hasWater ? new Color32(40, 117, 139, 255) :
+                new Color32(137, 128, 110, 255);
+            Color32 inner = hasWater ?
+                new Color32(191, 229, 226, 255) :
+                new Color32(225, 215, 190, 255);
             Rect area = rectTransform.rect;
             float half = Mathf.Min(area.width, area.height) * 0.44f;
             float stroke = Mathf.Max(12f, half * 0.32f);

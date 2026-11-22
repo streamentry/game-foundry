@@ -198,7 +198,19 @@ internal static class Program
         VillageScenePlan initial = VillageScenePlan.From(world);
         Expect(initial.TreeCount == 0 && initial.CrossingCount == 0 &&
                initial.FlowerCount == 0, "fresh scene is undecorated");
-        Expect(!initial.WaterRestored, "new world begins with a dry creek");
+        Expect(!initial.WaterRestored, "new world has not restored the creek");
+        Expect(initial.WaterReachPercent > 0 && initial.WaterReachPercent < 100,
+            "spring-connected inlet is partially wet even before full restoration");
+        var firstTap = WorldModel.New();
+        int beforeReach = VillageScenePlan.From(firstTap).WaterReachPercent;
+        Expect(firstTap.Rotate(6), "single first-chapter tile rotates");
+        VillageScenePlan afterTap = VillageScenePlan.From(firstTap);
+        Expect(afterTap.WaterReachPercent > beforeReach && !afterTap.WaterRestored,
+            "connecting another tile advances the creek before the puzzle is solved");
+        Expect(firstTap.Undo() && VillageScenePlan.From(firstTap).WaterReachPercent == beforeReach,
+            "undo retracts only the water that became disconnected");
+        Expect(firstTap.Export().choices.Length == 0,
+            "partial water does not fabricate a village decision");
         Expect(!initial.HasBridge && !initial.HasButterflies &&
                !initial.HasVisitors && !initial.NeighborsGather,
                "scenic elements do not appear before related choices");
@@ -206,8 +218,9 @@ internal static class Program
         string fingerprint = initial.Fingerprint;
 
         Solve(world);
-        Expect(VillageScenePlan.From(world).WaterRestored,
-               "water appears the moment the first stream puzzle is solved");
+        Expect(VillageScenePlan.From(world).WaterRestored &&
+               VillageScenePlan.From(world).WaterReachPercent == 100,
+               "water reaches the full village only after the first stream is solved");
         Expect(world.Choose(VillageChoice.ShadeTree), "first tree grows");
         VillageScenePlan tree = VillageScenePlan.From(world);
         Expect(tree.WaterRestored && tree.TreeCount == 1 && !tree.HasBridge && !tree.HasVisitors,
