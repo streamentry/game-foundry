@@ -320,6 +320,8 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Compile and test Evergrove independent C# rules
         run: dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release
+      - name: Verify 45 source-derived puzzle metadata profiles
+        run: dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release -- --check-puzzle-catalog
 
   evergrove-worker:
     runs-on: ubuntu-24.04

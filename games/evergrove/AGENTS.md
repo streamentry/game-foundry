@@ -12,7 +12,7 @@ The separate [37-feature product specifications](docs/specs/README.md) are **pro
 ## Source authority
 
 - `Assets/Scripts/Core/PipeRules.cs` and `ReactiveWatercourses.cs`: pure water puzzle and branching mathematics.
-- `Assets/Scripts/Core/WorldModel.cs`: authoritative progress and save schema; maintain v1/v2/v3 migration.
+- `Assets/Scripts/Core/WorldModel.cs`: authoritative progress and save schema; maintain v1/v2/v3 → v4 migration.
 - `Assets/Scripts/Core/VillageScenePlan.cs`: derived read-only world illustration.
 - `Assets/Scripts/Core/VillageStory.cs`: longer English manuscript; `LocalizedVillage.cs` and `GameLocalization.cs`: compact 30-language runtime copy.
 - `Assets/Scripts/Unity/EvergroveApp.cs`: Unity UI, not another world authority.
