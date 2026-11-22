@@ -6,6 +6,11 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Prototype 12:** [Hitori Grove](games/hitori-grove/) — Shade repeated numbers, ensuring no horizontally or vertically adjacent shaded squares and one connected group of unshaded squares. six playtest boards. **Unvalidated market opportunity.**
+- **Prototype 11:** [Loop Lantern](games/loop-lantern/) — Draw a single closed nonbranching Slitherlink loop using cell clues that specify how many surrounding edges are selected. six playtest boards. **Unvalidated market opportunity.**
+- **Prototype 10:** [Bridge Isles](games/bridge-isles/) — Connect visible neighboring numbered islands with zero, one or two straight bridges, without crossings, and keep the network connected. six playtest boards. **Unvalidated market opportunity.**
+- **Prototype 9:** [Star Atlas](games/star-atlas/) — Place exactly one star in each row, column and labeled connected region, without allowing stars to touch even diagonally. six (three original connected-region layouts plus three rotated variations) playtest boards. **Unvalidated market opportunity.**
+- **Prototype 8:** [Futoshiki Terrace](games/futoshiki-terrace/) — Fill a 4×4 Latin grid using 1–4 exactly once in each row and column, while satisfying directional inequalities. six playtest boards. **Unvalidated market opportunity.**
 - **Seventh game prototype:** [Quiet Camp](games/quiet-camp/) — eight unique Tents & Trees clearings with accessible tap cycling, actual one-to-one tent/tree matching, no-touch constraints, row/column totals and offline save. **GF-006 experimental prototype, not validated demand.**
 - **Sixth game prototype:** [Kakuro Compass](games/kakuro-compass/) — eight uniqueness-tested beginner cross-sum puzzles with a visible across/down candidate inspector, large digit keypad, undo and offline progress. **A research prototype for GF-001, not an ASO/production greenlight.**
 - **Fifth game prototype:** [Odd Bloom](games/odd-bloom/) — twelve deterministic visual-difference rounds, single-structural-anomaly validation, large tap controls and offline save/replay. **No age-specific demand or retention verified.**
@@ -54,6 +59,11 @@ games/shikaku-garden/      Fourth experiment (numbered rectangular partitions)
 games/odd-bloom/           Fifth experiment (one different flower)
 games/kakuro-compass/      Sixth experiment (guided crossing sums)
 games/quiet-camp/          Seventh experiment (original Tents & Trees deduction)
+games/futoshiki-terrace/ Futoshiki Terrace playtest
+games/star-atlas/       Star Atlas playtest
+games/bridge-isles/     Bridge Isles playtest
+games/loop-lantern/     Loop Lantern playtest
+games/hitori-grove/     Hitori Grove playtest
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol

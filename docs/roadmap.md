@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Five additional standalone puzzle experiments — prototypes 8–12
+
+At user direction, build [Futoshiki Terrace](../games/futoshiki-terrace/), [Star Atlas](../games/star-atlas/), [Bridge Isles](../games/bridge-isles/), [Loop Lantern](../games/loop-lantern/), and [Hitori Grove](../games/hitori-grove/) as five independent Godot proofs of play. These implement existing GF-004, GF-005, GF-007, GF-008 and GF-009 hypotheses **without promoting them to production**. Each project has small original, solver-verified boards, its own design, local save/recovery and downloadable browser artifact. No age-specific adoption or ASO search volume is measured. See the [experiment decision](research/next-five-game-experiments-2026-11-22.md); recruit target players and compare to incumbents before adding more titles or content.
+
 ## Seventh game: Quiet Camp (distinct visual deduction, still gated)
 
 [Quiet Camp](../games/quiet-camp/README.md) implements the GF-006 Tents & Trees hypothesis as an original **proof of gameplay**, not an App Store product selection. Eight uniquely-solvable boards test whether adults 45+ enjoy no-timer deduction by row/column tents counts, orthogonal tree pairing and non-touching placements. Unlike Kakuro Compass, it tests spatial constraints without numerical entry or clue calculations. Real-device readability, competitor preference, retention, search demand and economics remain unmeasured. Test before adding content or publishing.
