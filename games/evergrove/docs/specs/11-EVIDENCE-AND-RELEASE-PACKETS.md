@@ -1,0 +1,127 @@
+# 11 — Release evidence packets, test execution and rollback
+
+**Status:** controlled templates and release criteria. All entries here are **blank by design**; do not report tests as PASS without actual artifacts and reviewers. Complements [09 — Execution control](09-EXECUTION-CONTROL.md), [06 — Engineering and release](06-ENGINEERING-AND-RELEASE.md) and [verification matrix](verification-matrix.json).
+
+## 1. Record the difference between three builds
+
+| Build channel | Compile/build flags | Who uses it | Research UI | Distribution | Evidence requirements |
+| --- | --- | --- | --- | --- | --- |
+| **Editor smoke** | Unity Editor, not a consumer binary | Engineer | Enabled | None | Package import log, scene screenshot, no compiler errors |
+| **Research / development** | `BuildOptions.Development`; Unity `DEVELOPMENT_BUILD` defined | Permissioned facilitators | Allowed and disclosed | Private install/WebGL; no store | Asset hash, actual device, assigned study condition, consent |
+| **Consumer release candidate** | **No** `BuildOptions.Development`, non-editor target | Public candidate reviewers | Must be absent | Only after store/legal sign-off | Binary and network inspection, privacy, accessibility, localization and all mandatory platform QA |
+
+**Source-level compile guards are not proof:** verify `EvergroveApp` actually omits mode switching, 2.5D experimentation and session-report UI from a non-development player. Also inspect behavior if an old research installation saved `mode=puzzle` before upgrading to consumer. Preserve progress without fabricating village history; write a **migration decision** before store submission.
+
+## 2. Distinguish build success from device success
+
+**M1: actual Unity compilation** must include Unity version, exact repository SHA, Editor log, target platform, build output and SHA256. For a platform export requiring an OS-specific toolchain, mark that platform `BLOCKED` until that host is available; don't substitute a generated path or pseudo-build.
+
+**M2: device alpha** must include a playable Android and iPhone recording/log, complete 12-chapter walkthrough (or exact documented exception), save-interruption/backup tests, readable controls and deliberate network audit.
+
+**M3–M4: player proof** requires actual study artifacts referenced in [10 — Experiment protocols](10-EXPERIMENT-PROTOCOLS.md). A successful C# unit run can support pure game rules but never proves an uncoached first minute or return intention.
+
+**M5–M6: release proof** requires locale certification only for enabled storefront locales, platform accessibility, app/privacy declarations, name clearance, final product QA and real approval to distribute. Nothing in `docs/specs` grants that approval.
+
+### iOS host caveat
+
+The current manual Unity workflow declares `runs-on: ubuntu-24.04` and exposes an iOS option. A YAML option **does not prove** that the installed Unity modules and export path support this combination. Treat iOS export as **unverified until a real successful log exists**. If Linux cannot produce the required Xcode project, configure a supported macOS/Unity export route, verify it, then document exact commands and signing requirements; do not claim an iOS build exists simply because the workflow UI lists it.
+
+## 3. Minimum reproducibility packet for every test result
+
+Save a redacted packet at `games/evergrove/docs/evidence/<SOURCE_SHA>/<FEATURE_ID>/verification.md` **only when actual test evidence exists**. The path is an instruction, not an existing directory.
+
+```yaml
+# Example schema. Replace every placeholder with observed evidence; do not commit placeholders as PASS.
+feature_id: EG-001
+test_id: BLD-002
+result: BLOCKED                 # PASS | FAIL | BLOCKED | NOT_RUN
+source_commit_sha: REQUIRED_FULL_SHA
+build_artifact_sha256: null    # actual hex hash or null when not built
+platform: Android
+device_model: null
+os_version: null
+unity_editor_version: null
+build_channel: research       # editor | research | consumer
+test_date_utc: null
+operator: UNASSIGNED          # actual accountable reviewer role/person
+run_url: null
+artifact_reference: null      # permissioned retention location, not private data in repo
+observed_behavior: "No actual build attempted; a private Unity license is required."
+known_failures: []
+next_action: "Configure licensed Unity runner and run Editor import."
+```
+
+Never commit this example with a fabricated SHA, result or tester name and then promote a feature to `Verified`. The machine register `verification-matrix.json` retains `verified: false`, null evidence path and empty feature evidence arrays until independent review.
+
+### Evidence quality checklist
+
+- Exact commit and exact compiled **binary/build artifact** distinguished; never mix the source SHA with artifact SHA256.
+- Local logs sufficient to reproduce the failure; no secrets, account tokens, personal data or raw identifiable participant videos.
+- For `PASS`, test steps, expected result **and observed result** must agree. For `FAIL` or `BLOCKED`, give a reproducible next action and owner.
+- Evidence must be readable after the seven-day GitHub Actions artifact retention period. Use an approved long-term permissioned retention location for sensitive media; record a non-sensitive proof reference in repo.
+- If a source or dependency changes, evaluate evidence invalidation; don't inherit PASS from a different binary without justification.
+- A source-level smoke or generated screenshot must never impersonate a physical-device test.
+
+## Cross-cutting milestone tests
+
+Not every named test belongs naturally to one feature. The canonical register explicitly assigns these gate-wide requirements: **M2:** SAVE-004 and PUZ-007; **M3:** PUZ-006; **M5:** BLD-007 and VAL-003; **M6:** STORE-001 and STORE-002. Any failure blocks the corresponding milestone irrespective of feature priority. See [Execution control](09-EXECUTION-CONTROL.md).
+
+## 4. Release acceptance matrix
+
+| Gate | Test classes | Human sign-off | Current default |
+| --- | --- | --- | --- |
+| M0 — specification integrity | 37 IDs, 46 test contracts, dependencies, links, no false verified states | Product/reviewer | Docs verified by static checker only |
+| M1 — Unity compilation | BLD-001–003, native Editor build logs, outputs and hashes | Unity/Release Engineer | **Unverified** |
+| M2 — physical alpha | BLD-004–006, SAVE, PRIV, A11Y touch | Device QA / engineer | **Unverified** |
+| M3 — uncoached first session | VAL-001, PUZ, WLD first-payoff and evidence | UX researcher | **Unverified** |
+| M4 — fair value comparison | VAL-002 / VAL-003 and truly matched fixtures | Research owner / PO | **Unverified**; baseline confounded |
+| M5 — launch quality | Native-shaping, RTL/Indic, platform accessibility, performance, privacy | Locale native reviewers + QA | **Unverified** |
+| M6 — consumer release | Signed target binaries, naming rights, listing disclosures, purchase design, 0 S0/S1 | Product + release + store/legal | **Not authorized** |
+
+**Gate semantics:** a feature's `decision_gate` in the machine register is the **earliest milestone that needs/starts work**. It is **not necessarily the milestone where the feature may be declared fully Verified**. For example `EG-001` starts in **M1** but its BLD-004/005/006 physical-device tests belong to **M2**. The feature remains `Implemented-Unverified` or `Proposed` until every required verification ID is evidenced. The same applies to `EG-007`: core touch starts M2, scaling/advanced text checks complete at M5.
+
+## 5. Explicit stop conditions and rollback routes
+
+| Failure | Release response | Rollback / recovery |
+| --- | --- | --- |
+| S0: valid progress lost, privacy breach, app cannot launch | **STOP**, no user deployment | Save untouched copies; revert only after testing compatibility with current schema |
+| S1: no usable input, broken mandatory language or puzzle unable to complete | **STOP**, fix and retest | Disable unreviewed locale or revert recent input/puzzle change; keep save migration |
+| CI fails for a source/spec mismatch | **STOP merge** | Reconcile actual source, matrix, feature backlog and canonical handbook; never “fix” by deleting checks |
+| Controlled trial shows no valued narrative layer | **STOP scope expansion** | Prefer simple puzzle candidate; test removing narrative instead of inventing new AI |
+| 2.5D underperforms or drains battery | **STOP 2.5D adoption** | Retain original 2D renderer and avoid new 3D pipeline |
+| Marketing channel fails | **STOP paid growth** | Test a small truthful keyword/creative change; don't buy traffic to inflate impressions |
+
+**Rollback constraints:** a previous binary may not read newer versioned save data. Before any app downgrade, test v1/v2/v3 compatibility or perform an explicit safe migration. Never silently delete player worlds. Keep a signed-off rollback artifact and recorded version compatibility result.
+
+## 6. Decision record: go / conditional go / no-go
+
+A “GO” is scoped to **one exact build, enabled locales and platforms**, not the whole game indefinitely. Required:
+
+```text
+Decision date (UTC):
+Candidate source SHA:
+Binary artifact SHA256:
+Channel: research | consumer
+Platforms:
+Enabled locales:
+Gate requested: M0 | M1 | M2 | M3 | M4 | M5 | M6
+Mandatory test IDs (complete list):
+PASS IDs with evidence:
+FAIL / BLOCKED / NOT_RUN IDs with reasons:
+Open S0 / S1:
+Known S2 exceptions and owner:
+Unsolved legal/privacy/permission blockers:
+Human outcome evidence and denominators (if claiming player value):
+Strongest argument against GO:
+Decision: GO | CONDITIONAL_RESEARCH_ONLY | NO_GO
+Signatories with explicit role and date:
+Next observable action / rollback trigger:
+```
+
+**Conditional research only** is acceptable for controlled device tests when the study's safety and privacy criteria are met but commercial M5/M6 gates are not. It is **not** a consumer release authorization.
+
+## 7. Platform and legal caveats
+
+Recheck current Unity/GameCI documentation and platform/store policies **at the moment of release**. This specification is a protocol, not legal advice, current signing-policy assurance or final security audit.
+
+The name “Evergrove” remains a working title until independently cleared for intended markets and classes. Do not acquire a domain, commission final brand assets, publish under the name or claim brand exclusivity solely because this repository uses it.
