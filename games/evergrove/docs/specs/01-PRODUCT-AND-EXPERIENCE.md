@@ -39,6 +39,10 @@ The existing development build exposes comparison controls; an ordinary player b
 
 For **8–12** uncoached formative sessions, report exact numerator/denominator and repeated failure modes: cannot identify goal, first tap unavailable, water state unclear, fixed landmark mistaken for a tappable tile, consequence unnoticed, or help too revealing. Proposed 80%/75% numbers elsewhere in this document are **diagnostic thresholds**, not population estimates or statistical proof. Later matched comparison measures the *incremental* village value with identical puzzle content.
 
+### First-screen code increment (partial, no user evidence)
+
+The generated Unity UI now compresses the initial title, moves the first puzzle into the initial scroll flow and places the secondary Language control below that board. This is a **source-level layout change**; the first playable tap, accessibility and 320–430-width phone rendering have not been measured in a licensed Unity player. If a wrong auto-detected locale obstructs play, language selection must remain discoverable with no data-loss risk. No new menu, forced language modal or experiment control may delay the first water move.
+
 ## The first 60 seconds — proposed storyboard
 
 | Moment | Player sees/does | Design and test intent |

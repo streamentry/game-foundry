@@ -7,7 +7,7 @@
 - `PuzzleCatalog` defines **12 authored boards**: six 3×3 and six 4×4, with end/straight/corner tiles.
 - `PipeRules` checks rotations, flow connectivity, unmatched joins/leaks and completion; a test-side exhaustive search checks unique solutions.
 - `ReactiveWatercourses` creates **33** follow-up variants (11 chapters × 3 prior choices). It rotates the entire source board, rotates each tile orientation and anchors one already-correct non-end tile. This **preserves a valid unique solution**, but does **not** yet create genuinely different root/bridge/flower logic.
-- `WorldModel` stores the active board variant and supports one-step undo, restart and one-tile `Guide me`.
+- `WorldModel` now persists a voluntary **three-stage hint** (row → tile → align) in snapshot **v4** alongside one-step undo/restart. The direct `GuideOneConnection()` compatibility helper still aligns one incorrect tile immediately; release UI uses `AdvanceGentleHint()`.
 - The source tests check all originals/variants; **these are domain checks, not Unity/device or human difficulty results**.
 
 Source: [PipeRules.cs](../../Assets/Scripts/Core/PipeRules.cs), [ReactiveWatercourses.cs](../../Assets/Scripts/Core/ReactiveWatercourses.cs), [WorldModel.cs](../../Assets/Scripts/Core/WorldModel.cs), [Tests/Program.cs](../../Tests/Program.cs).
@@ -71,7 +71,7 @@ A source-controlled, deterministic record for every authored puzzle and variant:
 - A tester can explain *why* the final connection worked; random tapping alone is not the intended experience.
 - Source fixture, metadata, translation label and replay/save identity remain consistent across builds.
 
-## Progressive hint ladder (EG-005)
+## Progressive hint ladder (EG-005) — source implementation v4, device QA pending
 
 | Step | Player sees | Technical rule |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ A source-controlled, deterministic record for every authored puzzle and variant:
 
 ### Important current-hint behavior (audited source)
 
-`WorldModel.GuideOneConnection()` locates the **first** incorrect non-anchored tile, **sets its orientation directly to `puzzle.Solution[tile]`**, increments `hintsUsed`, saves the prior rotation array for one undo, then re-evaluates the solved board. It does **not** merely highlight a region, and can skip multiple clockwise rotations. `Undo()` restores the tile state but does **not** refund the recorded hint.
+`WorldModel.GuideOneConnection()` now uses `HintPlanner.SelectTarget()` to prefer an incorrect, non-anchored tile near the connected-water frontier, then **sets its orientation directly to `puzzle.Solution[tile]`**, increments `hintsUsed`, saves the previous rotations for one undo and re-evaluates the solved board. It does **not** just highlight a region, and can skip multiple clockwise rotations. `Undo()` restores the tile state but does **not** refund the recorded hint. The normal UI uses `AdvanceGentleHint()` to expose the first two non-mutating stages before this mutation.
 
 Therefore the proposed three-stage ladder has three **distinct mutation contracts**:
 
@@ -94,11 +94,17 @@ Therefore the proposed three-stage ladder has three **distinct mutation contract
 - **Stage B — focus:** identifies one tile and a reason; no puzzle state mutation.
 - **Stage C — align:** sets exactly one currently incorrect tile to the solution orientation (an explicitly mutating, undoable action). Do not describe it as "one clockwise rotation".
 
-Before releasing Stage A/B, define deterministic regions and correct suggestions for every reachable intermediate board, every anchored variant and undo/restart/reload condition. The existing `Guide me` can act as the starting point for Stage C but requires verified UI wording and device tests (`PUZ-002`).
+Before releasing Stage A/B, define deterministic regions and correct suggestions for every reachable intermediate board, every anchored variant and undo/restart/reload condition. The current Unity UI requests `AdvanceGentleHint()` and stores stage progress (0/1/2) and chosen target index in v4 snapshots. Old v1/v2/v3 saves initialize that ephemeral state to idle. UI stages 1 and 2 display non-mutating hints; stage 3 directly aligns the tile. Domain tests exercise the transition and undo. **No player clarity or native UI test has been performed** (`PUZ-002`).
 
 ### Calibrated metadata, not invented difficulty labels
 
 For each **12 authored + 33 existing rotated/anchored variants**, eventually record: `PuzzleId`, `TopologyHash`, `BoardSize`, `InitialRotations`, `SolutionRotations`, `UniqueSolutionProof`, `MinimumPlayerRotations`, `AnchoredCells`, `EnvironmentalRuleId`, `HintStep1Region`, `HintStep2Tile`, `HintStep3SolveTile`, `ObservedN`, `ObservedMedianSolveSeconds`, `ObservedP90SolveSeconds`, `ObservedHintRate`, `ObservedRestartRate`, `ObservedMisTapRate`, `DifficultyBand`, `CalibrationDate`, `BuildSha`.
+
+### 45 source-derived board profiles — implemented in C#, not player-rated
+
+[Generated board catalog](puzzle-catalog.generated.json) is reproduced by `PuzzleDiagnostics.All()` and checked by `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release -- --check-puzzle-catalog`. It covers **12 original + 33 choice-conditioned** presentations, including puzzle layout, initial and solution rotations, anchored cell, source-start leaks and direct minimum clockwise taps. **No player time, difficulty band, abandonment or human rating has been measured.** Null observations must remain null. A rotated board is not an entirely new authored challenge.
+
+`EG-004` is **Implemented-Unverified** only for deterministic diagnostics; human difficulty calibration, authoring proof metadata and editor approval remain open.
 
 **Only the structural fields can be derived from code.** The observed metrics remain `null` until uncoached human play. `MinimumPlayerRotations` must define whether taps are clockwise and whether straight-pipe 180-degree symmetry counts as equivalent. An exhaustive solver's distance is a **structural complexity signal**, not measured player difficulty.
 
