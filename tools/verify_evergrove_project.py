@@ -35,7 +35,7 @@ for marker in ("hasWater = sourceConnected || solved;", "Color32 inner = hasWate
 for marker in ("waterReachPercent", "else if (waterReachPercent > 0)", "Quad(vh, P(0.44f, 0.42f)"):
     assert marker in illustration, "partial first-world water geometry is missing: " + marker
 assert "Water(plan.WaterRestored)" in (game / "Assets" / "Scripts" / "Unity" / "VillageDiorama.cs").read_text()
-assert "world.Round > 0 || world.Solved" in ui
+assert "world.Round > 0 || world.Solved" in scene_plan
 assert "GUIUtility.systemCopyBuffer" in ui, "playtest export must be explicit"
 study = (game / "Assets" / "Scripts" / "Core" / "LocalPlaytest.cs").read_text().lower()
 for forbidden in ("httprequest", "deviceuniqueidentifier", "unityanalytics", "webrequest"):
