@@ -185,7 +185,10 @@ namespace Evergrove.UnityClient
                            Color color, TextAnchor alignment = TextAnchor.MiddleLeft)
         {
             var node = Node(name, parent);
-            Height(node, minimum);
+            // Minimum space for touch/visual rhythm; dynamic text's own
+            // preferred height may grow for larger font scales or locales.
+            var layout = node.AddComponent<LayoutElement>();
+            layout.minHeight = minimum;
             var label = node.AddComponent<Text>();
             label.font = font;
             label.fontSize = size;
