@@ -26,6 +26,10 @@ The separate [global 45+ playtest shortlist](../research/global-45plus-top-three
 
 Run `python3 tools/validate_ideas.py docs/ideas/candidates.csv` after editing.
 
+## Next two standalone logic prototypes (2026-11-22)
+
+The user-directed [Kakuro Compass](../../games/kakuro-compass/) (GF-001) and [Quiet Camp](../../games/quiet-camp/) (GF-006) implement existing **unvalidated** search-led hypotheses as playable, independently verified games. Read the [decision brief](../research/next-game-experiments-2026-11-22.md); the 100-row research dataset remains unchanged. Building games does not create primary search-popularity evidence, differential preference or approval for store release.
+
 ## Additional visual research
 
 [Odd Bloom](../research/next-two-game-experiments-2026-11-22.md) is an **unmeasured game-loop experiment** added at user request. It does not correspond to a validated Apple keyword or change the 100-row research dataset. [Shikaku Garden](../../games/shikaku-garden/) is an implementation of the already-listed **GF-018** hypothesis, whose acquisition demand remains unverified.

@@ -97,3 +97,11 @@ jobs:
         run: godot --headless --path games/kakuro-compass --script res://tests/test_progress.gd
       - name: Smoke test Kakuro inspector, keypad, undo and scene
         run: godot --headless --path games/kakuro-compass --script res://tests/test_scene.gd
+      - name: Import Quiet Camp independently
+        run: godot --headless --path games/quiet-camp --editor --import --quit
+      - name: Validate Quiet Camp matching, constraints and unique boards
+        run: godot --headless --path games/quiet-camp --script res://tests/test_rules.gd
+      - name: Verify Quiet Camp local save and progression
+        run: godot --headless --path games/quiet-camp --script res://tests/test_progress.gd
+      - name: Smoke test Quiet Camp tapping, undo and win flow
+        run: godot --headless --path games/quiet-camp --script res://tests/test_scene.gd
