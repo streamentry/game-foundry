@@ -15,7 +15,7 @@
 
 ## 1. BLD-001 — licensed Editor import and scene smoke
 
-**Shortest local path:** from a clean checkout on a Unity-licensed Mac, run `bash tools/evergrove_unity_local_preflight.sh smoke`. It requires the real Editor success marker, captures local private Editor logs plus SHA-256 and refuses a dirty tracked source checkout. It does **not** mark this test verified or grant release approval. Use the expanded command below when debugging.
+**Shortest local path:** from a clean checkout on a Unity-licensed Mac, run `bash tools/evergrove_unity_local_preflight.sh smoke`. It requires the real Editor success marker, captures local private Editor logs plus SHA-256 and refuses a dirty tracked source checkout. Initial Unity metadata generation is recorded in `untracked-unity-inputs.after.sha256` and `probe-context.txt`; if `provenance_status=PROVISIONAL_GENERATED_INPUTS_NOT_IN_GIT`, review/commit the genuine generated inputs and rerun before treating this as complete source provenance. It does **not** mark this test verified or grant release approval. Use the expanded command below when debugging.
 
 On a maintainer Mac with the exact Unity 6.3 Editor version installed, run from the repository root (adjust only the executable path):
 
