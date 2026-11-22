@@ -41,10 +41,10 @@ jobs:
       - name: Import project and run deterministic tests
         run: |
           set -euo pipefail
-          godot --headless --path games/nonogram-canvas --editor --import --quit
-          godot --headless --path games/nonogram-canvas --script res://tests/test_rules.gd
-          godot --headless --path games/nonogram-canvas --script res://tests/test_progress.gd
-          godot --headless --path games/nonogram-canvas --script res://tests/test_scene.gd
+          timeout 90s godot --headless --path games/nonogram-canvas --editor --import --quit
+          timeout 90s godot --headless --path games/nonogram-canvas --script res://tests/test_rules.gd
+          timeout 45s godot --headless --path games/nonogram-canvas --script res://tests/test_progress.gd
+          timeout 30s godot --headless --path games/nonogram-canvas --script res://tests/test_scene.gd
       - name: Export independent single-threaded WebGL2 build
         run: |
           set -euo pipefail

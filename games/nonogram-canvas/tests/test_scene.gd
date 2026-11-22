@@ -12,7 +12,13 @@ func expect(ok:bool,message:String)->void:
         push_error("FAIL: "+message)
 
 func _initialize()->void:
+    var watchdog:SceneTreeTimer=create_timer(18.0)
+    watchdog.timeout.connect(_watchdog)
     call_deferred("_run")
+
+func _watchdog()->void:
+    push_error("Scene test watchdog: UI playthrough did not exit; inspect preceding runtime error")
+    quit(1)
 
 func _run()->void:
     if FileAccess.file_exists(Progress.FILE_PATH):
