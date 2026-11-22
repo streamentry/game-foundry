@@ -68,6 +68,14 @@ Evergrove could be **two weak experiences joined together**: familiar pipe rotat
 - Revisit date or trigger:
 ```
 
+## 2026-11-22 — P0 implementation increment
+
+- **EG-004, partial:** [45 source-derived puzzle profiles](puzzle-catalog.generated.json), [pure C# diagnostics](../../Assets/Scripts/Core/PuzzleDiagnostics.cs), and CI comparison. No inferred player solve time, mandatory sequence, difficulty grade or editor approval.
+- **EG-005, partial:** Three deliberate hints (row, tile, one corrected connection) and v4 save migration are in C#/Unity source. No phone or actual stuck-player test.
+- **EG-002, partial:** Initial art is more compact and settings move below the first board, but no first-action timing or safe-area/device pass exists.
+- **EG-008, partial:** Failed writes now trigger a visible localized warning; v4 adds hint progress. Disk-full/force-kill/atomicity checks remain open.
+- **EG-001/006/007/009/010** remain independent shipping gates; compiled .NET domain tests cannot prove native Unity or actual accessibility.
+
 ## Current decision register (documentation only)
 
 | Decision | State | Next evidence |
