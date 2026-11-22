@@ -105,3 +105,44 @@ jobs:
         run: godot --headless --path games/quiet-camp --script res://tests/test_progress.gd
       - name: Smoke test Quiet Camp tapping, undo and win flow
         run: godot --headless --path games/quiet-camp --script res://tests/test_scene.gd
+
+      - name: Import standalone Futoshiki Terrace
+        run: godot --headless --path games/futoshiki-terrace --editor --import --quit
+      - name: Validate Futoshiki Terrace rules and unique original puzzles
+        run: godot --headless --path games/futoshiki-terrace --script res://tests/test_rules.gd
+      - name: Verify Futoshiki Terrace save, corruption recovery and progression
+        run: godot --headless --path games/futoshiki-terrace --script res://tests/test_progress.gd
+      - name: Smoke test Futoshiki Terrace player input, undo and win
+        run: godot --headless --path games/futoshiki-terrace --script res://tests/test_scene.gd
+      - name: Import standalone Star Atlas
+        run: godot --headless --path games/star-atlas --editor --import --quit
+      - name: Validate Star Atlas rules and unique original puzzles
+        run: godot --headless --path games/star-atlas --script res://tests/test_rules.gd
+      - name: Verify Star Atlas save, corruption recovery and progression
+        run: godot --headless --path games/star-atlas --script res://tests/test_progress.gd
+      - name: Smoke test Star Atlas player input, undo and win
+        run: godot --headless --path games/star-atlas --script res://tests/test_scene.gd
+      - name: Import standalone Bridge Isles
+        run: godot --headless --path games/bridge-isles --editor --import --quit
+      - name: Validate Bridge Isles rules and unique original puzzles
+        run: godot --headless --path games/bridge-isles --script res://tests/test_rules.gd
+      - name: Verify Bridge Isles save, corruption recovery and progression
+        run: godot --headless --path games/bridge-isles --script res://tests/test_progress.gd
+      - name: Smoke test Bridge Isles player input, undo and win
+        run: godot --headless --path games/bridge-isles --script res://tests/test_scene.gd
+      - name: Import standalone Loop Lantern
+        run: godot --headless --path games/loop-lantern --editor --import --quit
+      - name: Validate Loop Lantern rules and unique original puzzles
+        run: godot --headless --path games/loop-lantern --script res://tests/test_rules.gd
+      - name: Verify Loop Lantern save, corruption recovery and progression
+        run: godot --headless --path games/loop-lantern --script res://tests/test_progress.gd
+      - name: Smoke test Loop Lantern player input, undo and win
+        run: godot --headless --path games/loop-lantern --script res://tests/test_scene.gd
+      - name: Import standalone Hitori Grove
+        run: godot --headless --path games/hitori-grove --editor --import --quit
+      - name: Validate Hitori Grove rules and unique original puzzles
+        run: godot --headless --path games/hitori-grove --script res://tests/test_rules.gd
+      - name: Verify Hitori Grove save, corruption recovery and progression
+        run: godot --headless --path games/hitori-grove --script res://tests/test_progress.gd
+      - name: Smoke test Hitori Grove player input, undo and win
+        run: godot --headless --path games/hitori-grove --script res://tests/test_scene.gd

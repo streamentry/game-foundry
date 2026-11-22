@@ -26,6 +26,10 @@ The separate [global 45+ playtest shortlist](../research/global-45plus-top-three
 
 Run `python3 tools/validate_ideas.py docs/ideas/candidates.csv` after editing.
 
+## Five additional game implementations (2026-11-22)
+
+[Futoshiki Terrace](../../games/futoshiki-terrace/) (GF-004), [Star Atlas](../../games/star-atlas/) (GF-005), [Bridge Isles](../../games/bridge-isles/) (GF-007), [Loop Lantern](../../games/loop-lantern/) (GF-008), and [Hitori Grove](../../games/hitori-grove/) (GF-009) are standalone **engineering prototypes only**. Their [research decision brief](../research/next-five-game-experiments-2026-11-22.md) sets comparison and stopping criteria. This does not alter the 100 hypotheses or imply keyword popularity, player demand, or Apple App Store production approval.
+
 ## Next two standalone logic prototypes (2026-11-22)
 
 The user-directed [Kakuro Compass](../../games/kakuro-compass/) (GF-001) and [Quiet Camp](../../games/quiet-camp/) (GF-006) implement existing **unvalidated** search-led hypotheses as playable, independently verified games. Read the [decision brief](../research/next-game-experiments-2026-11-22.md); the 100-row research dataset remains unchanged. Building games does not create primary search-popularity evidence, differential preference or approval for store release.
