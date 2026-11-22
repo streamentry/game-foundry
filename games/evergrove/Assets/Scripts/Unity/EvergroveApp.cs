@@ -555,7 +555,9 @@ namespace Evergrove.UnityClient
             Label(content, "Chapter",
                 "STREAM " + (world.Round + 1) + " / " + PuzzleCatalog.Count + "  ·  " + puzzle.Name,
                 13, 30, Leaf, TextAnchor.MiddleCenter);
-            Label(content, "Prompt", VillageStory.ChapterPrompt(world), 14, 34, Moss,
+            Label(content, "Prompt", world.Round == 0 ?
+                "S = Spring   G = Grove   ·   Tap tiles to connect the water" :
+                VillageStory.ChapterPrompt(world), 14, 34, Moss,
                 TextAnchor.MiddleCenter);
             var board = Card(content, "The water puzzle", White);
             var gridNode = Node("Water connections", board.transform);
@@ -611,6 +613,25 @@ namespace Evergrove.UnityClient
                 pipe.Configure(puzzle.Kinds[index], rotations[index], world.Solved);
                 pipe.raycastTarget = false;
                 tileArtwork[index] = pipe;
+                if (puzzle.Kinds[index] == PipeKind.End)
+                {
+                    // Visible endpoint semantics instead of relying only on
+                    // screen-reader names or a color difference.
+                    var markerNode = Node("Spring or Grove label", tileNode.transform);
+                    RectTransform markerRect = markerNode.GetComponent<RectTransform>();
+                    markerRect.anchorMin = new Vector2(0f, 1f);
+                    markerRect.anchorMax = new Vector2(0f, 1f);
+                    markerRect.pivot = new Vector2(0f, 1f);
+                    markerRect.sizeDelta = new Vector2(23f, 20f);
+                    markerRect.anchoredPosition = new Vector2(4f, -4f);
+                    var marker = markerNode.AddComponent<Text>();
+                    marker.font = font;
+                    marker.fontSize = 13;
+                    marker.alignment = TextAnchor.MiddleCenter;
+                    marker.color = Ink;
+                    marker.raycastTarget = false;
+                    marker.text = seenEnds == 1 ? "S" : "G";
+                }
             }
 
             string feedback = world.Solved
@@ -652,8 +673,8 @@ namespace Evergrove.UnityClient
                 Button(tools.transform, "Hint", "Guide me", () => Act(() => world.GuideOneConnection(), "hint"), 52);
                 Button(content, "Restart", "Start this stream again", () => Act(() => world.Restart(), "restart"), 46);
             }
-            Label(content, "How to play", "Tap to rotate. The spring and outlet have one open end. " +
-                "Connect every channel without a leak. Take as long as you like.",
+            Label(content, "How to play", "Tap to rotate. S marks the spring; G marks the garden outlet. " +
+                "Every pipe must join without open ends. Take as long as you like.",
                 13, 56, Moss, TextAnchor.MiddleCenter);
         }
 
