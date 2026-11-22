@@ -280,6 +280,7 @@ namespace Evergrove.UnityClient
         {
             var row = Node(name, parent);
             var group = row.AddComponent<HorizontalLayoutGroup>();
+            group.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
             group.spacing = 8;
             group.childAlignment = TextAnchor.MiddleCenter;
             group.childControlWidth = true;

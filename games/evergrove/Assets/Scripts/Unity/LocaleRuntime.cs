@@ -70,6 +70,11 @@ namespace Evergrove.UnityClient
     {
         private static readonly Dictionary<string, Font> Cache =
             new Dictionary<string, Font>(StringComparer.OrdinalIgnoreCase);
+        // Opening the 30-language picker should not generate 15 copies of
+        // the same Latin font or enumerate OS fonts 30 times.
+        private static readonly Dictionary<string, Font> ByFamily =
+            new Dictionary<string, Font>(StringComparer.OrdinalIgnoreCase);
+        private static string[] installedFonts;
 
         public static Font Choose(string language, Font defaultFont)
         {
@@ -80,14 +85,20 @@ namespace Evergrove.UnityClient
             string[] candidates = Candidates(language);
             try
             {
-                string[] installed = Font.GetOSInstalledFontNames();
+                if (installedFonts == null) installedFonts = Font.GetOSInstalledFontNames();
+                string[] installed = installedFonts;
                 foreach (string desired in candidates)
                 {
                     foreach (string available in installed)
                     {
                         if (!available.Equals(desired, StringComparison.OrdinalIgnoreCase))
                             continue;
-                        Font candidate = Font.CreateDynamicFontFromOSFont(available, 17);
+                        Font candidate;
+                        if (!ByFamily.TryGetValue(available, out candidate) || candidate == null)
+                        {
+                            candidate = Font.CreateDynamicFontFromOSFont(available, 17);
+                            if (candidate != null) ByFamily[available] = candidate;
+                        }
                         if (candidate != null)
                         {
                             Cache[language] = candidate;
