@@ -33,7 +33,7 @@ bash tools/evergrove_unity_local_preflight.sh Android
 bash tools/evergrove_unity_local_preflight.sh iOS
 ```
 
-The tool accepts `UNITY_BIN=/path/to/Unity` when Unity Hub installs to another path. It records logs, requested version, exact source commit and per-file hashes in ignored `.evergrove-evidence/<SOURCE_SHA>/`; it deliberately does **not** install a license, sign, distribute or inspect a physical phone. A successful batch import is not proof that game interactions render correctly. Follow [M1/M2 execution criteria](specs/12-M1-M2-EXECUTION-CHECKLIST.md) and retain sensitive logs privately.
+The tool accepts `UNITY_BIN=/path/to/Unity` when Unity Hub installs to another path. It records logs, requested version, exact source commit and per-file hashes in ignored `.evergrove-evidence/<SOURCE_SHA>/`; it deliberately does **not** install a license, sign, distribute or inspect a physical phone. The first Unity import may create untracked `.meta`, `Packages/packages-lock.json` and `ProjectSettings/*.asset` files. These are recorded as **provisional generated inputs** rather than silently ignored or treated as source-tracked; review/commit legitimate generated metadata and repeat the probe before calling its Git SHA a complete reproducible build input. Unknown untracked scripts and changes to tracked inputs are still blocked. Synthetic fake-Editor unit tests cover wrapper fail-closed behavior but are **not Unity execution**. A successful batch import is not proof that game interactions render correctly. Follow [M1/M2 execution criteria](specs/12-M1-M2-EXECUTION-CHECKLIST.md) and retain sensitive logs privately.
 
 ### Unity Editor manual smoke
 
