@@ -237,3 +237,14 @@ Actual outcome & model update:
 **Unverified:** target-audience comprehension, native device usability and screen-reader parity, present competitor gaps, organic acquisition, return and willingness to pay. Code validity does not establish differentiation.
 
 **Next real action:** comparative real-device playtests with 6–10 adults in appropriate age bands, including tap-versus-drag preference and confusion about crossings. Record failures and park if the rule remains unclear after one presentation revision. Do not infer a global hit from the existence of eight working levels.
+
+
+## 2026-11-22 — Shikaku Garden as an additional small logic playtest
+
+**User instruction:** continue building game prototypes beyond the first three; implementation does not invalidate the market-first production policy. Shikaku is the documented fallback to the Kakuro search-led product hypothesis, not a proven acquisition winner.
+
+**Built:** original standalone Godot 4.7.2 project, 8 authored 4×4–6×6 rectangle partitions, corner-to-corner selection, no timers, undo/restart, persisted local progress, room-by-room feedback and level-based web challenge links when hosted. Deterministic exact-cover solver checks that every board has exactly one solution; placement rules validate area, clue count, bounds and overlaps. Game has an independent design identity and artifact workflow.
+
+**Unknown:** 45+ usability, retention, differential value versus current Shikaku competitors, official country-specific Apple keyword popularity and economics. None of this is inferred from code or puzzle-solver tests.
+
+**Most useful next falsification:** compare the first five original puzzles with an existing Shikaku title on real target phones; observe misunderstandings, voluntary extra play, and reason to choose this one. Stop after one presentation correction if no comparative preference or return signal emerges.
