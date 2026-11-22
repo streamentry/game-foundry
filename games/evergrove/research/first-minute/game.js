@@ -238,6 +238,23 @@
       solved ? "The stream has found its way home." :
       insight.connectedCount === 9 ? "The water reaches every tile. Find the loose ends." :
       "Turn the channels to guide water from the spring to the garden.";
+    // Do not tell the player a restored river is still 'waiting for water'.
+    // Visible copy and the SVG's accessible name must reflect exactly the
+    // world state shown. This is particularly important after keyboard focus
+    // moves to the changed scene on completion/choice.
+    const sceneLabels = {
+      tree: "A shade tree now stands by the cottage beside the restored creek.",
+      bridge: "A wooden footbridge now crosses the restored creek.",
+      flowers: "Wildflowers and a butterfly now brighten the restored creek."
+    };
+    const sceneDescription = model.choice ? sceneLabels[model.choice] :
+      solved ? "The village creek now flows fully past the cottage." :
+      "A cottage beside a partly dry creek; the stream is not yet restored.";
+    node("world-status").textContent = model.choice ?
+      "A PLACE CHANGED BY YOUR CHOICE" :
+      solved ? "THE STREAM HAS RETURNED" : "A PLACE WAITING FOR WATER";
+    node("world").setAttribute("aria-label", sceneDescription);
+    node("creek").setAttribute("aria-label", sceneDescription);
     node("choices").hidden = !solved || !!model.choice;
     node("memory").hidden = !model.choice;
     node("puzzle-panel").classList.toggle("puzzle--complete", solved);
