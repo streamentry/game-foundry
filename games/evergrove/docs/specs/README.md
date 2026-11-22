@@ -28,6 +28,7 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 
 **Source state:** concurrent Evergrove implementation commits have added **v4 world saves, 81-key translations, a 45-entry generated puzzle diagnostics catalog (12 authored + 33 geometry variants), staged hints and improved release-mode guards**. These remain **source-implemented, not Unity-device or player-verified**. The original immutable audit baseline below is *historical*. Always inspect the exact latest commit and any competing open feature PR before upgrading a feature's status.
 
+- [Browser first-minute research slice](../../research/first-minute/): a stand-alone offline first-puzzle/choice stimulus for quick uncoached observation **before** the licensed Unity build, explicitly **not** a substitute for a production app or validated M3 outcome.
 - [10 — Preregistered experiments](10-EXPERIMENT-PROTOCOLS.md): matched-board controls, allocation, neutral observation and truthful denominators.
 - [11 — Build evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md): artifact checksums, physical device QA, sign-off, rollback and unverified iOS-export caveat.
 - [12 — M1/M2 execution checklist](12-M1-M2-EXECUTION-CHECKLIST.md): concrete commands and evidence capture for the presently blocked build/device gates.

@@ -2,6 +2,8 @@
 
 **North-star sensation:** “I did one understandable thing, and the place remembers it.” Screens are means, not the product. **Current runtime UI is generated from code**; the following distinguishes implemented flow, design intent and unverified device behavior.
 
+**A separate research-only browser slice** at [research/first-minute](../research/first-minute/) now implements only the first Unity-authored puzzle and one illustrated environmental decision. It is for low-cost first-minute comprehension experiments while M1 Unity compilation remains blocked—not a playable Unity release or the 12-stream app. Unity/mobile rendering remains unverified.
+
 ## 1. The intended first 90 seconds
 
 | Moment | What the player should perceive | Implemented surface | Biggest uncertainty |
