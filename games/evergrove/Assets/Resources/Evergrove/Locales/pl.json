@@ -1,0 +1,297 @@
+{
+  "code": "pl",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · ŚWIAT, KTÓRY PAMIĘTA"
+    },
+    {
+      "key": "subtitle",
+      "value": "Małe wybory. Żywe miejsce."
+    },
+    {
+      "key": "language",
+      "value": "Język"
+    },
+    {
+      "key": "auto",
+      "value": "Automatycznie (język urządzenia)"
+    },
+    {
+      "key": "language_help",
+      "value": "Używamy języka urządzenia, dopóki nie wybierzesz innego."
+    },
+    {
+      "key": "living",
+      "value": "Żywy świat"
+    },
+    {
+      "key": "puzzle",
+      "value": "Tylko łamigłówki"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Te same zagadki z wodą, bez żywej wioski."
+    },
+    {
+      "key": "memory_title",
+      "value": "NOWE WSPOMNIENIE W WIOSCE"
+    },
+    {
+      "key": "continue",
+      "value": "Podążaj dalej wzdłuż strumienia"
+    },
+    {
+      "key": "change",
+      "value": "Zmień ten wybór"
+    },
+    {
+      "key": "complete",
+      "value": "Dwanaście strumieni ukończonych. Która zagadka była najlepsza?"
+    },
+    {
+      "key": "explore",
+      "value": "Odkryj inny ogród"
+    },
+    {
+      "key": "erase",
+      "value": "Potwierdź: usuń ten ogród"
+    },
+    {
+      "key": "keep",
+      "value": "Zachowaj ten ogród"
+    },
+    {
+      "key": "neighbors",
+      "value": "Porozmawiaj z sąsiadem"
+    },
+    {
+      "key": "thanks",
+      "value": "Dziękuję za opowieść!"
+    },
+    {
+      "key": "playtest",
+      "value": "TRYB TESTOWY · Wybierz przed pierwszym ruchem"
+    },
+    {
+      "key": "art_2d",
+      "value": "Widok: książka 2D (dotknij, by wybrać 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Widok: miniatura 2,5D (dotknij, by wybrać 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Ruch miniatury: WŁ. (dotknij, by zatrzymać)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Ruch miniatury: WYŁ. (dotknij, by włączyć)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Delikatny dźwięk: WŁ. (dotknij, by wyciszyć)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Delikatny dźwięk: WYŁ. (dotknij, by włączyć)"
+    },
+    {
+      "key": "record",
+      "value": "Rozpocznij opcjonalny prywatny test"
+    },
+    {
+      "key": "privacy",
+      "value": "Tylko po dotknięciu. Nic nie jest przesyłane ani wiązane z Tobą."
+    },
+    {
+      "key": "copy",
+      "value": "Kopiuj notatki z testu"
+    },
+    {
+      "key": "copied",
+      "value": "Skopiowano do schowka."
+    },
+    {
+      "key": "clear",
+      "value": "Zatrzymaj i usuń lokalne notatki"
+    },
+    {
+      "key": "offline",
+      "value": "Offline · Bez czasu · Bez reklam · Bez konta"
+    },
+    {
+      "key": "journal_show",
+      "value": "Przeczytaj wspomnienia wioski"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Ukryj wspomnienia"
+    },
+    {
+      "key": "journal_title",
+      "value": "NASZE WYBORY"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Pierwsze wspomnienie wciąż czeka."
+    },
+    {
+      "key": "stream",
+      "value": "STRUMIEŃ {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = źródło · G = ogród. Dotknij, aby połączyć wodę."
+    },
+    {
+      "key": "solved",
+      "value": "Woda płynie przez wszystkie pola."
+    },
+    {
+      "key": "progress",
+      "value": "Woda dociera do {0}/{1} pól · {2} otwartych połączeń"
+    },
+    {
+      "key": "undo_last",
+      "value": "Cofnij ostatni obrót"
+    },
+    {
+      "key": "next",
+      "value": "Następny strumień"
+    },
+    {
+      "key": "choose",
+      "value": "Co chcesz pomóc wyhodować?"
+    },
+    {
+      "key": "undo",
+      "value": "Cofnij"
+    },
+    {
+      "key": "hint",
+      "value": "Podpowiedź"
+    },
+    {
+      "key": "restart",
+      "value": "Zacznij strumień od nowa"
+    },
+    {
+      "key": "how",
+      "value": "Dotknij, aby obracać. Połącz rury bez otwartych końców."
+    },
+    {
+      "key": "tree",
+      "value": "Posadź drzewo dające cień"
+    },
+    {
+      "key": "bridge",
+      "value": "Napraw most"
+    },
+    {
+      "key": "flowers",
+      "value": "Zasadź dzikie kwiaty"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira pamięta drzewo, które posadziłeś."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin pamięta most, który naprawiłeś."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen pamięta kwiaty, które zasadziłeś."
+    },
+    {
+      "key": "world_none",
+      "value": "Stary strumień czeka na wodę."
+    },
+    {
+      "key": "world_tree",
+      "value": "Młode drzewo rośnie przy strumieniu."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Most łączy oba brzegi."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Dzikie kwiaty rozjaśniają brzeg."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Twoje drzewa ocieniają naprawiony most."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Motyle gromadzą się pod drzewami."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Sąsiedzi przechodzą przez most, aby podziwiać łąkę."
+    },
+    {
+      "key": "world_all",
+      "value": "Drzewa, ścieżki i kwiaty łączą wioskę."
+    },
+    {
+      "key": "mira_new",
+      "value": "Jestem Mira. Posadzimy drzewo nad wodą?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Pamiętam twoje drzewa. Teraz wioska ma cień."
+    },
+    {
+      "key": "orin_new",
+      "value": "Jestem Orin. Mam nadzieję, że odbudujemy most."
+    },
+    {
+      "key": "orin_after",
+      "value": "Naprawiony most nas połączył. Dziękuję!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Jestem Fen. Tęsknię za dzikimi kwiatami nad wodą."
+    },
+    {
+      "key": "fen_after",
+      "value": "Twoje kwiaty przywróciły życie na brzegu."
+    },
+    {
+      "key": "ending_all",
+      "value": "Nasza wioska rozkwita. Każdy wybór pomógł stworzyć dom."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Dzięki twojej trosce wyrósł spokojny sad."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Twoje mosty połączyły sąsiadów."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Stworzyłeś łąkę, na której wróciło życie."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Trochę wody może zmienić całe miejsce."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Wioska zaczyna rosnąć."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Każdy wybór staje się częścią tego miejsca."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Rozdział {0} · {1} · {2}"
+    }
+  ]
+}

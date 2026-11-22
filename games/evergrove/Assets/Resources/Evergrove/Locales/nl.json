@@ -1,0 +1,297 @@
+{
+  "code": "nl",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · EEN WERELD DIE ONTHOUDT"
+    },
+    {
+      "key": "subtitle",
+      "value": "Kleine keuzes. Een plek vol leven."
+    },
+    {
+      "key": "language",
+      "value": "Taal"
+    },
+    {
+      "key": "auto",
+      "value": "Automatisch (apparaattaal)"
+    },
+    {
+      "key": "language_help",
+      "value": "De apparaattaal geldt totdat je iets anders kiest."
+    },
+    {
+      "key": "living",
+      "value": "Levende wereld"
+    },
+    {
+      "key": "puzzle",
+      "value": "Alleen puzzels"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Dezelfde waterpuzzels, zonder het levende dorp."
+    },
+    {
+      "key": "memory_title",
+      "value": "EEN NIEUWE HERINNERING IN HET DORP"
+    },
+    {
+      "key": "continue",
+      "value": "Volg de beek verder"
+    },
+    {
+      "key": "change",
+      "value": "Deze keuze wijzigen"
+    },
+    {
+      "key": "complete",
+      "value": "Twaalf beken voltooid. Welke puzzel vond je het leukst?"
+    },
+    {
+      "key": "explore",
+      "value": "Verken een andere tuin"
+    },
+    {
+      "key": "erase",
+      "value": "Bevestigen: deze tuin wissen"
+    },
+    {
+      "key": "keep",
+      "value": "Deze tuin behouden"
+    },
+    {
+      "key": "neighbors",
+      "value": "Praat met een buur"
+    },
+    {
+      "key": "thanks",
+      "value": "Dank je voor je verhaal!"
+    },
+    {
+      "key": "playtest",
+      "value": "TESTMODUS · Kies vóór je eerste zet"
+    },
+    {
+      "key": "art_2d",
+      "value": "Beeld: 2D-prentenboek (tik voor 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Beeld: 2,5D-miniatuur (tik voor 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Miniatuurbeweging: AAN (tik om te stoppen)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Miniatuurbeweging: UIT (tik om te starten)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Zachte klank: AAN (tik om te dempen)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Zachte klank: UIT (tik om aan te zetten)"
+    },
+    {
+      "key": "record",
+      "value": "Optionele privét​​est starten"
+    },
+    {
+      "key": "privacy",
+      "value": "Begint alleen na tikken. Niets wordt verzonden of aan jou gekoppeld."
+    },
+    {
+      "key": "copy",
+      "value": "Testnotities kopiëren"
+    },
+    {
+      "key": "copied",
+      "value": "Gekopieerd naar klembord."
+    },
+    {
+      "key": "clear",
+      "value": "Stoppen en lokale notities wissen"
+    },
+    {
+      "key": "offline",
+      "value": "Offline · Geen timer · Geen reclame · Geen account"
+    },
+    {
+      "key": "journal_show",
+      "value": "Lees dorpsherinneringen"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Verberg herinneringen"
+    },
+    {
+      "key": "journal_title",
+      "value": "ONZE KEUZES"
+    },
+    {
+      "key": "journal_empty",
+      "value": "De eerste herinnering wacht nog."
+    },
+    {
+      "key": "stream",
+      "value": "BEEK {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = bron · G = tuin. Tik om water te verbinden."
+    },
+    {
+      "key": "solved",
+      "value": "Het water stroomt door alle vakjes."
+    },
+    {
+      "key": "progress",
+      "value": "Water bereikt {0}/{1} vakjes · {2} open verbindingen"
+    },
+    {
+      "key": "undo_last",
+      "value": "Laatste draai ongedaan maken"
+    },
+    {
+      "key": "next",
+      "value": "Volgende beek"
+    },
+    {
+      "key": "choose",
+      "value": "Wat wil je laten groeien?"
+    },
+    {
+      "key": "undo",
+      "value": "Ongedaan maken"
+    },
+    {
+      "key": "hint",
+      "value": "Hint"
+    },
+    {
+      "key": "restart",
+      "value": "Beek opnieuw beginnen"
+    },
+    {
+      "key": "how",
+      "value": "Tik om te draaien. Verbind alle buizen zonder open uiteinden."
+    },
+    {
+      "key": "tree",
+      "value": "Plant een schaduwboom"
+    },
+    {
+      "key": "bridge",
+      "value": "Herstel een brug"
+    },
+    {
+      "key": "flowers",
+      "value": "Laat wilde bloemen groeien"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira herinnert zich de boom die je plantte."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin herinnert zich de brug die je herstelde."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen herinnert zich de bloemen die je liet groeien."
+    },
+    {
+      "key": "world_none",
+      "value": "De oude beek wacht op water."
+    },
+    {
+      "key": "world_tree",
+      "value": "Een jonge boom groeit naast de beek."
+    },
+    {
+      "key": "world_bridge",
+      "value": "De brug verbindt beide oevers."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Wilde bloemen kleuren de oever."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Je bomen geven schaduw aan de herstelde brug."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Vlinders verzamelen zich onder de bomen."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Buren steken over om de bloemenweide te zien."
+    },
+    {
+      "key": "world_all",
+      "value": "Bomen, paden en bloemen verbinden het dorp."
+    },
+    {
+      "key": "mira_new",
+      "value": "Ik ben Mira. Zullen we een boom bij het water planten?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Ik herinner me je bomen. Nu hebben we schaduw."
+    },
+    {
+      "key": "orin_new",
+      "value": "Ik ben Orin. Ik hoop dat we de brug kunnen herstellen."
+    },
+    {
+      "key": "orin_after",
+      "value": "De herstelde brug brengt ons samen. Bedankt!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Ik ben Fen. Ik mis de wilde bloemen aan de oever."
+    },
+    {
+      "key": "fen_after",
+      "value": "Je bloemen hebben de oever weer tot leven gebracht."
+    },
+    {
+      "key": "ending_all",
+      "value": "Ons dorp bloeit. Elke keuze hielp een thuis te maken."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Door jouw zorg groeide een rustige boomgaard."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Je bruggen brachten buren samen."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Je maakte een weide waar het leven terugkeerde."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Een beetje water kan een plek veranderen."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Het dorp begint te groeien."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Elke keuze wordt deel van deze plek."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Hoofdstuk {0} · {1} · {2}"
+    }
+  ]
+}

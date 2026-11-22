@@ -1,0 +1,297 @@
+{
+  "code": "tr",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · HATIRLAYAN BİR DÜNYA"
+    },
+    {
+      "key": "subtitle",
+      "value": "Küçük seçimler. Yaşayan bir yer."
+    },
+    {
+      "key": "language",
+      "value": "Dil"
+    },
+    {
+      "key": "auto",
+      "value": "Otomatik (cihaz dili)"
+    },
+    {
+      "key": "language_help",
+      "value": "Başka bir dil seçene kadar cihaz dili kullanılır."
+    },
+    {
+      "key": "living",
+      "value": "Yaşayan dünya"
+    },
+    {
+      "key": "puzzle",
+      "value": "Sadece bulmaca"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Aynı su bulmacaları, yaşayan köy olmadan."
+    },
+    {
+      "key": "memory_title",
+      "value": "KÖYDE YENİ BİR ANI"
+    },
+    {
+      "key": "continue",
+      "value": "Dere boyunca devam et"
+    },
+    {
+      "key": "change",
+      "value": "Bu seçimi değiştir"
+    },
+    {
+      "key": "complete",
+      "value": "On iki dere tamamlandı. En çok hangi bulmacayı sevdin?"
+    },
+    {
+      "key": "explore",
+      "value": "Başka bir bahçe keşfet"
+    },
+    {
+      "key": "erase",
+      "value": "Onayla: bu bahçeyi sil"
+    },
+    {
+      "key": "keep",
+      "value": "Bu bahçeyi koru"
+    },
+    {
+      "key": "neighbors",
+      "value": "Komşuyla konuş"
+    },
+    {
+      "key": "thanks",
+      "value": "Anlattığın için teşekkürler!"
+    },
+    {
+      "key": "playtest",
+      "value": "TEST MODU · İlk hamleden önce seç"
+    },
+    {
+      "key": "art_2d",
+      "value": "Görünüm: 2D hikâye kitabı (2,5D için dokun)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Görünüm: 2,5D minyatür (2D için dokun)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Minyatür hareketi: AÇIK (durdurmak için dokun)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Minyatür hareketi: KAPALI (başlatmak için dokun)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Hafif ses: AÇIK (susturmak için dokun)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Hafif ses: KAPALI (açmak için dokun)"
+    },
+    {
+      "key": "record",
+      "value": "İsteğe bağlı özel oyun testini başlat"
+    },
+    {
+      "key": "privacy",
+      "value": "Yalnızca dokununca başlar. Hiçbir şey yüklenmez veya kimliğine bağlanmaz."
+    },
+    {
+      "key": "copy",
+      "value": "Test notlarını kopyala"
+    },
+    {
+      "key": "copied",
+      "value": "Panoya kopyalandı."
+    },
+    {
+      "key": "clear",
+      "value": "Durdur ve yerel notları sil"
+    },
+    {
+      "key": "offline",
+      "value": "Çevrimdışı · Süre yok · Reklam yok · Hesap yok"
+    },
+    {
+      "key": "journal_show",
+      "value": "Köyün anılarını oku"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Köyün anılarını gizle"
+    },
+    {
+      "key": "journal_title",
+      "value": "SEÇİMLERİMİZ"
+    },
+    {
+      "key": "journal_empty",
+      "value": "İlk anı henüz yazılmadı."
+    },
+    {
+      "key": "stream",
+      "value": "DERE {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = kaynak · G = bahçe. Suyu bağlamak için dokun."
+    },
+    {
+      "key": "solved",
+      "value": "Su bütün karolardan akıyor."
+    },
+    {
+      "key": "progress",
+      "value": "Su {0}/{1} karoya ulaştı · {2} açık bağlantı"
+    },
+    {
+      "key": "undo_last",
+      "value": "Son dönüşü geri al"
+    },
+    {
+      "key": "next",
+      "value": "Sonraki dere"
+    },
+    {
+      "key": "choose",
+      "value": "Neyin büyümesine yardım edeceksin?"
+    },
+    {
+      "key": "undo",
+      "value": "Geri al"
+    },
+    {
+      "key": "hint",
+      "value": "İpucu"
+    },
+    {
+      "key": "restart",
+      "value": "Dereyi yeniden başlat"
+    },
+    {
+      "key": "how",
+      "value": "Döndürmek için dokun. Bütün boruları açık uç kalmadan bağla."
+    },
+    {
+      "key": "tree",
+      "value": "Gölge veren ağaç dik"
+    },
+    {
+      "key": "bridge",
+      "value": "Köprüyü onar"
+    },
+    {
+      "key": "flowers",
+      "value": "Kır çiçekleri yetiştir"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira diktiğin ağacı hatırlıyor."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin onardığın köprüyü hatırlıyor."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen yetiştirdiğin çiçekleri hatırlıyor."
+    },
+    {
+      "key": "world_none",
+      "value": "Eski dere suyu bekliyor."
+    },
+    {
+      "key": "world_tree",
+      "value": "Derenin yanında genç bir ağaç büyüyor."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Köprü iki kıyıyı birleştiriyor."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Kır çiçekleri kıyıyı aydınlatıyor."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Ağaçların onarılan köprüyü gölgeliyor."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Kelebekler ağaçların altında toplanıyor."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Komşular çayırı görmek için köprüden geçiyor."
+    },
+    {
+      "key": "world_all",
+      "value": "Ağaçlar, yollar ve çiçekler köyü birleştiriyor."
+    },
+    {
+      "key": "mira_new",
+      "value": "Ben Mira. Su kenarına bir ağaç diksek?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Diktiğin ağaçları hatırlıyorum. Artık köyümüz gölgeli."
+    },
+    {
+      "key": "orin_new",
+      "value": "Ben Orin. Umarım köprüyü yeniden yapabiliriz."
+    },
+    {
+      "key": "orin_after",
+      "value": "Onarılan köprü bizi buluşturdu. Teşekkürler!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Ben Fen. Su kenarındaki kır çiçeklerini özlüyorum."
+    },
+    {
+      "key": "fen_after",
+      "value": "Çiçeklerin kıyıya yeniden hayat verdi."
+    },
+    {
+      "key": "ending_all",
+      "value": "Köyümüz gelişiyor. Her seçim bir yuva kurmamıza yardım etti."
+    },
+    {
+      "key": "ending_tree",
+      "value": "İlginle huzurlu bir meyve bahçesi büyüdü."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Köprülerin komşuları bir araya getirdi."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Hayatın geri döndüğü bir çayır yarattın."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Biraz su bir yeri değiştirebilir."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Köy büyümeye başlıyor."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Her seçim bu yerin bir parçası oluyor."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Bölüm {0} · {1} · {2}"
+    }
+  ]
+}
