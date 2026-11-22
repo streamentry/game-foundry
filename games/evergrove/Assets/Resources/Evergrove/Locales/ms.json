@@ -1,0 +1,297 @@
+{
+  "code": "ms",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · DUNIA YANG MENGINGATI"
+    },
+    {
+      "key": "subtitle",
+      "value": "Pilihan kecil. Tempat yang hidup."
+    },
+    {
+      "key": "language",
+      "value": "Bahasa"
+    },
+    {
+      "key": "auto",
+      "value": "Automatik (bahasa peranti)"
+    },
+    {
+      "key": "language_help",
+      "value": "Bahasa peranti digunakan sehingga anda memilih yang lain."
+    },
+    {
+      "key": "living",
+      "value": "Dunia hidup"
+    },
+    {
+      "key": "puzzle",
+      "value": "Teka-teki sahaja"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Teka-teki air yang sama tanpa kampung yang hidup."
+    },
+    {
+      "key": "memory_title",
+      "value": "KENANGAN BARU DI KAMPUNG"
+    },
+    {
+      "key": "continue",
+      "value": "Teruskan menyusuri anak sungai"
+    },
+    {
+      "key": "change",
+      "value": "Tukar pilihan ini"
+    },
+    {
+      "key": "complete",
+      "value": "Dua belas anak sungai selesai. Teka-teki mana paling anda suka?"
+    },
+    {
+      "key": "explore",
+      "value": "Terokai taman lain"
+    },
+    {
+      "key": "erase",
+      "value": "Sahkan: padam taman ini"
+    },
+    {
+      "key": "keep",
+      "value": "Kekalkan taman ini"
+    },
+    {
+      "key": "neighbors",
+      "value": "Berbual dengan jiran"
+    },
+    {
+      "key": "thanks",
+      "value": "Terima kasih kerana berkongsi!"
+    },
+    {
+      "key": "playtest",
+      "value": "MOD UJIAN · Pilih sebelum langkah pertama"
+    },
+    {
+      "key": "art_2d",
+      "value": "Paparan: buku cerita 2D (ketik untuk 2.5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Paparan: miniatur 2.5D (ketik untuk 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Gerakan miniatur: HIDUP (ketik untuk berhenti)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Gerakan miniatur: MATI (ketik untuk mula)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Bunyi lembut: HIDUP (ketik untuk senyap)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Bunyi lembut: MATI (ketik untuk hidupkan)"
+    },
+    {
+      "key": "record",
+      "value": "Mulakan ujian peribadi pilihan"
+    },
+    {
+      "key": "privacy",
+      "value": "Hanya bermula apabila diketuk. Tiada muat naik atau kaitan identiti."
+    },
+    {
+      "key": "copy",
+      "value": "Salin nota ujian"
+    },
+    {
+      "key": "copied",
+      "value": "Disalin ke papan keratan."
+    },
+    {
+      "key": "clear",
+      "value": "Berhenti dan padam nota tempatan"
+    },
+    {
+      "key": "offline",
+      "value": "Luar talian · Tiada pemasa · Tiada iklan · Tiada akaun"
+    },
+    {
+      "key": "journal_show",
+      "value": "Baca kenangan kampung"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Sembunyikan kenangan"
+    },
+    {
+      "key": "journal_title",
+      "value": "PILIHAN KITA"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Kenangan pertama masih menanti."
+    },
+    {
+      "key": "stream",
+      "value": "ANAK SUNGAI {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = mata air · G = taman. Ketik untuk sambung air."
+    },
+    {
+      "key": "solved",
+      "value": "Air mengalir melalui semua petak."
+    },
+    {
+      "key": "progress",
+      "value": "Air sampai ke {0}/{1} petak · {2} sambungan terbuka"
+    },
+    {
+      "key": "undo_last",
+      "value": "Buat asal putaran terakhir"
+    },
+    {
+      "key": "next",
+      "value": "Anak sungai seterusnya"
+    },
+    {
+      "key": "choose",
+      "value": "Apa yang mahu anda bantu tumbuh?"
+    },
+    {
+      "key": "undo",
+      "value": "Buat asal"
+    },
+    {
+      "key": "hint",
+      "value": "Petunjuk"
+    },
+    {
+      "key": "restart",
+      "value": "Mula semula anak sungai"
+    },
+    {
+      "key": "how",
+      "value": "Ketik untuk putar. Sambungkan semua paip tanpa hujung terbuka."
+    },
+    {
+      "key": "tree",
+      "value": "Tanam pokok teduhan"
+    },
+    {
+      "key": "bridge",
+      "value": "Baiki jambatan"
+    },
+    {
+      "key": "flowers",
+      "value": "Tanam bunga liar"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira ingat pokok yang anda tanam."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin ingat jambatan yang anda baiki."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen ingat bunga yang anda tanam."
+    },
+    {
+      "key": "world_none",
+      "value": "Anak sungai lama menanti air."
+    },
+    {
+      "key": "world_tree",
+      "value": "Pokok muda tumbuh di tepi sungai."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Jambatan menghubungkan dua tebing."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Bunga liar menyerikan tebing."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Pokok anda menaungi jambatan yang dibaiki."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Rama-rama berkumpul di bawah pokok."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Jiran menyeberang untuk melihat padang bunga."
+    },
+    {
+      "key": "world_all",
+      "value": "Pokok, laluan dan bunga menyatukan kampung."
+    },
+    {
+      "key": "mira_new",
+      "value": "Saya Mira. Boleh kita tanam pokok dekat air?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Saya ingat pokok yang anda tanam. Sekarang kampung ada teduhan."
+    },
+    {
+      "key": "orin_new",
+      "value": "Saya Orin. Harap kita dapat membina semula jambatan."
+    },
+    {
+      "key": "orin_after",
+      "value": "Jambatan yang dibaiki menyatukan kita. Terima kasih!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Saya Fen. Saya rindukan bunga liar di tepi air."
+    },
+    {
+      "key": "fen_after",
+      "value": "Bunga anda menghidupkan semula tebing."
+    },
+    {
+      "key": "ending_all",
+      "value": "Kampung kita berkembang. Setiap pilihan membantu membina tempat tinggal."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Dusun tenang tumbuh berkat penjagaan anda."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Jambatan anda menyatukan jiran."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Anda membina padang tempat kehidupan kembali."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Sedikit air boleh mengubah sesuatu tempat."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Kampung mula berkembang."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Setiap pilihan menjadi sebahagian daripada tempat ini."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Bab {0} · {1} · {2}"
+    }
+  ]
+}

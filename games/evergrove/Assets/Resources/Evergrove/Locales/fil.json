@@ -1,0 +1,297 @@
+{
+  "code": "fil",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · MUNDONG NAKAAALALA"
+    },
+    {
+      "key": "subtitle",
+      "value": "Maliliit na pasya. Buháy na lugar."
+    },
+    {
+      "key": "language",
+      "value": "Wika"
+    },
+    {
+      "key": "auto",
+      "value": "Awtomatiko (wika ng device)"
+    },
+    {
+      "key": "language_help",
+      "value": "Wika ng device ang gagamitin hanggang pumili ka ng iba."
+    },
+    {
+      "key": "living",
+      "value": "Buháy na mundo"
+    },
+    {
+      "key": "puzzle",
+      "value": "Puzzle lang"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Parehong puzzle ng tubig, walang nagbabagong nayon."
+    },
+    {
+      "key": "memory_title",
+      "value": "BAGONG ALAALA SA NAYON"
+    },
+    {
+      "key": "continue",
+      "value": "Magpatuloy sa tabi ng sapa"
+    },
+    {
+      "key": "change",
+      "value": "Palitan ang pasyang ito"
+    },
+    {
+      "key": "complete",
+      "value": "Tapos na ang labindalawang sapa. Aling puzzle ang pinakanagustuhan mo?"
+    },
+    {
+      "key": "explore",
+      "value": "Tuklasin ang ibang hardin"
+    },
+    {
+      "key": "erase",
+      "value": "Kumpirmahin: burahin ang hardin"
+    },
+    {
+      "key": "keep",
+      "value": "Panatilihin ang hardin"
+    },
+    {
+      "key": "neighbors",
+      "value": "Kausapin ang kapitbahay"
+    },
+    {
+      "key": "thanks",
+      "value": "Salamat sa pagkukuwento!"
+    },
+    {
+      "key": "playtest",
+      "value": "TEST MODE · Pumili bago ang unang galaw"
+    },
+    {
+      "key": "art_2d",
+      "value": "Hitsura: 2D kuwentong larawan (tap para 2.5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Hitsura: 2.5D modelo (tap para 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Galaw ng modelo: BUKAS (tap para ihinto)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Galaw ng modelo: SARADO (tap para simulan)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Mahinang tunog: BUKAS (tap para i-mute)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Mahinang tunog: SARADO (tap para buksan)"
+    },
+    {
+      "key": "record",
+      "value": "Simulan ang opsyonal na pribadong playtest"
+    },
+    {
+      "key": "privacy",
+      "value": "Magsisimula lang kapag tinap. Walang ia-upload o iuugnay sa iyong pagkakakilanlan."
+    },
+    {
+      "key": "copy",
+      "value": "Kopyahin ang mga tala sa pagsubok"
+    },
+    {
+      "key": "copied",
+      "value": "Nakopya sa clipboard."
+    },
+    {
+      "key": "clear",
+      "value": "Ihinto at burahin ang lokal na tala"
+    },
+    {
+      "key": "offline",
+      "value": "Offline · Walang timer · Walang ad · Walang account"
+    },
+    {
+      "key": "journal_show",
+      "value": "Basahin ang alaala ng nayon"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Itago ang mga alaala"
+    },
+    {
+      "key": "journal_title",
+      "value": "ATING MGA PASYA"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Naghihintay pa ang unang alaala."
+    },
+    {
+      "key": "stream",
+      "value": "SAPA {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = bukal · G = hardin. I-tap para dugtungan ang tubig."
+    },
+    {
+      "key": "solved",
+      "value": "Dumadaloy ang tubig sa lahat ng kahon."
+    },
+    {
+      "key": "progress",
+      "value": "Nakarating ang tubig sa {0}/{1} kahon · {2} bukas na dugtungan"
+    },
+    {
+      "key": "undo_last",
+      "value": "I-undo ang huling ikot"
+    },
+    {
+      "key": "next",
+      "value": "Susunod na sapa"
+    },
+    {
+      "key": "choose",
+      "value": "Ano ang gusto mong palaguin?"
+    },
+    {
+      "key": "undo",
+      "value": "I-undo"
+    },
+    {
+      "key": "hint",
+      "value": "Pahiwatig"
+    },
+    {
+      "key": "restart",
+      "value": "Ulitin ang sapa"
+    },
+    {
+      "key": "how",
+      "value": "I-tap para ikutin. Ikonekta ang lahat ng tubo nang walang bukas na dulo."
+    },
+    {
+      "key": "tree",
+      "value": "Magtanim ng punong malilim"
+    },
+    {
+      "key": "bridge",
+      "value": "Ayusin ang tulay"
+    },
+    {
+      "key": "flowers",
+      "value": "Magtanim ng ligaw na bulaklak"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Naaalala ni Mira ang punong itinanim mo."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Naaalala ni Orin ang tulay na inayos mo."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Naaalala ni Fen ang mga bulaklak na pinatubo mo."
+    },
+    {
+      "key": "world_none",
+      "value": "Naghihintay ng tubig ang lumang sapa."
+    },
+    {
+      "key": "world_tree",
+      "value": "May munting punong tumutubo sa tabi ng sapa."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Pinagdudugtong ng tulay ang dalawang pampang."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Pinapaganda ng mga ligaw na bulaklak ang pampang."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Nagbibigay-lilim ang mga puno mo sa inayos na tulay."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Nagtitipon ang mga paruparo sa ilalim ng mga puno."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Tumatawid ang mga kapitbahay para makita ang parang."
+    },
+    {
+      "key": "world_all",
+      "value": "Pinagdurugtong ng puno, daan at bulaklak ang nayon."
+    },
+    {
+      "key": "mira_new",
+      "value": "Ako si Mira. Magtanim kaya tayo ng puno sa tabi ng tubig?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Naaalala ko ang mga itinanim mo. May lilim na ang nayon."
+    },
+    {
+      "key": "orin_new",
+      "value": "Ako si Orin. Sana maibalik natin ang tulay."
+    },
+    {
+      "key": "orin_after",
+      "value": "Pinagsama-sama tayo ng inayos na tulay. Salamat!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Ako si Fen. Namimiss ko ang mga bulaklak sa may sapa."
+    },
+    {
+      "key": "fen_after",
+      "value": "Binuhay muli ng mga bulaklak mo ang pampang."
+    },
+    {
+      "key": "ending_all",
+      "value": "Umuunlad ang nayon. Nakatulong ang bawat pasya para maging tahanan ito."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Lumago ang tahimik na taniman dahil sa pag-aalaga mo."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Pinaglapit ng mga tulay mo ang magkakapitbahay."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Gumawa ka ng parang na muling nabuhay."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Kayang baguhin ng kaunting tubig ang isang lugar."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Nagsisimulang lumago ang nayon."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Bahagi ng lugar na ito ang bawat pasya."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Kabanata {0} · {1} · {2}"
+    }
+  ]
+}
