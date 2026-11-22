@@ -33,6 +33,9 @@ namespace Evergrove.UnityClient
                 var asset = Resources.Load<TextAsset>("Evergrove/Locales/" + code);
                 if (asset == null) return false;
                 TranslationBundle bundle = JsonUtility.FromJson<TranslationBundle>(asset.text);
+                if (bundle == null ||
+                    !string.Equals(bundle.code, code, StringComparison.OrdinalIgnoreCase))
+                    return false;
                 return GameLocalization.Register(bundle) && GameLocalization.SetCurrent(code);
             }
             catch (Exception exception)
@@ -46,8 +49,12 @@ namespace Evergrove.UnityClient
         {
             if (preference != GameLocalization.Auto && !GameLocalization.IsSupported(preference))
                 return false;
-            if (!Apply(preference) && GameLocalization.Current != "en")
+            string oldPreference = Preference;
+            if (!Apply(preference))
+            {
+                Apply(oldPreference);
                 return false;
+            }
             PlayerPrefs.SetString(PreferenceKey, preference);
             PlayerPrefs.Save();
             return true;

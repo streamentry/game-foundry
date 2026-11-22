@@ -238,7 +238,10 @@ namespace Evergrove.Core
         public static string Detect(string preference, string uiCulture, string unitySystemLanguage)
         {
             if (!string.IsNullOrWhiteSpace(preference) &&
-                !preference.Equals(Auto, StringComparison.OrdinalIgnoreCase))
+                !preference.Equals(Auto, StringComparison.OrdinalIgnoreCase) &&
+                (IsSupported(preference) ||
+                 preference.StartsWith("zh-", StringComparison.OrdinalIgnoreCase) ||
+                 preference.StartsWith("pt-", StringComparison.OrdinalIgnoreCase)))
             {
                 string chosen = Normalize(preference);
                 if (IsSupported(chosen)) return chosen;
@@ -309,6 +312,7 @@ namespace Evergrove.Core
 
         public static bool SetCurrent(string code)
         {
+            if (!IsSupported(code)) return false;
             string selected = Normalize(code);
             if (!IsSupported(selected)) return false;
             if (selected != Fallback && !Translations.ContainsKey(selected)) return false;

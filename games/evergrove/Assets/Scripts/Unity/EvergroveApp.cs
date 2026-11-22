@@ -700,9 +700,13 @@ namespace Evergrove.UnityClient
             foreach (GameLanguage choice in GameLocalization.Available)
             {
                 string captured = choice.Code;
-                Button(content, "Locale " + captured, choice.NativeName, () => {
+                Button item = Button(content, "Locale " + captured, choice.NativeName, () => {
                     SelectLanguage(captured);
-                }, 52, LocaleRuntime.Preference == captured);
+                }, 54, LocaleRuntime.Preference == captured);
+                // The current language's font cannot be assumed to display
+                // every *other* native name in this 30-script picker.
+                Text caption = item.GetComponentInChildren<Text>();
+                if (caption != null) caption.font = LocaleFonts.Choose(captured, baseFont);
             }
             Button(content, "Close language picker", GameLocalization.Text("continue"), () => {
                 languagePicker = false;
