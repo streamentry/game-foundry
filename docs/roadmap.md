@@ -22,6 +22,10 @@ At the founder's explicit direction on **2026-11-22**, **Evergrove (`PH-006`)** 
 - **Stop/simplify:** puzzle-only wins, players don't understand consequences, or maintaining a living world makes economics or trust worse.
 - **Source of decision:** [research decision record](research/evergrove-build-decision-2026-11-22.md). Any store launch still needs a separate evidence-backed review.
 
+## Evergrove reactive puzzle ecology — a mechanical intervention
+
+**2026-11-22:** [Reactive Watercourses](../games/evergrove/Assets/Scripts/Core/ReactiveWatercourses.cs) makes tree/crossing/meadow decisions select the next chapter's real topology and one fixed ecological connection. V3 restores earlier v1/v2 progress without rewriting an active puzzle. The puzzle-only control keeps base boards; **this new intervention confounds the earlier matched-puzzle A/B**, so future testing needs to distinguish the effect of narrative, altered puzzle mechanics and combined experience. Passing unit tests cannot prove players prefer branches.
+
 ## Evergrove next release gate: test a REAL Unity player
 
 **2026-11-22:** Fixed the Unity input-module mismatch, added a visible **dry→flowing creek** transition in both rendering modes, enabled manual Unity Android/WebGL build artifacts using GameCI credentials, and introduced optional consented, local-only first-session observations. Neither Unity-native compilation nor real-device gameplay has been run automatically yet.
