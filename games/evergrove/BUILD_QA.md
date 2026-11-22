@@ -6,7 +6,7 @@ As of 2026-11-22, pure C# domain tests run in GitHub Actions. **No licensed Unit
 
 ## One-click preview builds
 
-A manual [Build Evergrove Unity Playtest](../../.github/workflows/evergrove-unity-playtest.yml) workflow can produce an **unsigned Android test APK**, **unhosted WebGL ZIP artifact**, or **unsigned iOS Xcode project**. It uses `game-ci/unity-builder@v4`, a custom Editor build method `EvergroveBuild.Build` and the requested Unity 6.3 version from `ProjectSettings/ProjectVersion.txt`.
+A manual [Build Evergrove Unity Playtest](../../.github/workflows/evergrove-unity-playtest.yml) workflow can produce an **unsigned Android test APK**, **unhosted WebGL ZIP artifact**, or **unsigned iOS Xcode project**. **These are Development Builds for a research cohort**, with Puzzle Only and renderer comparison/report controls deliberately enabled. **Never ship this artifact as a production app.** A future store candidate requires a separate non-development player build and verification that research UI is absent (`BLD-007`). It uses `game-ci/unity-builder@v4`, a custom Editor build method `EvergroveBuild.Build` and the requested Unity 6.3 version from `ProjectSettings/ProjectVersion.txt`.
 
 **Maintainer setup (one time):** Open repository **Settings → Secrets and variables → Actions** and configure a supported Unity license. GameCI Personal activation requires `UNITY_LICENSE`; Pro activation uses `UNITY_SERIAL`, `UNITY_EMAIL`, `UNITY_PASSWORD`. Do not paste credentials into chat, commit them or log them. See [GameCI activation instructions](https://game.ci/docs/github/activation/). This workflow refuses to run without license information, and it never publishes an app or deploys the optional Cloudflare backend.
 
@@ -29,6 +29,18 @@ The automated Unity build method creates the otherwise empty bootstrap scene. **
 - [ ] Run a privacy review: all data local, no analytics or network requests without informed opt-in.
 - [ ] Save actual screenshots, Unity build logs and device findings as evidence. Mark a test complete only after someone has performed it.
 
+## Evidence and safety checklist from Deep Research audit
+
+- [ ] **M1:** Licensed Unity 6.3 Editor import/compile + actual unsigned APK/iOS Xcode export; capture log, commit SHA, workflow URL and artifact checksum. The manual workflow has **not** been demonstrated to pass.
+- [ ] **M2:** One physical compact Android and one physical iPhone complete 12 streams; save/restore, interruption and corrupt-primary backup tests; physical tap/safe-area audit; controlled network capture. Source-level C# tests alone do not satisfy M2.
+- [ ] **Research isolation:** `#if UNITY_EDITOR || DEVELOPMENT_BUILD` encloses comparison/2.5D/report UI; a separate non-development build must prove these are absent. Old Puzzle Only saves need an explicit safe upgrade decision.
+- [ ] **Endpoint icons:** Blue waves = spring, green sprout = garden. No language-dependent S/G labels; review contrast and meaning on real devices, including screen-reader semantics.
+- [ ] **M3/M4:** Uncoached first-minute study followed by a preregistered **puzzle-identical** living-world/control comparison. After Chapter One the current branch boards differ and a naïve A/B test is confounded.
+- [ ] **M5:** Certified locale subset only; 30 draft catalogs are not a 30-language release guarantee. `pt-PT` uses Brazilian Portuguese fallback unless separately approved/translated.
+- [ ] **M6:** Legal/store name, privacy/SDK audit, store screenshots, price experiment and S0/S1 closure before shipping.
+
+[Full execution gates, evidence artifacts and test IDs](docs/specs/09-EXECUTION-CONTROL.md) · [Machine-readable feature ledger](docs/specs/verification-matrix.json).
+
 ## Product stop/continue rule
 
 This build exists to help people actually experience the game. Compare `Living World` with `Puzzle Only` for **first-chapter impressions only**. Later board rules differ. See [validation](docs/VALIDATION.md) for matched controls. Continue development only if the living-world layer measurably improves comprehension and voluntary replay, and the distribution channel is viable. A successful Unity build proves **buildability**, not product-market fit.
@@ -40,7 +52,7 @@ References: [GameCI Unity Builder](https://game.ci/docs/github/builder/), [Unity
 - [ ] First launch honors device language including `vi-VN`, `ja-JP`, `zh-Hant-TW`, `es-MX`, `pt-BR`.
 - [ ] In-game language list shows all 30 **native names** legibly; auto mode and manual override survive restart.
 - [ ] Changing language mid-puzzle, after choosing a tree and at the ending **never changes event history or solved state**.
-- [ ] Translation coverage tests pass for all 76 keys × 29 JSON catalogs, including placeholders.
+- [ ] Translation coverage tests pass for **all canonical runtime keys** across all 29 JSON catalogs, including placeholders (currently 76; the static validator is authoritative).
 - [ ] Validate language width and dynamic text on a compact device; no clipped buttons or title collisions.
 - [ ] Native-script glyph coverage: Chinese, Japanese, Korean, Thai, Vietnamese.
 - [ ] **RTL blocker:** Arabic, Persian, Hebrew and Urdu must be tested with a correct shaping/bidi engine. A right-aligned legacy uGUI Text alone is not enough.

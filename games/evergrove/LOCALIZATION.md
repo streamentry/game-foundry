@@ -45,6 +45,14 @@ First launch and **Automatic** mode use `CultureInfo.CurrentUICulture` (BCP-47) 
 
 The **Language** button opens a full native-name picker plus **Automatic (device language)**. A manual selection writes `evergrove:language-choice:v1` to PlayerPrefs. Puzzle progression is stored separately in `evergrove-world-v2.json`; neither selection nor change touches it. No online translator, account or permission is required.
 
+### Regional and graphical first-puzzle caveats
+
+`pt-PT` currently routes to `pt-BR` as a **fallback**, not an independently reviewed European Portuguese localization. Before marketing to Portugal, explicitly approve the regional fallback with a native reviewer, provide a dedicated `pt-PT` catalog, or avoid claiming that locale.
+
+The first puzzle now uses **procedural blue wave lines for the spring and a green sprout for the garden**, in place of English `S/G` letters. All 30 concise first-puzzle prompts describe those shapes, but translations remain drafts and the icons are **not visually, contrast or screen-reader certified** until actual device checks. This change does not itself fix uGUI shaping.
+
+**Locale lifecycle:** `Draft → Technical QA → Native QA → Store QA → Certified`. A store release must show only certified locales (all 30 are presently draft); this is a **release contract**, not a claim that the current research build enforces that subset. See [execution control](docs/specs/09-EXECUTION-CONTROL.md).
+
 The game reads bundled `Assets/Resources/Evergrove/Locales/<locale>.json` using `JsonUtility` and validates the entire catalog before activation. A broken or unavailable resource falls back to English and the attempted selection is not saved. `GameLocalization` is Unity-free so routing and state separation can be tested with .NET.
 
 ## What is and is not translated
