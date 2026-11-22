@@ -49,6 +49,7 @@ namespace Evergrove.UnityClient
         private AudioClip chime;
         private LocalPlaytest localPlaytest; // opt-in, in-memory only
         private bool playtestCopied;
+        private bool saveFailed; // shown visibly; do not silently pretend an unsaved session is safe
         // Keep live puzzle controls mounted during every tap. Recreating the
         // entire uGUI hierarchy on each rotation would cause GC, jank and
         // scroll-position jumps on older phones.
@@ -308,12 +309,21 @@ namespace Evergrove.UnityClient
             }
 
             bool living = world.Mode == PlayMode.Living;
+            // Keep the first playable board in the first visible viewport,
+            // rather than putting language/settings and a giant hero above it.
+            bool firstPuzzle = world.Round == 0 && !world.Solved && !showingMemory;
             Label(content, "Brand", GameLocalization.Text("title"), 12, 24, Leaf);
-            Label(content, "Title", GameLocalization.Text("subtitle"), 25, 46, Ink);
-            Button(content, "Language settings",
-                GameLocalization.Text("language") + ": " +
-                GameLocalization.NativeName(GameLocalization.Current),
-                () => { languagePicker = !languagePicker; Rebuild(true); }, 48);
+            Label(content, "Title", GameLocalization.Text("subtitle"),
+                firstPuzzle ? 19 : 25, firstPuzzle ? 29 : 46, Ink);
+            if (!firstPuzzle || languagePicker)
+                Button(content, "Language settings",
+                    GameLocalization.Text("language") + ": " +
+                    GameLocalization.NativeName(GameLocalization.Current),
+                    () => { languagePicker = !languagePicker; Rebuild(true); }, 48);
+            if (saveFailed)
+                Label(content, "Unsaved progress warning",
+                    GameLocalization.Text("save_warning"), 14, 65, Hex("#983E37"),
+                    TextAnchor.MiddleCenter);
             if (languagePicker)
             {
                 BuildLanguagePicker();
@@ -326,7 +336,7 @@ namespace Evergrove.UnityClient
             if (living)
             {
                 var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
-                Height(illustration, 193);
+                Height(illustration, firstPuzzle ? 96 : 193);
                 bool renderedMiniature = false;
                 if (showMiniature)
                 {
@@ -368,8 +378,9 @@ namespace Evergrove.UnityClient
 
             if (living)
             {
-                Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
-                    TextAnchor.MiddleCenter);
+                if (!firstPuzzle)
+                    Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
+                        TextAnchor.MiddleCenter);
                 if (world.Choices.Length > 0)
                     Label(content, "Remembered choice", LocalizedVillage.Memory(world), 13, 38, Moss,
                         TextAnchor.MiddleCenter);
@@ -421,6 +432,11 @@ namespace Evergrove.UnityClient
             }
             else
                 BuildPuzzle();
+            if (firstPuzzle && !languagePicker)
+                Button(content, "Language settings",
+                    GameLocalization.Text("language") + ": " +
+                    GameLocalization.NativeName(GameLocalization.Current),
+                    () => { languagePicker = true; Rebuild(true); }, 48);
 
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
@@ -610,6 +626,11 @@ namespace Evergrove.UnityClient
                 bool reached = insight.Flowing[index];
                 image.color = world.Solved ? Hex("#D1E6C8") :
                     reached ? Hex("#D8EFED") : Hex("#F0F1E8");
+                if (world.HintStep == 1 && world.HintTile >= 0 &&
+                    index / puzzle.Size == world.HintTile / puzzle.Size)
+                    image.color = Hex("#F7E8BB");
+                if (world.HintStep == 2 && index == world.HintTile)
+                    image.color = Hex("#EFD38B");
                 var tile = tileNode.AddComponent<Button>();
                 tile.targetGraphic = image;
                 tile.interactable = !world.Solved && !puzzle.IsAnchored(index);
@@ -649,6 +670,23 @@ namespace Evergrove.UnityClient
                     badgeLabel.color = Ink;
                     badgeLabel.raycastTarget = false;
                     badgeLabel.text = "●";
+                }
+                if (world.HintStep == 2 && index == world.HintTile)
+                {
+                    var clueNode = Node("Hint focus marker", tileNode.transform);
+                    RectTransform clueRect = clueNode.GetComponent<RectTransform>();
+                    clueRect.anchorMin = new Vector2(1f, 0f);
+                    clueRect.anchorMax = new Vector2(1f, 0f);
+                    clueRect.pivot = new Vector2(1f, 0f);
+                    clueRect.sizeDelta = new Vector2(23f, 23f);
+                    clueRect.anchoredPosition = new Vector2(-3f, 3f);
+                    var clueLabel = clueNode.AddComponent<Text>();
+                    clueLabel.font = font;
+                    clueLabel.fontSize = 17;
+                    clueLabel.alignment = TextAnchor.MiddleCenter;
+                    clueLabel.color = Ink;
+                    clueLabel.raycastTarget = false;
+                    clueLabel.text = "?";
                 }
                 if (puzzle.Kinds[index] == PipeKind.End)
                 {
@@ -706,8 +744,21 @@ namespace Evergrove.UnityClient
                 undoButton = Button(tools.transform, "Undo", GameLocalization.Text("undo"), () => Act(() => world.Undo(), "undo"),
                     52);
                 undoButton.interactable = world.CanUndo;
-                Button(tools.transform, "Hint", GameLocalization.Text("hint"), () => Act(() => world.GuideOneConnection(), "hint"), 52);
+                Button(tools.transform, "Hint",
+                    GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
+                        world.HintStep == 1 ? "hint_more" : "hint"),
+                    UseGentleHint, 52);
                 Button(content, "Restart", GameLocalization.Text("restart"), () => Act(() => world.Restart(), "restart"), 46);
+                if (world.HintStep > 0 && world.HintTile >= 0)
+                {
+                    int hintRow = world.HintTile / puzzle.Size + 1;
+                    int hintColumn = world.HintTile % puzzle.Size + 1;
+                    Label(content, "Optional progressive clue",
+                        world.HintStep == 1 ?
+                            GameLocalization.Text("hint_notice", hintRow) :
+                            GameLocalization.Text("hint_focus", hintRow, hintColumn),
+                        14, 65, Moss, TextAnchor.MiddleCenter);
+                }
             }
             Label(content, "How to play", GameLocalization.Text("how"),
                 13, 56, Moss, TextAnchor.MiddleCenter);
@@ -773,6 +824,9 @@ namespace Evergrove.UnityClient
             for (int i = 0; i < puzzle.CellCount; i++)
             {
                 tileBackgrounds[i].color = puzzle.IsAnchored(i) ? Hex("#F1DDB3") :
+                    world.HintStep == 2 && i == world.HintTile ? Hex("#EFD38B") :
+                    world.HintStep == 1 && world.HintTile >= 0 &&
+                        i / puzzle.Size == world.HintTile / puzzle.Size ? Hex("#F7E8BB") :
                     world.Solved ? Hex("#D1E6C8") :
                     insight.Flowing[i] ? Hex("#D8EFED") : Hex("#F0F1E8");
                 visibleTiles[i].interactable = !world.Solved && !puzzle.IsAnchored(i);
@@ -799,7 +853,23 @@ namespace Evergrove.UnityClient
                     StartCoroutine(ScrollToDecision());
                 }
             }
+            else if (saveFailed) Rebuild();
             else RefreshBoard();
+        }
+
+        private void UseGentleHint()
+        {
+            bool wasSolved = world.Solved;
+            int stage = world.AdvanceGentleHint();
+            if (stage == 0) return;
+            if (localPlaytest != null) localPlaytest.Hint(Time.unscaledTime);
+            SaveWorld();
+            Rebuild();
+            if (!wasSolved && world.Solved)
+            {
+                PlayChime();
+                StartCoroutine(ScrollToDecision());
+            }
         }
 
         private void TapTile(int index)
@@ -846,7 +916,8 @@ namespace Evergrove.UnityClient
 
         private void SaveWorld()
         {
-            if (!WorldStore.Save(world))
+            saveFailed = !WorldStore.Save(world);
+            if (saveFailed)
                 Debug.LogWarning("Evergrove is playable but cannot persist this change.");
         }
 
