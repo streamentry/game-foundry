@@ -101,6 +101,8 @@ SPEC_DOCUMENTS = [
     "07-VALIDATION-AND-GTM.md",
     "08-EVIDENCE-AND-DECISIONS.md",
     "09-EXECUTION-CONTROL.md",
+    "10-EXPERIMENT-PROTOCOLS.md",
+    "11-EVIDENCE-AND-RELEASE-PACKETS.md",
 ]
 
 
@@ -219,6 +221,29 @@ def check_specification_contract() -> None:
     for feature_id in feature_by_id:
         visit(feature_id)
 
+    # Every named test must be either owned by a feature or expressly required
+    # by a milestone gate. Silent orphan tests create false release assurance.
+    linked_test_ids = {
+        ref for feature in features for ref in feature["verification_ids"]
+    }
+    gate_tests = matrix.get("gate_required_verification_ids", {})
+    if not isinstance(gate_tests, dict):
+        fail("Gate-required tests must be a mapping")
+    for gate, refs in gate_tests.items():
+        if gate not in gates or not isinstance(refs, list):
+            fail(f"Invalid gate test list: {gate}")
+        if len(refs) != len(set(refs)):
+            fail(f"Duplicate gate test: {gate}")
+        for ref in refs:
+            if ref not in test_by_id:
+                fail(f"Unknown gate-required test: {ref}")
+            if test_by_id[ref]["gate"] != gate:
+                fail(f"Gate/test milestone mismatch: {gate}/{ref}")
+            linked_test_ids.add(ref)
+    unowned_tests = set(test_by_id) - linked_test_ids
+    if unowned_tests:
+        fail(f"Unowned release/feature tests: {sorted(unowned_tests)}")
+
     # Static release isolation is a prerequisite, never a runtime-certification.
     ui = source_text(GAME / "Assets/Scripts/Unity/EvergroveApp.cs")
     builder = source_text(GAME / "Assets/Editor/EvergroveBuild.cs")
@@ -257,7 +282,7 @@ def check_specification_contract() -> None:
             fail(f"First puzzle localization still depends on English S/G: {file.name}")
     print(
         f"Evergrove execution contract: {len(features)} feature records, "
-        f"{len(tests)} test IDs, 10 linked feature specs, "
+        f"{len(tests)} test IDs, {len(SPEC_DOCUMENTS)} linked feature specs, "
         "zero claimed device/human verification unless proof exists."
     )
 
