@@ -7,7 +7,7 @@
 - `PuzzleCatalog` defines **12 authored boards**: six 3×3 and six 4×4, with end/straight/corner tiles.
 - `PipeRules` checks rotations, flow connectivity, unmatched joins/leaks and completion; a test-side exhaustive search checks unique solutions.
 - `ReactiveWatercourses` creates **33** follow-up variants (11 chapters × 3 prior choices). It rotates the entire source board, rotates each tile orientation and anchors one already-correct non-end tile. This **preserves a valid unique solution**, but does **not** yet create genuinely different root/bridge/flower logic.
-- `WorldModel` stores the active board variant and supports one-step undo, restart and one-tile `Guide me`.
+- `WorldModel` now persists a three-stage hint (row → focus → correct one tile) in schema v4, alongside one-step undo and restart. The direct one-tile `GuideOneConnection()` remains for compatibility.
 - The source tests check all originals/variants; **these are domain checks, not Unity/device or human difficulty results**.
 
 Source: [PipeRules.cs](../../Assets/Scripts/Core/PipeRules.cs), [ReactiveWatercourses.cs](../../Assets/Scripts/Core/ReactiveWatercourses.cs), [WorldModel.cs](../../Assets/Scripts/Core/WorldModel.cs), [Tests/Program.cs](../../Tests/Program.cs).
@@ -31,6 +31,12 @@ Source: [PipeRules.cs](../../Assets/Scripts/Core/PipeRules.cs), [ReactiveWaterco
 | 10–12 | Intentional synthesis of prior mechanics; satisfying final world outcome | Challenge must come from reasoning, not tiny targets or visual ambiguity |
 
 These are **proposed content targets**; current chapter fixtures are not certified against them.
+
+## Implemented 45-board diagnostics (not player-rated difficulty)
+
+The [source-derived catalog](puzzle-catalog.generated.json) contains 12 authored original boards plus 33 branch presentations. [PuzzleDiagnostics](../../Assets/Scripts/Core/PuzzleDiagnostics.cs) computes exact rotation counts and original-state connectivity/leaks; [Tests](../../Tests/Program.cs) verify the JSON matches the code. Run `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release -- --print-puzzle-catalog` to regenerate, then `--check-puzzle-catalog` to compare from repository root.
+
+**Meaning:** `minimumClockwiseTaps` is the number of direct clockwise UI turns from the saved initial orientations to the **unique reference solution**, not actual human skill/difficulty. `solutionCountAtMostTwo` uses solver early-exit at 2 (every current profile is 1). `forcedMoveCount`, observed solve seconds, hint rate and human reviewer remain **null**. The old illustrative JSON example below is not the source of current board truth.
 
 ## Required authoring metadata (EG-004)
 
@@ -70,6 +76,10 @@ A source-controlled, deterministic record for every authored puzzle and variant:
 - Every hint step is demonstrably helpful and does not contradict the solved route.
 - A tester can explain *why* the final connection worked; random tapping alone is not the intended experience.
 - Source fixture, metadata, translation label and replay/save identity remain consistent across builds.
+
+## Progressive hint ladder — code in place, player test pending
+
+`HintPlanner` selects a currently incorrect, non-anchored pipe near connected water when possible. The UI shows **row**, then **specific tile**, then turns exactly one pipe into its solved orientation on a third deliberate tap. The v4 snapshot stores progress; Undo, Restart and another manual turn clear the staged hint. First two clues never rotate a tile or increment `WorldModel.HintsUsed`. Optional `LocalPlaytest` counts **all hint-button taps**, which is distinct from tiles corrected. Nonverbal color/marker cues still require accessibility and real-player validation.
 
 ## Progressive hint ladder (EG-005)
 

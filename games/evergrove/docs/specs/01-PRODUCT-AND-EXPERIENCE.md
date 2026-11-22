@@ -22,22 +22,9 @@
 
 See [source map](08-EVIDENCE-AND-DECISIONS.md) and [project README](../../README.md). The repository implements 12 authored 3×3/4×4 boards, 33 deterministic choice-conditioned variants, a fixed ecological landmark, authored reactions from Mira/Orin/Fen, journal/endings, 2D and opt-in 2.5D, offline save/backup/migration and 30 draft locale choices. Current consequences are **limited**: rotating existing topology and anchoring a tile is not a new ecological rule. The 2.5D renderer is an experiment, not a production art commitment. Unity and real-device gates are open.
 
-## Scope freeze until product proof (M1–M4)
+## Implementation note: initial layout shortened, outcome unmeasured
 
-The 37-feature inventory must **not** be implemented sequentially just because it is prioritized. [M0–M6 gate policy](09-EXECUTION-CONTROL.md) overrides the numerical backlog score.
-
-- **Before M1:** fix the Unity Editor/build path and document source-level warnings; do not introduce new mechanics.
-- **Before M2:** no systems that assume reliable on-device play, save integrity or network behavior.
-- **Before M3:** no expansion, recurring content, social, billing or speculative NPC systems. The **first-session information budget** permits only a playable dry stream, the essential rotation/help controls and a discreet settings affordance. Language and accessibility controls are available on request, not forced as a modal. No feature may delay the first meaningful move without observed usability benefit.
-- **Before M4:** do not approve new ecology mechanics, replay gardens, daily streams, postcards or broader village simulation. The living-world premise must first earn a meaningful preference advantage against a **puzzle-matched** control.
-- **Before M5:** text shaping/locale certification and final platform QA must be explicit. A draft language catalog is not a promised release locale.
-- **Before M6:** commercialization and larger platforms are not approved.
-
-The existing development build exposes comparison controls; an ordinary player build now uses compile-time guards against those controls, but **the resulting release binary is not yet verified**. Test the inherited Puzzle Only save edge case before distribution. Raw first-session observations—not a small-sample percentage alone—decide whether the game is understandable and worth improving.
-
-### First-session evaluation without false precision
-
-For **8–12** uncoached formative sessions, report exact numerator/denominator and repeated failure modes: cannot identify goal, first tap unavailable, water state unclear, fixed landmark mistaken for a tappable tile, consequence unnoticed, or help too revealing. Proposed 80%/75% numbers elsewhere in this document are **diagnostic thresholds**, not population estimates or statistical proof. Later matched comparison measures the *incremental* village value with identical puzzle content.
+The default first chapter now uses a compact dry-creek preview and moves language settings below the puzzle to make the first tap more discoverable. The <15-second median first action, player comprehension and small-phone viewport behavior have **not** been measured. The plan below remains a testable storyboard, not a recorded result.
 
 ## The first 60 seconds — proposed storyboard
 
@@ -104,7 +91,7 @@ Other failure modes: accessibility fails on compact devices; translations render
 2. Dry stream → immediate touch → flowing water → village reaction in the first minute.
 3. Visually explicit consequences **before** explanatory dialogue.
 4. Solver metadata and human-calibrated difficulty for all 12 authored boards.
-5. Progressive, non-punitive hints.
+5. Three-stage, non-punitive hints in code; phone UX and comprehension still require testing.
 6. Correct Unicode/RTL/Indic text rendering; certify a smaller launch locale set.
 7. Large targets, non-color cues, scaling and accessibility device QA.
 8. Ecological choices that genuinely alter future puzzle reasoning.

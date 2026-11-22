@@ -8,45 +8,49 @@
 
 **Priority is not execution order:** gate M1 build and M2 reliability must pass before expanding the feature set. P0 audio/haptics EG-012/013 are **M6 conditional polish**, not M1 blockers. EG-006/010 are launch blockers **only for locales actually enabled for release**. Uncommitted P1/P2 remain research candidates.
 
-| ID | Feature | Priority | State | Type | R/I/C/E | Score | Gate | Owner role | Verification IDs |
-| --- | --- | --- | --- | --- | --- | ---: | --- | --- | --- |
-| [EG-001](#eg-001--verified-phone-builds) | Verified phone builds | P0 | Proposed | Reliability | 5/5/5/2 | 62.5 | M1 | Unity/Release Engineer | BLD-001, BLD-002, BLD-003, BLD-004, BLD-005, BLD-006 |
-| [EG-002](#eg-002--first-60-second-complete-loop) | First 60-second complete loop | P0 | Proposed | Core quality | 5/5/3/2 | 37.5 | M3 | UX & Accessibility QA | PUZ-005, VAL-001 |
-| [EG-003](#eg-003--consequence-first-visual-reveal) | Consequence-first visual reveal | P0 | Proposed | Core quality | 5/5/3/2 | 37.5 | M3 | Product Owner | WLD-001, VAL-001 |
-| [EG-004](#eg-004--puzzle-solver-and-difficulty-metadata) | Puzzle solver and difficulty metadata | P0 | Proposed | Core quality | 5/4/4/3 | 26.7 | M3 | Gameplay Engineer | PUZ-001, PUZ-003 |
-| [EG-005](#eg-005--progressive-non-punitive-hints) | Progressive non-punitive hints | P0 | Proposed | Core quality | 5/4/4/2 | 40.0 | M3 | Gameplay Engineer | PUZ-002, VAL-001 |
-| [EG-006](#eg-006--correct-complex-script-text-rendering) | Correct complex-script text rendering | P0 | Proposed | Release quality | 4/5/5/4 | 25.0 | M5 | Localization Lead | LOC-002, A11Y-005 |
-| [EG-007](#eg-007--large-forgiving-touch-and-readable-text) | Large, forgiving touch and readable text | P0 | Proposed | Release quality | 5/5/5/2 | 62.5 | M2 | UX & Accessibility QA | A11Y-001, A11Y-005 |
-| [EG-008](#eg-008--recoverable-saves-under-interruption-and-corruption) | Recoverable saves under interruption and corruption | P0 | Implemented-Unverified | Reliability | 5/5/5/2 | 62.5 | M2 | Unity/Release Engineer | SAVE-001, SAVE-002, SAVE-003 |
-| [EG-009](#eg-009--offlineprivacy-binary-verification) | Offline/privacy binary verification | P0 | Proposed | Trust | 5/5/5/2 | 62.5 | M2 | Unity/Release Engineer | PRIV-001, PRIV-002 |
-| [EG-010](#eg-010--native-certified-launch-locale-subset) | Native-certified launch locale subset | P0 | Proposed | Release quality | 4/4/5/3 | 26.7 | M5 | Localization Lead | LOC-001, LOC-002, LOC-003, LOC-004 |
-| [EG-011](#eg-011--non-color-connectivity-and-contrast) | Non-color connectivity and contrast | P0 | Proposed | Release quality | 5/4/5/2 | 50.0 | M3 | UX & Accessibility QA | A11Y-002 |
-| [EG-012](#eg-012--subtle-audio-feedback-and-ambience) | Subtle audio feedback and ambience | P0 | Implemented-Unverified | Polish | 4/3/3/3 | 12.0 | M6 | Unity/Release Engineer | UX-001 |
-| [EG-013](#eg-013--optional-haptic-response) | Optional haptic response | P0 | Proposed | Polish | 3/2/3/1 | 18.0 | M6 | Unity/Release Engineer | UX-001 |
-| [EG-101](#eg-101--causal-journal) | Causal journal | P1 | Proposed | Differentiation | 5/4/3/2 | 30.0 | M4 | Gameplay Engineer | WLD-003, VAL-002 |
-| [EG-102](#eg-102--three-depth-authored-consequences) | Three-depth authored consequences | P1 | Proposed | Differentiation | 5/5/3/4 | 18.8 | M4 | Product Owner | WLD-001, WLD-004, VAL-002 |
-| [EG-103](#eg-103--bounded-npc-memory-tokens) | Bounded NPC memory tokens | P1 | Proposed | Differentiation | 4/4/3/3 | 16.0 | M4 | Gameplay Engineer | WLD-002, VAL-002 |
-| [EG-104](#eg-104--distinct-character-values-and-voices) | Distinct character values and voices | P1 | Proposed | Differentiation | 4/3/3/3 | 12.0 | M4 | Product Owner | WLD-002, VAL-002 |
-| [EG-105](#eg-105--ecological-constraints-change-reasoning) | Ecological constraints change reasoning | P1 | Proposed | Differentiation | 5/5/3/4 | 18.8 | M4 | Gameplay Engineer | PUZ-004, VAL-002 |
-| [EG-106](#eg-106--recombine-learned-mechanics) | Recombine learned mechanics | P1 | Proposed | Core quality | 5/4/3/4 | 15.0 | M4 | Gameplay Engineer | PUZ-003, PUZ-004 |
-| [EG-107](#eg-107--transparent-difficulty-choice) | Transparent difficulty choice | P1 | Proposed | Accessibility | 4/4/3/3 | 16.0 | M5 | UX & Accessibility QA | PUZ-003, A11Y-001 |
-| [EG-108](#eg-108--optional-return-stream) | Optional return stream | P1 | Proposed | Expansion | 4/3/2/3 | 8.0 | M6 | Product Owner | VAL-004 |
-| [EG-109](#eg-109--meaningfully-different-new-garden) | Meaningfully different new garden | P1 | Proposed | Expansion | 4/4/2/4 | 8.0 | M6 | Gameplay Engineer | PUZ-003, WLD-004 |
-| [EG-110](#eg-110--solver-assisted-human-authoring-tool) | Solver-assisted human authoring tool | P1 | Proposed | Tooling | 5/4/3/4 | 15.0 | M5 | Gameplay Engineer | TOOL-001, PUZ-001 |
-| [EG-111](#eg-111--ten-step-undo-history) | Ten-step undo history | P1 | Proposed | Accessibility | 3/3/4/2 | 18.0 | M5 | Gameplay Engineer | SAVE-003, PUZ-002 |
-| [EG-112](#eg-112--large-board-focus-mode) | Large-board focus mode | P1 | Proposed | Accessibility | 4/4/4/3 | 21.3 | M5 | UX & Accessibility QA | A11Y-001, A11Y-005 |
-| [EG-113](#eg-113--screen-reader-puzzle-semantics) | Screen-reader puzzle semantics | P1 | Proposed | Accessibility | 3/5/4/4 | 15.0 | M5 | UX & Accessibility QA | A11Y-003 |
-| [EG-114](#eg-114--comprehensive-reduced-motion) | Comprehensive reduced motion | P1 | Proposed | Accessibility | 3/4/4/2 | 24.0 | M5 | UX & Accessibility QA | A11Y-004 |
-| [EG-115](#eg-115--local-world-postcard) | Local world postcard | P1 | Proposed | Polish | 4/3/2/2 | 12.0 | M6 | Product Owner | UX-002, WLD-003 |
-| [EG-116](#eg-116--consequence-driven-ending-comparison) | Consequence-driven ending comparison | P1 | Proposed | Differentiation | 3/3/3/2 | 13.5 | M6 | Product Owner | WLD-004 |
-| [EG-201](#eg-201--small-authored-world-micro-events) | Small authored world micro-events | P2 | Proposed | Expansion | 3/3/2/3 | 6.0 | M6 | Product Owner | WLD-001 |
-| [EG-202](#eg-202--cosmetic-seasonal-palette) | Cosmetic seasonal palette | P2 | Proposed | Polish | 2/2/2/3 | 2.7 | M6 | UX & Accessibility QA | A11Y-002 |
-| [EG-203](#eg-203--explicit-offline-share-card) | Explicit offline share card | P2 | Proposed | Distribution | 3/3/2/2 | 9.0 | M6 | Store/Legal Owner | UX-002, PRIV-002 |
-| [EG-204](#eg-204--accessible-first-run-presets) | Accessible first-run presets | P2 | Proposed | Accessibility | 3/3/3/3 | 9.0 | M6 | UX & Accessibility QA | A11Y-001, A11Y-005 |
-| [EG-205](#eg-205--one-time-chapter-expansion-support) | One-time chapter expansion support | P2 | Proposed | Commercial | 3/3/2/3 | 6.0 | M6 | Store/Legal Owner | STORE-004, SAVE-003 |
-| [EG-206](#eg-206--localized-store-screenshots) | Localized store screenshots | P2 | Proposed | Distribution | 4/3/3/2 | 18.0 | M6 | Store/Legal Owner | STORE-003, LOC-003 |
-| [EG-207](#eg-207--aso-positioning-experiments) | ASO positioning experiments | P2 | Proposed | Distribution | 4/4/3/2 | 24.0 | M6 | Store/Legal Owner | STORE-003, VAL-005 |
-| [EG-208](#eg-208--tabletpc-expansion-after-mobile-proof) | Tablet/PC expansion after mobile proof | P2 | Proposed | Expansion | 2/3/2/4 | 3.0 | M6 | Unity/Release Engineer | BLD-004, BLD-005, PERF-001 |
+| ID | Feature | Priority | Status | Type | R/I/C/E | Score |
+| --- | --- | --- | --- | --- | --- | ---: |
+| [EG-001](#eg-001--verified-phone-builds) | Verified phone builds | P0 | Scaffolded | Reliability | 5/5/5/2 | 62.5 |
+| [EG-002](#eg-002--first-60-second-complete-loop) | First 60-second complete loop | P0 | Compact intro code; phone QA open | Core quality | 5/5/3/2 | 37.5 |
+| [EG-003](#eg-003--consequence-first-visual-reveal) | Consequence-first visual reveal | P0 | Scene changes exist | Core quality | 5/5/3/2 | 37.5 |
+| [EG-004](#eg-004--puzzle-solver-and-difficulty-metadata) | Puzzle solver and difficulty metadata | P0 | 45 source-derived profiles; human QA open | Core quality | 5/4/4/3 | 26.7 |
+| [EG-005](#eg-005--progressive-non-punitive-hints) | Progressive non-punitive hints | P0 | 3-stage v4 code; phone QA open | Core quality | 5/4/4/2 | 40.0 |
+| [EG-006](#eg-006--correct-complex-script-text-rendering) | Correct complex-script text rendering | P0 | Legacy uGUI Text and best-effort OS fonts | Release quality | 4/5/5/4 | 25.0 |
+| [EG-007](#eg-007--large-forgiving-touch-and-readable-text) | Large, forgiving touch and readable text | P0 | Safe-area scroll and large controls exist | Release quality | 5/5/5/2 | 62.5 |
+| [EG-008](#eg-008--crash-safe-offline-saves) | Crash-safe offline saves | P0 | v4 + warning; device fault tests open | Reliability | 5/5/5/2 | 62.5 |
+| [EG-009](#eg-009--offlineprivacy-binary-verification) | Offline/privacy binary verification | P0 | Offline design and opt-in in-memory playtest exist | Trust | 5/5/5/2 | 62.5 |
+| [EG-010](#eg-010--native-certified-launch-locale-subset) | Native-certified launch locale subset | P0 | 30 complete draft catalogs | Release quality | 4/4/5/3 | 26.7 |
+| [EG-011](#eg-011--non-color-connectivity-and-contrast) | Non-color connectivity and contrast | P0 | Per-tile leak ! in source; device audit open | Release quality | 5/4/5/2 | 50.0 |
+| [EG-012](#eg-012--subtle-audio-feedback-and-ambience) | Subtle audio feedback and ambience | P0 | Optional gentle completion chime exists | Polish | 4/3/3/3 | 12.0 |
+| [EG-013](#eg-013--optional-haptic-response) | Optional haptic response | P0 | Proposed | Polish | 3/2/3/1 | 18.0 |
+| [EG-101](#eg-101--causal-journal) | Causal journal | P1 | True choice/scene/latest rule in code | Differentiation | 5/4/3/2 | 30.0 |
+| [EG-102](#eg-102--three-depth-authored-consequences) | Three-depth authored consequences | P1 | Immediate/next/ending hooks partly exist | Differentiation | 5/5/3/4 | 18.8 |
+| [EG-103](#eg-103--bounded-npc-memory-tokens) | Bounded NPC memory tokens | P1 | State-dependent authored conversations exist | Differentiation | 4/4/3/3 | 16.0 |
+| [EG-104](#eg-104--distinct-character-values-and-voices) | Distinct character values and voices | P1 | Mira/Orin/Fen have authored distinct responses | Differentiation | 4/3/3/3 | 12.0 |
+| [EG-105](#eg-105--ecological-constraints-change-reasoning) | Ecological constraints change reasoning | P1 | Rotated topologies and fixed landmark implemented | Differentiation | 5/5/3/4 | 18.8 |
+| [EG-106](#eg-106--recombine-learned-mechanics) | Recombine learned mechanics | P1 | Proposed | Core quality | 5/4/3/4 | 15.0 |
+| [EG-107](#eg-107--transparent-difficulty-choice) | Transparent difficulty choice | P1 | Proposed | Accessibility | 4/4/3/3 | 16.0 |
+| [EG-108](#eg-108--optional-return-stream) | Optional return stream | P1 | Proposed | Expansion | 4/3/2/3 | 8.0 |
+| [EG-109](#eg-109--meaningfully-different-new-garden) | Meaningfully different new garden | P1 | Replay via reset exists | Expansion | 4/4/2/4 | 8.0 |
+| [EG-110](#eg-110--solver-assisted-human-authoring-tool) | Solver-assisted human authoring tool | P1 | Existing solver checks | Tooling | 5/4/3/4 | 15.0 |
+| [EG-111](#eg-111--ten-step-undo-history) | Ten-step undo history | P1 | One-step undo implemented | Accessibility | 3/3/4/2 | 18.0 |
+| [EG-112](#eg-112--large-board-focus-mode) | Large-board focus mode | P1 | Proposed | Accessibility | 4/4/4/3 | 21.3 |
+| [EG-113](#eg-113--screen-reader-puzzle-semantics) | Screen-reader puzzle semantics | P1 | Unverified | Accessibility | 3/5/4/4 | 15.0 |
+| [EG-114](#eg-114--comprehensive-reduced-motion) | Comprehensive reduced motion | P1 | 2.5D motion toggle exists | Accessibility | 3/4/4/2 | 24.0 |
+| [EG-115](#eg-115--local-world-postcard) | Local world postcard | P1 | Proposed | Polish | 4/3/2/2 | 12.0 |
+| [EG-116](#eg-116--consequence-driven-ending-comparison) | Consequence-driven ending comparison | P1 | Multiple authored endings exist | Differentiation | 3/3/3/2 | 13.5 |
+| [EG-201](#eg-201--small-authored-world-micro-events) | Small authored world micro-events | P2 | Proposed | Expansion | 3/3/2/3 | 6.0 |
+| [EG-202](#eg-202--cosmetic-seasonal-palette) | Cosmetic seasonal palette | P2 | Proposed | Polish | 2/2/2/3 | 2.7 |
+| [EG-203](#eg-203--explicit-offline-share-card) | Explicit offline share card | P2 | Proposed | Distribution | 3/3/2/2 | 9.0 |
+| [EG-204](#eg-204--accessible-first-run-presets) | Accessible first-run presets | P2 | Proposed | Accessibility | 3/3/3/3 | 9.0 |
+| [EG-205](#eg-205--one-time-chapter-expansion-support) | One-time chapter expansion support | P2 | Proposed business architecture | Commercial | 3/3/2/3 | 6.0 |
+| [EG-206](#eg-206--localized-store-screenshots) | Localized store screenshots | P2 | Proposed | Distribution | 4/3/3/2 | 18.0 |
+| [EG-207](#eg-207--aso-positioning-experiments) | ASO positioning experiments | P2 | Proposed | Distribution | 4/4/3/2 | 24.0 |
+| [EG-208](#eg-208--tabletpc-expansion-after-mobile-proof) | Tablet/PC expansion after mobile proof | P2 | Proposed | Expansion | 2/3/2/4 | 3.0 |
+
+## Status update — actual code is not player evidence
+
+This pass adds source-derived puzzle metadata, staged help, a shortened initial layout and visible save warnings. **Each remains partial against its original P0 acceptance criteria** until real Unity Editor compilation, phone QA and players prove the intended improvement. All 37 feature IDs and historical illustrative prioritization scores remain traceable.
 
 ## P0 — release and core-quality gates
 
@@ -64,7 +68,7 @@
 
 ### EG-002 — First 60-second complete loop
 
-**State:** Proposed UX change; dry→flowing water already exists. **Type:** Core quality. **Risk:** Over-directed opening may feel trivial. **Evidence:** R1,R3,Q1. **R/I/C/E:** 5/5/3/2; **illustrative score:** 37.5.
+**State:** Compact first-puzzle art and language controls rearranged in code; no measured first-minute results or device pass. **Type:** Core quality. **Risk:** Over-directed opening may feel trivial. **Evidence:** R1,R3,Q1. **R/I/C/E:** 5/5/3/2; **illustrative score:** 37.5.
 
 **Execution:** `Proposed`; **M3**; owner role **UX & Accessibility QA**; verification **`PUZ-005`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-002/verification.md` (**NOT COLLECTED**); **rollback/stop:** First action is delayed or first-puzzle comprehension regresses.
 
@@ -88,24 +92,24 @@
 
 ### EG-004 — Puzzle solver and difficulty metadata
 
-**State:** Unique-solution solver tests exist; authoring metadata proposed. **Type:** Core quality. **Risk:** Solver complexity mistaken for felt difficulty. **Evidence:** R1,Q2,H1. **R/I/C/E:** 5/4/4/3; **illustrative score:** 26.7.
+**State:** 45 source-derived board profiles checked against pure C#; observed human difficulty, forced moves and editorial acceptance remain unknown. **Type:** Core quality. **Risk:** Solver complexity mistaken for felt difficulty. **Evidence:** R1,Q2,H1. **R/I/C/E:** 5/4/4/3; **illustrative score:** 26.7.
 
 **Execution:** `Proposed`; **M3**; owner role **Gameplay Engineer**; verification **`PUZ-001`, `PUZ-003`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-004/verification.md` (**NOT COLLECTED**); **rollback/stop:** Any authored board loses unique solution or observed difficulty spikes unexplained.
 
 - **Player problem:** Unique solution does not guarantee fair or engaging difficulty.
-- **Player-visible behavior:** Store solution proof, minimum rotations, error traps, hint path, ecological rule, target band and observed solve times per board.
+- **Player-visible behavior:** [45 checked-in profiles](puzzle-catalog.generated.json) now include layout, solution and at-most-two solution count, minimum clockwise taps, initial leaks/reach, and anchor. Advanced forced-move/hint-path metrics, difficulty labels and observed human times remain unimplemented or unknown.
 - **Acceptance criteria:** All 12 originals and 33 variants have reproducible validity checks; no unsolvable/multi-solution shipping board; human times recorded separately.
 - **Success signal:** No invalid boards; flag >2× adjacent solve-time spikes for review, not automatic rejection.
 - **Dependencies:** PipeRules, Tests/Program.cs, representative testers.
 
 ### EG-005 — Progressive non-punitive hints
 
-**State:** One-tile Guide Me exists; 3-stage ladder proposed. **Type:** Core quality. **Risk:** Hint reveals too much or implies a unique move when multiple are possible. **Evidence:** R1,Q1,H1. **R/I/C/E:** 5/4/4/2; **illustrative score:** 40.0.
+**State:** Three on-request clue stages (row, tile, one aligned connection) implemented and persisted in v4; target-device accessibility and recovery remain unverified. **Type:** Core quality. **Risk:** Hint reveals too much or implies a unique move when multiple are possible. **Evidence:** R1,Q1,H1. **R/I/C/E:** 5/4/4/2; **illustrative score:** 40.0.
 
 **Execution:** `Proposed`; **M3**; owner role **Gameplay Engineer**; verification **`PUZ-002`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-005/verification.md` (**NOT COLLECTED**); **rollback/stop:** Hint reveals unwanted solutions or becomes misleading.
 
 - **Player problem:** One hint may spoil a puzzle or fail to unstick a player.
-- **Player-visible behavior:** Stage 1 highlights a useful region; stage 2 names a tile; stage 3 performs one correct rotation; no penalty/currency.
+- **Player-visible behavior:** Stage 1 highlights a row; stage 2 marks the target tile; stage 3 aligns exactly one pipe to its reference orientation; no penalty/currency.
 - **Acceptance criteria:** Each stage makes valid progress on every board/variant; anchored tiles remain fixed; hint state survives undo/restart appropriately.
 - **Success signal:** ≥80% of stuck testers resume unaided; <20% report unwanted full spoiler.
 - **Dependencies:** EG-004, undo and save contracts.
@@ -136,7 +140,7 @@
 
 ### EG-008 — Recoverable saves under interruption and corruption
 
-**State:** Versioned JSON v3, backup and migration implemented; device fault tests open. **Type:** Reliability. **Risk:** Platform-specific File.Replace/fallback semantics. **Evidence:** R1,R2. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
+**State:** v4 JSON, backup and v1/v2/v3 migration; visible translated warning on failed save. Device fault tests still open. **Type:** Reliability. **Risk:** Platform-specific File.Replace/fallback semantics. **Evidence:** R1,R2. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
 
 **Execution:** `Implemented-Unverified`; **M2**; owner role **Unity/Release Engineer**; verification **`SAVE-001`, `SAVE-002`, `SAVE-003`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-008/verification.md` (**NOT COLLECTED**); **rollback/stop:** Previously valid progress is irrecoverable after interruption.
 
@@ -172,12 +176,12 @@
 
 ### EG-011 — Non-color connectivity and contrast
 
-**State:** Color-coded scene/pipe UI exists; formal audit proposed. **Type:** Release quality. **Risk:** Extra strokes obscure small boards. **Evidence:** P1,Q1. **R/I/C/E:** 5/4/5/2; **illustrative score:** 50.0.
+**State:** Pipe rule engine now computes which tiles have unmatched ports, and Unity source displays a visible ! marker per leaking tile. Contrast, grayscale, screen-reader and real-device audits remain open. **Type:** Release quality. **Risk:** Extra strokes obscure small boards. **Evidence:** P1,Q1. **R/I/C/E:** 5/4/5/2; **illustrative score:** 50.0.
 
 **Execution:** `Proposed`; **M3**; owner role **UX & Accessibility QA**; verification **`A11Y-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-011/verification.md` (**NOT COLLECTED**); **rollback/stop:** Flow or protected state is indistinguishable without hue.
 
 - **Player problem:** Players may not distinguish connected, leaking and anchored tiles by hue.
-- **Player-visible behavior:** Use pipe shape, port outline, water movement/pattern and labels in addition to color; provide high-contrast mode.
+- **Player-visible behavior:** Port geometry, S/G text, global leak count, and new visible ! per leaking tile are present in source. High-contrast preference, adaptive visual feedback and device verification are still proposed.
 - **Acceptance criteria:** Solve full sample in grayscale/color-filter conditions; all states recognizable without audio or color.
 - **Success signal:** No critical state-confusion failures in accessibility test.
 - **Dependencies:** PipeGraphic, EG-007, user testing.
@@ -211,7 +215,7 @@
 
 ### EG-101 — Causal journal
 
-**State:** Ordered journal exists; causal chain view proposed. **Type:** Differentiation. **Risk:** Text overload; offer compact visual summary. **Evidence:** R1,H1. **R/I/C/E:** 5/4/3/2; **illustrative score:** 30.0.
+**State:** Localized journal now shows recorded choice, truthful immediate scene effect and only a *currently validated* next-board rule. Historical migrated saves cannot prove old variants; a full retrospective still needs additional persisted event information and player UX evidence. **Type:** Differentiation. **Risk:** Text overload; offer compact visual summary. **Evidence:** R1,H1. **R/I/C/E:** 5/4/3/2; **illustrative score:** 30.0.
 
 **Execution:** `Proposed`; **M4**; owner role **Gameplay Engineer**; verification **`WLD-003`, `VAL-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-101/verification.md` (**NOT COLLECTED**); **rollback/stop:** Journal invents causes or players ignore it.
 
