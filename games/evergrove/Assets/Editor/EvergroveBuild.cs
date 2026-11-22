@@ -25,14 +25,9 @@ namespace Evergrove.UnityClient.Editor
                 throw new NotSupportedException("Evergrove preview supports Android, WebGL and unsigned iOS Xcode export.");
 
             EvergroveSceneSetup.CreateScene();
-
-            for (int i = 0; i < PuzzleCatalog.Count; i++)
-            {
-                Puzzle puzzle = PuzzleCatalog.Get(i);
-                if (!PipeRules.IsComplete(puzzle, puzzle.Solution) ||
-                    PipeRules.CountSolutions(puzzle) != 1)
-                    throw new InvalidOperationException("Puzzle failed solver check: " + i);
-            }
+            // A generated APK or Xcode project must not bypass actual Unity
+            // DTO serialization, Resources imports or editor-version checks.
+            EvergroveSceneSetup.ValidateImportedProject();
 
             // Unity is running from games/evergrove/Assets. Keep build
             // artifacts outside the Unity project to avoid recursive import.
