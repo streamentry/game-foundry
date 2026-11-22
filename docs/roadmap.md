@@ -20,6 +20,12 @@ At the founder's explicit direction on **2026-11-22**, **Evergrove (`PH-006`)** 
 - **Stop/simplify:** puzzle-only wins, players don't understand consequences, or maintaining a living world makes economics or trust worse.
 - **Source of decision:** [research decision record](research/evergrove-build-decision-2026-11-22.md). Any store launch still needs a separate evidence-backed review.
 
+## Evergrove Chapter One — quality milestone (not a store launch)
+
+[Evergrove](../games/evergrove/README.md) now has a **12-chapter** Unity/C# offline-first gameplay slice, progressing from 3×3 to 4×4 water-connection puzzles, one-tile optional hints, an original illustrated village that changes with player decisions, authored deterministic memory combinations, journal, branching endings and backup-recoverable local saves. This is a founder-selected long-horizon direction (`PH-006`) with no validated retention or distribution. The optional Cloudflare reference service is not attached.
+
+**Acceptance gates:** .NET deterministic tests and review; Unity Editor compile and scene smoke; iOS/Android real-device readability; direct-player comparative preference and voluntary D1/D7 return; then a separate greenlight for any online functionality. A beautiful codebase is not a substitute for real play.
+
 ## Phase 0: research and verification (7 days, time-boxed)
 - Collect official Apple Ads popularity for target non-branded terms (US, GB, AU, DE, JP), when credentials are available.
 - Audit the top 10 organic App Store results per keyword and recurring negative review themes.

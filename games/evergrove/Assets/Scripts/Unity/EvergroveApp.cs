@@ -56,6 +56,7 @@ namespace Evergrove.UnityClient
         private void Awake()
         {
             world = WorldStore.Load();
+            soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null) font = Font.CreateDynamicFontFromOSFont("Arial", 16);
             sound = gameObject.AddComponent<AudioSource>();
@@ -334,6 +335,33 @@ namespace Evergrove.UnityClient
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
 
+            Button(content, "Quiet audio setting",
+                soundOn ? "Gentle chime: ON (tap to mute)" : "Gentle chime: OFF (tap to enable)",
+                () => {
+                    soundOn = !soundOn;
+                    PlayerPrefs.SetInt("evergrove:gentle-audio", soundOn ? 1 : 0);
+                    PlayerPrefs.Save();
+                    Rebuild();
+                }, 44);
+            if (!world.Completed && world.Round > 0)
+            {
+                Button(content, "Restart garden",
+                    confirmReset ? "Confirm: erase this garden" : "Start a different garden",
+                    () => {
+                        if (!confirmReset) { confirmReset = true; Rebuild(); return; }
+                        WorldStore.Clear();
+                        world = WorldModel.New();
+                        confirmReset = false;
+                        showJournal = false;
+                        showingMemory = false;
+                        Rebuild(true);
+                    }, 45, confirmReset);
+                if (confirmReset)
+                    Button(content, "Cancel", "Keep my garden", () => {
+                        confirmReset = false;
+                        Rebuild();
+                    }, 44);
+            }
             Label(content, "Respectful play", "Offline by default  ·  No pressure  ·  No ads  ·  No account",
                 12, 36, Moss, TextAnchor.MiddleCenter);
             Canvas.ForceUpdateCanvases();

@@ -42,6 +42,10 @@ namespace Evergrove.UnityClient
             if (TryRead(BackupFile, out world))
             {
                 Debug.LogWarning("Evergrove recovered a previous valid save.");
+                try { File.Copy(BackupFile, SaveFile, true); }
+                catch (Exception ex) {
+                    Debug.LogWarning("Could not restore backup to primary: " + ex.GetType().Name);
+                }
                 return world;
             }
             if (PlayerPrefs.HasKey(LegacyKey))
