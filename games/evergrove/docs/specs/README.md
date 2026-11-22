@@ -19,7 +19,16 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 | [07 — Validation and go-to-market](07-VALIDATION-AND-GTM.md) | Seven-day experiment, six-week sequence, matched controls, thresholds, ASO, ethical pricing, naming check |
 | [08 — Evidence and decisions](08-EVIDENCE-AND-DECISIONS.md) | Repo-source map, external evidence, confidence levels, strongest opposing case, load-bearing assumptions, decision log |
 | [09 — Execution control](09-EXECUTION-CONTROL.md) | Immutable audit baseline, lifecycle, owners, milestone gates, defect severity, proof artifacts, release vs research build contract |
+| [10 — Experiment protocols](10-EXPERIMENT-PROTOCOLS.md) | Preregistration, matched-board assignment, neutral prompts, consent and interpretation |
+| [11 — Evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) | Research versus consumer builds, signed/unsigned artifact proof, M0–M6 signoff, rollback |
 | [Verification matrix](verification-matrix.json) | Machine-checked 37-feature × 46-test contracts; no fabricated verification evidence |
+
+## How to use this spec system
+
+**Completeness of documentation is not completion of the game.** Each feature has an owner role, dependency, source status, test ID, stop rule and a named evidence packet. Game behavior must still earn `Verified` from **real Unity, device and (where claimed) independent-player evidence**, tied to the exact build. Do not "promote" features based on the [M0–M6 feature ledger](verification-matrix.json) without the [release evidence packet](11-EVIDENCE-AND-RELEASE-PACKETS.md).
+
+A source code change may invalidate older docs. For causal inferences, the puzzle-identical [preregistered experiment protocol](10-EXPERIMENT-PROTOCOLS.md) overrides casual side-by-side preferences. The data are absent until real observations happen.
+
 
 ## Specification control (2026-11-22 v2)
 

@@ -20,6 +20,11 @@
 
 **Architecture rule:** domain model is authoritative. Renderer, language, haptic/sound, test mode and future store entitlement must not rewrite ecology choices or solution history. No backend dependency for core play. Optional Cloudflare preview is not connected to game state.
 
+## Evidence packet and review contract
+
+Before any build or feature is called `Verified`, attach **the exact source SHA and a distinct binary artifact hash**, platform/build channel, workflow run URL, device/OS, observed result and accountable reviewer. A green C# test does not satisfy a Unity import or mobile runtime test. Use [11 — evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) to record full QA and rollback evidence, with sensitive device/user information kept private.
+
+
 ## Build ladder — every step records evidence
 
 | Gate | Procedure | Passing evidence |

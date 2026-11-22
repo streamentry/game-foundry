@@ -4,6 +4,11 @@
 
 This is an **experiment plan**, not a report of completed player studies, revenue or retention.
 
+## Executable protocol and study integrity
+
+[10 — experiment protocols](10-EXPERIMENT-PROTOCOLS.md) provides preregistration, matched-board assignment, actual exposure/denominator definitions, neutral moderator prompts, informed consent and withdrawal instructions **before recruitment**. The existing Living/PuzzleOnly branch mechanics differ after Chapter One; an unmatched comparison cannot establish incremental narrative value. Small 20–30-person comparisons may guide a decision, but do not prove retention uplift. Preserve raw counts and build provenance using [11 — evidence packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) without publicly exposing personal data.
+
+
 ## Three different experiments — do not combine their conclusions
 
 | Experiment | Question | Design | Suggested sample / limitation |

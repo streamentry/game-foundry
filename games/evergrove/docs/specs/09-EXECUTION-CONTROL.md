@@ -6,6 +6,13 @@
 
 **Product goal:** a short, excellent puzzle that leaves a legible, truthful change in an offline village. The backlog is an *opportunity inventory*, **not 37 features promised for release**. Default next work is risk retirement, not additional scope.
 
+## Gate semantics and test ownership
+
+`decision_gate` in the feature ledger means the **first milestone when an item becomes relevant**, not necessarily when all its tests can complete. For example, `EG-001` starts at M1, but physical device tests BLD-004/005/006 close at M2; `EG-007` starts at M2, but the largest-text test A11Y-005 is M5. Every feature needs **all** mandatory linked verification evidence before it may become `Verified`.
+
+The [46-test registry](verification-matrix.json) now also assigns **gate-wide tests**, such as release-channel integrity and store metadata, to milestones even when no single feature owns them. Human study setup is in [10 — protocols](10-EXPERIMENT-PROTOCOLS.md), and actual run evidence/rollback in [11 — release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md).
+
+
 ## Source versus verification states
 
 The feature state machine is:
@@ -74,6 +81,11 @@ Official source: [Unity 6.3 Development Build scripting define](https://docs.uni
 The repo now contains source-level versions of EG-002 (compact first screen), EG-004 (45 derived board profiles), EG-005 (three stages of hint in v4), EG-008 (visible save failure), EG-011 (noncolor leak cue), and EG-101 (truthful causal journal). The 30 offline translation choices now cover **81 draft runtime keys**. The original **37 features × 46 test contracts** remain the accountability boundary: none of the above has independent Unity/device/human evidence, and M1–M6 are still open.
 
 The `BuildOptions.Development` research pipeline and `UNITY_EDITOR || DEVELOPMENT_BUILD` compile guards must remain intact. Do not let a later merge reintroduce public Puzzle Only, renderer switches or local study export controls into a release build.
+
+## Toolchain reality and release-host caveats
+
+The only checked-in Unity build workflow uses **private maintainer activation** and `BuildOptions.Development`. Android and WebGL targets and an iOS Xcode-project export are **requested** by the script, not verified successful. An Ubuntu-based Unity builder may be unable to produce a usable iOS Xcode project without supported host/platform modules; treat `BLD-003` as **blocked** until actual output and logs prove otherwise. If required, run iOS export on a licensed Mac Unity Editor and signing/build in Xcode. The test is **not passed** merely because the workflow lists `iOS` as an input.
+
 
 ## Test registry and evidence rule
 
