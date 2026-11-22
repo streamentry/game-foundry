@@ -406,3 +406,13 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Cheapest test:** First verify the existing 2D Unity game on real devices; then show the same one-garden scene and consequences in 2D versus 2.5D to ~10–15 target players, counterbalancing order. Measure comprehensibility, preference, attachment, art hours, mobile rendering and readability. Small samples are directional only. Keep this separate from the living-world vs puzzle-only retention experiment.
 
 **Continue/stop:** Continue toward 2.5D only if additional player value warrants measurable cost; otherwise retain 2D. Do not develop full 3D exploration without a new decision and validated player need.
+
+## 2026-11-22 — Branch-sensitive watercourses, no premature market certainty
+
+**Problem:** Story choices changed environment artwork and dialogue but not the spatial puzzle itself, so Evergrove risked remaining a cosmetic renovation game.
+
+**Change:** Introduce `ReactiveWatercourses`: the previous village choice selects a rotated but mathematically equivalent water network, with one protected, immutable landmark to route around. Tree / crossing / wildflower variants physically differ; `Puzzle Only` keeps its baseline fixture. Version 3 saves include the current and previous board variant; v1/v2 players keep the active board unchanged.
+
+**Most serious caveat:** Symmetric rotations and one fixed tile remain shallow dynamics. This is a falsifiable *mechanical causality* slice, not a complete emergent ecological simulation. The treatment now also changes puzzle mechanics, so the existing `Living World` vs `Puzzle Only` experiment is **no longer a clean narrative-only test** beyond chapter one.
+
+**Next evidence:** Prove all branches uniquely solvable by CI; test actual Unity build, compare difficulty and time-to-solve per branch, and run a separate controlled user test against matched topology before claiming superior retention. Do not ship under `Evergrove` without name/trademark review.

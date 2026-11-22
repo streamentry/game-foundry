@@ -52,6 +52,16 @@ Type hierarchy (approximate logical px): title **25**, game decisions **15–17*
 - [ ] User-perceived quality benchmarked head-to-head versus a polished established puzzle game.
 - [ ] Device sound behavior tested, including mute/ringer and consent.
 
+## The meaningful second-order loop — ecological watercourses
+
+Following a restored stream, the player chooses the next priority: shade trees, a crossing or wildflowers. **In the next chapter** the chosen structure changes the actual grid topology and a marked connection is fixed in place. A tree holds its roots, a bridge holds a foundation, a meadow protects a habitat. The player routes the water around the preserved feature; tapping it cannot rotate it.
+
+The prototype implements 3 deterministic rotated branches per next chapter, with a mathematically verified unique solution. Rotation is a controlled *content-efficient experiment*, not a deep simulation by itself. Do not claim emergent ecology until independent systems (growth, water availability, dependencies, costs and repair) actually affect each other.
+
+**Research caveat:** This changes mechanical complexity and the amount of puzzle assistance. For the pure-vs-living A/B, the controls no longer see identical post-chapter-1 puzzles. A valid test of the *world narrative layer alone* must hold board rules constant; test this new systemic mode as a **separate condition** or restrict analysis to chapter one. Never attribute changes in retention purely to narrative when topology and fixed tiles also change.
+
+**Data durability:** v3 persists the selected board variant and the previously completed variant; v1/v2 sessions resume unchanged until the next committed choice. The player can reconsider a choice without reopening a different board.
+
 ## First 30 seconds: visible causality
 
 - At start: an old, **dry** creek makes the village problem visually legible.

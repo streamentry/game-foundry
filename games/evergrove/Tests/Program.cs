@@ -13,13 +13,13 @@ internal static class Program
 
     private static void Solve(WorldModel model)
     {
-        Puzzle board = PuzzleCatalog.Get(model.Round);
+        Puzzle board = model.CurrentPuzzle;
         for (int index = 0; index < board.CellCount; index++)
         {
             int attempts = 0;
             while (model.Rotations[index] != board.Solution[index])
             {
-                Expect(model.Rotate(index), "tile rotates");
+                Expect(!board.IsAnchored(index) && model.Rotate(index), "only mutable tile rotates");
                 attempts++;
                 Expect(attempts <= PipeRules.OrientationCount(board.Kinds[index]),
                     "rotation bounded");
@@ -243,6 +243,93 @@ internal static class Program
                "puzzle-only control begins with identical scenery");
     }
 
+    private static void ReactiveCampaign()
+    {
+        for (int chapter = 1; chapter < PuzzleCatalog.Count; chapter++)
+        {
+            for (int variant = 1; variant <= 3; variant++)
+            {
+                Puzzle puzzle = ReactiveWatercourses.ForChapter(chapter, variant);
+                Expect(puzzle.AnchoredTile >= 0, "a future habitat is physically protected");
+                Expect(puzzle.IsAnchored(puzzle.AnchoredTile), "landmark is readable in puzzle contract");
+                Expect(puzzle.Initial[puzzle.AnchoredTile] == puzzle.Solution[puzzle.AnchoredTile],
+                    "protected habitat begins aligned");
+                Expect(PipeRules.ValidRotations(puzzle, puzzle.Initial), "branch begins valid");
+                Expect(!PipeRules.IsComplete(puzzle, puzzle.Initial), "branch does not autosolve");
+                Expect(PipeRules.IsComplete(puzzle, puzzle.Solution), "branch has full water path");
+                Expect(PipeRules.CountSolutions(puzzle, 2) == 1, "every branch retains unique solution");
+                int[] changed = (int[])puzzle.Solution.Clone();
+                changed[puzzle.AnchoredTile] = changed[puzzle.AnchoredTile] %
+                    PipeRules.OrientationCount(puzzle.Kinds[puzzle.AnchoredTile]) + 1;
+                Expect(!PipeRules.ValidRotations(puzzle, changed),
+                    "no mutation of protected habitats is permitted");
+            }
+        }
+
+        string[] fingerprints = new string[3];
+        for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
+        {
+            var world = WorldModel.New();
+            Solve(world);
+            Expect(world.Choose((VillageChoice)choiceIndex), "player chooses ecological priority");
+            Expect(world.Round == 1 && world.BoardVariant == choiceIndex + 1,
+                "the next puzzle depends on player choice");
+            Puzzle variantBoard = world.CurrentPuzzle;
+            fingerprints[choiceIndex] = variantBoard.Name + ":" + variantBoard.AnchoredTile +
+                ":" + string.Join(",", variantBoard.Solution);
+            Expect(!world.Rotate(variantBoard.AnchoredTile),
+                "immutable habitat tiles ignore player taps");
+            WorldModel restored;
+            Expect(WorldModel.TryRestore(world.Export(), out restored) &&
+                restored.CurrentPuzzle.Name == variantBoard.Name &&
+                restored.BoardVariant == world.BoardVariant,
+                "save/load retains branch topology exactly");
+            int[] rotations = world.Rotations;
+            Expect(world.Restart() && string.Join(",", rotations) ==
+                string.Join(",", world.Rotations),
+                "restart preserves the ecology-shaped board");
+            Solve(world);
+            Expect(world.ReconsiderLatestChoice(), "reconsider opens solved previous habitat");
+            Expect(world.Round == 0 && world.BoardVariant == 0 && world.Solved,
+                "reconsider returns to exact first authored board");
+            Expect(world.Choose((VillageChoice)choiceIndex), "reapply world decision");
+            Expect(world.CurrentPuzzle.Name == variantBoard.Name,
+                "same choices lead to same future route");
+        }
+        Expect(fingerprints[0] != fingerprints[1] && fingerprints[1] != fingerprints[2] &&
+            fingerprints[0] != fingerprints[2],
+            "all three ecological decisions yield different watercourse topology");
+
+        var control = WorldModel.New(PlayMode.PuzzleOnly);
+        Solve(control);
+        Expect(control.NextPuzzle() && control.BoardVariant == 0 &&
+            control.CurrentPuzzle.AnchoredTile == -1,
+            "puzzle-only control still plays unchanged authored fixtures");
+
+        // Existing v2 players must keep the unfinished puzzle, regardless
+        // of previously recorded decisions. Branches start after NEXT choice.
+        var legacy = new WorldSnapshot {
+            version = 2, mode = "living", round = 1, solved = false,
+            rotations = (int[])PuzzleCatalog.Get(1).Initial.Clone(),
+            previous = Array.Empty<int>(), choices = new[] { 0 }
+        };
+        WorldModel migrated;
+        Expect(WorldModel.TryRestore(legacy, out migrated) &&
+            migrated.BoardVariant == 0 && migrated.Round == 1,
+            "v2 in-progress watercourse is not transformed on upgrade");
+        Solve(migrated);
+        Expect(migrated.Choose(VillageChoice.Flowers) &&
+            migrated.BoardVariant == 3, "next choice activates new branching rule");
+        Expect(migrated.ReconsiderLatestChoice() && migrated.Round == 1 &&
+            migrated.BoardVariant == 0 && migrated.Solved,
+            "reconsider after migration reopens the unchanged legacy route");
+        WorldSnapshot corrupt = migrated.Export();
+        corrupt.boardVariant = 3;
+        WorldModel invalid;
+        Expect(!WorldModel.TryRestore(corrupt, out invalid),
+            "tampering with variant inconsistent with history fails closed");
+    }
+
     private static void PrivatePlaytestReport()
     {
         var notes = new LocalPlaytest(PlayMode.Living, false, 0, 10.0);
@@ -296,6 +383,7 @@ internal static class Program
             RestoreAndMigration();
             StoryAndCompleteRun();
             ScenicCausality();
+            ReactiveCampaign();
             PrivatePlaytestReport();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;

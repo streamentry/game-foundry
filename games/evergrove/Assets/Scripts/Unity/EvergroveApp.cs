@@ -550,11 +550,14 @@ namespace Evergrove.UnityClient
 
         private void BuildPuzzle()
         {
-            Puzzle puzzle = PuzzleCatalog.Get(world.Round);
+            Puzzle puzzle = world.CurrentPuzzle;
             PipeInsight insight = world.Insight;
             Label(content, "Chapter",
                 "STREAM " + (world.Round + 1) + " / " + PuzzleCatalog.Count + "  ·  " + puzzle.Name,
                 13, 30, Leaf, TextAnchor.MiddleCenter);
+            if (puzzle.AnchoredTile >= 0)
+                Label(content, "Changed landscape rule", puzzle.EnvironmentalRule,
+                    14, 48, Leaf, TextAnchor.MiddleCenter);
             Label(content, "Prompt", world.Round == 0 ?
                 "S = Spring   G = Grove   ·   Tap tiles to connect the water" :
                 VillageStory.ChapterPrompt(world), 14, 34, Moss,
@@ -594,7 +597,7 @@ namespace Evergrove.UnityClient
                     reached ? Hex("#D8EFED") : Hex("#F0F1E8");
                 var tile = tileNode.AddComponent<Button>();
                 tile.targetGraphic = image;
-                tile.interactable = !world.Solved;
+                tile.interactable = !world.Solved && !puzzle.IsAnchored(index);
                 var colors = tile.colors;
                 colors.highlightedColor = Hex("#BFE0DC");
                 colors.pressedColor = Hex("#A3D2CC");
@@ -606,13 +609,32 @@ namespace Evergrove.UnityClient
                 string kind = puzzle.Kinds[index] == PipeKind.End ?
                     (++seenEnds == 1 ? "spring" : "outlet") : "pipe";
                 tileNode.name = "Row " + (index / puzzle.Size + 1) + " column " +
-                    (index % puzzle.Size + 1) + " " + kind + ", tap to turn";
+                    (index % puzzle.Size + 1) + " " + kind +
+                    (puzzle.IsAnchored(index) ? ", protected landmark, cannot rotate" : ", tap to turn");
+                if (puzzle.IsAnchored(index)) image.color = Hex("#F1DDB3");
                 var pipeNode = Node("Visible channel", tileNode.transform);
                 Fill(pipeNode.GetComponent<RectTransform>());
                 var pipe = pipeNode.AddComponent<PipeGraphic>();
                 pipe.Configure(puzzle.Kinds[index], rotations[index], world.Solved);
                 pipe.raycastTarget = false;
                 tileArtwork[index] = pipe;
+                if (puzzle.IsAnchored(index))
+                {
+                    var badge = Node("Protected landmark badge", tileNode.transform);
+                    RectTransform badgeRect = badge.GetComponent<RectTransform>();
+                    badgeRect.anchorMin = new Vector2(1f, 1f);
+                    badgeRect.anchorMax = new Vector2(1f, 1f);
+                    badgeRect.pivot = new Vector2(1f, 1f);
+                    badgeRect.sizeDelta = new Vector2(22f, 22f);
+                    badgeRect.anchoredPosition = new Vector2(-3f, -3f);
+                    var badgeLabel = badge.AddComponent<Text>();
+                    badgeLabel.font = font;
+                    badgeLabel.fontSize = 14;
+                    badgeLabel.alignment = TextAnchor.MiddleCenter;
+                    badgeLabel.color = Ink;
+                    badgeLabel.raycastTarget = false;
+                    badgeLabel.text = "●";
+                }
                 if (puzzle.Kinds[index] == PipeKind.End)
                 {
                     // Visible endpoint semantics instead of relying only on
@@ -698,15 +720,16 @@ namespace Evergrove.UnityClient
         private void RefreshBoard()
         {
             if (world.Completed || visibleTiles == null) return;
-            Puzzle puzzle = PuzzleCatalog.Get(world.Round);
+            Puzzle puzzle = world.CurrentPuzzle;
             if (visibleTiles.Length != puzzle.CellCount) { Rebuild(); return; }
             PipeInsight insight = world.Insight;
             int[] angles = world.Rotations;
             for (int i = 0; i < puzzle.CellCount; i++)
             {
-                tileBackgrounds[i].color = world.Solved ? Hex("#D1E6C8") :
+                tileBackgrounds[i].color = puzzle.IsAnchored(i) ? Hex("#F1DDB3") :
+                    world.Solved ? Hex("#D1E6C8") :
                     insight.Flowing[i] ? Hex("#D8EFED") : Hex("#F0F1E8");
-                visibleTiles[i].interactable = !world.Solved;
+                visibleTiles[i].interactable = !world.Solved && !puzzle.IsAnchored(i);
                 tileArtwork[i].Configure(puzzle.Kinds[i], angles[i], world.Solved);
             }
             if (feedbackText != null)

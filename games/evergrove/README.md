@@ -16,15 +16,17 @@ Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006
 4. See an original illustrated world change, read the new memory (and revise a mis-tap before continuing), and return to discover combinations of previous choices. Mira, Orin and Fen respond to the same world history.
 5. Reach a hand-authored conclusion after twelve streams. Review your complete history; optionally begin another playthrough with different choices.
 
+**NEW — choices now change the NEXT water puzzle:** After chapter one, the last decision physically changes the next stream's layout and preserves a specific non-rotatable ecological landmark: tree roots, a bridge foundation, or a wildflower sanctuary. Different actions lead to different spring/outlet positions and pipe geometry; control mode keeps the original authored board unchanged. The target route remains mathematically unique, and restarting, hints and save/resume retain the actual transformed puzzle. This is a small deterministic cause-and-effect system, **not** yet a simulated food chain or an infinite AI world.
+
 **What makes consequences meaningful:** tree + bridge creates a shaded crossing; tree + flowers attracts butterflies; bridge + flowers draws neighbors to the meadow. A balance of all three generates a different ending from a world focused on only one. Art, dialogue, journal and ending are derived from one persisted event sequence, not invented by a chatbot.
 
 ### Content and accessibility
 
-- **12 original independent puzzles:** six 3×3 fixtures from our own Pipe Garden research, six fresh 4×4 fixtures with deterministic uniqueness tests.
+- **12 authored puzzle chapters and 33 branch-sensitive follow-up variants:** six 3×3 fixtures from our own Pipe Garden research and six 4×4 fixtures. From chapters 2–12, the prior ecological choice selects one of three rotated topologies with a visibly protected connection. All variants are deterministic and have unique-solution tests; symmetry preserves difficulty broadly, not perfectly.
 - **Causal memories:** three characters, explicit combination rules, four landscape phases, multiple epilogues and an ordered journal.
 - **Visual design:** procedurally drawn original river, village, tree canopy, flowers, bridge, visitors and butterflies. No third-party visual assets.
 - **Player respect:** large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, optional hints, sound **off by default** with an opt-in gentle chime. No streak anxiety.
-- **Offline-first:** a versioned JSON save in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
+- **Offline-first:** a versioned JSON save (v3 retains original v1/v2 puzzles in progress) in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
 
 The experience supports **Living world** and **Puzzle only** (the same water puzzles without narrative) for controlled research. This is a *research comparison mode*, not analytics or proper randomized A/B assignment.
 
@@ -76,6 +78,7 @@ The preview defaults to **no animation**. Players can enable a restrained 12fps 
 ## Architecture and cloud
 
 - Pure rules: `Assets/Scripts/Core/PipeRules.cs`
+- Ecology-shaped watercourses: `Assets/Scripts/Core/ReactiveWatercourses.cs`
 - World state, events, migration: `Assets/Scripts/Core/WorldModel.cs`
 - Authored causal narrative and NPC conversations: `Assets/Scripts/Core/VillageStory.cs`
 - Pure scene specification: `Assets/Scripts/Core/VillageScenePlan.cs`

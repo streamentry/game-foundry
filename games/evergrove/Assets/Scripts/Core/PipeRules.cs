@@ -13,9 +13,12 @@ namespace Evergrove.Core
         public readonly PipeKind[] Kinds;
         public readonly int[] Initial;
         public readonly int[] Solution;
+        public readonly int AnchoredTile;
+        public readonly string EnvironmentalRule;
         public int CellCount { get { return Size * Size; } }
 
-        public Puzzle(string name, string layout, int[] initial, int[] solution)
+        public Puzzle(string name, string layout, int[] initial, int[] solution,
+                      int anchoredTile = -1, string environmentalRule = "")
         {
             if (layout == null || (layout.Length != 9 && layout.Length != 16) ||
                 initial == null || solution == null || initial.Length != layout.Length ||
@@ -36,7 +39,15 @@ namespace Evergrove.Core
             }
             Initial = (int[])initial.Clone();
             Solution = (int[])solution.Clone();
+            if (anchoredTile < -1 || anchoredTile >= layout.Length ||
+                (anchoredTile >= 0 && (Initial[anchoredTile] != Solution[anchoredTile] ||
+                    Kinds[anchoredTile] == PipeKind.End)))
+                throw new ArgumentException("A fixed landmark must already match the solution and must not be an endpoint.");
+            AnchoredTile = anchoredTile;
+            EnvironmentalRule = environmentalRule ?? "";
         }
+
+        public bool IsAnchored(int index) { return index >= 0 && index == AnchoredTile; }
     }
 
     /// <summary>
@@ -138,7 +149,8 @@ namespace Evergrove.Core
         {
             if (rotations == null || rotations.Length != puzzle.CellCount) return false;
             for (int i = 0; i < rotations.Length; i++)
-                if (rotations[i] < 1 || rotations[i] > OrientationCount(puzzle.Kinds[i])) return false;
+                if (rotations[i] < 1 || rotations[i] > OrientationCount(puzzle.Kinds[i]) ||
+                    (puzzle.IsAnchored(i) && rotations[i] != puzzle.Solution[i])) return false;
             return true;
         }
 
@@ -221,8 +233,8 @@ namespace Evergrove.Core
             }
             for (int rotation = 1; rotation <= OrientationCount(puzzle.Kinds[index]); rotation++)
             {
-                bool valid = true;
-                for (int d = 0; d < 4; d++)
+                bool valid = !puzzle.IsAnchored(index) || rotation == puzzle.Solution[index];
+                for (int d = 0; valid && d < 4; d++)
                 {
                     int j = Neighbor(index, d, puzzle.Size);
                     bool here = HasPort(puzzle.Kinds[index], rotation, d);
