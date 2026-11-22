@@ -2,6 +2,10 @@
 
 **Date:** 2026-11-22. This directory was created from the supplied *Evergrove: evidence-backed product and feature strategy for a best-in-class indie cozy puzzle game* report, then cross-checked against the actual Game Foundry repository. **No tests, Unity builds, player interviews, store experiments or legal clearance were performed by this documentation change.**
 
+## Versioned source claims versus tested product claims
+
+The original audit SHA is a **historical reference**, not today's Unity build. New source changes include save v4, generated 45-entry diagnostics (12 authored + 33 transformed), 81 localization keys, staged hints and production/research guardrails. They are **code observations**, not verified device behavior or market outcomes. For any new merge, reconcile feature backlog, matrix, puzzle catalog and docs before claiming implementation. See [research protocol](10-EXPERIMENT-PROTOCOLS.md) and [release evidence packets](11-EVIDENCE-AND-RELEASE-PACKETS.md).
+
 ## Audit claim ledger — proof before promotion
 
 **Immutable audited source baseline:** [`84713febd1e9d5921706d1916132b309b74a604f`](https://github.com/streamentry/game-foundry/commit/84713febd1e9d5921706d1916132b309b74a604f), captured on 2026-11-22. This was the audited source snapshot, not evidence that a later code change passed Unity. Any tested release candidate must pin its **own** source SHA and binary checksum.

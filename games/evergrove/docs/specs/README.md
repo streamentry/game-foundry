@@ -19,7 +19,18 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 | [07 — Validation and go-to-market](07-VALIDATION-AND-GTM.md) | Seven-day experiment, six-week sequence, matched controls, thresholds, ASO, ethical pricing, naming check |
 | [08 — Evidence and decisions](08-EVIDENCE-AND-DECISIONS.md) | Repo-source map, external evidence, confidence levels, strongest opposing case, load-bearing assumptions, decision log |
 | [09 — Execution control](09-EXECUTION-CONTROL.md) | Immutable audit baseline, lifecycle, owners, milestone gates, defect severity, proof artifacts, release vs research build contract |
+| [10 — Research protocols](10-EXPERIMENT-PROTOCOLS.md) | Preregistration, matched conditions, denominators, consent, missingness and go/no-go |
+| [11 — Evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) | Actual build proof, platform QA, test ownership, sign-off and rollback |
 | [Verification matrix](verification-matrix.json) | Machine-checked 37-feature × 46-test contracts; no fabricated verification evidence |
+
+## Current-state reconciliation and two practical playbooks
+
+**Source state:** concurrent Evergrove implementation commits have added **v4 world saves, 81-key translations, a 45-entry generated puzzle diagnostics catalog (12 authored + 33 geometry variants), staged hints and improved release-mode guards**. These remain **source-implemented, not Unity-device or player-verified**. The original immutable audit baseline below is *historical*. Always inspect the exact latest commit and any competing open feature PR before upgrading a feature's status.
+
+- [10 — Preregistered experiments](10-EXPERIMENT-PROTOCOLS.md): matched-board controls, allocation, neutral observation and truthful denominators.
+- [11 — Build evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md): artifact checksums, physical device QA, sign-off, rollback and unverified iOS-export caveat.
+
+**A complete specification does not mean 37 completed features.** No feature is `Verified` without real evidence tied to the target build. Treat the as-built [handbook](../README.md) as **historical until refreshed for v4**, not as authority over current code.
 
 ## Specification control (2026-11-22 v2)
 
