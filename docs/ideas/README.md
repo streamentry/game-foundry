@@ -14,6 +14,8 @@ The [AI-created social worlds and ambient companion thesis](ugc-ai-companion-203
 
 The [2034 top-50 speculative forecast](2034-top-50-speculative-forecast.md) records **50 predicted titles/mechanics** as `FP-001`–`FP-050`, grouped into titans, AI/ambient, AR/VR, simulation/creator economy, and indie/niche concepts. These are forecast references, **not new build commitments**; hypothetical franchise sequels and title collisions are explicitly flagged.
 
+The [living worlds and social systems 2026–2036 thesis](living-worlds-social-systems-2026-2036.md) captures runtime AI, persistent co-created spaces, cloud/mobile reach, systemic simulation and creator tooling as **unverified hypotheses**, and defines four small `LW-*` falsification probes linked to existing `GX-*`/`GC-*` concepts. These are experiment briefs, **not new game approvals or additional titles**.
+
 ## Data dictionary
 
 | Field | Meaning |
