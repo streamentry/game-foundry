@@ -548,7 +548,7 @@ namespace Evergrove.UnityClient
 
         private void MemoryJournal()
         {
-            var button = Button(content, "Memories", showJournal ?
+            Button(content, "Memories",
                 GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"), () => {
                     showJournal = !showJournal;
                     Rebuild();
