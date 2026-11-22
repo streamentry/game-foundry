@@ -1177,5 +1177,22 @@
       "verified": false,
       "evidence_path": null
     }
-  ]
+  ],
+  "gate_required_verification_ids": {
+    "M2": [
+      "SAVE-004",
+      "PUZ-007"
+    ],
+    "M3": [
+      "PUZ-006"
+    ],
+    "M5": [
+      "BLD-007",
+      "VAL-003"
+    ],
+    "M6": [
+      "STORE-001",
+      "STORE-002"
+    ]
+  }
 }
