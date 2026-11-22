@@ -342,3 +342,19 @@ At user instruction, build ten further original microgames spanning numeric dedu
 - **32. Number Pyramid (GF-079):** 6 independent original pyramid clues with exactly one four-digit base solution each. **Question:** Can large visual sum stones make short arithmetic inference engaging without speed pressure? **Strongest counterargument:** Without scaffolded deduction explanations, this may feel like arithmetic guesswork rather than an enjoyable logic game.
 
 Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, pipe port configurations, and sum pyramid. Unique only within curated word lists/move limit: Word Ladder. Authored-answer only: Vowel Garden. Unique target occurrences: Word Search. Verified shortest reachable scrambles but not unique move sequences: Sliding Tiles. Automated tests check scope honestly; real-player, physical-device and commercial tests remain open. See [decision and cheapest falsification tests](game-experiments-23-to-32-2026-11-22.md).
+
+## 2026-11-22 — Conditional next-three portfolio experiment recommendation
+
+**Decision:** Recommend a *sequential test portfolio*, not three parallel productions: **Kakuro Compass / Kakuro Zen** (existing GF-001 proof) → **Rune Chain / Three Cards** (PH-034 + GX-009, one new short strategy slice) → **Little Worlds / Evergrove Lite** (GC-021 + PH-006 + GX-002, one tiny persistent village test). [Complete evidence, counterarguments and stop gates](next-three-games-validation-decision-2026-11-22.md).
+
+**What is known:** Kakuro Compass already exists with deterministic puzzle/inspector tests. Research documented Kakuro *web* search bands and incumbent Kakuro app features, not measured App Store search or player preference. Good Eye and Shikaku are already playable alternatives. Rune Chain and Little Worlds are conceptual, without measured retention or acquisition.
+
+**Why:** Test three different assumptions—existing non-branded search acquisition, independent repeatable strategy depth, and additional return from persistent consequences—without confusing imagined global upside with a viable indie product. New ideas have no automatic exemption from ASO-only gate; a separate distribution decision is required to ship them on non-ASO grounds.
+
+**Strongest counterargument:** The best investment may be **zero net-new game projects** until existing prototypes show real preference, voluntary return and acquisition potential. A great card or life sim can still fail for lack of discovery.
+
+**Cheapest falsification:** 10–15 target-player Kakuro-vs-Conceptis counterbalanced sessions plus exact US App Store query audit; only then an original ~12-card, three-rule Rune Chain replay test; only then a five-puzzle Little Worlds persistent-world versus puzzle-only controlled screen.
+
+**Continue / stop:** Preference and organic search route are prerequisites for Kakuro; voluntary replay and credible distribution for Rune Chain; causal understanding, incremental voluntary return and credible distribution for Little Worlds. Park after bounded UX revisions if players prefer incumbents or do not return. No new production approvals.
+
+**Next action:** Obtain a shareable Kakuro browser playtest with approved hosting, recruit the first independent target player and log observed play and a direct competitor comparison. GitHub WebGL artifacts alone are *not* public hosting.
