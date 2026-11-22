@@ -128,11 +128,11 @@ test("first playable board precedes decorative world in DOM and keyboard order",
 
 test("facilitator notes preserve attempts before restart and disclose that fact", () => {
   const app = fs.readFileSync(path.join(__dirname, "game.js"), "utf8");
-  for (const text of (
+  for (const text of [
     "totalRotations++", "totalHints++", "totalUndos++", "totalRestarts++",
     '"rotations_all_attempts="', '"hints_all_attempts="',
     '"undos_all_attempts="', '"restarts="',
-  )) assert.ok(app.includes(text), "missing truthful session accounting: " + text);
+  ]) assert.ok(app.includes(text), "missing truthful session accounting: " + text);
   assert.match(app, /Only explicit Replay begins a new measurement window/);
   assert.ok(app.indexOf("totalRestarts++") < app.indexOf('node("replay").addEventListener'),
     "Restart must not reset observation history as though the attempt succeeded");
