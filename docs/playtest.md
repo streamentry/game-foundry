@@ -84,3 +84,10 @@ Try six-target rounds before introducing the denser 4×4 grid. Record obvious vs
 The [standalone Kakuro Compass prototype](../games/kakuro-compass/README.md) has eight authored unique-solution cross-sum boards and a persistent explanation of locally feasible digits for both intersecting clue runs. [Kakuro Compass Web Playtest](../.github/workflows/kakuro-compass-preview.yml) exports the complete WebGL2 artifact with `serve.py`, not a live link.
 
 Compare against a current Kakuro incumbent **on actual player phones**: can players discover the first entry, understand the arrows, and use the visible inspector correctly? Does the inspector make the deduction clearer without just giving the answer? All gameplay checks are code tests, not evidence of age-specific usability or preference.
+
+
+## Quiet Camp — Tents & Trees spatial deduction
+
+The independent [Quiet Camp](../games/quiet-camp/README.md) project has eight uniquely-solvable tent/tree layouts and original vector cells; its [Web Playtest](../.github/workflows/quiet-camp-preview.yml) is a complete downloadable WebGL2 ZIP with `serve.py`, **not a publicly hosted URL**.
+
+Observe players' first tap, awareness of row/column totals, diagonal tent adjacency, and understanding of one tent per tree. Compare with a direct incumbent and watch voluntary additional play, not polite compliments. Verify touch comfort on compact iPhones and Android handsets; CI cannot substitute for that.

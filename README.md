@@ -6,6 +6,7 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Seventh game prototype:** [Quiet Camp](games/quiet-camp/) — eight unique Tents & Trees clearings with accessible tap cycling, actual one-to-one tent/tree matching, no-touch constraints, row/column totals and offline save. **GF-006 experimental prototype, not validated demand.**
 - **Sixth game prototype:** [Kakuro Compass](games/kakuro-compass/) — eight uniqueness-tested beginner cross-sum puzzles with a visible across/down candidate inspector, large digit keypad, undo and offline progress. **A research prototype for GF-001, not an ASO/production greenlight.**
 - **Fifth game prototype:** [Odd Bloom](games/odd-bloom/) — twelve deterministic visual-difference rounds, single-structural-anomaly validation, large tap controls and offline save/replay. **No age-specific demand or retention verified.**
 - **Fourth game prototype:** [Shikaku Garden](games/shikaku-garden/) — eight independently authored, uniqueness-checked rectangle-partition puzzles with corner-to-corner controls, undo and offline progression. **Not market-validated; the GF-018 ASO research gate remains open.**
@@ -52,6 +53,7 @@ games/one-path/            Third visual logic experiment (Euler trail)
 games/shikaku-garden/      Fourth experiment (numbered rectangular partitions)
 games/odd-bloom/           Fifth experiment (one different flower)
 games/kakuro-compass/      Sixth experiment (guided crossing sums)
+games/quiet-camp/          Seventh experiment (original Tents & Trees deduction)
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -115,6 +117,10 @@ See [the exact troubleshooting guide](docs/web-networkerror.md). If it still fai
 ## Play Kakuro Compass locally
 
 Open `games/kakuro-compass/project.godot` in Godot 4.7.2 and press **F5**. The [game README](games/kakuro-compass/README.md) explains its intersection inspector, deterministic puzzle tests and [downloadable browser preview](.github/workflows/kakuro-compass-preview.yml). All browser artifacts include `serve.py` to avoid `file://` asset-fetch errors.
+
+## Play Quiet Camp locally
+
+Open `games/quiet-camp/project.godot` in Godot 4.7.2 and press **F5**. Its [independent README](games/quiet-camp/README.md) describes gameplay, test commands, and the [downloadable WebGL2 preview](.github/workflows/quiet-camp-preview.yml). The artifact includes `serve.py` to avoid unsupported `file://` loading.
 
 ## Share a tested browser-playtest build
 

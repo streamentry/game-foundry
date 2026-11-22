@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Seventh game: Quiet Camp (distinct visual deduction, still gated)
+
+[Quiet Camp](../games/quiet-camp/README.md) implements the GF-006 Tents & Trees hypothesis as an original **proof of gameplay**, not an App Store product selection. Eight uniquely-solvable boards test whether adults 45+ enjoy no-timer deduction by row/column tents counts, orthogonal tree pairing and non-touching placements. Unlike Kakuro Compass, it tests spatial constraints without numerical entry or clue calculations. Real-device readability, competitor preference, retention, search demand and economics remain unmeasured. Test before adding content or publishing.
+
 ## Sixth game: Kakuro Compass (primary search-led proof, still gated)
 
 [Kakuro Compass](../games/kakuro-compass/README.md) is an original **proof-of-play** implementation of the already documented conditional [GF-001 Kakuro hypothesis](research/first-game-decision-2026-11-21.md). Its key experiment is whether a *persistent across/down candidate inspector* improves first-board comprehension and completion compared with mature apps already claiming hints and beginner tutorials. The eight boards are verified for unique solutions. Device usability, search availability, head-to-head preference, return and commercial viability remain unknown. Avoid content-factory automation until real feedback is recorded.

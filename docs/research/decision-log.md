@@ -274,3 +274,16 @@ Actual outcome & model update:
 **Cheapest falsification:** recruit 5 US adults 50–75 who actually enjoy Kakuro; alternate Kakuro Compass and a mature incumbent, watch the first 5 minutes on their phones. The pre-existing go/no-go standard is in [first-game-decision-2026-11-21.md](first-game-decision-2026-11-21.md). Record whether they correctly explain a crossing deduction unaided, not merely whether a test script passes. If the inspector brings no comparative preference after one UX correction, park this project rather than producing 100 levels.
 
 **Status:** app-store organic keyword positions, segment-specific demand, return and monetization are unverified. No app store submission or public hosting.
+
+
+## 2026-11-22 — Quiet Camp, seventh independent game prototype
+
+**User instruction:** continue building after the first six playable experiments. Choose GF-006 Tents & Trees from the existing, unvalidated search-led discovery catalog as a visually distinct contrast to numeric Kakuro.
+
+**Built:** a standalone Godot 4.7.2 project with eight original 5×5/6×6 forest clearings and one distinct valid tent set per board, as verified by an actual backtracking solution counter. The engine checks row and column counts, no contact between tents (including diagonal), and **one-to-one orthogonal matching between the trees and tents**. A tent can be adjacent to multiple trees as long as a valid pairing exists. The solver does not compare guesses to a hardcoded fixture. Original vector trees/tents, tap-to-cycle tent/grass/blank, accessible semantic labels, undo/restart, local validated save, deterministic level links when hosted, and WebGL2 export with HTTP asset tests.
+
+**Strongest counterargument:** existing Tents & Trees apps provide this same generic mechanic, so distinct vector art and comfortable buttons do not prove a product wedge. The prototype's eight small boards are not a commercial puzzle library. Its actual player appeal and difficulty are unknown.
+
+**Cheapest falsification:** on a handful of independent adults 45+ who play logic games, compare an incumbent Tents & Trees title and Quiet Camp on their own phones. Record whether they understand diagonal contact, whether row/column totals are legible without zoom, if they voluntarily attempt more boards, and which version they independently return to. If no comparative usability or preference signal survives one UX revision, park it.
+
+**Status:** engineering prototype only. No age-specific demand, official App Store keyword popularity, installs, native signed builds, day-1/day-7 return, referrals, purchases or profit measured.
