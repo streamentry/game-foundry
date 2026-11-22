@@ -10,6 +10,8 @@ The [four-genre 2026–2036 outlook](four-genre-outlook-2026-2036.md) adds **Sim
 
 The [50 global franchise and genre benchmarks](global-franchise-benchmarks-2026-2036.md) are competitive references with transferable mechanics and explicit speculation cautions. Their `BR-*` IDs are **not original build ideas**, and hypothetical sequels are not confirmed releases.
 
+The [AI-created social worlds and ambient companion thesis](ugc-ai-companion-2036-thesis.md) adds two **speculative** experiments, `GX-013` and `GX-014`, concerning constrained creator-built worlds and a privacy-aware virtual companion. Neither is a production commitment; this note distinguishes genre selection strategies and avoids conflating the companion with `GC-043 Echo` (the existing temporal puzzle).
+
 ## Data dictionary
 
 | Field | Meaning |
