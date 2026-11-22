@@ -13,6 +13,29 @@
 
 Source: [WorldModel.cs](../../Assets/Scripts/Core/WorldModel.cs), [VillageStory.cs](../../Assets/Scripts/Core/VillageStory.cs), [LocalizedVillage.cs](../../Assets/Scripts/Core/LocalizedVillage.cs), [VillageScenePlan.cs](../../Assets/Scripts/Core/VillageScenePlan.cs), [ReactiveWatercourses.cs](../../Assets/Scripts/Core/ReactiveWatercourses.cs).
 
+## Consequence registry proposal — one truth, four outputs
+
+The existing `WorldModel` ordered choice history remains authoritative. `VillageScenePlan`, `VillageStory`, `LocalizedVillage` and `ReactiveWatercourses` are deterministic projections; **do not create a second mutable NPC truth store**.
+
+Before implementing deep ecology rules (EG-102/105), define an inspectable, data-driven `ConsequenceRegistry` with a record per real choice:
+
+```text
+ChoiceId
+RequiredState
+ForbiddenState
+ImmediateVisualEffectIds[]
+NextPuzzleRuleId
+NpcMemoryIds[]
+JournalEntryId
+DelayedWorldEffectIds[]
+EndingContributionIds[]
+LocalizationKeys[]
+```
+
+**Required invariants (`WLD-001..004`):** (1) choice → actual scene elements; (2) choice → NPC dialogue traceable to saved history; (3) choice → the **actual** next puzzle rule, never a proposed one; (4) choice → journal and ending contributions; (5) reconsider/undo/reload update all derived outputs. No NPC may remember an unmade action, no journal may describe a non-existent ecological rule, and no landmark may appear without its trigger.
+
+**Current limitation:** the branch puzzle currently rotates an authored topology and fixes an already-correct tile. It does **not** deliver independently modeled root/culvert/meadow constraints. `EG-105` stays `Proposed` until mechanics genuinely alter the reasoning. Only pursue a deeper registry **after M3** shows players notice the current immediate reveal.
+
 ## One observable causal loop
 
 `Solve stream → see water reach the village → choose tree/bridge/flowers → see physical before/after → hear one truthful reaction → see a consequence in the next puzzle → recall it later.`
