@@ -6,6 +6,8 @@ The separate [global 45+ playtest shortlist](../research/global-45plus-top-three
 
 The [ten-year global gaming thesis and seven detailed game briefs](ten-year-global-gaming-thesis-2026-11-22.md) records the founder's 2027–2036 strategic hypotheses, including personalization, distribution tradeoffs, proposed experiments, and stop gates. The seven named titles map to existing `GC-*` entries in the [50-concept speculative backlog](global-concepts-2027-2036.md), **not additional products or verified opportunities**.
 
+The [four-genre 2026–2036 outlook](four-genre-outlook-2026-2036.md) adds **Simulation, Role-Playing, Strategy, and Puzzle** as speculative research territories, with twelve cross-genre `GX-001`–`GX-012` experiments. These do not duplicate or promote the existing `GC-*` and `GF-*` backlogs to production.
+
 ## Data dictionary
 
 | Field | Meaning |
