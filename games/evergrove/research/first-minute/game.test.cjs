@@ -108,6 +108,36 @@ test("invalid rotation states fail explicitly, rather than silently solving", ()
   assert.equal(new Game().rotate(-1), false);
   assert.equal(new Game().rotate(9), false);
 });
+test("first playable board precedes decorative world in DOM and keyboard order", () => {
+  const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
+  const style = fs.readFileSync(path.join(__dirname, "style.css"), "utf8");
+  const app = fs.readFileSync(path.join(__dirname, "game.js"), "utf8");
+  const board = html.indexOf('id="puzzle-panel"');
+  const world = html.indexOf('id="world"');
+  const choices = html.indexOf('id="choices"');
+  assert.ok(board >= 0 && board < world && world < choices,
+    "a first mover must not need to scroll past a decorative hero");
+  assert.match(html, /id="world"[^>]*tabindex="-1"/);
+  assert.match(app, /if \(becameSolved\) requestAnimationFrame/);
+  assert.match(app, /world\.scrollIntoView/);
+  assert.match(app, /prefers-reduced-motion: reduce/);
+  assert.match(app, /node\("restart"\)\.disabled = !!model\.choice/,
+    "protect the memory state from an accidental reset");
+  assert.match(style, /max-width: 430px\) and \(max-height: 680px/);
+});
+
+test("facilitator notes preserve attempts before restart and disclose that fact", () => {
+  const app = fs.readFileSync(path.join(__dirname, "game.js"), "utf8");
+  for (const text of [
+    "totalRotations++", "totalHints++", "totalUndos++", "totalRestarts++",
+    '"rotations_all_attempts="', '"hints_all_attempts="',
+    '"undos_all_attempts="', '"restarts="',
+  ]) assert.ok(app.includes(text), "missing truthful session accounting: " + text);
+  assert.match(app, /Only explicit Replay begins a new measurement window/);
+  assert.ok(app.indexOf("totalRestarts++") < app.indexOf('node("replay").addEventListener'),
+    "Restart must not reset observation history as though the attempt succeeded");
+});
+
 test("research slice cannot collect or transmit private player data", () => {
   const script = fs.readFileSync(path.join(__dirname, "game.js"), "utf8");
   const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");

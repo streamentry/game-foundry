@@ -162,6 +162,20 @@
   const board = node("board"), tileButtons = [];
   let origin = typeof performance !== "undefined" ? performance.now() : 0;
   let firstTurn = null, firstSolved = null;
+  let previousSolved = false;
+  // Never hide a failed attempt from formative notes just because somebody
+  // restarted the board. Only explicit Replay begins a new measurement window.
+  let totalRotations = 0, totalHints = 0, totalUndos = 0, totalRestarts = 0;
+
+  function revealWorld() {
+    const world = node("world");
+    // The active tile becomes disabled on solve; give keyboard/screen-reader
+    // focus a visible, descriptive landing point rather than a dead control.
+    world.focus({ preventScroll: true });
+    const reduceMotion = window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    world.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  }
 
   function tileIcon(i) {
     const dirs = [];
@@ -182,6 +196,7 @@
     button.addEventListener("click", () => {
       if (!model.rotate(i)) return;
       if (firstTurn === null) firstTurn = performance.now() - origin;
+      totalRotations++;
       render();
     });
     board.appendChild(button);
@@ -190,6 +205,8 @@
   function render() {
     const insight = model.insight;
     const solved = insight.solved;
+    const becameSolved = solved && !previousSolved;
+    previousSolved = solved;
     tileButtons.forEach((button, i) => {
       const isSource = i === 2, isGarden = i === 4;
       const label = isSource ? "spring" : isGarden ? "garden" : "pipe";
@@ -210,6 +227,7 @@
     node("creek-front").style.strokeDashoffset = String(100 * (1 - insight.creekReach));
     node("undo").disabled = !model.previous || !!model.choice;
     node("hint").disabled = solved || !!model.choice;
+    node("restart").disabled = !!model.choice; // use deliberate Replay after the memory beat
     node("hint").textContent = ["A gentle hint", "Show me the tile", "Align one pipe"][model.hintStep];
     const description = model.hintStep === 1 ? "Notice row " +
       (Math.floor(model.hintTile / 3) + 1) + "." :
@@ -233,21 +251,39 @@
       node("memory-text").textContent = detail.result;
     }
     if (solved && firstSolved === null) firstSolved = performance.now() - origin;
+    // The chapter is about restoring the creek, not staring at a solved grid.
+    // Scroll only for genuine state transitions, never on initial page load.
+    if (becameSolved) requestAnimationFrame(() => {
+      if (model.insight.solved && !model.choice) revealWorld();
+    });
   }
-  node("undo").addEventListener("click", () => { if (model.undo()) render(); });
-  node("hint").addEventListener("click", () => { if (model.hint()) render(); });
-  node("restart").addEventListener("click", () => { model.reset(); render(); });
+  node("undo").addEventListener("click", () => {
+    if (model.undo()) { totalUndos++; render(); }
+  });
+  node("hint").addEventListener("click", () => {
+    if (model.hint()) { totalHints++; render(); }
+  });
+  node("restart").addEventListener("click", () => {
+    totalRestarts++;
+    model.reset();
+    render();
+    node("puzzle-title").focus({ preventScroll: true });
+  });
   document.querySelectorAll("[data-choice]").forEach(button => {
     button.addEventListener("click", () => {
       if (!model.choose(button.dataset.choice)) return;
       render();
-      node("memory-title").focus();
+      // Show what actually changed before asking somebody to read prose.
+      revealWorld();
     });
   });
   node("replay").addEventListener("click", () => {
     model.reset();
     origin = performance.now();
     firstTurn = null; firstSolved = null;
+    totalRotations = totalHints = totalUndos = totalRestarts = 0;
+    node("notes-fallback").hidden = true;
+    node("copy-notes").textContent = "Copy local session notes (optional)";
     render();
     node("puzzle-title").focus();
   });
@@ -259,9 +295,10 @@
       "board=First Bend (identical Unity 3x3 fixture)",
       "first_turn_seconds=" + (firstTurn === null ? "not_observed" : (firstTurn / 1000).toFixed(1)),
       "first_solve_seconds=" + (firstSolved === null ? "not_observed" : (firstSolved / 1000).toFixed(1)),
-      "rotations_current_attempt=" + model.turns,
-      "hints_current_attempt=" + model.hints,
-      "undos_current_attempt=" + model.undos,
+      "rotations_all_attempts=" + totalRotations,
+      "hints_all_attempts=" + totalHints,
+      "undos_all_attempts=" + totalUndos,
+      "restarts=" + totalRestarts,
       "choice=" + (model.choice || "none"),
       "NOTE: Browser interaction is not Unity performance or mobile accessibility evidence."
     ].join("\n");
