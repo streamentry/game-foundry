@@ -29,6 +29,8 @@ namespace Evergrove.UnityClient
 
         private WorldModel world;
         private Font font;
+        private Font baseFont;
+        private bool languagePicker;
         private RectTransform content;
         private RectTransform scrollArea;
         private ScrollRect scroll;
@@ -79,8 +81,10 @@ namespace Evergrove.UnityClient
             // orthographic 3D visual opt-in until real player/device evidence.
             showMiniature = PlayerPrefs.GetInt("evergrove:visual-miniature", 0) == 1;
             animateMiniature = PlayerPrefs.GetInt("evergrove:miniature-motion", 0) == 1;
-            font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            if (font == null) font = Font.CreateDynamicFontFromOSFont("Arial", 16);
+            baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
+            LocaleRuntime.Initialize();
+            font = LocaleFonts.Choose(LocaleRuntime.Current, baseFont);
             sound = gameObject.AddComponent<AudioSource>();
             sound.playOnAwake = false;
             sound.volume = 0.13f;
@@ -216,12 +220,13 @@ namespace Evergrove.UnityClient
             label.font = font;
             label.fontSize = size;
             label.color = color;
-            label.alignment = alignment;
+            label.alignment = GameLocalization.IsRtl(GameLocalization.Current) &&
+                alignment == TextAnchor.MiddleLeft ? TextAnchor.MiddleRight : alignment;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Overflow;
             label.supportRichText = false;
             label.raycastTarget = false;
-            label.text = value;
+            label.text = GameLocalization.Display(value);
             return label;
         }
 
@@ -266,7 +271,7 @@ namespace Evergrove.UnityClient
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
             text.raycastTarget = false;
-            text.text = caption;
+            text.text = GameLocalization.Display(caption);
             button.onClick.AddListener(() => action());
             return button;
         }
@@ -302,8 +307,20 @@ namespace Evergrove.UnityClient
             }
 
             bool living = world.Mode == PlayMode.Living;
-            Label(content, "Brand", "EVERGROVE       /       A WORLD THAT REMEMBERS", 12, 24, Leaf);
-            Label(content, "Title", "Little choices. A living place.", 25, 46, Ink);
+            Label(content, "Brand", GameLocalization.Text("title"), 12, 24, Leaf);
+            Label(content, "Title", GameLocalization.Text("subtitle"), 25, 46, Ink);
+            Button(content, "Language settings",
+                GameLocalization.Text("language") + ": " +
+                GameLocalization.NativeName(GameLocalization.Current),
+                () => { languagePicker = !languagePicker; Rebuild(true); }, 48);
+            if (languagePicker)
+            {
+                BuildLanguagePicker();
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+                scroll.verticalNormalizedPosition = 1f;
+                return;
+            }
 
             if (living)
             {
@@ -350,26 +367,26 @@ namespace Evergrove.UnityClient
 
             if (living)
             {
-                Label(content, "World consequence", world.Consequence, 16, 52, Ink,
+                Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
                     TextAnchor.MiddleCenter);
                 if (world.Choices.Length > 0)
-                    Label(content, "Remembered choice", world.Memory, 13, 38, Moss,
+                    Label(content, "Remembered choice", LocalizedVillage.Memory(world), 13, 38, Moss,
                         TextAnchor.MiddleCenter);
             }
             else
-                Label(content, "Puzzle condition", "Same water puzzles, without the living-world layer.",
+                Label(content, "Puzzle condition", GameLocalization.Text("puzzle_desc"),
                     14, 44, Moss, TextAnchor.MiddleCenter);
 
             if (showingMemory && world.Choices.Length > 0 && living)
             {
                 var moment = Card(content, "A remembered moment", Sand);
-                Label(moment.transform, "Moment title", "A NEW MEMORY IN THE GROVE", 12, 26, Leaf);
-                Label(moment.transform, "Story", VillageStory.MemoryEvent(world), 17, 170, Ink);
-                Button(content, "Continue", "Continue along the stream", () => {
+                Label(moment.transform, "Moment title", GameLocalization.Text("memory_title"), 12, 26, Leaf);
+                Label(moment.transform, "Story", LocalizedVillage.MemoryEvent(world), 17, 170, Ink);
+                Button(content, "Continue", GameLocalization.Text("continue"), () => {
                     showingMemory = false;
                     Rebuild(true);
                 }, 62, true);
-                Button(content, "Change your choice", "Change this choice", () => {
+                Button(content, "Change your choice", GameLocalization.Text("change"), () => {
                     if (!world.ReconsiderLatestChoice()) return;
                     if (localPlaytest != null) localPlaytest.Reconsider(Time.unscaledTime);
                     SaveWorld();
@@ -380,12 +397,11 @@ namespace Evergrove.UnityClient
             else if (world.Completed)
             {
                 var conclusion = Card(content, "The ending", Sand);
-                Label(conclusion.transform, "Final words", world.Mode == PlayMode.Living ?
-                    world.Ending : "TWELVE STREAMS COMPLETED\n\nEvery stream is flowing. Which puzzle did you enjoy most?",
+                Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
                     17, 220, Ink);
                 if (living) MemoryJournal();
                 Button(content, "Reset title", confirmReset ?
-                    "Confirm: begin a new garden" : "Explore another garden",
+                    GameLocalization.Text("erase") : GameLocalization.Text("explore"),
                     () => {
                         if (!confirmReset) { confirmReset = true; Rebuild(); return; }
                         WorldStore.Clear();
@@ -397,7 +413,7 @@ namespace Evergrove.UnityClient
                         Rebuild(true);
                     }, 62, confirmReset);
                 if (confirmReset)
-                    Button(content, "Cancel reset", "Keep this garden", () => {
+                    Button(content, "Cancel reset", GameLocalization.Text("keep"), () => {
                         confirmReset = false;
                         Rebuild();
                     });
@@ -413,7 +429,7 @@ namespace Evergrove.UnityClient
             // It stays below the puzzle so onboarding reaches gameplay first.
             if (living && !showingMemory)
             {
-                Label(content, "Neighbors", "THREE NEIGHBORS, THREE WAYS OF SEEING YOUR GARDEN",
+                Label(content, "Neighbors", GameLocalization.Text("neighbors"),
                     12, 27, Leaf);
                 var neighbors = Row(content, "Speak with a neighbor");
                 Button(neighbors.transform, "Mira", "Mira", () => OpenConversation(0), 52);
@@ -423,10 +439,10 @@ namespace Evergrove.UnityClient
                 {
                     var conversation = Card(content, "A neighbor's memory", Sand);
                     Label(conversation.transform, "Neighbor name",
-                        VillageStory.VillagerName(speakingWith), 16, 31, Leaf);
+                        speakingWith == 0 ? "Mira" : speakingWith == 1 ? "Orin" : "Fen", 16, 31, Leaf);
                     Label(conversation.transform, "What they say",
-                        VillageStory.Speak(world, speakingWith), 16, 132, Ink);
-                    Button(conversation.transform, "Thanks", "Thanks for telling me",
+                        LocalizedVillage.Speak(world, speakingWith), 16, 132, Ink);
+                    Button(conversation.transform, "Thanks", GameLocalization.Text("thanks"),
                         () => { speakingWith = -1; Rebuild(); }, 50, true);
                 }
             }
@@ -436,11 +452,11 @@ namespace Evergrove.UnityClient
             if (world.CanSwitchMode)
             {
                 Label(content, "Comparison hint",
-                    "PLAYTEST MODE  ·  Choose before your first move", 11, 21, Moss);
+                    GameLocalization.Text("playtest"), 11, 21, Moss);
                 var modes = Row(content, "Comparison modes");
-                Button(modes.transform, "Living mode", "Living world", () => SwitchMode(PlayMode.Living),
+                Button(modes.transform, "Living mode", GameLocalization.Text("living"), () => SwitchMode(PlayMode.Living),
                     52, living);
-                Button(modes.transform, "Puzzle control", "Puzzle only", () => SwitchMode(PlayMode.PuzzleOnly),
+                Button(modes.transform, "Puzzle control", GameLocalization.Text("puzzle"), () => SwitchMode(PlayMode.PuzzleOnly),
                     52, !living);
             }
 
@@ -451,8 +467,7 @@ namespace Evergrove.UnityClient
                 // Two comparable art renderers using the same saved decisions.
                 // Keep this manual A/B surface below the gameplay.
                 Button(content, "Diorama visual comparison",
-                    showMiniature ? "Visual: 2.5D miniature (tap for 2D)" :
-                        "Visual: 2D storybook (tap for 2.5D)", () => {
+                    GameLocalization.Text(showMiniature ? "art_3d" : "art_2d"), () => {
                         showMiniature = !showMiniature;
                         if (localPlaytest != null) localPlaytest.ChangeVisual(showMiniature, Time.unscaledTime);
                         PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
@@ -461,8 +476,7 @@ namespace Evergrove.UnityClient
                     }, 49);
                 if (showMiniature)
                     Button(content, "Optional miniature motion",
-                        animateMiniature ? "Miniature motion: ON (tap to stop)" :
-                            "Miniature motion: OFF (tap to animate)", () => {
+                        GameLocalization.Text(animateMiniature ? "motion_on" : "motion_off"), () => {
                             animateMiniature = !animateMiniature;
                             PlayerPrefs.SetInt("evergrove:miniature-motion", animateMiniature ? 1 : 0);
                             PlayerPrefs.Save();
@@ -471,7 +485,7 @@ namespace Evergrove.UnityClient
             }
 
             Button(content, "Quiet audio setting",
-                soundOn ? "Gentle chime: ON (tap to mute)" : "Gentle chime: OFF (tap to enable)",
+                GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 () => {
                     soundOn = !soundOn;
                     PlayerPrefs.SetInt("evergrove:gentle-audio", soundOn ? 1 : 0);
@@ -481,7 +495,7 @@ namespace Evergrove.UnityClient
             if (!world.Completed && world.Round > 0)
             {
                 Button(content, "Restart garden",
-                    confirmReset ? "Confirm: erase this garden" : "Start a different garden",
+                    GameLocalization.Text(confirmReset ? "erase" : "explore"),
                     () => {
                         if (!confirmReset) { confirmReset = true; Rebuild(); return; }
                         WorldStore.Clear();
@@ -492,14 +506,14 @@ namespace Evergrove.UnityClient
                         Rebuild(true);
                     }, 45, confirmReset);
                 if (confirmReset)
-                    Button(content, "Cancel", "Keep my garden", () => {
+                    Button(content, "Cancel", GameLocalization.Text("keep"), () => {
                         confirmReset = false;
                         Rebuild();
                     }, 44);
             }
             if (localPlaytest == null)
             {
-                Button(content, "Playtest consent", "Optional: record a private playtest session",
+                Button(content, "Playtest consent", GameLocalization.Text("record"),
                     () => {
                         localPlaytest = new LocalPlaytest(world.Mode, showMiniature,
                             world.Round, Time.unscaledTime);
@@ -507,12 +521,12 @@ namespace Evergrove.UnityClient
                         Rebuild();
                     }, 44);
                 Label(content, "No tracking by default",
-                    "Only starts when you tap. Nothing is uploaded, saved or tied to an identity.",
+                    GameLocalization.Text("privacy"),
                     12, 43, Moss, TextAnchor.MiddleCenter);
             }
             else
             {
-                Button(content, "Copy playtest", "Copy my local playtest notes",
+                Button(content, "Copy playtest", GameLocalization.Text("copy"),
                     () => {
                         GUIUtility.systemCopyBuffer = localPlaytest.Report(Time.unscaledTime);
                         playtestCopied = true;
@@ -520,12 +534,12 @@ namespace Evergrove.UnityClient
                     }, 48);
                 if (playtestCopied)
                     Label(content, "Copied privately",
-                        "Copied to clipboard. Paste into your own research notes when ready.",
+                        GameLocalization.Text("copied"),
                         12, 43, Moss, TextAnchor.MiddleCenter);
-                Button(content, "Stop playtest", "Stop and clear local playtest notes",
+                Button(content, "Stop playtest", GameLocalization.Text("clear"),
                     () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
             }
-            Label(content, "Respectful play", "Offline by default  ·  No pressure  ·  No ads  ·  No account",
+            Label(content, "Respectful play", GameLocalization.Text("offline"),
                 12, 36, Moss, TextAnchor.MiddleCenter);
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
@@ -534,18 +548,18 @@ namespace Evergrove.UnityClient
 
         private void MemoryJournal()
         {
-            var button = Button(content, "Memories", showJournal ?
-                "Hide village memories" : "Read the village's memories", () => {
+            Button(content, "Memories",
+                GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"), () => {
                     showJournal = !showJournal;
                     Rebuild();
                 });
             if (!showJournal) return;
             var journal = Card(content, "A living journal", River);
-            Label(journal.transform, "Journal title", "EVERGROVE  /  WHAT WE CHOSE", 12, 26, Leaf);
-            foreach (string entry in world.Journal)
+            Label(journal.transform, "Journal title", GameLocalization.Text("journal_title"), 12, 26, Leaf);
+            foreach (string entry in LocalizedVillage.Journal(world))
                 Label(journal.transform, "Recorded choice", entry, 14, 39, Ink);
             if (world.Journal.Length == 0)
-                Label(journal.transform, "Blank page", "Your first story has not been written yet.", 14, 48, Moss);
+                Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 48, Moss);
         }
 
         private void BuildPuzzle()
@@ -553,14 +567,14 @@ namespace Evergrove.UnityClient
             Puzzle puzzle = world.CurrentPuzzle;
             PipeInsight insight = world.Insight;
             Label(content, "Chapter",
-                "STREAM " + (world.Round + 1) + " / " + PuzzleCatalog.Count + "  ·  " + puzzle.Name,
+                GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count) +
+                (GameLocalization.Current == "en" ? "  ·  " + puzzle.Name : ""),
                 13, 30, Leaf, TextAnchor.MiddleCenter);
             if (puzzle.AnchoredTile >= 0)
-                Label(content, "Changed landscape rule", puzzle.EnvironmentalRule,
+                Label(content, "Protected habitat", LocalizedVillage.EnvironmentalRule(world),
                     14, 48, Leaf, TextAnchor.MiddleCenter);
             Label(content, "Prompt", world.Round == 0 ?
-                "S = Spring   G = Grove   ·   Tap tiles to connect the water" :
-                VillageStory.ChapterPrompt(world), 14, 34, Moss,
+                GameLocalization.Text("first") : LocalizedVillage.Prompt(world), 14, 34, Moss,
                 TextAnchor.MiddleCenter);
             var board = Card(content, "The water puzzle", White);
             var gridNode = Node("Water connections", board.transform);
@@ -610,7 +624,7 @@ namespace Evergrove.UnityClient
                     (++seenEnds == 1 ? "spring" : "outlet") : "pipe";
                 tileNode.name = "Row " + (index / puzzle.Size + 1) + " column " +
                     (index % puzzle.Size + 1) + " " + kind +
-                    (puzzle.IsAnchored(index) ? ", protected landmark, cannot rotate" : ", tap to turn");
+                    (puzzle.IsAnchored(index) ? ", protected landmark" : ", tap to turn");
                 if (puzzle.IsAnchored(index)) image.color = Hex("#F1DDB3");
                 var pipeNode = Node("Visible channel", tileNode.transform);
                 Fill(pipeNode.GetComponent<RectTransform>());
@@ -620,7 +634,7 @@ namespace Evergrove.UnityClient
                 tileArtwork[index] = pipe;
                 if (puzzle.IsAnchored(index))
                 {
-                    var badge = Node("Protected landmark badge", tileNode.transform);
+                    var badge = Node("Protected landmark marker", tileNode.transform);
                     RectTransform badgeRect = badge.GetComponent<RectTransform>();
                     badgeRect.anchorMin = new Vector2(1f, 1f);
                     badgeRect.anchorMax = new Vector2(1f, 1f);
@@ -657,30 +671,29 @@ namespace Evergrove.UnityClient
             }
 
             string feedback = world.Solved
-                ? "The stream flows through every tile."
-                : "Water reaches " + insight.ConnectedCount + " / " + puzzle.CellCount +
-                    " tiles   ·   " + insight.LeakCount + " unmatched joins";
+                ? GameLocalization.Text("solved")
+                : GameLocalization.Text("progress", insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
             feedbackText = Label(content, "Water feedback", feedback, 15, 42, Ink, TextAnchor.MiddleCenter);
 
             if (world.Solved)
             {
-                Button(content, "Revisit water", "Undo the last water turn",
+                Button(content, "Revisit water", GameLocalization.Text("undo_last"),
                     () => Act(() => world.Undo(), "undo"), 44).interactable = world.CanUndo;
                 if (world.Mode == PlayMode.PuzzleOnly)
-                    Button(content, "Next stream", "Next stream", () => {
+                    Button(content, "Next stream", GameLocalization.Text("next"), () => {
                         if (!world.NextPuzzle()) return;
                         SaveWorld();
                         Rebuild(true);
                     }, 59, true);
                 else
                 {
-                    Label(content, "Choose title", "THE WATER HAS ARRIVED. WHAT WILL YOU HELP GROW?",
+                    Label(content, "Choose title", GameLocalization.Text("choose"),
                         14, 52, Leaf, TextAnchor.MiddleCenter);
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
                         VillageChoice choice = (VillageChoice)choiceIndex;
-                        string caption = VillageStory.ChoiceLabel(choice) +
-                            "\n" + VillageStory.ChoicePromise(choice, world);
+                        string caption = LocalizedVillage.Choice(choice) +
+                            "\n" + LocalizedVillage.ChoiceOutcome(choice, world);
                         Button(content, "Choice " + choice, caption, () => MakeChoice(choice), 77,
                             choiceIndex == 0);
                     }
@@ -689,15 +702,47 @@ namespace Evergrove.UnityClient
             else
             {
                 var tools = Row(content, "Gentle controls");
-                undoButton = Button(tools.transform, "Undo", "Undo", () => Act(() => world.Undo(), "undo"),
+                undoButton = Button(tools.transform, "Undo", GameLocalization.Text("undo"), () => Act(() => world.Undo(), "undo"),
                     52);
                 undoButton.interactable = world.CanUndo;
-                Button(tools.transform, "Hint", "Guide me", () => Act(() => world.GuideOneConnection(), "hint"), 52);
-                Button(content, "Restart", "Start this stream again", () => Act(() => world.Restart(), "restart"), 46);
+                Button(tools.transform, "Hint", GameLocalization.Text("hint"), () => Act(() => world.GuideOneConnection(), "hint"), 52);
+                Button(content, "Restart", GameLocalization.Text("restart"), () => Act(() => world.Restart(), "restart"), 46);
             }
-            Label(content, "How to play", "Tap to rotate. S marks the spring; G marks the garden outlet. " +
-                "Every pipe must join without open ends. Take as long as you like.",
+            Label(content, "How to play", GameLocalization.Text("how"),
                 13, 56, Moss, TextAnchor.MiddleCenter);
+        }
+
+        private void BuildLanguagePicker()
+        {
+            Label(content, "Language information", GameLocalization.Text("language_help"),
+                14, 49, Moss);
+            Button(content, "Auto language", GameLocalization.Text("auto"), () => {
+                SelectLanguage(GameLocalization.Auto);
+            }, 56, LocaleRuntime.Preference == GameLocalization.Auto);
+            foreach (GameLanguage choice in GameLocalization.Available)
+            {
+                string captured = choice.Code;
+                Button item = Button(content, "Locale " + captured, choice.NativeName, () => {
+                    SelectLanguage(captured);
+                }, 54, LocaleRuntime.Preference == captured);
+                // The current language's font cannot be assumed to display
+                // every *other* native name in this 30-script picker.
+                Text caption = item.GetComponentInChildren<Text>();
+                if (caption != null) caption.font = LocaleFonts.Choose(captured, baseFont);
+            }
+            Button(content, "Close language picker", GameLocalization.Text("continue"), () => {
+                languagePicker = false;
+                Rebuild(true);
+            }, 58);
+        }
+
+        private void SelectLanguage(string preference)
+        {
+            if (!LocaleRuntime.Choose(preference))
+                Debug.LogWarning("Evergrove cannot load language " + preference);
+            font = LocaleFonts.Choose(GameLocalization.Current, baseFont);
+            languagePicker = false;
+            Rebuild(true);
         }
 
         private void OpenConversation(int villagerIndex)
@@ -733,8 +778,8 @@ namespace Evergrove.UnityClient
                 tileArtwork[i].Configure(puzzle.Kinds[i], angles[i], world.Solved);
             }
             if (feedbackText != null)
-                feedbackText.text = "Water reaches " + insight.ConnectedCount + " / " +
-                    puzzle.CellCount + " tiles   ·   " + insight.LeakCount + " unmatched joins";
+                feedbackText.text = GameLocalization.Text("progress",
+                    insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
             if (undoButton != null) undoButton.interactable = world.CanUndo;
         }
 

@@ -1,0 +1,297 @@
+{
+  "code": "pt-BR",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · UM MUNDO QUE SE LEMBRA"
+    },
+    {
+      "key": "subtitle",
+      "value": "Pequenas escolhas. Um lugar cheio de vida."
+    },
+    {
+      "key": "language",
+      "value": "Idioma"
+    },
+    {
+      "key": "auto",
+      "value": "Automático (idioma do aparelho)"
+    },
+    {
+      "key": "language_help",
+      "value": "O idioma do aparelho será usado até você escolher outro."
+    },
+    {
+      "key": "living",
+      "value": "Mundo vivo"
+    },
+    {
+      "key": "puzzle",
+      "value": "Só quebra-cabeças"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Os mesmos desafios de água, sem a vila viva."
+    },
+    {
+      "key": "memory_title",
+      "value": "UMA NOVA LEMBRANÇA NA VILA"
+    },
+    {
+      "key": "continue",
+      "value": "Continue pelo riacho"
+    },
+    {
+      "key": "change",
+      "value": "Mudar esta escolha"
+    },
+    {
+      "key": "complete",
+      "value": "Você concluiu doze riachos. Qual foi seu favorito?"
+    },
+    {
+      "key": "explore",
+      "value": "Explorar outro jardim"
+    },
+    {
+      "key": "erase",
+      "value": "Confirmar: apagar este jardim"
+    },
+    {
+      "key": "keep",
+      "value": "Manter este jardim"
+    },
+    {
+      "key": "neighbors",
+      "value": "Conversar com um vizinho"
+    },
+    {
+      "key": "thanks",
+      "value": "Obrigado por me contar!"
+    },
+    {
+      "key": "playtest",
+      "value": "MODO DE TESTE · Escolha antes da primeira jogada"
+    },
+    {
+      "key": "art_2d",
+      "value": "Visual: livro ilustrado 2D (toque para 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Visual: maquete 2,5D (toque para 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Movimento da maquete: LIGADO (toque para parar)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Movimento da maquete: DESLIGADO (toque para ativar)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Som suave: LIGADO (toque para silenciar)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Som suave: DESLIGADO (toque para ativar)"
+    },
+    {
+      "key": "record",
+      "value": "Iniciar teste privado opcional"
+    },
+    {
+      "key": "privacy",
+      "value": "Só começa ao tocar. Nada é enviado ou vinculado a você."
+    },
+    {
+      "key": "copy",
+      "value": "Copiar anotações do teste"
+    },
+    {
+      "key": "copied",
+      "value": "Copiado para a área de transferência."
+    },
+    {
+      "key": "clear",
+      "value": "Parar e apagar anotações locais"
+    },
+    {
+      "key": "offline",
+      "value": "Sem internet · Sem tempo limite · Sem anúncios · Sem conta"
+    },
+    {
+      "key": "journal_show",
+      "value": "Ler as lembranças da vila"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Ocultar as lembranças"
+    },
+    {
+      "key": "journal_title",
+      "value": "NOSSAS ESCOLHAS"
+    },
+    {
+      "key": "journal_empty",
+      "value": "A primeira lembrança ainda está por vir."
+    },
+    {
+      "key": "stream",
+      "value": "RIACHO {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = nascente · G = jardim. Toque para ligar a água."
+    },
+    {
+      "key": "solved",
+      "value": "A água passa por todas as peças."
+    },
+    {
+      "key": "progress",
+      "value": "Água em {0}/{1} peças · {2} conexões abertas"
+    },
+    {
+      "key": "undo_last",
+      "value": "Desfazer o último giro"
+    },
+    {
+      "key": "next",
+      "value": "Próximo riacho"
+    },
+    {
+      "key": "choose",
+      "value": "O que você quer ajudar a crescer?"
+    },
+    {
+      "key": "undo",
+      "value": "Desfazer"
+    },
+    {
+      "key": "hint",
+      "value": "Quero uma dica"
+    },
+    {
+      "key": "restart",
+      "value": "Reiniciar riacho"
+    },
+    {
+      "key": "how",
+      "value": "Toque para girar. Conecte todos os canos sem deixar pontas abertas."
+    },
+    {
+      "key": "tree",
+      "value": "Plantar árvore para sombra"
+    },
+    {
+      "key": "bridge",
+      "value": "Reparar uma ponte"
+    },
+    {
+      "key": "flowers",
+      "value": "Cultivar flores silvestres"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira se lembra da árvore que você plantou."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin se lembra da ponte que você consertou."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen se lembra das flores que você cultivou."
+    },
+    {
+      "key": "world_none",
+      "value": "O riacho antigo espera pela água."
+    },
+    {
+      "key": "world_tree",
+      "value": "Uma árvore jovem cresce perto do riacho."
+    },
+    {
+      "key": "world_bridge",
+      "value": "A ponte liga as duas margens."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Flores silvestres alegram a margem."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Suas árvores dão sombra à ponte restaurada."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Borboletas se reúnem sob as árvores."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Os vizinhos atravessam para ver o campo florido."
+    },
+    {
+      "key": "world_all",
+      "value": "Árvores, caminhos e flores aproximam a vila."
+    },
+    {
+      "key": "mira_new",
+      "value": "Sou Mira. Que tal plantar uma árvore perto da água?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Lembro das árvores que você plantou. Agora temos sombra."
+    },
+    {
+      "key": "orin_new",
+      "value": "Sou Orin. Espero que possamos reconstruir a ponte."
+    },
+    {
+      "key": "orin_after",
+      "value": "A ponte restaurada nos aproxima. Obrigado!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Sou Fen. Sinto falta das flores silvestres perto da água."
+    },
+    {
+      "key": "fen_after",
+      "value": "Suas flores trouxeram vida de volta à margem."
+    },
+    {
+      "key": "ending_all",
+      "value": "Nossa vila floresce. Cada escolha ajudou a criar um lar."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Um pomar tranquilo cresceu graças ao seu cuidado."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Suas pontes aproximaram os vizinhos."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Você criou um campo onde a vida voltou."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Um pouco de água pode transformar um lugar."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "A vila está começando a crescer."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Cada escolha passa a fazer parte deste lugar."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Capítulo {0} · {1} · {2}"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "code": "it",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · UN MONDO CHE RICORDA"
+    },
+    {
+      "key": "subtitle",
+      "value": "Piccole scelte. Un luogo vivo."
+    },
+    {
+      "key": "language",
+      "value": "Lingua"
+    },
+    {
+      "key": "auto",
+      "value": "Automatico (lingua del dispositivo)"
+    },
+    {
+      "key": "language_help",
+      "value": "Si usa la lingua del dispositivo finché non ne scegli un'altra."
+    },
+    {
+      "key": "living",
+      "value": "Mondo vivo"
+    },
+    {
+      "key": "puzzle",
+      "value": "Solo rompicapi"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Gli stessi rompicapi d'acqua, senza il villaggio vivo."
+    },
+    {
+      "key": "memory_title",
+      "value": "UN NUOVO RICORDO NEL VILLAGGIO"
+    },
+    {
+      "key": "continue",
+      "value": "Prosegui lungo il ruscello"
+    },
+    {
+      "key": "change",
+      "value": "Cambia questa scelta"
+    },
+    {
+      "key": "complete",
+      "value": "Dodici ruscelli completati. Quale rompicapo ti è piaciuto di più?"
+    },
+    {
+      "key": "explore",
+      "value": "Esplora un altro giardino"
+    },
+    {
+      "key": "erase",
+      "value": "Conferma: elimina questo giardino"
+    },
+    {
+      "key": "keep",
+      "value": "Conserva questo giardino"
+    },
+    {
+      "key": "neighbors",
+      "value": "Parla con un vicino"
+    },
+    {
+      "key": "thanks",
+      "value": "Grazie per avermelo raccontato!"
+    },
+    {
+      "key": "playtest",
+      "value": "MODALITÀ TEST · Scegli prima della prima mossa"
+    },
+    {
+      "key": "art_2d",
+      "value": "Vista: libro illustrato 2D (tocca per 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Vista: miniatura 2,5D (tocca per 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Movimento miniatura: ATTIVO (tocca per fermare)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Movimento miniatura: SPENTO (tocca per attivare)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Suono delicato: ATTIVO (tocca per silenziare)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Suono delicato: SPENTO (tocca per attivare)"
+    },
+    {
+      "key": "record",
+      "value": "Inizia test privato facoltativo"
+    },
+    {
+      "key": "privacy",
+      "value": "Si avvia solo al tocco. Nulla viene caricato o collegato a te."
+    },
+    {
+      "key": "copy",
+      "value": "Copia le note del test"
+    },
+    {
+      "key": "copied",
+      "value": "Copiato negli appunti."
+    },
+    {
+      "key": "clear",
+      "value": "Interrompi ed elimina le note locali"
+    },
+    {
+      "key": "offline",
+      "value": "Offline · Senza timer · Senza pubblicità · Senza account"
+    },
+    {
+      "key": "journal_show",
+      "value": "Leggi i ricordi del villaggio"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Nascondi i ricordi"
+    },
+    {
+      "key": "journal_title",
+      "value": "LE NOSTRE SCELTE"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Il primo ricordo deve ancora nascere."
+    },
+    {
+      "key": "stream",
+      "value": "RUSCELLO {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = sorgente · G = giardino. Tocca per collegare l'acqua."
+    },
+    {
+      "key": "solved",
+      "value": "L'acqua scorre attraverso tutte le caselle."
+    },
+    {
+      "key": "progress",
+      "value": "Acqua in {0}/{1} caselle · {2} giunti aperti"
+    },
+    {
+      "key": "undo_last",
+      "value": "Annulla l'ultima rotazione"
+    },
+    {
+      "key": "next",
+      "value": "Ruscello successivo"
+    },
+    {
+      "key": "choose",
+      "value": "Cosa vuoi aiutare a crescere?"
+    },
+    {
+      "key": "undo",
+      "value": "Annulla"
+    },
+    {
+      "key": "hint",
+      "value": "Suggerimento"
+    },
+    {
+      "key": "restart",
+      "value": "Ricomincia il ruscello"
+    },
+    {
+      "key": "how",
+      "value": "Tocca per ruotare. Collega tutti i tubi senza estremità aperte."
+    },
+    {
+      "key": "tree",
+      "value": "Pianta un albero per l'ombra"
+    },
+    {
+      "key": "bridge",
+      "value": "Ripara un ponte"
+    },
+    {
+      "key": "flowers",
+      "value": "Fai crescere fiori selvatici"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira ricorda l'albero che hai piantato."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin ricorda il ponte che hai riparato."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen ricorda i fiori che hai coltivato."
+    },
+    {
+      "key": "world_none",
+      "value": "Il vecchio ruscello aspetta l'acqua."
+    },
+    {
+      "key": "world_tree",
+      "value": "Un giovane albero cresce vicino al ruscello."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Il ponte collega le due rive."
+    },
+    {
+      "key": "world_flowers",
+      "value": "I fiori selvatici illuminano la riva."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "I tuoi alberi ombreggiano il ponte riparato."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Le farfalle si raccolgono sotto gli alberi."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "I vicini attraversano il ponte per vedere il prato."
+    },
+    {
+      "key": "world_all",
+      "value": "Alberi, sentieri e fiori uniscono il villaggio."
+    },
+    {
+      "key": "mira_new",
+      "value": "Sono Mira. Piantiamo un albero vicino all'acqua?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Ricordo gli alberi che hai piantato. Ora abbiamo ombra."
+    },
+    {
+      "key": "orin_new",
+      "value": "Sono Orin. Spero che riusciremo a ricostruire il ponte."
+    },
+    {
+      "key": "orin_after",
+      "value": "Il ponte riparato ci riunisce. Grazie!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Sono Fen. Mi mancano i fiori selvatici vicino all'acqua."
+    },
+    {
+      "key": "fen_after",
+      "value": "I tuoi fiori hanno riportato vita sulla riva."
+    },
+    {
+      "key": "ending_all",
+      "value": "Il nostro villaggio prospera. Ogni scelta ha aiutato a creare una casa."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Grazie alle tue cure è cresciuto un frutteto tranquillo."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "I tuoi ponti hanno riunito i vicini."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Hai creato un prato dove la vita è tornata."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Un po' d'acqua può cambiare un luogo."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Il villaggio inizia a crescere."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Ogni scelta diventa parte di questo luogo."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Capitolo {0} · {1} · {2}"
+    }
+  ]
+}

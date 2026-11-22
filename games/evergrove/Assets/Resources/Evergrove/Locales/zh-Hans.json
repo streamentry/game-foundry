@@ -1,0 +1,297 @@
+{
+  "code": "zh-Hans",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · 会记得你的世界"
+    },
+    {
+      "key": "subtitle",
+      "value": "小小选择，生生不息。"
+    },
+    {
+      "key": "language",
+      "value": "语言"
+    },
+    {
+      "key": "auto",
+      "value": "自动（设备语言）"
+    },
+    {
+      "key": "language_help",
+      "value": "默认使用设备语言，直到你手动更改。"
+    },
+    {
+      "key": "living",
+      "value": "鲜活世界"
+    },
+    {
+      "key": "puzzle",
+      "value": "仅解谜"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "相同的水管谜题，没有会变化的村庄。"
+    },
+    {
+      "key": "memory_title",
+      "value": "村庄里的新回忆"
+    },
+    {
+      "key": "continue",
+      "value": "沿着溪流继续"
+    },
+    {
+      "key": "change",
+      "value": "更改这次选择"
+    },
+    {
+      "key": "complete",
+      "value": "已完成十二条溪流。你最喜欢哪一关？"
+    },
+    {
+      "key": "explore",
+      "value": "探索另一座花园"
+    },
+    {
+      "key": "erase",
+      "value": "确认：删除这座花园"
+    },
+    {
+      "key": "keep",
+      "value": "保留这座花园"
+    },
+    {
+      "key": "neighbors",
+      "value": "与邻居交谈"
+    },
+    {
+      "key": "thanks",
+      "value": "谢谢你告诉我！"
+    },
+    {
+      "key": "playtest",
+      "value": "测试模式 · 请在第一步前选择"
+    },
+    {
+      "key": "art_2d",
+      "value": "画面：2D绘本（点击切换2.5D）"
+    },
+    {
+      "key": "art_3d",
+      "value": "画面：2.5D微缩模型（点击切换2D）"
+    },
+    {
+      "key": "motion_on",
+      "value": "模型动画：开启（点击停止）"
+    },
+    {
+      "key": "motion_off",
+      "value": "模型动画：关闭（点击开启）"
+    },
+    {
+      "key": "sound_on",
+      "value": "轻柔提示音：开启（点击静音）"
+    },
+    {
+      "key": "sound_off",
+      "value": "轻柔提示音：关闭（点击开启）"
+    },
+    {
+      "key": "record",
+      "value": "开始可选的私人试玩记录"
+    },
+    {
+      "key": "privacy",
+      "value": "仅在点击后开始。不会上传或关联个人身份。"
+    },
+    {
+      "key": "copy",
+      "value": "复制本地试玩记录"
+    },
+    {
+      "key": "copied",
+      "value": "已复制到剪贴板。"
+    },
+    {
+      "key": "clear",
+      "value": "停止并清除本地记录"
+    },
+    {
+      "key": "offline",
+      "value": "离线 · 不限时 · 无广告 · 无账号"
+    },
+    {
+      "key": "journal_show",
+      "value": "阅读村庄回忆"
+    },
+    {
+      "key": "journal_hide",
+      "value": "隐藏村庄回忆"
+    },
+    {
+      "key": "journal_title",
+      "value": "我们的选择"
+    },
+    {
+      "key": "journal_empty",
+      "value": "第一段回忆还在等待。"
+    },
+    {
+      "key": "stream",
+      "value": "溪流 {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = 水源 · G = 花园。点击连接水流。"
+    },
+    {
+      "key": "solved",
+      "value": "水已流过所有方块。"
+    },
+    {
+      "key": "progress",
+      "value": "水流到达 {0}/{1} 格 · {2} 处接口未接好"
+    },
+    {
+      "key": "undo_last",
+      "value": "撤销上一次旋转"
+    },
+    {
+      "key": "next",
+      "value": "下一条溪流"
+    },
+    {
+      "key": "choose",
+      "value": "你想让什么生长？"
+    },
+    {
+      "key": "undo",
+      "value": "撤销"
+    },
+    {
+      "key": "hint",
+      "value": "给我提示"
+    },
+    {
+      "key": "restart",
+      "value": "重新开始本关"
+    },
+    {
+      "key": "how",
+      "value": "点击旋转。连接所有水管，不留开口。"
+    },
+    {
+      "key": "tree",
+      "value": "种一棵遮阴树"
+    },
+    {
+      "key": "bridge",
+      "value": "修复一座桥"
+    },
+    {
+      "key": "flowers",
+      "value": "种植野花"
+    },
+    {
+      "key": "memory_tree",
+      "value": "米拉记得你种下的树。"
+    },
+    {
+      "key": "memory_bridge",
+      "value": "奥林记得你修好的桥。"
+    },
+    {
+      "key": "memory_flowers",
+      "value": "芬记得你栽下的花。"
+    },
+    {
+      "key": "world_none",
+      "value": "古老的溪床正等待流水。"
+    },
+    {
+      "key": "world_tree",
+      "value": "小树在溪边生长。"
+    },
+    {
+      "key": "world_bridge",
+      "value": "小桥连接两岸。"
+    },
+    {
+      "key": "world_flowers",
+      "value": "野花点亮了河岸。"
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "你的树为修好的桥遮阴。"
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "蝴蝶聚集在树下。"
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "邻居们过桥来看花田。"
+    },
+    {
+      "key": "world_all",
+      "value": "树木、小路与鲜花让村庄团结起来。"
+    },
+    {
+      "key": "mira_new",
+      "value": "我是米拉。我们能在水边种一棵树吗？"
+    },
+    {
+      "key": "mira_after",
+      "value": "我记得你种的树。村庄终于有树荫了。"
+    },
+    {
+      "key": "orin_new",
+      "value": "我是奥林。真希望我们能把桥修好。"
+    },
+    {
+      "key": "orin_after",
+      "value": "修好的桥让大家走到了一起。谢谢！"
+    },
+    {
+      "key": "fen_new",
+      "value": "我是芬。我怀念溪边的野花。"
+    },
+    {
+      "key": "fen_after",
+      "value": "你种的花让河岸重新有了生机。"
+    },
+    {
+      "key": "ending_all",
+      "value": "我们的村庄繁荣起来了。每个选择都帮助我们建造家园。"
+    },
+    {
+      "key": "ending_tree",
+      "value": "你的用心培育出宁静的果园。"
+    },
+    {
+      "key": "ending_bridge",
+      "value": "你修的桥让邻居们走到了一起。"
+    },
+    {
+      "key": "ending_flowers",
+      "value": "你创造了一片重焕生机的草甸。"
+    },
+    {
+      "key": "prompt_early",
+      "value": "一点点水就能改变一个地方。"
+    },
+    {
+      "key": "prompt_mid",
+      "value": "村庄正在慢慢成长。"
+    },
+    {
+      "key": "prompt_late",
+      "value": "每个选择都成为这里的一部分。"
+    },
+    {
+      "key": "journal_entry",
+      "value": "第 {0} 章 · {1} · {2}"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "code": "sv",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · EN VÄRLD SOM MINNS"
+    },
+    {
+      "key": "subtitle",
+      "value": "Små val. En plats full av liv."
+    },
+    {
+      "key": "language",
+      "value": "Språk"
+    },
+    {
+      "key": "auto",
+      "value": "Automatiskt (enhetens språk)"
+    },
+    {
+      "key": "language_help",
+      "value": "Enhetens språk används tills du väljer ett annat."
+    },
+    {
+      "key": "living",
+      "value": "Levande värld"
+    },
+    {
+      "key": "puzzle",
+      "value": "Endast pussel"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Samma vattenpussel, utan den levande byn."
+    },
+    {
+      "key": "memory_title",
+      "value": "ETT NYTT MINNE I BYN"
+    },
+    {
+      "key": "continue",
+      "value": "Fortsätt längs bäcken"
+    },
+    {
+      "key": "change",
+      "value": "Ändra det här valet"
+    },
+    {
+      "key": "complete",
+      "value": "Tolv bäckar klara. Vilket pussel tyckte du bäst om?"
+    },
+    {
+      "key": "explore",
+      "value": "Utforska en annan trädgård"
+    },
+    {
+      "key": "erase",
+      "value": "Bekräfta: radera trädgården"
+    },
+    {
+      "key": "keep",
+      "value": "Behåll trädgården"
+    },
+    {
+      "key": "neighbors",
+      "value": "Prata med en granne"
+    },
+    {
+      "key": "thanks",
+      "value": "Tack för att du berättade!"
+    },
+    {
+      "key": "playtest",
+      "value": "TESTLÄGE · Välj före första draget"
+    },
+    {
+      "key": "art_2d",
+      "value": "Bild: 2D-sagobok (tryck för 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Bild: 2,5D-miniatyr (tryck för 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Miniatyrens rörelse: PÅ (tryck för att stoppa)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Miniatyrens rörelse: AV (tryck för att starta)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Mjukt ljud: PÅ (tryck för att tysta)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Mjukt ljud: AV (tryck för att aktivera)"
+    },
+    {
+      "key": "record",
+      "value": "Starta frivilligt privat speltest"
+    },
+    {
+      "key": "privacy",
+      "value": "Startar bara när du trycker. Inget laddas upp eller kopplas till dig."
+    },
+    {
+      "key": "copy",
+      "value": "Kopiera testanteckningar"
+    },
+    {
+      "key": "copied",
+      "value": "Kopierat till urklipp."
+    },
+    {
+      "key": "clear",
+      "value": "Stoppa och radera lokala anteckningar"
+    },
+    {
+      "key": "offline",
+      "value": "Offline · Ingen tidspress · Ingen reklam · Inget konto"
+    },
+    {
+      "key": "journal_show",
+      "value": "Läs byns minnen"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Dölj minnen"
+    },
+    {
+      "key": "journal_title",
+      "value": "VÅRA VAL"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Det första minnet väntar ännu."
+    },
+    {
+      "key": "stream",
+      "value": "BÄCK {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = källa · G = trädgård. Tryck för att koppla ihop vattnet."
+    },
+    {
+      "key": "solved",
+      "value": "Vattnet rinner genom alla rutor."
+    },
+    {
+      "key": "progress",
+      "value": "Vattnet når {0}/{1} rutor · {2} öppna anslutningar"
+    },
+    {
+      "key": "undo_last",
+      "value": "Ångra senaste vridningen"
+    },
+    {
+      "key": "next",
+      "value": "Nästa bäck"
+    },
+    {
+      "key": "choose",
+      "value": "Vad vill du hjälpa att växa?"
+    },
+    {
+      "key": "undo",
+      "value": "Ångra"
+    },
+    {
+      "key": "hint",
+      "value": "Ledtråd"
+    },
+    {
+      "key": "restart",
+      "value": "Börja om bäcken"
+    },
+    {
+      "key": "how",
+      "value": "Tryck för att vrida. Koppla alla rör utan öppna ändar."
+    },
+    {
+      "key": "tree",
+      "value": "Plantera ett skuggande träd"
+    },
+    {
+      "key": "bridge",
+      "value": "Reparera en bro"
+    },
+    {
+      "key": "flowers",
+      "value": "Odla vilda blommor"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira minns trädet du planterade."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin minns bron du lagade."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen minns blommorna du odlade."
+    },
+    {
+      "key": "world_none",
+      "value": "Den gamla bäcken väntar på vatten."
+    },
+    {
+      "key": "world_tree",
+      "value": "Ett ungt träd växer vid bäcken."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Bron förenar båda stränderna."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Vilda blommor lyser upp stranden."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Dina träd skuggar den reparerade bron."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Fjärilar samlas under träden."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Grannarna går över för att se ängen."
+    },
+    {
+      "key": "world_all",
+      "value": "Träd, stigar och blommor förenar byn."
+    },
+    {
+      "key": "mira_new",
+      "value": "Jag heter Mira. Ska vi plantera ett träd vid vattnet?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Jag minns träden du planterade. Nu har byn skugga."
+    },
+    {
+      "key": "orin_new",
+      "value": "Jag heter Orin. Hoppas vi kan bygga upp bron igen."
+    },
+    {
+      "key": "orin_after",
+      "value": "Den lagade bron för oss samman. Tack!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Jag heter Fen. Jag saknar vildblommorna vid vattnet."
+    },
+    {
+      "key": "fen_after",
+      "value": "Dina blommor har gett stranden liv igen."
+    },
+    {
+      "key": "ending_all",
+      "value": "Vår by blomstrar. Varje val hjälpte oss att skapa ett hem."
+    },
+    {
+      "key": "ending_tree",
+      "value": "En stilla fruktträdgård växte tack vare din omsorg."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Dina broar förde grannar samman."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Du skapade en äng där livet kom tillbaka."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Lite vatten kan förändra en plats."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Byn börjar växa."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Varje val blir en del av den här platsen."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Kapitel {0} · {1} · {2}"
+    }
+  ]
+}

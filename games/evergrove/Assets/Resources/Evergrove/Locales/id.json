@@ -1,0 +1,297 @@
+{
+  "code": "id",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · DUNIA YANG MENGINGAT"
+    },
+    {
+      "key": "subtitle",
+      "value": "Pilihan kecil. Tempat yang hidup."
+    },
+    {
+      "key": "language",
+      "value": "Bahasa"
+    },
+    {
+      "key": "auto",
+      "value": "Otomatis (bahasa perangkat)"
+    },
+    {
+      "key": "language_help",
+      "value": "Bahasa perangkat digunakan sampai kamu memilih yang lain."
+    },
+    {
+      "key": "living",
+      "value": "Dunia hidup"
+    },
+    {
+      "key": "puzzle",
+      "value": "Hanya teka-teki"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Teka-teki air yang sama, tanpa desa yang hidup."
+    },
+    {
+      "key": "memory_title",
+      "value": "KENANGAN BARU DI DESA"
+    },
+    {
+      "key": "continue",
+      "value": "Lanjutkan menyusuri sungai"
+    },
+    {
+      "key": "change",
+      "value": "Ubah pilihan ini"
+    },
+    {
+      "key": "complete",
+      "value": "Dua belas aliran selesai. Teka-teki mana yang paling kamu suka?"
+    },
+    {
+      "key": "explore",
+      "value": "Jelajahi taman lain"
+    },
+    {
+      "key": "erase",
+      "value": "Konfirmasi: hapus taman ini"
+    },
+    {
+      "key": "keep",
+      "value": "Pertahankan taman ini"
+    },
+    {
+      "key": "neighbors",
+      "value": "Bicara dengan tetangga"
+    },
+    {
+      "key": "thanks",
+      "value": "Terima kasih sudah bercerita!"
+    },
+    {
+      "key": "playtest",
+      "value": "MODE UJI · Pilih sebelum langkah pertama"
+    },
+    {
+      "key": "art_2d",
+      "value": "Tampilan: buku cerita 2D (ketuk untuk 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Tampilan: miniatur 2,5D (ketuk untuk 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Gerakan miniatur: AKTIF (ketuk untuk hentikan)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Gerakan miniatur: NONAKTIF (ketuk untuk mulai)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Bunyi lembut: AKTIF (ketuk untuk senyap)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Bunyi lembut: NONAKTIF (ketuk untuk aktifkan)"
+    },
+    {
+      "key": "record",
+      "value": "Mulai uji coba pribadi opsional"
+    },
+    {
+      "key": "privacy",
+      "value": "Dimulai hanya jika diketuk. Tidak diunggah atau dikaitkan dengan identitas."
+    },
+    {
+      "key": "copy",
+      "value": "Salin catatan uji coba"
+    },
+    {
+      "key": "copied",
+      "value": "Disalin ke papan klip."
+    },
+    {
+      "key": "clear",
+      "value": "Hentikan dan hapus catatan lokal"
+    },
+    {
+      "key": "offline",
+      "value": "Offline · Tanpa batas waktu · Tanpa iklan · Tanpa akun"
+    },
+    {
+      "key": "journal_show",
+      "value": "Baca kenangan desa"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Sembunyikan kenangan desa"
+    },
+    {
+      "key": "journal_title",
+      "value": "PILIHAN KITA"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Kenangan pertama masih menunggu."
+    },
+    {
+      "key": "stream",
+      "value": "ALIRAN {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = mata air · G = taman. Ketuk untuk menyambung air."
+    },
+    {
+      "key": "solved",
+      "value": "Air mengalir melalui semua petak."
+    },
+    {
+      "key": "progress",
+      "value": "Air mencapai {0}/{1} petak · {2} sambungan terbuka"
+    },
+    {
+      "key": "undo_last",
+      "value": "Batalkan putaran terakhir"
+    },
+    {
+      "key": "next",
+      "value": "Aliran berikutnya"
+    },
+    {
+      "key": "choose",
+      "value": "Apa yang ingin kamu tumbuhkan?"
+    },
+    {
+      "key": "undo",
+      "value": "Urungkan"
+    },
+    {
+      "key": "hint",
+      "value": "Petunjuk"
+    },
+    {
+      "key": "restart",
+      "value": "Mulai ulang aliran"
+    },
+    {
+      "key": "how",
+      "value": "Ketuk untuk memutar. Sambungkan semua pipa tanpa ujung terbuka."
+    },
+    {
+      "key": "tree",
+      "value": "Tanam pohon peneduh"
+    },
+    {
+      "key": "bridge",
+      "value": "Perbaiki jembatan"
+    },
+    {
+      "key": "flowers",
+      "value": "Tumbuhkan bunga liar"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira ingat pohon yang kamu tanam."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin ingat jembatan yang kamu perbaiki."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen ingat bunga yang kamu tanam."
+    },
+    {
+      "key": "world_none",
+      "value": "Sungai tua menunggu air."
+    },
+    {
+      "key": "world_tree",
+      "value": "Pohon muda tumbuh di tepi sungai."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Jembatan menghubungkan kedua tepi."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Bunga liar menghiasi tepian."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Pohonmu menaungi jembatan yang diperbaiki."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Kupu-kupu berkumpul di bawah pohon."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Tetangga menyeberang untuk melihat padang bunga."
+    },
+    {
+      "key": "world_all",
+      "value": "Pohon, jalan, dan bunga menyatukan desa."
+    },
+    {
+      "key": "mira_new",
+      "value": "Aku Mira. Maukah kita menanam pohon di dekat air?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Aku ingat pohon yang kamu tanam. Kini desa punya keteduhan."
+    },
+    {
+      "key": "orin_new",
+      "value": "Aku Orin. Semoga suatu hari jembatan kita dibangun lagi."
+    },
+    {
+      "key": "orin_after",
+      "value": "Jembatan yang diperbaiki menyatukan kita. Terima kasih!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Aku Fen. Aku merindukan bunga liar di tepi air."
+    },
+    {
+      "key": "fen_after",
+      "value": "Bungamu menghidupkan kembali tepian sungai."
+    },
+    {
+      "key": "ending_all",
+      "value": "Desa kita berkembang. Setiap pilihan membantu membangun rumah."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Kebun buah yang tenang tumbuh berkat perhatianmu."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Jembatanmu menyatukan para tetangga."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Kamu menciptakan padang tempat kehidupan kembali."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Sedikit air dapat mengubah suatu tempat."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Desa mulai tumbuh."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Setiap pilihan menjadi bagian dari tempat ini."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Bab {0} · {1} · {2}"
+    }
+  ]
+}
