@@ -37,6 +37,14 @@ namespace Evergrove.UnityClient
         private bool soundOn;
         private AudioSource sound;
         private AudioClip chime;
+        // Keep live puzzle controls mounted during every tap. Recreating the
+        // entire uGUI hierarchy on each rotation would cause GC, jank and
+        // scroll-position jumps on older phones.
+        private Button[] visibleTiles;
+        private Image[] tileBackgrounds;
+        private PipeGraphic[] tileArtwork;
+        private Text feedbackText;
+        private Button undoButton;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -255,6 +263,11 @@ namespace Evergrove.UnityClient
         {
             if (content == null) return;
             float previousPosition = scroll.verticalNormalizedPosition;
+            visibleTiles = null;
+            tileBackgrounds = null;
+            tileArtwork = null;
+            feedbackText = null;
+            undoButton = null;
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 GameObject old = content.GetChild(i).gameObject;
@@ -410,6 +423,9 @@ namespace Evergrove.UnityClient
             grid.spacing = new Vector2(gap, gap);
 
             int[] rotations = world.Rotations;
+            visibleTiles = new Button[puzzle.CellCount];
+            tileBackgrounds = new Image[puzzle.CellCount];
+            tileArtwork = new PipeGraphic[puzzle.CellCount];
             int seenEnds = 0;
             for (int index = 0; index < puzzle.CellCount; index++)
             {
@@ -427,6 +443,8 @@ namespace Evergrove.UnityClient
                 colors.pressedColor = Hex("#A3D2CC");
                 tile.colors = colors;
                 tile.onClick.AddListener(() => TapTile(tappedIndex));
+                visibleTiles[index] = tile;
+                tileBackgrounds[index] = image;
 
                 string kind = puzzle.Kinds[index] == PipeKind.End ?
                     (++seenEnds == 1 ? "spring" : "outlet") : "pipe";
@@ -437,13 +455,14 @@ namespace Evergrove.UnityClient
                 var pipe = pipeNode.AddComponent<PipeGraphic>();
                 pipe.Configure(puzzle.Kinds[index], rotations[index], world.Solved);
                 pipe.raycastTarget = false;
+                tileArtwork[index] = pipe;
             }
 
             string feedback = world.Solved
                 ? "The stream flows through every tile."
                 : "Water reaches " + insight.ConnectedCount + " / " + puzzle.CellCount +
                     " tiles   ·   " + insight.LeakCount + " unmatched joins";
-            Label(content, "Water feedback", feedback, 15, 42, Ink, TextAnchor.MiddleCenter);
+            feedbackText = Label(content, "Water feedback", feedback, 15, 42, Ink, TextAnchor.MiddleCenter);
 
             if (world.Solved)
             {
@@ -470,8 +489,9 @@ namespace Evergrove.UnityClient
             else
             {
                 var tools = Row(content, "Gentle controls");
-                Button(tools.transform, "Undo", "Undo", () => Act(() => world.Undo()),
-                    52).interactable = world.CanUndo;
+                undoButton = Button(tools.transform, "Undo", "Undo", () => Act(() => world.Undo()),
+                    52);
+                undoButton.interactable = world.CanUndo;
                 Button(tools.transform, "Hint", "Guide me", () => Act(() => world.GuideOneConnection()), 52);
                 Button(content, "Restart", "Start this stream again", () => Act(() => world.Restart()), 46);
             }
@@ -488,30 +508,55 @@ namespace Evergrove.UnityClient
             Rebuild();
         }
 
+        private void RefreshBoard()
+        {
+            if (world.Completed || visibleTiles == null) return;
+            Puzzle puzzle = PuzzleCatalog.Get(world.Round);
+            if (visibleTiles.Length != puzzle.CellCount) { Rebuild(); return; }
+            PipeInsight insight = world.Insight;
+            int[] angles = world.Rotations;
+            for (int i = 0; i < puzzle.CellCount; i++)
+            {
+                tileBackgrounds[i].color = world.Solved ? Hex("#D1E6C8") :
+                    insight.Flowing[i] ? Hex("#D8EFED") : Hex("#F0F1E8");
+                visibleTiles[i].interactable = !world.Solved;
+                tileArtwork[i].Configure(puzzle.Kinds[i], angles[i], world.Solved);
+            }
+            if (feedbackText != null)
+                feedbackText.text = "Water reaches " + insight.ConnectedCount + " / " +
+                    puzzle.CellCount + " tiles   ·   " + insight.LeakCount + " unmatched joins";
+            if (undoButton != null) undoButton.interactable = world.CanUndo;
+        }
+
+        private void AfterPuzzleAction(bool wasSolved)
+        {
+            SaveWorld();
+            if (wasSolved != world.Solved)
+            {
+                // Completion changes the available choices and navigation,
+                // so this is the one moment that merits rebuilding the view.
+                Rebuild();
+                if (!wasSolved && world.Solved)
+                {
+                    PlayChime();
+                    StartCoroutine(ScrollToDecision());
+                }
+            }
+            else RefreshBoard();
+        }
+
         private void TapTile(int index)
         {
-            bool wasSolved = world.Solved;
+            bool before = world.Solved;
             if (!world.Rotate(index)) return;
-            SaveWorld();
-            Rebuild();
-            if (!wasSolved && world.Solved)
-            {
-                PlayChime();
-                StartCoroutine(ScrollToDecision());
-            }
+            AfterPuzzleAction(before);
         }
 
         private void Act(Func<bool> action)
         {
-            bool wasSolved = world.Solved;
+            bool before = world.Solved;
             if (!action()) return;
-            SaveWorld();
-            Rebuild();
-            if (!wasSolved && world.Solved)
-            {
-                PlayChime();
-                StartCoroutine(ScrollToDecision());
-            }
+            AfterPuzzleAction(before);
         }
 
         private IEnumerator ScrollToDecision()
