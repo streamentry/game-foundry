@@ -305,43 +305,48 @@ namespace Evergrove.UnityClient
             Label(content, "Brand", "EVERGROVE       /       A WORLD THAT REMEMBERS", 12, 24, Leaf);
             Label(content, "Title", "Little choices. A living place.", 25, 46, Ink);
 
-            var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
-            Height(illustration, 193);
-            bool renderedMiniature = false;
-            if (showMiniature)
+            if (living)
             {
-                if (diorama == null)
+                var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
+                Height(illustration, 193);
+                bool renderedMiniature = false;
+                if (showMiniature)
                 {
-                    var stage = new GameObject("Optional orthographic world");
-                    stage.transform.SetParent(transform, false);
-                    diorama = stage.AddComponent<VillageDiorama>();
+                    if (diorama == null)
+                    {
+                        var stage = new GameObject("Optional orthographic world");
+                        stage.transform.SetParent(transform, false);
+                        diorama = stage.AddComponent<VillageDiorama>();
+                    }
+                    renderedMiniature = diorama.Show(VillageScenePlan.From(world), animateMiniature);
+                    if (!renderedMiniature)
+                    {
+                        // No missing graphics feature should block the offline game.
+                        // Fall back honestly, including the visible preference label.
+                        showMiniature = false;
+                        PlayerPrefs.SetInt("evergrove:visual-miniature", 0);
+                        PlayerPrefs.Save();
+                        Debug.LogWarning("Miniature renderer unavailable; keeping the 2D garden.");
+                    }
+                    if (renderedMiniature)
+                    {
+                        var raw = illustration.AddComponent<RawImage>();
+                        raw.texture = diorama.Preview;
+                        raw.raycastTarget = false;
+                        raw.color = Color.white;
+                    }
                 }
-                renderedMiniature = diorama.Show(VillageScenePlan.From(world), animateMiniature);
                 if (!renderedMiniature)
                 {
-                    // No missing graphics feature should block the offline game.
-                    // Fall back honestly, including the visible preference label.
-                    showMiniature = false;
-                    PlayerPrefs.SetInt("evergrove:visual-miniature", 0);
-                    PlayerPrefs.Save();
-                    Debug.LogWarning("Miniature renderer unavailable; keeping the 2D garden.");
-                }
-                if (renderedMiniature)
-                {
-                    var raw = illustration.AddComponent<RawImage>();
-                    raw.texture = diorama.Preview;
-                    raw.raycastTarget = false;
-                    raw.color = Color.white;
+                    if (diorama != null) diorama.Hide();
+                    var art = illustration.AddComponent<VillageIllustration>();
+                    art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
+                        world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers),
+                        world.Round > 0 || world.Solved);
                 }
             }
-            if (!renderedMiniature)
-            {
-                if (diorama != null) diorama.Hide();
-                var art = illustration.AddComponent<VillageIllustration>();
-                art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
-                    world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers),
-                    world.Round > 0 || world.Solved);
-            }
+            else if (diorama != null)
+                diorama.Hide();
 
             if (living)
             {
@@ -439,26 +444,32 @@ namespace Evergrove.UnityClient
                     52, !living);
             }
 
-            // Two comparable art renderers using the same saved decisions.
-            // Keep this manual A/B surface below the gameplay.
-            Button(content, "Diorama visual comparison",
-                showMiniature ? "Visual: 2.5D miniature (tap for 2D)" :
-                    "Visual: 2D storybook (tap for 2.5D)", () => {
-                    showMiniature = !showMiniature;
-                    if (localPlaytest != null) localPlaytest.ChangeVisual(showMiniature, Time.unscaledTime);
-                    PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
-                    PlayerPrefs.Save();
-                    Rebuild();
-                }, 49);
-            if (showMiniature)
-                Button(content, "Optional miniature motion",
-                    animateMiniature ? "Miniature motion: ON (tap to stop)" :
-                        "Miniature motion: OFF (tap to animate)", () => {
-                        animateMiniature = !animateMiniature;
-                        PlayerPrefs.SetInt("evergrove:miniature-motion", animateMiniature ? 1 : 0);
+            // Puzzle-only condition must not display or switch into the
+            // changing village art: doing so would confound the experiment.
+            if (living)
+            {
+                // Two comparable art renderers using the same saved decisions.
+                // Keep this manual A/B surface below the gameplay.
+                Button(content, "Diorama visual comparison",
+                    showMiniature ? "Visual: 2.5D miniature (tap for 2D)" :
+                        "Visual: 2D storybook (tap for 2.5D)", () => {
+                        showMiniature = !showMiniature;
+                        if (localPlaytest != null) localPlaytest.ChangeVisual(showMiniature, Time.unscaledTime);
+                        PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
                         PlayerPrefs.Save();
                         Rebuild();
-                    }, 45);
+                    }, 49);
+                if (showMiniature)
+                    Button(content, "Optional miniature motion",
+                        animateMiniature ? "Miniature motion: ON (tap to stop)" :
+                            "Miniature motion: OFF (tap to animate)", () => {
+                            animateMiniature = !animateMiniature;
+                            PlayerPrefs.SetInt("evergrove:miniature-motion", animateMiniature ? 1 : 0);
+                            PlayerPrefs.Save();
+                            Rebuild();
+                        }, 45);
+            }
+
             Button(content, "Quiet audio setting",
                 soundOn ? "Gentle chime: ON (tap to mute)" : "Gentle chime: OFF (tap to enable)",
                 () => {
