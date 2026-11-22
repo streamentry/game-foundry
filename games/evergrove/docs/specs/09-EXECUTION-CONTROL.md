@@ -6,6 +6,12 @@
 
 **Product goal:** a short, excellent puzzle that leaves a legible, truthful change in an offline village. The backlog is an *opportunity inventory*, **not 37 features promised for release**. Default next work is risk retirement, not additional scope.
 
+## Gate semantics and proof ownership
+
+The `decision_gate` of a feature in `verification-matrix.json` identifies the **first milestone at which the feature is needed or its work can begin**, not necessarily the milestone when all verification is complete. **EG-001 starts at M1 but BLD-004/005/006 complete at M2; EG-007 starts at M2 but A11Y-005 is M5.** Neither feature may be marked `Verified` until every mandatory test has real evidence tied to the tested build.
+
+Actual execution/preregistration is specified in [10 — experiment protocols](10-EXPERIMENT-PROTOCOLS.md), and sign-off/evidence records in [11 — evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md). Existing P0/P1/P2 priority is neither approval nor proof.
+
 ## Source versus verification states
 
 The feature state machine is:
@@ -56,6 +62,12 @@ One person may hold several roles, but **native-language QA and matched human ob
 The gates are **sequential evidence requirements**, not calendar milestones. M1/M2 have not been independently verified. M3/M4/M5/M6 must not be marked complete by a successful .NET test.
 
 **Immediate highest-value action:** use [manual Unity playtest workflow](../../../../.github/workflows/evergrove-unity-playtest.yml) with maintainer-controlled Unity activation. It generates research/development artifacts, **not** signed store releases. The connector cannot supply private Unity license, Android signing or Xcode credentials. Record blockers and do not bypass the gate.
+
+## Real toolchain portability is a gate, not an assumption
+
+An iOS option in an Ubuntu-hosted Unity/GitHub workflow does **not** establish a successful iOS export. M1 requires a real Editor/build artifact and logs; if iOS export requires a different supported Unity host or modules, record the blocker and configure a Mac/Xcode route. M2 then requires actual physical iPhone interaction and save tests. Never conflate a generated Xcode project with a signed installed IPA.
+
+Do not use undocumented `PlatformNotSupportedException` handling as evidence of crash-safe save on every filesystem. The current [WorldStore](../../Assets/Scripts/Unity/WorldStore.cs) has backup/fallback logic but must be interrupted under controlled real-device conditions before acceptance.
 
 ## Research vs consumer build channel
 

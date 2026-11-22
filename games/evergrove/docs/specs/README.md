@@ -19,7 +19,17 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 | [07 — Validation and go-to-market](07-VALIDATION-AND-GTM.md) | Seven-day experiment, six-week sequence, matched controls, thresholds, ASO, ethical pricing, naming check |
 | [08 — Evidence and decisions](08-EVIDENCE-AND-DECISIONS.md) | Repo-source map, external evidence, confidence levels, strongest opposing case, load-bearing assumptions, decision log |
 | [09 — Execution control](09-EXECUTION-CONTROL.md) | Immutable audit baseline, lifecycle, owners, milestone gates, defect severity, proof artifacts, release vs research build contract |
+| [10 — Research experiment protocols](10-EXPERIMENT-PROTOCOLS.md) | Preregistration, assignment, contamination, estimands, privacy and real decisions |
+| [11 — Evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) | Build/channel matrix, device evidence, sign-offs, rollback, failure handling |
 | [Verification matrix](verification-matrix.json) | Machine-checked 37-feature × 46-test contracts; no fabricated verification evidence |
+
+## How to use these specs without self-deception
+
+**These specifications can be complete as a decision system while many features remain unbuilt.** “Everything done” means every proposal has an accountable owner role, dependency, test ID, observed result requirement, stop condition and unambiguous next action. It does **not** mean all 37 features are implemented, players prefer the game or store releases are approved.
+
+**A source-level change elsewhere in the repository can make a spec stale.** Before moving any feature to Ready or Verified, inspect the actual target branch and any open Evergrove implementation PRs, and compare against the immutable audit SHA below. Never merge competing UI/gameplay PRs by accepting both versions of the same file without tests and a recorded design decision.
+
+The [10 — experiment protocols](10-EXPERIMENT-PROTOCOLS.md) and [11 — evidence/release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) define the repeatable real-world evidence the source repository cannot manufacture. The companion [as-built handbook](../README.md) remains authoritative for the last audited implementation, while the code at the **exact commit being built** is authoritative for current behavior.
 
 ## Specification control (2026-11-22 v2)
 

@@ -20,6 +20,10 @@
 
 **Architecture rule:** domain model is authoritative. Renderer, language, haptic/sound, test mode and future store entitlement must not rewrite ecology choices or solution history. No backend dependency for core play. Optional Cloudflare preview is not connected to game state.
 
+## Release packet and review contract
+
+Before labeling a build or feature `Verified`, fill out an evidence record with **source SHA and distinct artifact checksum**, platform, channel (research versus consumer), actual run URL, device/OS, observed behavior and accountable reviewer. A green .NET test does not satisfy a Unity Editor or phone test. See [11 — evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) for the machine/human release proof and stop/rollback procedure. Until a real build exists, leave all binary/device test statuses unverified in [verification-matrix.json](verification-matrix.json).
+
 ## Build ladder — every step records evidence
 
 | Gate | Procedure | Passing evidence |

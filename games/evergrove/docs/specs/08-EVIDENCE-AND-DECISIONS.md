@@ -2,6 +2,12 @@
 
 **Date:** 2026-11-22. This directory was created from the supplied *Evergrove: evidence-backed product and feature strategy for a best-in-class indie cozy puzzle game* report, then cross-checked against the actual Game Foundry repository. **No tests, Unity builds, player interviews, store experiments or legal clearance were performed by this documentation change.**
 
+## Current source vs historical audit baseline
+
+The matrix's `audit_baseline_commit` is immutable by design. **It is not the current HEAD and not a claim that later work is tested.** Review new commits and open Evergrove feature PRs as unverified changes; review file-level conflicts and how they affect feature statuses, release guards, save format, accessibility and experiment matching. Only log a verified feature when its actual target build and all required test artifacts satisfy [11 — evidence packets](11-EVIDENCE-AND-RELEASE-PACKETS.md).
+
+Researchers must use [10 — experiment protocols](10-EXPERIMENT-PROTOCOLS.md), not an improvised playtest, to claim causal effects. The strongest rival hypothesis is an intrinsically stronger, simpler pure puzzle; keep it in every product decision.
+
 ## Audit claim ledger — proof before promotion
 
 **Immutable audited source baseline:** [`84713febd1e9d5921706d1916132b309b74a604f`](https://github.com/streamentry/game-foundry/commit/84713febd1e9d5921706d1916132b309b74a604f), captured on 2026-11-22. This was the audited source snapshot, not evidence that a later code change passed Unity. Any tested release candidate must pin its **own** source SHA and binary checksum.

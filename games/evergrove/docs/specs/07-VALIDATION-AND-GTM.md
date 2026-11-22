@@ -4,6 +4,10 @@
 
 This is an **experiment plan**, not a report of completed player studies, revenue or retention.
 
+## Executable protocol and study integrity
+
+Use [10 — experiment protocols](10-EXPERIMENT-PROTOCOLS.md) to preregister assignment, exposure, fixture hashes, denominators, neutral moderator prompts, consent and withdrawal procedures **before** recruiting. The present Living/PuzzleOnly modes diverge mechanically after chapter 1; a claimed narrative lift based on them is invalid. A 20–30 participant study is directional and should not be sold as retention proof. Use [11 — evidence packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) to preserve exact build and session provenance without storing personal information publicly.
+
 ## Three different experiments — do not combine their conclusions
 
 | Experiment | Question | Design | Suggested sample / limitation |
