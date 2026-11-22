@@ -576,7 +576,7 @@ namespace Evergrove.UnityClient
             var journal = Card(content, "A living journal", River);
             Label(journal.transform, "Journal title", GameLocalization.Text("journal_title"), 12, 26, Leaf);
             foreach (string entry in LocalizedVillage.Journal(world))
-                Label(journal.transform, "Recorded choice", entry, 14, 39, Ink);
+                Label(journal.transform, "Recorded cause and effect", entry, 14, 87, Ink);
             if (world.Journal.Length == 0)
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 48, Moss);
         }
