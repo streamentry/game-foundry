@@ -51,6 +51,11 @@ for marker in ("waterReachPercent", "else if (waterReachPercent > 0)", "Quad(vh,
     assert marker in illustration, "partial first-world water geometry is missing: " + marker
 assert "Water(plan.WaterRestored)" in (game / "Assets" / "Scripts" / "Unity" / "VillageDiorama.cs").read_text()
 assert "world.Round > 0 || world.Solved" in scene_plan
+localized_story = (game / "Assets/Scripts/Core/LocalizedVillage.cs").read_text()
+assert 'if (world.Choices.Length == 0 && world.Solved)' in localized_story
+assert 'return T("solved");' in localized_story, (
+    "Solved first creek must never be described as still waiting for water"
+)
 assert "GUIUtility.systemCopyBuffer" in ui, "playtest export must be explicit"
 study = (game / "Assets" / "Scripts" / "Core" / "LocalPlaytest.cs").read_text().lower()
 for forbidden in ("httprequest", "deviceuniqueidentifier", "unityanalytics", "webrequest"):
