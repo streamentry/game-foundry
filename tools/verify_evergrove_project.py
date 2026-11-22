@@ -43,6 +43,14 @@ for required in (
 workflow = (root / ".github" / "workflows" / "evergrove-unity-playtest.yml").read_text()
 for required in ("workflow_dispatch:", "game-ci/unity-builder@v4", "buildMethod: Evergrove.UnityClient.Editor.EvergroveBuild.Build", "secrets.UNITY_LICENSE", "secrets.UNITY_SERIAL"):
     assert required in workflow, required
+assert "EVERGROVE_OUTPUT_ROOT" in editor, (
+    "Local M1 builds must isolate output from old binaries without altering GameCI"
+)
+local_preflight = (root / "tools" / "evergrove_unity_local_preflight.sh").read_text()
+for marker in ('mktemp -d "$EVIDENCE_ROOT/run-XXXXXX"',
+               'export EVERGROVE_OUTPUT_ROOT="$EVIDENCE/output"',
+               'EVERGROVE_BUILD_SUCCEEDED $OUTPUT'):
+    assert marker in local_preflight, "Local M1 stale-build guard missing: " + marker
 assert "buildsPath: build" in workflow
 assert "tools/evergrove_build_provenance.py" in workflow, (
     "Successful licensed Unity build must upload hashed export provenance"

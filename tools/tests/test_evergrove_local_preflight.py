@@ -43,16 +43,31 @@ cat > "$log" <<EOF
 FAKE_UNITY_MARKER_ONLY_NOT_ACTUAL_EDITOR
 EVERGROVE_UNITY_IMPORT_CHECK_OK editor=6000.3.0f1
 Evergrove Unity Editor compilation, scene setup and puzzle smoke passed.
-EVERGROVE_BUILD_SUCCEEDED test
 EOF
-if [ "$platform" = "smoke" ] || [ "${MOCK_OMIT_MARKER:-0}" = 1 ]; then exit 0; fi
+if [ "$platform" = "smoke" ]; then exit 0; fi
 repo="$(dirname "$(dirname "$project")")"
+root="${EVERGROVE_OUTPUT_ROOT:-$repo/build}"
 case "$platform" in
-  Android) marker="$repo/build/Android/Evergrove-Playtest.apk" ;;
-  iOS) marker="$repo/build/iOS/Evergrove-Xcode/Unity-iPhone.xcodeproj/project.pbxproj" ;;
-  WebGL) marker="$repo/build/WebGL/Evergrove-Playtest/index.html" ;;
+  Android)
+    output="$root/Android/Evergrove-Playtest.apk"
+    marker="$output"
+    ;;
+  iOS)
+    output="$root/iOS/Evergrove-Xcode"
+    marker="$output/Unity-iPhone.xcodeproj/project.pbxproj"
+    ;;
+  WebGL)
+    output="$root/WebGL/Evergrove-Playtest"
+    marker="$output/index.html"
+    ;;
   *) exit 9 ;;
 esac
+if [ "${MOCK_WRONG_LOG_PATH:-0}" = 1 ]; then
+  echo "EVERGROVE_BUILD_SUCCEEDED /old-run/Evergrove-Playtest.apk" >> "$log"
+else
+  echo "EVERGROVE_BUILD_SUCCEEDED $output" >> "$log"
+fi
+if [ "${MOCK_OMIT_MARKER:-0}" = 1 ]; then exit 0; fi
 mkdir -p "$(dirname "$marker")"
 printf "FAKE_ARTIFACT_NOT_A_PLAYER" > "$marker"
 """
@@ -102,13 +117,18 @@ class PreflightShellContractTests(unittest.TestCase):
             capture_output=True, text=True, check=False, timeout=15,
         )
 
+    def _single_run(self, sha: str, mode: str) -> Path:
+        runs = list((self.root / ".evergrove-evidence" / sha / mode).glob("run-*"))
+        self.assertEqual(len(runs), 1, "expected one uniquely isolated invocation")
+        return runs[0]
+
     def test_generated_metadata_is_hashed_not_mistaken_for_clean_commit(self) -> None:
         first = self._run("smoke")
         self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
         sha = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=self.root, text=True
         ).strip()
-        record = self.root / ".evergrove-evidence" / sha / "smoke"
+        record = self._single_run(sha, "smoke")
         self.assertIn("PROVISIONAL_GENERATED_INPUTS_NOT_IN_GIT",
                       (record / "probe-context.txt").read_text())
         generated = (record / "untracked-unity-inputs.after.sha256").read_text()
@@ -121,9 +141,11 @@ class PreflightShellContractTests(unittest.TestCase):
         # the next Android probe must not die on these known-generated inputs.
         second = self._run("Android")
         self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
-        manifest = self.root / ".evergrove-evidence" / sha / "Android" / "local-export-manifest.json"
+        android_run = self._single_run(sha, "Android")
+        manifest = android_run / "local-export-manifest.json"
         self.assertTrue(manifest.is_file())
-        self.assertIn("FAKE", (self.root / "build" / "Android" / "Evergrove-Playtest.apk").read_text())
+        self.assertIn("FAKE", (android_run / "output" / "Android" / "Evergrove-Playtest.apk").read_text())
+        self.assertIn(str(android_run / "output"), (android_run / "unity-editor.log").read_text())
 
     def test_untracked_unrecognized_source_blocks_run(self) -> None:
         file = self.root / "games" / "evergrove" / "Assets" / "Scripts" / "Unexpected.cs"
@@ -148,6 +170,27 @@ class PreflightShellContractTests(unittest.TestCase):
         result = self._run("Android", MOCK_OMIT_MARKER="1")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Expected nonempty export marker missing", result.stderr)
+
+    def test_stale_apk_cannot_pass_a_new_invocation(self) -> None:
+        first = self._run("Android")
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=self.root, text=True
+        ).strip()
+        existing_run = self._single_run(sha, "Android")
+        previous = existing_run / "output" / "Android" / "Evergrove-Playtest.apk"
+        self.assertTrue(previous.is_file(), "first attempt must have produced an artifact")
+        second = self._run("Android", MOCK_OMIT_MARKER="1")
+        self.assertNotEqual(second.returncode, 0, second.stdout + second.stderr)
+        self.assertIn("Expected nonempty export marker missing", second.stderr)
+        runs = list((self.root / ".evergrove-evidence" / sha / "Android").glob("run-*"))
+        self.assertEqual(len(runs), 2, "each preflight attempt must have a fresh directory")
+        self.assertTrue(previous.is_file(), "prior artifact remains untouched")
+
+    def test_wrong_editor_log_output_path_cannot_pass(self) -> None:
+        result = self._run("Android", MOCK_WRONG_LOG_PATH="1")
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("does not identify this invocation's output", result.stderr)
 
     def test_no_editor_log_cannot_pass(self) -> None:
         result = self._run("smoke", MOCK_OMIT_LOG="1")
