@@ -21,7 +21,7 @@ dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configu
 python3 tools/verify_evergrove_project.py
 ```
 
-These commands validate domain logic, 12 source puzzles + 33 branch presentation variants, **100 simulated save-journal interruptions**, migration, locale catalogs and structural configuration. They **cannot** inspect real Unity shader imports, UI text shaping, audio, native signing or phone touch behavior.
+These commands validate domain logic, 12 source puzzles + 33 branch presentation variants, **200 simulated save-journal interruptions/recoveries**, migration, locale catalogs and structural configuration. They **cannot** inspect real Unity shader imports, UI text shaping, audio, native signing or phone touch behavior.
 
 ### One-command local licensed preflight
 

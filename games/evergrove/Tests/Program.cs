@@ -612,7 +612,23 @@ internal static class Program
 
     private static void LocalizationTests()
     {
-        Expect(GameLocalization.Available.Count == 30, "exactly thirty language choices");
+        Expect(GameLocalization.Available.Count == 30, "exactly thirty research catalog choices");
+        var consumer = LocaleShippingPolicy.Selectable(false);
+        var research = LocaleShippingPolicy.Selectable(true);
+        Expect(consumer.Count == 1 && consumer[0].Code == "en",
+            "consumer source allowlist intentionally exposes only English candidate");
+        Expect(research.Count == GameLocalization.Available.Count,
+            "development/research builds can inspect all thirty draft catalogs");
+        Expect(LocaleShippingPolicy.Allows("ja", true) &&
+               LocaleShippingPolicy.Allows("ar", true) &&
+               !LocaleShippingPolicy.Allows("ja", false) &&
+               !LocaleShippingPolicy.Allows("ar", false),
+            "uncertified draft locales cannot be selected in consumer policy");
+        Expect(LocaleShippingPolicy.Resolve("ja", false) == "en" &&
+               LocaleShippingPolicy.Resolve("ar", false) == "en" &&
+               LocaleShippingPolicy.Resolve("ja", true) == "ja" &&
+               LocaleShippingPolicy.Resolve("invalid", true) == "en",
+            "old research preferences and auto-detected draft locales safely fall back");
         Expect(GameLocalization.Keys.Count == 81, "authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");

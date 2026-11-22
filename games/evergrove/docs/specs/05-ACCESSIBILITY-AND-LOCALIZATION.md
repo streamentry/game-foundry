@@ -21,7 +21,7 @@ Official design references: [Apple accessibility HIG](https://developer.apple.co
 
 ## Existing localization infrastructure
 
-[LOCALIZATION.md](../../LOCALIZATION.md) is the canonical inventory and detection specification. Current code has **30 selectable languages** (English plus 29 JSON catalogs), auto-detection, manual override, bundled offline resources and state-independent language switching. All **81 compact player-facing keys** are present in the catalog inventory, but **translations are editorial drafts**. The richer original English narrative is not translated in full; `LocalizedVillage` supplies a concise cross-locale authored script.
+[LOCALIZATION.md](../../LOCALIZATION.md) is the canonical inventory and detection specification. Current code has **30 selectable development/research languages** (English plus 29 JSON catalogs), auto-detection, manual override, bundled offline resources and state-independent language switching. A source-level [consumer locale policy](../../Assets/Scripts/Core/LocaleShippingPolicy.cs) restricts future non-development candidates to English until specifically reviewed locales are added. All **81 compact player-facing keys** are present in the catalog inventory, but **translations are editorial drafts**. The richer original English narrative is not translated in full; `LocalizedVillage` supplies a concise cross-locale authored script.
 
 **Available locale codes (30):** `en`, `zh-Hans`, `zh-Hant`, `es`, `pt-BR`, `fr`, `de`, `ja`, `ko`, `ar`, `hi`, `ru`, `id`, `vi`, `tr`, `th`, `it`, `nl`, `pl`, `uk`, `fa`, `he`, `ms`, `fil`, `bn`, `ur`, `ta`, `te`, `sw`, `sv`.
 
@@ -57,7 +57,7 @@ The 44×44 **points** iOS and 48×48 **density-independent pixels** Android guid
 
 ### Locale state machine
 
-`Draft → Technical QA → Native QA → Store QA → Certified` (also `Rejected / Deferred`). Production builds must expose **only Certified locales**, not all 30 draft entries. A certified record needs reviewer identity outside public participant data, date, exact source/build hash, screenshot set, placeholders, glyph coverage, bidi/Indic shaping, line breaks, compact-layout and store-copy approval. Initially **no locale has such a record**.
+`Draft → Technical QA → Native QA → Store QA → Certified` (also `Rejected / Deferred`). Production builds must expose **only Certified locales**, not all 30 draft entries. The current safeguard exposes English as a **default candidate**, not as a certified locale; without English native/device/store approval, M5 remains blocked. A certified record needs reviewer identity outside public participant data, date, exact source/build hash, screenshot set, placeholders, glyph coverage, bidi/Indic shaping, line breaks, compact-layout and store-copy approval. Initially **no locale has such a record**.
 
 Current first-stream markers in the code branch have been changed from text `S/G` to **blue waves (spring) and green sprout (garden)**; the first-stream copy has been updated in all 30 draft languages. This resolves Latin-letter dependence **in source only**. The art's contrast, recognizability and screen-reader equivalents still require device QA (`PUZ-007`, `A11Y-002`).
 
@@ -81,7 +81,7 @@ A locale is **enabled for production** only after:
 6. **Commercial proof:** localized store title/description/screenshots reviewed, if advertised in that market.
 7. **Record:** reviewer, date, device, build hash, failed screenshots and pass/fail outcome saved as evidence.
 
-**If a locale fails, disable it in the shipping build.** Do not remove its draft catalog or claim that all 30 are production-ready. The first launch set should be based on reviewer access, market demand and device results, **not** a speculative list of "top languages."
+**If a locale fails, disable it in the shipping build.** The checked-in allowlist starts at English only; never broaden it without passing the corresponding native, font/layout, device and store review. Automatic locale detection and saved research preferences also pass through this policy, so they cannot bypass the shipping allowlist. Do not remove its draft catalog or claim that all 30 are production-ready. The first launch set should be based on reviewer access, market demand and device results, **not** a speculative list of "top languages."
 
 ### Example certification record (blank by design)
 

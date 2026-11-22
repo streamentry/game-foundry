@@ -365,7 +365,8 @@ namespace Evergrove.UnityClient
             Label(content, "Brand", GameLocalization.Text("title"), 12, 24, Leaf);
             Label(content, "Title", GameLocalization.Text("subtitle"),
                 firstPuzzle ? 19 : 25, firstPuzzle ? 29 : 46, Ink);
-            if (!firstPuzzle || languagePicker)
+            if (LocaleRuntime.SelectableLanguages.Count > 1 &&
+                (!firstPuzzle || languagePicker))
                 Button(content, "Language settings",
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
@@ -491,7 +492,8 @@ namespace Evergrove.UnityClient
             }
             else
                 BuildPuzzle();
-            if (firstPuzzle && !languagePicker)
+            if (firstPuzzle && !languagePicker &&
+                LocaleRuntime.SelectableLanguages.Count > 1)
                 Button(content, "Language settings",
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
@@ -846,7 +848,7 @@ namespace Evergrove.UnityClient
             Button(content, "Auto language", GameLocalization.Text("auto"), () => {
                 SelectLanguage(GameLocalization.Auto);
             }, 56, LocaleRuntime.Preference == GameLocalization.Auto);
-            foreach (GameLanguage choice in GameLocalization.Available)
+            foreach (GameLanguage choice in LocaleRuntime.SelectableLanguages)
             {
                 string captured = choice.Code;
                 Button item = Button(content, "Locale " + captured, choice.NativeName, () => {
