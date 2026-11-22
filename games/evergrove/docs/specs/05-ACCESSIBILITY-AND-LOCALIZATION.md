@@ -9,7 +9,7 @@
 | Tap targets | One-tap rotation; frequent actions at least **44×44 pt iOS / 48×48 dp Android** target area, with forgiving spacing | Inspect actual interactive hit rects, not visual icon bounds, on compact devices |
 | Input | Visible pressed/selected feedback, no precision swipe, no forced long press | Observe target cohort; median ≤2 accidental taps per 10-minute session is a **provisional** signal |
 | Readability | Scalable text, clear type hierarchy, large board option, no clipped choices/journal | 320–430 logical-width phone matrix, large OS text and 1.25×/1.5× proposed board modes |
-| Contrast | High-contrast option; flowing, leaking, connected, anchored states distinguishable by **shape/pattern/label**, not color alone | Complete representative boards in grayscale and color-filter conditions |
+| Contrast | The core now identifies leaking tiles and Unity shows ! textual markers alongside pipe shape/hue; a high-contrast option and grayscale device verification remain open | Complete representative boards in grayscale and color-filter conditions |
 | Cognitive load | Plain-language prompts, one new rule at a time, progressive hints, reversible choices | First-minute unaided comprehension and observed stuck recovery |
 | Motion | Reduced-motion toggle; no required camera drift, shimmer, butterflies or transition | Every consequence legible as still frames; 2.5D motion off by default |
 | Audio | Optional sound, muted default, no audio-only instruction | Complete whole game muted; verify device ringer and volume settings |
@@ -21,11 +21,15 @@ Official design references: [Apple accessibility HIG](https://developer.apple.co
 
 ## Existing localization infrastructure
 
-[LOCALIZATION.md](../../LOCALIZATION.md) is the canonical inventory and detection specification. Current code has **30 selectable languages** (English plus 29 JSON catalogs), auto-detection, manual override, bundled offline resources and state-independent language switching. All **76 compact player-facing keys** are present in the catalog inventory, but **translations are editorial drafts**. The richer original English narrative is not translated in full; `LocalizedVillage` supplies a concise cross-locale authored script.
+[LOCALIZATION.md](../../LOCALIZATION.md) is the canonical inventory and detection specification. Current code has **30 selectable languages** (English plus 29 JSON catalogs), auto-detection, manual override, bundled offline resources and state-independent language switching. All **81 compact player-facing keys** are present in the catalog inventory, but **translations are editorial drafts**. The richer original English narrative is not translated in full; `LocalizedVillage` supplies a concise cross-locale authored script.
 
 **Available locale codes (30):** `en`, `zh-Hans`, `zh-Hant`, `es`, `pt-BR`, `fr`, `de`, `ja`, `ko`, `ar`, `hi`, `ru`, `id`, `vi`, `tr`, `th`, `it`, `nl`, `pl`, `uk`, `fa`, `he`, `ms`, `fil`, `bn`, `ur`, `ta`, `te`, `sw`, `sv`.
 
 Current detection examples: `zh-TW`→`zh-Hant`; `zh-CN`→`zh-Hans`; `es-MX`→`es`; `pt-PT`→`pt-BR` (only supported Portuguese catalog). Unsupported languages fall back to English. Manual choice is stored separately from world progress. Verify this behavior on device, not just via .NET tests.
+
+## Five new draft interactions
+
+`hint_notice`, `hint_focus`, `hint_more`, `hint_turn` and `save_warning` are now present in all 29 JSON catalogs plus English source. The values are **AI-authored editorial drafts**, not verified human translation. All 81 keys pass structure/placeholder checks; no RTL, Indic, font, focus or layout release claim is implied. The save error must remain visible and understandable in every **certified** shipping locale.
 
 ## Unicode and font rendering blocker (EG-006)
 
@@ -38,7 +42,7 @@ The current UI uses **legacy Unity uGUI Text** and best-effort OS fonts. Right a
 | Thai `th` | Word/line breaking without spaces, clipping, focus and long choice text |
 | Chinese `zh-Hans/zh-Hant`, Japanese `ja`, Korean `ko` | Glyph coverage, punctuation, compact layout, consistent font fallback |
 | Vietnamese `vi` and other Latin/extended Latin locales | Diacritics, line-height, truncation, long compound words and button widths |
-| All 30 | Full 76-key coverage, placeholder parity, meaning, gender, cultural nuance, font license, screen reader, save independence |
+| All 30 | Full 81-key coverage, placeholder parity, meaning, gender, cultural nuance, font license, screen reader, save independence |
 
 Reference: [Unity Advanced Text Generator](https://docs.unity.com/en-us/engine/6000.0/manual/uitoolkits/uielements/uie-work-with-text/uie-advanced-text-generator) and [language direction](https://docs.unity.com/en-us/engine/6000.3/manual/uitoolkits/uielements/uie-work-with-text/language-direction). Do not distribute system fonts or assume OS availability.
 

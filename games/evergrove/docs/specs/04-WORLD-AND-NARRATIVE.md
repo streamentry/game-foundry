@@ -91,7 +91,7 @@ Each saved chapter entry should answer:
 3. **Who noticed:** one truthful NPC line, not generated memory.
 4. **What it changed next:** name the protected root/bridge/meadow rule in the next stream, if one actually exists.
 
-The current journal already records ordered memories. The four-link causal presentation is proposed. A returning player should reconstruct a past decision without replaying the whole campaign (exploratory target ≥80%). The journal must not imply a puzzle effect that the current board logic does not implement.
+The journal now records ordered choices and their immediate state-grounded scene effect. For the **latest** event only, a current next-puzzle rule is shown when the saved board variant proves it; earlier history (particularly migrated v3 puzzles) must **not** invent a branch never experienced. Visual before/after and full four-link historical reconstruction remain proposed. A returning player should reconstruct a past decision without replaying the whole campaign (exploratory target ≥80%). The journal must not imply a puzzle effect that the current board logic does not implement.
 
 ## State machine and integrity
 
@@ -103,7 +103,7 @@ The current journal already records ordered memories. The four-link causal prese
 | Next stream | Play branch conditioned on prior choice | Save/restore preserves board variant and protected landmark |
 | Chapter 12 complete | Review journal, world and ending; optionally start another garden | Ending reflects ordered choices; no hidden random outcomes |
 
-The current `WorldSnapshot` schema is **v3**, with `boardVariant` and `lastSolvedVariant`; any future token or undo-history change needs explicit migration tests. World state must not depend on selected locale, 2D/2.5D view, sound or network availability.
+The current `WorldSnapshot` schema is **v4**, with `boardVariant` and `lastSolvedVariant`; the saved `hintStep` and `hintTile` implement the optional 3-stage puzzle help. V1/V2/V3 saves preserve the active board and reset hints; future event/token or multi-undo changes still need their own migration tests. World state must not depend on selected locale, 2D/2.5D view, sound or network availability.
 
 ## Epilogue and postcard (EG-115/116)
 

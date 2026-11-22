@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | Puzzle topology, ports, connectivity, exhaustive solver | [PipeRules.cs](../../Assets/Scripts/Core/PipeRules.cs) | Deterministic, Unity-free logic; no hidden random answer |
 | 12 authored puzzles and 33 choice variants | [PipeRules.cs](../../Assets/Scripts/Core/PipeRules.cs), [ReactiveWatercourses.cs](../../Assets/Scripts/Core/ReactiveWatercourses.cs) | Variant derived from previous saved choice; anchored tile consistent |
-| Event history, current board, v3 snapshot and migration | [WorldModel.cs](../../Assets/Scripts/Core/WorldModel.cs) | One authoritative history; no double choice or forged save |
+| Event history, current board, v4 snapshot and v1/v2/v3 migration | [WorldModel.cs](../../Assets/Scripts/Core/WorldModel.cs) | One authoritative history; no double choice or forged save |
 | Story and localized state-dependent text | [VillageStory.cs](../../Assets/Scripts/Core/VillageStory.cs), [LocalizedVillage.cs](../../Assets/Scripts/Core/LocalizedVillage.cs) | NPCs never invent unsaved events |
 | Pure scene state | [VillageScenePlan.cs](../../Assets/Scripts/Core/VillageScenePlan.cs) | Both renderers show identical world facts |
 | UI, input, sound and local playtest opt-in | [EvergroveApp.cs](../../Assets/Scripts/Unity/EvergroveApp.cs) | Real touch, safe area, language switching, optional controls |
@@ -68,7 +68,7 @@ No placeholder in this template is evidence. Only a real record tied to the sour
 
 ## Save integrity (EG-008)
 
-Current `WorldStore` writes `evergrove-world-v2.json` (filename is v2; **snapshot schema is v3**), validates JSON via `WorldModel.TryRestore`, writes a temporary file, attempts replacement with backup and has a copy-based fallback. It can recover a previous valid backup and migrate old PlayerPrefs v1 data. **This is an implemented strategy, not a verified atomic guarantee on every mobile filesystem.**
+Current `WorldStore` writes `evergrove-world-v2.json` (filename retained for path compatibility; **snapshot schema is v4**), validates JSON via `WorldModel.TryRestore`, writes a temporary file, attempts replacement with backup and has a copy-based fallback. It can recover a previous valid backup and migrate old PlayerPrefs v1 data. **This is an implemented strategy, not a verified atomic guarantee on every mobile filesystem.** Unity source now displays a localized warning when saving fails, and v4 includes the in-progress hint step/target. Neither guarantees crash-safe recovery on actual devices.
 
 Required fault-injection plan:
 1. Make one rotation, save, terminate; reopen and compare board, variant and hints.
@@ -88,6 +88,13 @@ Required fault-injection plan:
 - Export occurs **only** by deliberate player copy action. Consent can be withdrawn/discarded; do not quietly add background collection.
 - For validation, a researcher separately asks for voluntary D1/D7 follow-up with consent and records raw denominators. A local counter is not an analytics cohort.
 - Before release inspect build dependencies and actual traffic; prepare accurate Apple App Privacy and Google Play Data Safety disclosures. Do not equate "no analytics SDK" with "zero traffic" until measured.
+
+## Verified-in-code vs unverified runtime changes
+
+- [PuzzleDiagnostics](../../Assets/Scripts/Core/PuzzleDiagnostics.cs) produces 45 source-derived, CI-checkable profiles with actual puzzle connectivity, leaks and minimum clockwise turns. Human difficulty fields are null.
+- [HintPlanner](../../Assets/Scripts/Core/HintPlanner.cs) and [WorldModel](../../Assets/Scripts/Core/WorldModel.cs) provide three on-request guidance stages; save v4 retains hint progress and migrates v3 ecology variants without rewriting current boards.
+- [EvergroveApp](../../Assets/Scripts/Unity/EvergroveApp.cs) displays a compact initial board and an explicit save-failure warning. This remains **Unity source**, not a verified mobile UX.
+- Added five new draft translated messages per locale, totaling 81 keys. Native translation and shaping remain release gates.
 
 ## Performance and rendering
 
