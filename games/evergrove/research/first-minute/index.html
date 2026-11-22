@@ -19,7 +19,28 @@
   <h1>A little world that <em>remembers.</em></h1>
   <p class="lede">The water has almost reached the garden. Help it find the way.</p>
 
-  <section class="world" aria-label="A cottage beside a partly dry creek, waiting for the water to arrive">
+
+
+  <section id="puzzle-panel" class="puzzle-panel" aria-labelledby="puzzle-title">
+    <div class="section-heading">
+      <div><p class="eyebrow">CHAPTER 01 · FIRST BEND</p><h2 id="puzzle-title" tabindex="-1">Bring the stream home</h2></div>
+      <div class="water-stat"><span id="water-count">4 of 9</span><small>tiles reached</small></div>
+    </div>
+    <p class="puzzle-guide"><span class="legend-icon" aria-hidden="true">≋</span> Spring
+      <span aria-hidden="true" class="legend-arrow">→</span>
+      <span class="legend-icon legend-icon--flower" aria-hidden="true">✿</span> Garden
+      <span class="guide-tip">Tap a pipe to turn it.</span></p>
+    <div id="board" class="board" role="group" aria-label="3 by 3 water-pipe puzzle"></div>
+    <p id="hint-detail" class="hint-detail" role="status" aria-live="polite"></p>
+    <div class="controls">
+      <button type="button" id="undo" class="utility-button">↶ Undo</button>
+      <button type="button" id="hint" class="utility-button utility-button--hint">A gentle hint</button>
+      <button type="button" id="restart" class="utility-button">Start over</button>
+    </div>
+    <p class="note">No timer. No penalty. The water follows the connections you make.</p>
+  </section>
+
+  <section id="world" class="world" tabindex="-1" aria-label="A cottage beside a partly dry creek, waiting for the water to arrive">
     <svg id="creek" class="creek-art" viewBox="0 0 600 280" role="img"
          aria-label="Evergrove's little village with hills, a cottage, and a stream that fills when connected" preserveAspectRatio="xMidYMid meet">
       <defs>
@@ -80,25 +101,6 @@
     <div class="world-caption"><span class="eyebrow">A PLACE WAITING FOR WATER</span>
       <p id="message" role="status" aria-live="polite">Turn the channels to guide water from the spring to the garden.</p>
     </div>
-  </section>
-
-  <section id="puzzle-panel" class="puzzle-panel" aria-labelledby="puzzle-title">
-    <div class="section-heading">
-      <div><p class="eyebrow">CHAPTER 01 · FIRST BEND</p><h2 id="puzzle-title" tabindex="-1">Bring the stream home</h2></div>
-      <div class="water-stat"><span id="water-count">4 of 9</span><small>tiles reached</small></div>
-    </div>
-    <p class="puzzle-guide"><span class="legend-icon" aria-hidden="true">≋</span> Spring
-      <span aria-hidden="true" class="legend-arrow">→</span>
-      <span class="legend-icon legend-icon--flower" aria-hidden="true">✿</span> Garden
-      <span class="guide-tip">Tap a pipe to turn it.</span></p>
-    <div id="board" class="board" role="group" aria-label="3 by 3 water-pipe puzzle"></div>
-    <p id="hint-detail" class="hint-detail" role="status" aria-live="polite"></p>
-    <div class="controls">
-      <button type="button" id="undo" class="utility-button">↶ Undo</button>
-      <button type="button" id="hint" class="utility-button utility-button--hint">A gentle hint</button>
-      <button type="button" id="restart" class="utility-button">Start over</button>
-    </div>
-    <p class="note">No timer. No penalty. The water follows the connections you make.</p>
   </section>
 
   <section id="choices" class="choice-panel" aria-labelledby="choice-title" hidden>
