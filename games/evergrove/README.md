@@ -2,6 +2,8 @@
 
 **Status: integrated Unity/C# Chapter One playtest, not a published game or independently verified Unity Editor build.**
 
+**Evidence-led product and feature specifications:** [docs/specs/](docs/specs/README.md) contains the complete 37-feature P0/P1/P2 backlog, player experience, puzzle/ecology/narrative contracts, accessibility/localization and device release gates, market evidence, experiments, six-week plan and GTM/stop rules. **These are proposals, not completed features or production approval.**
+
 Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006**, combining accessible visual puzzles with a *small, genuinely consequential* virtual village. This is a testable product direction, not evidence of a 2036 hit.
 
 **Technology decision:** [Unity + C# ADR](../../docs/decisions/2026-11-22-evergrove-engine-unity-csharp.md). Unity is a provisional choice for Evergrove, subject to verified device and player tests; all other studio games retain Godot.
