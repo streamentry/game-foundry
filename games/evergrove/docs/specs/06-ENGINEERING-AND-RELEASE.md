@@ -45,7 +45,7 @@ Follow [11 — Release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) for exact so
 
 ## Exact build, test and artifact contract
 
-**First action:** licensed Unity 6.3 import, scene bootstrap and actual Android APK/iOS Xcode-project builds via the [manual workflow](../../../../.github/workflows/evergrove-unity-playtest.yml) (`BLD-001..003`). The existing public GitHub Actions static verifier and .NET suite are **not** Unity compilation. No real-device or Unity-build artifact was verified in the audit baseline; if a new run occurs, record it explicitly instead of preserving a stale claim.
+**First action:** follow the [M1/M2 execution checklist](12-M1-M2-EXECUTION-CHECKLIST.md) for licensed Unity 6.3 import, scene bootstrap and actual Android APK/iOS Xcode-project builds via the [manual workflow](../../../../.github/workflows/evergrove-unity-playtest.yml) (`BLD-001..003`). The existing public GitHub Actions static verifier and .NET suite are **not** Unity compilation. No real-device or Unity-build artifact was verified in the audit baseline; if a new run occurs, record it explicitly instead of preserving a stale claim.
 
 **Test ladder:** pure C# rules/migrations/catalogs → Unity Editor import/compile → scene bootstrap/UI/text/font asset smoke → Unity Test Framework EditMode/PlayMode checks when implemented → physical Android/iPhone full chapter flows → save corruption/interruption → release-binary network audit → representative human playtest. A successful GameCI build is a **builder result**, not a UI/end-to-end test suite.
 
@@ -75,6 +75,8 @@ Decision: BLOCKED | REWORK | GO
 ```
 
 No placeholder in this template is evidence. Only a real record tied to the source/build SHA can move a feature to `Verified`. See [execution controls](09-EXECUTION-CONTROL.md) and [46 named test contracts](verification-matrix.json).
+
+**Documentation ownership:** every test packet is scoped by source SHA, not by an ambiguous “build SHA” placeholder. The machine-readable feature ledger and all 37 backlog entries use `docs/evidence/<SOURCE_SHA>/` for that reason; binary hashes are recorded separately. A passing Unity export attests files, not screen/UI correctness.
 
 **New source-only data contracts:** snapshot version `4` persists staged help (`hintStep` and `hintTile`) and migrates versions 1, 2 and 3 without changing existing boards. The GUI now warns about a failed disk write; **this is not evidence of power-loss or forced-kill durability**. `SAVE-001/002/003` must still pass on devices.
 
