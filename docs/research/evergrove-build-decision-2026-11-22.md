@@ -60,3 +60,13 @@ No LLM API, voice chat, infinite world generation, cloud, account, user profilin
 ## Engine change — 2026-11-22
 
 At explicit user instruction **“hãy đổi qua C#”**, **Evergrove alone** changes from Godot/GDScript to **Unity/C#**. The other games retain their existing pinned Godot engine. The original unmerged Godot Evergrove implementation was replaced on its feature branch; the concept, state machine, six puzzle fixtures and head-to-head experiment remain. Backend stays Cloudflare Workers/TypeScript: C# is the client language, not a Cloudflare runtime. Cloud synchronization remains off by default and unproven. This exception to the studio-wide Godot convention should be reevaluated against Unity project upkeep and mobile export cost after the test.
+
+## 2026-11-22 — Chapter One quality upgrade (implementation, not market evidence)
+
+- **Problem discovered:** the first Unity prototype contained six 3×3 Pipe Garden boards and mostly textual reactions. A player could run out of content quickly, and the village did not yet *look* different because of choices.
+- **New experiment:** twelve mathematically unique 3×3→4×4 stream puzzles with live connectivity feedback and no-pressure one-tile hints; an evolving original procedural village illustration and authored causal NPC responses; persistent journal and multiple endings; confirm-before-reset.
+- **Durability:** versioned local JSON with backup, fail-closed validation and migration of the original six-chapter completed saves. Cloudflare remains optional and does not sync real game state.
+- **Hypothesis:** players will care about small understandable consequences, not infinite generated content.
+- **Strongest counterargument:** the village could still be decorative progression on a basic pipe puzzle. Even 12 chapters might not generate voluntary replay. Do not call it a full commercial game without evidence.
+- **Unverified:** Unity Editor compile, physical-device screenshots and touch QA, target audience retention, ASO demand, monetization and trademark.
+- **Action:** inspect [Evergrove Chapter One](../../games/evergrove/README.md) in Unity, fix first-play confusion, then execute the comparison protocol already specified above before adding live NPC AI.

@@ -1,59 +1,71 @@
-# Evergrove — a living world in Unity/C#
+# Evergrove — a world that remembers
 
-**Status:** C# implementation of a local-first, experimental game. **Not a shipped app or verified Unity build.** It is the founder-selected long-horizon bet `PH-006`, with influences from `GC-021 Little Worlds`. See [experiment decision](../../docs/research/evergrove-build-decision-2026-11-22.md).
+**Status: integrated Unity/C# Chapter One playtest, not a published game or independently verified Unity Editor build.**
 
-**Technology decision:** [Unity + C# ADR](../../docs/decisions/2026-11-22-evergrove-engine-unity-csharp.md). This is a provisional Evergrove-specific choice; re-evaluate on actual mobile devices and after the first playtest, rather than treating a ten-year engine choice as permanent.
+Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006**, combining accessible visual puzzles with a *small, genuinely consequential* virtual village. This is a testable product direction, not evidence of a 2036 hit.
 
-## Gameplay
+**Technology decision:** [Unity + C# ADR](../../docs/decisions/2026-11-22-evergrove-engine-unity-csharp.md). Unity is a provisional choice for Evergrove, subject to verified device and player tests; all other studio games retain Godot.
 
-Tap to rotate nine stream tiles to create one continuous water route. Once the water flows, decide what the village gains:
+## What the player does
 
-- **Plant a shade tree** — Mira remembers its shade.
-- **Repair the footbridge** — Orin remembers the crossing.
-- **Grow wildflowers** — Fen remembers the meadow.
+1. Restore a winding stream by rotating tiles. No time limit, score penalty, account or advertisements.
+2. Watch the spring's water reach more of the route. The display explains connected tiles and unmatched joins. An optional **Guide me** button reveals one connection without shame or a penalty.
+3. After the water flows through every tile, choose one meaningful change: **plant shade trees**, **restore a footbridge**, or **grow a wildflower meadow**.
+4. See an original illustrated world change, read the new memory (and revise a mis-tap before continuing), and return to discover combinations of previous choices. Mira, Orin and Fen respond to the same world history.
+5. Reach a hand-authored conclusion after twelve streams. Review your complete history; optionally begin another playthrough with different choices.
 
-The next chapter sees the persistent consequences, including combinations such as a bridge shaded by a tree. Six deterministic, independently checked fixtures were ported from the repo's own Pipe Garden experiment; no proprietary artwork or levels are used.
+**What makes consequences meaningful:** tree + bridge creates a shaded crossing; tree + flowers attracts butterflies; bridge + flowers draws neighbors to the meadow. A balance of all three generates a different ending from a world focused on only one. Art, dialogue, journal and ending are derived from one persisted event sequence, not invented by a chatbot.
 
-**Comparative research:** Select **Living world** or **Puzzle only** before your first turn. The latter plays the exact same six water puzzles without choices, NPCs or village panel. The built-in mode switch is for manual usability checks, **not** randomized A/B assignment or analytics.
+### Content and accessibility
 
-## Open in Unity
+- **12 original independent puzzles:** six 3×3 fixtures from our own Pipe Garden research, six fresh 4×4 fixtures with deterministic uniqueness tests.
+- **Causal memories:** three characters, explicit combination rules, four landscape phases, multiple epilogues and an ordered journal.
+- **Visual design:** procedurally drawn original river, village, tree canopy, flowers, bridge, visitors and butterflies. No third-party visual assets.
+- **Player respect:** large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, optional hints, sound **off by default** with an opt-in gentle chime. No streak anxiety.
+- **Offline-first:** a versioned JSON save in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
 
-1. Install Unity Hub and **Unity 6.3 LTS** (the project requests `6000.3.0f1`; if your editor uses a later 6.3 patch, Unity Hub may prompt for a migration).
-2. In Hub choose **Add project from disk** and select `games/evergrove/`. The package manifest includes uGUI (`com.unity.ugui`); opening the project resolves packages and imports scripts.
-3. Open the **Evergrove → Create Playtest Scene** editor menu, which creates `Assets/Scenes/Evergrove.unity` and marks it as the build scene. Press **Play**.
-4. The scene contains no hand-authored game objects. `EvergroveApp` generates a mobile-readable uGUI canvas, controls and pipe artwork at runtime. The C# puzzle state and world model use no Unity dependency.
+The experience supports **Living world** and **Puzzle only** (the same water puzzles without narrative) for controlled research. This is a *research comparison mode*, not analytics or proper randomized A/B assignment.
 
-No backend, account, telemetry, payment or AI models are needed to play. Progress is saved locally via Unity `PlayerPrefs`. This is sufficient for an experiment, **not** production-grade atomic persistence, secure secret storage or cloud reconciliation.
+## Run in Unity
 
-## Run the deterministic C# tests
+1. Open `games/evergrove/` in **Unity Hub**, using **Unity 6.3 LTS**. It currently requests `6000.3.0f1`.
+2. Let Unity import uGUI and compile C# scripts. Choose **Evergrove → Create or Open Playtest Scene** to generate/open the empty game scene. You can also run **Evergrove → Verify C# Game and Scene** for a local Editor check.
+3. Press **Play**. The UI and original art are generated from C#.
+4. For physical iOS/Android builds, use the appropriate installed Unity platform modules and configure signing, bundle identifiers, orientation, input handling and device accessibility. **These have not been independently verified.**
 
-The pure-C# core is compiled separately from Unity:
+For a licensed Unity Editor installation, a separate *Unity-engine* smoke check can be executed headlessly (its script import is the most relevant compilation gate for the uGUI classes):
 
 ```bash
-dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj
+Unity -batchmode -nographics -projectPath games/evergrove \
+  -executeMethod Evergrove.UnityClient.Editor.EvergroveSceneSetup.VerifyProject \
+  -logFile - -quit
 ```
 
-This verifies all six puzzle solutions, uniqueness constraints, rotation and undo, memory/choice effects, complete progression and rejection of corrupted local snapshots. **Unity Editor/device gameplay still needs independent human testing.** The repository CI runs this .NET command automatically.
+This step **has not been run by this assistant**; no Unity license is bundled in CI. It creates the local editor scene and checks all puzzles. Device touch/IL2CPP still require their own checks.
 
-## Optional Cloudflare Workers sync experiment
+The Game Foundry's other Godot games remain unchanged.
 
-`Assets/Scripts/Unity/WorldClient.cs` is a **separate, disabled-by-default** C# HTTP client for [the optional Durable Objects backend](../../backend/evergrove/README.md). The Worker stays TypeScript because Cloudflare Workers do not run Unity C# directly.
+### Reproducible pure-C# checks
 
-The demo API only implements `WATER_TREE` with a single capped `treeStage` and a per-world revision. **It does not synchronize Evergrove's actual world history or puzzle/choice progression.** Do not attach this client to production play or present it as working full-world sync.
+```bash
+dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release
+```
 
-## Deliberate exclusions
+This validates all 12 board shapes and unique solutions, source connectivity, hint/undo, consequence interactions, complete campaign, legacy saved-game migration and corrupted-save rejection. See [CI workflow](../../.github/workflows/ci.yml). These tests **do not compile the UnityEngine-specific UI or verify native builds**; Godot's tests do not test Evergrove.
 
-No LLM-driven NPCs, UGC, multiplayer, cloud requirement, live economy, engagement-streak manipulation, subscriptions, monetization SDKs or AI behavioral tracking. The working title `Evergrove` is not cleared for trademark or store use.
+## Architecture and cloud
 
-## Next falsifiable step
+- Pure rules: `Assets/Scripts/Core/PipeRules.cs`
+- World state, events, migration: `Assets/Scripts/Core/WorldModel.cs`
+- Authored causal narrative: `Assets/Scripts/Core/VillageStory.cs`
+- UI and interactions: `Assets/Scripts/Unity/EvergroveApp.cs`
+- Procedural landscape: `Assets/Scripts/Unity/VillageIllustration.cs`
+- Offline saved progress: `Assets/Scripts/Unity/WorldStore.cs`
 
-With 20–30 relevant participants, balance players manually between Living world and Puzzle only. Measure **comprehension, voluntary replay, unprompted D1/D7 return**, preference versus a polished existing game, and whether players can explain the cause of village changes. Record raw denominators and selection bias. **Stop or simplify the simulation if the fixed-rule puzzle is preferred.** Do not add AI, online services or content scale until the living layer clearly earns its cost.
+An [optional Cloudflare Durable Objects preview](../../backend/evergrove/README.md) is **not deployed or attached**. Its demo `WATER_TREE` action does not synchronize game decisions, NPC memory or puzzle state. Do not add live AI or cloud infrastructure until independent players demonstrate that the core loop merits it.
 
-## Technical scope
+## What is still unknown
 
-- **Client:** Unity C# (uGUI + procedural drawing).
-- **Pure domain logic:** `Assets/Scripts/Core/PipeRules.cs`, `WorldModel.cs`; six ported fixtures.
-- **Local state:** `Assets/Scripts/Unity/WorldStore.cs`.
-- **Editor scene creation:** `Assets/Editor/EvergroveSceneSetup.cs`.
-- **Server experiment:** TypeScript Worker and SQLite-backed Durable Object, separate.
-- **Status:** Editor/IL2CPP, touch latency, dynamic text, accessibility semantics and real phone layouts **not verified**. No signed builds or store releases.
+Editor compilation, screen-reader behavior, device safe areas, iOS/Android signing, app-store title/trademark clearance, 45+ audience suitability, voluntary D1/D7 return, measurable acquisition and monetization remain **unverified**. No authored game can be called “insanely great” without observing whether real people voluntarily return.
+
+**Next non-negotiable test:** recruit 20–30 adults in the target cohort, manually balance between Living world and Puzzle only, record first-minute comprehension, spontaneous return and head-to-head preference versus a polished existing title. The [experiment protocol](../../docs/research/evergrove-build-decision-2026-11-22.md) defines the stop rule.

@@ -1,29 +1,53 @@
-# Evergrove — distinct product design
+# Evergrove — product design system / Chapter One
 
-**Positioning:** A place worth returning to because your small choices matter. Calm, legible, mobile-first and emotionally warm without artificial urgency. Not merely a reskin of Pipe Garden; the distinguishing gameplay loop is the *persistent, causal village* around the same control puzzle.
+## One promise
 
-## Visual identity
+**A little world that changes because you were here.**
 
-- **Three adjectives:** tender · grounded · alive.
-- **Typography scale:** 26px title, 17px counters, 15–16px instructions and outcomes, 12–14px hints. Use native fallback fonts with no external licensed assets.
-- **Semantic color tokens:** paper `#F7F4E9`, evergreen ink `#23443C`, muted moss `#516B60`, active leaf `#276D54`, pale moss `#DFEBDD`, warm sand `#F3E5C9`, running-water blue `#2D7E8D`, white `#FFFFFF`.
-- **Contrast:** text should meet 4.5:1 against its actual background wherever practical; inspect on phones and adjust tokens if any combination fails. Never encode correctness with color alone.
-- **Layout/spacing:** 18px side margins, 12px vertical rhythm, 8px tile gaps, corner radii 13–17px, minimum 56px actionable buttons and 88px pipe tiles (at 414 logical px reference resolution).
-- **Signature interaction:** rotate a tactile stream tile, see the whole stream complete, then choose one lasting change to the village.
-- **Motion:** none required for comprehension. A future 150–250ms water-flow reveal may be added only after reduced-motion and low-end performance checks.
-- **Sound/haptics:** silent by default; future optional soft water sound and gentle haptic only after explicit testing. No autoplay music.
-- **Feedback:** display complete/blocked state in prose, not just hue; Undo and Restart are always available during a puzzle.
-- **Icon brief:** independently drawn seed inside an imperfect circle; warm, simple, non-branded. No purchased artwork in this prototype.
-- **App Store screenshots (not produced):** 1) 3×3 creek and one-tap instruction; 2) completed stream with exactly three consequential choices; 3) remembering characters and combined village consequences. Validate on real phones before public use.
+The visual identity is **tender, grounded, alive**, without exaggeration, gamified anxiety or faux scientific claims. The story is shown through consequence first, prose second.
 
-## Accessible play
+## Aesthetic system
 
-No countdown, score pressure, guilt-based streak, input timing challenge or mandatory account. Tile names contain positions, but Unity screen-reader semantics and focus order have **not yet been verified**. Test and repair before a public release. Scroll supports short screens. Test compact phones, large phones, font scaling, screen readers, landscape, iOS/Android safe areas, focus order and contrast with the intended participants before shipping.
+| Token | Value | Role |
+| --- | --- | --- |
+| Paper | `#F7F4E9` | Low-glare background |
+| Evergreen ink | `#23443C` | Primary content |
+| Moss | `#52685F` | Secondary content |
+| Leaf | `#276D54` | Primary actions |
+| Pale | `#DFEBDD` | Tactile buttons |
+| Sand | `#F2E7D4` | Story cards |
+| River | `#DCEDEF` | Memory journal background |
+| Water blue | `#6FB4BA` | Connection motif |
 
-## Differentiate with design evidence, not art promises
+Type hierarchy (approximate logical px): title **25**, game decisions **15–17**, guidance **13–15**, metadata **11–12**. Use built-in typography for reproducible builds; commission distinctive typography only after verifying packaging and rights.
 
-**Benchmark against** the same Pipe Garden board in puzzle-only mode. The question is not whether players like a cute garden aesthetic—it is whether remembered decisions and consistent NPC reactions improve return. If the player cannot predict why the world changed, the system has failed.
+**Layout:** Safe-area-aware scroll, first move visible quickly, 3×3 cells ~90px, 4×4 cells ~67px at 414px reference width, 52–77px actions, 17px side margins. Verify on 320px–430px phones, larger displays and iPad; do not infer accessibility from logical size alone.
 
-## Unity UI implementation note
+**Signature interaction:** a pipe rotates, the reachable water updates, the stream completes, a deliberate choice changes the illustration, and the world explains what changed. Every element reinforces one causal loop.
 
-The first playable C# slice programmatically constructs uGUI elements with large buttons and a scrollable portrait layout. This is a functional systems study rather than a final visual identity; verify hierarchy, content-sizing, touch semantics, contrast, device safe areas and reduced-motion preferences on actual phones before approval.
+**Art direction:** a manually composed, original 2D vector illustration with quiet hills, water, shelter, bridge and growing flowers. Three people remain in the scene. Flower clusters, shade, bridge, walkers and butterflies respond to persisted choices; environmental colors subtly change with chapter. No stock art, borrowed icons, generic magic glow or asset-heavy UI.
+
+**Sound and motion:** default silent, optional soft procedural completion chime. UI transitions are intentionally restrained and functional; introduce subtle animation only after device/reduced-motion testing. Haptic and background music are excluded until they have user value.
+
+## Interaction constraints
+
+- **First 10 seconds:** see the water puzzle, understand tap-to-rotate and take a valid action.
+- **During play:** plain-language connected-tile and leak feedback, undo, restart, optional one-connection help, no timer or penalty.
+- **After solving:** three understandable environment choices with a written consequence preview.
+- **After choice:** a dedicated *memory moment* confirms which NPC and environmental relationship changed, then a voluntary Continue.
+- **Later sessions:** journal reconstructs the sequence; multiple choices combine into new places.
+- **Ending:** preserve choices in one of several authored conclusions, with a two-step confirmation before erasing the garden.
+- **Comparison mode:** same deterministic puzzle content without world layer. Do not mistake a prettier world for causal evidence without a control.
+
+## Screen and test checklist
+
+- [ ] Unity Editor UI compiles and launches with uGUI.
+- [ ] Real-device iOS and Android touch, safe-area, keyboard focus and 4×4 cell size verified.
+- [ ] Color contrast measured and revised where necessary.
+- [ ] Screen reader / accessibility tree semantics verified on mobile.
+- [ ] Rotating, undo, hint, recovery after force-kill and v1 save migration tested on device.
+- [ ] Artwork readability and feeling of causal agency observed with relevant adults.
+- [ ] User-perceived quality benchmarked head-to-head versus a polished established puzzle game.
+- [ ] Device sound behavior tested, including mute/ringer and consent.
+
+**Not a production certificate:** C# unit tests prove deterministic game logic, not taste or device readiness.
