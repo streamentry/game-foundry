@@ -261,3 +261,16 @@ Actual outcome & model update:
 **Cheapest falsification:** compare Odd Bloom with an existing odd-one-out title using 6–10 adult puzzle players on their own phones. Watch voluntary play after five rounds, confusion or strain on the 4×4 card view, and independent next-day return. Park if it is merely a one-time novelty after one specific design revision.
 
 **Status:** No actual target-player data, App Store keyword volume, retention, referral activation, device QA or monetization evidence exists.
+
+
+## 2026-11-22 — Kakuro Compass, sixth game prototype
+
+**User-directed scope:** build additional standalone game. Choose the already-selected GF-001 Kakuro **proof of play** rather than inventing a seventh unmeasured niche. This does **not** waive the existing demand, competitor or device gates.
+
+**Implementation:** original, independent Godot 4.7.2 Kakuro Compass; eight authored small 5×5 clue boards, unique-solution verification, true 1–9 across/down sum/no-repeat constraints, a *persistent intersection inspector* showing feasible values from each local run and their intersection; 69px editable cells, large 3×3 keypad, undo/erase/restart, local validated save/progression, hosted level links and WebGL2 export with HTTP asset tests.
+
+**Strongest opposition:** established Kakuro titles already advertise hints, zoom and tutorials. A local constraint inspector may provide no real advantage and might reduce the challenge too much. The small boards prove rules, not sustained content depth. These are hypotheses, not measured outcomes.
+
+**Cheapest falsification:** recruit 5 US adults 50–75 who actually enjoy Kakuro; alternate Kakuro Compass and a mature incumbent, watch the first 5 minutes on their phones. The pre-existing go/no-go standard is in [first-game-decision-2026-11-21.md](first-game-decision-2026-11-21.md). Record whether they correctly explain a crossing deduction unaided, not merely whether a test script passes. If the inspector brings no comparative preference after one UX correction, park this project rather than producing 100 levels.
+
+**Status:** app-store organic keyword positions, segment-specific demand, return and monetization are unverified. No app store submission or public hosting.

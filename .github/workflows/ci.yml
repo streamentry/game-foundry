@@ -89,3 +89,11 @@ jobs:
         run: godot --headless --path games/odd-bloom --script res://tests/test_progress.gd
       - name: Smoke test Odd Bloom round selection and replay
         run: godot --headless --path games/odd-bloom --script res://tests/test_scene.gd
+      - name: Import Kakuro Compass independently
+        run: godot --headless --path games/kakuro-compass --editor --import --quit
+      - name: Verify Kakuro intersections and exact puzzle uniqueness
+        run: godot --headless --path games/kakuro-compass --script res://tests/test_rules.gd
+      - name: Verify Kakuro entries, local save and progression
+        run: godot --headless --path games/kakuro-compass --script res://tests/test_progress.gd
+      - name: Smoke test Kakuro inspector, keypad, undo and scene
+        run: godot --headless --path games/kakuro-compass --script res://tests/test_scene.gd
