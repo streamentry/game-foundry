@@ -5,23 +5,31 @@ namespace Evergrove.Core
     public enum PlayMode { Living, PuzzleOnly }
     public enum VillageChoice { ShadeTree = 0, Bridge = 1, Flowers = 2 }
 
-    /// <summary>Serializable with UnityEngine.JsonUtility, but has no Unity dependencies.</summary>
+    /// <summary>
+    /// Unity JsonUtility compatible, stable flat schema. Version 1 (6 rooms)
+    /// upgrades in place to version 2 (12 rooms) without losing a player's garden.
+    /// </summary>
     [Serializable]
     public sealed class WorldSnapshot
     {
-        public int version = 1;
+        public int version = 2;
         public string mode = "living";
         public int round;
         public bool solved;
         public int[] rotations = Array.Empty<int>();
         public int[] previous = Array.Empty<int>();
         public int[] choices = Array.Empty<int>();
+        public int hintsUsed;
     }
 
+    /// <summary>
+    /// The authoritative offline rules. This class has zero Unity dependencies,
+    /// zero wall-clock requirements and no hidden randomness.
+    /// </summary>
     public sealed class WorldModel
     {
-        public const int Version = 1;
-        private WorldSnapshot state;
+        public const int Version = 2;
+        private readonly WorldSnapshot state;
 
         private WorldModel(WorldSnapshot snapshot) { state = snapshot; }
 
@@ -29,16 +37,22 @@ namespace Evergrove.Core
         public int Round { get { return state.round; } }
         public bool Solved { get { return state.solved; } }
         public bool Completed { get { return state.round == PuzzleCatalog.Count; } }
-        public bool CanUndo { get { return state.previous.Length == 9 && !Completed; } }
+        public bool CanUndo { get { return !Completed && state.previous.Length == PuzzleCatalog.Get(Round).CellCount; } }
+        public int HintsUsed { get { return state.hintsUsed; } }
         public int[] Rotations { get { return (int[])state.rotations.Clone(); } }
         public int[] Choices { get { return (int[])state.choices.Clone(); } }
+        public PipeInsight Insight {
+            get {
+                return Completed ? new PipeInsight(0, 0, 0, Array.Empty<bool>()) :
+                    PipeRules.Inspect(PuzzleCatalog.Get(Round), state.rotations);
+            }
+        }
 
         public static WorldModel New(PlayMode mode = PlayMode.Living)
         {
             return new WorldModel(new WorldSnapshot {
-                version = Version,
-                mode = mode == PlayMode.Living ? "living" : "puzzle",
-                round = 0, solved = false,
+                version = Version, mode = mode == PlayMode.Living ? "living" : "puzzle",
+                round = 0, solved = false, hintsUsed = 0,
                 rotations = (int[])PuzzleCatalog.Get(0).Initial.Clone(),
                 previous = Array.Empty<int>(), choices = Array.Empty<int>()
             });
@@ -47,53 +61,71 @@ namespace Evergrove.Core
         public WorldSnapshot Export()
         {
             return new WorldSnapshot {
-                version = state.version, mode = state.mode, round = state.round, solved = state.solved,
+                version = Version, mode = state.mode, round = Round, solved = Solved,
                 rotations = (int[])state.rotations.Clone(), previous = (int[])state.previous.Clone(),
-                choices = (int[])state.choices.Clone()
+                choices = (int[])state.choices.Clone(), hintsUsed = state.hintsUsed
             };
         }
 
-        public static WorldModel Restore(WorldSnapshot candidate)
+        /// <summary>Fail closed on corruption, never silently report invalid data as a valid save.</summary>
+        public static bool TryRestore(WorldSnapshot source, out WorldModel result)
         {
-            if (candidate == null || candidate.version != Version ||
-                (candidate.mode != "living" && candidate.mode != "puzzle") ||
-                candidate.round < 0 || candidate.round > PuzzleCatalog.Count || candidate.choices == null ||
-                candidate.rotations == null || candidate.previous == null)
-                return New();
-            if (candidate.mode == "puzzle" && candidate.choices.Length != 0)
-                return New();
-            if (candidate.mode == "living" && candidate.choices.Length != candidate.round)
-                return New();
-            foreach (int choice in candidate.choices)
-                if (choice < 0 || choice > 2) return New();
+            result = null;
+            if (source == null || (source.version != 1 && source.version != Version) ||
+                (source.mode != "living" && source.mode != "puzzle") ||
+                source.round < 0 || source.round > PuzzleCatalog.Count ||
+                source.choices == null || source.rotations == null || source.previous == null ||
+                source.hintsUsed < 0 || source.hintsUsed > 1000000)
+                return false;
+            if ((source.mode == "living" && source.choices.Length != source.round) ||
+                (source.mode == "puzzle" && source.choices.Length != 0))
+                return false;
+            foreach (int choice in source.choices)
+                if (choice < 0 || choice > 2) return false;
 
-            if (candidate.round == PuzzleCatalog.Count)
+            int chapter = source.round;
+            int[] rotations = (int[])source.rotations.Clone();
+            int[] previous = (int[])source.previous.Clone();
+            bool solved = source.solved;
+
+            // The original prototype ended after six chapters. In v2 that
+            // finished game becomes the first new 4x4 stream, preserving every
+            // recorded choice and clearing only ephemeral board state.
+            if (source.version == 1 && chapter == 6 &&
+                rotations.Length == 0 && previous.Length == 0 && !solved)
             {
-                if (candidate.solved || candidate.rotations.Length != 0 || candidate.previous.Length != 0)
-                    return New();
+                rotations = (int[])PuzzleCatalog.Get(chapter).Initial.Clone();
+            }
+            if (chapter == PuzzleCatalog.Count)
+            {
+                if (solved || rotations.Length != 0 || previous.Length != 0)
+                    return false;
             }
             else
             {
-                Puzzle puzzle = PuzzleCatalog.Get(candidate.round);
-                if (!PipeRules.ValidRotations(puzzle, candidate.rotations) ||
-                    candidate.solved != PipeRules.IsComplete(puzzle, candidate.rotations) ||
-                    (candidate.previous.Length != 0 && !PipeRules.ValidRotations(puzzle, candidate.previous)))
-                    return New();
+                Puzzle puzzle = PuzzleCatalog.Get(chapter);
+                if (!PipeRules.ValidRotations(puzzle, rotations) ||
+                    solved != PipeRules.IsComplete(puzzle, rotations) ||
+                    (previous.Length != 0 && !PipeRules.ValidRotations(puzzle, previous)))
+                    return false;
             }
-            return new WorldModel(new WorldSnapshot {
-                version = Version,
-                mode = candidate.mode,
-                round = candidate.round,
-                solved = candidate.solved,
-                rotations = (int[])candidate.rotations.Clone(),
-                previous = (int[])candidate.previous.Clone(),
-                choices = (int[])candidate.choices.Clone()
+            result = new WorldModel(new WorldSnapshot {
+                version = Version, mode = source.mode, round = chapter, solved = solved,
+                rotations = rotations, previous = previous,
+                choices = (int[])source.choices.Clone(), hintsUsed = source.hintsUsed
             });
+            return true;
+        }
+
+        public static WorldModel Restore(WorldSnapshot source)
+        {
+            WorldModel result;
+            return TryRestore(source, out result) ? result : New();
         }
 
         public bool CanSwitchMode {
             get {
-                if (Completed || Round != 0 || state.solved || state.choices.Length != 0) return false;
+                if (Completed || Round != 0 || Solved || state.choices.Length != 0) return false;
                 int[] initial = PuzzleCatalog.Get(0).Initial;
                 for (int i = 0; i < initial.Length; i++)
                     if (state.rotations[i] != initial[i]) return false;
@@ -103,12 +135,30 @@ namespace Evergrove.Core
 
         public bool Rotate(int tile)
         {
-            if (Completed || Solved || tile < 0 || tile >= 9) return false;
+            if (Completed || Solved) return false;
             Puzzle puzzle = PuzzleCatalog.Get(Round);
+            if (tile < 0 || tile >= puzzle.CellCount) return false;
             state.previous = (int[])state.rotations.Clone();
             state.rotations[tile] = state.rotations[tile] % PipeRules.OrientationCount(puzzle.Kinds[tile]) + 1;
             state.solved = PipeRules.IsComplete(puzzle, state.rotations);
             return true;
+        }
+
+        /// <summary>Optional, no-pressure hint fixes one tile. Not a hidden auto-solve.</summary>
+        public bool GuideOneConnection()
+        {
+            if (Completed || Solved) return false;
+            Puzzle puzzle = PuzzleCatalog.Get(Round);
+            for (int tile = 0; tile < puzzle.CellCount; tile++)
+            {
+                if (state.rotations[tile] == puzzle.Solution[tile]) continue;
+                state.previous = (int[])state.rotations.Clone();
+                state.rotations[tile] = puzzle.Solution[tile];
+                state.hintsUsed++;
+                state.solved = PipeRules.IsComplete(puzzle, state.rotations);
+                return true;
+            }
+            return false;
         }
 
         public bool Undo()
@@ -139,8 +189,9 @@ namespace Evergrove.Core
 
         public bool Choose(VillageChoice choice)
         {
-            if (Mode != PlayMode.Living || Completed || !Solved || (int)choice < 0 || (int)choice > 2 ||
-                state.choices.Length != Round || !PipeRules.IsComplete(PuzzleCatalog.Get(Round), state.rotations))
+            if (Mode != PlayMode.Living || Completed || !Solved ||
+                (int)choice < 0 || (int)choice > 2 || state.choices.Length != Round ||
+                !PipeRules.IsComplete(PuzzleCatalog.Get(Round), state.rotations))
                 return false;
             int[] next = new int[state.choices.Length + 1];
             Array.Copy(state.choices, next, state.choices.Length);
@@ -165,49 +216,10 @@ namespace Evergrove.Core
             return count;
         }
 
-        public string Memory
-        {
-            get {
-                if (state.choices.Length == 0) return "Your first choice will become the village's first memory.";
-                switch ((VillageChoice)state.choices[state.choices.Length - 1])
-                {
-                    case VillageChoice.ShadeTree: return "Mira remembers the shade you planted.";
-                    case VillageChoice.Bridge: return "Orin remembers the crossing you repaired.";
-                    default: return "Fen remembers the wildflowers you protected.";
-                }
-            }
-        }
-
-        public string Consequence
-        {
-            get {
-                int trees = Count(VillageChoice.ShadeTree);
-                int bridges = Count(VillageChoice.Bridge);
-                int flowers = Count(VillageChoice.Flowers);
-                if (trees >= 2 && flowers >= 1) return "The trees shelter a meadow full of pollinators.";
-                if (trees >= 1 && bridges >= 1) return "The new shade now reaches the restored crossing.";
-                if (bridges >= 1 && flowers >= 1) return "Visitors pause at the crossing to watch the meadow.";
-                if (trees >= 1) return "A young tree is taking root beside the stream.";
-                if (bridges >= 1) return "The footbridge lets neighbors cross the stream.";
-                if (flowers >= 1) return "Wildflowers are growing along the water.";
-                return "The village waits beside a quiet, dry stream.";
-            }
-        }
-
-        public string[] Characters {
-            get {
-                return new[] {
-                    Count(VillageChoice.ShadeTree) > 0
-                        ? "Mira · Gardener — I remember where we planted our trees."
-                        : "Mira · Gardener — The stream could shelter a tree.",
-                    Count(VillageChoice.Bridge) > 0
-                        ? "Orin · Builder — The old crossing is open because of you."
-                        : "Orin · Builder — The old crossing needs help.",
-                    Count(VillageChoice.Flowers) > 0
-                        ? "Fen · Naturalist — The meadow welcomes visitors."
-                        : "Fen · Naturalist — The stream bank needs flowers."
-                };
-            }
-        }
+        public string Memory { get { return VillageStory.Memory(this); } }
+        public string Consequence { get { return VillageStory.Consequence(this); } }
+        public string[] Characters { get { return VillageStory.Characters(this); } }
+        public string[] Journal { get { return VillageStory.Journal(this); } }
+        public string Ending { get { return VillageStory.Ending(this); } }
     }
 }
