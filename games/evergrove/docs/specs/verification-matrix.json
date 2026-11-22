@@ -50,7 +50,7 @@
       "title": "First 60-second complete loop",
       "owner_role": "UX & Accessibility QA",
       "decision_gate": "M3",
-      "status": "Proposed",
+      "status": "In Progress",
       "blocked": false,
       "dependency_ids": [
         "EG-001"
@@ -91,7 +91,7 @@
       "title": "Puzzle solver and difficulty metadata",
       "owner_role": "Gameplay Engineer",
       "decision_gate": "M3",
-      "status": "Proposed",
+      "status": "In Progress",
       "blocked": false,
       "dependency_ids": [],
       "dependency_notes": "PipeRules, Tests/Program.cs, representative testers.",
@@ -109,7 +109,7 @@
       "title": "Progressive non-punitive hints",
       "owner_role": "Gameplay Engineer",
       "decision_gate": "M3",
-      "status": "Proposed",
+      "status": "In Progress",
       "blocked": false,
       "dependency_ids": [
         "EG-004"
@@ -227,7 +227,7 @@
       "title": "Non-color connectivity and contrast",
       "owner_role": "UX & Accessibility QA",
       "decision_gate": "M3",
-      "status": "Proposed",
+      "status": "In Progress",
       "blocked": false,
       "dependency_ids": [
         "EG-007"
@@ -285,7 +285,7 @@
       "title": "Causal journal",
       "owner_role": "Gameplay Engineer",
       "decision_gate": "M4",
-      "status": "Proposed",
+      "status": "In Progress",
       "blocked": false,
       "dependency_ids": [
         "EG-003"
