@@ -28,6 +28,8 @@ The Unity 6.3 uGUI core package pin was corrected from `2.6.0` (Unity 6.6 core l
 
 - [ ] Opens on a compact Android phone and at least one iPhone in the Unity Editor / local Xcode workflow.
 - [ ] Touching the spring's tiles actually rotates them. There are **no input-system exceptions**.
+- [ ] On cold launch at 320×568, 375×667 and 430×932 logical viewports, confirm at least one functional water tile is **on screen before any scroll**. The initial Unity first board is intentionally placed ahead of the world art. Confirm focus/tap order matches visual order, with safe-area/large-font enabled. These are target acceptance tests, not measured outcomes.
+- [ ] After a real solve, verify automatic navigation reveals the **choice heading and first choice** (not page footer, sound setting or research panel). Rotate again by Undo/re-solve and check no jarring position jumps. Test shortened safe areas and accessibility text expansion.
 - [ ] First board: upstream partial trickle but dry downstream village; rotate first-chapter tile 7 (0-index 6) once and observe increased spring-connected water, blue channels and 2D creek reach. Undo retracts. Solve stream 1: full restoration in 2D and 2.5D. Device visual correctness remains unverified.
 - [ ] Can solve all 12 boards. Real players should be able to infer *why* water flows; use hints without feeling penalized.
 - [ ] Choose a tree, a crossing or flowers. On return, show the same changes and the correct NPC memory.

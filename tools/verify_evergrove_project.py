@@ -30,6 +30,21 @@ assert "WaterRestored" in scene_plan and "WaterReachPercent" in scene_plan
 assert "insight.Flowing[index], world.Solved" in ui
 assert "insight.Flowing[i], world.Solved" in ui
 assert "activeIllustration.Show" in ui
+# Source layout guard: first-tap onboarding precedes the world art, while
+# the completed state lands on a real choice anchor rather than page bottom.
+first_board = "if (firstPuzzle)\n                BuildPuzzle();"
+assert first_board in ui, "First board lost its early-onboarding position"
+assert ui.index(first_board) < ui.index("VillageScenePlan scenePlan = VillageScenePlan.From(world);"), (
+    "World art must not push first interactive tile below the title/controls"
+)
+for marker in ("private RectTransform decisionHeading;",
+               "decisionHeading = Label(content, \"Choose title\"",
+               "content.InverseTransformPoint(worldTop).y",
+               "scroll.StopMovement()"):
+    assert marker in ui, "Missing anchored post-solve navigation: " + marker
+assert "if (scroll != null) scroll.verticalNormalizedPosition = 0f;" not in ui, (
+    "Never jump blindly to the page footer after completing a stream"
+)
 for marker in ("hasWater = sourceConnected || solved;", "Color32 inner = hasWater ?"):
     assert marker in pipe_graphic, "dry/connected water style is missing: " + marker
 for marker in ("waterReachPercent", "else if (waterReachPercent > 0)", "Quad(vh, P(0.44f, 0.42f)"):

@@ -35,9 +35,9 @@ Type hierarchy (approximate logical px): title **25**, game decisions **15–17*
 
 ## Interaction constraints
 
-- **First 10 seconds:** see the water puzzle, understand tap-to-rotate and take a valid action.
+- **First 10 seconds:** the Unity first puzzle comes immediately after the concise title, **before** the 2D/2.5D world illustration; see a water pipe, understand tap-to-rotate and take a valid action on a compact phone. Real pixels/timing still require device verification.
 - **During play:** plain-language connected-tile and leak feedback, undo, restart, optional one-connection help, no timer or penalty.
-- **After solving:** three understandable environment choices with a written consequence preview.
+- **After solving:** jump to the **actual** choice heading, not the page bottom where footer/settings can hide the decision. Retain preceding context to communicate full creek restoration, then offer three understandable environment choices with a written consequence preview.
 - **After choice:** a dedicated *memory moment* confirms which NPC and environmental relationship changed, then a voluntary Continue.
 - **Later sessions:** journal reconstructs the sequence; multiple choices combine into new places.
 - **Ending:** preserve choices in one of several authored conclusions, with a two-step confirmation before erasing the garden.

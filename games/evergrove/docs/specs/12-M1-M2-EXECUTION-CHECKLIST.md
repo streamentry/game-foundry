@@ -28,7 +28,7 @@ UNITY_BIN="/Applications/Unity/Hub/Editor/6000.3.0f1/Unity.app/Contents/MacOS/Un
 ```
 
 - [ ] Confirm installed Editor version, package resolution and **zero compiler errors** in the complete log; verify scene creation and 12-puzzle smoke marker **plus `EVERGROVE_UNITY_IMPORT_CHECK_OK`**, actual `JsonUtility` v4 snapshot round trips, all 29 `Resources` locale imports, and 12-puzzle invariants. Record exact command, shell exit status and log checksum. The same checks must run before a Unity export.
-- [ ] In the graphical Editor, open the created scene, press Play, and verify at least one real interaction. Batchmode method alone verifies bootstrap/domain integration, **not** rendering, focus, native input or 12-chapter gameplay.
+- [ ] In the graphical Editor, open the created scene, press Play, and verify at least one real interaction. On 320×568/375×667 viewports the first playable tile must be discoverable **without scrolling**. After solving, auto-scroll must expose the **choice heading and choices**, not bottom-of-page settings/footer. Batchmode method alone verifies bootstrap/domain integration, **not** rendering, focus, native input or 12-chapter gameplay.
 - [ ] Keep generated logs, scene outputs and credentials out of unrelated source commits. If the Editor generates new project files, review and explicitly classify them rather than silently staging everything.
 
 **BLD-001 is PASS only if the actual Editor imported and compiled.** An expected log string copied into docs is not evidence.
