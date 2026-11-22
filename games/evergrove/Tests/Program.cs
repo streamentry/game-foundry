@@ -120,6 +120,13 @@ internal static class Program
         Expect(world.Memory.Contains("Mira"), "Mira recalls tree");
         Expect(!world.Choose(VillageChoice.Bridge), "cannot choose twice without solving");
 
+        Expect(world.ReconsiderLatestChoice(), "last garden choice can be reconsidered");
+        Expect(world.Round == 0 && world.Solved &&
+            world.Choices.Length == 0, "undo choice reopens solved board without history");
+        Expect(world.Choose(VillageChoice.ShadeTree), "corrected choice can recommit");
+        Expect(world.Round == 1 && world.Choices.Length == 1,
+            "corrected history contains only one action");
+
         Solve(world);
         Expect(world.Choose(VillageChoice.Bridge), "bridge choice commits");
         Expect(VillageStory.HasShadedCrossing(world), "two decisions create a new landmark");

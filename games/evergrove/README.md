@@ -9,7 +9,7 @@ Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006
 1. Restore a winding stream by rotating tiles. No time limit, score penalty, account or advertisements.
 2. Watch the spring's water reach more of the route. The display explains connected tiles and unmatched joins. An optional **Guide me** button reveals one connection without shame or a penalty.
 3. After the water flows through every tile, choose one meaningful change: **plant shade trees**, **restore a footbridge**, or **grow a wildflower meadow**.
-4. See an original illustrated world change, read the new memory, and return to discover combinations of previous choices. Mira, Orin and Fen respond to the same world history.
+4. See an original illustrated world change, read the new memory (and revise a mis-tap before continuing), and return to discover combinations of previous choices. Mira, Orin and Fen respond to the same world history.
 5. Reach a hand-authored conclusion after twelve streams. Review your complete history; optionally begin another playthrough with different choices.
 
 **What makes consequences meaningful:** tree + bridge creates a shaded crossing; tree + flowers attracts butterflies; bridge + flowers draws neighbors to the meadow. A balance of all three generates a different ending from a world focused on only one. Art, dialogue, journal and ending are derived from one persisted event sequence, not invented by a chatbot.

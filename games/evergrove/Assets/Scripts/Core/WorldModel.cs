@@ -201,6 +201,26 @@ namespace Evergrove.Core
             return true;
         }
 
+        /// <summary>
+        /// Correct a mis-tap while the choice is still on the memory interlude.
+        /// The previous puzzle is reopened as solved so the player can choose
+        /// another village outcome without replaying the entire board.
+        /// </summary>
+        public bool ReconsiderLatestChoice()
+        {
+            if (Mode != PlayMode.Living || Round == 0 ||
+                state.choices.Length != Round) return false;
+            int previousChapter = Round - 1;
+            int[] trimmed = new int[state.choices.Length - 1];
+            Array.Copy(state.choices, trimmed, trimmed.Length);
+            state.choices = trimmed;
+            state.round = previousChapter;
+            state.rotations = (int[])PuzzleCatalog.Get(previousChapter).Solution.Clone();
+            state.previous = Array.Empty<int>();
+            state.solved = true;
+            return true;
+        }
+
         public bool NextPuzzle()
         {
             if (Mode != PlayMode.PuzzleOnly || Completed || !Solved ||

@@ -306,6 +306,12 @@ namespace Evergrove.UnityClient
                     showingMemory = false;
                     Rebuild(true);
                 }, 62, true);
+                Button(content, "Change your choice", "Change this choice", () => {
+                    if (!world.ReconsiderLatestChoice()) return;
+                    SaveWorld();
+                    showingMemory = false;
+                    Rebuild(false);
+                }, 47);
             }
             else if (world.Completed)
             {
@@ -466,6 +472,8 @@ namespace Evergrove.UnityClient
 
             if (world.Solved)
             {
+                Button(content, "Revisit water", "Undo the last water turn",
+                    () => Act(() => world.Undo()), 44);
                 if (world.Mode == PlayMode.PuzzleOnly)
                     Button(content, "Next stream", "Next stream", () => {
                         if (!world.NextPuzzle()) return;
