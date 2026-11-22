@@ -34,3 +34,23 @@ GoogleService-Info.plist
 # Authenticated Apple research exports: keep snapshots local/private
 .apple-results/
 docs/research/raw/
+
+# Unity (Evergrove C# prototype only; keep Assets, .meta and ProjectSettings)
+/games/evergrove/Library/
+/games/evergrove/Temp/
+/games/evergrove/Obj/
+/games/evergrove/Logs/
+/games/evergrove/Build/
+/games/evergrove/Builds/
+/games/evergrove/UserSettings/
+/games/evergrove/.vs/
+/games/evergrove/*.sln
+/games/evergrove/Assembly-CSharp*.csproj
+**/bin/
+**/obj/
+
+# Cloudflare preview local state and package installs
+/backend/evergrove/node_modules/
+/backend/evergrove/.wrangler/
+/backend/evergrove/.dev.vars
+/backend/evergrove/.dev.vars.*
