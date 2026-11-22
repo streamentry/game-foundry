@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Pinoprotektahan ng mga bulaklak ang daluyang ito. Hindi ito maiikot."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Tingnan ang hanay {0}. May dugtungang kailangang suriin."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Hanay {0}, kolum {1}: ihambing ang mga bukas na dulo."
+    },
+    {
+      "key": "hint_more",
+      "value": "Isa pang pahiwatig"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Ayusin ang isang dugtungan"
+    },
+    {
+      "key": "save_warning",
+      "value": "Hindi na-save ang progreso. Suriin ang storage ng device."
     }
   ]
 }
