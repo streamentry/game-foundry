@@ -18,6 +18,8 @@ The [living worlds and social systems 2026–2036 thesis](living-worlds-social-s
 
 The [projected 50 global hits for 2026–2036](projected-global-hits-2026-2036.md) preserves the founder's 50 ranked speculative original IP concepts (`PH-001`–`PH-050`) with mechanics, overlap mapping, and falsification gates. **These are forecasts and research concepts, not independently validated build commitments.**
 
+The [portfolio-ranking correction and comparison protocol](../research/portfolio-ranking-audit-and-protocol-2026-11-22.md) records why a previous **top-five recommendation did not cover the full backlog**, defines separate global-hit and indie-build rankings, and sets six evidence dimensions plus a completeness gate. **No comprehensive top five has yet been scored or validated.**
+
 ## Data dictionary
 
 | Field | Meaning |
