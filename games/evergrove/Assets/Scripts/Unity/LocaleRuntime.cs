@@ -17,6 +17,26 @@ namespace Evergrove.UnityClient
         public static string Preference { get { return PlayerPrefs.GetString(PreferenceKey, GameLocalization.Auto); } }
         public static string Current { get { return GameLocalization.Current; } }
 
+        // Research builds expose the 30 draft catalogs for testing. An
+        // ordinary player build offers only explicitly allowed launch
+        // candidates; currently English alone, still NOT certified.
+        private static bool ResearchBuild
+        {
+            get
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
+
+        public static IReadOnlyList<GameLanguage> SelectableLanguages
+        {
+            get { return LocaleShippingPolicy.Selectable(ResearchBuild); }
+        }
+
         public static void Initialize()
         {
             Apply(Preference);
@@ -24,8 +44,11 @@ namespace Evergrove.UnityClient
 
         public static bool Apply(string preference)
         {
-            string code = GameLocalization.Detect(
-                preference, CultureInfo.CurrentUICulture.Name, Application.systemLanguage.ToString());
+            string code = LocaleShippingPolicy.Resolve(
+                GameLocalization.Detect(
+                    preference, CultureInfo.CurrentUICulture.Name,
+                    Application.systemLanguage.ToString()),
+                ResearchBuild);
             GameLocalization.SetCurrent(GameLocalization.Fallback);
             if (code == "en") return true;
             try
@@ -47,7 +70,8 @@ namespace Evergrove.UnityClient
 
         public static bool Choose(string preference)
         {
-            if (preference != GameLocalization.Auto && !GameLocalization.IsSupported(preference))
+            if (preference != GameLocalization.Auto &&
+                !LocaleShippingPolicy.Allows(preference, ResearchBuild))
                 return false;
             string oldPreference = Preference;
             if (!Apply(preference))

@@ -78,6 +78,16 @@ for code in sorted(supported):
     assert all(f"{{{i}}}" in by_key["journal_entry"] for i in range(3)), code
     assert all(f"{{{i}}}" in by_key["progress"] for i in range(3)), code
     assert all(f"{{{i}}}" in by_key["stream"] for i in range(2)), code
+locale_runtime = (game / "Assets/Scripts/Unity/LocaleRuntime.cs").read_text()
+shipping_policy = (game / "Assets/Scripts/Core/LocaleShippingPolicy.cs").read_text()
+for required in ("LocaleShippingPolicy.Resolve", "LocaleShippingPolicy.Allows",
+                 "LocaleShippingPolicy.Selectable", "#if UNITY_EDITOR || DEVELOPMENT_BUILD"):
+    assert required in locale_runtime, "Missing consumer locale-channel isolation: " + required
+for required in ('new GameLanguage("en", "English")', "researchBuild ? GameLocalization.Available",
+                 "GameLocalization.Fallback"):
+    assert required in shipping_policy, "Consumer locale policy must require review to expand: " + required
+assert "foreach (GameLanguage choice in LocaleRuntime.SelectableLanguages)" in ui
+assert ui.count("LocaleRuntime.SelectableLanguages.Count > 1") == 2
 assert "LocaleRuntime.Initialize();" in ui and "BuildLanguagePicker()" in ui
 assert "LocalizedVillage." in ui and "GameLocalization.Text(" in ui
 print(f"Evergrove language assets: English source + {len(supported)} complete offline catalogs, {len(keys)} keys each")
