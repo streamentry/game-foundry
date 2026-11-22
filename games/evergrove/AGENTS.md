@@ -16,7 +16,7 @@ The separate [37-feature product specifications](docs/specs/README.md) are **pro
 - `Assets/Scripts/Core/VillageScenePlan.cs`: derived read-only world illustration.
 - `Assets/Scripts/Core/VillageStory.cs`: longer English manuscript; `LocalizedVillage.cs` and `GameLocalization.cs`: compact 30-language runtime copy.
 - `Assets/Scripts/Unity/EvergroveApp.cs`: Unity UI, not another world authority.
-- `Assets/Scripts/Unity/WorldStore.cs`: versioned local save and backup; the UI now warns on a failed write, but device interruption and restore behavior remain unverified.
+- `Assets/Scripts/Core/SaveJournal.cs` + `Assets/Scripts/Unity/WorldStore.cs`: validated primary/backup/staged recovery, safe backup rotation, and explicit write block when all slots fail. The UI warns and requires a confirmed reset; **physical interruption and recovery remain unverified**.
 - `Assets/Scripts/Unity/VillageIllustration.cs` / `VillageDiorama.cs`: 2D default and optional experimental 2.5D.
 - `Assets/Scripts/Unity/WorldClient.cs` and `backend/evergrove`: detached demo, not real cloud game sync.
 

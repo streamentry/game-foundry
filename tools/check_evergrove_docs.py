@@ -304,10 +304,27 @@ def check_specification_contract() -> None:
         fail("Nonlocalized S/G board markers regressed")
     if "DrawEndpointIcon(markerNode.transform, spring)" not in ui:
         fail("Language-neutral board endpoint markers are missing")
-    if "evergrove-world-v2.json" not in source_text(
-        GAME / "Assets/Scripts/Unity/WorldStore.cs"
-    ):
+    store = source_text(GAME / "Assets/Scripts/Unity/WorldStore.cs")
+    journal = source_text(GAME / "Assets/Scripts/Core/SaveJournal.cs")
+    app = source_text(GAME / "Assets/Scripts/Unity/EvergroveApp.cs")
+    test_runner = source_text(GAME / "Tests/Program.cs")
+    if "evergrove-world-v2.json" not in store:
         fail("Save filename changed without migration contract review")
+    for marker in (
+        "SaveJournal.TryLoad", "SaveJournal.Commit", "RecoveryBlocked",
+        "SaveJournal.HasAnySlot", "public static bool Clear()",
+    ):
+        if marker not in store:
+            fail(f"Save recovery guard missing from Unity adapter: {marker}")
+    for marker in ('ReadValid(primary + ".bak"', 'ReadValid(primary + ".tmp"',
+                   'ReadValid(primary, accepts, out old)', 'File.Copy(primary, backup, true)'):
+        if marker not in journal:
+            fail(f"Save journal last-good-copy contract drift: {marker}")
+    if ("SaveJournalTests.Run();" not in test_runner or
+            "SaveJournalTests.cs" not in source_text(DOCS / "SAVE_AND_MIGRATION.md")):
+        fail("Save journal interruption tests are untracked")
+    if "WorldStore.RecoveryBlocked" not in app or "ConfirmedReset()" not in app:
+        fail("Unreadable save lacks a visible explicit reset path")
 
     locale_dir = GAME / "Assets/Resources/Evergrove/Locales"
     for file in locale_dir.glob("*.json"):

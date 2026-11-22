@@ -88,7 +88,7 @@ On a licensed GameCI run, `tools/evergrove_build_provenance.py` must verify plat
 
 ## Save integrity (EG-008)
 
-Current `WorldStore` writes `evergrove-world-v2.json` (filename is v2; **snapshot schema is v4**), validates JSON via `WorldModel.TryRestore`, writes a temporary file, attempts replacement with backup and has a copy-based fallback. It can recover a previous valid backup and migrate old PlayerPrefs v1 data. **This is an implemented strategy, not a verified atomic guarantee on every mobile filesystem.**
+Current `WorldStore` writes `evergrove-world-v2.json` (historic filename; **snapshot schema v4**) via the pure-C# [SaveJournal](../../Assets/Scripts/Core/SaveJournal.cs). It validates staged JSON, copies an **already valid primary** to backup before replacing it, and loads in primary → backup → staged order. Corrupt primary data cannot poison an existing valid backup. If all existing slots fail, the UI **blocks saving** until explicit reset. The new [deterministic storage tests](../../Tests/SaveJournalTests.cs) simulate 100 interrupted-write cases, but are **not** real device power-loss or disk-full evidence.
 
 Required fault-injection plan:
 1. Make one rotation, save, terminate; reopen and compare board, variant and hints.

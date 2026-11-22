@@ -1,6 +1,6 @@
 # Evergrove — save contract, corruption handling and historical compatibility
 
-**Source of truth:** [WorldModel.cs](../Assets/Scripts/Core/WorldModel.cs) and [WorldStore.cs](../Assets/Scripts/Unity/WorldStore.cs). **Current snapshot schema: v4**. Filename `evergrove-world-v2.json` intentionally persists for compatibility.
+**Source of truth:** [WorldModel.cs](../Assets/Scripts/Core/WorldModel.cs), [SaveJournal.cs](../Assets/Scripts/Core/SaveJournal.cs) and [WorldStore.cs](../Assets/Scripts/Unity/WorldStore.cs). **Current snapshot schema: v4**. Filename `evergrove-world-v2.json` intentionally persists for compatibility.
 
 ## 1. What is saved
 
@@ -25,7 +25,7 @@
 
 | Field | Meaning | Important invariant |
 | --- | --- | --- |
-| `version` | Snapshot schema version | Current 3; 1/2 migration recognized |
+| `version` | Snapshot schema version | Current **4**; v1/v2/v3 migrations recognized |
 | `mode` | `living` or `puzzle` | Strict match |
 | `round` | Zero-based index of current chapter | 0..12; 12 means completed |
 | `solved` | Current puzzle completed | Must equal independent `PipeRules.IsComplete` validation |
@@ -66,9 +66,9 @@ PuzzleOnly advances after a win without a choice and always uses `boardVariant=0
 | v2 twelve-chapter local JSON | Reads active board **unchanged** as variant 0; after next committed Living choice, subsequent board uses new branch variant | No retroactive rotation of an in-progress puzzle |
 | v3 historical JSON | Active ecological board is preserved exactly, with staged hint reset to idle | No retroactive reorientation |
 | v4 current JSON | Persists current board, last choice, hint stage and target | Reject inconsistent, anchored or already-solved hint targets |
-| Unknown/faulty data | Primary then `.bak` fallback; if both invalid and no valid legacy save, starts a new world | **Potential lost-progress experience**; must surface and test device recovery before release |
+| Unknown/faulty data | Validated primary → `.bak` → `.tmp` fallback; if all existing slots fail validation, play is in-memory only until explicit reset | Never overwrite unreadable user files automatically; platform recovery remains unverified |
 
-The save file lives under `Application.persistentDataPath/evergrove-world-v2.json`. `.bak` contains a previous save, and `.tmp` is the transient write file. The versioned content in the file is **v4**; renaming the file to `v4` without a migration route would orphan existing progress.
+The save file lives under `Application.persistentDataPath/evergrove-world-v2.json`. `.bak` contains a previously valid primary and `.tmp` is a staged candidate, which can be recovered if both main slots are unusable. The schema is **v4**; renaming the historic filename without migration would orphan existing progress.
 
 ## 4. Progressive hint durability and visible save failures
 
@@ -76,29 +76,20 @@ The save file lives under `Application.persistentDataPath/evergrove-world-v2.jso
 
 ## 5. Write, recovery and failure sequence
 
-```mermaid
-flowchart TD
-  X["Action changes WorldModel"] --> E["Export v4 snapshot"]
-  E --> V{"JsonUtility round-trip passes TryRestore?"}
-  V -->|No| F["Save returns false; warning only"]
-  V -->|Yes| T["Write .tmp"]
-  T --> R{"Existing primary?"}
-  R -->|No| N["Move temp to primary"]
-  R -->|Yes| A["Try File.Replace with backup"]
-  A -->|Unsupported / IO error| B["Copy primary to .bak; copy temp to primary"]
-  A -->|Success| OK["Save success"]
-  B --> OK
-  N --> OK
-  F --> P["Gameplay continues; persistence not guaranteed"]
-```
+**The new source-only recovery design** uses [SaveJournal.cs](../Assets/Scripts/Core/SaveJournal.cs):
 
-- On load: valid primary wins; otherwise valid backup is recovered and best-effort copied back to primary; otherwise valid v1 legacy PlayerPrefs is imported; else new `WorldModel`.
-- The fallback `File.Copy` path is **not a guarantee of atomic writes** on every mobile filesystem. Backup may contain an earlier state, not necessarily the most recent move.
-- `Save(world)` may return **false** while UI remains playable and only logs a warning. Missing player-visible save-failure handling is a **known production risk**.
-- `WorldStore.Clear()` attempts to delete primary, backup and temporary; logs individual exceptions. The UI's two-step confirmation does not guarantee every OS-level deletion succeeded.
-- Local saves are **not encrypted** and have no cryptographic signature, cross-device sync, account-based recovery or cloud backup.
+1. Reject invalid v4 JSON and refuse any write while `WorldStore.RecoveryBlocked` is set.
+2. Write a complete `.tmp` candidate and revalidate it before publishing anything.
+3. If the existing primary is valid, copy it to `.bak` and check that the backup is valid before replacing primary. **Never rotate a corrupt primary over the last valid backup.**
+4. Publish the validated stage to primary and revalidate it. Keep `.tmp` if publishing fails; delete it only after success.
+5. On load, prefer valid primary, then valid backup, then valid `.tmp`. Do **not** copy recovered backup bytes over the primary during loading.
+6. If files exist but none can be validated, leave them untouched; show the localized save warning, block future writes, and require an explicit two-step reset. `WorldStore.Clear()` returns success/failure and UI does not claim success after a partial deletion.
 
-## 5. Invariants and extra QA
+**Limitations:** This is best-effort fault recovery, not proven mobile flash durability. `File.Copy` / `File.WriteAllText` cannot guarantee atomicity or a fully durable fsync across power loss. Recovered backup may omit the most recent move. A distinct in-game notice for recovered-but-older progress remains to be designed and verified. Saves are not encrypted or synchronized.
+
+**Test scope:** [SaveJournalTests.cs](../Tests/SaveJournalTests.cs) adds pure-C# backup and staged recovery plus 100 deterministic interruption/truncation simulations. These are **not** 100 actual Android/iOS force-closes, filesystem permission/disk-full tests or `SAVE-001/002` verification; two-device testing remains mandatory.
+
+## 6. Invariants and extra QA
 
 The loader checks: recognized version, mode, chapter bounds, arrays present, choice history length, per-choice enumerations, current/previous orientations, solved/unsolved truth and variant consistency with the most recent chapter choice. This is basic **data integrity**, not malicious tamper resistance.
 
@@ -109,9 +100,9 @@ Manual fault-injection matrix:
 | Kill after rotating tile | Resume same board variant and orientation, or identify a genuine write failure |
 | Kill immediately after choosing a tree | Choice exists once; next chapter variant 1 is stable |
 | Kill during “memory moment” | History still saved; modal may not reappear (documented limitation) |
-| Corrupt primary but valid backup | Recover previous valid state; show player-appropriate recovery notice in a future UX |
-| Corrupt both saves | No crash; current fallback starts new game; **investigate warning/data-loss** |
-| Simulate disk full/permission denied | App should not claim save succeeded; currently only warning in log |
+| Corrupt primary but valid backup | Recover backup without poisoning it; log potential loss of the most recent update; dedicated in-game recovered-progress notice remains pending |
+| Corrupt all save slots | No automatic overwrite: block saving, retain unreadable files, warn visibly and require explicit reset |
+| Simulate disk full/permission denied | Save failure surfaces in UI; verify actual behavior on phone and record failed attempts |
 | Upgrade v1 completed prototype | Six choices preserved; unlocked chapter 7 is playable |
 | Upgrade v2 mid-chapter | Exact in-progress base board remains unchanged until next choice |
 | Reconsider variant 2 | Reopen prior solved variant board, not the unrotated source |
@@ -119,7 +110,7 @@ Manual fault-injection matrix:
 | Change language | Must not mutate `WorldSnapshot` or `LocalPlaytest`, and vice versa |
 | Use anchored tile | Mutator rejects tap; solver and restored snapshot honor fixed orientation |
 
-## 6. Evolution policy
+## 7. Evolution policy
 
 1. Only introduce a new `WorldSnapshot` version when a real schema/rule change requires it.
 2. Keep explicit migration cases for every shipped historical version, including an old *partially solved* board.
@@ -128,6 +119,6 @@ Manual fault-injection matrix:
 5. Document forward/backward compatibility of game upgrades and rollback; older binaries may **not** recognize v4 saves.
 6. Never silently turn an old garden into a new topology merely because the code became more expressive.
 
-## 7. Settings vs progress
+## 8. Settings vs progress
 
 World data persists to `Application.persistentDataPath`. Separate PlayerPrefs hold language override `evergrove:language-choice:v1`, sound preference, 2D/2.5D view, optional motion and the unconnected Cloudflare demo capability. Deleting/recreating a world should not be described as revoking that demo token or erasing all OS preferences. For privacy disclosures, note local-only world state and opt-in clipboard report separately.
