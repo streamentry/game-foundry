@@ -276,6 +276,9 @@ internal static class Program
             Expect(world.Choose((VillageChoice)choiceIndex), "player chooses ecological priority");
             Expect(world.Round == 1 && world.BoardVariant == choiceIndex + 1,
                 "the next puzzle depends on player choice");
+            Expect(!string.IsNullOrWhiteSpace(LocalizedVillage.EnvironmentalRule(world)) &&
+                   LocalizedVillage.EnvironmentalRule(world).Contains("cannot rotate"),
+                   "fixed ecological tile has understandable English rule");
             Puzzle variantBoard = world.CurrentPuzzle;
             fingerprints[choiceIndex] = variantBoard.Name + ":" + variantBoard.AnchoredTile +
                 ":" + string.Join(",", variantBoard.Solution);
@@ -461,7 +464,8 @@ internal static class Program
                    !string.IsNullOrWhiteSpace(LocalizedVillage.Memory(world)) &&
                    LocalizedVillage.Journal(world).Length == 1 &&
                    !string.IsNullOrWhiteSpace(LocalizedVillage.Choice(VillageChoice.Flowers)) &&
-                   !string.IsNullOrWhiteSpace(LocalizedVillage.Prompt(world)),
+                   !string.IsNullOrWhiteSpace(LocalizedVillage.Prompt(world)) &&
+                   !string.IsNullOrWhiteSpace(LocalizedVillage.EnvironmentalRule(world)),
                    "all narrative surfaces translated for " + language.Code);
             WorldSnapshot after = world.Export();
             Expect(before.round == after.round && before.solved == after.solved &&
