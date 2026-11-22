@@ -161,7 +161,12 @@ namespace Evergrove.Core
             return true;
         }
 
-        /// <summary>Optional, no-pressure hint fixes one tile. Not a hidden auto-solve.</summary>
+        /// <summary>
+        /// Optional no-pressure hint: directly aligns the first incorrect tile
+        /// to its solution orientation, records one undo and increments hints.
+        /// It can skip multiple clockwise turns; unlike proposed clue stages
+        /// it is a mutating action, not a highlight or one-turn nudge.
+        /// </summary>
         public bool GuideOneConnection()
         {
             if (Completed || Solved) return false;

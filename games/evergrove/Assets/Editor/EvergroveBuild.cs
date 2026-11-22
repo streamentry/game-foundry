@@ -72,7 +72,11 @@ namespace Evergrove.UnityClient.Editor
                 scenes = new[] { "Assets/Scenes/Evergrove.unity" },
                 locationPathName = output,
                 target = target,
-                options = BuildOptions.None
+                // This workflow is EXPLICITLY a research/development build.
+                // DEVELOPMENT_BUILD enables the playtest-only controls in
+                // EvergroveApp. A production candidate must use a distinct
+                // non-development build/release pipeline and be audited.
+                options = BuildOptions.Development
             });
             if (report == null || report.summary.result != BuildResult.Succeeded)
                 throw new InvalidOperationException("Unity player build FAILED for " + platform);

@@ -79,8 +79,15 @@ namespace Evergrove.UnityClient
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
             // Default to the proven-in-code 2D art; keep the experimental
             // orthographic 3D visual opt-in until real player/device evidence.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Research-only rendering options must never leak into a store
+            // candidate, even when an old development preference is present.
             showMiniature = PlayerPrefs.GetInt("evergrove:visual-miniature", 0) == 1;
             animateMiniature = PlayerPrefs.GetInt("evergrove:miniature-motion", 0) == 1;
+#else
+            showMiniature = false;
+            animateMiniature = false;
+#endif
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
             LocaleRuntime.Initialize();
@@ -110,6 +117,45 @@ namespace Evergrove.UnityClient
             var obj = new GameObject(name, typeof(RectTransform));
             obj.transform.SetParent(parent, false);
             return obj;
+        }
+
+        // Non-linguistic puzzle landmarks: three blue waves = spring;
+        // green stem + leaves = garden. These use only UI geometry, so
+        // no language-specific glyph or font is needed on the board.
+        // Screen-reader semantics still require a dedicated device-tested
+        // accessibility layer (see EG-113), not just GameObject names.
+        private static void IconPart(Transform parent, string name, Color color,
+                                     Vector2 size, Vector2 offset, float angle = 0f)
+        {
+            var part = Node(name, parent);
+            RectTransform rect = part.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = rect.anchorMin;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = size;
+            rect.anchoredPosition = offset;
+            rect.localRotation = Quaternion.Euler(0f, 0f, angle);
+            var image = part.AddComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
+        }
+
+        private static void DrawEndpointIcon(Transform parent, bool spring)
+        {
+            if (spring)
+            {
+                Color blue = Hex("#216A96");
+                IconPart(parent, "Upper water ripple", blue, new Vector2(17f, 3f), new Vector2(0f, 6f));
+                IconPart(parent, "Middle water ripple", blue, new Vector2(13f, 3f), new Vector2(0f, 0f));
+                IconPart(parent, "Lower water ripple", blue, new Vector2(17f, 3f), new Vector2(0f, -6f));
+            }
+            else
+            {
+                Color green = Hex("#2B7150");
+                IconPart(parent, "Sprout stem", green, new Vector2(3f, 13f), new Vector2(0f, -3f));
+                IconPart(parent, "Left leaf", green, new Vector2(9f, 6f), new Vector2(-4f, 4f), 35f);
+                IconPart(parent, "Right leaf", green, new Vector2(9f, 6f), new Vector2(4f, 6f), -35f);
+            }
         }
 
         private static void Fill(RectTransform rect)
@@ -448,8 +494,11 @@ namespace Evergrove.UnityClient
                 }
             }
 
-            // Research-only comparison controls are intentionally below the
-            // puzzle. They must not push the first playable move off-screen.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Research-only controls compile only in the Editor or explicitly
+            // opted-in Development Builds, never in ordinary player builds.
+            // A mode comparison requires matched puzzle fixtures before any
+            // research result can be used as evidence of narrative value.
             if (world.CanSwitchMode)
             {
                 Label(content, "Comparison hint",
@@ -485,6 +534,7 @@ namespace Evergrove.UnityClient
                         }, 45);
             }
 
+#endif
             Button(content, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 () => {
@@ -512,6 +562,7 @@ namespace Evergrove.UnityClient
                         Rebuild();
                     }, 44);
             }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest == null)
             {
                 Button(content, "Playtest consent", GameLocalization.Text("record"),
@@ -540,6 +591,7 @@ namespace Evergrove.UnityClient
                 Button(content, "Stop playtest", GameLocalization.Text("clear"),
                     () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
             }
+#endif
             Label(content, "Respectful play", GameLocalization.Text("offline"),
                 12, 36, Moss, TextAnchor.MiddleCenter);
             Canvas.ForceUpdateCanvases();
@@ -654,20 +706,16 @@ namespace Evergrove.UnityClient
                 {
                     // Visible endpoint semantics instead of relying only on
                     // screen-reader names or a color difference.
-                    var markerNode = Node("Spring or Grove label", tileNode.transform);
+                    bool spring = seenEnds == 1;
+                    var markerNode = Node(spring ? "Water spring waves" : "Garden sprout",
+                        tileNode.transform);
                     RectTransform markerRect = markerNode.GetComponent<RectTransform>();
                     markerRect.anchorMin = new Vector2(0f, 1f);
                     markerRect.anchorMax = new Vector2(0f, 1f);
                     markerRect.pivot = new Vector2(0f, 1f);
-                    markerRect.sizeDelta = new Vector2(23f, 20f);
+                    markerRect.sizeDelta = new Vector2(25f, 23f);
                     markerRect.anchoredPosition = new Vector2(4f, -4f);
-                    var marker = markerNode.AddComponent<Text>();
-                    marker.font = font;
-                    marker.fontSize = 13;
-                    marker.alignment = TextAnchor.MiddleCenter;
-                    marker.color = Ink;
-                    marker.raycastTarget = false;
-                    marker.text = seenEnds == 1 ? "S" : "G";
+                    DrawEndpointIcon(markerNode.transform, spring);
                 }
             }
 
@@ -753,6 +801,7 @@ namespace Evergrove.UnityClient
             Rebuild();
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private void SwitchMode(PlayMode mode)
         {
             if (!world.CanSwitchMode) return;
@@ -763,6 +812,7 @@ namespace Evergrove.UnityClient
             Rebuild();
         }
 
+#endif
         private void RefreshBoard()
         {
             if (world.Completed || visibleTiles == null) return;
