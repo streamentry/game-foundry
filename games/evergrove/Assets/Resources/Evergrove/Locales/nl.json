@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Wilde bloemen beschermen dit stuk. Draaien kan niet."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Kijk naar rij {0}. Er is een verbinding om te controleren."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Rij {0}, kolom {1}: vergelijk de open uiteinden."
+    },
+    {
+      "key": "hint_more",
+      "value": "Nog een hint"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Eén verbinding herstellen"
+    },
+    {
+      "key": "save_warning",
+      "value": "Voortgang kon niet worden opgeslagen. Controleer de opslagruimte."
     }
   ]
 }

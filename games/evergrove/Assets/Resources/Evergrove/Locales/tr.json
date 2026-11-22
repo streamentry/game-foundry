@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Kır çiçekleri bu akışı koruyor. Döndürülemez."
+    },
+    {
+      "key": "hint_notice",
+      "value": "{0}. satıra bak. Bir bağlantıyı kontrol et."
+    },
+    {
+      "key": "hint_focus",
+      "value": "{0}. satır, {1}. sütun: açık uçları karşılaştır."
+    },
+    {
+      "key": "hint_more",
+      "value": "Bir ipucu daha"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Bir bağlantıyı düzelt"
+    },
+    {
+      "key": "save_warning",
+      "value": "İlerleme kaydedilemedi. Cihaz depolama alanını kontrol edin."
     }
   ]
 }
