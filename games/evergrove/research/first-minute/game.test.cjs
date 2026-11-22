@@ -123,6 +123,8 @@ test("first playable board precedes decorative world in DOM and keyboard order",
   assert.match(app, /prefers-reduced-motion: reduce/);
   assert.match(app, /node\("restart"\)\.disabled = !!model\.choice/,
     "protect the memory state from an accidental reset");
+  assert.match(app, /toggleAttribute\("hidden", model\.choice !== key\)/,
+    "SVG world changes must remove the hidden attribute, not set an expando");
   assert.match(style, /max-width: 430px\) and \(max-height: 680px/);
 });
 
