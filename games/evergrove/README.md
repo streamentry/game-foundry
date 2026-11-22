@@ -27,9 +27,19 @@ The experience supports **Living world** and **Puzzle only** (the same water puz
 ## Run in Unity
 
 1. Open `games/evergrove/` in **Unity Hub**, using **Unity 6.3 LTS**. It currently requests `6000.3.0f1`.
-2. Let Unity import uGUI and compile C# scripts. Choose **Evergrove → Create Playtest Scene** to generate/open the empty game scene.
+2. Let Unity import uGUI and compile C# scripts. Choose **Evergrove → Create or Open Playtest Scene** to generate/open the empty game scene. You can also run **Evergrove → Verify C# Game and Scene** for a local Editor check.
 3. Press **Play**. The UI and original art are generated from C#.
 4. For physical iOS/Android builds, use the appropriate installed Unity platform modules and configure signing, bundle identifiers, orientation, input handling and device accessibility. **These have not been independently verified.**
+
+For a licensed Unity Editor installation, a separate *Unity-engine* smoke check can be executed headlessly (its script import is the most relevant compilation gate for the uGUI classes):
+
+```bash
+Unity -batchmode -nographics -projectPath games/evergrove \
+  -executeMethod Evergrove.UnityClient.Editor.EvergroveSceneSetup.VerifyProject \
+  -logFile - -quit
+```
+
+This step **has not been run by this assistant**; no Unity license is bundled in CI. It creates the local editor scene and checks all puzzles. Device touch/IL2CPP still require their own checks.
 
 The Game Foundry's other Godot games remain unchanged.
 
