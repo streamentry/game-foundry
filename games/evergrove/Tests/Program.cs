@@ -120,7 +120,7 @@ internal static class Program
         Expect(parsed.Round == 6 && !parsed.Completed, "old ending unlocks chapter seven");
         Expect(parsed.Rotations.Length == 16, "migration creates first 4x4 board");
         Expect(parsed.Choices.Length == 6, "original history retained");
-        Expect(parsed.Export().version == WorldModel.Version, "migrated snapshot uses v2");
+        Expect(parsed.Export().version == WorldModel.Version, "migrated snapshot uses current v4");
 
         var legacyPartial = WorldModel.New().Export();
         legacyPartial.version = 1;
@@ -354,6 +354,204 @@ internal static class Program
             "tampering with variant inconsistent with history fails closed");
     }
 
+    private static void ProgressiveHintAndSaveV4()
+    {
+        var world = WorldModel.New();
+        int[] original = world.Rotations;
+        Expect(world.Export().version == 4 && world.HintStep == 0 && world.HintTile == -1,
+            "new saves have v4 hint fields with an idle sentinel");
+        int chosen = HintPlanner.SelectTarget(world.CurrentPuzzle, original);
+        Expect(chosen >= 0 && !world.CurrentPuzzle.IsAnchored(chosen) &&
+               original[chosen] != world.CurrentPuzzle.Solution[chosen],
+            "hint chooses a genuinely incorrect, movable tile");
+        Expect(world.AdvanceGentleHint() == 1 && world.HintStep == 1 &&
+               world.HintTile == chosen && world.HintsUsed == 0,
+            "first hint identifies a row without rotating tiles");
+        Expect(string.Join(",", original) == string.Join(",", world.Rotations),
+            "noticing does not secretly solve puzzle");
+        WorldModel loaded;
+        Expect(WorldModel.TryRestore(world.Export(), out loaded) && loaded.HintStep == 1 &&
+               loaded.HintTile == chosen, "first hint survives save/load");
+        Expect(loaded.AdvanceGentleHint() == 2 && loaded.HintStep == 2 &&
+               loaded.HintsUsed == 0,
+            "second hint focuses a tile without granting free rotations");
+        Expect(WorldModel.TryRestore(loaded.Export(), out world) && world.HintStep == 2,
+            "focus stage survives interruption and restores precisely");
+        Expect(world.AdvanceGentleHint() == 3 &&
+               world.Rotations[chosen] == world.CurrentPuzzle.Solution[chosen] &&
+               world.HintStep == 0 && world.HintTile == -1 && world.HintsUsed == 1,
+            "third requested hint corrects precisely one targeted connection");
+        Expect(world.Undo() && string.Join(",", world.Rotations) ==
+               string.Join(",", original) && world.HintsUsed == 1,
+            "hint undo restores the old board but never refunds help count");
+        Expect(world.AdvanceGentleHint() == 1 && world.HintStep == 1,
+            "next help session starts at notice, not an automatic correction");
+        Expect(world.Rotate(chosen) && world.HintStep == 0 && world.HintTile == -1,
+            "manual turn resets staged guidance");
+        Expect(world.AdvanceGentleHint() == 1 && world.Restart() &&
+               world.HintStep == 0 && world.HintTile == -1,
+            "restart clears stale hint selection");
+
+        WorldSnapshot corrupt = world.Export();
+        corrupt.hintStep = 2;
+        corrupt.hintTile = -1;
+        Expect(!WorldModel.TryRestore(corrupt, out loaded),
+            "v4 hint stages without a real tile fail closed");
+        corrupt = world.Export();
+        corrupt.hintStep = 3;
+        Expect(!WorldModel.TryRestore(corrupt, out loaded),
+            "v4 forged final hint stage rejected");
+        corrupt = world.Export();
+        corrupt.hintTile = 0;
+        Expect(!WorldModel.TryRestore(corrupt, out loaded),
+            "idle hint must not smuggle an active target");
+
+        for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+            for (int variant = 0; variant <= (chapter == 0 ? 0 : 3); variant++)
+            {
+                Puzzle board = ReactiveWatercourses.ForChapter(chapter, variant);
+                int selected = HintPlanner.SelectTarget(board, board.Initial);
+                Expect(selected >= 0 && !board.IsAnchored(selected) &&
+                    board.Initial[selected] != board.Solution[selected],
+                    "all 45 boards have valid movable hint target");
+                Expect(HintPlanner.SelectTarget(board, board.Solution) == -1,
+                    "solved puzzle has no misleading hint");
+            }
+        // v3 saves must preserve ecological variant and be upgraded to v4
+        // without relying on fields absent from the old on-disk schema.
+        var prior = WorldModel.New();
+        Solve(prior);
+        Expect(prior.Choose(VillageChoice.Bridge), "old v3 world can have a bridge variant");
+        prior.AdvanceGentleHint();
+        WorldSnapshot v3 = prior.Export();
+        v3.version = 3;
+        v3.hintStep = 2; // simulate ignored new fields, absent from real v3 JSON
+        v3.hintTile = v3.boardVariant;
+        Expect(WorldModel.TryRestore(v3, out loaded) && loaded.BoardVariant == 2 &&
+               loaded.HintStep == 0 && loaded.HintTile == -1 &&
+               loaded.CurrentPuzzle.Name == prior.CurrentPuzzle.Name,
+            "v3 choice-conditioned active board survives migration unchanged");
+        Expect(loaded.Export().version == 4, "old v3 session upgrades to v4 schema");
+
+        // Wrong targets, protected habitat and solved states never allow hint.
+        WorldSnapshot invalid = loaded.Export();
+        invalid.hintStep = 1;
+        invalid.hintTile = loaded.CurrentPuzzle.AnchoredTile;
+        Expect(!WorldModel.TryRestore(invalid, out world),
+            "staged hints may never target ecological protected tiles");
+        var solved = WorldModel.New();
+        Solve(solved);
+        Expect(solved.AdvanceGentleHint() == 0,
+            "no assistance allowed after water puzzle is already solved");
+    }
+
+    private static void NonColorLeaksAndCausalJournal()
+    {
+        for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+            for (int variant = 0; variant <= (chapter == 0 ? 0 : 3); variant++)
+            {
+                Puzzle board = ReactiveWatercourses.ForChapter(chapter, variant);
+                PipeInsight first = PipeRules.Inspect(board, board.Initial);
+                PipeInsight finished = PipeRules.Inspect(board, board.Solution);
+                Expect(first.Leaking.Length == board.CellCount &&
+                       finished.Leaking.Length == board.CellCount,
+                    "noncolor leak flags exist for every tile across all 45 boards");
+                bool anyMarked = false;
+                for (int i = 0; i < board.CellCount; i++)
+                {
+                    if (first.Leaking[i]) anyMarked = true;
+                    Expect(!finished.Leaking[i], "complete route has no misleading exclamation");
+                }
+                Expect(first.LeakCount == 0 || anyMarked,
+                    "every nonzero leak count has a visible noncolor tile marker");
+                Expect(finished.LeakCount == 0, "win has no unresolved leaks");
+            }
+
+        var world = WorldModel.New();
+        Solve(world);
+        Expect(world.Choose(VillageChoice.ShadeTree), "journal source action tree");
+        string[] log = LocalizedVillage.Journal(world);
+        Expect(log.Length == 1 && log[0].Contains("Mira") &&
+               log[0].Contains("young tree") && log[0].Contains("roots"),
+            "latest tree action records identity, true scene and active puzzle consequence");
+        Solve(world);
+        Expect(world.Choose(VillageChoice.Bridge), "journal source action crossing");
+        log = LocalizedVillage.Journal(world);
+        Expect(log.Length == 2 && log[0].Contains("young tree") &&
+               !log[0].Contains("roots") && log[1].Contains("Orin") &&
+               log[1].Contains("crossing") && log[1].Contains("foundations"),
+            "historical event keeps true scene effect; only newest active branch is asserted");
+        WorldModel restored;
+        Expect(WorldModel.TryRestore(world.Export(), out restored) &&
+               string.Join("|", LocalizedVillage.Journal(restored)) == string.Join("|", log),
+            "causal journal stable across save and reload");
+
+        var old = new WorldSnapshot {
+            version = 3, mode = "living", round = 1, solved = false,
+            rotations = (int[])PuzzleCatalog.Get(1).Initial.Clone(),
+            previous = Array.Empty<int>(), choices = new[] { 0 },
+            boardVariant = 0, lastSolvedVariant = 0
+        };
+        Expect(WorldModel.TryRestore(old, out restored),
+            "old v3 nonbranching active progress remains a valid migration");
+        Expect(!LocalizedVillage.Journal(restored)[0].Contains("roots"),
+            "old saves do not invent board changes that never happened");
+    }
+
+    private static void PuzzleDiagnosticsTests()
+    {
+        PuzzleProfile[] all = PuzzleDiagnostics.All();
+        Expect(all.Length == 45, "12 base fixtures and 33 branch presentations");
+        var ids = new System.Collections.Generic.HashSet<string>();
+        foreach (PuzzleProfile profile in all)
+        {
+            Expect(ids.Add(profile.id), "stable unique metadata ID");
+            Puzzle puzzle = ReactiveWatercourses.ForChapter(profile.chapter - 1, profile.variant);
+            Expect(profile.solutionCountAtMostTwo == 1, "all catalog boards uniquely solvable");
+            Expect(profile.size == puzzle.Size && profile.initialOrientations.Length == puzzle.CellCount,
+                "metadata reflects actual board size and arrays");
+            Expect(profile.minimumClockwiseTaps > 0 && profile.initiallyMisalignedTiles > 0 &&
+                profile.minimumClockwiseTaps >= profile.initiallyMisalignedTiles,
+                "minimum clockwise taps derived from exact source orientations");
+            int taps = 0;
+            for (int tile = 0; tile < puzzle.CellCount; tile++)
+            {
+                int[] copy = (int[])puzzle.Initial.Clone();
+                while (copy[tile] != puzzle.Solution[tile])
+                {
+                    copy[tile] = copy[tile] % PipeRules.OrientationCount(puzzle.Kinds[tile]) + 1;
+                    taps++;
+                }
+            }
+            Expect(taps == profile.minimumClockwiseTaps,
+                "independent clockwise tap count matches metadata");
+            Expect(profile.forcedMoveCount == null && profile.observedMedianSeconds == null &&
+                profile.observedP90Seconds == null && profile.observedHintRate == null &&
+                profile.humanReviewer == null, "not-yet-observed human and logic metrics remain null");
+            Expect((profile.anchoredTile.HasValue) == (profile.variant != 0),
+                "only branch profiles have protected landmarks");
+        }
+        Expect(PuzzleDiagnostics.All()[0].id == "stream-01-base", "stable first catalog ID");
+    }
+
+    private static readonly JsonSerializerOptions CatalogOptions =
+        new JsonSerializerOptions { IncludeFields = true, WriteIndented = true };
+
+    private static bool CheckPuzzleCatalog()
+    {
+        const string path = "games/evergrove/docs/specs/puzzle-catalog.generated.json";
+        if (!File.Exists(path))
+        {
+            Console.Error.WriteLine("Generated puzzle catalog missing: " + path);
+            return false;
+        }
+        PuzzleProfile[] stored = JsonSerializer.Deserialize<PuzzleProfile[]>(
+            File.ReadAllText(path), new JsonSerializerOptions { IncludeFields = true });
+        return stored != null &&
+            JsonSerializer.Serialize(stored, CatalogOptions) ==
+            JsonSerializer.Serialize(PuzzleDiagnostics.All(), CatalogOptions);
+    }
+
     private static void PrivatePlaytestReport()
     {
         var notes = new LocalPlaytest(PlayMode.Living, false, 0, 10.0);
@@ -415,7 +613,7 @@ internal static class Program
     private static void LocalizationTests()
     {
         Expect(GameLocalization.Available.Count == 30, "exactly thirty language choices");
-        Expect(GameLocalization.Keys.Count == 76, "authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 81, "authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");
@@ -520,15 +718,35 @@ internal static class Program
         Expect(GameLocalization.SetCurrent("en"), "English remains available after invalid imports");
     }
 
-    public static int Main()
+    public static int Main(string[] args)
     {
         try
         {
+            if (args.Length == 1 && args[0] == "--print-puzzle-catalog")
+            {
+                Console.WriteLine(JsonSerializer.Serialize(
+                    PuzzleDiagnostics.All(), CatalogOptions));
+                return 0;
+            }
+            if (args.Length == 1 && args[0] == "--check-puzzle-catalog")
+            {
+                if (!CheckPuzzleCatalog())
+                {
+                    Console.Error.WriteLine("Puzzle catalog drift detected; regenerate from core.");
+                    return 1;
+                }
+                Console.WriteLine("All 45 puzzle profiles match the source-derived metadata.");
+                return 0;
+            }
+            if (args.Length != 0) throw new ArgumentException("Unknown test argument.");
             ContentAndRules();
             RestoreAndMigration();
             StoryAndCompleteRun();
             ScenicCausality();
             ReactiveCampaign();
+            ProgressiveHintAndSaveV4();
+            NonColorLeaksAndCausalJournal();
+            PuzzleDiagnosticsTests();
             PrivatePlaytestReport();
             LocalizationTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
