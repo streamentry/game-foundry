@@ -54,6 +54,8 @@ jobs:
           printf 'Game: Quiet Shot\nEngine: Godot %s\nCommit: %s\nMode: offline-only, no ads or analytics\n' \
             "$GODOT_VERSION" "$GITHUB_SHA" > build/quiet-shot-web/BUILD.txt
           (cd build/quiet-shot-web && sha256sum index.html index.js index.wasm index.pck > SHA256SUMS.txt)
+          cp tools/web_playtest.py build/quiet-shot-web/serve.py
+          python3 tools/web_playtest.py --directory build/quiet-shot-web --smoke
       - name: Upload downloadable playtest only (no public deployment)
         uses: actions/upload-artifact@v6
         with:

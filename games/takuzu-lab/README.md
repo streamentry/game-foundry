@@ -33,6 +33,10 @@ The generator handles small 4×4 and 6×6 grids, and no difficulty claims, publi
 
 Use [the browser playtest workflow](../../.github/workflows/web-preview.yml) to produce a private downloadable WebGL2 artifact, then follow [the session protocol](../../docs/playtest.md). The build does not require Godot on the tester's device, but it does require a local HTTP server or an explicitly approved static host.
 
+
+
+**New artifacts contain `serve.py`:** Extract the entire ZIP, open a terminal in the same directory as `index.html`, run `python3 serve.py`, and visit `http://127.0.0.1:8000/`. Do not open the HTML file directly with `file://`. If loading fails, run `python3 serve.py --smoke` and follow [the browser NetworkError guide](../../docs/web-networkerror.md). Actions artifacts are downloads, not live websites.
+
 ## Next real validation
 
 1. Test on a physical iPhone and Android device, including safe areas, screen readers, low-memory and suspended-app recovery.

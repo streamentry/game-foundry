@@ -54,6 +54,8 @@ jobs:
           printf 'Game: Odd Bloom\nEngine: Godot %s\nCommit: %s\nMode: offline-only, no ads or analytics\n' \
             "$GODOT_VERSION" "$GITHUB_SHA" > build/odd-bloom-web/BUILD.txt
           (cd build/odd-bloom-web && sha256sum index.html index.js index.wasm index.pck > SHA256SUMS.txt)
+          cp tools/web_playtest.py build/odd-bloom-web/serve.py
+          python3 tools/web_playtest.py --directory build/odd-bloom-web --smoke
       - name: Upload downloadable playtest only (no public deployment)
         uses: actions/upload-artifact@v6
         with:

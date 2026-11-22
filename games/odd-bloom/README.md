@@ -25,6 +25,10 @@ The tests verify exactly one non-color structural outlier, deterministic seeds, 
 
 The independent [Odd Bloom Web Playtest workflow](../../.github/workflows/odd-bloom-preview.yml) exports a **downloadable** WebGL2 artifact. After extraction, run `python3 -m http.server 8000` and open `http://localhost:8000` in a WebGL2-compatible browser. Do **not** open the generated `index.html` via `file://`.
 
+
+
+**New artifacts contain `serve.py`:** Extract the entire ZIP, open a terminal in the same directory as `index.html`, run `python3 serve.py`, and visit `http://127.0.0.1:8000/`. Do not open the HTML file directly with `file://`. If loading fails, run `python3 serve.py --smoke` and follow [the browser NetworkError guide](../../docs/web-networkerror.md). Actions artifacts are downloads, not live websites.
+
 ## Research, quality and constraints
 
 This mechanic has many established competitors. Immediate comprehension ≠ sustainable replay; don't scale content without observing real players. Structural distinctions avoid color-only "gotchas" but still require vision. Native accessibility, physical-device contrast and text scaling, adult-45+ fit, App Store search demand, referral outcomes, return and monetization **remain unverified**.

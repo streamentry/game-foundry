@@ -96,6 +96,20 @@ Open `games/shikaku-garden/project.godot` in Godot 4.7.2 and press **F5**, or fo
 
 Open `games/odd-bloom/project.godot` in Godot 4.7.2 and press **F5**, or follow the [game instructions](games/odd-bloom/README.md). The [Odd Bloom Web Playtest](.github/workflows/odd-bloom-preview.yml) workflow exports a **downloadable WebGL2 artifact**, not a hosted game.
 
+## Fix “NetworkError when attempting to fetch resource”
+
+The GitHub Actions ZIP is **not** a hosted website: GitHub Pages is not enabled for this repository. Opening an extracted `index.html` directly using `file://` prevents browsers from fetching the matching WebAssembly and PCK files. **Use the complete extracted ZIP**, not a copied HTML file.
+
+New playtest artifacts include `serve.py`. Open a Terminal in the extracted folder (where `index.html`, `index.js`, `index.wasm` and `index.pck` are present) and run:
+
+```bash
+python3 serve.py
+```
+
+Open the printed **http://127.0.0.1:8000/** URL on that computer. Run `python3 serve.py --check` to verify completeness and file hashes, or `python3 serve.py --smoke` to check HTTP 200, MIME types and full byte delivery. For older artifacts without `serve.py`, use `python3 -m http.server 8000 --bind 127.0.0.1` from the same directory. The workflows now test this HTTP path before uploading. This does **not** amount to real-browser/WebGL verification or public deployment.
+
+See [the exact troubleshooting guide](docs/web-networkerror.md). If it still fails, provide the browser's failing request and HTTP status from DevTools → Network.
+
 ## Share a tested browser-playtest build
 
 The [Browser Playtest Build workflow](.github/workflows/web-preview.yml) exports Takuzu Lab to WebGL2 from pinned Godot 4.7.2 after running gameplay integrity tests. It uploads a downloadable artifact; **it does not publish a public website or App Store app**.
