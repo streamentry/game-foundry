@@ -424,3 +424,11 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Corrected prior notes:** Opt-in procedural 2.5D *is now implemented* (not production tested); the Living World vs Puzzle Only comparison is **confounded after chapter 1**; the locale catalog contains **76** keys, not 73. Documentation corrections are not new player evidence.
 
 **Next real gate:** run Unity on a physical phone, conduct uncoached playtests and publish a continue/simplify/stop decision. Additional docs/code are not proof of demand.
+
+## 2026-11-22 — Specs implementation slice with evidence boundaries
+
+**Code delivered in PR #46:** source-derived catalog for 45 puzzle presentations (12 authored + 33 ecological branches), schema v4 for a three-step voluntary hint (row/tile/one correction), initial puzzle closer to the top, visible local save-failure warning, non-color per-tile mismatch markers, and a choice-grounded causal journal. Five new draft language keys added across 29 JSON catalogs (81 total). All changes are **source-level**, not an independent Unity phone test or native-language approval.
+
+**Mechanism limitations:** rotations preserve the underlying puzzle graph; theoretical minimum taps are not difficulty; historical v3 saves do not contain enough branch event detail to justify retrospective claims. No proper complex-script shaping, lossless crash-resilient save certification, full contrast or VoiceOver/TalkBack sign-off, customer research, organic D1/D7, trademark clearance or monetization is implied.
+
+**Next high-value reality gate:** licensed Unity Editor compile, physical Android/iOS smoke with early participants, then one controlled matched-puzzle comparison of whether actual causal consequences increase voluntary next-chapter play. Avoid interpreting task completion count as improved player value.

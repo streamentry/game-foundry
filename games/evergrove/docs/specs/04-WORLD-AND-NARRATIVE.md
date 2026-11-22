@@ -91,7 +91,7 @@ Each saved chapter entry should answer:
 3. **Who noticed:** one truthful NPC line, not generated memory.
 4. **What it changed next:** name the protected root/bridge/meadow rule in the next stream, if one actually exists.
 
-The current journal already records ordered memories. The four-link causal presentation is proposed. A returning player should reconstruct a past decision without replaying the whole campaign (exploratory target ≥80%). The journal must not imply a puzzle effect that the current board logic does not implement.
+The current journal now records real choices and immediate state-derived effects, with the **currently active next-puzzle rule** only when the saved variant proves it. Earlier entries (including migrated saves) do not invent historical mechanics. The full visual four-link causal journal is still proposed. A returning player should reconstruct a past decision without replaying the whole campaign (exploratory target ≥80%). The journal must not imply a puzzle effect that the current board logic does not implement.
 
 ## State machine and integrity
 
@@ -103,7 +103,7 @@ The current journal already records ordered memories. The four-link causal prese
 | Next stream | Play branch conditioned on prior choice | Save/restore preserves board variant and protected landmark |
 | Chapter 12 complete | Review journal, world and ending; optionally start another garden | Ending reflects ordered choices; no hidden random outcomes |
 
-The current `WorldSnapshot` schema is **v3**, with `boardVariant` and `lastSolvedVariant`; any future token or undo-history change needs explicit migration tests. World state must not depend on selected locale, 2D/2.5D view, sound or network availability.
+The current `WorldSnapshot` schema is **v4**, with `boardVariant`, `lastSolvedVariant`, `hintStep` and `hintTile`; v1/v2/v3 snapshots migrate with hint stage reset to idle. Any future token or undo-history change needs explicit migration tests. World state must not depend on selected locale, 2D/2.5D view, sound or network availability.
 
 ## Epilogue and postcard (EG-115/116)
 

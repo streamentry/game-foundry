@@ -52,7 +52,7 @@ References: [GameCI Unity Builder](https://game.ci/docs/github/builder/), [Unity
 - [ ] First launch honors device language including `vi-VN`, `ja-JP`, `zh-Hant-TW`, `es-MX`, `pt-BR`.
 - [ ] In-game language list shows all 30 **native names** legibly; auto mode and manual override survive restart.
 - [ ] Changing language mid-puzzle, after choosing a tree and at the ending **never changes event history or solved state**.
-- [ ] Translation coverage tests pass for **all canonical runtime keys** across all 29 JSON catalogs, including placeholders (currently 76; the static validator is authoritative).
+- [ ] Translation coverage tests pass for **all canonical runtime keys** across all 29 JSON catalogs, including placeholders (currently 81; the static validator is authoritative).
 - [ ] Validate language width and dynamic text on a compact device; no clipped buttons or title collisions.
 - [ ] Native-script glyph coverage: Chinese, Japanese, Korean, Thai, Vietnamese.
 - [ ] **RTL blocker:** Arabic, Persian, Hebrew and Urdu must be tested with a correct shaping/bidi engine. A right-aligned legacy uGUI Text alone is not enough.

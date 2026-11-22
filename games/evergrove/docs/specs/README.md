@@ -31,15 +31,15 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 
 **Evidence-first gates:** M0 specs → M1 Unity compile/build → M2 two physical devices and save/privacy → M3 first-session usability → M4 properly matched narrative-value study → M5 certified locale/text architecture → M6 commercial release. Do not implement replay, daily content or expansion systems as a substitute for a failed gate.
 
-**Thirty draft locales ≠ thirty production-ready languages.** The 37 backlog features are conditional opportunities, **not a promise to ship 37**. Current `verification-matrix.json` contains **no certified test evidence**.
+**Thirty draft locales (81 runtime keys each) ≠ thirty production-ready languages.** The 37 backlog features are conditional opportunities, **not a promise to ship 37**. Current `verification-matrix.json` contains **no certified test evidence**.
 
 ## What exists versus what is only specified
 
-**In repository, not device-certified:** 12 authored stream puzzles (six 3×3 and six 4×4); 33 choice-conditioned follow-up variants; deterministic tree/bridge/meadow consequences and three NPCs; journal and endings; one-step undo/restart/one-tile hint; dry-to-flowing water; 2D default and optional 2.5D miniature; offline JSON save with versioning, backup and migration; opt-in in-memory local playtest counters; 30 selectable **draft** localization catalogs.
+**In repository, not device-certified:** 12 authored stream puzzles (six 3×3 and six 4×4); 33 choice-conditioned follow-up variants; **45 deterministic source-derived board profiles**; one-step undo/restart, **v4 three-stage hints** (row → tile → one alignment); non-color leak markers, visible save-failure warning, a compact first-screen board, source-grounded journal and endings; deterministic tree/bridge/meadow consequences and three NPCs; dry-to-flowing water; 2D default and optional 2.5D miniature; offline JSON save/backup with v1/v2/v3 → v4 migration; opt-in in-memory local playtest counters; 30 selectable **draft** language choices with **81 keys** each.
 
 **Still unverified:** licensed Unity Editor compilation, signed iOS/Android binaries, real-device playability, full crash safety, screen-reader behavior, proper RTL/Indic shaping, native-language quality, target-audience demand, D1/D7 return, paid conversion, store name clearance. No document here should be read as evidence these gates passed.
 
-**Proposed, not implemented:** the redesigned first minute, full causal reveal/journal, puzzle-authoring metadata, progressive hint ladder, deep ecological puzzle constraints, formal bounded NPC memory, advanced text rendering, replay garden, daily optional streams, multi-step undo, haptics, postcards and most commercial experiments.
+**Still partial or proposed:** first-minute time-to-action and actual readability, observed puzzle difficulty calibration, full causal before/after reveal, richer ecology constraints, formal bounded NPC memory, certified RTL/Indic rendering, replay garden, optional return streams, multi-step undo, haptics, postcards and commercial experiments. Source code for staged hints, derived board diagnostics and a basic causal journal exists, but no player/device validation establishes its quality.
 
 ## Priority and status vocabulary
 

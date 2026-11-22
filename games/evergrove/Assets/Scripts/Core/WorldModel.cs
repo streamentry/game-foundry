@@ -7,12 +7,12 @@ namespace Evergrove.Core
 
     /// <summary>
     /// Unity JsonUtility compatible, stable flat schema. Version 1 (6 rooms)
-    /// upgrades through v2 and v3, preserving in-progress authored boards.
+    /// upgrades through v2, v3 and v4, preserving in-progress authored boards.
     /// </summary>
     [Serializable]
     public sealed class WorldSnapshot
     {
-        public int version = 3;
+        public int version = 4;
         public string mode = "living";
         public int round;
         public bool solved;
@@ -22,6 +22,8 @@ namespace Evergrove.Core
         public int hintsUsed;
         public int boardVariant;      // 0=legacy/control, 1=tree, 2=bridge, 3=meadow
         public int lastSolvedVariant; // exact board to reopen after reconsidering
+        public int hintStep;          // 0=no hint, 1=row noticed, 2=tile focused
+        public int hintTile = -1;     // chosen wrong tile, -1 when hintStep=0
     }
 
     /// <summary>
@@ -30,7 +32,7 @@ namespace Evergrove.Core
     /// </summary>
     public sealed class WorldModel
     {
-        public const int Version = 3;
+        public const int Version = 4;
         private readonly WorldSnapshot state;
 
         private WorldModel(WorldSnapshot snapshot) { state = snapshot; }
@@ -41,6 +43,8 @@ namespace Evergrove.Core
         public bool Completed { get { return state.round == PuzzleCatalog.Count; } }
         public bool CanUndo { get { return !Completed && state.previous.Length == CurrentPuzzle.CellCount; } }
         public int HintsUsed { get { return state.hintsUsed; } }
+        public int HintStep { get { return state.hintStep; } }
+        public int HintTile { get { return state.hintTile; } }
         public int BoardVariant { get { return state.boardVariant; } }
         public Puzzle CurrentPuzzle { get { return Completed ? null : ReactiveWatercourses.ForChapter(Round, state.boardVariant); } }
         public int[] Rotations { get { return (int[])state.rotations.Clone(); } }
@@ -58,6 +62,7 @@ namespace Evergrove.Core
                 version = Version, mode = mode == PlayMode.Living ? "living" : "puzzle",
                 round = 0, solved = false, hintsUsed = 0,
                 boardVariant = 0, lastSolvedVariant = 0,
+                hintStep = 0, hintTile = -1,
                 rotations = (int[])PuzzleCatalog.Get(0).Initial.Clone(),
                 previous = Array.Empty<int>(), choices = Array.Empty<int>()
             });
@@ -69,7 +74,8 @@ namespace Evergrove.Core
                 version = Version, mode = state.mode, round = Round, solved = Solved,
                 rotations = (int[])state.rotations.Clone(), previous = (int[])state.previous.Clone(),
                 choices = (int[])state.choices.Clone(), hintsUsed = state.hintsUsed,
-                boardVariant = state.boardVariant, lastSolvedVariant = state.lastSolvedVariant
+                boardVariant = state.boardVariant, lastSolvedVariant = state.lastSolvedVariant,
+                hintStep = state.hintStep, hintTile = state.hintTile
             };
         }
 
@@ -77,14 +83,18 @@ namespace Evergrove.Core
         public static bool TryRestore(WorldSnapshot source, out WorldModel result)
         {
             result = null;
-            if (source == null || (source.version != 1 && source.version != 2 && source.version != Version) ||
+            if (source == null || (source.version != 1 && source.version != 2 &&
+                 source.version != 3 && source.version != Version) ||
                 (source.mode != "living" && source.mode != "puzzle") ||
                 source.round < 0 || source.round > PuzzleCatalog.Count ||
                 source.choices == null || source.rotations == null || source.previous == null ||
                 source.hintsUsed < 0 || source.hintsUsed > 1000000 ||
-                (source.version == Version &&
+                (source.version >= 3 &&
                  (source.boardVariant < 0 || source.boardVariant > 3 ||
-                  source.lastSolvedVariant < 0 || source.lastSolvedVariant > 3)))
+                  source.lastSolvedVariant < 0 || source.lastSolvedVariant > 3)) ||
+                (source.version == Version &&
+                 (source.hintStep < 0 || source.hintStep > 2 ||
+                  (source.hintStep == 0 && source.hintTile != -1))))
                 return false;
             if ((source.mode == "living" && source.choices.Length != source.round) ||
                 (source.mode == "puzzle" && source.choices.Length != 0))
@@ -96,8 +106,10 @@ namespace Evergrove.Core
             int[] rotations = (int[])source.rotations.Clone();
             int[] previous = (int[])source.previous.Clone();
             bool solved = source.solved;
-            int variant = source.version == Version ? source.boardVariant : 0;
-            int lastVariant = source.version == Version ? source.lastSolvedVariant : 0;
+            int variant = source.version >= 3 ? source.boardVariant : 0;
+            int lastVariant = source.version >= 3 ? source.lastSolvedVariant : 0;
+            int hintStep = source.version == Version ? source.hintStep : 0;
+            int hintTile = source.version == Version ? source.hintTile : -1;
             if ((source.mode == "puzzle" && (variant != 0 || lastVariant != 0)) ||
                 (chapter == 0 && variant != 0) ||
                 (chapter == PuzzleCatalog.Count && variant != 0) ||
@@ -114,7 +126,8 @@ namespace Evergrove.Core
             }
             if (chapter == PuzzleCatalog.Count)
             {
-                if (solved || rotations.Length != 0 || previous.Length != 0)
+                if (solved || rotations.Length != 0 || previous.Length != 0 ||
+                    hintStep != 0 || hintTile != -1)
                     return false;
             }
             else
@@ -124,12 +137,18 @@ namespace Evergrove.Core
                     solved != PipeRules.IsComplete(puzzle, rotations) ||
                     (previous.Length != 0 && !PipeRules.ValidRotations(puzzle, previous)))
                     return false;
+                if (hintStep > 0 &&
+                    (solved || hintTile < 0 || hintTile >= puzzle.CellCount ||
+                     puzzle.IsAnchored(hintTile) ||
+                     rotations[hintTile] == puzzle.Solution[hintTile]))
+                    return false;
             }
             result = new WorldModel(new WorldSnapshot {
                 version = Version, mode = source.mode, round = chapter, solved = solved,
                 rotations = rotations, previous = previous,
                 choices = (int[])source.choices.Clone(), hintsUsed = source.hintsUsed,
-                boardVariant = variant, lastSolvedVariant = lastVariant
+                boardVariant = variant, lastSolvedVariant = lastVariant,
+                hintStep = hintStep, hintTile = hintTile
             });
             return true;
         }
@@ -150,37 +169,80 @@ namespace Evergrove.Core
             }
         }
 
+        private void ClearHint()
+        {
+            state.hintStep = 0;
+            state.hintTile = -1;
+        }
+
+        /// <summary>
+        /// Three requested stages: identify one row, focus a tile, finally
+        /// align that one tile. The first two never mutate puzzle rotations.
+        /// Stage progress is saved so reopening cannot silently jump to help.
+        /// </summary>
+        public int AdvanceGentleHint()
+        {
+            if (Completed || Solved) return 0;
+            Puzzle puzzle = CurrentPuzzle;
+            if (state.hintStep == 0)
+            {
+                int tile = HintPlanner.SelectTarget(puzzle, state.rotations);
+                if (tile < 0) return 0;
+                state.hintTile = tile;
+                state.hintStep = 1;
+                return 1;
+            }
+            if (state.hintStep == 1)
+            {
+                state.hintStep = 2;
+                return 2;
+            }
+            int chosen = state.hintTile;
+            if (chosen < 0 || chosen >= puzzle.CellCount ||
+                puzzle.IsAnchored(chosen) || state.rotations[chosen] == puzzle.Solution[chosen])
+            {
+                ClearHint();
+                return 0;
+            }
+            state.previous = (int[])state.rotations.Clone();
+            state.rotations[chosen] = puzzle.Solution[chosen];
+            state.hintsUsed++;
+            ClearHint();
+            state.solved = PipeRules.IsComplete(puzzle, state.rotations);
+            return 3;
+        }
+
         public bool Rotate(int tile)
         {
             if (Completed || Solved) return false;
             Puzzle puzzle = CurrentPuzzle;
             if (tile < 0 || tile >= puzzle.CellCount || puzzle.IsAnchored(tile)) return false;
             state.previous = (int[])state.rotations.Clone();
+            ClearHint();
             state.rotations[tile] = state.rotations[tile] % PipeRules.OrientationCount(puzzle.Kinds[tile]) + 1;
             state.solved = PipeRules.IsComplete(puzzle, state.rotations);
             return true;
         }
 
         /// <summary>
-        /// Optional no-pressure hint: directly aligns the first incorrect tile
-        /// to its solution orientation, records one undo and increments hints.
-        /// It can skip multiple clockwise turns; unlike proposed clue stages
-        /// it is a mutating action, not a highlight or one-turn nudge.
+        /// Backward-compatible direct help used by existing tests and old
+        /// gameplay code. The UI uses AdvanceGentleHint instead.
         /// </summary>
         public bool GuideOneConnection()
         {
             if (Completed || Solved) return false;
             Puzzle puzzle = CurrentPuzzle;
-            for (int tile = 0; tile < puzzle.CellCount; tile++)
-            {
-                if (state.rotations[tile] == puzzle.Solution[tile]) continue;
-                state.previous = (int[])state.rotations.Clone();
-                state.rotations[tile] = puzzle.Solution[tile];
-                state.hintsUsed++;
-                state.solved = PipeRules.IsComplete(puzzle, state.rotations);
-                return true;
-            }
-            return false;
+            int tile = -1;
+            for (int i = 0; i < puzzle.CellCount; i++)
+                if (!puzzle.IsAnchored(i) && state.rotations[i] != puzzle.Solution[i])
+                { tile = i; break; }
+            if (tile < 0) return false;
+            state.previous = (int[])state.rotations.Clone();
+            state.rotations[tile] = puzzle.Solution[tile];
+            state.hintsUsed++;
+            ClearHint();
+            state.solved = PipeRules.IsComplete(puzzle, state.rotations);
+            return true;
         }
 
         public bool Undo()
@@ -188,6 +250,7 @@ namespace Evergrove.Core
             if (!CanUndo) return false;
             state.rotations = state.previous;
             state.previous = Array.Empty<int>();
+            ClearHint();
             state.solved = PipeRules.IsComplete(CurrentPuzzle, state.rotations);
             return true;
         }
@@ -197,6 +260,7 @@ namespace Evergrove.Core
             if (Completed) return false;
             state.rotations = (int[])CurrentPuzzle.Initial.Clone();
             state.previous = Array.Empty<int>();
+            ClearHint();
             state.solved = PipeRules.IsComplete(CurrentPuzzle, state.rotations);
             return true;
         }
@@ -204,6 +268,7 @@ namespace Evergrove.Core
         private void Advance()
         {
             state.lastSolvedVariant = state.boardVariant;
+            ClearHint();
             state.round++;
             state.solved = false;
             state.previous = Array.Empty<int>();
@@ -243,6 +308,7 @@ namespace Evergrove.Core
             state.boardVariant = state.lastSolvedVariant;
             state.rotations = (int[])CurrentPuzzle.Solution.Clone();
             state.previous = Array.Empty<int>();
+            ClearHint();
             state.solved = true;
             return true;
         }

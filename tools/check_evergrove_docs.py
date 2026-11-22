@@ -68,7 +68,7 @@ def main() -> int:
     locale = source_text(GAME / "Assets/Scripts/Core/GameLocalization.cs")
     if pipe.count("new Puzzle(") != 12:
         fail("PuzzleCatalog no longer has exactly twelve authored fixtures; review handbook")
-    if "public const int Version = 3" not in world:
+    if "public const int Version = 4" not in world:
         fail("World snapshot version changed; update save handbook and migration QA")
     if "int turns = variant;" not in branch or "AnchoredTile" not in pipe:
         fail("Branch implementation changed; audit gameplay handbook")
@@ -77,7 +77,7 @@ def main() -> int:
     keys = re.search(
         r"private static readonly string\[\] Ids = \{([\s\S]*?)\};", locale
     )
-    if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 76:
+    if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 81:
         fail("Localization key count changed; update documentation and catalog validator")
 
     check_specification_contract()
@@ -85,7 +85,7 @@ def main() -> int:
     print(
         f"Evergrove documentation contract: {len(target_docs)} documents, "
         f"{checked_links} verified local links, 12 puzzles, "
-        "v3 saves, 30 language choices, 76 keys."
+        "v4 saves, 30 language choices, 81 keys."
     )
     return 0
 

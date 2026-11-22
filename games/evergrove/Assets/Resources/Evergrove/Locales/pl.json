@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Dzikie kwiaty chronią ten odcinek. Nie można go obrócić."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Spójrz na wiersz {0}. Jedno połączenie wymaga uwagi."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Wiersz {0}, kolumna {1}: porównaj otwarte końce."
+    },
+    {
+      "key": "hint_more",
+      "value": "Kolejna wskazówka"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Popraw jedno połączenie"
+    },
+    {
+      "key": "save_warning",
+      "value": "Nie udało się zapisać postępu. Sprawdź pamięć urządzenia."
     }
   ]
 }

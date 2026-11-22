@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Bãi hoa dại bảo vệ đoạn suối này, không thể xoay."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Xem hàng {0}. Có một đường nước cần chú ý."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Hàng {0}, cột {1}: so sánh các đầu nối đang mở."
+    },
+    {
+      "key": "hint_more",
+      "value": "Gợi ý rõ hơn"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Giúp xoay đúng một ô"
+    },
+    {
+      "key": "save_warning",
+      "value": "Không lưu được tiến trình. Hãy kiểm tra bộ nhớ thiết bị."
     }
   ]
 }
