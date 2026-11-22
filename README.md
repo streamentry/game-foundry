@@ -2,10 +2,11 @@
 
 **Research-first, Godot-powered mobile games.** We don't mass-clone winners. We identify search intent that existing games serve poorly, ship distinctive experiences, and let organic market feedback decide what deserves investment.
 
-## Status — 2026-11-21
+## Status — 2026-11-22
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Fifth game prototype:** [Odd Bloom](games/odd-bloom/) — twelve deterministic visual-difference rounds, single-structural-anomaly validation, large tap controls and offline save/replay. **No age-specific demand or retention verified.**
 - **Fourth game prototype:** [Shikaku Garden](games/shikaku-garden/) — eight independently authored, uniqueness-checked rectangle-partition puzzles with corner-to-corner controls, undo and offline progression. **Not market-validated; the GF-018 ASO research gate remains open.**
 - **Third visual playtest:** [One Path](games/one-path/) — eight verified Euler-trail graphs, non-junction crossings, tap/drag and letter-button entry, undo and offline resume. **Prototype only; user demand untested.**
 - **Second visual playtest:** [Quiet Shot](games/quiet-shot/) — eight original ricochet boards, deterministic ray–mirror physics, large aim controls, offline progress and a verified browser export. **Playtest only, not market validated.**
@@ -48,6 +49,7 @@ games/good-eye/            First playable original visual-judgment experiment
 games/quiet-shot/          Second visual-planning experiment (one planned shot)
 games/one-path/            Third visual logic experiment (Euler trail)
 games/shikaku-garden/      Fourth experiment (numbered rectangular partitions)
+games/odd-bloom/           Fifth experiment (one different flower)
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -89,6 +91,10 @@ Open `games/one-path/project.godot` in Godot 4.7.2 and press **F5**. Follow the 
 ## Play Shikaku Garden locally
 
 Open `games/shikaku-garden/project.godot` in Godot 4.7.2 and press **F5**, or follow the [game instructions](games/shikaku-garden/README.md). The [Shikaku Garden Web Playtest](.github/workflows/shikaku-garden-preview.yml) workflow exports a downloadable web build, **not a public website**.
+
+## Play Odd Bloom locally
+
+Open `games/odd-bloom/project.godot` in Godot 4.7.2 and press **F5**, or follow the [game instructions](games/odd-bloom/README.md). The [Odd Bloom Web Playtest](.github/workflows/odd-bloom-preview.yml) workflow exports a **downloadable WebGL2 artifact**, not a hosted game.
 
 ## Share a tested browser-playtest build
 

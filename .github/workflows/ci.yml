@@ -81,3 +81,11 @@ jobs:
         run: godot --headless --path games/shikaku-garden --script res://tests/test_progress.gd
       - name: Smoke test Shikaku Garden playable scene and navigation
         run: godot --headless --path games/shikaku-garden --script res://tests/test_scene.gd
+      - name: Import Odd Bloom independent project
+        run: godot --headless --path games/odd-bloom --editor --import --quit
+      - name: Verify exactly one structural visual difference per round
+        run: godot --headless --path games/odd-bloom --script res://tests/test_patterns.gd
+      - name: Verify Odd Bloom first-attempt progression and local save
+        run: godot --headless --path games/odd-bloom --script res://tests/test_progress.gd
+      - name: Smoke test Odd Bloom round selection and replay
+        run: godot --headless --path games/odd-bloom --script res://tests/test_scene.gd

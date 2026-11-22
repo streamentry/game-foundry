@@ -248,3 +248,16 @@ Actual outcome & model update:
 **Unknown:** 45+ usability, retention, differential value versus current Shikaku competitors, official country-specific Apple keyword popularity and economics. None of this is inferred from code or puzzle-solver tests.
 
 **Most useful next falsification:** compare the first five original puzzles with an existing Shikaku title on real target phones; observe misunderstandings, voluntary extra play, and reason to choose this one. Stop after one presentation correction if no comparative preference or return signal emerges.
+
+
+## 2026-11-22 — Odd Bloom, first-look visual-difference playtest
+
+**Decision:** At the user's request, implement an additional fast-feedback casual visual experiment, independently branded and isolated from existing game projects. This is *exploratory implementation*, not approval to publish, monetize or claim a market advantage.
+
+**Prototype:** 12 deterministic boards with 6–16 original vector-drawn flower cards each, exactly one structural outlier per round. Differences concern petal count, center ring, branch count, petal geometry or center mark, never hue alone. One-tap selection, short informative feedback after incorrect taps, optional same-round replay, guarded progression, local save validation and seed-reproducible web challenge links if hosted. Dedicated Godot tests, custom design, WebGL2 build artifact.
+
+**Strongest opposing argument:** many visual odd-one-out games exist, and a first look may not produce return. Bigger card sets can measure eyestrain or motor precision more than enjoyment. Showing a working algorithm does not validate these mechanics or global 45+ demand.
+
+**Cheapest falsification:** compare Odd Bloom with an existing odd-one-out title using 6–10 adult puzzle players on their own phones. Watch voluntary play after five rounds, confusion or strain on the 4×4 card view, and independent next-day return. Park if it is merely a one-time novelty after one specific design revision.
+
+**Status:** No actual target-player data, App Store keyword volume, retention, referral activation, device QA or monetization evidence exists.
