@@ -358,3 +358,27 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Continue / stop:** Preference and organic search route are prerequisites for Kakuro; voluntary replay and credible distribution for Rune Chain; causal understanding, incremental voluntary return and credible distribution for Little Worlds. Park after bounded UX revisions if players prefer incumbents or do not return. No new production approvals.
 
 **Next action:** Obtain a shareable Kakuro browser playtest with approved hosting, recruit the first independent target player and log observed play and a direct competitor comparison. GitHub WebGL artifacts alone are *not* public hosting.
+
+## 2026-11-22 — Evergrove selected for falsifiable build
+
+**Founder decision:** Treat `PH-006 Evergrove` as the one long-horizon global game concept to explore. **Engineering response:** implement `games/evergrove/` with a tiny deterministic living-village loop, the same six Pipe Garden fixtures in an optional control mode, local choice memories and story consequences, and Godot tests.
+
+**Evidence:** founder preference and design hypothesis only. No direct player tests, accessible market sizing, keyword demand, retention, App Store sales, device QA, or production-viability evidence.
+
+**Strongest counterargument:** the added village may obscure or weaken an already enjoyable puzzle, while creating hidden costs and difficult distribution.
+
+**Cheapest falsification:** manually balance 20–30 target players between living-world and puzzle-only modes; observe comprehension, head-to-head preference, voluntary replay and D1/D7 return.
+
+**Stopping rule:** If the world does not produce meaningful voluntary behavior beyond the same puzzle, strip back the simulation and avoid adding LLMs or social infrastructure.
+
+**Source:** [full decision record](evergrove-build-decision-2026-11-22.md). **Status:** research prototype, not a validated product or store launch.
+
+## 2026-11-22 — Evergrove switches to Unity/C#
+
+**User instruction:** convert Evergrove to C#. **Decision:** use a Unity 6.3 C# client with independently testable C# domain rules and a code-generated UI; retain the rest of Game Foundry's Godot projects unchanged. The not-yet-merged Evergrove Godot files are deleted on its feature branch.
+
+**Backend:** a separate, optional Cloudflare Worker/Durable Object implementation in TypeScript stores one isolated example tree state. Workers are not a C# runtime. It does not currently sync Evergrove puzzle progress, NPC memory or village choices.
+
+**Tradeoff:** richer Unity/C# development and familiarity versus an additional engine's maintenance, device validation and licensing/package surface. No claim of verified Android/iOS builds or gameplay retention.
+
+**Falsifier:** if this engine change increases development or QA effort without improving actual player experience, reconsider it before large-scale work. See [Evergrove experiment](evergrove-build-decision-2026-11-22.md) and [Unity project](../../games/evergrove/README.md).

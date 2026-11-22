@@ -88,7 +88,7 @@ If answers are weak, run the falsification test before expanding the implementat
 
 ## Engineering invariants
 
-- Pin to stable Godot **4.7.2** until a tested upgrade PR changes the pin.
+- Pin to stable Godot **4.7.2** for existing Godot games until a tested upgrade PR changes the pin. **Exception:** `games/evergrove/` is explicitly selected for Unity 6.3/C#; run its `.NET 8` pure-domain tests and separately verify Unity editor/mobile builds. Do not rewrite unrelated games.
 - Use **GDScript**; avoid C# and native plugins unless a capability demands them.
 - Gameplay logic must be pure/testable without a UI scene wherever feasible.
 - Never add copied iconography, level packs, sounds, screenshots or trade dress.

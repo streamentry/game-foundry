@@ -4,6 +4,8 @@ The [100-row candidate backlog](candidates.csv) is a **discovery queue**, not a 
 
 The separate [global 45+ playtest shortlist](../research/global-45plus-top-three-games-2026-11-21.md) proposes **Good Eye, Quiet Shot and One Path** as three distinct visual experiments. Their `GV-01`–`GV-03` identifiers belong to that note, not the `GF-` keyword catalog. Their ranking does not supply measured demand or change the 100-row research dataset.
 
+The [Evergrove selected-game research build](../../games/evergrove/README.md) implements the founder's single 2027–2036 creative bet (`PH-006`) as a standalone, offline Godot vertical slice. It tests **the same Pipe Garden puzzles with and without** persistent village consequences; the [decision record](../research/evergrove-build-decision-2026-11-22.md) specifies real-player falsification and launch gates. No ASO demand or retention has been demonstrated.
+
 The [ten-year global gaming thesis and seven detailed game briefs](ten-year-global-gaming-thesis-2026-11-22.md) records the founder's 2027–2036 strategic hypotheses, including personalization, distribution tradeoffs, proposed experiments, and stop gates. The seven named titles map to existing `GC-*` entries in the [50-concept speculative backlog](global-concepts-2027-2036.md), **not additional products or verified opportunities**.
 
 The [four-genre 2026–2036 outlook](four-genre-outlook-2026-2036.md) adds **Simulation, Role-Playing, Strategy, and Puzzle** as speculative research territories, with twelve cross-genre `GX-001`–`GX-012` experiments. These do not duplicate or promote the existing `GC-*` and `GF-*` backlogs to production.
