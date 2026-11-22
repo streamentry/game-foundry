@@ -56,6 +56,7 @@ namespace Evergrove.UnityClient
         private Button[] visibleTiles;
         private Image[] tileBackgrounds;
         private PipeGraphic[] tileArtwork;
+        private Text[] visibleLeaks; // punctuation, not hue, denotes unmatched water ports
         private Text feedbackText;
         private Button undoButton;
 
@@ -299,6 +300,7 @@ namespace Evergrove.UnityClient
             visibleTiles = null;
             tileBackgrounds = null;
             tileArtwork = null;
+            visibleLeaks = null;
             feedbackText = null;
             undoButton = null;
             for (int i = content.childCount - 1; i >= 0; i--)
@@ -617,6 +619,7 @@ namespace Evergrove.UnityClient
             visibleTiles = new Button[puzzle.CellCount];
             tileBackgrounds = new Image[puzzle.CellCount];
             tileArtwork = new PipeGraphic[puzzle.CellCount];
+            visibleLeaks = new Text[puzzle.CellCount];
             int seenEnds = 0;
             for (int index = 0; index < puzzle.CellCount; index++)
             {
@@ -654,6 +657,24 @@ namespace Evergrove.UnityClient
                 pipe.Configure(puzzle.Kinds[index], rotations[index], world.Solved);
                 pipe.raycastTarget = false;
                 tileArtwork[index] = pipe;
+                // A visible ! denotes any unmatched/out-of-bounds connection.
+                // It remains legible in grayscale and without animations.
+                var leakNode = Node("Unmatched water port marker", tileNode.transform);
+                RectTransform leakRect = leakNode.GetComponent<RectTransform>();
+                leakRect.anchorMin = Vector2.zero;
+                leakRect.anchorMax = Vector2.zero;
+                leakRect.pivot = Vector2.zero;
+                leakRect.sizeDelta = new Vector2(23f, 23f);
+                leakRect.anchoredPosition = new Vector2(3f, 3f);
+                var leakText = leakNode.AddComponent<Text>();
+                leakText.font = font;
+                leakText.fontSize = 18;
+                leakText.fontStyle = FontStyle.Bold;
+                leakText.alignment = TextAnchor.MiddleCenter;
+                leakText.color = Hex("#983E37");
+                leakText.raycastTarget = false;
+                leakText.text = insight.Leaking[index] ? "!" : "";
+                visibleLeaks[index] = leakText;
                 if (puzzle.IsAnchored(index))
                 {
                     var badge = Node("Protected landmark marker", tileNode.transform);
@@ -831,6 +852,8 @@ namespace Evergrove.UnityClient
                     insight.Flowing[i] ? Hex("#D8EFED") : Hex("#F0F1E8");
                 visibleTiles[i].interactable = !world.Solved && !puzzle.IsAnchored(i);
                 tileArtwork[i].Configure(puzzle.Kinds[i], angles[i], world.Solved);
+                if (visibleLeaks != null && visibleLeaks[i] != null)
+                    visibleLeaks[i].text = insight.Leaking[i] ? "!" : "";
             }
             if (feedbackText != null)
                 feedbackText.text = GameLocalization.Text("progress",
