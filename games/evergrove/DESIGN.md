@@ -25,7 +25,9 @@ Type hierarchy (approximate logical px): title **25**, game decisions **15–17*
 
 **Signature interaction:** a pipe rotates, the reachable water updates, the stream completes, a deliberate choice changes the illustration, and the world explains what changed. Every element reinforces one causal loop.
 
-**Art direction:** a manually composed, original 2D vector illustration with quiet hills, water, shelter, bridge and growing flowers. Three people remain in the scene. Flower clusters, shade, bridge, walkers and butterflies respond to persisted choices; environmental colors subtly change with chapter. No stock art, borrowed icons, generic magic glow or asset-heavy UI.
+**Current playable art (2D baseline):** a manually composed, original 2D vector illustration with quiet hills, water, shelter, bridge and growing flowers. Three people remain in the scene. Flower clusters, shade, bridge, walkers and butterflies respond to persisted choices; environmental colors subtly change with chapter. No stock art, borrowed icons, generic magic glow or asset-heavy UI.
+
+**Long-term art hypothesis (2.5D):** a miniature, lightweight stylized 3D village under a mostly fixed elevated **orthographic camera**, with expressive but modest NPC animation and a crisp **2D puzzle UI**. Persistent events should visibly change paths, shade, flowering and visitor movement. This is **not implemented** in the current illustrated Unity prototype. [Full visual-direction ADR](../../docs/decisions/2026-11-22-evergrove-visual-direction-2p5d.md) documents the strongest 2D alternative, phone constraints, separate 2D vs 2.5D comparison and reversal conditions. **Do not prematurely replace the validated deterministic state core or build a 3D asset factory.**
 
 **Sound and motion:** default silent, optional soft procedural completion chime. UI transitions are intentionally restrained and functional; introduce subtle animation only after device/reduced-motion testing. Haptic and background music are excluded until they have user value.
 
