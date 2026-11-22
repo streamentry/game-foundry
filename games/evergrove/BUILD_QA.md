@@ -32,3 +32,16 @@ The automated Unity build method creates the otherwise empty bootstrap scene. **
 This build exists to help people actually experience the game. Compare `Living World` with `Puzzle Only` using manually balanced players. Continue development only if the living-world layer measurably improves comprehension and voluntary replay, and the distribution channel is viable. A successful Unity build proves **buildability**, not product-market fit.
 
 References: [GameCI Unity Builder](https://game.ci/docs/github/builder/), [Unity 6.3 uGUI input setup](https://docs.unity.com/en-us/engine/6000.3/manual/uitoolkits/uielements/uie-support-for-runtime-ui/uie-render-runtime-ui/uie-runtime-event-system).
+
+## 30-language release readiness (new)
+
+- [ ] First launch honors device language including `vi-VN`, `ja-JP`, `zh-Hant-TW`, `es-MX`, `pt-BR`.
+- [ ] In-game language list shows all 30 **native names** legibly; auto mode and manual override survive restart.
+- [ ] Changing language mid-puzzle, after choosing a tree and at the ending **never changes event history or solved state**.
+- [ ] Translation coverage tests pass for all 73 keys × 29 JSON catalogs, including placeholders.
+- [ ] Validate language width and dynamic text on a compact device; no clipped buttons or title collisions.
+- [ ] Native-script glyph coverage: Chinese, Japanese, Korean, Thai, Vietnamese.
+- [ ] **RTL blocker:** Arabic, Persian, Hebrew and Urdu must be tested with a correct shaping/bidi engine. A right-aligned legacy uGUI Text alone is not enough.
+- [ ] **Indic blocker:** Hindi, Bengali, Tamil and Telugu need proper conjunct/shaping and multi-codepoint font tests.
+- [ ] Native speakers review phrasing, gender, punctuation, numerals and culture, then record sign-off per locale.
+- [ ] Confirm 30-locale shipping build contains all Resources catalogs and remains offline; no per-language network calls.

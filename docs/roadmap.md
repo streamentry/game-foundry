@@ -22,6 +22,12 @@ At the founder's explicit direction on **2026-11-22**, **Evergrove (`PH-006`)** 
 - **Stop/simplify:** puzzle-only wins, players don't understand consequences, or maintaining a living world makes economics or trust worse.
 - **Source of decision:** [research decision record](research/evergrove-build-decision-2026-11-22.md). Any store launch still needs a separate evidence-backed review.
 
+## Evergrove localization experiment (30 languages)
+
+**2026-11-22:** Added 30 device-detected/hand-selectable languages, 29 bundled UTF-8 JSON catalogs and a built-in English source, with a deterministic localized village script. Manual override persists across sessions without mutating the world save. A 73-key completeness/placeholder validator and .NET state-integrity tests are required in CI.
+
+**Release gate:** native-speaker translation QA, real-device Unicode font coverage, proper RTL/Indic shaping (legacy uGUI labels alone cannot guarantee it) and compact-phone layout review. [Localization matrix](../games/evergrove/LOCALIZATION.md). This is content and routing infrastructure, **not verified 30-market launch quality**.
+
 ## Evergrove next release gate: test a REAL Unity player
 
 **2026-11-22:** Fixed the Unity input-module mismatch, added a visible **dry→flowing creek** transition in both rendering modes, enabled manual Unity Android/WebGL build artifacts using GameCI credentials, and introduced optional consented, local-only first-session observations. Neither Unity-native compilation nor real-device gameplay has been run automatically yet.

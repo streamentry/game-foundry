@@ -55,6 +55,14 @@ dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configu
 
 This validates all 12 board shapes and unique solutions, source connectivity, hint/undo, consequence interactions, complete campaign, legacy saved-game migration and corrupted-save rejection. See [CI workflow](../../.github/workflows/ci.yml). These tests **do not compile the UnityEngine-specific UI or verify native builds**; Godot's tests do not test Evergrove.
 
+## Language support: 30 locale choices
+
+Evergrove now includes **English plus 29 additional offline translation catalogs**, with **automatic device-language selection** and an explicit **Language** button near the top of the game. You can change languages without losing your garden or restarting progression. The chosen language is saved separately from the world; **Automatic** follows the device language on future launches. Unrecognized locales fall back to English. For example, `zh-TW` → Traditional Chinese, `zh-CN` → Simplified Chinese, `pt-PT` → Brazilian Portuguese (the only supported Portuguese catalog).
+
+The complete 73-key catalog covers the primary interface, all water-puzzle interaction copy, choices, compact localized NPC responses, world consequences, memories, journal and endings. The original, longer English narrative manuscript is preserved in source but not yet professionally translated: localization uses the same shorter authored game script for all 30 languages to keep gameplay meaning consistent. **Every catalog is draft quality until native-speaker review.** See [localization coverage, language list and QA gates](LOCALIZATION.md).
+
+**Important rendering limitation:** Unity's current uGUI `Text` controls do not automatically provide the full advanced shaping required for Arabic, Persian, Hebrew, Urdu and Indic scripts. The implementation aligns RTL labels and selects available system fonts where possible, but **a proper advanced-text renderer and real-device font QA are release blockers** for those languages. Having a translation file is not the same as production-ready language support.
+
 ## Real playtest build and first-water moment
 
 Evergrove now restores the **actual creek**, not just a progress counter. The new garden begins with a **dry riverbed**. Completing the first water puzzle brings flowing water to both the default 2D storybook and the optional 2.5D diorama; the later world choices still shape trees, crossings, flowers, visitors and the characters' responses. Scene rendering reads the same deterministic state and remains offline-first.
