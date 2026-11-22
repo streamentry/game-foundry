@@ -130,7 +130,7 @@ namespace Evergrove.Core
             "OUR CHOICES",
             "The first memory is still waiting.",
             "STREAM {0} / {1}",
-            "S = spring · G = garden. Tap to connect water.",
+            "Blue waves = spring · green sprout = garden. Tap to connect water.",
             "The water flows through every tile.",
             "Water reaches {0}/{1} tiles · {2} open joins",
             "Undo the last water turn",

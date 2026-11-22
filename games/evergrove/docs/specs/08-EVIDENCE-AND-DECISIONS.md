@@ -2,6 +2,26 @@
 
 **Date:** 2026-11-22. This directory was created from the supplied *Evergrove: evidence-backed product and feature strategy for a best-in-class indie cozy puzzle game* report, then cross-checked against the actual Game Foundry repository. **No tests, Unity builds, player interviews, store experiments or legal clearance were performed by this documentation change.**
 
+## Audit claim ledger — proof before promotion
+
+**Immutable audited source baseline:** [`84713febd1e9d5921706d1916132b309b74a604f`](https://github.com/streamentry/game-foundry/commit/84713febd1e9d5921706d1916132b309b74a604f), captured on 2026-11-22. This was the audited source snapshot, not evidence that a later code change passed Unity. Any tested release candidate must pin its **own** source SHA and binary checksum.
+
+| Claim | State at audit baseline | Evidence necessary to advance | Expires on |
+| --- | --- | --- | --- |
+| 12 authored puzzles and 33 transformed variants exist in C# | Verified-source, **not device** | Pure C# solver output; human difficulty separately measured | Puzzle/branch source changes |
+| Unity 6.3 imports and builds Evergrove | **Unverified** | Licensed Unity Editor compile, log, build-run URL and artifact hash (`BLD-001..003`) | Relevant Unity dependency/source changes |
+| Full Android and iPhone campaign playable | **Unverified** | Physical sessions of all 12 streams (`BLD-004/005`) | Tested build change |
+| 30 draft translation catalogs exist | Verified-source (catalog parity only) | UTF-8 81-key registry/CI; device/native signoff is separate | Translation registry or assets change |
+| Thirty production-ready languages | **Unsupported** | Per-locale technical, native, device and store certification (`LOC-002/003/004`) | Any release/language change |
+| Offline save survives interruption | **Unverified beyond source-level backup strategy** | `SAVE-001/002/003` on device and exact backup/migration logs | Save/build/platform change |
+| No unexpected data transmission | **Unverified** | Production binary packet capture and SDK inventory (`PRIV-001`) | Any binary/package change |
+| Village layer improves player preference | **Unverified** | Preregistered puzzle-identical `VAL-002`, raw counts and alternative hypotheses | Material content/presentation change |
+| Research controls absent in store binary | **Source guards added, runtime unverified** | Nondevelopment Unity build + `BLD-007` screenshot/binary audit | Build scripts/flags change |
+
+**Evidence states:** `Verified-source` is a narrow code claim; it is **not** the feature lifecycle state `Verified`. A green .NET CI job neither compiles Unity nor measures usability, privacy or editorial quality.
+
+**External source discipline:** for each claim record publisher, article title, URL, access date and the exact claim. Market/category forecasts do not establish Evergrove-specific demand. App Store/Play policy citations require freshness checks when a candidate is actually submitted.
+
 ## Evidence labels used in the backlog
 
 | Key | Source and what it supports | Evidence strength / boundary |

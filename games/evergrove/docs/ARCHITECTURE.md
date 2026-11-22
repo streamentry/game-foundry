@@ -32,7 +32,7 @@ flowchart TD
 | `Assets/Scripts/Core/ReactiveWatercourses.cs` | Three deterministic rotated/anchored follow-up variants per later chapter | Rotations preserve base graph; no actual resource/ecosystem dynamics |
 | `Assets/Scripts/Core/WorldModel.cs` | Canonical state machine; actions, choices, schema v4 export/restore | Preserves current variant and older active boards; source of truth |
 | `Assets/Scripts/Core/VillageStory.cs` | Longer authored English story logic, character responses, endings | References real choices; deterministic, not learned |
-| `Assets/Scripts/Core/LocalizedVillage.cs` | Compact 30-language state-dependent game copy | 76-key localization catalog, independent of core rules |
+| `Assets/Scripts/Core/LocalizedVillage.cs` | Compact 30-language state-dependent game copy | 81-key localization catalog, independent of core rules |
 | `Assets/Scripts/Core/GameLocalization.cs` | Language registry, BCP-47 routing/fallback, catalog checks and text formatting | Pure C# and covered by .NET tests; no state mutation |
 | `Assets/Scripts/Core/VillageScenePlan.cs` | Counts and flags derived from WorldModel for both renderers | Art changes cannot independently invent facts |
 | `Assets/Scripts/Core/LocalPlaytest.cs` | In-memory consent-first first-session counters and text report | No analytics SDK, identity, upload, persistent retention record |

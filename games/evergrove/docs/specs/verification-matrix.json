@@ -1,0 +1,1181 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-22",
+  "audit_baseline_commit": "84713febd1e9d5921706d1916132b309b74a604f",
+  "source": "Deep Research specifications audit + checked-in feature backlog",
+  "readiness": "Unverified Unity build and physical devices; zero human session evidence",
+  "states": [
+    "Proposed",
+    "Ready",
+    "In Progress",
+    "Implemented-Unverified",
+    "Verified",
+    "Deferred",
+    "Rejected"
+  ],
+  "gates": [
+    "M0",
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6"
+  ],
+  "features": [
+    {
+      "id": "EG-001",
+      "title": "Verified phone builds",
+      "owner_role": "Unity/Release Engineer",
+      "decision_gate": "M1",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [],
+      "dependency_notes": "Unity license, platform modules, Xcode signing, physical devices.",
+      "player_visible_outcome": "Launch and finish the campaign on a compact Android and an iPhone; respect safe areas, back navigation and resume.",
+      "verification_ids": [
+        "BLD-001",
+        "BLD-002",
+        "BLD-003",
+        "BLD-004",
+        "BLD-005",
+        "BLD-006"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-001/verification.md",
+      "stop_or_rollback": "Build failure, device blocker or missing Unity evidence"
+    },
+    {
+      "id": "EG-002",
+      "title": "First 60-second complete loop",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M3",
+      "status": "In Progress",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-001"
+      ],
+      "dependency_notes": "EG-001, first-puzzle tuning, presentation/UI.",
+      "player_visible_outcome": "Start at dry creek with obvious first tile; first rotations extend water; first solve visibly revives a village detail.",
+      "verification_ids": [
+        "PUZ-005",
+        "VAL-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-002/verification.md",
+      "stop_or_rollback": "First action is delayed or first-puzzle comprehension regresses"
+    },
+    {
+      "id": "EG-003",
+      "title": "Consequence-first visual reveal",
+      "owner_role": "Product Owner",
+      "decision_gate": "M3",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-001",
+        "EG-002"
+      ],
+      "dependency_notes": "EG-001, deterministic scene plan, EG-002.",
+      "player_visible_outcome": "After tree/bridge/meadow selection, frame and highlight the changed landscape before one brief NPC response.",
+      "verification_ids": [
+        "WLD-001",
+        "VAL-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-003/verification.md",
+      "stop_or_rollback": "Consequence recall does not improve after two iterations"
+    },
+    {
+      "id": "EG-004",
+      "title": "Puzzle solver and difficulty metadata",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M3",
+      "status": "In Progress",
+      "blocked": false,
+      "dependency_ids": [],
+      "dependency_notes": "PipeRules, Tests/Program.cs, representative testers.",
+      "player_visible_outcome": "Store solution proof, minimum rotations, error traps, hint path, ecological rule, target band and observed solve times per board.",
+      "verification_ids": [
+        "PUZ-001",
+        "PUZ-003"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-004/verification.md",
+      "stop_or_rollback": "Any authored board loses unique solution or observed difficulty spikes unexplained"
+    },
+    {
+      "id": "EG-005",
+      "title": "Progressive non-punitive hints",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M3",
+      "status": "In Progress",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-004"
+      ],
+      "dependency_notes": "EG-004, undo and save contracts.",
+      "player_visible_outcome": "Stage 1 highlights a useful region; stage 2 names a tile; stage 3 performs one correct rotation; no penalty/currency.",
+      "verification_ids": [
+        "PUZ-002",
+        "VAL-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-005/verification.md",
+      "stop_or_rollback": "Hint reveals unwanted solutions or becomes misleading"
+    },
+    {
+      "id": "EG-006",
+      "title": "Correct complex-script text rendering",
+      "owner_role": "Localization Lead",
+      "decision_gate": "M5",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [],
+      "dependency_notes": "UI architecture decision, licensed font assets, native reviewers.",
+      "player_visible_outcome": "Use Unity Advanced Text Generator/UI Toolkit or a tested equivalent for all player-facing dynamic text, bidi and shaping.",
+      "verification_ids": [
+        "LOC-002",
+        "A11Y-005"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-006/verification.md",
+      "stop_or_rollback": "Any enabled script renders broken glyphs or uncontrolled overflow"
+    },
+    {
+      "id": "EG-007",
+      "title": "Large, forgiving touch and readable text",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M2",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-001"
+      ],
+      "dependency_notes": "EG-001, layout refactor, target devices.",
+      "player_visible_outcome": "One-tap rotation; minimum frequent-action hit areas 44pt iOS/48dp Android; visible pressed state; scalable text.",
+      "verification_ids": [
+        "A11Y-001",
+        "A11Y-005"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-007/verification.md",
+      "stop_or_rollback": "Targets remain inaccessible or mis-taps block play"
+    },
+    {
+      "id": "EG-008",
+      "title": "Recoverable saves under interruption and corruption",
+      "owner_role": "Unity/Release Engineer",
+      "decision_gate": "M2",
+      "status": "Implemented-Unverified",
+      "blocked": false,
+      "dependency_ids": [],
+      "dependency_notes": "WorldModel, WorldStore, Android/iOS storage testing.",
+      "player_visible_outcome": "Write validated snapshots, recover previous valid save, migrate v1/v2, confirm destructive reset.",
+      "verification_ids": [
+        "SAVE-001",
+        "SAVE-002",
+        "SAVE-003"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-008/verification.md",
+      "stop_or_rollback": "Previously valid progress is irrecoverable after interruption"
+    },
+    {
+      "id": "EG-009",
+      "title": "Offline/privacy binary verification",
+      "owner_role": "Unity/Release Engineer",
+      "decision_gate": "M2",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [],
+      "dependency_notes": "Release build, dependency review, privacy policy.",
+      "player_visible_outcome": "Full campaign works in airplane mode; no ad/analytics SDK; session notes exist only after consent and export only on request.",
+      "verification_ids": [
+        "PRIV-001",
+        "PRIV-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-009/verification.md",
+      "stop_or_rollback": "Unexplained network transmission or undeclared collection"
+    },
+    {
+      "id": "EG-010",
+      "title": "Native-certified launch locale subset",
+      "owner_role": "Localization Lead",
+      "decision_gate": "M5",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-006",
+        "EG-007"
+      ],
+      "dependency_notes": "EG-006, EG-007, LOCALIZATION.md.",
+      "player_visible_outcome": "Enable only locales passing translation, shaping, native editorial and screenshot QA; retain draft files in repo.",
+      "verification_ids": [
+        "LOC-001",
+        "LOC-002",
+        "LOC-003",
+        "LOC-004"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-010/verification.md",
+      "stop_or_rollback": "An enabled locale lacks native/technical/store signoff"
+    },
+    {
+      "id": "EG-011",
+      "title": "Non-color connectivity and contrast",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M3",
+      "status": "In Progress",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-007"
+      ],
+      "dependency_notes": "PipeGraphic, EG-007, user testing.",
+      "player_visible_outcome": "Use pipe shape, port outline, water movement/pattern and labels in addition to color; provide high-contrast mode.",
+      "verification_ids": [
+        "A11Y-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-011/verification.md",
+      "stop_or_rollback": "Flow or protected state is indistinguishable without hue"
+    },
+    {
+      "id": "EG-012",
+      "title": "Subtle audio feedback and ambience",
+      "owner_role": "Unity/Release Engineer",
+      "decision_gate": "M6",
+      "status": "Implemented-Unverified",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-001"
+      ],
+      "dependency_notes": "EG-001, audio assets and mobile testing.",
+      "player_visible_outcome": "Add quiet rotation/water/success cues and state-dependent ambience; muted by default until preference, with independent mute.",
+      "verification_ids": [
+        "UX-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-012/verification.md",
+      "stop_or_rollback": "Sound distracts, annoys or is required to understand play"
+    },
+    {
+      "id": "EG-013",
+      "title": "Optional haptic response",
+      "owner_role": "Unity/Release Engineer",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-001",
+        "EG-007"
+      ],
+      "dependency_notes": "EG-001, EG-007, native haptic support.",
+      "player_visible_outcome": "Light tick per valid rotation and distinct completion pulse; easy toggle and OS respect.",
+      "verification_ids": [
+        "UX-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-013/verification.md",
+      "stop_or_rollback": "Haptics reduce accessibility or have no measurable touch benefit"
+    },
+    {
+      "id": "EG-101",
+      "title": "Causal journal",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M4",
+      "status": "In Progress",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-003"
+      ],
+      "dependency_notes": "EG-003, WorldModel, localization.",
+      "player_visible_outcome": "For each choice show Choice → World effect → NPC memory → Next-puzzle effect; all derived from saved events.",
+      "verification_ids": [
+        "WLD-003",
+        "VAL-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-101/verification.md",
+      "stop_or_rollback": "Journal invents causes or players ignore it"
+    },
+    {
+      "id": "EG-102",
+      "title": "Three-depth authored consequences",
+      "owner_role": "Product Owner",
+      "decision_gate": "M4",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-003"
+      ],
+      "dependency_notes": "EG-003 and authored narrative/choice-consequence matrix; EG-105 is a downstream optional extension, not a prerequisite.",
+      "player_visible_outcome": "Every major choice has immediate visual, later puzzle/systemic and chapter-ending consequences, authored and deterministic.",
+      "verification_ids": [
+        "WLD-001",
+        "WLD-004",
+        "VAL-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-102/verification.md",
+      "stop_or_rollback": "Delayed effects fail causal recognition or contradict history"
+    },
+    {
+      "id": "EG-103",
+      "title": "Bounded NPC memory tokens",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M4",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-102"
+      ],
+      "dependency_notes": "EG-102, VillageStory, LocalizedVillage.",
+      "player_visible_outcome": "Mira/Orin/Fen reference at most 3–5 salient real choice events each; no chat-history illusion.",
+      "verification_ids": [
+        "WLD-002",
+        "VAL-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-103/verification.md",
+      "stop_or_rollback": "NPC remembers unmade events or dialogue adds no player value"
+    },
+    {
+      "id": "EG-104",
+      "title": "Distinct character values and voices",
+      "owner_role": "Product Owner",
+      "decision_gate": "M4",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-103"
+      ],
+      "dependency_notes": "EG-103, native script review.",
+      "player_visible_outcome": "Mira favors habitat, Orin practical access, Fen community/beauty; each responds honestly without a morality meter.",
+      "verification_ids": [
+        "WLD-002",
+        "VAL-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-104/verification.md",
+      "stop_or_rollback": "Characters are interchangeable or constrain choices"
+    },
+    {
+      "id": "EG-105",
+      "title": "Ecological constraints change reasoning",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M4",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-004",
+        "EG-102"
+      ],
+      "dependency_notes": "EG-004, EG-102, rule engine changes.",
+      "player_visible_outcome": "Roots restrict rotations, bridge creates a meaningful crossing, meadow protects fragile routes; constraints interact in later puzzles.",
+      "verification_ids": [
+        "PUZ-004",
+        "VAL-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-105/verification.md",
+      "stop_or_rollback": "Extra ecology rules reduce comprehension or are merely board rotation"
+    },
+    {
+      "id": "EG-106",
+      "title": "Recombine learned mechanics",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M4",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-004",
+        "EG-105"
+      ],
+      "dependency_notes": "EG-004, EG-105, playtest ladder.",
+      "player_visible_outcome": "Final third combines two or three previously taught ecology constraints with readable previews.",
+      "verification_ids": [
+        "PUZ-003",
+        "PUZ-004"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-106/verification.md",
+      "stop_or_rollback": "Combined rules create unteachable difficulty or unfair solutions"
+    },
+    {
+      "id": "EG-107",
+      "title": "Transparent difficulty choice",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M5",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-004",
+        "EG-005"
+      ],
+      "dependency_notes": "EG-004, EG-005, content variants.",
+      "player_visible_outcome": "Offer Gentle / Standard / Thoughtful; optionally ask about a calmer board after repeated hints; never silently change difficulty.",
+      "verification_ids": [
+        "PUZ-003",
+        "A11Y-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-107/verification.md",
+      "stop_or_rollback": "Mode switching corrupts state or increases confusion"
+    },
+    {
+      "id": "EG-108",
+      "title": "Optional return stream",
+      "owner_role": "Product Owner",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-110"
+      ],
+      "dependency_notes": "EG-110, content economics, return evidence.",
+      "player_visible_outcome": "Offer an optional short authored/verified stream accessible anytime; no streak, calendar lock, expiration or penalty.",
+      "verification_ids": [
+        "VAL-004"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-108/verification.md",
+      "stop_or_rollback": "Return feature requires streaks or no one voluntarily reopens"
+    },
+    {
+      "id": "EG-109",
+      "title": "Meaningfully different new garden",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-105",
+        "EG-110",
+        "EG-116"
+      ],
+      "dependency_notes": "EG-105, EG-110, EG-116.",
+      "player_visible_outcome": "After ending, begin an alternate authored ecological route with different puzzle and consequence combinations.",
+      "verification_ids": [
+        "PUZ-003",
+        "WLD-004"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-109/verification.md",
+      "stop_or_rollback": "Replay differs only cosmetically or reduces first-run quality"
+    },
+    {
+      "id": "EG-110",
+      "title": "Solver-assisted human authoring tool",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M5",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-004"
+      ],
+      "dependency_notes": "EG-004, puzzle fixtures, test harness.",
+      "player_visible_outcome": "Offline generator proposes candidates; exact solver checks uniqueness/rotation cost; human approves and themes every shipped board.",
+      "verification_ids": [
+        "TOOL-001",
+        "PUZ-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-110/verification.md",
+      "stop_or_rollback": "Generated puzzles bypass human review or unique-solution proof"
+    },
+    {
+      "id": "EG-111",
+      "title": "Ten-step undo history",
+      "owner_role": "Gameplay Engineer",
+      "decision_gate": "M5",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-008"
+      ],
+      "dependency_notes": "WorldModel snapshot/schema migration, EG-008.",
+      "player_visible_outcome": "Undo up to ten tile rotations; keep choice reconsideration as a separate, explicit action.",
+      "verification_ids": [
+        "SAVE-003",
+        "PUZ-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-111/verification.md",
+      "stop_or_rollback": "Expanded undo corrupts saves or loses valid history"
+    },
+    {
+      "id": "EG-112",
+      "title": "Large-board focus mode",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M5",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-007",
+        "EG-011"
+      ],
+      "dependency_notes": "EG-007, EG-011, layout architecture.",
+      "player_visible_outcome": "Offer 1.25×/1.5× board, thicker channels, clear focus; pan only if necessary.",
+      "verification_ids": [
+        "A11Y-001",
+        "A11Y-005"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-112/verification.md",
+      "stop_or_rollback": "Board zoom hides controls or adds mis-taps"
+    },
+    {
+      "id": "EG-113",
+      "title": "Screen-reader puzzle semantics",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M5",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [],
+      "dependency_notes": "UI/text migration, semantic control adapter, device QA.",
+      "player_visible_outcome": "Expose tile coordinates, ports, rotation state, connected/leak status, action labels and journal meaning to VoiceOver/TalkBack.",
+      "verification_ids": [
+        "A11Y-003"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-113/verification.md",
+      "stop_or_rollback": "Screen reader cannot complete first three boards"
+    },
+    {
+      "id": "EG-114",
+      "title": "Comprehensive reduced motion",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M5",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-003"
+      ],
+      "dependency_notes": "2D/2.5D renderer, EG-003.",
+      "player_visible_outcome": "One reduced-motion preference disables nonessential camera drift, butterflies, water shimmer and transitions without hiding game state.",
+      "verification_ids": [
+        "A11Y-004"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-114/verification.md",
+      "stop_or_rollback": "Reduced motion hides causal effects or still causes discomfort"
+    },
+    {
+      "id": "EG-115",
+      "title": "Local world postcard",
+      "owner_role": "Product Owner",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-003",
+        "EG-101"
+      ],
+      "dependency_notes": "EG-003, EG-101, export/asset work.",
+      "player_visible_outcome": "Show optional still image plus one truthful sentence about today's world change, stored locally.",
+      "verification_ids": [
+        "UX-002",
+        "WLD-003"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-115/verification.md",
+      "stop_or_rollback": "Postcard misstates world or distracts from completion"
+    },
+    {
+      "id": "EG-116",
+      "title": "Consequence-driven ending comparison",
+      "owner_role": "Product Owner",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-101",
+        "EG-102"
+      ],
+      "dependency_notes": "EG-101, EG-102, endings, localization.",
+      "player_visible_outcome": "Show 'the village you made' with three major choice consequences, optionally compare alternate possible paths without moral score.",
+      "verification_ids": [
+        "WLD-004"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-116/verification.md",
+      "stop_or_rollback": "Epilogue describes choices the player did not make"
+    },
+    {
+      "id": "EG-201",
+      "title": "Small authored world micro-events",
+      "owner_role": "Product Owner",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-102"
+      ],
+      "dependency_notes": "EG-102, scene state model.",
+      "player_visible_outcome": "Trigger visitor, repaired bench, bird or shade gathering from exact state combinations; no clock-based chores.",
+      "verification_ids": [
+        "WLD-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-201/verification.md",
+      "stop_or_rollback": "Micro-events invent time or become chores"
+    },
+    {
+      "id": "EG-202",
+      "title": "Cosmetic seasonal palette",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-011"
+      ],
+      "dependency_notes": "EG-011, scene art.",
+      "player_visible_outcome": "Optional local palette change without real-world time gate or seasonal exclusives.",
+      "verification_ids": [
+        "A11Y-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-202/verification.md",
+      "stop_or_rollback": "Seasonal color harms contrast or gates content"
+    },
+    {
+      "id": "EG-203",
+      "title": "Explicit offline share card",
+      "owner_role": "Store/Legal Owner",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-115"
+      ],
+      "dependency_notes": "EG-115, store branding clearance.",
+      "player_visible_outcome": "Generate local image of the player's real village and use OS share sheet only on explicit tap.",
+      "verification_ids": [
+        "UX-002",
+        "PRIV-002"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-203/verification.md",
+      "stop_or_rollback": "Sharing is automatic, identifiable or unwanted"
+    },
+    {
+      "id": "EG-204",
+      "title": "Accessible first-run presets",
+      "owner_role": "UX & Accessibility QA",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-007",
+        "EG-011",
+        "EG-114"
+      ],
+      "dependency_notes": "EG-007, EG-011, EG-114.",
+      "player_visible_outcome": "Optional Calm / Large Text / High Contrast quick preset, skippable and editable later.",
+      "verification_ids": [
+        "A11Y-001",
+        "A11Y-005"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-204/verification.md",
+      "stop_or_rollback": "Presets delay first input or are irreversible"
+    },
+    {
+      "id": "EG-205",
+      "title": "One-time chapter expansion support",
+      "owner_role": "Store/Legal Owner",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [],
+      "dependency_notes": "Store billing, pricing tests, content pipeline.",
+      "player_visible_outcome": "Offer optional substantial new authored chapter packs after the base experience; offline access once entitled.",
+      "verification_ids": [
+        "STORE-004",
+        "SAVE-003"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-205/verification.md",
+      "stop_or_rollback": "Purchase dependency breaks offline base or requires paid hints"
+    },
+    {
+      "id": "EG-206",
+      "title": "Localized store screenshots",
+      "owner_role": "Store/Legal Owner",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-010",
+        "EG-003"
+      ],
+      "dependency_notes": "EG-010, EG-003, launch art.",
+      "player_visible_outcome": "Localize the first three causal-loop screenshots for each launch-certified market.",
+      "verification_ids": [
+        "STORE-003",
+        "LOC-003"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-206/verification.md",
+      "stop_or_rollback": "Localized screenshots are misleading or uncertified"
+    },
+    {
+      "id": "EG-207",
+      "title": "ASO positioning experiments",
+      "owner_role": "Store/Legal Owner",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [
+        "EG-206"
+      ],
+      "dependency_notes": "Market clearance, EG-206, platform access.",
+      "player_visible_outcome": "Test truthful 'water puzzle', 'cozy offline', and 'choices change village' creative/metadata variants via store-supported experiments.",
+      "verification_ids": [
+        "STORE-003",
+        "VAL-005"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-207/verification.md",
+      "stop_or_rollback": "Traffic is too small for a credible test or creative is misleading"
+    },
+    {
+      "id": "EG-208",
+      "title": "Tablet/PC expansion after mobile proof",
+      "owner_role": "Unity/Release Engineer",
+      "decision_gate": "M6",
+      "status": "Proposed",
+      "blocked": false,
+      "dependency_ids": [],
+      "dependency_notes": "Mobile product evidence, build pipeline.",
+      "player_visible_outcome": "Adapt layout/input only after a mobile product/price/retention threshold is met.",
+      "verification_ids": [
+        "BLD-004",
+        "BLD-005",
+        "PERF-001"
+      ],
+      "evidence_artifacts": [],
+      "expected_artifact": "games/evergrove/docs/evidence/<BUILD_SHA>/EG-208/verification.md",
+      "stop_or_rollback": "Porting consumes resources before mobile product proof"
+    }
+  ],
+  "tests": [
+    {
+      "id": "BLD-001",
+      "gate": "M1",
+      "method": "Unity",
+      "passing_criteria": "Editor 6.3 imports, compiles and executes scene/bootstrap smoke without errors",
+      "evidence_required": "Editor log, Unity version and commit",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "BLD-002",
+      "gate": "M1",
+      "method": "Unity",
+      "passing_criteria": "Unsigned Android APK artifact built by manual workflow with recorded SHA",
+      "evidence_required": "Run URL, APK hash and log",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "BLD-003",
+      "gate": "M1",
+      "method": "Unity",
+      "passing_criteria": "iOS Xcode project exported with compile log; signing remains separate",
+      "evidence_required": "Run URL, Xcode project hash",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "BLD-004",
+      "gate": "M2",
+      "method": "Device",
+      "passing_criteria": "All 12 authored streams complete on compact physical Android without S0/S1",
+      "evidence_required": "Device recording, model/OS/build",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "BLD-005",
+      "gate": "M2",
+      "method": "Device",
+      "passing_criteria": "All 12 authored streams complete on physical iPhone without S0/S1",
+      "evidence_required": "Device recording, model/OS/build",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "BLD-006",
+      "gate": "M2",
+      "method": "Device",
+      "passing_criteria": "Suspend, resume, force-close and reopen preserve state after rotation and choice",
+      "evidence_required": "Repro steps, save hashes and recording",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "BLD-007",
+      "gate": "M5",
+      "method": "Unity",
+      "passing_criteria": "Nondevelopment player has no experiment modes, visual comparison or playtest export controls",
+      "evidence_required": "Release candidate screenshot and source guard audit",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "SAVE-001",
+      "gate": "M2",
+      "method": "Device",
+      "passing_criteria": "Invalid primary with valid backup recovers exact prior state",
+      "evidence_required": "Corrupted-file fixtures and restore logs",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "SAVE-002",
+      "gate": "M2",
+      "method": "Device",
+      "passing_criteria": "100 recorded interruption points produce zero irrecoverable previously valid saves",
+      "evidence_required": "Fault-injection matrix and raw outcomes",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "SAVE-003",
+      "gate": "M2",
+      "method": "Automated",
+      "passing_criteria": "V1/V2 save migrations and v3 restore preserve intended choices and rotations",
+      "evidence_required": "Pure C# test log with build SHA",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "SAVE-004",
+      "gate": "M2",
+      "method": "Automated",
+      "passing_criteria": "Language and renderer changes do not modify world state",
+      "evidence_required": "Snapshot comparison log",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PUZ-001",
+      "gate": "M3",
+      "method": "Automated",
+      "passing_criteria": "All 12 authored and 33 branch variants have exactly one solution",
+      "evidence_required": "Solver test log and puzzle IDs",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PUZ-002",
+      "gate": "M3",
+      "method": "Automated",
+      "passing_criteria": "Existing Guide Me aligns one tile to solution and Undo reverses the action",
+      "evidence_required": "C# regression log; future ladder stages separately tested",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PUZ-003",
+      "gate": "M3",
+      "method": "Human",
+      "passing_criteria": "Player time/hint/mis-tap outcomes calibrated per board with sample counts",
+      "evidence_required": "Puzzle calibration sheet and build SHA",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PUZ-004",
+      "gate": "M4",
+      "method": "Automated",
+      "passing_criteria": "New ecology rule changes legal strategies, remains solvable and is not rotation-only",
+      "evidence_required": "Constraint proof, accepted fixtures and player validation",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PUZ-005",
+      "gate": "M3",
+      "method": "Human",
+      "passing_criteria": "Uncoached player can act on first puzzle and identify water goal",
+      "evidence_required": "Timed session sheet with raw observations",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PUZ-006",
+      "gate": "M3",
+      "method": "Device",
+      "passing_criteria": "Board touch input works at compact sizes with mis-taps recorded",
+      "evidence_required": "Device session video and touch geometry",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PUZ-007",
+      "gate": "M2",
+      "method": "Automated",
+      "passing_criteria": "Source and garden use font-independent distinct icons; first copy no S/G letter dependence",
+      "evidence_required": "Static regression and per-locale copy review",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "LOC-001",
+      "gate": "M5",
+      "method": "Automated",
+      "passing_criteria": "Every shipping locale includes all canonical key/value/placeholder pairs",
+      "evidence_required": "Catalog validator result tied to SHA",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "LOC-002",
+      "gate": "M5",
+      "method": "Device",
+      "passing_criteria": "Enabled scripts render bidi, shaping, fonts, wrapping and mixed direction on both platforms",
+      "evidence_required": "Per-locale screenshot matrix and logs",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "LOC-003",
+      "gate": "M5",
+      "method": "Human",
+      "passing_criteria": "Qualified native reviewer approves each enabled locale and store copy",
+      "evidence_required": "Signed reviewer checklist, locale/date/build",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "LOC-004",
+      "gate": "M5",
+      "method": "Manual",
+      "passing_criteria": "pt-PT to pt-BR regional fallback explicitly decided, not advertised as European Portuguese",
+      "evidence_required": "Product/localization decision record",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "A11Y-001",
+      "gate": "M2",
+      "method": "Device",
+      "passing_criteria": "44pt iOS and 48dp Android frequent touch targets audited independently",
+      "evidence_required": "Hit-rect geometry and recordings",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "A11Y-002",
+      "gate": "M3",
+      "method": "Device",
+      "passing_criteria": "Connected/leaking/anchored states distinguishable in grayscale and high contrast",
+      "evidence_required": "Accessibility walkthrough screenshots",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "A11Y-003",
+      "gate": "M5",
+      "method": "Device",
+      "passing_criteria": "First three puzzles completed using VoiceOver/TalkBack without sighted input",
+      "evidence_required": "Accessibility test run and blockers",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "A11Y-004",
+      "gate": "M5",
+      "method": "Device",
+      "passing_criteria": "Reduced-motion option disables decorative movement without hiding consequences",
+      "evidence_required": "Toggle matrix and footage",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "A11Y-005",
+      "gate": "M5",
+      "method": "Device",
+      "passing_criteria": "Largest supported in-game text fits all key views on compact phone",
+      "evidence_required": "Screenshot grid for chosen launch locales",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PRIV-001",
+      "gate": "M2",
+      "method": "Device",
+      "passing_criteria": "Final candidate binary shows no unexplained outbound traffic during full session",
+      "evidence_required": "SDK inventory and packet capture",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PRIV-002",
+      "gate": "M2",
+      "method": "Automated",
+      "passing_criteria": "Opt-in report starts only on tap, contains no identifiers and is never auto-uploaded",
+      "evidence_required": "LocalPlaytest test + binary review",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "VAL-001",
+      "gate": "M3",
+      "method": "Human",
+      "passing_criteria": "8-12 uncoached sessions document goal, first action, consequences, confusion and failures",
+      "evidence_required": "Anonymized raw observation table",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "VAL-002",
+      "gate": "M4",
+      "method": "Human",
+      "passing_criteria": "Conditions are matched on topology, orientations, hints, difficulty and session length before comparison",
+      "evidence_required": "Pre-registration, fixture hashes, assignment and raw results",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "VAL-003",
+      "gate": "M5",
+      "method": "Human",
+      "passing_criteria": "2D and 2.5D show same world, counterbalanced order and device/artist costs",
+      "evidence_required": "Comparison sheet and perf logs",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "VAL-004",
+      "gate": "M6",
+      "method": "Human",
+      "passing_criteria": "Consent-based voluntary D1/D7 return is recorded with denominators",
+      "evidence_required": "Follow-up invitation and anonymized outcomes",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "VAL-005",
+      "gate": "M6",
+      "method": "Human",
+      "passing_criteria": "10-30 targeted prospects offered real playtest or payment tradeoff",
+      "evidence_required": "Recruitment and conversion/price decision log",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "WLD-001",
+      "gate": "M3",
+      "method": "Automated",
+      "passing_criteria": "Every choice maps to real scene objects and never causes unearned state",
+      "evidence_required": "Choice consequence registry and parity tests",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "WLD-002",
+      "gate": "M4",
+      "method": "Automated",
+      "passing_criteria": "NPC lines trace to actual events and no fabricated memories are emitted",
+      "evidence_required": "Event-to-line provenance test",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "WLD-003",
+      "gate": "M4",
+      "method": "Automated",
+      "passing_criteria": "Journal derived only from saved choices including reconsideration and reload",
+      "evidence_required": "Journal consistency test",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "WLD-004",
+      "gate": "M4",
+      "method": "Automated",
+      "passing_criteria": "Endings match real world history and differ causally across authored branches",
+      "evidence_required": "Ending matrix regression",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "UX-001",
+      "gate": "M6",
+      "method": "Device",
+      "passing_criteria": "Muted play remains fully functional; audio and haptics are opt-in/off and tolerable",
+      "evidence_required": "Paired device testing notes",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "UX-002",
+      "gate": "M6",
+      "method": "Device",
+      "passing_criteria": "Optional postcard/share remains offline until explicit user action and matches state",
+      "evidence_required": "Screenshot and privacy run",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "TOOL-001",
+      "gate": "M5",
+      "method": "Automated",
+      "passing_criteria": "Generated candidates rejected unless solver-unique and human-authored review accepted",
+      "evidence_required": "Generator logs and approvals",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "PERF-001",
+      "gate": "M5",
+      "method": "Device",
+      "passing_criteria": "2D/2.5D measured on budget Android and iPhone with no input/render blockers",
+      "evidence_required": "Memory, frame-time and heat profile",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "STORE-001",
+      "gate": "M6",
+      "method": "Manual",
+      "passing_criteria": "Title cleared for targeted stores and jurisdiction before branding commitment",
+      "evidence_required": "Name/trademark search decision record",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "STORE-002",
+      "gate": "M6",
+      "method": "Manual",
+      "passing_criteria": "Apple/Google disclosures match final app+SDK network/data audit",
+      "evidence_required": "Privacy forms and binary manifest",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "STORE-003",
+      "gate": "M6",
+      "method": "Manual",
+      "passing_criteria": "Only certified-locale store assets used; creatives truthful and checked",
+      "evidence_required": "Store screenshots and native approval",
+      "verified": false,
+      "evidence_path": null
+    },
+    {
+      "id": "STORE-004",
+      "gate": "M6",
+      "method": "Manual",
+      "passing_criteria": "One-time unlock or premium price tested without ads/paid hints/streaks",
+      "evidence_required": "Price experiment and entitlement QA",
+      "verified": false,
+      "evidence_path": null
+    }
+  ]
+}

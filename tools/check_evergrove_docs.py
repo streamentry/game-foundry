@@ -5,12 +5,14 @@ This is an inexpensive source-contract guard. It is NOT a Unity compile,
 native device QA, original market research or a translation quality audit.
 """
 from pathlib import Path
+import json
 import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 GAME = ROOT / "games" / "evergrove"
 DOCS = GAME / "docs"
+SPECS = DOCS / "specs"
 
 REQUIRED = [
     "README.md", "PRODUCT.md", "GAMEPLAY_AND_WORLD_RULES.md",
@@ -78,12 +80,186 @@ def main() -> int:
     if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 81:
         fail("Localization key count changed; update documentation and catalog validator")
 
+    check_specification_contract()
+
     print(
         f"Evergrove documentation contract: {len(target_docs)} documents, "
         f"{checked_links} verified local links, 12 puzzles, "
         "v4 saves, 30 language choices, 81 keys."
     )
     return 0
+
+
+SPEC_DOCUMENTS = [
+    "README.md",
+    "01-PRODUCT-AND-EXPERIENCE.md",
+    "02-FEATURE-BACKLOG.md",
+    "03-PUZZLES-AND-CONTENT.md",
+    "04-WORLD-AND-NARRATIVE.md",
+    "05-ACCESSIBILITY-AND-LOCALIZATION.md",
+    "06-ENGINEERING-AND-RELEASE.md",
+    "07-VALIDATION-AND-GTM.md",
+    "08-EVIDENCE-AND-DECISIONS.md",
+    "09-EXECUTION-CONTROL.md",
+]
+
+
+def check_specification_contract() -> None:
+    """Reject stale fake-verified feature claims and source/spec drift.
+
+    This is still static source verification, NOT Unity/native/device QA.
+    """
+    index = source_text(SPECS / "README.md")
+    backlog = source_text(SPECS / "02-FEATURE-BACKLOG.md")
+    for name in SPEC_DOCUMENTS:
+        body = source_text(SPECS / name)
+        if name != "README.md" and f"]({name})" not in index:
+            fail(f"Unlinked Evergrove feature spec: {name}")
+        if not body.startswith("# ") or body.count("\x60\x60\x60") % 2:
+            fail(f"Malformed or unclosed feature spec Markdown: {name}")
+        for destination in re.findall(r"(?<!!)\[[^\]]+\]\(([^)]+)\)", body):
+            bare = destination.split("#", 1)[0]
+            if not bare or "://" in bare or bare.startswith(("mailto:", "/")):
+                continue
+            path = (SPECS / bare).resolve()
+            if not path.is_relative_to(ROOT) or not path.is_file():
+                fail(f"Broken relative Evergrove spec link: {name}: {destination}")
+
+    matrix = json.loads(source_text(SPECS / "verification-matrix.json"))
+    if matrix.get("schema_version") != 1:
+        fail("Unsupported specification verification matrix schema")
+    if not re.fullmatch(r"[a-f0-9]{40}", matrix.get("audit_baseline_commit", "")):
+        fail("Evergrove spec baseline must use an immutable 40-character commit SHA")
+    states = {
+        "Proposed", "Ready", "In Progress", "Implemented-Unverified",
+        "Verified", "Deferred", "Rejected"
+    }
+    gates = {"M0", "M1", "M2", "M3", "M4", "M5", "M6"}
+    features = matrix.get("features", [])
+    tests = matrix.get("tests", [])
+    expected_ids = {f"EG-{index:03d}" for index in range(1, 14)}
+    expected_ids.update(f"EG-{index:03d}" for index in range(101, 117))
+    expected_ids.update(f"EG-{index:03d}" for index in range(201, 209))
+    feature_by_id = {feature.get("id"): feature for feature in features}
+    if len(features) != 37 or set(feature_by_id) != expected_ids:
+        fail("Every one of 37 feature IDs must be present exactly once")
+    test_by_id = {case.get("id"): case for case in tests}
+    if len(tests) != len(test_by_id) or len(tests) < 40:
+        fail("Verification test IDs must be unique and cover all feature areas")
+    for test_id, case in test_by_id.items():
+        if not re.fullmatch(r"(?:BLD|SAVE|PUZ|LOC|A11Y|PRIV|VAL|WLD|UX|TOOL|PERF|STORE)-\d{3}", test_id):
+            fail(f"Invalid stable verification test ID: {test_id}")
+        if case.get("gate") not in gates:
+            fail(f"Unknown test gate: {test_id}")
+        if not case.get("method") or not case.get("passing_criteria") or not case.get("evidence_required"):
+            fail(f"Verification case is not actionable: {test_id}")
+        if case.get("verified"):
+            if not case.get("evidence_path") or not case.get("build_sha"):
+                fail(f"A verified test needs real dated build evidence: {test_id}")
+            evidence = (ROOT / case["evidence_path"]).resolve()
+            if not evidence.is_relative_to(ROOT) or not evidence.is_file():
+                fail(f"Missing verified test evidence: {test_id}")
+            if not re.fullmatch(r"[a-f0-9]{40,64}", case["build_sha"]):
+                fail(f"Invalid verified test build SHA: {test_id}")
+    for id, feature in feature_by_id.items():
+        if feature.get("status") not in states or feature.get("decision_gate") not in gates:
+            fail(f"Feature lifecycle/gate invalid: {id}")
+        if type(feature.get("blocked")) is not bool:
+            fail(f"Blocked must be an independent boolean for {id}")
+        for required in (
+            "title", "owner_role", "player_visible_outcome",
+            "expected_artifact", "stop_or_rollback", "dependency_notes"
+        ):
+            if not feature.get(required):
+                fail(f"Missing {required} for feature {id}")
+        refs = feature.get("verification_ids", [])
+        if not refs or any(ref not in test_by_id for ref in refs):
+            fail(f"Feature {id} must have valid named verification tests")
+        deps = feature.get("dependency_ids", [])
+        if id in deps or any(dep not in feature_by_id for dep in deps):
+            fail(f"Feature {id} has unknown/cyclic direct dependency")
+        if len(refs) != len(set(refs)) or len(deps) != len(set(deps)):
+            fail(f"Feature {id} duplicates a test/dependency")
+        heading = f"### {id} — {feature['title']}"
+        if heading not in backlog:
+            fail(f"Feature title/section disagrees with the matrix: {id}")
+        start = backlog.index(heading)
+        end = backlog.find("\n### ", start + len(heading))
+        block = backlog[start:end if end >= 0 else len(backlog)]
+        if "**Execution:**" not in block or feature["owner_role"] not in block:
+            fail(f"Missing human-visible execution contract for {id}")
+        if feature["decision_gate"] not in block or any(ref not in block for ref in refs):
+            fail(f"Stale gate/test ID in human feature spec: {id}")
+        if feature.get("status") == "Verified":
+            if not feature.get("evidence_artifacts") or not all(
+                test_by_id[t]["verified"] for t in refs
+            ):
+                fail(f"Feature {id} cannot be Verified without every mandatory test")
+            for relative in feature["evidence_artifacts"]:
+                proof = (ROOT / relative).resolve()
+                if not proof.is_relative_to(ROOT) or not proof.is_file():
+                    fail(f"Missing feature proof: {id} / {relative}")
+        elif feature.get("evidence_artifacts"):
+            fail(f"Feature {id} reports evidence without verified lifecycle: review first")
+
+    visited = set()
+    active = set()
+
+    def visit(feature_id: str) -> None:
+        if feature_id in active:
+            fail(f"Feature dependency cycle: {feature_id}")
+        if feature_id in visited:
+            return
+        active.add(feature_id)
+        for dep in feature_by_id[feature_id]["dependency_ids"]:
+            visit(dep)
+        active.remove(feature_id)
+        visited.add(feature_id)
+
+    for feature_id in feature_by_id:
+        visit(feature_id)
+
+    # Static release isolation is a prerequisite, never a runtime-certification.
+    ui = source_text(GAME / "Assets/Scripts/Unity/EvergroveApp.cs")
+    builder = source_text(GAME / "Assets/Editor/EvergroveBuild.cs")
+    if ui.count("#if UNITY_EDITOR || DEVELOPMENT_BUILD") < 4 or \
+            "options = BuildOptions.Development" not in builder:
+        fail("Research-only controls lack explicit development-build isolation")
+    if not re.search(
+        r"#if UNITY_EDITOR \|\| DEVELOPMENT_BUILD[\s\S]*?"
+        r"if \(world\.CanSwitchMode\)[\s\S]*?#endif",
+        ui
+    ):
+        fail("Puzzle Only control must be inside development-build guard")
+    if not re.search(
+        r"#if UNITY_EDITOR \|\| DEVELOPMENT_BUILD[\s\S]*?"
+        r'Button\(content, "Playtest consent"[\s\S]*?#endif',
+        ui
+    ):
+        fail("Local playtest consent/export must be gated from consumer UI")
+    if 'marker.text = seenEnds == 1 ? "S" : "G"' in ui:
+        fail("Nonlocalized S/G board markers regressed")
+    if "DrawEndpointIcon(markerNode.transform, spring)" not in ui:
+        fail("Language-neutral board endpoint markers are missing")
+    if "evergrove-world-v2.json" not in source_text(
+        GAME / "Assets/Scripts/Unity/WorldStore.cs"
+    ):
+        fail("Save filename changed without migration contract review")
+
+    locale_dir = GAME / "Assets/Resources/Evergrove/Locales"
+    for file in locale_dir.glob("*.json"):
+        translation = json.loads(file.read_text(encoding="utf-8"))
+        first = next(
+            (entry.get("value", "") for entry in translation["entries"]
+             if entry.get("key") == "first"), ""
+        )
+        if not first or re.search(r"(?:S\s*=\s*|G\s*=\s*|S＝|G＝)", first):
+            fail(f"First puzzle localization still depends on English S/G: {file.name}")
+    print(
+        f"Evergrove execution contract: {len(features)} feature records, "
+        f"{len(tests)} test IDs, 10 linked feature specs, "
+        "zero claimed device/human verification unless proof exists."
+    )
 
 if __name__ == "__main__":
     try:

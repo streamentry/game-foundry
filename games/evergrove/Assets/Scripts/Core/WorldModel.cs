@@ -232,7 +232,10 @@ namespace Evergrove.Core
         {
             if (Completed || Solved) return false;
             Puzzle puzzle = CurrentPuzzle;
-            int tile = HintPlanner.SelectTarget(puzzle, state.rotations);
+            int tile = -1;
+            for (int i = 0; i < puzzle.CellCount; i++)
+                if (!puzzle.IsAnchored(i) && state.rotations[i] != puzzle.Solution[i])
+                { tile = i; break; }
             if (tile < 0) return false;
             state.previous = (int[])state.rotations.Clone();
             state.rotations[tile] = puzzle.Solution[tile];

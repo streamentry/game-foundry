@@ -33,6 +33,39 @@
 
 **No test was executed by this documentation change.** A Unity license and iOS signing are maintainer responsibilities; do not place secrets in repository or chat. See [BUILD_QA.md](../../BUILD_QA.md).
 
+## Exact build, test and artifact contract
+
+**First action:** licensed Unity 6.3 import, scene bootstrap and actual Android APK/iOS Xcode-project builds via the [manual workflow](../../../../.github/workflows/evergrove-unity-playtest.yml) (`BLD-001..003`). The existing public GitHub Actions static verifier and .NET suite are **not** Unity compilation. No real-device or Unity-build artifact was verified in the audit baseline; if a new run occurs, record it explicitly instead of preserving a stale claim.
+
+**Test ladder:** pure C# rules/migrations/catalogs → Unity Editor import/compile → scene bootstrap/UI/text/font asset smoke → Unity Test Framework EditMode/PlayMode checks when implemented → physical Android/iPhone full chapter flows → save corruption/interruption → release-binary network audit → representative human playtest. A successful GameCI build is a **builder result**, not a UI/end-to-end test suite.
+
+**Research channel:** `EvergroveBuild.Build` now explicitly requests `BuildOptions.Development`. Unity's `DEVELOPMENT_BUILD` compile symbol gates experiment mode, 2D/2.5D comparison, miniature motion and local research export controls in `EvergroveApp`. A future store build must use a **separate non-development pipeline** with `BLD-007` static and runtime verification. Do not sign/upload a GameCI playtest APK as a consumer release.
+
+**Save filename hazard:** the persistent filename is `evergrove-world-v2.json` but the **WorldSnapshot schema is v3**. The filename is a historical storage identifier; **do not rename it merely because the schema increments**, without explicit file migration and regression tests.
+
+### Candidate build evidence record
+
+```text
+SourceCommitSha: <immutable source SHA>
+BuildSha: <hash of exact artifact>
+UnityVersion: <actual>
+PlatformTarget: Android | iOS | WebGL
+WorkflowRunUrl: <actual>
+ArtifactSha256: <actual>
+BuildTimestampUtc: <actual>
+DeviceModelAndOs: <actual>
+Tester: <real role/name, private when necessary>
+TestPlanVersion: <actual>
+PassedTestIds: []
+FailedTestIds: []
+KnownIssues: []
+NetworkAuditArtifact: <actual or NONE>
+SaveFailureAuditArtifact: <actual or NONE>
+Decision: BLOCKED | REWORK | GO
+```
+
+No placeholder in this template is evidence. Only a real record tied to the source/build SHA can move a feature to `Verified`. See [execution controls](09-EXECUTION-CONTROL.md) and [46 named test contracts](verification-matrix.json).
+
 ## Save integrity (EG-008)
 
 Current `WorldStore` writes `evergrove-world-v2.json` (filename retained for path compatibility; **snapshot schema is v4**), validates JSON via `WorldModel.TryRestore`, writes a temporary file, attempts replacement with backup and has a copy-based fallback. It can recover a previous valid backup and migrate old PlayerPrefs v1 data. **This is an implemented strategy, not a verified atomic guarantee on every mobile filesystem.** Unity source now displays a localized warning when saving fails, and v4 includes the in-progress hint step/target. Neither guarantees crash-safe recovery on actual devices.

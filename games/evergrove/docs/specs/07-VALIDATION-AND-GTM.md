@@ -14,6 +14,21 @@ This is an **experiment plan**, not a report of completed player studies, revenu
 
 **Critical confound in the existing implementation:** `Puzzle Only` uses original boards, while `Living World` uses transformed and anchored variants from chapter 2. Comparing their return rates as if only narrative differs would be misleading. For experiment B, **hold puzzle topology and difficulty constant** (e.g. matched fixtures/variants or first-chapter-only causal test), or explicitly report the confound. The in-game mode toggle is research scaffolding, **not randomized assignment**.
 
+## Hard preregistration rule — VAL-002
+
+**Current A/B code is NOT causally valid after Chapter One.** Living World chooses branch-rotated and anchored variants; Puzzle Only uses canonical boards. A preference or retention difference could be a puzzle-difficulty difference rather than narrative value.
+
+Do not report a living-world lift unless both conditions use **identical topology hash, initial rotations, anchored cells, hint behavior, difficulty, session length, actual text legibility, device class and exposure timing**. Only the **visible consequences and authored memory layer** may vary. Record exact source build, board fixture checksums, order assignment, participant inclusion/exclusion and question script **before collecting preference responses**.
+
+If matching cannot be implemented yet, limit the first study to the **identical first board** or labeled non-causal qualitative impressions. No amount of retrospective statistical adjustment turns an unmatched small experiment into a valid product decision. The current in-game comparison toggle is a facilitator tool, not participant randomization.
+
+### Formative versus directional product decisions
+
+- **8–12 uncoached sessions:** diagnose repeated failure modes and observe actual behavior (goal, first tap, mis-taps, consequence notice, hint frustration, interruptions), report raw counts and recordings with consent. Percent targets are provisional triage, **not** population estimates.
+- **20–30 matched-condition sessions:** preregister comparison and report raw preference/recall counts, follow-up losses, uncertainty and alternative explanations. It may support a directional decision, **not** a precise D7 uplift claim.
+- **After two consequence-presentation iterations:** if players still prefer equally good pure puzzles or do not recognize cause→effect, **simplify the world layer**; if core puzzle engagement also fails, stop or pivot rather than add daily content.
+- **No P2 expansion** before M4, and no ASO/pricing rollout before an actually usable binary and truthful listing.
+
 ## Metric dictionary — define before recruiting
 
 | Metric | Operational definition | Collection and caveat |

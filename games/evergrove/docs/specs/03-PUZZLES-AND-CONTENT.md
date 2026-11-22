@@ -94,6 +94,26 @@ A source-controlled, deterministic record for every authored puzzle and variant:
 - Hint use and undo history must be deterministic after save/load. Do not quietly reset the count to flatter metrics.
 - The user can ignore hints; the UI must not repeatedly nag.
 
+### Important current-hint behavior (audited source)
+
+`WorldModel.GuideOneConnection()` locates the **first** incorrect non-anchored tile, **sets its orientation directly to `puzzle.Solution[tile]`**, increments `hintsUsed`, saves the prior rotation array for one undo, then re-evaluates the solved board. It does **not** merely highlight a region, and can skip multiple clockwise rotations. `Undo()` restores the tile state but does **not** refund the recorded hint.
+
+Therefore the proposed three-stage ladder has three **distinct mutation contracts**:
+
+- **Stage A — notice:** only highlights a useful region; no puzzle state mutation.
+- **Stage B — focus:** identifies one tile and a reason; no puzzle state mutation.
+- **Stage C — align:** sets exactly one currently incorrect tile to the solution orientation (an explicitly mutating, undoable action). Do not describe it as "one clockwise rotation".
+
+Before releasing Stage A/B, define deterministic regions and correct suggestions for every reachable intermediate board, every anchored variant and undo/restart/reload condition. The existing `Guide me` can act as the starting point for Stage C but requires verified UI wording and device tests (`PUZ-002`).
+
+### Calibrated metadata, not invented difficulty labels
+
+For each **12 authored + 33 existing rotated/anchored variants**, eventually record: `PuzzleId`, `TopologyHash`, `BoardSize`, `InitialRotations`, `SolutionRotations`, `UniqueSolutionProof`, `MinimumPlayerRotations`, `AnchoredCells`, `EnvironmentalRuleId`, `HintStep1Region`, `HintStep2Tile`, `HintStep3SolveTile`, `ObservedN`, `ObservedMedianSolveSeconds`, `ObservedP90SolveSeconds`, `ObservedHintRate`, `ObservedRestartRate`, `ObservedMisTapRate`, `DifficultyBand`, `CalibrationDate`, `BuildSha`.
+
+**Only the structural fields can be derived from code.** The observed metrics remain `null` until uncoached human play. `MinimumPlayerRotations` must define whether taps are clockwise and whether straight-pipe 180-degree symmetry counts as equivalent. An exhaustive solver's distance is a **structural complexity signal**, not measured player difficulty.
+
+The [verification registry](verification-matrix.json) defines `PUZ-001`, `PUZ-002`, `PUZ-003` and `PUZ-004`. Shipping new ecology constraints without a unique-solution proof plus human explanation is a blocked change.
+
 ## Ecological puzzle mechanics (EG-105, proposed)
 
 These are **new rule candidates**, not claims about `ReactiveWatercourses`:
