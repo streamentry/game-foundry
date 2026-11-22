@@ -35,6 +35,9 @@ namespace Evergrove.UnityClient
         private bool showJournal;
         private bool confirmReset;
         private bool soundOn;
+        private bool showMiniature;
+        private bool animateMiniature;
+        private VillageDiorama diorama;
         private AudioSource sound;
         private AudioClip chime;
         // Keep live puzzle controls mounted during every tap. Recreating the
@@ -65,6 +68,10 @@ namespace Evergrove.UnityClient
         {
             world = WorldStore.Load();
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
+            // Default to the proven-in-code 2D art; keep the experimental
+            // orthographic 3D visual opt-in until real player/device evidence.
+            showMiniature = PlayerPrefs.GetInt("evergrove:visual-miniature", 0) == 1;
+            animateMiniature = PlayerPrefs.GetInt("evergrove:miniature-motion", 0) == 1;
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null) font = Font.CreateDynamicFontFromOSFont("Arial", 16);
             sound = gameObject.AddComponent<AudioSource>();
@@ -282,11 +289,33 @@ namespace Evergrove.UnityClient
             Label(content, "Brand", "EVERGROVE       /       A WORLD THAT REMEMBERS", 12, 24, Leaf);
             Label(content, "Title", "Little choices. A living place.", 25, 46, Ink);
 
-            var illustration = Node("Living storybook art", content);
-            Height(illustration, 178);
-            var art = illustration.AddComponent<VillageIllustration>();
-            art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
-                world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers));
+            var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
+            Height(illustration, 193);
+            bool renderedMiniature = false;
+            if (showMiniature)
+            {
+                if (diorama == null)
+                {
+                    var stage = new GameObject("Optional orthographic world");
+                    stage.transform.SetParent(transform, false);
+                    diorama = stage.AddComponent<VillageDiorama>();
+                }
+                renderedMiniature = diorama.Show(VillageScenePlan.From(world), animateMiniature);
+                if (renderedMiniature)
+                {
+                    var raw = illustration.AddComponent<RawImage>();
+                    raw.texture = diorama.Preview;
+                    raw.raycastTarget = false;
+                    raw.color = Color.white;
+                }
+            }
+            if (!renderedMiniature)
+            {
+                if (diorama != null) diorama.Hide();
+                var art = illustration.AddComponent<VillageIllustration>();
+                art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
+                    world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers));
+            }
 
             if (living)
             {
@@ -359,6 +388,25 @@ namespace Evergrove.UnityClient
                     52, !living);
             }
 
+            // Two comparable art renderers using the same saved decisions.
+            // Keep this manual A/B surface below the gameplay.
+            Button(content, "Diorama visual comparison",
+                showMiniature ? "Visual: 2.5D miniature (tap for 2D)" :
+                    "Visual: 2D storybook (tap for 2.5D)", () => {
+                    showMiniature = !showMiniature;
+                    PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
+                    PlayerPrefs.Save();
+                    Rebuild();
+                }, 49);
+            if (showMiniature)
+                Button(content, "Optional miniature motion",
+                    animateMiniature ? "Miniature motion: ON (tap to stop)" :
+                        "Miniature motion: OFF (tap to animate)", () => {
+                        animateMiniature = !animateMiniature;
+                        PlayerPrefs.SetInt("evergrove:miniature-motion", animateMiniature ? 1 : 0);
+                        PlayerPrefs.Save();
+                        Rebuild();
+                    }, 45);
             Button(content, "Quiet audio setting",
                 soundOn ? "Gentle chime: ON (tap to mute)" : "Gentle chime: OFF (tap to enable)",
                 () => {
