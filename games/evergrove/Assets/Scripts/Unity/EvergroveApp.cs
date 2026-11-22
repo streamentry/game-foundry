@@ -34,6 +34,7 @@ namespace Evergrove.UnityClient
         private Vector2Int lastScreen;
         private bool showingMemory;
         private bool showJournal;
+        private int speakingWith = -1;
         private bool confirmReset;
         private bool soundOn;
         private bool showMiniature;
@@ -363,6 +364,7 @@ namespace Evergrove.UnityClient
                         confirmReset = false;
                         showJournal = false;
                         showingMemory = false;
+                        speakingWith = -1;
                         Rebuild(true);
                     }, 62, confirmReset);
                 if (confirmReset)
@@ -376,6 +378,29 @@ namespace Evergrove.UnityClient
 
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
+
+            // Optional face-to-face NPC interaction. Character dialogue is
+            // genuinely driven by previous world decisions, not generated text.
+            // It stays below the puzzle so onboarding reaches gameplay first.
+            if (living && !showingMemory)
+            {
+                Label(content, "Neighbors", "THREE NEIGHBORS, THREE WAYS OF SEEING YOUR GARDEN",
+                    12, 27, Leaf);
+                var neighbors = Row(content, "Speak with a neighbor");
+                Button(neighbors.transform, "Mira", "Mira", () => OpenConversation(0), 52);
+                Button(neighbors.transform, "Orin", "Orin", () => OpenConversation(1), 52);
+                Button(neighbors.transform, "Fen", "Fen", () => OpenConversation(2), 52);
+                if (speakingWith >= 0)
+                {
+                    var conversation = Card(content, "A neighbor's memory", Sand);
+                    Label(conversation.transform, "Neighbor name",
+                        VillageStory.VillagerName(speakingWith), 16, 31, Leaf);
+                    Label(conversation.transform, "What they say",
+                        VillageStory.Speak(world, speakingWith), 16, 132, Ink);
+                    Button(conversation.transform, "Thanks", "Thanks for telling me",
+                        () => { speakingWith = -1; Rebuild(); }, 50, true);
+                }
+            }
 
             // Research-only comparison controls are intentionally below the
             // puzzle. They must not push the first playable move off-screen.
@@ -568,9 +593,16 @@ namespace Evergrove.UnityClient
                 13, 56, Moss, TextAnchor.MiddleCenter);
         }
 
+        private void OpenConversation(int villagerIndex)
+        {
+            speakingWith = villagerIndex;
+            Rebuild();
+        }
+
         private void SwitchMode(PlayMode mode)
         {
             if (!world.CanSwitchMode) return;
+            speakingWith = -1;
             world = WorldModel.New(mode);
             SaveWorld();
             Rebuild();
@@ -639,6 +671,7 @@ namespace Evergrove.UnityClient
             SaveWorld();
             showingMemory = true;
             showJournal = false;
+            speakingWith = -1;
             PlayChime();
             Rebuild(true);
         }

@@ -213,6 +213,27 @@ internal static class Program
                world.Consequence.Contains("shady bridge"),
                "human-readable narrative explains the visual interaction");
 
+        string mira = VillageStory.Speak(world, 0);
+        string orin = VillageStory.Speak(world, 1);
+        string fen = VillageStory.Speak(world, 2);
+        Expect(VillageStory.VillagerName(0).Contains("Mira") &&
+               VillageStory.VillagerName(1).Contains("Orin") &&
+               VillageStory.VillagerName(2).Contains("Fen"),
+               "all three neighbors have stable identities");
+        Expect(mira.Contains("shade") && orin.Contains("crossing") &&
+               fen.Contains("wildflower"),
+               "different villagers recall consequences through their own concerns");
+        Expect(mira != orin && mira != fen && orin != fen,
+               "three distinct voices do not share generic generated dialogue");
+        Expect(VillageStory.Speak(recovered, 0) == mira &&
+               VillageStory.Speak(recovered, 1) == orin &&
+               VillageStory.Speak(recovered, 2) == fen,
+               "authored dialogue remains stable across save/load");
+        var untouched = WorldModel.New();
+        Expect(VillageStory.Speak(untouched, 0).Contains("sapling") &&
+               !VillageStory.Speak(untouched, 1).Contains("the first plank"),
+               "characters do not fabricate prior actions in a new game");
+
         var control = WorldModel.New(PlayMode.PuzzleOnly);
         VillageScenePlan emptyControl = VillageScenePlan.From(control);
         Expect(emptyControl.Fingerprint == initial.Fingerprint,
