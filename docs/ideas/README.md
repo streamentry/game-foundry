@@ -20,6 +20,8 @@ The [projected 50 global hits for 2026–2036](projected-global-hits-2026-2036.m
 
 The [portfolio-ranking correction and comparison protocol](../research/portfolio-ranking-audit-and-protocol-2026-11-22.md) records why a previous **top-five recommendation did not cover the full backlog**, defines separate global-hit and indie-build rankings, and sets six evidence dimensions plus a completeness gate. **No comprehensive top five has yet been scored or validated.**
 
+The [next-three-game validation decision](../research/next-three-games-validation-decision-2026-11-22.md) recommends a **conditional, sequential** portfolio of **Kakuro Compass (existing) → Rune Chain / Three Cards (new compact strategy slice) → Little Worlds / Evergrove Lite (tiny persistent-world A/B)**. These are three different learning goals, **not three approved production games**. Exact user preference, App Store organic demand and retention remain unmeasured.
+
 ## Data dictionary
 
 | Field | Meaning |
