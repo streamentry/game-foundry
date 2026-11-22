@@ -412,8 +412,10 @@ internal static class Program
             "automatic selection respects language script");
         Expect(GameLocalization.Detect("auto", "xx-XX", "Japanese") == "ja",
             "system language fallback works when culture is unavailable");
-        Expect(GameLocalization.Detect("auto", "en-US", "Japanese") == "en",
-            "valid device English wins over a stale secondary hint");
+        Expect(GameLocalization.Detect("auto", "en-US", "Japanese") == "ja",
+            "Unity device language beats runtime default English culture on WebGL");
+        Expect(GameLocalization.Detect("auto", "en-US", "English") == "en",
+            "English is preserved when both platform signals agree");
         Expect(GameLocalization.IsRtl("ar") && GameLocalization.IsRtl("he") &&
                GameLocalization.IsRtl("fa") && GameLocalization.IsRtl("ur"),
                "four RTL language families flagged");

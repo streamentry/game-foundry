@@ -252,11 +252,10 @@ namespace Evergrove.Core
             }
             if (!string.IsNullOrWhiteSpace(uiCulture) && Normalize(uiCulture) != Fallback)
                 return Normalize(uiCulture);
-            if (!string.IsNullOrWhiteSpace(uiCulture) &&
-                uiCulture.StartsWith("en", StringComparison.OrdinalIgnoreCase))
-                return Fallback;
-
             // Application.systemLanguage.ToString() is an enum name, not BCP-47.
+            // On some WebGL/Unity runtimes, CurrentUICulture defaults to en-US
+            // even while the browser's actual device language is non-English.
+            // Prefer that platform signal before a generic English fallback.
             var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Chinese", "zh-Hans" }, { "ChineseSimplified", "zh-Hans" },
