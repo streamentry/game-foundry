@@ -7,7 +7,7 @@
 - The authoritative `WorldModel` holds an ordered array of choices: `ShadeTree`, `Bridge`, `Flowers`.
 - `VillageStory`, `LocalizedVillage` and `VillageScenePlan` derive landscape phases, dialogue, journal and endings from that history.
 - Mira, Orin and Fen have distinct authored state-dependent conversations. They **do not** track conversations or generate runtime text.
-- The first solved stream turns the visible creek from dry to flowing; tree/bridge/meadow choices change scene details.
+- The first solved stream turns the visible creek from dry to flowing; tree/bridge/meadow choices change scene details. The localized **pre-choice consequence** must immediately switch from `world_none` (dry) to the existing translated `solved` key (flowing), even before any ecological choice is committed. This prevents the real Unity view from contradicting its own flowing river.
 - Existing combinations: **tree + bridge → shaded crossing; tree + flowers → butterflies; bridge + flowers → neighbors/visitors; all three → balanced shared-world outcome**.
 - A prior choice rotates the next board and anchors a protected landmark. This is a real deterministic variant but a **shallow puzzle-mechanics change**.
 

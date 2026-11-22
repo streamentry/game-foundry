@@ -55,6 +55,14 @@ namespace Evergrove.Core
 
         public static string Consequence(WorldModel world)
         {
+            // The first river can already be fully restored BEFORE the player
+            // chooses a tree/bridge/flowers. Returning world_none at that
+            // moment falsely tells the player the old creek still waits for
+            // water, even though the world and puzzle visibly show full flow.
+            // Reuse the existing translated solved key (all 30 catalogs)
+            // instead of adding another uncertified translation draft.
+            if (world.Choices.Length == 0 && world.Solved)
+                return T("solved");
             bool trees = world.Count(VillageChoice.ShadeTree) > 0;
             bool bridge = world.Count(VillageChoice.Bridge) > 0;
             bool flowers = world.Count(VillageChoice.Flowers) > 0;

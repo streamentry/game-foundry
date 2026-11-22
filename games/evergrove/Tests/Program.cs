@@ -131,7 +131,11 @@ internal static class Program
     private static void StoryAndCompleteRun()
     {
         WorldModel world = WorldModel.New();
+        Expect(LocalizedVillage.Consequence(world) == GameLocalization.Text("world_none"),
+            "a new unsolved creek truthfully waits for water");
         Solve(world);
+        Expect(LocalizedVillage.Consequence(world) == GameLocalization.Text("solved"),
+            "the first solved creek must not still claim to be waiting for water");
         Expect(!world.Rotate(0), "no extra turns after win");
         Expect(world.CanUndo && world.Undo() && !world.Solved,
             "solved board can be undone without losing progress");
@@ -708,7 +712,11 @@ internal static class Program
             // Locale switching must not mutate the puzzle state, history or
             // NPC-memory derivation, even for Arabic/Hebrew/Indic scripts.
             var world = WorldModel.New();
+            Expect(LocalizedVillage.Consequence(world) == GameLocalization.Text("world_none"),
+                "each locale has a truthful dry creek label: " + language.Code);
             Solve(world);
+            Expect(LocalizedVillage.Consequence(world) == GameLocalization.Text("solved"),
+                "each locale has a truthful restored creek label: " + language.Code);
             Expect(world.Choose(VillageChoice.ShadeTree), "locale test first real choice");
             WorldSnapshot before = world.Export();
             Expect(!string.IsNullOrWhiteSpace(LocalizedVillage.Consequence(world)) &&
