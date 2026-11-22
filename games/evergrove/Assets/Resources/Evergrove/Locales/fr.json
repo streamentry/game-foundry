@@ -1,0 +1,309 @@
+{
+  "code": "fr",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · UN MONDE QUI SE SOUVIENT"
+    },
+    {
+      "key": "subtitle",
+      "value": "De petits choix. Un lieu plein de vie."
+    },
+    {
+      "key": "language",
+      "value": "Langue"
+    },
+    {
+      "key": "auto",
+      "value": "Automatique (langue de l’appareil)"
+    },
+    {
+      "key": "language_help",
+      "value": "La langue de l’appareil est utilisée jusqu’à votre choix."
+    },
+    {
+      "key": "living",
+      "value": "Monde vivant"
+    },
+    {
+      "key": "puzzle",
+      "value": "Puzzles uniquement"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Les mêmes puzzles d’eau, sans le village vivant."
+    },
+    {
+      "key": "memory_title",
+      "value": "UN NOUVEAU SOUVENIR AU VILLAGE"
+    },
+    {
+      "key": "continue",
+      "value": "Suivre le cours du ruisseau"
+    },
+    {
+      "key": "change",
+      "value": "Changer ce choix"
+    },
+    {
+      "key": "complete",
+      "value": "Douze ruisseaux terminés. Quel puzzle avez-vous préféré ?"
+    },
+    {
+      "key": "explore",
+      "value": "Explorer un autre jardin"
+    },
+    {
+      "key": "erase",
+      "value": "Confirmer : effacer ce jardin"
+    },
+    {
+      "key": "keep",
+      "value": "Garder ce jardin"
+    },
+    {
+      "key": "neighbors",
+      "value": "Parler à un voisin"
+    },
+    {
+      "key": "thanks",
+      "value": "Merci de me l’avoir raconté !"
+    },
+    {
+      "key": "playtest",
+      "value": "MODE TEST · Choisissez avant le premier mouvement"
+    },
+    {
+      "key": "art_2d",
+      "value": "Visuel : conte en 2D (touchez pour la 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Visuel : maquette en 2,5D (touchez pour la 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Animation : ACTIVÉE (touchez pour arrêter)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Animation : DÉSACTIVÉE (touchez pour activer)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Carillon doux : ACTIVÉ (touchez pour couper)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Carillon doux : DÉSACTIVÉ (touchez pour activer)"
+    },
+    {
+      "key": "record",
+      "value": "Commencer un test privé facultatif"
+    },
+    {
+      "key": "privacy",
+      "value": "Démarre seulement sur demande. Rien n’est envoyé ni associé à vous."
+    },
+    {
+      "key": "copy",
+      "value": "Copier les notes de test"
+    },
+    {
+      "key": "copied",
+      "value": "Copié dans le presse-papiers."
+    },
+    {
+      "key": "clear",
+      "value": "Arrêter et effacer les notes locales"
+    },
+    {
+      "key": "offline",
+      "value": "Hors ligne · Sans chrono · Sans pub · Sans compte"
+    },
+    {
+      "key": "journal_show",
+      "value": "Lire les souvenirs du village"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Masquer les souvenirs"
+    },
+    {
+      "key": "journal_title",
+      "value": "NOS CHOIX"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Le premier souvenir reste à écrire."
+    },
+    {
+      "key": "stream",
+      "value": "RUISSEAU {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = source · G = jardin. Touchez pour relier l’eau."
+    },
+    {
+      "key": "solved",
+      "value": "L’eau traverse toutes les cases."
+    },
+    {
+      "key": "progress",
+      "value": "L’eau atteint {0}/{1} cases · {2} raccords ouverts"
+    },
+    {
+      "key": "undo_last",
+      "value": "Annuler la dernière rotation"
+    },
+    {
+      "key": "next",
+      "value": "Ruisseau suivant"
+    },
+    {
+      "key": "choose",
+      "value": "Que souhaitez-vous faire grandir ?"
+    },
+    {
+      "key": "undo",
+      "value": "Annuler"
+    },
+    {
+      "key": "hint",
+      "value": "Un indice"
+    },
+    {
+      "key": "restart",
+      "value": "Recommencer le ruisseau"
+    },
+    {
+      "key": "how",
+      "value": "Touchez pour tourner. Reliez tous les tuyaux sans laisser d’extrémité ouverte."
+    },
+    {
+      "key": "tree",
+      "value": "Planter un arbre d’ombrage"
+    },
+    {
+      "key": "bridge",
+      "value": "Réparer un pont"
+    },
+    {
+      "key": "flowers",
+      "value": "Faire pousser des fleurs sauvages"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira se souvient de l’arbre planté."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin se souvient du pont réparé."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen se souvient des fleurs cultivées."
+    },
+    {
+      "key": "world_none",
+      "value": "L’ancien ruisseau attend l’eau."
+    },
+    {
+      "key": "world_tree",
+      "value": "Un jeune arbre pousse près du ruisseau."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Le pont relie les deux rives."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Les fleurs sauvages égayent la rive."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Vos arbres ombragent le pont réparé."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Des papillons se réunissent sous les arbres."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Les voisins traversent pour admirer la prairie."
+    },
+    {
+      "key": "world_all",
+      "value": "Arbres, chemins et fleurs rapprochent le village."
+    },
+    {
+      "key": "mira_new",
+      "value": "Je suis Mira. Et si nous plantions un arbre près de l’eau ?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Je me souviens de vos arbres. Le village a maintenant de l’ombre."
+    },
+    {
+      "key": "orin_new",
+      "value": "Je suis Orin. J’espère que nous reconstruirons le pont."
+    },
+    {
+      "key": "orin_after",
+      "value": "Le pont réparé nous rapproche. Merci !"
+    },
+    {
+      "key": "fen_new",
+      "value": "Je suis Fen. Les fleurs sauvages me manquent."
+    },
+    {
+      "key": "fen_after",
+      "value": "Vos fleurs ont ramené la vie sur la rive."
+    },
+    {
+      "key": "ending_all",
+      "value": "Notre village s’épanouit. Chaque choix a créé un foyer."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Un verger paisible a poussé grâce à vos soins."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Vos ponts ont rapproché les voisins."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Vous avez créé une prairie où la vie revient."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Un peu d’eau peut changer un lieu."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Le village commence à grandir."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Chaque choix fait désormais partie de ce lieu."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Chapitre {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Les racines fixent ce tuyau. Il ne peut pas tourner."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Les fondations du pont fixent ce tuyau. Il ne peut pas tourner."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Les fleurs protègent ce passage. Il ne peut pas tourner."
+    }
+  ]
+}

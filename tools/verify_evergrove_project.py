@@ -27,3 +27,35 @@ for required in ("workflow_dispatch:", "game-ci/unity-builder@v4", "buildMethod:
     assert required in workflow, required
 assert "buildsPath: build" in workflow
 print("Evergrove manifest, rendering, consent and manual Unity build contracts: OK (static only)")
+
+# A separate `dotnet run` test exercises the C# translation registry at
+# runtime. This static check catches missing or malformed Unity TextAssets.
+import re
+localization_source = (game / "Assets" / "Scripts" / "Core" / "GameLocalization.cs").read_text()
+ids_block = re.search(r"private static readonly string\[\] Ids = \{([\s\S]*?)\};", localization_source)
+assert ids_block, "canonical translation IDs not found"
+keys = re.findall(r'"([^"]+)"', ids_block.group(1))
+assert len(keys) == 76 and len(keys) == len(set(keys)), "canonical locale key set drifted"
+bundle_dir = game / "Assets" / "Resources" / "Evergrove" / "Locales"
+supported = {
+    "zh-Hans", "zh-Hant", "es", "pt-BR", "fr", "de", "ja", "ko", "ar",
+    "hi", "ru", "id", "vi", "tr", "th", "it", "nl", "pl", "uk", "fa",
+    "he", "ms", "fil", "bn", "ur", "ta", "te", "sw", "sv"
+}
+locale_files = {file.stem for file in bundle_dir.glob("*.json")}
+assert locale_files == supported, ("Missing/unexpected locale files", sorted(supported ^ locale_files))
+for code in sorted(supported):
+    contents = json.loads((bundle_dir / f"{code}.json").read_text(encoding="utf-8"))
+    assert contents["code"] == code, ("Wrong language tag", code)
+    translations = contents["entries"]
+    by_key = {item["key"]: item["value"] for item in translations}
+    assert len(translations) == len(keys) == len(by_key), ("Duplicate/missing keys", code)
+    assert set(by_key) == set(keys), ("Translation coverage gap", code)
+    for key, value in by_key.items():
+        assert isinstance(value, str) and value.strip(), ("Empty translation", code, key)
+    assert all(f"{{{i}}}" in by_key["journal_entry"] for i in range(3)), code
+    assert all(f"{{{i}}}" in by_key["progress"] for i in range(3)), code
+    assert all(f"{{{i}}}" in by_key["stream"] for i in range(2)), code
+assert "LocaleRuntime.Initialize();" in ui and "BuildLanguagePicker()" in ui
+assert "LocalizedVillage." in ui and "GameLocalization.Text(" in ui
+print(f"Evergrove language assets: English source + {len(supported)} complete offline catalogs, {len(keys)} keys each")

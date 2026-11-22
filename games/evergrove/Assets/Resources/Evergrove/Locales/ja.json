@@ -1,0 +1,309 @@
+{
+  "code": "ja",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · 記憶する小さな世界"
+    },
+    {
+      "key": "subtitle",
+      "value": "小さな選択が、世界を育てる。"
+    },
+    {
+      "key": "language",
+      "value": "言語"
+    },
+    {
+      "key": "auto",
+      "value": "自動（端末の言語）"
+    },
+    {
+      "key": "language_help",
+      "value": "変更するまでは端末の言語を使用します。"
+    },
+    {
+      "key": "living",
+      "value": "生きている世界"
+    },
+    {
+      "key": "puzzle",
+      "value": "パズルのみ"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "同じ水路パズルを、村の物語なしで遊びます。"
+    },
+    {
+      "key": "memory_title",
+      "value": "村に新しい思い出"
+    },
+    {
+      "key": "continue",
+      "value": "小川の先へ進む"
+    },
+    {
+      "key": "change",
+      "value": "この選択を変える"
+    },
+    {
+      "key": "complete",
+      "value": "12本の小川を完成！ 一番好きなパズルは？"
+    },
+    {
+      "key": "explore",
+      "value": "別の庭を育てる"
+    },
+    {
+      "key": "erase",
+      "value": "確認：この庭を消す"
+    },
+    {
+      "key": "keep",
+      "value": "この庭を残す"
+    },
+    {
+      "key": "neighbors",
+      "value": "村人と話す"
+    },
+    {
+      "key": "thanks",
+      "value": "話してくれてありがとう！"
+    },
+    {
+      "key": "playtest",
+      "value": "テストモード · 最初の操作前に選択してください"
+    },
+    {
+      "key": "art_2d",
+      "value": "表示：2D絵本（タップで2.5Dへ）"
+    },
+    {
+      "key": "art_3d",
+      "value": "表示：2.5Dジオラマ（タップで2Dへ）"
+    },
+    {
+      "key": "motion_on",
+      "value": "ジオラマの動き：オン（タップで停止）"
+    },
+    {
+      "key": "motion_off",
+      "value": "ジオラマの動き：オフ（タップで開始）"
+    },
+    {
+      "key": "sound_on",
+      "value": "優しい音：オン（タップで消音）"
+    },
+    {
+      "key": "sound_off",
+      "value": "優しい音：オフ（タップで有効）"
+    },
+    {
+      "key": "record",
+      "value": "任意のプライベートテストを開始"
+    },
+    {
+      "key": "privacy",
+      "value": "タップした時だけ開始。送信や個人との紐付けはしません。"
+    },
+    {
+      "key": "copy",
+      "value": "テストメモをコピー"
+    },
+    {
+      "key": "copied",
+      "value": "クリップボードにコピーしました。"
+    },
+    {
+      "key": "clear",
+      "value": "テストを終了してメモを削除"
+    },
+    {
+      "key": "offline",
+      "value": "オフライン · 時間制限なし · 広告なし · 登録不要"
+    },
+    {
+      "key": "journal_show",
+      "value": "村の思い出を読む"
+    },
+    {
+      "key": "journal_hide",
+      "value": "村の思い出を閉じる"
+    },
+    {
+      "key": "journal_title",
+      "value": "私たちの選択"
+    },
+    {
+      "key": "journal_empty",
+      "value": "最初の思い出はこれから。"
+    },
+    {
+      "key": "stream",
+      "value": "小川 {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S＝水源・G＝庭。タップして水をつなごう。"
+    },
+    {
+      "key": "solved",
+      "value": "すべてのマスに水が流れました。"
+    },
+    {
+      "key": "progress",
+      "value": "水が届いたマス {0}/{1} · 未接続 {2} か所"
+    },
+    {
+      "key": "undo_last",
+      "value": "直前の回転を戻す"
+    },
+    {
+      "key": "next",
+      "value": "次の小川へ"
+    },
+    {
+      "key": "choose",
+      "value": "何を育てたい？"
+    },
+    {
+      "key": "undo",
+      "value": "元に戻す"
+    },
+    {
+      "key": "hint",
+      "value": "ヒント"
+    },
+    {
+      "key": "restart",
+      "value": "この小川をやり直す"
+    },
+    {
+      "key": "how",
+      "value": "タップして回転。すべての水路を隙間なくつなげよう。"
+    },
+    {
+      "key": "tree",
+      "value": "木陰をつくる木を植える"
+    },
+    {
+      "key": "bridge",
+      "value": "橋を修復する"
+    },
+    {
+      "key": "flowers",
+      "value": "野の花を育てる"
+    },
+    {
+      "key": "memory_tree",
+      "value": "ミラはあなたが植えた木を覚えています。"
+    },
+    {
+      "key": "memory_bridge",
+      "value": "オリンはあなたが直した橋を覚えています。"
+    },
+    {
+      "key": "memory_flowers",
+      "value": "フェンはあなたが育てた花を覚えています。"
+    },
+    {
+      "key": "world_none",
+      "value": "古い小川は水を待っています。"
+    },
+    {
+      "key": "world_tree",
+      "value": "小川のそばに若い木が育ちます。"
+    },
+    {
+      "key": "world_bridge",
+      "value": "橋が両岸をつなぎます。"
+    },
+    {
+      "key": "world_flowers",
+      "value": "野の花が岸を彩ります。"
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "あなたの木が修復した橋に木陰をつくります。"
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "蝶が木の下に集まります。"
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "村人が花畑を見るために橋を渡ります。"
+    },
+    {
+      "key": "world_all",
+      "value": "木と道と花が村をひとつにします。"
+    },
+    {
+      "key": "mira_new",
+      "value": "私はミラ。水辺に木を植えてみない？"
+    },
+    {
+      "key": "mira_after",
+      "value": "植えてくれた木を覚えているよ。村に木陰ができたね。"
+    },
+    {
+      "key": "orin_new",
+      "value": "私はオリン。いつか橋を直せたらいいな。"
+    },
+    {
+      "key": "orin_after",
+      "value": "橋が直って、みんなが会えるようになった。ありがとう！"
+    },
+    {
+      "key": "fen_new",
+      "value": "私はフェン。川辺の野の花が恋しいな。"
+    },
+    {
+      "key": "fen_after",
+      "value": "あなたの花で岸に命が戻ってきたよ。"
+    },
+    {
+      "key": "ending_all",
+      "value": "村は元気いっぱい。すべての選択が居場所をつくりました。"
+    },
+    {
+      "key": "ending_tree",
+      "value": "あなたの心づかいで静かな果樹園が育ちました。"
+    },
+    {
+      "key": "ending_bridge",
+      "value": "橋が村人の心をつなぎました。"
+    },
+    {
+      "key": "ending_flowers",
+      "value": "命が戻ってくる花畑をつくりました。"
+    },
+    {
+      "key": "prompt_early",
+      "value": "少しの水で、景色は変わる。"
+    },
+    {
+      "key": "prompt_mid",
+      "value": "村が少しずつ育っています。"
+    },
+    {
+      "key": "prompt_late",
+      "value": "すべての選択がこの場所の一部になります。"
+    },
+    {
+      "key": "journal_entry",
+      "value": "第{0}章 · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "木の根がこの水路を固定しています。回転できません。"
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "橋の土台がこの水路を固定しています。回転できません。"
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "野の花がこの場所を守っています。回転できません。"
+    }
+  ]
+}

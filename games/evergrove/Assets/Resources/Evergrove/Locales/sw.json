@@ -1,0 +1,309 @@
+{
+  "code": "sw",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · ULIMWENGU UNAOKUMBUKA"
+    },
+    {
+      "key": "subtitle",
+      "value": "Chaguo ndogo. Mahali penye uhai."
+    },
+    {
+      "key": "language",
+      "value": "Lugha"
+    },
+    {
+      "key": "auto",
+      "value": "Kiotomatiki (lugha ya kifaa)"
+    },
+    {
+      "key": "language_help",
+      "value": "Lugha ya kifaa itatumika hadi uchague nyingine."
+    },
+    {
+      "key": "living",
+      "value": "Ulimwengu hai"
+    },
+    {
+      "key": "puzzle",
+      "value": "Mafumbo pekee"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Mafumbo yale yale ya maji, bila kijiji kinachoishi."
+    },
+    {
+      "key": "memory_title",
+      "value": "KUMBUKUMBU MPYA KIJIJINI"
+    },
+    {
+      "key": "continue",
+      "value": "Endelea kufuata kijito"
+    },
+    {
+      "key": "change",
+      "value": "Badili chaguo hili"
+    },
+    {
+      "key": "complete",
+      "value": "Vijito kumi na viwili vimekamilika. Fumbo lipi ulikipenda zaidi?"
+    },
+    {
+      "key": "explore",
+      "value": "Chunguza bustani nyingine"
+    },
+    {
+      "key": "erase",
+      "value": "Thibitisha: futa bustani hii"
+    },
+    {
+      "key": "keep",
+      "value": "Hifadhi bustani hii"
+    },
+    {
+      "key": "neighbors",
+      "value": "Zungumza na jirani"
+    },
+    {
+      "key": "thanks",
+      "value": "Asante kwa kusimulia!"
+    },
+    {
+      "key": "playtest",
+      "value": "HALI YA MAJARIBIO · Chagua kabla ya hatua ya kwanza"
+    },
+    {
+      "key": "art_2d",
+      "value": "Picha: kitabu cha hadithi 2D (gusa kwa 2.5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Picha: mfano mdogo 2.5D (gusa kwa 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Mwendo wa mfano: UMEWASHWA (gusa kusimamisha)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Mwendo wa mfano: UMEZIMWA (gusa kuanzisha)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Sauti nyororo: IMEWASHWA (gusa kunyamazisha)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Sauti nyororo: IMEZIMWA (gusa kuwasha)"
+    },
+    {
+      "key": "record",
+      "value": "Anza jaribio la faragha la hiari"
+    },
+    {
+      "key": "privacy",
+      "value": "Huanza ukigusa tu. Hakuna kupakia au kuhusisha na utambulisho."
+    },
+    {
+      "key": "copy",
+      "value": "Nakili vidokezo vya jaribio"
+    },
+    {
+      "key": "copied",
+      "value": "Imenakiliwa kwenye ubao wa kunakili."
+    },
+    {
+      "key": "clear",
+      "value": "Acha na ufute vidokezo vya ndani"
+    },
+    {
+      "key": "offline",
+      "value": "Bila intaneti · Bila muda · Bila matangazo · Bila akaunti"
+    },
+    {
+      "key": "journal_show",
+      "value": "Soma kumbukumbu za kijiji"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Ficha kumbukumbu"
+    },
+    {
+      "key": "journal_title",
+      "value": "CHAGUO ZETU"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Kumbukumbu ya kwanza bado inangoja."
+    },
+    {
+      "key": "stream",
+      "value": "KIJIto {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = chemchemi · G = bustani. Gusa kuunganisha maji."
+    },
+    {
+      "key": "solved",
+      "value": "Maji yanapita kwenye vigae vyote."
+    },
+    {
+      "key": "progress",
+      "value": "Maji yamefika vigae {0}/{1} · miunganisho wazi: {2}"
+    },
+    {
+      "key": "undo_last",
+      "value": "Tendua mzunguko wa mwisho"
+    },
+    {
+      "key": "next",
+      "value": "Kijito kinachofuata"
+    },
+    {
+      "key": "choose",
+      "value": "Ungependa kusaidia nini kukua?"
+    },
+    {
+      "key": "undo",
+      "value": "Tendua"
+    },
+    {
+      "key": "hint",
+      "value": "Kidokezo"
+    },
+    {
+      "key": "restart",
+      "value": "Anza kijito upya"
+    },
+    {
+      "key": "how",
+      "value": "Gusa kuzungusha. Unganisha mabomba yote bila ncha wazi."
+    },
+    {
+      "key": "tree",
+      "value": "Panda mti wa kivuli"
+    },
+    {
+      "key": "bridge",
+      "value": "Tengeneza daraja"
+    },
+    {
+      "key": "flowers",
+      "value": "Kuza maua ya porini"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira anakumbuka mti uliopanda."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin anakumbuka daraja ulilotengeneza."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen anakumbuka maua uliyokuza."
+    },
+    {
+      "key": "world_none",
+      "value": "Kijito cha zamani kinasubiri maji."
+    },
+    {
+      "key": "world_tree",
+      "value": "Mti mchanga unakua kando ya kijito."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Daraja linaunganisha kingo mbili."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Maua ya porini yanapamba ukingo."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Miti yako inalipa daraja kivuli."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Vipepeo wanakusanyika chini ya miti."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Majirani wanavuka kuona uwanda wa maua."
+    },
+    {
+      "key": "world_all",
+      "value": "Miti, njia na maua vinaunganisha kijiji."
+    },
+    {
+      "key": "mira_new",
+      "value": "Mimi ni Mira. Tupande mti karibu na maji?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Nakumbuka miti uliyopanda. Sasa kijiji kina kivuli."
+    },
+    {
+      "key": "orin_new",
+      "value": "Mimi ni Orin. Natumaini tutajenga daraja tena."
+    },
+    {
+      "key": "orin_after",
+      "value": "Daraja lililotengenezwa limetuleta pamoja. Asante!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Mimi ni Fen. Ninakosa maua ya porini karibu na maji."
+    },
+    {
+      "key": "fen_after",
+      "value": "Maua yako yamerudisha uhai kwenye ukingo."
+    },
+    {
+      "key": "ending_all",
+      "value": "Kijiji chetu kinastawi. Kila chaguo limesaidia kujenga makazi."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Bustani tulivu imekua kwa utunzaji wako."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Madaraja yako yamewaunganisha majirani."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Umeunda uwanda ambako uhai umerudi."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Maji kidogo yanaweza kubadili mahali."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Kijiji kinaanza kukua."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Kila chaguo linakuwa sehemu ya mahali hapa."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Sura {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Mizizi ya mti inashikilia bomba hili. Haliwezi kuzungushwa."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Msingi wa daraja unashikilia bomba hili. Haliwezi kuzungushwa."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Maua ya porini yanalinda njia hii ya maji. Haiwezi kuzungushwa."
+    }
+  ]
+}

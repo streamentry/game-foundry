@@ -1,0 +1,309 @@
+{
+  "code": "zh-Hant",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · 會記得你的世界"
+    },
+    {
+      "key": "subtitle",
+      "value": "小小選擇，生生不息。"
+    },
+    {
+      "key": "language",
+      "value": "語言"
+    },
+    {
+      "key": "auto",
+      "value": "自動（裝置語言）"
+    },
+    {
+      "key": "language_help",
+      "value": "預設使用裝置語言，直到你自行變更。"
+    },
+    {
+      "key": "living",
+      "value": "鮮活世界"
+    },
+    {
+      "key": "puzzle",
+      "value": "僅解謎"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "相同的水管謎題，沒有會改變的村莊。"
+    },
+    {
+      "key": "memory_title",
+      "value": "村莊裡的新回憶"
+    },
+    {
+      "key": "continue",
+      "value": "沿著溪流繼續"
+    },
+    {
+      "key": "change",
+      "value": "更改這次選擇"
+    },
+    {
+      "key": "complete",
+      "value": "已完成十二條溪流。你最喜歡哪一關？"
+    },
+    {
+      "key": "explore",
+      "value": "探索另一座花園"
+    },
+    {
+      "key": "erase",
+      "value": "確認：刪除這座花園"
+    },
+    {
+      "key": "keep",
+      "value": "保留這座花園"
+    },
+    {
+      "key": "neighbors",
+      "value": "與鄰居交談"
+    },
+    {
+      "key": "thanks",
+      "value": "謝謝你告訴我！"
+    },
+    {
+      "key": "playtest",
+      "value": "測試模式 · 請在第一步前選擇"
+    },
+    {
+      "key": "art_2d",
+      "value": "畫面：2D繪本（點選切換2.5D）"
+    },
+    {
+      "key": "art_3d",
+      "value": "畫面：2.5D微縮模型（點選切換2D）"
+    },
+    {
+      "key": "motion_on",
+      "value": "模型動畫：開啟（點選停止）"
+    },
+    {
+      "key": "motion_off",
+      "value": "模型動畫：關閉（點選開啟）"
+    },
+    {
+      "key": "sound_on",
+      "value": "輕柔提示音：開啟（點選靜音）"
+    },
+    {
+      "key": "sound_off",
+      "value": "輕柔提示音：關閉（點選開啟）"
+    },
+    {
+      "key": "record",
+      "value": "開始可選的私人試玩記錄"
+    },
+    {
+      "key": "privacy",
+      "value": "僅在點選後開始。不會上傳或連結個人身分。"
+    },
+    {
+      "key": "copy",
+      "value": "複製本機試玩記錄"
+    },
+    {
+      "key": "copied",
+      "value": "已複製到剪貼簿。"
+    },
+    {
+      "key": "clear",
+      "value": "停止並清除本機記錄"
+    },
+    {
+      "key": "offline",
+      "value": "離線 · 不限時 · 無廣告 · 無帳號"
+    },
+    {
+      "key": "journal_show",
+      "value": "閱讀村莊回憶"
+    },
+    {
+      "key": "journal_hide",
+      "value": "隱藏村莊回憶"
+    },
+    {
+      "key": "journal_title",
+      "value": "我們的選擇"
+    },
+    {
+      "key": "journal_empty",
+      "value": "第一段回憶還在等待。"
+    },
+    {
+      "key": "stream",
+      "value": "溪流 {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = 水源 · G = 花園。點選連接水流。"
+    },
+    {
+      "key": "solved",
+      "value": "水已流過所有方塊。"
+    },
+    {
+      "key": "progress",
+      "value": "水流抵達 {0}/{1} 格 · {2} 處接口未接妥"
+    },
+    {
+      "key": "undo_last",
+      "value": "復原上一次旋轉"
+    },
+    {
+      "key": "next",
+      "value": "下一條溪流"
+    },
+    {
+      "key": "choose",
+      "value": "你想讓什麼生長？"
+    },
+    {
+      "key": "undo",
+      "value": "復原"
+    },
+    {
+      "key": "hint",
+      "value": "給我提示"
+    },
+    {
+      "key": "restart",
+      "value": "重新開始本關"
+    },
+    {
+      "key": "how",
+      "value": "點選旋轉。連接所有水管，不留開口。"
+    },
+    {
+      "key": "tree",
+      "value": "種一棵遮蔭樹"
+    },
+    {
+      "key": "bridge",
+      "value": "修復一座橋"
+    },
+    {
+      "key": "flowers",
+      "value": "種植野花"
+    },
+    {
+      "key": "memory_tree",
+      "value": "米拉記得你種下的樹。"
+    },
+    {
+      "key": "memory_bridge",
+      "value": "奧林記得你修好的橋。"
+    },
+    {
+      "key": "memory_flowers",
+      "value": "芬記得你栽下的花。"
+    },
+    {
+      "key": "world_none",
+      "value": "古老的溪床正等待流水。"
+    },
+    {
+      "key": "world_tree",
+      "value": "小樹在溪邊生長。"
+    },
+    {
+      "key": "world_bridge",
+      "value": "小橋連接兩岸。"
+    },
+    {
+      "key": "world_flowers",
+      "value": "野花點亮了河岸。"
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "你的樹為修好的橋遮蔭。"
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "蝴蝶聚集在樹下。"
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "鄰居們過橋來看花田。"
+    },
+    {
+      "key": "world_all",
+      "value": "樹木、小路與鮮花讓村莊團結起來。"
+    },
+    {
+      "key": "mira_new",
+      "value": "我是米拉。我們能在水邊種一棵樹嗎？"
+    },
+    {
+      "key": "mira_after",
+      "value": "我記得你種的樹。村莊終於有樹蔭了。"
+    },
+    {
+      "key": "orin_new",
+      "value": "我是奧林。真希望我們能把橋修好。"
+    },
+    {
+      "key": "orin_after",
+      "value": "修好的橋讓大家走到了一起。謝謝！"
+    },
+    {
+      "key": "fen_new",
+      "value": "我是芬。我懷念溪邊的野花。"
+    },
+    {
+      "key": "fen_after",
+      "value": "你種的花讓河岸重新有了生機。"
+    },
+    {
+      "key": "ending_all",
+      "value": "我們的村莊繁榮起來了。每個選擇都幫助我們建造家園。"
+    },
+    {
+      "key": "ending_tree",
+      "value": "你的用心培育出寧靜的果園。"
+    },
+    {
+      "key": "ending_bridge",
+      "value": "你修的橋讓鄰居們走到了一起。"
+    },
+    {
+      "key": "ending_flowers",
+      "value": "你創造了一片重現生機的草地。"
+    },
+    {
+      "key": "prompt_early",
+      "value": "一點點水就能改變一個地方。"
+    },
+    {
+      "key": "prompt_mid",
+      "value": "村莊正在慢慢成長。"
+    },
+    {
+      "key": "prompt_late",
+      "value": "每個選擇都成為這裡的一部分。"
+    },
+    {
+      "key": "journal_entry",
+      "value": "第 {0} 章 · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "樹根固定了這段水管，無法旋轉。"
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "橋墩固定了這段水管，無法旋轉。"
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "野花保護著這段河道，無法旋轉。"
+    }
+  ]
+}

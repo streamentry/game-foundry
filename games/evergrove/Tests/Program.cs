@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Text.Json;
 using Evergrove.Core;
 
 internal static class Program
@@ -274,6 +276,9 @@ internal static class Program
             Expect(world.Choose((VillageChoice)choiceIndex), "player chooses ecological priority");
             Expect(world.Round == 1 && world.BoardVariant == choiceIndex + 1,
                 "the next puzzle depends on player choice");
+            Expect(!string.IsNullOrWhiteSpace(LocalizedVillage.EnvironmentalRule(world)) &&
+                   LocalizedVillage.EnvironmentalRule(world).Contains("cannot rotate"),
+                   "fixed ecological tile has understandable English rule");
             Puzzle variantBoard = world.CurrentPuzzle;
             fingerprints[choiceIndex] = variantBoard.Name + ":" + variantBoard.AnchoredTile +
                 ":" + string.Join(",", variantBoard.Solution);
@@ -375,6 +380,123 @@ internal static class Program
         Expect(rejected, "invalid monotonic time is rejected");
     }
 
+    private static string FindLocaleDirectory()
+    {
+        DirectoryInfo current = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (current != null)
+        {
+            string at = Path.Combine(current.FullName, "games", "evergrove",
+                "Assets", "Resources", "Evergrove", "Locales");
+            if (Directory.Exists(at)) return at;
+            current = current.Parent;
+        }
+        throw new Exception("Could not find checked-in locale assets");
+    }
+
+    private static void LocalizationTests()
+    {
+        Expect(GameLocalization.Available.Count == 30, "exactly thirty language choices");
+        Expect(GameLocalization.Keys.Count == 76, "authoritative localization keys");
+        Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
+        Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
+        Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");
+        Expect(GameLocalization.Normalize("zh-CN") == "zh-Hans", "mainland defaults simplified");
+        Expect(GameLocalization.Normalize("pt-PT") == "pt-BR", "single Brazilian Portuguese catalog");
+        Expect(GameLocalization.Normalize("fil-PH") == "fil", "Filipino region suffix");
+        Expect(GameLocalization.Normalize("es-MX") == "es", "Spanish region suffix");
+        Expect(GameLocalization.Normalize("tl-PH") == "fil", "Tagalog alias");
+        Expect(GameLocalization.Normalize("unknown") == "en", "unsupported locales fall back");
+        Expect(GameLocalization.Detect("ja", "fr-FR", "French") == "ja",
+            "explicit user override beats device");
+        Expect(GameLocalization.Detect("auto", "zh-Hant-HK", "Chinese") == "zh-Hant",
+            "automatic selection respects language script");
+        Expect(GameLocalization.Detect("auto", "xx-XX", "Japanese") == "ja",
+            "system language fallback works when culture is unavailable");
+        Expect(GameLocalization.Detect("auto", "en-US", "Japanese") == "ja",
+            "Unity device language beats runtime default English culture on WebGL");
+        Expect(GameLocalization.Detect("auto", "en-US", "English") == "en",
+            "English is preserved when both platform signals agree");
+        Expect(GameLocalization.IsRtl("ar") && GameLocalization.IsRtl("he") &&
+               GameLocalization.IsRtl("fa") && GameLocalization.IsRtl("ur"),
+               "four RTL language families flagged");
+        Expect(!GameLocalization.IsRtl("en") && !GameLocalization.IsRtl("hi"),
+            "LTR scripts not reversed");
+        Expect(!GameLocalization.SetCurrent("xx"), "unknown locale cannot become active");
+
+        string directory = FindLocaleDirectory();
+        string[] assets = Directory.GetFiles(directory, "*.json");
+        Expect(assets.Length == 29, "29 offline catalogs plus built-in English");
+        int tested = 0;
+        var options = new JsonSerializerOptions { IncludeFields = true };
+        foreach (GameLanguage language in GameLocalization.Available)
+        {
+            if (language.Code == "en") continue;
+            string file = Path.Combine(directory, language.Code + ".json");
+            Expect(File.Exists(file), "locale file exists for " + language.Code);
+            TranslationBundle bundle = JsonSerializer.Deserialize<TranslationBundle>(
+                File.ReadAllText(file), options);
+            Expect(bundle != null && bundle.code == language.Code,
+                "declared locale matches file name");
+            Expect(bundle.entries.Length == GameLocalization.Keys.Count,
+                "catalog has a complete translation for " + language.Code);
+            Expect(GameLocalization.Register(bundle), "all keys and placeholders valid for " + language.Code);
+            Expect(GameLocalization.SetCurrent(language.Code), "language can be selected");
+            int different = 0;
+            foreach (string key in GameLocalization.Keys)
+            {
+                string localized = GameLocalization.Text(key);
+                Expect(!string.IsNullOrWhiteSpace(localized) && !localized.StartsWith("[missing:"),
+                    "nonempty translation: " + language.Code + "/" + key);
+                if (localized != GameLocalization.Source(key)) different++;
+            }
+            Expect(different >= 63, "catalog includes actual translations, not a mostly-English stub");
+            Expect(GameLocalization.Text("stream", 1, 12).Contains("1") &&
+                   GameLocalization.Text("progress", 3, 9, 2).Contains("9") &&
+                   GameLocalization.Text("journal_entry", 1, "Mira", "Tree").Contains("Mira"),
+                   "interpolation works for translated placeholders");
+
+            // Locale switching must not mutate the puzzle state, history or
+            // NPC-memory derivation, even for Arabic/Hebrew/Indic scripts.
+            var world = WorldModel.New();
+            Solve(world);
+            Expect(world.Choose(VillageChoice.ShadeTree), "locale test first real choice");
+            WorldSnapshot before = world.Export();
+            Expect(!string.IsNullOrWhiteSpace(LocalizedVillage.Consequence(world)) &&
+                   !string.IsNullOrWhiteSpace(LocalizedVillage.Speak(world, 0)) &&
+                   !string.IsNullOrWhiteSpace(LocalizedVillage.Memory(world)) &&
+                   LocalizedVillage.Journal(world).Length == 1 &&
+                   !string.IsNullOrWhiteSpace(LocalizedVillage.Choice(VillageChoice.Flowers)) &&
+                   !string.IsNullOrWhiteSpace(LocalizedVillage.Prompt(world)) &&
+                   !string.IsNullOrWhiteSpace(LocalizedVillage.EnvironmentalRule(world)),
+                   "all narrative surfaces translated for " + language.Code);
+            WorldSnapshot after = world.Export();
+            Expect(before.round == after.round && before.solved == after.solved &&
+                   before.choices.Length == after.choices.Length &&
+                   before.rotations.Length == after.rotations.Length &&
+                   before.choices[0] == after.choices[0],
+                   "language changes cannot touch game state");
+            tested++;
+        }
+        Expect(tested == 29, "all translated locale assets validated");
+        Expect(GameLocalization.SetCurrent("en"), "English fallback restored");
+        Expect(GameLocalization.Text("undo") == "Undo", "English source remains canonical");
+
+        TranslationBundle incomplete = new TranslationBundle {
+            code = "fr", entries = new[] {
+                new TranslationEntry { key = "undo", value = "Annuler" }
+            }
+        };
+        Expect(!GameLocalization.Register(incomplete), "incomplete bundle must be rejected");
+        TranslationBundle duplicate = new TranslationBundle {
+            code = "fr", entries = new[] {
+                new TranslationEntry { key = "undo", value = "Annuler" },
+                new TranslationEntry { key = "undo", value = "Annuler" }
+            }
+        };
+        Expect(!GameLocalization.Register(duplicate), "duplicate translation keys rejected");
+        Expect(GameLocalization.SetCurrent("en"), "English remains available after invalid imports");
+    }
+
     public static int Main()
     {
         try
@@ -385,6 +507,7 @@ internal static class Program
             ScenicCausality();
             ReactiveCampaign();
             PrivatePlaytestReport();
+            LocalizationTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }

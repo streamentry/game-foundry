@@ -1,0 +1,309 @@
+{
+  "code": "vi",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · THẾ GIỚI LUÔN GHI NHỚ"
+    },
+    {
+      "key": "subtitle",
+      "value": "Những lựa chọn nhỏ. Một thế giới sống động."
+    },
+    {
+      "key": "language",
+      "value": "Ngôn ngữ"
+    },
+    {
+      "key": "auto",
+      "value": "Tự động (theo thiết bị)"
+    },
+    {
+      "key": "language_help",
+      "value": "Dùng ngôn ngữ thiết bị cho đến khi bạn chọn ngôn ngữ khác."
+    },
+    {
+      "key": "living",
+      "value": "Thế giới sống động"
+    },
+    {
+      "key": "puzzle",
+      "value": "Chỉ giải đố"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Cùng những câu đố dẫn nước, không có ngôi làng sống động."
+    },
+    {
+      "key": "memory_title",
+      "value": "MỘT KÝ ỨC MỚI TRONG LÀNG"
+    },
+    {
+      "key": "continue",
+      "value": "Tiếp tục theo dòng suối"
+    },
+    {
+      "key": "change",
+      "value": "Đổi lựa chọn này"
+    },
+    {
+      "key": "complete",
+      "value": "Đã hoàn thành 12 dòng suối. Bạn thích câu đố nào nhất?"
+    },
+    {
+      "key": "explore",
+      "value": "Khám phá một khu vườn khác"
+    },
+    {
+      "key": "erase",
+      "value": "Xác nhận: xóa khu vườn này"
+    },
+    {
+      "key": "keep",
+      "value": "Giữ khu vườn này"
+    },
+    {
+      "key": "neighbors",
+      "value": "Trò chuyện với hàng xóm"
+    },
+    {
+      "key": "thanks",
+      "value": "Cảm ơn vì đã kể!"
+    },
+    {
+      "key": "playtest",
+      "value": "CHẾ ĐỘ THỬ NGHIỆM · Hãy chọn trước lượt đầu"
+    },
+    {
+      "key": "art_2d",
+      "value": "Hình ảnh: truyện tranh 2D (chạm để đổi sang 2.5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Hình ảnh: mô hình 2.5D (chạm để đổi sang 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Chuyển động mô hình: BẬT (chạm để dừng)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Chuyển động mô hình: TẮT (chạm để bật)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Âm thanh dịu nhẹ: BẬT (chạm để tắt)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Âm thanh dịu nhẹ: TẮT (chạm để bật)"
+    },
+    {
+      "key": "record",
+      "value": "Bắt đầu ghi nhận buổi thử nghiệm riêng tư"
+    },
+    {
+      "key": "privacy",
+      "value": "Chỉ bắt đầu khi bạn chạm. Không tải lên hoặc liên kết với bạn."
+    },
+    {
+      "key": "copy",
+      "value": "Sao chép ghi chú thử nghiệm"
+    },
+    {
+      "key": "copied",
+      "value": "Đã sao chép vào bộ nhớ tạm."
+    },
+    {
+      "key": "clear",
+      "value": "Dừng và xóa ghi chú trên máy"
+    },
+    {
+      "key": "offline",
+      "value": "Không cần mạng · Không giới hạn giờ · Không quảng cáo · Không tài khoản"
+    },
+    {
+      "key": "journal_show",
+      "value": "Đọc ký ức của ngôi làng"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Ẩn ký ức của ngôi làng"
+    },
+    {
+      "key": "journal_title",
+      "value": "NHỮNG ĐIỀU CHÚNG TA ĐÃ CHỌN"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Ký ức đầu tiên vẫn đang chờ."
+    },
+    {
+      "key": "stream",
+      "value": "DÒNG SUỐI {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = nguồn nước · G = khu vườn. Chạm để nối dòng nước."
+    },
+    {
+      "key": "solved",
+      "value": "Nước đã chảy qua mọi ô."
+    },
+    {
+      "key": "progress",
+      "value": "Nước đến {0}/{1} ô · {2} đầu nối hở"
+    },
+    {
+      "key": "undo_last",
+      "value": "Hoàn tác lần xoay cuối"
+    },
+    {
+      "key": "next",
+      "value": "Dòng suối tiếp theo"
+    },
+    {
+      "key": "choose",
+      "value": "Bạn muốn vun trồng điều gì?"
+    },
+    {
+      "key": "undo",
+      "value": "Hoàn tác"
+    },
+    {
+      "key": "hint",
+      "value": "Gợi ý cho tôi"
+    },
+    {
+      "key": "restart",
+      "value": "Chơi lại dòng suối"
+    },
+    {
+      "key": "how",
+      "value": "Chạm để xoay. Nối mọi ống nước, không để đầu nối hở."
+    },
+    {
+      "key": "tree",
+      "value": "Trồng cây lấy bóng mát"
+    },
+    {
+      "key": "bridge",
+      "value": "Sửa lại cây cầu"
+    },
+    {
+      "key": "flowers",
+      "value": "Trồng hoa dại"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira nhớ cái cây bạn đã trồng."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin nhớ cây cầu bạn đã sửa."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen nhớ những bông hoa bạn đã gieo."
+    },
+    {
+      "key": "world_none",
+      "value": "Dòng suối cũ đang chờ nước về."
+    },
+    {
+      "key": "world_tree",
+      "value": "Một cây non lớn lên bên dòng suối."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Cây cầu nối đôi bờ."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Hoa dại làm bừng sáng bờ suối."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Những tán cây che mát cây cầu mới sửa."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Bươm bướm tụ về dưới bóng cây."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Hàng xóm qua cầu để ngắm đồng hoa."
+    },
+    {
+      "key": "world_all",
+      "value": "Cây xanh, đường đi và hoa cỏ gắn kết ngôi làng."
+    },
+    {
+      "key": "mira_new",
+      "value": "Tôi là Mira. Mình trồng một cây bên bờ nước nhé?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Tôi nhớ những cây bạn trồng. Bây giờ làng đã có bóng mát."
+    },
+    {
+      "key": "orin_new",
+      "value": "Tôi là Orin. Mong một ngày chúng ta sửa được cây cầu."
+    },
+    {
+      "key": "orin_after",
+      "value": "Cây cầu mới đưa mọi người gần nhau hơn. Cảm ơn bạn!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Tôi là Fen. Tôi nhớ những bông hoa dại ven suối."
+    },
+    {
+      "key": "fen_after",
+      "value": "Hoa bạn trồng đã đưa sức sống trở lại đôi bờ."
+    },
+    {
+      "key": "ending_all",
+      "value": "Ngôi làng đang tràn sức sống. Mọi lựa chọn đều góp phần tạo nên mái nhà này."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Một vườn cây yên bình lớn lên nhờ sự chăm sóc của bạn."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Những cây cầu của bạn đã gắn kết hàng xóm."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Bạn đã tạo nên một đồng hoa nơi sự sống trở về."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Một chút nước có thể đổi thay cả một nơi chốn."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Ngôi làng đang dần lớn lên."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Mọi lựa chọn đều trở thành một phần của nơi này."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Chương {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Rễ cây giữ cố định ống nước này, không thể xoay."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Móng cầu giữ cố định ống nước này, không thể xoay."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Bãi hoa dại bảo vệ đoạn suối này, không thể xoay."
+    }
+  ]
+}

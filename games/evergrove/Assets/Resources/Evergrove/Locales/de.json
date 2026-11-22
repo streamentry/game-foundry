@@ -1,0 +1,309 @@
+{
+  "code": "de",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · EINE WELT, DIE SICH ERINNERT"
+    },
+    {
+      "key": "subtitle",
+      "value": "Kleine Entscheidungen. Ein lebendiger Ort."
+    },
+    {
+      "key": "language",
+      "value": "Sprache"
+    },
+    {
+      "key": "auto",
+      "value": "Automatisch (Gerätesprache)"
+    },
+    {
+      "key": "language_help",
+      "value": "Die Gerätesprache gilt, bis du eine andere auswählst."
+    },
+    {
+      "key": "living",
+      "value": "Lebendige Welt"
+    },
+    {
+      "key": "puzzle",
+      "value": "Nur Rätsel"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Dieselben Wasserrätsel, ohne das lebendige Dorf."
+    },
+    {
+      "key": "memory_title",
+      "value": "EINE NEUE ERINNERUNG IM DORF"
+    },
+    {
+      "key": "continue",
+      "value": "Dem Bach weiter folgen"
+    },
+    {
+      "key": "change",
+      "value": "Entscheidung ändern"
+    },
+    {
+      "key": "complete",
+      "value": "Zwölf Bäche geschafft. Welches Rätsel gefiel dir am besten?"
+    },
+    {
+      "key": "explore",
+      "value": "Einen anderen Garten erkunden"
+    },
+    {
+      "key": "erase",
+      "value": "Bestätigen: Garten löschen"
+    },
+    {
+      "key": "keep",
+      "value": "Diesen Garten behalten"
+    },
+    {
+      "key": "neighbors",
+      "value": "Mit Nachbarn sprechen"
+    },
+    {
+      "key": "thanks",
+      "value": "Danke fürs Erzählen!"
+    },
+    {
+      "key": "playtest",
+      "value": "TESTMODUS · Vor dem ersten Zug auswählen"
+    },
+    {
+      "key": "art_2d",
+      "value": "Ansicht: 2D-Bilderbuch (tippen für 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Ansicht: 2,5D-Miniatur (tippen für 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Miniaturbewegung: AN (zum Stoppen tippen)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Miniaturbewegung: AUS (zum Starten tippen)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Sanfter Klang: AN (zum Stummschalten tippen)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Sanfter Klang: AUS (zum Aktivieren tippen)"
+    },
+    {
+      "key": "record",
+      "value": "Optionalen privaten Spieltest starten"
+    },
+    {
+      "key": "privacy",
+      "value": "Nur nach Antippen aktiv. Keine Übertragung oder Zuordnung."
+    },
+    {
+      "key": "copy",
+      "value": "Spieltestnotizen kopieren"
+    },
+    {
+      "key": "copied",
+      "value": "In die Zwischenablage kopiert."
+    },
+    {
+      "key": "clear",
+      "value": "Stoppen und lokale Notizen löschen"
+    },
+    {
+      "key": "offline",
+      "value": "Offline · Ohne Zeitdruck · Keine Werbung · Kein Konto"
+    },
+    {
+      "key": "journal_show",
+      "value": "Dorferinnerungen lesen"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Erinnerungen ausblenden"
+    },
+    {
+      "key": "journal_title",
+      "value": "UNSERE ENTSCHEIDUNGEN"
+    },
+    {
+      "key": "journal_empty",
+      "value": "Die erste Erinnerung wartet noch."
+    },
+    {
+      "key": "stream",
+      "value": "BACH {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = Quelle · G = Garten. Tippe, um das Wasser zu verbinden."
+    },
+    {
+      "key": "solved",
+      "value": "Das Wasser fließt durch alle Felder."
+    },
+    {
+      "key": "progress",
+      "value": "Wasser erreicht {0}/{1} Felder · {2} offene Anschlüsse"
+    },
+    {
+      "key": "undo_last",
+      "value": "Letzte Drehung rückgängig"
+    },
+    {
+      "key": "next",
+      "value": "Nächster Bach"
+    },
+    {
+      "key": "choose",
+      "value": "Was möchtest du wachsen lassen?"
+    },
+    {
+      "key": "undo",
+      "value": "Rückgängig"
+    },
+    {
+      "key": "hint",
+      "value": "Hinweis"
+    },
+    {
+      "key": "restart",
+      "value": "Bach neu beginnen"
+    },
+    {
+      "key": "how",
+      "value": "Zum Drehen tippen. Verbinde alle Rohre ohne offene Enden."
+    },
+    {
+      "key": "tree",
+      "value": "Schattenbaum pflanzen"
+    },
+    {
+      "key": "bridge",
+      "value": "Brücke reparieren"
+    },
+    {
+      "key": "flowers",
+      "value": "Wildblumen pflanzen"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira erinnert sich an deinen Baum."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin erinnert sich an deine Brücke."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen erinnert sich an deine Blumen."
+    },
+    {
+      "key": "world_none",
+      "value": "Der alte Bach wartet auf Wasser."
+    },
+    {
+      "key": "world_tree",
+      "value": "Ein junger Baum wächst am Bach."
+    },
+    {
+      "key": "world_bridge",
+      "value": "Die Brücke verbindet beide Ufer."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Wildblumen schmücken das Ufer."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Deine Bäume beschatten die reparierte Brücke."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Schmetterlinge sammeln sich unter den Bäumen."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Nachbarn überqueren die Brücke zur Wiese."
+    },
+    {
+      "key": "world_all",
+      "value": "Bäume, Wege und Blumen verbinden das Dorf."
+    },
+    {
+      "key": "mira_new",
+      "value": "Ich bin Mira. Pflanzen wir einen Baum am Wasser?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Ich erinnere mich an deine Bäume. Jetzt haben wir Schatten."
+    },
+    {
+      "key": "orin_new",
+      "value": "Ich bin Orin. Hoffentlich bauen wir die Brücke wieder auf."
+    },
+    {
+      "key": "orin_after",
+      "value": "Die reparierte Brücke bringt uns zusammen. Danke!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Ich bin Fen. Mir fehlen die Wildblumen am Bach."
+    },
+    {
+      "key": "fen_after",
+      "value": "Deine Blumen haben das Ufer wiederbelebt."
+    },
+    {
+      "key": "ending_all",
+      "value": "Unser Dorf gedeiht. Jede Entscheidung half, ein Zuhause zu schaffen."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Ein stiller Obstgarten wuchs durch deine Fürsorge."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Deine Brücken brachten Nachbarn zusammen."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Du hast eine Wiese geschaffen, auf der das Leben zurückkehrt."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Ein wenig Wasser kann einen Ort verändern."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "Das Dorf beginnt zu wachsen."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Jede Entscheidung wird Teil dieses Ortes."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Kapitel {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Baumwurzeln halten dieses Rohr fest. Es lässt sich nicht drehen."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Das Brückenfundament hält dieses Rohr fest. Es lässt sich nicht drehen."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Die Wildblumen schützen diese Stelle. Sie lässt sich nicht drehen."
+    }
+  ]
+}

@@ -1,0 +1,309 @@
+{
+  "code": "es",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · UN MUNDO QUE RECUERDA"
+    },
+    {
+      "key": "subtitle",
+      "value": "Pequeñas decisiones. Un lugar lleno de vida."
+    },
+    {
+      "key": "language",
+      "value": "Idioma"
+    },
+    {
+      "key": "auto",
+      "value": "Automático (idioma del dispositivo)"
+    },
+    {
+      "key": "language_help",
+      "value": "Se usa el idioma del dispositivo hasta que elijas otro."
+    },
+    {
+      "key": "living",
+      "value": "Mundo vivo"
+    },
+    {
+      "key": "puzzle",
+      "value": "Solo puzles"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "Los mismos puzles de agua, sin la aldea viva."
+    },
+    {
+      "key": "memory_title",
+      "value": "UN NUEVO RECUERDO EN LA ALDEA"
+    },
+    {
+      "key": "continue",
+      "value": "Sigue el curso del arroyo"
+    },
+    {
+      "key": "change",
+      "value": "Cambiar esta decisión"
+    },
+    {
+      "key": "complete",
+      "value": "Has completado doce arroyos. ¿Cuál te gustó más?"
+    },
+    {
+      "key": "explore",
+      "value": "Explorar otro jardín"
+    },
+    {
+      "key": "erase",
+      "value": "Confirmar: borrar este jardín"
+    },
+    {
+      "key": "keep",
+      "value": "Conservar este jardín"
+    },
+    {
+      "key": "neighbors",
+      "value": "Hablar con un vecino"
+    },
+    {
+      "key": "thanks",
+      "value": "¡Gracias por contármelo!"
+    },
+    {
+      "key": "playtest",
+      "value": "MODO DE PRUEBA · Elige antes del primer movimiento"
+    },
+    {
+      "key": "art_2d",
+      "value": "Vista: cuento 2D (toca para 2,5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "Vista: maqueta 2,5D (toca para 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "Movimiento de la maqueta: SÍ (toca para parar)"
+    },
+    {
+      "key": "motion_off",
+      "value": "Movimiento de la maqueta: NO (toca para activar)"
+    },
+    {
+      "key": "sound_on",
+      "value": "Campanilla: SÍ (toca para silenciar)"
+    },
+    {
+      "key": "sound_off",
+      "value": "Campanilla: NO (toca para activar)"
+    },
+    {
+      "key": "record",
+      "value": "Iniciar una prueba privada opcional"
+    },
+    {
+      "key": "privacy",
+      "value": "Solo empieza al tocar. No se sube ni se vincula contigo."
+    },
+    {
+      "key": "copy",
+      "value": "Copiar las notas de la prueba"
+    },
+    {
+      "key": "copied",
+      "value": "Copiado al portapapeles."
+    },
+    {
+      "key": "clear",
+      "value": "Detener y borrar las notas locales"
+    },
+    {
+      "key": "offline",
+      "value": "Sin conexión · Sin reloj · Sin anuncios · Sin cuenta"
+    },
+    {
+      "key": "journal_show",
+      "value": "Leer los recuerdos de la aldea"
+    },
+    {
+      "key": "journal_hide",
+      "value": "Ocultar los recuerdos"
+    },
+    {
+      "key": "journal_title",
+      "value": "NUESTRAS DECISIONES"
+    },
+    {
+      "key": "journal_empty",
+      "value": "El primer recuerdo aún está por llegar."
+    },
+    {
+      "key": "stream",
+      "value": "ARROYO {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = manantial · G = jardín. Toca para conectar el agua."
+    },
+    {
+      "key": "solved",
+      "value": "El agua pasa por todas las piezas."
+    },
+    {
+      "key": "progress",
+      "value": "El agua llega a {0}/{1} piezas · {2} uniones abiertas"
+    },
+    {
+      "key": "undo_last",
+      "value": "Deshacer el último giro"
+    },
+    {
+      "key": "next",
+      "value": "Siguiente arroyo"
+    },
+    {
+      "key": "choose",
+      "value": "¿Qué te gustaría hacer crecer?"
+    },
+    {
+      "key": "undo",
+      "value": "Deshacer"
+    },
+    {
+      "key": "hint",
+      "value": "Una pista"
+    },
+    {
+      "key": "restart",
+      "value": "Reiniciar el arroyo"
+    },
+    {
+      "key": "how",
+      "value": "Toca para girar. Conecta todas las tuberías sin dejar extremos abiertos."
+    },
+    {
+      "key": "tree",
+      "value": "Plantar un árbol de sombra"
+    },
+    {
+      "key": "bridge",
+      "value": "Reparar un puente"
+    },
+    {
+      "key": "flowers",
+      "value": "Cultivar flores silvestres"
+    },
+    {
+      "key": "memory_tree",
+      "value": "Mira recuerda el árbol que plantaste."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "Orin recuerda el puente que reparaste."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "Fen recuerda las flores que cultivaste."
+    },
+    {
+      "key": "world_none",
+      "value": "El viejo arroyo espera el agua."
+    },
+    {
+      "key": "world_tree",
+      "value": "Un árbol joven crece junto al arroyo."
+    },
+    {
+      "key": "world_bridge",
+      "value": "El puente une las dos orillas."
+    },
+    {
+      "key": "world_flowers",
+      "value": "Las flores silvestres iluminan la orilla."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "Tus árboles dan sombra al puente reparado."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "Las mariposas se reúnen bajo los árboles."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "Los vecinos cruzan para ver el prado."
+    },
+    {
+      "key": "world_all",
+      "value": "Árboles, caminos y flores unen a la aldea."
+    },
+    {
+      "key": "mira_new",
+      "value": "Soy Mira. ¿Podríamos plantar un árbol junto al agua?"
+    },
+    {
+      "key": "mira_after",
+      "value": "Recuerdo los árboles que plantaste. Ahora tenemos sombra."
+    },
+    {
+      "key": "orin_new",
+      "value": "Soy Orin. Ojalá podamos reconstruir el puente."
+    },
+    {
+      "key": "orin_after",
+      "value": "El puente restaurado nos reúne. ¡Gracias!"
+    },
+    {
+      "key": "fen_new",
+      "value": "Soy Fen. Echo de menos las flores silvestres junto al agua."
+    },
+    {
+      "key": "fen_after",
+      "value": "Tus flores han devuelto la vida a la orilla."
+    },
+    {
+      "key": "ending_all",
+      "value": "Nuestra aldea prospera. Cada decisión ayudó a crear un hogar."
+    },
+    {
+      "key": "ending_tree",
+      "value": "Un huerto tranquilo creció gracias a tus cuidados."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "Tus puentes reunieron a los vecinos."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "Creaste un prado donde volvió la vida."
+    },
+    {
+      "key": "prompt_early",
+      "value": "Un poco de agua puede transformar un lugar."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "La aldea empieza a crecer."
+    },
+    {
+      "key": "prompt_late",
+      "value": "Cada decisión se convierte en parte de este lugar."
+    },
+    {
+      "key": "journal_entry",
+      "value": "Capítulo {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Las raíces fijan esta tubería. No se puede girar."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Los cimientos del puente fijan esta tubería. No se puede girar."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Las flores protegen este cauce. No se puede girar."
+    }
+  ]
+}

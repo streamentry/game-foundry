@@ -1,0 +1,309 @@
+{
+  "code": "ko",
+  "entries": [
+    {
+      "key": "title",
+      "value": "EVERGROVE · 기억하는 작은 세상"
+    },
+    {
+      "key": "subtitle",
+      "value": "작은 선택, 살아 있는 마을."
+    },
+    {
+      "key": "language",
+      "value": "언어"
+    },
+    {
+      "key": "auto",
+      "value": "자동 (기기 언어)"
+    },
+    {
+      "key": "language_help",
+      "value": "다른 언어를 고르기 전까지 기기 언어를 사용합니다."
+    },
+    {
+      "key": "living",
+      "value": "살아 있는 세상"
+    },
+    {
+      "key": "puzzle",
+      "value": "퍼즐만 플레이"
+    },
+    {
+      "key": "puzzle_desc",
+      "value": "같은 물길 퍼즐을 마을 이야기 없이 즐깁니다."
+    },
+    {
+      "key": "memory_title",
+      "value": "마을의 새로운 기억"
+    },
+    {
+      "key": "continue",
+      "value": "시냇물을 따라 계속하기"
+    },
+    {
+      "key": "change",
+      "value": "이 선택 바꾸기"
+    },
+    {
+      "key": "complete",
+      "value": "열두 개의 물길을 완성했어요. 어떤 퍼즐이 좋았나요?"
+    },
+    {
+      "key": "explore",
+      "value": "다른 정원 가꾸기"
+    },
+    {
+      "key": "erase",
+      "value": "확인: 이 정원 삭제"
+    },
+    {
+      "key": "keep",
+      "value": "이 정원 지키기"
+    },
+    {
+      "key": "neighbors",
+      "value": "이웃과 이야기하기"
+    },
+    {
+      "key": "thanks",
+      "value": "이야기해 줘서 고마워요!"
+    },
+    {
+      "key": "playtest",
+      "value": "테스트 모드 · 첫 움직임 전에 선택하세요"
+    },
+    {
+      "key": "art_2d",
+      "value": "화면: 2D 그림책 (탭하여 2.5D)"
+    },
+    {
+      "key": "art_3d",
+      "value": "화면: 2.5D 미니어처 (탭하여 2D)"
+    },
+    {
+      "key": "motion_on",
+      "value": "미니어처 움직임: 켜짐 (탭하여 중지)"
+    },
+    {
+      "key": "motion_off",
+      "value": "미니어처 움직임: 꺼짐 (탭하여 시작)"
+    },
+    {
+      "key": "sound_on",
+      "value": "잔잔한 소리: 켜짐 (탭하여 음소거)"
+    },
+    {
+      "key": "sound_off",
+      "value": "잔잔한 소리: 꺼짐 (탭하여 켜기)"
+    },
+    {
+      "key": "record",
+      "value": "선택 사항인 비공개 테스트 시작"
+    },
+    {
+      "key": "privacy",
+      "value": "누르면 시작됩니다. 업로드되거나 신원과 연결되지 않습니다."
+    },
+    {
+      "key": "copy",
+      "value": "테스트 기록 복사"
+    },
+    {
+      "key": "copied",
+      "value": "클립보드에 복사했어요."
+    },
+    {
+      "key": "clear",
+      "value": "테스트 종료 및 로컬 기록 삭제"
+    },
+    {
+      "key": "offline",
+      "value": "오프라인 · 시간제한 없음 · 광고 없음 · 계정 불필요"
+    },
+    {
+      "key": "journal_show",
+      "value": "마을의 기억 읽기"
+    },
+    {
+      "key": "journal_hide",
+      "value": "마을의 기억 숨기기"
+    },
+    {
+      "key": "journal_title",
+      "value": "우리의 선택"
+    },
+    {
+      "key": "journal_empty",
+      "value": "첫 번째 기억은 아직 기다리고 있어요."
+    },
+    {
+      "key": "stream",
+      "value": "물길 {0} / {1}"
+    },
+    {
+      "key": "first",
+      "value": "S = 샘 · G = 정원. 탭하여 물길을 연결하세요."
+    },
+    {
+      "key": "solved",
+      "value": "모든 칸으로 물이 흐릅니다."
+    },
+    {
+      "key": "progress",
+      "value": "물이 닿은 칸 {0}/{1} · 열린 연결부 {2}개"
+    },
+    {
+      "key": "undo_last",
+      "value": "마지막 회전 되돌리기"
+    },
+    {
+      "key": "next",
+      "value": "다음 물길"
+    },
+    {
+      "key": "choose",
+      "value": "무엇을 키워 볼까요?"
+    },
+    {
+      "key": "undo",
+      "value": "되돌리기"
+    },
+    {
+      "key": "hint",
+      "value": "힌트"
+    },
+    {
+      "key": "restart",
+      "value": "물길 다시 시작"
+    },
+    {
+      "key": "how",
+      "value": "탭하여 돌리세요. 열린 끝 없이 모든 관을 연결하세요."
+    },
+    {
+      "key": "tree",
+      "value": "그늘 나무 심기"
+    },
+    {
+      "key": "bridge",
+      "value": "다리 복구하기"
+    },
+    {
+      "key": "flowers",
+      "value": "들꽃 키우기"
+    },
+    {
+      "key": "memory_tree",
+      "value": "미라는 당신이 심은 나무를 기억해요."
+    },
+    {
+      "key": "memory_bridge",
+      "value": "오린은 당신이 고친 다리를 기억해요."
+    },
+    {
+      "key": "memory_flowers",
+      "value": "펜은 당신이 키운 꽃을 기억해요."
+    },
+    {
+      "key": "world_none",
+      "value": "오래된 시냇물길이 물을 기다려요."
+    },
+    {
+      "key": "world_tree",
+      "value": "어린 나무가 물가에서 자라요."
+    },
+    {
+      "key": "world_bridge",
+      "value": "다리가 양쪽 강둑을 잇습니다."
+    },
+    {
+      "key": "world_flowers",
+      "value": "들꽃이 물가를 환하게 만들어요."
+    },
+    {
+      "key": "world_tree_bridge",
+      "value": "당신의 나무가 복구한 다리에 그늘을 드리워요."
+    },
+    {
+      "key": "world_tree_flowers",
+      "value": "나비들이 나무 아래 모여요."
+    },
+    {
+      "key": "world_bridge_flowers",
+      "value": "이웃들이 꽃밭을 보러 다리를 건너요."
+    },
+    {
+      "key": "world_all",
+      "value": "나무와 길과 꽃이 마을을 이어 줘요."
+    },
+    {
+      "key": "mira_new",
+      "value": "난 미라야. 물가에 나무를 심어 볼래?"
+    },
+    {
+      "key": "mira_after",
+      "value": "네가 심은 나무를 기억해. 이제 마을에 그늘이 생겼어."
+    },
+    {
+      "key": "orin_new",
+      "value": "난 오린이야. 언젠가 다리를 다시 놓고 싶어."
+    },
+    {
+      "key": "orin_after",
+      "value": "고친 다리가 우리를 이어 줬어. 고마워!"
+    },
+    {
+      "key": "fen_new",
+      "value": "난 펜이야. 물가의 들꽃이 그리워."
+    },
+    {
+      "key": "fen_after",
+      "value": "네 꽃 덕분에 강둑에 생명이 돌아왔어."
+    },
+    {
+      "key": "ending_all",
+      "value": "마을이 번창하고 있어요. 모든 선택이 집을 만들었어요."
+    },
+    {
+      "key": "ending_tree",
+      "value": "당신의 정성으로 고요한 과수원이 자랐어요."
+    },
+    {
+      "key": "ending_bridge",
+      "value": "당신의 다리가 이웃들을 이어 줬어요."
+    },
+    {
+      "key": "ending_flowers",
+      "value": "생명이 돌아온 들꽃밭을 만들었어요."
+    },
+    {
+      "key": "prompt_early",
+      "value": "작은 물줄기가 한 장소를 바꿀 수 있어요."
+    },
+    {
+      "key": "prompt_mid",
+      "value": "마을이 자라나기 시작해요."
+    },
+    {
+      "key": "prompt_late",
+      "value": "모든 선택이 이곳의 일부가 됩니다."
+    },
+    {
+      "key": "journal_entry",
+      "value": "제{0}장 · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "나무뿌리가 이 물길을 고정해요. 회전할 수 없어요."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "다리의 기초가 이 물길을 고정해요. 회전할 수 없어요."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "들꽃이 이 구간을 지켜요. 회전할 수 없어요."
+    }
+  ]
+}
