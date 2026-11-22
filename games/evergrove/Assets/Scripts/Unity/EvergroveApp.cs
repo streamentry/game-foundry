@@ -726,7 +726,8 @@ namespace Evergrove.UnityClient
             int[] angles = world.Rotations;
             for (int i = 0; i < puzzle.CellCount; i++)
             {
-                tileBackgrounds[i].color = world.Solved ? Hex("#D1E6C8") :
+                tileBackgrounds[i].color = puzzle.IsAnchored(i) ? Hex("#F1DDB3") :
+                    world.Solved ? Hex("#D1E6C8") :
                     insight.Flowing[i] ? Hex("#D8EFED") : Hex("#F0F1E8");
                 visibleTiles[i].interactable = !world.Solved && !puzzle.IsAnchored(i);
                 tileArtwork[i].Configure(puzzle.Kinds[i], angles[i], world.Solved);
