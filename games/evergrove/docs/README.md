@@ -53,6 +53,10 @@ python3 tools/verify_evergrove_project.py
 
 To get a real player: open `games/evergrove` in Unity Hub with the version in `ProjectSettings/ProjectVersion.txt`; use `Evergrove → Create or Open Playtest Scene` and press Play. A **manual, licensed Unity** GitHub Actions build is described in [Build and QA](BUILD_AND_QA.md). No .NET test proves Unity itself compiles.
 
+## Automated documentation integrity
+
+`python3 tools/check_evergrove_docs.py` runs in repository CI and checks all canonical handbook files, relative links, Markdown code fences, and current 12-puzzle / v3-save / 30-language / 76-key source contracts. These checks **do not validate product claims or native device behavior**; they only prevent simple drift and broken handoffs.
+
 ## Documentation rules
 
 - **Code is the authority for current behavior**, not this document when they differ. Flag the mismatch and fix it.
