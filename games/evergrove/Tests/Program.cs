@@ -426,6 +426,59 @@ internal static class Program
             "no assistance allowed after water puzzle is already solved");
     }
 
+    private static void NonColorLeaksAndCausalJournal()
+    {
+        for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+            for (int variant = 0; variant <= (chapter == 0 ? 0 : 3); variant++)
+            {
+                Puzzle board = ReactiveWatercourses.ForChapter(chapter, variant);
+                PipeInsight first = PipeRules.Inspect(board, board.Initial);
+                PipeInsight finished = PipeRules.Inspect(board, board.Solution);
+                Expect(first.Leaking.Length == board.CellCount &&
+                       finished.Leaking.Length == board.CellCount,
+                    "noncolor leak flags exist for every tile across all 45 boards");
+                bool anyMarked = false;
+                for (int i = 0; i < board.CellCount; i++)
+                {
+                    if (first.Leaking[i]) anyMarked = true;
+                    Expect(!finished.Leaking[i], "complete route has no misleading exclamation");
+                }
+                Expect(first.LeakCount == 0 || anyMarked,
+                    "every nonzero leak count has a visible noncolor tile marker");
+                Expect(finished.LeakCount == 0, "win has no unresolved leaks");
+            }
+
+        var world = WorldModel.New();
+        Solve(world);
+        Expect(world.Choose(VillageChoice.ShadeTree), "journal source action tree");
+        string[] log = LocalizedVillage.Journal(world);
+        Expect(log.Length == 1 && log[0].Contains("Mira") &&
+               log[0].Contains("young tree") && log[0].Contains("roots"),
+            "latest tree action records identity, true scene and active puzzle consequence");
+        Solve(world);
+        Expect(world.Choose(VillageChoice.Bridge), "journal source action crossing");
+        log = LocalizedVillage.Journal(world);
+        Expect(log.Length == 2 && log[0].Contains("young tree") &&
+               !log[0].Contains("roots") && log[1].Contains("Orin") &&
+               log[1].Contains("crossing") && log[1].Contains("foundations"),
+            "historical event keeps true scene effect; only newest active branch is asserted");
+        WorldModel restored;
+        Expect(WorldModel.TryRestore(world.Export(), out restored) &&
+               string.Join("|", LocalizedVillage.Journal(restored)) == string.Join("|", log),
+            "causal journal stable across save and reload");
+
+        var old = new WorldSnapshot {
+            version = 3, mode = "living", round = 1, solved = false,
+            rotations = (int[])PuzzleCatalog.Get(1).Initial.Clone(),
+            previous = Array.Empty<int>(), choices = new[] { 0 },
+            boardVariant = 0, lastSolvedVariant = 0
+        };
+        Expect(WorldModel.TryRestore(old, out restored),
+            "old v3 nonbranching active progress remains a valid migration");
+        Expect(!LocalizedVillage.Journal(restored)[0].Contains("roots"),
+            "old saves do not invent board changes that never happened");
+    }
+
     private static void PuzzleDiagnosticsTests()
     {
         PuzzleProfile[] all = PuzzleDiagnostics.All();
@@ -669,6 +722,7 @@ internal static class Program
             ScenicCausality();
             ReactiveCampaign();
             ProgressiveHintAndSaveV4();
+            NonColorLeaksAndCausalJournal();
             PuzzleDiagnosticsTests();
             PrivatePlaytestReport();
             LocalizationTests();
