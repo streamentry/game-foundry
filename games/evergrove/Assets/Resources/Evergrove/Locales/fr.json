@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Les fleurs protègent ce passage. Il ne peut pas tourner."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Regardez la ligne {0}. Une connexion mérite votre attention."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Ligne {0}, colonne {1} : comparez les extrémités ouvertes."
+    },
+    {
+      "key": "hint_more",
+      "value": "Un indice de plus"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Corriger un raccord"
+    },
+    {
+      "key": "save_warning",
+      "value": "Impossible d’enregistrer la progression. Vérifiez l’espace disponible."
     }
   ]
 }
