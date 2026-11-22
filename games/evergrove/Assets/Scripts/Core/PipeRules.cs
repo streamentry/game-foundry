@@ -105,13 +105,15 @@ namespace Evergrove.Core
         public readonly int LeakCount;
         public readonly int JoinedEdges;
         public readonly bool[] Flowing;
+        public readonly bool[] Leaking; // non-color marker contract for every unmatched port
 
-        public PipeInsight(int connected, int leaks, int edges, bool[] flowing)
+        public PipeInsight(int connected, int leaks, int edges, bool[] flowing, bool[] leaking = null)
         {
             ConnectedCount = connected;
             LeakCount = leaks;
             JoinedEdges = edges;
             Flowing = flowing;
+            Leaking = leaking ?? new bool[flowing.Length];
         }
     }
 
@@ -160,6 +162,7 @@ namespace Evergrove.Core
             if (!ValidRotations(puzzle, rotations))
                 return new PipeInsight(0, 0, 0, new bool[puzzle.CellCount]);
             int leaks = 0, joined = 0;
+            bool[] leaking = new bool[puzzle.CellCount];
             for (int i = 0; i < puzzle.CellCount; i++)
                 for (int d = 0; d < 4; d++)
                 {
@@ -167,20 +170,25 @@ namespace Evergrove.Core
                     bool port = HasPort(puzzle.Kinds[i], rotations[i], d);
                     if (j < 0)
                     {
-                        if (port) leaks++;
+                        if (port) { leaks++; leaking[i] = true; }
                     }
                     else if (i < j)
                     {
                         bool other = HasPort(puzzle.Kinds[j], rotations[j], (d + 2) % 4);
                         if (port && other) joined++;
-                        if (port != other) leaks++;
+                        if (port != other)
+                        {
+                            leaks++;
+                            leaking[i] = true;
+                            leaking[j] = true;
+                        }
                     }
                 }
             int source = -1;
             for (int i = 0; i < puzzle.CellCount; i++)
                 if (puzzle.Kinds[i] == PipeKind.End) { source = i; break; }
             bool[] flowing = new bool[puzzle.CellCount];
-            if (source < 0) return new PipeInsight(0, leaks, joined, flowing);
+            if (source < 0) return new PipeInsight(0, leaks, joined, flowing, leaking);
             var pending = new Stack<int>();
             pending.Push(source);
             int connected = 0;
@@ -200,7 +208,7 @@ namespace Evergrove.Core
                         pending.Push(j);
                 }
             }
-            return new PipeInsight(connected, leaks, joined, flowing);
+            return new PipeInsight(connected, leaks, joined, flowing, leaking);
         }
 
         public static bool IsComplete(Puzzle puzzle, int[] rotations)
