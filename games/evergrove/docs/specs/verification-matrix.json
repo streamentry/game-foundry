@@ -308,10 +308,9 @@
       "status": "Proposed",
       "blocked": false,
       "dependency_ids": [
-        "EG-003",
-        "EG-105"
+        "EG-003"
       ],
-      "dependency_notes": "EG-003, EG-105, narrative matrix.",
+      "dependency_notes": "EG-003 and authored narrative/choice-consequence matrix; EG-105 is a downstream optional extension, not a prerequisite.",
       "player_visible_outcome": "Every major choice has immediate visual, later puzzle/systemic and chapter-ending consequences, authored and deterministic.",
       "verification_ids": [
         "WLD-001",

@@ -231,7 +231,7 @@
 - **Player-visible behavior:** Every major choice has immediate visual, later puzzle/systemic and chapter-ending consequences, authored and deterministic.
 - **Acceptance criteria:** Consequence matrix covers each choice and meaningful pair; automated invariants prevent contradictions.
 - **Success signal:** Players correctly identify delayed effect and say it mattered.
-- **Dependencies:** EG-003, EG-105, narrative matrix.
+- **Dependencies:** EG-003 and authored choice-consequence matrix. EG-105 is the later ecological-rule extension, not a prerequisite.
 
 ### EG-103 — Bounded NPC memory tokens
 
