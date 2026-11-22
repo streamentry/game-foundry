@@ -243,7 +243,10 @@
     node("puzzle-panel").classList.toggle("puzzle--complete", solved);
     node("creek").classList.toggle("creek--restored", solved);
     ["tree", "bridge", "flowers"].forEach(key => {
-      node("world-" + key).hidden = model.choice !== key;
+      // SVG <g> is an SVGElement, NOT an HTMLElement: setting .hidden=false
+      // only adds a JS expando on some browsers while the HTML hidden
+      // ATTRIBUTE remains, leaving the chosen world change invisible.
+      node("world-" + key).toggleAttribute("hidden", model.choice !== key);
     });
     if (model.choice) {
       const detail = CHOICES[model.choice];

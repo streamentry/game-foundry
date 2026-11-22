@@ -40,8 +40,18 @@ Record **each** observation separately: device/browser, whether the first tile w
 node --test games/evergrove/research/first-minute/game.test.cjs
 ```
 
-Run from the repository root with Node 22. Tests compare the authored fixture directly against Unity C# source and exercise water propagation, undo, hint stages, completion, choices and no-telemetry/source contracts.
+Run from the repository root with Node 22. Unit tests compare the authored fixture directly against Unity C# source and exercise water propagation, undo, hint stages, completion, choices, layout source order and no-telemetry contracts.
 
-**Still unverified:** rendered appearance on compact iPhone/Android browsers, keyboard/screen-reader usability, contrast and actual human response. Test physical 320–430px viewports and zoom/reduced-motion modes before treating the browser slice as ready for real interviews.
+**Chromium viewport smoke (separate from Unity):**
+
+```bash
+python -m pip install playwright==1.56.0
+python -m playwright install chromium
+python tools/verify_evergrove_browser_viewports.py
+```
+
+This executable check renders the actual HTML/CSS/JS in an **offline headless Chromium browser** at 320×568, 375×667 and 430×932 CSS viewports. It verifies that a usable first tile is in the **initial viewport** without scrolling, the screen has no horizontal overflow, 4→5→4 water/Undo, six-turn solution, creek reveal, tree choice/focus, and honest abandoned-attempt notes. It saves screenshots under ignored `artifacts/evergrove-first-minute/` for a human to inspect. GitHub CI retains screenshots for 7 days. This is stronger than a DOM order assertion, but it is still **automated browser evidence**.
+
+**Still unverified:** physical iPhone Safari/Android Chrome, screen-reader semantics, contrast and actual human response. Test real devices, zoom/large-font and reduced-motion modes before treating the browser slice as suitable for broad user research.
 
 Authoring intent: *make the first meaningful action delightful, not make the introduction longer.*
