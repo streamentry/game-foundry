@@ -29,12 +29,17 @@ namespace Evergrove.UnityClient
         private RectTransform content;
         private RectTransform scrollArea;
         private ScrollRect scroll;
+        private CanvasScaler viewportScaler;
         private Rect lastSafeArea;
         private Vector2Int lastScreen;
         private bool showingMemory;
         private bool showJournal;
+        private int speakingWith = -1;
         private bool confirmReset;
         private bool soundOn;
+        private bool showMiniature;
+        private bool animateMiniature;
+        private VillageDiorama diorama;
         private AudioSource sound;
         private AudioClip chime;
         // Keep live puzzle controls mounted during every tap. Recreating the
@@ -65,6 +70,10 @@ namespace Evergrove.UnityClient
         {
             world = WorldStore.Load();
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
+            // Default to the proven-in-code 2D art; keep the experimental
+            // orthographic 3D visual opt-in until real player/device evidence.
+            showMiniature = PlayerPrefs.GetInt("evergrove:visual-miniature", 0) == 1;
+            animateMiniature = PlayerPrefs.GetInt("evergrove:miniature-motion", 0) == 1;
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null) font = Font.CreateDynamicFontFromOSFont("Arial", 16);
             sound = gameObject.AddComponent<AudioSource>();
@@ -125,6 +134,7 @@ namespace Evergrove.UnityClient
             var canvas = canvasNode.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = canvasNode.AddComponent<CanvasScaler>();
+            viewportScaler = scaler;
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(414, 896);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
@@ -282,11 +292,42 @@ namespace Evergrove.UnityClient
             Label(content, "Brand", "EVERGROVE       /       A WORLD THAT REMEMBERS", 12, 24, Leaf);
             Label(content, "Title", "Little choices. A living place.", 25, 46, Ink);
 
-            var illustration = Node("Living storybook art", content);
-            Height(illustration, 178);
-            var art = illustration.AddComponent<VillageIllustration>();
-            art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
-                world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers));
+            var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
+            Height(illustration, 193);
+            bool renderedMiniature = false;
+            if (showMiniature)
+            {
+                if (diorama == null)
+                {
+                    var stage = new GameObject("Optional orthographic world");
+                    stage.transform.SetParent(transform, false);
+                    diorama = stage.AddComponent<VillageDiorama>();
+                }
+                renderedMiniature = diorama.Show(VillageScenePlan.From(world), animateMiniature);
+                if (!renderedMiniature)
+                {
+                    // No missing graphics feature should block the offline game.
+                    // Fall back honestly, including the visible preference label.
+                    showMiniature = false;
+                    PlayerPrefs.SetInt("evergrove:visual-miniature", 0);
+                    PlayerPrefs.Save();
+                    Debug.LogWarning("Miniature renderer unavailable; keeping the 2D garden.");
+                }
+                if (renderedMiniature)
+                {
+                    var raw = illustration.AddComponent<RawImage>();
+                    raw.texture = diorama.Preview;
+                    raw.raycastTarget = false;
+                    raw.color = Color.white;
+                }
+            }
+            if (!renderedMiniature)
+            {
+                if (diorama != null) diorama.Hide();
+                var art = illustration.AddComponent<VillageIllustration>();
+                art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
+                    world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers));
+            }
 
             if (living)
             {
@@ -332,6 +373,7 @@ namespace Evergrove.UnityClient
                         confirmReset = false;
                         showJournal = false;
                         showingMemory = false;
+                        speakingWith = -1;
                         Rebuild(true);
                     }, 62, confirmReset);
                 if (confirmReset)
@@ -346,6 +388,29 @@ namespace Evergrove.UnityClient
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
 
+            // Optional face-to-face NPC interaction. Character dialogue is
+            // genuinely driven by previous world decisions, not generated text.
+            // It stays below the puzzle so onboarding reaches gameplay first.
+            if (living && !showingMemory)
+            {
+                Label(content, "Neighbors", "THREE NEIGHBORS, THREE WAYS OF SEEING YOUR GARDEN",
+                    12, 27, Leaf);
+                var neighbors = Row(content, "Speak with a neighbor");
+                Button(neighbors.transform, "Mira", "Mira", () => OpenConversation(0), 52);
+                Button(neighbors.transform, "Orin", "Orin", () => OpenConversation(1), 52);
+                Button(neighbors.transform, "Fen", "Fen", () => OpenConversation(2), 52);
+                if (speakingWith >= 0)
+                {
+                    var conversation = Card(content, "A neighbor's memory", Sand);
+                    Label(conversation.transform, "Neighbor name",
+                        VillageStory.VillagerName(speakingWith), 16, 31, Leaf);
+                    Label(conversation.transform, "What they say",
+                        VillageStory.Speak(world, speakingWith), 16, 132, Ink);
+                    Button(conversation.transform, "Thanks", "Thanks for telling me",
+                        () => { speakingWith = -1; Rebuild(); }, 50, true);
+                }
+            }
+
             // Research-only comparison controls are intentionally below the
             // puzzle. They must not push the first playable move off-screen.
             if (world.CanSwitchMode)
@@ -359,6 +424,25 @@ namespace Evergrove.UnityClient
                     52, !living);
             }
 
+            // Two comparable art renderers using the same saved decisions.
+            // Keep this manual A/B surface below the gameplay.
+            Button(content, "Diorama visual comparison",
+                showMiniature ? "Visual: 2.5D miniature (tap for 2D)" :
+                    "Visual: 2D storybook (tap for 2.5D)", () => {
+                    showMiniature = !showMiniature;
+                    PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
+                    PlayerPrefs.Save();
+                    Rebuild();
+                }, 49);
+            if (showMiniature)
+                Button(content, "Optional miniature motion",
+                    animateMiniature ? "Miniature motion: ON (tap to stop)" :
+                        "Miniature motion: OFF (tap to animate)", () => {
+                        animateMiniature = !animateMiniature;
+                        PlayerPrefs.SetInt("evergrove:miniature-motion", animateMiniature ? 1 : 0);
+                        PlayerPrefs.Save();
+                        Rebuild();
+                    }, 45);
             Button(content, "Quiet audio setting",
                 soundOn ? "Gentle chime: ON (tap to mute)" : "Gentle chime: OFF (tap to enable)",
                 () => {
@@ -420,8 +504,15 @@ namespace Evergrove.UnityClient
                 TextAnchor.MiddleCenter);
             var board = Card(content, "The water puzzle", White);
             var gridNode = Node("Water connections", board.transform);
-            int tileSize = puzzle.Size == 3 ? 90 : 67;
+            // Keep the entire puzzle inside a compact phone, including the
+            // story card's horizontal padding and safe-area insets.
             int gap = puzzle.Size == 3 ? 7 : 5;
+            float scale = viewportScaler == null ? 1f :
+                Mathf.Max(0.1f, viewportScaler.scaleFactor);
+            float layoutWidth = Screen.safeArea.width / scale;
+            float available = Mathf.Max(225f, layoutWidth - 34f - 20f - 5f);
+            int ideal = Mathf.FloorToInt((available - (puzzle.Size - 1) * gap) / puzzle.Size);
+            int tileSize = Mathf.Clamp(ideal, 48, puzzle.Size == 3 ? 90 : 67);
             int span = (tileSize + gap) * puzzle.Size - gap;
             Height(gridNode, span + 1);
             var grid = gridNode.AddComponent<GridLayoutGroup>();
@@ -511,9 +602,16 @@ namespace Evergrove.UnityClient
                 13, 56, Moss, TextAnchor.MiddleCenter);
         }
 
+        private void OpenConversation(int villagerIndex)
+        {
+            speakingWith = villagerIndex;
+            Rebuild();
+        }
+
         private void SwitchMode(PlayMode mode)
         {
             if (!world.CanSwitchMode) return;
+            speakingWith = -1;
             world = WorldModel.New(mode);
             SaveWorld();
             Rebuild();
@@ -582,6 +680,7 @@ namespace Evergrove.UnityClient
             SaveWorld();
             showingMemory = true;
             showJournal = false;
+            speakingWith = -1;
             PlayChime();
             Rebuild(true);
         }

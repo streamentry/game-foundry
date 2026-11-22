@@ -171,6 +171,75 @@ internal static class Program
             "control keeps identical puzzles and no memories");
     }
 
+    private static void ScenicCausality()
+    {
+        var world = WorldModel.New();
+        VillageScenePlan initial = VillageScenePlan.From(world);
+        Expect(initial.TreeCount == 0 && initial.CrossingCount == 0 &&
+               initial.FlowerCount == 0, "fresh scene is undecorated");
+        Expect(!initial.HasBridge && !initial.HasButterflies &&
+               !initial.HasVisitors && !initial.NeighborsGather,
+               "scenic elements do not appear before related choices");
+        Expect(initial.LandscapePhase == 0, "first chapter uses the first landscape");
+        string fingerprint = initial.Fingerprint;
+
+        Solve(world);
+        Expect(world.Choose(VillageChoice.ShadeTree), "first tree grows");
+        VillageScenePlan tree = VillageScenePlan.From(world);
+        Expect(tree.TreeCount == 1 && !tree.HasBridge && !tree.HasVisitors,
+               "tree alone visibly changes only tree assets");
+        Expect(tree.Fingerprint != fingerprint, "scene fingerprint changes after an action");
+
+        Solve(world);
+        Expect(world.Choose(VillageChoice.Flowers), "meadow grows");
+        VillageScenePlan meadow = VillageScenePlan.From(world);
+        Expect(meadow.HasButterflies && !meadow.HasVisitors,
+               "butterflies require tree plus meadow, not a bridge");
+
+        Solve(world);
+        Expect(world.Choose(VillageChoice.Bridge), "crossing opens");
+        VillageScenePlan village = VillageScenePlan.From(world);
+        Expect(village.HasBridge && village.HasButterflies &&
+               village.HasVisitors && village.NeighborsGather,
+               "combined actions unlock gathering neighbors and visitors");
+        Expect(village.LandscapePhase == 1, "visual seasons respond to chapter progression");
+
+        WorldModel recovered;
+        Expect(WorldModel.TryRestore(world.Export(), out recovered),
+               "valid saved world recovers for scenic comparison");
+        Expect(village.Fingerprint == VillageScenePlan.From(recovered).Fingerprint,
+               "reloading cannot scramble the rendered world");
+        Expect(world.Characters.Length == 3 &&
+               world.Consequence.Contains("shady bridge"),
+               "human-readable narrative explains the visual interaction");
+
+        string mira = VillageStory.Speak(world, 0);
+        string orin = VillageStory.Speak(world, 1);
+        string fen = VillageStory.Speak(world, 2);
+        Expect(VillageStory.VillagerName(0).Contains("Mira") &&
+               VillageStory.VillagerName(1).Contains("Orin") &&
+               VillageStory.VillagerName(2).Contains("Fen"),
+               "all three neighbors have stable identities");
+        Expect(mira.Contains("shade") && orin.Contains("crossing") &&
+               fen.Contains("wildflower"),
+               "different villagers recall consequences through their own concerns");
+        Expect(mira != orin && mira != fen && orin != fen,
+               "three distinct voices do not share generic generated dialogue");
+        Expect(VillageStory.Speak(recovered, 0) == mira &&
+               VillageStory.Speak(recovered, 1) == orin &&
+               VillageStory.Speak(recovered, 2) == fen,
+               "authored dialogue remains stable across save/load");
+        var untouched = WorldModel.New();
+        Expect(VillageStory.Speak(untouched, 0).Contains("sapling") &&
+               !VillageStory.Speak(untouched, 1).Contains("the first plank"),
+               "characters do not fabricate prior actions in a new game");
+
+        var control = WorldModel.New(PlayMode.PuzzleOnly);
+        VillageScenePlan emptyControl = VillageScenePlan.From(control);
+        Expect(emptyControl.Fingerprint == initial.Fingerprint,
+               "puzzle-only control begins with identical scenery");
+    }
+
     public static int Main()
     {
         try
@@ -178,6 +247,7 @@ internal static class Program
             ContentAndRules();
             RestoreAndMigration();
             StoryAndCompleteRun();
+            ScenicCausality();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }

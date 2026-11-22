@@ -52,4 +52,17 @@ Type hierarchy (approximate logical px): title **25**, game decisions **15–17*
 - [ ] User-perceived quality benchmarked head-to-head versus a polished established puzzle game.
 - [ ] Device sound behavior tested, including mute/ringer and consent.
 
+## Two rendering languages, one authoritative world
+
+The current **2D storybook** remains the inexpensive baseline. The new opt-in **2.5D miniature** uses a fixed orthographic camera aimed at a low-poly island with an original generated stream, a cottage and three villagers. These are two visual presentations of the **same world events**, not separate games and not an engine rewrite.
+
+- A pure `VillageScenePlan` reads the state once and declares trees, crossing, visitors, butterflies, neighbor gathering and chapter phase.
+- The 2.5D renderer creates only those visible objects. A fixed camera avoids touch-navigation demands; all water puzzles remain 2D controls.
+- World illustrations use a reused unlit material with per-object property blocks, no dynamic shadows, a bounded offscreen texture and no 3D physics simulation. Avoid costly UGC assets, uncontrolled model generation or large-stage wandering.
+- The 2.5D view defaults to **stillness**; an opt-in low-frequency animation can gently move water glimmers, butterflies and villagers. The rendering loop is disabled when the 2D mode is shown.
+- All three neighbors now have explicit **Talk** buttons and hand-authored conversations grounded in past decisions. They do not retain chat histories or imply human-like consciousness.
+- Art controls appear below first-play gameplay. The first tappable water tile stays prioritized.
+
+**Research warning:** The miniature's low-poly forms are an *engineering proof of composition and causality*, not finished character art. Do not claim commercial-grade animation, style preference or accessibility until verified in Unity and tested with players.
+
 **Not a production certificate:** C# unit tests prove deterministic game logic, not taste or device readiness.

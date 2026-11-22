@@ -55,11 +55,23 @@ dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configu
 
 This validates all 12 board shapes and unique solutions, source connectivity, hint/undo, consequence interactions, complete campaign, legacy saved-game migration and corrupted-save rejection. See [CI workflow](../../.github/workflows/ci.yml). These tests **do not compile the UnityEngine-specific UI or verify native builds**; Godot's tests do not test Evergrove.
 
+## Two original visual renderers — an explicit experiment
+
+Evergrove now offers **2D storybook** (the original default baseline) and **2.5D miniature** (a switchable, opt-in orthographic diorama). Both draw **the same locally persisted world decisions**. The 2.5D scene is constructed in Unity from original procedural primitives: an island, winding creek, little cottage, trees, repaired crossing, flowers, butterflies and neighbors who move into different positions as the village evolves. It uses one orthographic camera rendered into a 768×384 texture; no prefabs, purchased art, model API or mandatory online assets.
+
+The 2.5D preview is **not the chosen commercial art style yet**. A fair side-by-side test must show it improves readability or affection enough to justify its GPU/memory and authoring cost. See [the visual-comparison protocol](../../docs/research/evergrove-visual-comparison-protocol-2026-11-22.md) and the [2.5D art ADR](../../docs/decisions/2026-11-22-evergrove-visual-direction-2p5d.md).
+
+The preview defaults to **no animation**. Players can enable a restrained 12fps butterfly/water/villager loop. No pressure mechanics or autoplay sound have been added.
+
+**New, optional NPC conversation:** tap **Mira**, **Orin** or **Fen** after reaching the gameplay controls. Their authored words depend on the trees, crossings and meadows you actually chose, and remain identical after reloading the game. They do not track or pretend to remember conversations.
+
 ## Architecture and cloud
 
 - Pure rules: `Assets/Scripts/Core/PipeRules.cs`
 - World state, events, migration: `Assets/Scripts/Core/WorldModel.cs`
-- Authored causal narrative: `Assets/Scripts/Core/VillageStory.cs`
+- Authored causal narrative and NPC conversations: `Assets/Scripts/Core/VillageStory.cs`
+- Pure scene specification: `Assets/Scripts/Core/VillageScenePlan.cs`
+- Optional original 3D miniature renderer: `Assets/Scripts/Unity/VillageDiorama.cs`
 - UI and interactions: `Assets/Scripts/Unity/EvergroveApp.cs`
 - Procedural landscape: `Assets/Scripts/Unity/VillageIllustration.cs`
 - Offline saved progress: `Assets/Scripts/Unity/WorldStore.cs`
