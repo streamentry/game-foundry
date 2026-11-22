@@ -2,6 +2,9 @@
 
 **Status:** founder-selected, mobile-first research vertical slice; **not greenlit as a market-proven game**. Internal working name only. Related selected thesis: `PH-006` in [original decision](../../../docs/research/evergrove-build-decision-2026-11-22.md).
 
+**Companion source:** [37-feature future product backlog](specs/README.md) defines additional proposed work. This brief is the **as-built and falsifiable product thesis**, not a feature-implementation plan. Preserve the distinction between existing mechanisms and P0/P1/P2 candidates.
+
+
 ## 1. Product in one minute
 
 - **Promise:** “A little world that remembers what you do.”

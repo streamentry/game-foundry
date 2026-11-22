@@ -2,6 +2,9 @@
 
 Read [repository AGENTS.md](../../AGENTS.md) and the [Evergrove handbook](docs/README.md) **before** changing this Unity/C# project. It is the approved engine exception in Game Foundry's mostly Godot portfolio.
 
+The separate [37-feature product specifications](docs/specs/README.md) are **proposals** (P0/P1/P2), not part of the current implemented contract. Check the as-built handbook and code before taking a proposed feature into a PR.
+
+
 ## Player invariant
 
 **Short, satisfying spatial play must have a clear, truthful consequence in the village and the next puzzle.** No extra AI, servers, content volume or art polish unless it can improve a player behavior observable in testing.

@@ -2,6 +2,9 @@
 
 **Cập nhật:** 22/11/2026. **Trạng thái:** đã có mã nguồn Unity/C# và kiểm thử logic; **chưa có bằng chứng game đã chạy tốt trên iPhone/Android thật, chưa phát hành, chưa chứng minh product–market fit**. “Evergrove” là tên nội bộ, chưa được xác nhận quyền sử dụng thương mại.
 
+**Hai nhóm tài liệu khác nhau:** Bộ [handbook hiện trạng](README.md) giải thích code đang chạy và giới hạn thật; [bộ đặc tả 37 tính năng đề xuất](specs/README.md) là backlog P0/P1/P2 **chưa có nghĩa được triển khai**. Không trộn “đang có” và “muốn xây”.
+
+
 ## 1. Ta thực sự đang xây thứ gì?
 
 **Lời hứa:** “Một thế giới nhỏ thay đổi vì những điều người chơi đã làm.”

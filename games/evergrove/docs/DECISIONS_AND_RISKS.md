@@ -2,6 +2,9 @@
 
 **Purpose:** preserve reasoning, not just conclusions. All dates below refer to decisions or code observed as of **2026-11-22**, not to later user validation. “Implemented” means code exists; “verified” identifies actual tests; “desired” is not scheduled work.
 
+**Cross-reference:** [Future feature backlog (37 candidate features)](specs/02-FEATURE-BACKLOG.md) includes illustrative impact scores and potential milestones. These **do not** supersede the validation gates or turn features into existing behavior. Any future feature needs a player-value test before implementation.
+
+
 ## 1. Decisions already made (reversible unless stated)
 
 | Decision | Reason | Strongest challenge / reversal trigger | Record |

@@ -4,6 +4,13 @@
 
 > **One promise:** A small place changes because the player was there. Show the consequence first; explain it second. Never substitute an impressive-looking feature list for observed player attachment.
 
+## Two complementary documentation layers
+
+- **This handbook (`docs/*.md`):** the **as-built implementation**—exact current code rules, save contract, rendering, localization, QA limitations, and falsifiable research design. Read this when debugging or changing source behavior.
+- **[Product specifications and 37-feature backlog](specs/README.md):** **future proposals and acceptance criteria**, including 13 P0, 16 P1 and 8 P2 feature candidates. Read those when deciding what to test/build next; `Proposed` or `P0` never means implemented or approved.
+- **Precedence:** actual code + passing tests describe present behavior; the feature backlog describes possibilities; verified player data and a new decision record authorize product direction. If they conflict, **call out and resolve** the difference, not quietly upgrade proposals into capabilities.
+
+
 ## Read in this order
 
 | Document | Why it exists | Who needs it |
