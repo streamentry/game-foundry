@@ -4,6 +4,9 @@ using Evergrove.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
 
 namespace Evergrove.UnityClient
 {
@@ -186,8 +189,16 @@ namespace Evergrove.UnityClient
                 var eventNode = new GameObject("Evergrove UI Event System");
                 DontDestroyOnLoad(eventNode);
                 eventNode.AddComponent<EventSystem>();
-                // Unity Input setting must enable the legacy manager or Both.
+#if ENABLE_INPUT_SYSTEM
+                // Unity 6.x defaults to the modern Input System. The legacy
+                // StandaloneInputModule fails to deliver mobile UI taps when
+                // Active Input Handling = Input System Package (New).
+                eventNode.AddComponent<InputSystemUIInputModule>();
+#elif ENABLE_LEGACY_INPUT_MANAGER
                 eventNode.AddComponent<StandaloneInputModule>();
+#else
+                Debug.LogError("Evergrove requires Unity Input System or legacy Input Manager.");
+#endif
             }
         }
 
