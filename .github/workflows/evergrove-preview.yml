@@ -1,0 +1,65 @@
+name: Evergrove Web Playtest
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'games/evergrove/**'
+      - '.github/workflows/evergrove-preview.yml'
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GODOT_VERSION: "4.7.2"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download and verify official editor and web templates
+        run: |
+          set -euo pipefail
+          cd /tmp
+          base="https://github.com/godotengine/godot/releases/download/$GODOT_VERSION-stable"
+          curl -fsSL --retry 3 --retry-delay 3 -o SHA512-SUMS.txt "$base/SHA512-SUMS.txt"
+          for asset in \
+            "Godot_v$GODOT_VERSION-stable_linux.x86_64.zip" \
+            "Godot_v$GODOT_VERSION-stable_export_templates.tpz"; do
+            curl -fsSL --retry 3 --retry-delay 3 -o "$asset" "$base/$asset"
+            grep -F " $asset" SHA512-SUMS.txt | sha512sum --check -
+          done
+          unzip -q "Godot_v$GODOT_VERSION-stable_linux.x86_64.zip"
+          sudo install -m 0755 "Godot_v$GODOT_VERSION-stable_linux.x86_64" /usr/local/bin/godot
+          template_dir="$HOME/.local/share/godot/export_templates/$GODOT_VERSION.stable"
+          mkdir -p "$template_dir"
+          unzip -p "Godot_v$GODOT_VERSION-stable_export_templates.tpz" \
+            templates/web_nothreads_release.zip > "$template_dir/web_nothreads_release.zip"
+          unzip -p "Godot_v$GODOT_VERSION-stable_export_templates.tpz" \
+            templates/version.txt > "$template_dir/version.txt"
+          test -s "$template_dir/web_nothreads_release.zip"
+          godot --version
+      - name: Import project and run deterministic tests
+        run: |
+          set -euo pipefail
+          timeout 90s godot --headless --path games/evergrove --editor --import --quit
+          timeout 90s godot --headless --path games/evergrove --script res://tests/test_rules.gd
+          timeout 45s godot --headless --path games/evergrove --script res://tests/test_world.gd
+          timeout 30s godot --headless --path games/evergrove --script res://tests/test_scene.gd
+      - name: Export independent single-threaded WebGL2 build
+        run: |
+          set -euo pipefail
+          mkdir -p build/evergrove-web
+          godot --headless --path games/evergrove --export-release "Web Playtest" "$GITHUB_WORKSPACE/build/evergrove-web/index.html"
+          for file in index.html index.js index.wasm index.pck; do test -s "build/evergrove-web/$file"; done
+          printf 'Game: Evergrove\nEngine: Godot %s\nCommit: %s\nMode: offline-only, no ads or analytics\n' \
+            "$GODOT_VERSION" "$GITHUB_SHA" > build/evergrove-web/BUILD.txt
+          (cd build/evergrove-web && sha256sum index.html index.js index.wasm index.pck > SHA256SUMS.txt)
+          cp tools/web_playtest.py build/evergrove-web/serve.py
+          python3 tools/web_playtest.py --directory build/evergrove-web --smoke
+      - name: Upload downloadable playtest only (no public deployment)
+        uses: actions/upload-artifact@v6
+        with:
+          name: evergrove-web-playtest
+          path: build/evergrove-web/
+          if-no-files-found: error
+          retention-days: 7
