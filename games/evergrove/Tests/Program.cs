@@ -335,6 +335,60 @@ internal static class Program
             "tampering with variant inconsistent with history fails closed");
     }
 
+    private static void PuzzleDiagnosticsTests()
+    {
+        PuzzleProfile[] all = PuzzleDiagnostics.All();
+        Expect(all.Length == 45, "12 base fixtures and 33 branch presentations");
+        var ids = new System.Collections.Generic.HashSet<string>();
+        foreach (PuzzleProfile profile in all)
+        {
+            Expect(ids.Add(profile.id), "stable unique metadata ID");
+            Puzzle puzzle = ReactiveWatercourses.ForChapter(profile.chapter - 1, profile.variant);
+            Expect(profile.solutionCountAtMostTwo == 1, "all catalog boards uniquely solvable");
+            Expect(profile.size == puzzle.Size && profile.initialOrientations.Length == puzzle.CellCount,
+                "metadata reflects actual board size and arrays");
+            Expect(profile.minimumClockwiseTaps > 0 && profile.initiallyMisalignedTiles > 0 &&
+                profile.minimumClockwiseTaps >= profile.initiallyMisalignedTiles,
+                "minimum clockwise taps derived from exact source orientations");
+            int taps = 0;
+            for (int tile = 0; tile < puzzle.CellCount; tile++)
+            {
+                int[] copy = (int[])puzzle.Initial.Clone();
+                while (copy[tile] != puzzle.Solution[tile])
+                {
+                    copy[tile] = copy[tile] % PipeRules.OrientationCount(puzzle.Kinds[tile]) + 1;
+                    taps++;
+                }
+            }
+            Expect(taps == profile.minimumClockwiseTaps,
+                "independent clockwise tap count matches metadata");
+            Expect(profile.forcedMoveCount == null && profile.observedMedianSeconds == null &&
+                profile.observedP90Seconds == null && profile.observedHintRate == null &&
+                profile.humanReviewer == null, "not-yet-observed human and logic metrics remain null");
+            Expect((profile.anchoredTile.HasValue) == (profile.variant != 0),
+                "only branch profiles have protected landmarks");
+        }
+        Expect(PuzzleDiagnostics.All()[0].id == "stream-01-base", "stable first catalog ID");
+    }
+
+    private static readonly JsonSerializerOptions CatalogOptions =
+        new JsonSerializerOptions { IncludeFields = true, WriteIndented = true };
+
+    private static bool CheckPuzzleCatalog()
+    {
+        const string path = "games/evergrove/docs/specs/puzzle-catalog.generated.json";
+        if (!File.Exists(path))
+        {
+            Console.Error.WriteLine("Generated puzzle catalog missing: " + path);
+            return false;
+        }
+        PuzzleProfile[] stored = JsonSerializer.Deserialize<PuzzleProfile[]>(
+            File.ReadAllText(path), new JsonSerializerOptions { IncludeFields = true });
+        return stored != null &&
+            JsonSerializer.Serialize(stored, CatalogOptions) ==
+            JsonSerializer.Serialize(PuzzleDiagnostics.All(), CatalogOptions);
+    }
+
     private static void PrivatePlaytestReport()
     {
         var notes = new LocalPlaytest(PlayMode.Living, false, 0, 10.0);
@@ -497,15 +551,33 @@ internal static class Program
         Expect(GameLocalization.SetCurrent("en"), "English remains available after invalid imports");
     }
 
-    public static int Main()
+    public static int Main(string[] args)
     {
         try
         {
+            if (args.Length == 1 && args[0] == "--print-puzzle-catalog")
+            {
+                Console.WriteLine(JsonSerializer.Serialize(
+                    PuzzleDiagnostics.All(), CatalogOptions));
+                return 0;
+            }
+            if (args.Length == 1 && args[0] == "--check-puzzle-catalog")
+            {
+                if (!CheckPuzzleCatalog())
+                {
+                    Console.Error.WriteLine("Puzzle catalog drift detected; regenerate from core.");
+                    return 1;
+                }
+                Console.WriteLine("All 45 puzzle profiles match the source-derived metadata.");
+                return 0;
+            }
+            if (args.Length != 0) throw new ArgumentException("Unknown test argument.");
             ContentAndRules();
             RestoreAndMigration();
             StoryAndCompleteRun();
             ScenicCausality();
             ReactiveCampaign();
+            PuzzleDiagnosticsTests();
             PrivatePlaytestReport();
             LocalizationTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
