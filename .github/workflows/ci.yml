@@ -313,6 +313,16 @@ jobs:
       - name: Smoke test Number Pyramid UI playthrough
         run: timeout 30s godot --headless --path games/number-pyramid --script res://tests/test_scene.gd
 
+  evergrove-first-minute:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify the offline first-minute browser research slice (not Unity)
+        run: node --test games/evergrove/research/first-minute/game.test.cjs
+
   evergrove-csharp:
     runs-on: ubuntu-24.04
     steps:

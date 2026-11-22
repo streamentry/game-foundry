@@ -2,6 +2,12 @@
 
 **Status: executable research protocol, not completed experiments.** No participants, outcomes, D1/D7 evidence or native builds are asserted here. This protocol operationalizes [07 — Validation and GTM](07-VALIDATION-AND-GTM.md), [09 — Execution control](09-EXECUTION-CONTROL.md) and test IDs `VAL-001`, `VAL-002`, `VAL-003`, `VAL-004`, `VAL-005`.
 
+## Optional earliest check — offline browser first-minute stimulus
+
+A small [browser research slice](../../research/first-minute/index.html) now reproduces **the first authored Unity puzzle** and one illustrated choice, without Unity, accounts or automatic telemetry. Its code and data are deliberately distinct from the 12-chapter Unity runtime. Use it to observe **whether the first tile is visible, whether users infer rotation and water flow, whether they notice complete creek restoration, and whether the chosen village change means anything** before investing further in art.
+
+**Evidence status:** browser behavior has source/unit tests but **has not had independent mobile browser visual/accessibility QA or participant observations**. Even after observation it is an *early formative stimulus*, **not** `VAL-001` on the actual Unity candidate build, a phone M1/M2 pass, evidence of next-chapter causality, nor a suitable randomized narrative-value test. Do not count its completions in the Unity milestone ledger. See the [browser slice's research protocol](../../research/first-minute/README.md). If people cannot explain its first water move without coaching, fix it before buying more content.
+
 ## Three questions — three separate designs
 
 | Study | Unit/assignment | What differs | What remains identical | What the result can answer |
