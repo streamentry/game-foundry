@@ -19,7 +19,7 @@ These documents clearly label implemented code, independent C# checks, unverifie
 ## What the player does
 
 1. Restore a winding stream by rotating tiles. No time limit, score penalty, account or advertisements.
-2. Watch the spring's water reach more of the route. The display explains connected tiles and unmatched joins. An optional **Guide me** button reveals one connection without shame or a penalty.
+2. Watch the spring's water genuinely reach more of the route: connected channels fill blue, dry pipes remain earth-colored, and the 2D upstream water advances or retracts as you rotate tiles. The display explains connected tiles and unmatched joins. Optional **Guide me** reveals one connection without shame or a penalty.
 3. After the water flows through every tile, choose one meaningful change: **plant shade trees**, **restore a footbridge**, or **grow a wildflower meadow**.
 4. See an original illustrated world change, read the new memory (and revise a mis-tap before continuing), and return to discover combinations of previous choices. Mira, Orin and Fen respond to the same world history.
 5. Reach a hand-authored conclusion after twelve streams. Review your complete history; optionally begin another playthrough with different choices.
@@ -75,7 +75,7 @@ The complete 81-key catalog covers the primary interface, all water-puzzle inter
 
 ## Real playtest build and first-water moment
 
-Evergrove now restores the **actual creek**, not just a progress counter. The new garden begins with a **dry riverbed**. Completing the first water puzzle brings flowing water to both the default 2D storybook and the optional 2.5D diorama; the later world choices still shape trees, crossings, flowers, visitors and the characters' responses. Scene rendering reads the same deterministic state and remains offline-first.
+Evergrove restores the **actual creek**, not just a counter. The garden begins with a **partly wet spring inlet and dry downstream riverbed**; the 2D upstream water advances and retracts with real puzzle connectivity, while the village creek becomes fully restored **only** after a leak-free solution. Completing the first puzzle brings water to both the default 2D storybook and optional 2.5D diorama; the later world choices still shape trees, crossings, flowers, visitors and the characters' responses. Scene rendering reads the same deterministic state and remains offline-first.
 
 A [manual Unity 6.3 Android/WebGL/iOS-Xcode build workflow](../../.github/workflows/evergrove-unity-playtest.yml) and [step-by-step build/QA checklist](BUILD_QA.md) are provided. This is **not a published or signed app** and needs Unity licensing supplied privately through GitHub Actions secrets. It has not yet passed an actual Unity engine compilation or physical-device test. The Unity client uses the modern Unity Input System for touch compatibility (with a guarded legacy fallback if a project explicitly uses the old input manager).
 

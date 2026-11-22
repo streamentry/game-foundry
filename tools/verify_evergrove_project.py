@@ -23,9 +23,19 @@ assert deps.get("com.unity.inputsystem") == "1.20.1", (
 ui = (game / "Assets" / "Scripts" / "Unity" / "EvergroveApp.cs").read_text()
 assert "ENABLE_INPUT_SYSTEM" in ui and "InputSystemUIInputModule" in ui
 assert "ENABLE_LEGACY_INPUT_MANAGER" in ui and "StandaloneInputModule" in ui
-assert "WaterRestored" in (game / "Assets" / "Scripts" / "Core" / "VillageScenePlan.cs").read_text()
+scene_plan = (game / "Assets" / "Scripts" / "Core" / "VillageScenePlan.cs").read_text()
+pipe_graphic = (game / "Assets" / "Scripts" / "Unity" / "PipeGraphic.cs").read_text()
+illustration = (game / "Assets" / "Scripts" / "Unity" / "VillageIllustration.cs").read_text()
+assert "WaterRestored" in scene_plan and "WaterReachPercent" in scene_plan
+assert "insight.Flowing[index], world.Solved" in ui
+assert "insight.Flowing[i], world.Solved" in ui
+assert "activeIllustration.Show" in ui
+for marker in ("hasWater = sourceConnected || solved;", "Color32 inner = hasWater ?"):
+    assert marker in pipe_graphic, "dry/connected water style is missing: " + marker
+for marker in ("waterReachPercent", "else if (waterReachPercent > 0)", "Quad(vh, P(0.44f, 0.42f)"):
+    assert marker in illustration, "partial first-world water geometry is missing: " + marker
 assert "Water(plan.WaterRestored)" in (game / "Assets" / "Scripts" / "Unity" / "VillageDiorama.cs").read_text()
-assert "world.Round > 0 || world.Solved" in ui
+assert "world.Round > 0 || world.Solved" in scene_plan
 assert "GUIUtility.systemCopyBuffer" in ui, "playtest export must be explicit"
 study = (game / "Assets" / "Scripts" / "Core" / "LocalPlaytest.cs").read_text().lower()
 for forbidden in ("httprequest", "deviceuniqueidentifier", "unityanalytics", "webrequest"):

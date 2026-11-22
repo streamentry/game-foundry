@@ -28,7 +28,7 @@ The Unity 6.3 uGUI core package pin was corrected from `2.6.0` (Unity 6.6 core l
 
 - [ ] Opens on a compact Android phone and at least one iPhone in the Unity Editor / local Xcode workflow.
 - [ ] Touching the spring's tiles actually rotates them. There are **no input-system exceptions**.
-- [ ] Before the first completion the creek is visibly dry. Complete stream 1: the creek visibly fills in 2D and 2.5D.
+- [ ] First board: upstream partial trickle but dry downstream village; rotate first-chapter tile 7 (0-index 6) once and observe increased spring-connected water, blue channels and 2D creek reach. Undo retracts. Solve stream 1: full restoration in 2D and 2.5D. Device visual correctness remains unverified.
 - [ ] Can solve all 12 boards. Real players should be able to infer *why* water flows; use hints without feeling penalized.
 - [ ] Choose a tree, a crossing or flowers. On return, show the same changes and the correct NPC memory.
 - [ ] The 2D default works even if the miniature renderer/RenderTexture fails. Animation and sound are off by default.

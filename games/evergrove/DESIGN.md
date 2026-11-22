@@ -25,7 +25,7 @@ Type hierarchy (approximate logical px): title **25**, game decisions **15–17*
 
 **Layout:** Safe-area-aware scroll, first move visible quickly, 3×3 cells ~90px, 4×4 cells ~67px at 414px reference width, 52–77px actions, 17px side margins. Verify on 320px–430px phones, larger displays and iPad; do not infer accessibility from logical size alone.
 
-**Signature interaction:** a pipe rotates, the reachable water updates, the stream completes, a deliberate choice changes the illustration, and the world explains what changed. Every element reinforces one causal loop.
+**Signature interaction:** a pipe rotates; **only spring-connected channels turn water blue**, while dry channels stay earthen and retain readable shapes; the upstream creek advances with actual graph reach; a complete route restores the whole village creek; a choice changes the village and its next puzzle. Feedback is causal, never a fake progress animation.
 
 **Current playable art (2D baseline):** a manually composed, original 2D vector illustration with quiet hills, water, shelter, bridge and growing flowers. Three people remain in the scene. Flower clusters, shade, bridge, walkers and butterflies respond to persisted choices; environmental colors subtly change with chapter. No stock art, borrowed icons, generic magic glow or asset-heavy UI.
 
@@ -66,13 +66,13 @@ The prototype implements 3 deterministic rotated branches per next chapter, with
 
 ## First 30 seconds: visible causality
 
-- At start: an old, **dry** creek makes the village problem visually legible.
-- First action: tapping a water tile should turn a recognizable connection, without waiting for animations or networking.
-- First solution: water enters both 2D and 2.5D worlds, giving immediate environmental proof.
+- At start: the **downstream creek is still dry**, with a partial upstream trickle corresponding to the spring's already connected channels.
+- First action: a pipe rotates instantly; when that connects another channel to the spring, the channel becomes blue and the upstream trickle extends. Wrong-direction turns may **retract** water honestly.
+- First solution: the fully connected, leak-free route restores the whole creek in 2D and 2.5D, giving stronger environmental proof than partial progress.
 - First choice: plant shade, repair a crossing or grow flowers, and let the next chapter reflect it.
 - No guilt, streaks, penalties, fake personalization, mandatory dialogue or hidden reward schedules.
 
-A dry creek is now an invariant tested through `VillageScenePlan.WaterRestored`. Actual perceptual clarity must still be verified on phones with real players.
+`VillageScenePlan.WaterRestored` remains false until the first actual solve; `WaterReachPercent` tracks how much of the first board is spring-connected. Pure C# tests verify first-tap increase, Undo retraction and full restoration. The 2D storybook reflects partial water on every tap without a view rebuild; the optional 2.5D experiment still changes on solve only. Neither render path has been evaluated in a real Unity Editor or on phones yet.
 
 ## Release and evidence mechanics
 

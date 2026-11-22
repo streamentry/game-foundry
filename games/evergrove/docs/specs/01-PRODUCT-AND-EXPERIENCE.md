@@ -41,14 +41,14 @@ For **8–12** uncoached formative sessions, report exact numerator/denominator 
 
 ### First-screen code increment (partial, no user evidence)
 
-The generated Unity UI now compresses the initial title, moves the first puzzle into the initial scroll flow and places the secondary Language control below that board. This is a **source-level layout change**; the first playable tap, accessibility and 320–430-width phone rendering have not been measured in a licensed Unity player. If a wrong auto-detected locale obstructs play, language selection must remain discoverable with no data-loss risk. No new menu, forced language modal or experiment control may delay the first water move.
+The generated Unity UI now compresses the initial title, moves the first puzzle into the initial scroll flow, places the secondary Language control below that board, and repaints genuinely spring-connected pipe geometry and partial upstream 2D water on each tap. This is a **source-level layout/feedback change**; the first playable tap, accessibility and 320–430-width phone rendering have not been measured in a licensed Unity player. If a wrong auto-detected locale obstructs play, language selection must remain discoverable with no data-loss risk. No new menu, forced language modal or experiment control may delay the first water move.
 
 ## The first 60 seconds — proposed storyboard
 
 | Moment | Player sees/does | Design and test intent |
 | --- | --- | --- |
-| 0–5s | An already-visible **dry stream**, one obvious pipe tile, small unobtrusive settings access. Device language is detected. | Do not require a menu, mode choice, lore screen or account before play. |
-| 5–15s | First tap rotates a pipe. Visible port alignment, water reach and optional gentle tactile feedback respond instantly. | Median first meaningful input **<15s** in observed target sessions. |
+| 0–5s | A **partly wet spring inlet / dry downstream creek**, one obvious pipe tile, small unobtrusive settings access. Device language is detected. | Do not require a menu, mode choice, lore screen or account before play. |
+| 5–15s | First tap rotates a pipe. Spring-connected channels become blue; dry ones stay earthen. The 2D creek water front extends or retracts with actual spring connectivity. | Median first meaningful input **<15s** in observed target sessions. |
 | 15–45s | Two or three approachable rotations reconnect the spring; visual cues explain flow without paragraphs. | At least **80%** of first-time target testers can explain the goal without researcher instruction. |
 | 45–60s (design target) | Water reaches the village; a dry detail visibly revives; one brief line acknowledges it. | Player experiences the complete solve→change promise before being asked to invest in the story. |
 

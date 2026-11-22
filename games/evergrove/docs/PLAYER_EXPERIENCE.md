@@ -8,8 +8,8 @@
 | --- | --- | --- | --- |
 | Launch | A calm place, a dried creek, no login or advertisement | Warm paper UI; 2D original village art by default; local save | Does header/language selector/art push the first tile below fold? |
 | First ~10 s | I can tap a pipe; the interaction does something | blue-wave/sprout endpoint icons, 3×3 board, one-tap rotation, changing channel graphics | Mobile hitbox/legibility and actual zero-coaching comprehension |
-| First attempts | Water reaches more cells; a mismatch is understandable | Connected-tile count, leak feedback and highlighted reachable channels | Do players understand leaks, or guess until success? |
-| First solution | The creek is flowing where it was dry | `VillageScenePlan.WaterRestored` and art state change | Is the restoration visibly rewarding without confetti? |
+| First attempts | An additional connection visibly carries water; a lost connection visibly dries | Only spring-connected pipe geometry becomes blue; dry channels stay earthen; 2D creek advances with reach; connected count and ! leak cues remain | Do people grasp real connectivity without coaching, including grayscale play? |
+| First solution | The previously dry downstream creek fills completely | `VillageScenePlan.WaterRestored` switches only after complete leak-free connectivity; partial water remains distinct from restoration | Is this more rewarding than incremental flow, without confetti? |
 | First choice | I am choosing what this place will need next | Tree / crossing / flowers, promised outcome on each button | Do consequences feel meaningful or like three similar menu labels? |
 | Memory beat | A character and environment acknowledge my action | `LocalizedVillage.MemoryEvent`; explicit choice correction | Does this deepen attachment or interrupt a short puzzle session? |
 | Second chapter | My last choice matters mechanically | Rotated route, warm fixed landmark tile; short rule line | Does player connect this geometry to the previous decision without explanation? |
@@ -72,7 +72,7 @@ Canon: [DESIGN.md](../DESIGN.md). Working visual tokens:
 | River | `#DCEDEF` | Memory area |
 | Water blue | `#6FB4BA` | Stream and hydrology cue |
 
-**Default 2D:** original Unity-generated `VillageIllustration`. Shows a creek changing from dry to flowing; cumulative trees, crossing, flowers, butterflies, visitors and later landscape hues.
+**Default 2D:** original Unity-generated `VillageIllustration`. The upstream inlet may be partly wet at launch; its water front grows or retracts with the *actual spring-connected graph*, while the downstream creek stays dry until solved. Trees, crossings, flowers, butterflies, visitors and landscape changes remain driven by saved choices. This is source-level behavior, not device-tested art direction.
 
 **Optional 2.5D:** `VillageDiorama` creates a small orthographic primitive village, with single-camera rendering to a 768×384 texture. Does not need licensed assets or network. Motion is off by default and not proof of game-quality animation. It must fall back to 2D on unsupported devices.
 
@@ -93,7 +93,7 @@ Canon: [DESIGN.md](../DESIGN.md). Working visual tokens:
 
 **Story guardrails:** no trauma manipulation, no insinuation that game characters are sentient, no fabricated user memory, no shaming players for a dry riverbed, no punishing players for skipping dialogues.
 
-## 5. 30 selectable languages ≠ 30 verified releases
+## 5. Thirty research locales ≠ thirty verified releases
 
 See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **English + 29 offline JSON catalog files**, **76 compact translated keys per catalog**, device-language detection and a manual picker. `LocaleRuntime` keeps the preference separately from `WorldSnapshot`.
 
@@ -116,7 +116,7 @@ See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **Eng
 | Motion sensitivity | 2.5D motion optional/off initially | Test OS reduced-motion preference; check flashing and 12fps animation artifacts |
 | Language | 30 catalogs and OS-font lookup | True RTL, Indic shaping, Thai breaking, native copy QA |
 | Assistive technology | UI object names and labels exist in code | **Not** proven VoiceOver/TalkBack semantics, focus ordering or keyboard/gamepad accessibility |
-| Save durability | Backup and restore attempts | Kill/upgrade/disk-full/migration tests on devices; player-visible save error missing |
+| Save durability | Backup/restore guards and a pinned error banner exist in source | Kill/upgrade/disk-full/migration tests on devices; banner readability and recovery still unverified |
 
 **Do not equate accessibility-oriented source code with measured accessible UX.** At least one person who uses assistive technology should be included before making public accessibility claims.
 
