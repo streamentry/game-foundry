@@ -4,6 +4,9 @@ using Evergrove.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
 
 namespace Evergrove.UnityClient
 {
@@ -42,6 +45,8 @@ namespace Evergrove.UnityClient
         private VillageDiorama diorama;
         private AudioSource sound;
         private AudioClip chime;
+        private LocalPlaytest localPlaytest; // opt-in, in-memory only
+        private bool playtestCopied;
         // Keep live puzzle controls mounted during every tap. Recreating the
         // entire uGUI hierarchy on each rotation would cause GC, jank and
         // scroll-position jumps on older phones.
@@ -186,8 +191,16 @@ namespace Evergrove.UnityClient
                 var eventNode = new GameObject("Evergrove UI Event System");
                 DontDestroyOnLoad(eventNode);
                 eventNode.AddComponent<EventSystem>();
-                // Unity Input setting must enable the legacy manager or Both.
+#if ENABLE_INPUT_SYSTEM
+                // Unity 6.x defaults to the modern Input System. The legacy
+                // StandaloneInputModule fails to deliver mobile UI taps when
+                // Active Input Handling = Input System Package (New).
+                eventNode.AddComponent<InputSystemUIInputModule>();
+#elif ENABLE_LEGACY_INPUT_MANAGER
                 eventNode.AddComponent<StandaloneInputModule>();
+#else
+                Debug.LogError("Evergrove requires Unity Input System or legacy Input Manager.");
+#endif
             }
         }
 
@@ -292,42 +305,48 @@ namespace Evergrove.UnityClient
             Label(content, "Brand", "EVERGROVE       /       A WORLD THAT REMEMBERS", 12, 24, Leaf);
             Label(content, "Title", "Little choices. A living place.", 25, 46, Ink);
 
-            var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
-            Height(illustration, 193);
-            bool renderedMiniature = false;
-            if (showMiniature)
+            if (living)
             {
-                if (diorama == null)
+                var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
+                Height(illustration, 193);
+                bool renderedMiniature = false;
+                if (showMiniature)
                 {
-                    var stage = new GameObject("Optional orthographic world");
-                    stage.transform.SetParent(transform, false);
-                    diorama = stage.AddComponent<VillageDiorama>();
+                    if (diorama == null)
+                    {
+                        var stage = new GameObject("Optional orthographic world");
+                        stage.transform.SetParent(transform, false);
+                        diorama = stage.AddComponent<VillageDiorama>();
+                    }
+                    renderedMiniature = diorama.Show(VillageScenePlan.From(world), animateMiniature);
+                    if (!renderedMiniature)
+                    {
+                        // No missing graphics feature should block the offline game.
+                        // Fall back honestly, including the visible preference label.
+                        showMiniature = false;
+                        PlayerPrefs.SetInt("evergrove:visual-miniature", 0);
+                        PlayerPrefs.Save();
+                        Debug.LogWarning("Miniature renderer unavailable; keeping the 2D garden.");
+                    }
+                    if (renderedMiniature)
+                    {
+                        var raw = illustration.AddComponent<RawImage>();
+                        raw.texture = diorama.Preview;
+                        raw.raycastTarget = false;
+                        raw.color = Color.white;
+                    }
                 }
-                renderedMiniature = diorama.Show(VillageScenePlan.From(world), animateMiniature);
                 if (!renderedMiniature)
                 {
-                    // No missing graphics feature should block the offline game.
-                    // Fall back honestly, including the visible preference label.
-                    showMiniature = false;
-                    PlayerPrefs.SetInt("evergrove:visual-miniature", 0);
-                    PlayerPrefs.Save();
-                    Debug.LogWarning("Miniature renderer unavailable; keeping the 2D garden.");
-                }
-                if (renderedMiniature)
-                {
-                    var raw = illustration.AddComponent<RawImage>();
-                    raw.texture = diorama.Preview;
-                    raw.raycastTarget = false;
-                    raw.color = Color.white;
+                    if (diorama != null) diorama.Hide();
+                    var art = illustration.AddComponent<VillageIllustration>();
+                    art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
+                        world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers),
+                        world.Round > 0 || world.Solved);
                 }
             }
-            if (!renderedMiniature)
-            {
-                if (diorama != null) diorama.Hide();
-                var art = illustration.AddComponent<VillageIllustration>();
-                art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
-                    world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers));
-            }
+            else if (diorama != null)
+                diorama.Hide();
 
             if (living)
             {
@@ -352,6 +371,7 @@ namespace Evergrove.UnityClient
                 }, 62, true);
                 Button(content, "Change your choice", "Change this choice", () => {
                     if (!world.ReconsiderLatestChoice()) return;
+                    if (localPlaytest != null) localPlaytest.Reconsider(Time.unscaledTime);
                     SaveWorld();
                     showingMemory = false;
                     Rebuild(false);
@@ -424,25 +444,32 @@ namespace Evergrove.UnityClient
                     52, !living);
             }
 
-            // Two comparable art renderers using the same saved decisions.
-            // Keep this manual A/B surface below the gameplay.
-            Button(content, "Diorama visual comparison",
-                showMiniature ? "Visual: 2.5D miniature (tap for 2D)" :
-                    "Visual: 2D storybook (tap for 2.5D)", () => {
-                    showMiniature = !showMiniature;
-                    PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
-                    PlayerPrefs.Save();
-                    Rebuild();
-                }, 49);
-            if (showMiniature)
-                Button(content, "Optional miniature motion",
-                    animateMiniature ? "Miniature motion: ON (tap to stop)" :
-                        "Miniature motion: OFF (tap to animate)", () => {
-                        animateMiniature = !animateMiniature;
-                        PlayerPrefs.SetInt("evergrove:miniature-motion", animateMiniature ? 1 : 0);
+            // Puzzle-only condition must not display or switch into the
+            // changing village art: doing so would confound the experiment.
+            if (living)
+            {
+                // Two comparable art renderers using the same saved decisions.
+                // Keep this manual A/B surface below the gameplay.
+                Button(content, "Diorama visual comparison",
+                    showMiniature ? "Visual: 2.5D miniature (tap for 2D)" :
+                        "Visual: 2D storybook (tap for 2.5D)", () => {
+                        showMiniature = !showMiniature;
+                        if (localPlaytest != null) localPlaytest.ChangeVisual(showMiniature, Time.unscaledTime);
+                        PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
                         PlayerPrefs.Save();
                         Rebuild();
-                    }, 45);
+                    }, 49);
+                if (showMiniature)
+                    Button(content, "Optional miniature motion",
+                        animateMiniature ? "Miniature motion: ON (tap to stop)" :
+                            "Miniature motion: OFF (tap to animate)", () => {
+                            animateMiniature = !animateMiniature;
+                            PlayerPrefs.SetInt("evergrove:miniature-motion", animateMiniature ? 1 : 0);
+                            PlayerPrefs.Save();
+                            Rebuild();
+                        }, 45);
+            }
+
             Button(content, "Quiet audio setting",
                 soundOn ? "Gentle chime: ON (tap to mute)" : "Gentle chime: OFF (tap to enable)",
                 () => {
@@ -469,6 +496,34 @@ namespace Evergrove.UnityClient
                         confirmReset = false;
                         Rebuild();
                     }, 44);
+            }
+            if (localPlaytest == null)
+            {
+                Button(content, "Playtest consent", "Optional: record a private playtest session",
+                    () => {
+                        localPlaytest = new LocalPlaytest(world.Mode, showMiniature,
+                            world.Round, Time.unscaledTime);
+                        playtestCopied = false;
+                        Rebuild();
+                    }, 44);
+                Label(content, "No tracking by default",
+                    "Only starts when you tap. Nothing is uploaded, saved or tied to an identity.",
+                    12, 43, Moss, TextAnchor.MiddleCenter);
+            }
+            else
+            {
+                Button(content, "Copy playtest", "Copy my local playtest notes",
+                    () => {
+                        GUIUtility.systemCopyBuffer = localPlaytest.Report(Time.unscaledTime);
+                        playtestCopied = true;
+                        Rebuild();
+                    }, 48);
+                if (playtestCopied)
+                    Label(content, "Copied privately",
+                        "Copied to clipboard. Paste into your own research notes when ready.",
+                        12, 43, Moss, TextAnchor.MiddleCenter);
+                Button(content, "Stop playtest", "Stop and clear local playtest notes",
+                    () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
             }
             Label(content, "Respectful play", "Offline by default  ·  No pressure  ·  No ads  ·  No account",
                 12, 36, Moss, TextAnchor.MiddleCenter);
@@ -500,7 +555,9 @@ namespace Evergrove.UnityClient
             Label(content, "Chapter",
                 "STREAM " + (world.Round + 1) + " / " + PuzzleCatalog.Count + "  ·  " + puzzle.Name,
                 13, 30, Leaf, TextAnchor.MiddleCenter);
-            Label(content, "Prompt", VillageStory.ChapterPrompt(world), 14, 34, Moss,
+            Label(content, "Prompt", world.Round == 0 ?
+                "S = Spring   G = Grove   ·   Tap tiles to connect the water" :
+                VillageStory.ChapterPrompt(world), 14, 34, Moss,
                 TextAnchor.MiddleCenter);
             var board = Card(content, "The water puzzle", White);
             var gridNode = Node("Water connections", board.transform);
@@ -556,6 +613,25 @@ namespace Evergrove.UnityClient
                 pipe.Configure(puzzle.Kinds[index], rotations[index], world.Solved);
                 pipe.raycastTarget = false;
                 tileArtwork[index] = pipe;
+                if (puzzle.Kinds[index] == PipeKind.End)
+                {
+                    // Visible endpoint semantics instead of relying only on
+                    // screen-reader names or a color difference.
+                    var markerNode = Node("Spring or Grove label", tileNode.transform);
+                    RectTransform markerRect = markerNode.GetComponent<RectTransform>();
+                    markerRect.anchorMin = new Vector2(0f, 1f);
+                    markerRect.anchorMax = new Vector2(0f, 1f);
+                    markerRect.pivot = new Vector2(0f, 1f);
+                    markerRect.sizeDelta = new Vector2(23f, 20f);
+                    markerRect.anchoredPosition = new Vector2(4f, -4f);
+                    var marker = markerNode.AddComponent<Text>();
+                    marker.font = font;
+                    marker.fontSize = 13;
+                    marker.alignment = TextAnchor.MiddleCenter;
+                    marker.color = Ink;
+                    marker.raycastTarget = false;
+                    marker.text = seenEnds == 1 ? "S" : "G";
+                }
             }
 
             string feedback = world.Solved
@@ -567,7 +643,7 @@ namespace Evergrove.UnityClient
             if (world.Solved)
             {
                 Button(content, "Revisit water", "Undo the last water turn",
-                    () => Act(() => world.Undo()), 44).interactable = world.CanUndo;
+                    () => Act(() => world.Undo(), "undo"), 44).interactable = world.CanUndo;
                 if (world.Mode == PlayMode.PuzzleOnly)
                     Button(content, "Next stream", "Next stream", () => {
                         if (!world.NextPuzzle()) return;
@@ -591,20 +667,21 @@ namespace Evergrove.UnityClient
             else
             {
                 var tools = Row(content, "Gentle controls");
-                undoButton = Button(tools.transform, "Undo", "Undo", () => Act(() => world.Undo()),
+                undoButton = Button(tools.transform, "Undo", "Undo", () => Act(() => world.Undo(), "undo"),
                     52);
                 undoButton.interactable = world.CanUndo;
-                Button(tools.transform, "Hint", "Guide me", () => Act(() => world.GuideOneConnection()), 52);
-                Button(content, "Restart", "Start this stream again", () => Act(() => world.Restart()), 46);
+                Button(tools.transform, "Hint", "Guide me", () => Act(() => world.GuideOneConnection(), "hint"), 52);
+                Button(content, "Restart", "Start this stream again", () => Act(() => world.Restart(), "restart"), 46);
             }
-            Label(content, "How to play", "Tap to rotate. The spring and outlet have one open end. " +
-                "Connect every channel without a leak. Take as long as you like.",
+            Label(content, "How to play", "Tap to rotate. S marks the spring; G marks the garden outlet. " +
+                "Every pipe must join without open ends. Take as long as you like.",
                 13, 56, Moss, TextAnchor.MiddleCenter);
         }
 
         private void OpenConversation(int villagerIndex)
         {
             speakingWith = villagerIndex;
+            if (localPlaytest != null) localPlaytest.Talk(Time.unscaledTime);
             Rebuild();
         }
 
@@ -613,6 +690,7 @@ namespace Evergrove.UnityClient
             if (!world.CanSwitchMode) return;
             speakingWith = -1;
             world = WorldModel.New(mode);
+            if (localPlaytest != null) localPlaytest.ChangeMode(mode, Time.unscaledTime);
             SaveWorld();
             Rebuild();
         }
@@ -647,6 +725,7 @@ namespace Evergrove.UnityClient
                 Rebuild();
                 if (!wasSolved && world.Solved)
                 {
+                    if (localPlaytest != null) localPlaytest.Solve(Time.unscaledTime);
                     PlayChime();
                     StartCoroutine(ScrollToDecision());
                 }
@@ -658,13 +737,23 @@ namespace Evergrove.UnityClient
         {
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
+            if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
             AfterPuzzleAction(before);
         }
 
-        private void Act(Func<bool> action)
+        private void Act(Func<bool> action, string actionKind)
         {
             bool before = world.Solved;
             if (!action()) return;
+            if (localPlaytest != null)
+            {
+                switch (actionKind)
+                {
+                    case "undo": localPlaytest.Undo(Time.unscaledTime); break;
+                    case "hint": localPlaytest.Hint(Time.unscaledTime); break;
+                    case "restart": localPlaytest.Restart(Time.unscaledTime); break;
+                }
+            }
             AfterPuzzleAction(before);
         }
 
@@ -677,6 +766,7 @@ namespace Evergrove.UnityClient
         private void MakeChoice(VillageChoice choice)
         {
             if (!world.Choose(choice)) return;
+            if (localPlaytest != null) localPlaytest.Choose(Time.unscaledTime);
             SaveWorld();
             showingMemory = true;
             showJournal = false;

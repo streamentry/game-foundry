@@ -16,10 +16,12 @@ namespace Evergrove.Core
         public readonly bool HasButterflies;
         public readonly bool NeighborsGather;
         public readonly int LandscapePhase;
+        public readonly bool WaterRestored;
 
-        private VillageScenePlan(int chapter, int trees, int crossings, int flowers)
+        private VillageScenePlan(int chapter, bool restoredWater, int trees, int crossings, int flowers)
         {
             Chapter = chapter;
+            WaterRestored = restoredWater;
             TreeCount = trees;
             CrossingCount = crossings;
             FlowerCount = flowers;
@@ -34,6 +36,7 @@ namespace Evergrove.Core
         {
             return new VillageScenePlan(
                 world.Round,
+                world.Round > 0 || world.Solved,
                 world.Count(VillageChoice.ShadeTree),
                 world.Count(VillageChoice.Bridge),
                 world.Count(VillageChoice.Flowers));
@@ -41,7 +44,7 @@ namespace Evergrove.Core
 
         public string Fingerprint
         {
-            get { return Chapter + ":" + TreeCount + ":" + CrossingCount + ":" + FlowerCount; }
+            get { return Chapter + ":" + (WaterRestored ? "flowing" : "dry") + ":" + TreeCount + ":" + CrossingCount + ":" + FlowerCount; }
         }
     }
 }

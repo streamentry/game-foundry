@@ -1,0 +1,59 @@
+name: Build Evergrove Unity Playtest
+
+# Deliberately manual and release-free. This workflow requires a Unity license
+# owned by the repository maintainer; ordinary public CI never uses paid tools.
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Playtest artifact to build
+        required: true
+        default: Android
+        type: choice
+        options:
+          - Android
+          - WebGL
+          - iOS
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evergrove-unity-${{ github.ref }}-${{ inputs.platform }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Unity 6.3 editor + ${{ inputs.platform }} playtest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require explicit Unity activation
+        shell: bash
+        run: |
+          if [ -z "$UNITY_LICENSE" ] && [ -z "$UNITY_SERIAL" ]; then
+            echo "::error::Configure UNITY_LICENSE (Personal) or UNITY_SERIAL with UNITY_EMAIL/UNITY_PASSWORD (Pro) in repo Actions secrets."
+            exit 1
+          fi
+      - name: Build a self-contained offline playtest
+        uses: game-ci/unity-builder@v4
+        with:
+          projectPath: games/evergrove
+          unityVersion: auto
+          targetPlatform: ${{ inputs.platform }}
+          buildMethod: Evergrove.UnityClient.Editor.EvergroveBuild.Build
+          buildsPath: build
+          versioning: None
+      - name: Upload PRIVATE preview artifact (not App Store/Play Store)
+        uses: actions/upload-artifact@v4
+        with:
+          name: evergrove-${{ inputs.platform }}-playtest
+          path: build/${{ inputs.platform }}/
+          if-no-files-found: error
+          retention-days: 7

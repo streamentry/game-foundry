@@ -14,13 +14,15 @@ namespace Evergrove.UnityClient
         private int trees;
         private int bridges;
         private int flowers;
+        private bool waterRestored;
 
-        public void Show(int chapterIndex, int shade, int crossings, int meadows)
+        public void Show(int chapterIndex, int shade, int crossings, int meadows, bool flowing)
         {
             chapter = chapterIndex;
             trees = Mathf.Max(0, shade);
             bridges = Mathf.Max(0, crossings);
             flowers = Mathf.Max(0, meadows);
+            waterRestored = flowing;
             raycastTarget = false;
             SetVerticesDirty();
         }
@@ -126,9 +128,12 @@ namespace Evergrove.UnityClient
             Triangle(vh, 0.45f, 0.40f, 0.78f, 0.54f, 1f, 0.39f, C("#A9C8A1"));
 
             // Creek meanders through the lower third.
-            Triangle(vh, 0.44f, 0.42f, 0.64f, 0.42f, 0.35f, 0f, C("#6FB4BA"));
-            Triangle(vh, 0.64f, 0.42f, 0.70f, 0f, 0.35f, 0f, C("#6FB4BA"));
-            Triangle(vh, 0.51f, 0.40f, 0.56f, 0.40f, 0.46f, 0.08f, C("#A5D9CE"));
+            Triangle(vh, 0.44f, 0.42f, 0.64f, 0.42f, 0.35f, 0f,
+                waterRestored ? C("#6FB4BA") : C("#C4B69C"));
+            Triangle(vh, 0.64f, 0.42f, 0.70f, 0f, 0.35f, 0f,
+                waterRestored ? C("#6FB4BA") : C("#C4B69C"));
+            if (waterRestored)
+                Triangle(vh, 0.51f, 0.40f, 0.56f, 0.40f, 0.46f, 0.08f, C("#A5D9CE"));
             Rect(vh, 0f, 0f, 1f, 0.025f, C("#8CAD8E"));
 
             // Tiny home on the left, emerging as a landmark.

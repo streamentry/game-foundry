@@ -22,6 +22,12 @@ At the founder's explicit direction on **2026-11-22**, **Evergrove (`PH-006`)** 
 - **Stop/simplify:** puzzle-only wins, players don't understand consequences, or maintaining a living world makes economics or trust worse.
 - **Source of decision:** [research decision record](research/evergrove-build-decision-2026-11-22.md). Any store launch still needs a separate evidence-backed review.
 
+## Evergrove next release gate: test a REAL Unity player
+
+**2026-11-22:** Fixed the Unity input-module mismatch, added a visible **dry→flowing creek** transition in both rendering modes, enabled manual Unity Android/WebGL build artifacts using GameCI credentials, and introduced optional consented, local-only first-session observations. Neither Unity-native compilation nor real-device gameplay has been run automatically yet.
+
+**Highest-leverage real action:** Configure Unity licensing for the manually triggered [playtest build workflow](../.github/workflows/evergrove-unity-playtest.yml); produce a WebGL or Android build; observe real participants before more content engineering. [QA criteria](../games/evergrove/BUILD_QA.md).
+
 ## Evergrove visual-comparison and character-memory experiment
 
 **2026-11-22 implementation:** [optional 2.5D diorama and authored NPC conversations](../games/evergrove/README.md), with the existing 2D art remaining the default control. A deterministic `VillageScenePlan` keeps both visual modes tied to the same history. The 2.5D scene is generated with native Unity primitives and bounded still/12fps rendering; no external assets, server or new game engine are needed.

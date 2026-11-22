@@ -16,6 +16,8 @@ jobs:
       - uses: actions/checkout@v7
       - name: Validate research backlog
         run: python3 tools/validate_ideas.py docs/ideas/candidates.csv
+      - name: Static Unity preview contract (does not compile Unity runtime)
+        run: python3 tools/verify_evergrove_project.py
       - name: Apple Ads API dry-run (no credentials, no network)
         run: python3 tools/fetch_apple_popularity.py --month 2026-10 --dry-run > /dev/null
       - name: Public catalog scanner dry-run (no network)

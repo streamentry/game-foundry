@@ -144,7 +144,7 @@ namespace Evergrove.UnityClient
         }
 
         /// <summary>Thin, curved water ribbon whose banks remain predictable.</summary>
-        private void Water()
+        private void Water(bool flowing)
         {
             const int segments = 16;
             var vertices = new Vector3[(segments + 1) * 2];
@@ -180,8 +180,9 @@ namespace Evergrove.UnityClient
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             filter.sharedMesh = mesh;
-            Colorize(stream.AddComponent<MeshRenderer>(), "#6EADB4");
+            Colorize(stream.AddComponent<MeshRenderer>(), flowing ? "#6EADB4" : "#C4B69C");
 
+            if (!flowing) return;
             for (int i = 0; i < 4; i++)
             {
                 float z = -1.85f + i * 1.15f;
@@ -345,7 +346,7 @@ namespace Evergrove.UnityClient
                     i % 2 == 0 ? -2.50f : 2.49f),
                     new Vector3(0.33f, 0.15f, 0.36f), "#CBC7A6");
 
-            Water();
+            Water(plan.WaterRestored);
             Cottage();
             if (plan.HasBridge) Bridge(plan.CrossingCount);
             else
