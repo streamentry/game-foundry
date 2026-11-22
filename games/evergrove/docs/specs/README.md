@@ -30,7 +30,7 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 - [10 — Preregistered experiments](10-EXPERIMENT-PROTOCOLS.md): matched-board controls, allocation, neutral observation and truthful denominators.
 - [11 — Build evidence and release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md): artifact checksums, physical device QA, sign-off, rollback and unverified iOS-export caveat.
 
-**A complete specification does not mean 37 completed features.** No feature is `Verified` without real evidence tied to the target build. Treat the as-built [handbook](../README.md) as **historical until refreshed for v4**, not as authority over current code.
+**A complete specification does not mean 37 completed features.** No feature is `Verified` without real evidence tied to the target build. The as-built [handbook](../README.md) was updated for v4 in PR #49; keep it synchronized with subsequent changes. **The exact source commit remains the authority** whenever documentation and code differ.
 
 ## Specification control (2026-11-22 v2)
 
