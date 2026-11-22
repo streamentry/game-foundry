@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Kabanata {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Nakapirmi ang tubong ito sa mga ugat. Hindi ito maiikot."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Nakapirmi ang tubo sa pundasyon ng tulay. Hindi ito maiikot."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Pinoprotektahan ng mga bulaklak ang daluyang ito. Hindi ito maiikot."
     }
   ]
 }

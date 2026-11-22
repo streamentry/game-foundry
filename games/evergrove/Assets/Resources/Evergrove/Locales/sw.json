@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Sura {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Mizizi ya mti inashikilia bomba hili. Haliwezi kuzungushwa."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Msingi wa daraja unashikilia bomba hili. Haliwezi kuzungushwa."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Maua ya porini yanalinda njia hii ya maji. Haiwezi kuzungushwa."
     }
   ]
 }

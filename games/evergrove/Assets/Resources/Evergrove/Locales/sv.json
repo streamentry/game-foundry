@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Kapitel {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Trädrötter håller det här röret på plats. Det går inte att vrida."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Brons grund håller röret på plats. Det går inte att vrida."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Vilda blommor skyddar vattenvägen. Den går inte att vrida."
     }
   ]
 }

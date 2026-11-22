@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Bab {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Akar pokok menahan paip ini. Tidak boleh diputar."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Asas jambatan menetapkan paip ini. Tidak boleh diputar."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Bunga liar melindungi aliran ini. Tidak boleh diputar."
     }
   ]
 }
