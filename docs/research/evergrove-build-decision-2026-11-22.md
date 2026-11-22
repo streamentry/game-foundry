@@ -51,8 +51,12 @@ No LLM API, voice chat, infinite world generation, cloud, account, user profilin
 
 ## Implementation footprint and correctness gates
 
-**Deliverable:** `games/evergrove/` isolated Godot 4.7.2 GDScript project with six internally vendored Pipe Garden fixtures/rules, a visual rotation board, locally persisted world-choice history and deterministic character reactions, two comparison modes, Undo/Restart, tests for puzzle validity, state validation, save/resume and scene interaction, plus downloadable web preview automation.
+**Deliverable:** `games/evergrove/` isolated Unity 6.3 C# project with six internally vendored Pipe Garden fixtures/rules, a visual rotation board, locally persisted world-choice history and deterministic character reactions, two comparison modes, Undo/Restart, pure C# tests for puzzle validity and state restoration, and a programmatically built Unity UI. No runtime web preview is claimed. An optional Cloudflare Workers/Durable Objects API is *separately* experimental and currently does not synchronize actual gameplay.
 
 **Not yet established:** passing CI until workflow runs complete, verified iPhone/Android ergonomics, 45+ player feedback, retention, willingness to pay, trademark clearance, commercial viability, store approval or a publicly hosted game.
 
 **Next observable action:** run web and phone playtests with real participants, collect the side-by-side replay/return evidence, and file one decision: *deepen / simplify / stop*. Do not expand the idea inventory merely because the project is now buildable.
+
+## Engine change — 2026-11-22
+
+At explicit user instruction **“hãy đổi qua C#”**, **Evergrove alone** changes from Godot/GDScript to **Unity/C#**. The other games retain their existing pinned Godot engine. The original unmerged Godot Evergrove implementation was replaced on its feature branch; the concept, state machine, six puzzle fixtures and head-to-head experiment remain. Backend stays Cloudflare Workers/TypeScript: C# is the client language, not a Cloudflare runtime. Cloud synchronization remains off by default and unproven. This exception to the studio-wide Godot convention should be reevaluated against Unity project upkeep and mobile export cost after the test.

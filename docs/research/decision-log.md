@@ -372,3 +372,13 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Stopping rule:** If the world does not produce meaningful voluntary behavior beyond the same puzzle, strip back the simulation and avoid adding LLMs or social infrastructure.
 
 **Source:** [full decision record](evergrove-build-decision-2026-11-22.md). **Status:** research prototype, not a validated product or store launch.
+
+## 2026-11-22 — Evergrove switches to Unity/C#
+
+**User instruction:** convert Evergrove to C#. **Decision:** use a Unity 6.3 C# client with independently testable C# domain rules and a code-generated UI; retain the rest of Game Foundry's Godot projects unchanged. The not-yet-merged Evergrove Godot files are deleted on its feature branch.
+
+**Backend:** a separate, optional Cloudflare Worker/Durable Object implementation in TypeScript stores one isolated example tree state. Workers are not a C# runtime. It does not currently sync Evergrove puzzle progress, NPC memory or village choices.
+
+**Tradeoff:** richer Unity/C# development and familiarity versus an additional engine's maintenance, device validation and licensing/package surface. No claim of verified Android/iOS builds or gameplay retention.
+
+**Falsifier:** if this engine change increases development or QA effort without improving actual player experience, reconsider it before large-scale work. See [Evergrove experiment](evergrove-build-decision-2026-11-22.md) and [Unity project](../../games/evergrove/README.md).
