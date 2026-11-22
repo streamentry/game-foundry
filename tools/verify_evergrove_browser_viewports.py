@@ -68,6 +68,8 @@ def run() -> None:
                             "Initial render moved the page without player input")
                     require(page.locator("#water-count").inner_text().startswith("4 of 9"),
                             "Initial fixture is not the real First Bend board")
+                    require(page.locator("#world-status").inner_text() == "A PLACE WAITING FOR WATER",
+                            "New garden must not claim already restored water")
                     page.screenshot(path=str(OUT / f"{width}x{height}-first.png"))
 
                     page.locator("#board button").nth(6).click()
@@ -87,6 +89,8 @@ def run() -> None:
                     )
                     require(page.locator("#choices").is_visible(),
                             "Solved board did not reveal choice buttons")
+                    require(page.locator("#world-status").inner_text() == "THE STREAM HAS RETURNED",
+                            "Completed creek still has a stale 'waiting for water' caption")
                     page.wait_for_function(
                         "() => document.activeElement && document.activeElement.id === 'world'"
                     )
@@ -95,6 +99,12 @@ def run() -> None:
                     page.locator('[data-choice="tree"]').click()
                     require(page.locator("#world-tree").is_visible(),
                             "Tree consequence not shown after player choice")
+                    require(page.locator("#world-status").inner_text() ==
+                            "A PLACE CHANGED BY YOUR CHOICE",
+                            "Choice art has a stale world caption")
+                    require("shade tree" in
+                            (page.locator("#creek").get_attribute("aria-label") or ""),
+                            "Accessible illustration did not describe the new tree")
                     require("Mira" in page.locator("#memory-text").inner_text(),
                             "Missing an authored consequence memory")
                     require(page.locator("#restart").is_disabled(),

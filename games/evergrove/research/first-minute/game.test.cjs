@@ -118,6 +118,9 @@ test("first playable board precedes decorative world in DOM and keyboard order",
   assert.ok(board >= 0 && board < world && world < choices,
     "a first mover must not need to scroll past a decorative hero");
   assert.match(html, /id="world"[^>]*tabindex="-1"/);
+  assert.match(html, /id="world-status"/);
+  assert.match(app, /node\("world-status"\)\.textContent = model\.choice/);
+  assert.match(app, /node\("creek"\)\.setAttribute\("aria-label", sceneDescription\)/);
   assert.match(app, /if \(becameSolved\) requestAnimationFrame/);
   assert.match(app, /world\.scrollIntoView/);
   assert.match(app, /prefers-reduced-motion: reduce/);
