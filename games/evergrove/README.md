@@ -6,7 +6,13 @@ Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006
 
 **Technology decision:** [Unity + C# ADR](../../docs/decisions/2026-11-22-evergrove-engine-unity-csharp.md). Unity is a provisional choice for Evergrove, subject to verified device and player tests; all other studio games retain Godot.
 
-**Visual direction:** [2.5D miniature living-world ADR](../../docs/decisions/2026-11-22-evergrove-visual-direction-2p5d.md). Target an elevated orthographic 3D diorama with a readable 2D puzzle overlay **only if** a fair comparison against the current illustrated 2D scene justifies the extra art and device costs. This is a **directional hypothesis**, not a currently completed 3D scene.
+**Visual direction:** [2.5D miniature ADR](../../docs/decisions/2026-11-22-evergrove-visual-direction-2p5d.md). The **opt-in procedural 2.5D miniature prototype exists** beside the default 2D illustration; it has **not** passed Unity Editor/device QA or production art approval. See [handbook](docs/README.md).
+
+## Canonical documentation (2026-11-22)
+
+**Read the [full Evergrove product and engineering handbook](docs/README.md)**: [product](docs/PRODUCT.md), [game rules](docs/GAMEPLAY_AND_WORLD_RULES.md), [architecture](docs/ARCHITECTURE.md), [save v3/migrations](docs/SAVE_AND_MIGRATION.md), [UX and localization](docs/PLAYER_EXPERIENCE.md), [validation](docs/VALIDATION.md), [build QA](docs/BUILD_AND_QA.md), [risk review](docs/DECISIONS_AND_RISKS.md) and [tóm tắt tiếng Việt](docs/TOM_TAT.vi.md).
+
+These documents clearly label implemented code, independent C# checks, unverified Unity/device behavior and commercial hypotheses.
 
 ## What the player does
 
@@ -28,7 +34,7 @@ Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006
 - **Player respect:** large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, optional hints, sound **off by default** with an opt-in gentle chime. No streak anxiety.
 - **Offline-first:** a versioned JSON save (v3 retains original v1/v2 puzzles in progress) in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
 
-The experience supports **Living world** and **Puzzle only** (the same water puzzles without narrative) for controlled research. This is a *research comparison mode*, not analytics or proper randomized A/B assignment.
+The experience supports **Living World** and **Puzzle Only** for exploratory comparison. They share chapter 1; after that Living uses ecology-shaped boards while Puzzle Only uses originals. This is **not a clean narrative-only A/B** after chapter 1. See [experimental plan](docs/VALIDATION.md).
 
 ## Run in Unity
 
@@ -101,4 +107,4 @@ An [optional Cloudflare Durable Objects preview](../../backend/evergrove/README.
 
 Editor compilation, screen-reader behavior, device safe areas, iOS/Android signing, app-store title/trademark clearance, 45+ audience suitability, voluntary D1/D7 return, measurable acquisition and monetization remain **unverified**. No authored game can be called “insanely great” without observing whether real people voluntarily return.
 
-**Next non-negotiable test:** recruit 20–30 adults in the target cohort, manually balance between Living world and Puzzle only, record first-minute comprehension, spontaneous return and head-to-head preference versus a polished existing title. The [experiment protocol](../../docs/research/evergrove-build-decision-2026-11-22.md) defines the stop rule.
+**Next non-negotiable test:** Build with actual Unity on a real phone; recruit 20–30 relevant adults for unprompted observation. Isolate the story, branch mechanics and 2D/2.5D visual effects in different tests. See [validation](docs/VALIDATION.md) and [QA](docs/BUILD_AND_QA.md).
