@@ -1,5 +1,7 @@
 # Evergrove: getting a real Unity build (honest release gate)
 
+**Expanded test/runbook:** [Build and QA handbook](docs/BUILD_AND_QA.md).
+
 As of 2026-11-22, pure C# domain tests run in GitHub Actions. **No licensed Unity Editor build or real-device runtime evidence has been provided in the repository.** Do not equate a clean `.NET` test run with a mobile-ready Unity client.
 
 ## One-click preview builds
@@ -29,7 +31,7 @@ The automated Unity build method creates the otherwise empty bootstrap scene. **
 
 ## Product stop/continue rule
 
-This build exists to help people actually experience the game. Compare `Living World` with `Puzzle Only` using manually balanced players. Continue development only if the living-world layer measurably improves comprehension and voluntary replay, and the distribution channel is viable. A successful Unity build proves **buildability**, not product-market fit.
+This build exists to help people actually experience the game. Compare `Living World` with `Puzzle Only` for **first-chapter impressions only**. Later board rules differ. See [validation](docs/VALIDATION.md) for matched controls. Continue development only if the living-world layer measurably improves comprehension and voluntary replay, and the distribution channel is viable. A successful Unity build proves **buildability**, not product-market fit.
 
 References: [GameCI Unity Builder](https://game.ci/docs/github/builder/), [Unity 6.3 uGUI input setup](https://docs.unity.com/en-us/engine/6000.3/manual/uitoolkits/uielements/uie-support-for-runtime-ui/uie-render-runtime-ui/uie-runtime-event-system).
 
@@ -38,7 +40,7 @@ References: [GameCI Unity Builder](https://game.ci/docs/github/builder/), [Unity
 - [ ] First launch honors device language including `vi-VN`, `ja-JP`, `zh-Hant-TW`, `es-MX`, `pt-BR`.
 - [ ] In-game language list shows all 30 **native names** legibly; auto mode and manual override survive restart.
 - [ ] Changing language mid-puzzle, after choosing a tree and at the ending **never changes event history or solved state**.
-- [ ] Translation coverage tests pass for all 73 keys × 29 JSON catalogs, including placeholders.
+- [ ] Translation coverage tests pass for all 76 keys × 29 JSON catalogs, including placeholders.
 - [ ] Validate language width and dynamic text on a compact device; no clipped buttons or title collisions.
 - [ ] Native-script glyph coverage: Chinese, Japanese, Korean, Thai, Vietnamese.
 - [ ] **RTL blocker:** Arabic, Persian, Hebrew and Urdu must be tested with a correct shaping/bidi engine. A right-aligned legacy uGUI Text alone is not enough.

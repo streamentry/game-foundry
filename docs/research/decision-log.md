@@ -416,3 +416,11 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Most serious caveat:** Symmetric rotations and one fixed tile remain shallow dynamics. This is a falsifiable *mechanical causality* slice, not a complete emergent ecological simulation. The treatment now also changes puzzle mechanics, so the existing `Living World` vs `Puzzle Only` experiment is **no longer a clean narrative-only test** beyond chapter one.
 
 **Next evidence:** Prove all branches uniquely solvable by CI; test actual Unity build, compare difficulty and time-to-solve per branch, and run a separate controlled user test against matched topology before claiming superior retention. Do not ship under `Evergrove` without name/trademark review.
+
+## 2026-11-22 — Source-grounded Evergrove handbook
+
+**What changed:** Audited 12 authored puzzle chapters, 33 rotated/anchored choice-specific presentations, v3 save/migration, 2D vs 2.5D, and 30 selectable languages (English source + 29 draft catalogs; 76 compact keys). Created the [canonical product and engineering handbook](../../games/evergrove/docs/README.md) with actual rules, architecture, state, UX, experiments, QA, strongest objections and explicit stop conditions.
+
+**Corrected prior notes:** Opt-in procedural 2.5D *is now implemented* (not production tested); the Living World vs Puzzle Only comparison is **confounded after chapter 1**; the locale catalog contains **76** keys, not 73. Documentation corrections are not new player evidence.
+
+**Next real gate:** run Unity on a physical phone, conduct uncoached playtests and publish a continue/simplify/stop decision. Additional docs/code are not proof of demand.
