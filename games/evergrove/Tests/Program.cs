@@ -177,6 +177,7 @@ internal static class Program
         VillageScenePlan initial = VillageScenePlan.From(world);
         Expect(initial.TreeCount == 0 && initial.CrossingCount == 0 &&
                initial.FlowerCount == 0, "fresh scene is undecorated");
+        Expect(!initial.WaterRestored, "new world begins with a dry creek");
         Expect(!initial.HasBridge && !initial.HasButterflies &&
                !initial.HasVisitors && !initial.NeighborsGather,
                "scenic elements do not appear before related choices");
@@ -184,9 +185,11 @@ internal static class Program
         string fingerprint = initial.Fingerprint;
 
         Solve(world);
+        Expect(VillageScenePlan.From(world).WaterRestored,
+               "water appears the moment the first stream puzzle is solved");
         Expect(world.Choose(VillageChoice.ShadeTree), "first tree grows");
         VillageScenePlan tree = VillageScenePlan.From(world);
-        Expect(tree.TreeCount == 1 && !tree.HasBridge && !tree.HasVisitors,
+        Expect(tree.WaterRestored && tree.TreeCount == 1 && !tree.HasBridge && !tree.HasVisitors,
                "tree alone visibly changes only tree assets");
         Expect(tree.Fingerprint != fingerprint, "scene fingerprint changes after an action");
 

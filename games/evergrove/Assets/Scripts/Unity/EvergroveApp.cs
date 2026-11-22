@@ -326,7 +326,8 @@ namespace Evergrove.UnityClient
                 if (diorama != null) diorama.Hide();
                 var art = illustration.AddComponent<VillageIllustration>();
                 art.Show(world.Round, world.Count(VillageChoice.ShadeTree),
-                    world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers));
+                    world.Count(VillageChoice.Bridge), world.Count(VillageChoice.Flowers),
+                    world.Round > 0 || world.Solved);
             }
 
             if (living)
