@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Maua ya porini yanalinda njia hii ya maji. Haiwezi kuzungushwa."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Angalia safu mlalo ya {0}. Kuna muunganisho wa kukagua."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Safu {0}, nguzo {1}: linganisha ncha zilizo wazi."
+    },
+    {
+      "key": "hint_more",
+      "value": "Kidokezo kingine"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Rekebisha muunganisho mmoja"
+    },
+    {
+      "key": "save_warning",
+      "value": "Imeshindikana kuhifadhi maendeleo. Angalia nafasi ya kifaa."
     }
   ]
 }

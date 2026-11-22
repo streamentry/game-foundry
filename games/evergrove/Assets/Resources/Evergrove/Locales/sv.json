@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Vilda blommor skyddar vattenvägen. Den går inte att vrida."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Titta på rad {0}. En koppling behöver ses över."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Rad {0}, kolumn {1}: jämför de öppna ändarna."
+    },
+    {
+      "key": "hint_more",
+      "value": "En ledtråd till"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Rätta en koppling"
+    },
+    {
+      "key": "save_warning",
+      "value": "Det gick inte att spara framstegen. Kontrollera enhetens lagring."
     }
   ]
 }

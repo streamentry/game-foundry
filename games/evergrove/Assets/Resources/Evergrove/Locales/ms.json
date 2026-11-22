@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "Bunga liar melindungi aliran ini. Tidak boleh diputar."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Lihat baris {0}. Ada sambungan yang perlu diperiksa."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Baris {0}, lajur {1}: bandingkan hujung yang terbuka."
+    },
+    {
+      "key": "hint_more",
+      "value": "Petunjuk lagi"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Betulkan satu sambungan"
+    },
+    {
+      "key": "save_warning",
+      "value": "Kemajuan tidak dapat disimpan. Semak storan peranti."
     }
   ]
 }
