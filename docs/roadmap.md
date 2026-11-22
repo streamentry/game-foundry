@@ -5,6 +5,10 @@
 - **Search-led:** [Kakuro with Shikaku as fallback](research/first-game-decision-2026-11-21.md), conditional on the existing demand, competitor and player gates.
 - **Global visual exploration:** [Good Eye → Quiet Shot → One Path](research/global-45plus-top-three-games-2026-11-21.md). Start with the cheapest Good Eye comparison; test subsequent mechanics sequentially. These are proposed playtest hypotheses, not three production projects. Record real return and referral behavior before expanding.
 
+### Proposed three-track portfolio follow-up (2026-11-22; **not** a production override)
+
+The [staged next-three validation memo](research/next-three-games-validation-decision-2026-11-22.md) proposes: **(1)** test the already built Kakuro Compass against Conceptis and exact App Store query demand; **(2)** only after recording that evidence, prototype a single Rune Chain / Three Cards micro-roguelike; **(3)** conditionally A/B a five-puzzle Little Worlds world-persistence layer against puzzle-only play. These are **sequential learning experiments**, not a new three-game build authorization. Maintain the existing Good Eye → Quiet Shot → One Path global visual research queue and the Kakuro/Shikaku ASO gate; no title is promoted to `ship` by this memo.
+
 ## Phase 0: research and verification (7 days, time-boxed)
 - Collect official Apple Ads popularity for target non-branded terms (US, GB, AU, DE, JP), when credentials are available.
 - Audit the top 10 organic App Store results per keyword and recurring negative review themes.
