@@ -33,6 +33,9 @@ namespace Evergrove.UnityClient
         private bool languagePicker;
         private RectTransform content;
         private RectTransform scrollArea;
+        private RectTransform warningViewport;
+        private GameObject saveWarningBanner;
+        private Text saveWarningCaption;
         private ScrollRect scroll;
         private CanvasScaler viewportScaler;
         private Rect lastSafeArea;
@@ -216,7 +219,8 @@ namespace Evergrove.UnityClient
             scroll.inertia = true;
 
             var viewport = Node("Viewport", scrollNode.transform);
-            Fill(viewport.GetComponent<RectTransform>());
+            warningViewport = viewport.GetComponent<RectTransform>();
+            Fill(warningViewport);
             var viewportImage = viewport.AddComponent<Image>();
             viewportImage.color = new Color(1f, 1f, 1f, 0.004f);
             viewport.AddComponent<RectMask2D>();
@@ -240,6 +244,37 @@ namespace Evergrove.UnityClient
             body.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             scroll.content = content;
 
+            // Save failures are high-severity, not normal scroll content.
+            // The old message could be offscreen when a player rotated a tile,
+            // and could stay visible after a later successful save. Keep this
+            // noninteractive banner pinned inside the actual device safe area,
+            // reserving space in the scrolling viewport only while it is shown.
+            saveWarningBanner = Node("Persistent save warning", scrollNode.transform);
+            RectTransform warningRect = saveWarningBanner.GetComponent<RectTransform>();
+            warningRect.anchorMin = new Vector2(0f, 1f);
+            warningRect.anchorMax = new Vector2(1f, 1f);
+            warningRect.pivot = new Vector2(0.5f, 1f);
+            warningRect.sizeDelta = new Vector2(0f, 72f);
+            warningRect.anchoredPosition = Vector2.zero;
+            var warningBackground = saveWarningBanner.AddComponent<Image>();
+            warningBackground.color = Hex("#F9E5E0");
+            warningBackground.raycastTarget = false;
+            var warningTextNode = Node("Save status message", saveWarningBanner.transform);
+            RectTransform warningTextRect = warningTextNode.GetComponent<RectTransform>();
+            Fill(warningTextRect);
+            warningTextRect.offsetMin = new Vector2(12f, 0f);
+            warningTextRect.offsetMax = new Vector2(-12f, 0f);
+            saveWarningCaption = warningTextNode.AddComponent<Text>();
+            saveWarningCaption.font = font;
+            saveWarningCaption.fontSize = 14;
+            saveWarningCaption.resizeTextForBestFit = true;
+            saveWarningCaption.resizeTextMinSize = 12;
+            saveWarningCaption.resizeTextMaxSize = 14;
+            saveWarningCaption.color = Hex("#983E37");
+            saveWarningCaption.alignment = TextAnchor.MiddleCenter;
+            saveWarningCaption.raycastTarget = false;
+            UpdateSaveWarning();
+
             if (FindFirstObjectByType<EventSystem>() == null)
             {
                 var eventNode = new GameObject("Evergrove UI Event System");
@@ -256,6 +291,16 @@ namespace Evergrove.UnityClient
                 Debug.LogError("Evergrove requires Unity Input System or legacy Input Manager.");
 #endif
             }
+        }
+
+        private void UpdateSaveWarning()
+        {
+            if (saveWarningBanner == null || saveWarningCaption == null || warningViewport == null)
+                return;
+            saveWarningCaption.font = font;
+            saveWarningCaption.text = GameLocalization.Text("save_warning");
+            saveWarningBanner.SetActive(saveFailed);
+            warningViewport.offsetMax = new Vector2(0f, saveFailed ? -72f : 0f);
         }
 
         private Text Label(Transform parent, string name, string value, int size, int minimum,
@@ -344,6 +389,7 @@ namespace Evergrove.UnityClient
         private void Rebuild(bool top = false)
         {
             if (content == null) return;
+            UpdateSaveWarning();
             float previousPosition = scroll.verticalNormalizedPosition;
             visibleTiles = null;
             tileBackgrounds = null;
@@ -371,10 +417,6 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
                     () => { languagePicker = !languagePicker; Rebuild(true); }, 48);
-            if (saveFailed)
-                Label(content, "Unsaved progress warning",
-                    GameLocalization.Text("save_warning"), 14, 65, Hex("#983E37"),
-                    TextAnchor.MiddleCenter);
             if (languagePicker)
             {
                 BuildLanguagePicker();
@@ -387,7 +429,7 @@ namespace Evergrove.UnityClient
             // Only an explicit two-step player decision may erase save slots
             // that failed validation on launch. The game remains playable in
             // memory, but every SaveWorld call is blocked until reset.
-            if (WorldStore.RecoveryBlocked && world.Round == 0)
+            if (WorldStore.RecoveryBlocked)
             {
                 Button(content, "Recover or erase unreadable save",
                     GameLocalization.Text(confirmReset ? "erase" : "explore"), () => {
@@ -574,7 +616,7 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.Save();
                     Rebuild();
                 }, 44);
-            if (!world.Completed && world.Round > 0)
+            if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
                 Button(content, "Restart garden",
                     GameLocalization.Text(confirmReset ? "erase" : "explore"),
@@ -1017,6 +1059,7 @@ namespace Evergrove.UnityClient
         private void SaveWorld()
         {
             saveFailed = !WorldStore.Save(world);
+            UpdateSaveWarning(); // toggles immediately even without a full UI rebuild
             if (saveFailed)
                 Debug.LogWarning("Evergrove is playable but cannot persist this change.");
         }

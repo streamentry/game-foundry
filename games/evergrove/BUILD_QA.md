@@ -42,7 +42,7 @@ The Unity 6.3 uGUI core package pin was corrected from `2.6.0` (Unity 6.6 core l
 ## Evidence and safety checklist from Deep Research audit
 
 - [ ] **M1:** Licensed Unity 6.3 Editor import/compile + actual unsigned APK/iOS Xcode export; capture log, commit SHA, workflow URL and artifact checksum. The manual workflow has **not** been demonstrated to pass.
-- [ ] **M2:** One physical compact Android and one physical iPhone complete 12 streams; save/restore, interruption and corrupt-primary backup tests; physical tap/safe-area audit; controlled network capture. Source-level C# tests alone do not satisfy M2.
+- [ ] **M2:** One physical compact Android and one physical iPhone complete 12 streams; save/restore, interruption and corrupt-primary backup tests; sticky save-failure warning visibility at any scroll position and its disappearance after a successful write; physical tap/safe-area audit; controlled network capture. Source-level C# tests alone do not satisfy M2.
 - [ ] **Research isolation:** `#if UNITY_EDITOR || DEVELOPMENT_BUILD` encloses comparison/2.5D/report UI; a separate non-development build must prove these are absent. Old Puzzle Only saves need an explicit safe upgrade decision.
 - [ ] **Endpoint icons:** Blue waves = spring, green sprout = garden. No language-dependent S/G labels; review contrast and meaning on real devices, including screen-reader semantics.
 - [ ] **M3/M4:** Uncoached first-minute study followed by a preregistered **puzzle-identical** living-world/control comparison. After Chapter One the current branch boards differ and a naïve A/B test is confounded.
