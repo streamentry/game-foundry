@@ -473,7 +473,7 @@ namespace Evergrove.UnityClient
             if (world.Solved)
             {
                 Button(content, "Revisit water", "Undo the last water turn",
-                    () => Act(() => world.Undo()), 44);
+                    () => Act(() => world.Undo()), 44).interactable = world.CanUndo;
                 if (world.Mode == PlayMode.PuzzleOnly)
                     Button(content, "Next stream", "Next stream", () => {
                         if (!world.NextPuzzle()) return;
