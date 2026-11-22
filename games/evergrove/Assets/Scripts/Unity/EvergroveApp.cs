@@ -145,16 +145,16 @@ namespace Evergrove.UnityClient
             if (spring)
             {
                 Color blue = Hex("#216A96");
-                IconPart(parent, "Upper water ripple", blue, new Vector2(17f, 3f), new Vector2(12f, 17f));
-                IconPart(parent, "Middle water ripple", blue, new Vector2(13f, 3f), new Vector2(12f, 11f));
-                IconPart(parent, "Lower water ripple", blue, new Vector2(17f, 3f), new Vector2(12f, 5f));
+                IconPart(parent, "Upper water ripple", blue, new Vector2(17f, 3f), new Vector2(0f, 6f));
+                IconPart(parent, "Middle water ripple", blue, new Vector2(13f, 3f), new Vector2(0f, 0f));
+                IconPart(parent, "Lower water ripple", blue, new Vector2(17f, 3f), new Vector2(0f, -6f));
             }
             else
             {
                 Color green = Hex("#2B7150");
-                IconPart(parent, "Sprout stem", green, new Vector2(3f, 13f), new Vector2(12f, 8f));
-                IconPart(parent, "Left leaf", green, new Vector2(9f, 6f), new Vector2(8f, 14f), 35f);
-                IconPart(parent, "Right leaf", green, new Vector2(9f, 6f), new Vector2(16f, 16f), -35f);
+                IconPart(parent, "Sprout stem", green, new Vector2(3f, 13f), new Vector2(0f, -3f));
+                IconPart(parent, "Left leaf", green, new Vector2(9f, 6f), new Vector2(-4f, 4f), 35f);
+                IconPart(parent, "Right leaf", green, new Vector2(9f, 6f), new Vector2(4f, 6f), -35f);
             }
         }
 
