@@ -11,6 +11,8 @@ The [staged next-three validation memo](research/next-three-games-validation-dec
 
 ## Selected long-horizon game direction: Evergrove (research build, not launch approval)
 
+**Visual-direction research gate:** [2.5D miniature world ADR](decisions/2026-11-22-evergrove-visual-direction-2p5d.md). The existing Unity prototype remains 2D; before scaling visual production, build a single comparable 2.5D garden frame and contrast it with the illustrated 2D baseline on real devices and with ~10–15 target players. The art test is **separate** from the Living World vs Puzzle Only game-value test; if 2.5D does not add legibility or attachment commensurate with its cost, retain 2D.
+
 At the founder's explicit direction on **2026-11-22**, **Evergrove (`PH-006`)** is the single chosen decade-long **creative bet**. This is a direction for learning, **not evidence that it will become a global hit or that the prior Kakuro and Good Eye gates have passed**.
 
 [Evergrove](../games/evergrove/README.md) is now an isolated Unity/C# offline-first **living-world vertical slice**. It reuses our own six Pipe Garden boards to compare the identical puzzle **with vs without** a persistent village layer. After connecting a stream, players choose a tree, crossing or wildflowers; three characters remember each choice and multiple choices lead to combined consequences. A versioned, validated local C# snapshot preserves the sequence via Unity PlayerPrefs; future production storage needs stronger durability. No generative AI, account, online world or tracking SDK. An **optional** standalone TypeScript Cloudflare Durable Objects reference server is present but not connected to the core game or deployed.
