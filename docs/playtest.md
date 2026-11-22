@@ -70,3 +70,10 @@ Good Eye is a separate, original Godot project under `games/good-eye/`. Its [des
 The independent [Shikaku Garden prototype](../games/shikaku-garden/README.md) can be exported with [Shikaku Garden Web Playtest](../.github/workflows/shikaku-garden-preview.yml) to a downloadable artifact. To run it, extract it, serve over local HTTP and open in a WebGL2 browser. No public deployment, iOS signing, app-store publication or analytics is performed.
 
 Watch the first tap and second-corner intent, note number/area confusion, record puzzle completion versus assistance and compare optional replay with a direct Shikaku competitor. The authored levels must pass uniqueness tests before recruitment. Do not treat a completed rectangle as a proven paid-product feature.
+
+
+## Odd Bloom — one-tap visual comparison pilot
+
+The independent [Odd Bloom prototype](../games/odd-bloom/README.md) has a downloadable WebGL2 artifact via [Odd Bloom Web Playtest](../.github/workflows/odd-bloom-preview.yml). The artifact is not a public playable URL; extract and serve over local HTTP to test.
+
+Try six-target rounds before introducing the denser 4×4 grid. Record obvious vs genuinely subtle differences, accidental taps, whether older players can comfortably see the petal/center contrasts, and which game they voluntarily continue playing when compared with an existing odd-one-out competitor. Do not assume non-color structural differences automatically make the game accessible to every player.

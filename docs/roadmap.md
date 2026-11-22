@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Fifth visual research prototype (not a distribution winner)
+
+[Odd Bloom](../games/odd-bloom/README.md) tests immediate visual discrimination and one-tap repeat play in twelve no-timer rounds. Unlike rule-heavy Shikaku Garden, it has almost no instruction overhead, but the direct competitor category is crowded and novelty can fade quickly. The user's directive to build more games changes the *implementation queue*, **not** the evidence needed to enter production. Do not scale a content factory before testing voluntary replay and return.
+
 ## Additional playtest prototypes (not production approvals)
 
 At user request, build [Shikaku Garden](../games/shikaku-garden/README.md) as a small, **gated** logic prototype. GF-018 search demand and comparative user preference remain unknown. Record real-world outcomes, especially whether a 45+ player chooses this game over a mature Shikaku alternative. Do not conflate the ability to ship a solver with organic acquisition.

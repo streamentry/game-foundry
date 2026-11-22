@@ -26,6 +26,10 @@ The separate [global 45+ playtest shortlist](../research/global-45plus-top-three
 
 Run `python3 tools/validate_ideas.py docs/ideas/candidates.csv` after editing.
 
+## Additional visual research
+
+[Odd Bloom](../research/next-two-game-experiments-2026-11-22.md) is an **unmeasured game-loop experiment** added at user request. It does not correspond to a validated Apple keyword or change the 100-row research dataset. [Shikaku Garden](../../games/shikaku-garden/) is an implementation of the already-listed **GF-018** hypothesis, whose acquisition demand remains unverified.
+
 ## Initial high-information research subjects
 
 These are cheap to prototype **if demand is confirmed**, but face nontrivial incumbents:
