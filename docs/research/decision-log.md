@@ -358,3 +358,17 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Continue / stop:** Preference and organic search route are prerequisites for Kakuro; voluntary replay and credible distribution for Rune Chain; causal understanding, incremental voluntary return and credible distribution for Little Worlds. Park after bounded UX revisions if players prefer incumbents or do not return. No new production approvals.
 
 **Next action:** Obtain a shareable Kakuro browser playtest with approved hosting, recruit the first independent target player and log observed play and a direct competitor comparison. GitHub WebGL artifacts alone are *not* public hosting.
+
+## 2026-11-22 — Evergrove selected for falsifiable build
+
+**Founder decision:** Treat `PH-006 Evergrove` as the one long-horizon global game concept to explore. **Engineering response:** implement `games/evergrove/` with a tiny deterministic living-village loop, the same six Pipe Garden fixtures in an optional control mode, local choice memories and story consequences, and Godot tests.
+
+**Evidence:** founder preference and design hypothesis only. No direct player tests, accessible market sizing, keyword demand, retention, App Store sales, device QA, or production-viability evidence.
+
+**Strongest counterargument:** the added village may obscure or weaken an already enjoyable puzzle, while creating hidden costs and difficult distribution.
+
+**Cheapest falsification:** manually balance 20–30 target players between living-world and puzzle-only modes; observe comprehension, head-to-head preference, voluntary replay and D1/D7 return.
+
+**Stopping rule:** If the world does not produce meaningful voluntary behavior beyond the same puzzle, strip back the simulation and avoid adding LLMs or social infrastructure.
+
+**Source:** [full decision record](evergrove-build-decision-2026-11-22.md). **Status:** research prototype, not a validated product or store launch.

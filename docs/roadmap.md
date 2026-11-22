@@ -9,6 +9,17 @@
 
 The [staged next-three validation memo](research/next-three-games-validation-decision-2026-11-22.md) proposes: **(1)** test the already built Kakuro Compass against Conceptis and exact App Store query demand; **(2)** only after recording that evidence, prototype a single Rune Chain / Three Cards micro-roguelike; **(3)** conditionally A/B a five-puzzle Little Worlds world-persistence layer against puzzle-only play. These are **sequential learning experiments**, not a new three-game build authorization. Maintain the existing Good Eye → Quiet Shot → One Path global visual research queue and the Kakuro/Shikaku ASO gate; no title is promoted to `ship` by this memo.
 
+## Selected long-horizon game direction: Evergrove (research build, not launch approval)
+
+At the founder's explicit direction on **2026-11-22**, **Evergrove (`PH-006`)** is the single chosen decade-long **creative bet**. This is a direction for learning, **not evidence that it will become a global hit or that the prior Kakuro and Good Eye gates have passed**.
+
+[Evergrove](../games/evergrove/README.md) is now an isolated Godot offline-first **living-world vertical slice**. It reuses our own six Pipe Garden boards to compare the identical puzzle **with vs without** a persistent village layer. After connecting a stream, players choose a tree, crossing or wildflowers; three characters remember each choice and multiple choices lead to combined consequences. A versioned local save preserves the sequence. No generative AI, account, online world or tracking SDK.
+
+- **Next:** verify Godot CI, real-device readability and an actual 20–30 person comparative observation with manually balanced conditions; log D1/D7 return and what players can explain about causal changes.
+- **Continue:** players favor the living layer on observable return or preference, understand effects and a viable discovery path emerges.
+- **Stop/simplify:** puzzle-only wins, players don't understand consequences, or maintaining a living world makes economics or trust worse.
+- **Source of decision:** [research decision record](research/evergrove-build-decision-2026-11-22.md). Any store launch still needs a separate evidence-backed review.
+
 ## Phase 0: research and verification (7 days, time-boxed)
 - Collect official Apple Ads popularity for target non-branded terms (US, GB, AU, DE, JP), when credentials are available.
 - Audit the top 10 organic App Store results per keyword and recurring negative review themes.

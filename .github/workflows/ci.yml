@@ -306,3 +306,11 @@ jobs:
         run: timeout 45s godot --headless --path games/number-pyramid --script res://tests/test_progress.gd
       - name: Smoke test Number Pyramid UI playthrough
         run: timeout 30s godot --headless --path games/number-pyramid --script res://tests/test_scene.gd
+      - name: Import Evergrove living-world project
+        run: timeout 90s godot --headless --path games/evergrove --editor --import --quit
+      - name: Verify Evergrove pipe fixtures and solver
+        run: timeout 90s godot --headless --path games/evergrove --script res://tests/test_rules.gd
+      - name: Verify Evergrove world choice, memory and offline save
+        run: timeout 45s godot --headless --path games/evergrove --script res://tests/test_world.gd
+      - name: Smoke test Evergrove both experiment modes
+        run: timeout 30s godot --headless --path games/evergrove --script res://tests/test_scene.gd
