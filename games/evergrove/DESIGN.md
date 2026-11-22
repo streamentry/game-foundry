@@ -52,6 +52,22 @@ Type hierarchy (approximate logical px): title **25**, game decisions **15–17*
 - [ ] User-perceived quality benchmarked head-to-head versus a polished established puzzle game.
 - [ ] Device sound behavior tested, including mute/ringer and consent.
 
+## First 30 seconds: visible causality
+
+- At start: an old, **dry** creek makes the village problem visually legible.
+- First action: tapping a water tile should turn a recognizable connection, without waiting for animations or networking.
+- First solution: water enters both 2D and 2.5D worlds, giving immediate environmental proof.
+- First choice: plant shade, repair a crossing or grow flowers, and let the next chapter reflect it.
+- No guilt, streaks, penalties, fake personalization, mandatory dialogue or hidden reward schedules.
+
+A dry creek is now an invariant tested through `VillageScenePlan.WaterRestored`. Actual perceptual clarity must still be verified on phones with real players.
+
+## Release and evidence mechanics
+
+Unity 6.3 uses an **Input System UI Input Module**, not an unconditional legacy Standalone Input Module. The project ships `com.unity.inputsystem` and an editor-matched uGUI package; the editor must resolve them before any app claim. A *manual*, license-gated GameCI workflow runs Unity's own C# compiler and can produce an Android test APK or WebGL artifact. **This has not been run yet.**
+
+An optional **in-memory playtest report** is user-initiated, never uploads, has no identifiers and can be copied only by explicit user action. This is for qualitative first-session observation, not a substitute for D1/D7 cohort research.
+
 ## Two rendering languages, one authoritative world
 
 The current **2D storybook** remains the inexpensive baseline. The new opt-in **2.5D miniature** uses a fixed orthographic camera aimed at a low-poly island with an original generated stream, a cottage and three villagers. These are two visual presentations of the **same world events**, not separate games and not an engine rewrite.

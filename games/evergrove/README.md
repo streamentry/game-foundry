@@ -55,6 +55,14 @@ dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configu
 
 This validates all 12 board shapes and unique solutions, source connectivity, hint/undo, consequence interactions, complete campaign, legacy saved-game migration and corrupted-save rejection. See [CI workflow](../../.github/workflows/ci.yml). These tests **do not compile the UnityEngine-specific UI or verify native builds**; Godot's tests do not test Evergrove.
 
+## Real playtest build and first-water moment
+
+Evergrove now restores the **actual creek**, not just a progress counter. The new garden begins with a **dry riverbed**. Completing the first water puzzle brings flowing water to both the default 2D storybook and the optional 2.5D diorama; the later world choices still shape trees, crossings, flowers, visitors and the characters' responses. Scene rendering reads the same deterministic state and remains offline-first.
+
+A [manual Unity 6.3 Android/WebGL build workflow](../../.github/workflows/evergrove-unity-playtest.yml) and [step-by-step build/QA checklist](BUILD_QA.md) are provided. This is **not a published or signed app** and needs Unity licensing supplied privately through GitHub Actions secrets. It has not yet passed an actual Unity engine compilation or physical-device test. The Unity client uses the modern Unity Input System for touch compatibility (with a guarded legacy fallback if a project explicitly uses the old input manager).
+
+**Optional, informed local study:** a button near the bottom of the game allows testers to begin collecting *anonymous session-level counters* (time to first turn/solve, hints, undo, choices, conversations and rendering-mode changes). Nothing is collected before consent; no identifiers, IP, accounts, SDK, network calls or passive background observation are added. The tester can **explicitly copy** the report to their clipboard or stop and discard it. The record exists in memory only and does **not** measure D1/D7 return. See `Assets/Scripts/Core/LocalPlaytest.cs` and [the experiment plan](../../docs/research/evergrove-build-decision-2026-11-22.md).
+
 ## Two original visual renderers — an explicit experiment
 
 Evergrove now offers **2D storybook** (the original default baseline) and **2.5D miniature** (a switchable, opt-in orthographic diorama). Both draw **the same locally persisted world decisions**. The 2.5D scene is constructed in Unity from original procedural primitives: an island, winding creek, little cottage, trees, repaired crossing, flowers, butterflies and neighbors who move into different positions as the village evolves. It uses one orthographic camera rendered into a 768×384 texture; no prefabs, purchased art, model API or mandatory online assets.
