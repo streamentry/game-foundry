@@ -68,9 +68,28 @@ internal static class Program
         Expect(!initial.CanSwitchMode, "mode locks during play");
         Expect(initial.Undo(), "last rotation can be undone");
         Expect(initial.CanSwitchMode, "mode unlocks after undo");
+        // The current hint is an explicit mutating one-tile alignment, not
+        // merely a highlight or a single clockwise turn.
+        int[] beforeHint = initial.Rotations;
+        int firstWrong = -1;
+        for (int tile = 0; tile < initial.CurrentPuzzle.CellCount; tile++)
+            if (beforeHint[tile] != initial.CurrentPuzzle.Solution[tile])
+            {
+                firstWrong = tile;
+                break;
+            }
+        Expect(firstWrong >= 0, "there is an incorrect tile to guide");
         Expect(initial.GuideOneConnection(), "optional hint aligns exactly one tile");
+        int[] afterHint = initial.Rotations;
+        Expect(afterHint[firstWrong] == initial.CurrentPuzzle.Solution[firstWrong],
+            "hint sets the selected tile to full solution orientation");
+        for (int tile = 0; tile < beforeHint.Length; tile++)
+            if (tile != firstWrong)
+                Expect(afterHint[tile] == beforeHint[tile], "hint never silently changes another tile");
         Expect(initial.HintsUsed == 1, "hint count recorded");
         Expect(initial.Undo(), "guided tile can also be undone");
+        for (int tile = 0; tile < beforeHint.Length; tile++)
+            Expect(initial.Rotations[tile] == beforeHint[tile], "hint undo restores original rotations");
         Expect(initial.HintsUsed == 1, "undo does not secretly refund a used hint");
         Expect(initial.Restart(), "restart works");
 

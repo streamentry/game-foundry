@@ -82,11 +82,11 @@ namespace Evergrove.UnityClient
             // Default to the proven-in-code 2D art; keep the experimental
             // orthographic 3D visual opt-in until real player/device evidence.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Research-only rendering options must never leak into a store
+            // candidate, even when an old development preference is present.
             showMiniature = PlayerPrefs.GetInt("evergrove:visual-miniature", 0) == 1;
             animateMiniature = PlayerPrefs.GetInt("evergrove:miniature-motion", 0) == 1;
 #else
-            // Respect a former experiment save without exposing old art
-            // preferences in a consumer-facing nondevelopment build.
             showMiniature = false;
             animateMiniature = false;
 #endif
@@ -513,8 +513,10 @@ namespace Evergrove.UnityClient
             }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // Research-only controls must never be compiled into player builds.
-            // Valid narrative A/B requires matched boards, not this toggle.
+            // Research-only controls compile only in the Editor or explicitly
+            // opted-in Development Builds, never in ordinary player builds.
+            // A mode comparison requires matched puzzle fixtures before any
+            // research result can be used as evidence of narrative value.
             if (world.CanSwitchMode)
             {
                 Label(content, "Comparison hint",
