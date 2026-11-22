@@ -284,17 +284,6 @@ namespace Evergrove.UnityClient
                 Label(content, "Puzzle condition", "Same water puzzles, without the living-world layer.",
                     14, 44, Moss, TextAnchor.MiddleCenter);
 
-            if (world.CanSwitchMode)
-            {
-                Label(content, "Comparison hint",
-                    "PLAYTEST     Choose before your first move", 11, 21, Moss);
-                var modes = Row(content, "Comparison modes");
-                Button(modes.transform, "Living mode", "Living world", () => SwitchMode(PlayMode.Living),
-                    52, living);
-                Button(modes.transform, "Puzzle control", "Puzzle only", () => SwitchMode(PlayMode.PuzzleOnly),
-                    52, !living);
-            }
-
             if (showingMemory && world.Choices.Length > 0 && living)
             {
                 var moment = Card(content, "A remembered moment", Sand);
@@ -334,6 +323,19 @@ namespace Evergrove.UnityClient
 
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
+
+            // Research-only comparison controls are intentionally below the
+            // puzzle. They must not push the first playable move off-screen.
+            if (world.CanSwitchMode)
+            {
+                Label(content, "Comparison hint",
+                    "PLAYTEST MODE  ·  Choose before your first move", 11, 21, Moss);
+                var modes = Row(content, "Comparison modes");
+                Button(modes.transform, "Living mode", "Living world", () => SwitchMode(PlayMode.Living),
+                    52, living);
+                Button(modes.transform, "Puzzle control", "Puzzle only", () => SwitchMode(PlayMode.PuzzleOnly),
+                    52, !living);
+            }
 
             Button(content, "Quiet audio setting",
                 soundOn ? "Gentle chime: ON (tap to mute)" : "Gentle chime: OFF (tap to enable)",
