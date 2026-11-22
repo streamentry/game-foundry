@@ -7,35 +7,35 @@
 | Language code | Language (native) | Coverage |
 | --- | --- | --- |
 | en | English | Built-in canonical text |
-| zh-Hans | 简体中文 | 76/76 |
-| zh-Hant | 繁體中文 | 76/76 |
-| es | Español | 76/76 |
-| pt-BR | Português (Brasil) | 76/76 |
-| fr | Français | 76/76 |
-| de | Deutsch | 76/76 |
-| ja | 日本語 | 76/76 |
-| ko | 한국어 | 76/76 |
-| ar | العربية | 76/76; RTL QA needed |
-| hi | हिन्दी | 76/76; shaping QA needed |
-| ru | Русский | 76/76 |
-| id | Bahasa Indonesia | 76/76 |
-| vi | Tiếng Việt | 76/76 |
-| tr | Türkçe | 76/76 |
-| th | ไทย | 76/76; line-break QA needed |
-| it | Italiano | 76/76 |
-| nl | Nederlands | 76/76 |
-| pl | Polski | 76/76 |
-| uk | Українська | 76/76 |
-| fa | فارسی | 76/76; RTL QA needed |
-| he | עברית | 76/76; RTL QA needed |
-| ms | Bahasa Melayu | 76/76 |
-| fil | Filipino | 76/76 |
-| bn | বাংলা | 76/76; shaping QA needed |
-| ur | اردو | 76/76; RTL QA needed |
-| ta | தமிழ் | 76/76; shaping QA needed |
-| te | తెలుగు | 76/76; shaping QA needed |
-| sw | Kiswahili | 76/76 |
-| sv | Svenska | 76/76 |
+| zh-Hans | 简体中文 | 81/81 |
+| zh-Hant | 繁體中文 | 81/81 |
+| es | Español | 81/81 |
+| pt-BR | Português (Brasil) | 81/81 |
+| fr | Français | 81/81 |
+| de | Deutsch | 81/81 |
+| ja | 日本語 | 81/81 |
+| ko | 한국어 | 81/81 |
+| ar | العربية | 81/81; RTL QA needed |
+| hi | हिन्दी | 81/81; shaping QA needed |
+| ru | Русский | 81/81 |
+| id | Bahasa Indonesia | 81/81 |
+| vi | Tiếng Việt | 81/81 |
+| tr | Türkçe | 81/81 |
+| th | ไทย | 81/81; line-break QA needed |
+| it | Italiano | 81/81 |
+| nl | Nederlands | 81/81 |
+| pl | Polski | 81/81 |
+| uk | Українська | 81/81 |
+| fa | فارسی | 81/81; RTL QA needed |
+| he | עברית | 81/81; RTL QA needed |
+| ms | Bahasa Melayu | 81/81 |
+| fil | Filipino | 81/81 |
+| bn | বাংলা | 81/81; shaping QA needed |
+| ur | اردو | 81/81; RTL QA needed |
+| ta | தமிழ் | 81/81; shaping QA needed |
+| te | తెలుగు | 81/81; shaping QA needed |
+| sw | Kiswahili | 81/81 |
+| sv | Svenska | 81/81 |
 
 These 30 languages are a **commercially broad coverage set**, not a mathematically ranked list of the world's 30 most spoken languages. Country-specific translation for other regions and dialects may be added later when evidence warrants it.
 
@@ -57,7 +57,7 @@ The game reads bundled `Assets/Resources/Evergrove/Locales/<locale>.json` using 
 
 ## What is and is not translated
 
-All **76 player-facing compact-copy keys** (water puzzle prompts/feedback, game modes, language switcher, settings, world state, causal choices, NPC dialogue, memories, journal and endings) have non-empty localizations. To avoid 30 unrelated narrative variants in an early experiment, **all 30 languages use one concise state-dependent script** (`LocalizedVillage.cs`); the richer original *English* prose (`VillageStory.cs`) is kept intact for future editorial expansion. These are editorial first drafts; a native speaker must review them before a store listing claims high-quality translation.
+All **81 player-facing compact-copy keys** (water puzzle prompts/feedback, game modes, language switcher, settings, world state, causal choices, NPC dialogue, memories, journal and endings) have non-empty localizations. To avoid 30 unrelated narrative variants in an early experiment, **all 30 languages use one concise state-dependent script** (`LocalizedVillage.cs`); the richer original *English* prose (`VillageStory.cs`) is kept intact for future editorial expansion. These are editorial first drafts; a native speaker must review them before a store listing claims high-quality translation.
 
 Twelve original **puzzle names** are English-only and are deliberately not shown in non-English sessions; stream number remains localized. Character proper names Mira, Orin and Fen are retained across locales. The local copy-to-clipboard playtest report intentionally stays in English structured key=value format for comparable researcher data; UI consent/explanation is localized.
 
@@ -77,6 +77,10 @@ python3 tools/verify_evergrove_project.py
 dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release
 ```
 
-The static validator checks all 29 catalog files, 76 keys, locale code consistency and interpolation syntax. .NET tests import every JSON resource, assert no missing keys or incorrect placeholders and verify changing locale cannot alter water puzzle/choice history.
+The static validator checks all 29 catalog files, 81 keys, locale code consistency and interpolation syntax. .NET tests import every JSON resource, assert no missing keys or incorrect placeholders and verify changing locale cannot alter water puzzle/choice history.
 
 **Before any international launch:** native-speaker review of each locale; screenshot QA of settings, choice cards, long dialogues and endings; real-device glyph coverage; true RTL and Indic text shaping; word breaking for Thai; screen-reader labels; and mobile performance. If the first-phone QA fails, keep that locale disabled in production instead of showing broken text.
+
+## New v4 prototype copy (draft, not certified)
+
+The 81 canonical text keys now include five staged-help/save-warning phrases: `hint_notice`, `hint_focus`, `hint_more`, `hint_turn`, and `save_warning`. The first-puzzle instructions refer to geometric blue waves for the spring and a green sprout for the garden; they no longer depend on Latin `S/G` glyphs. Every translation remains an unreviewed **draft**. Font shaping, RTL/Indic display, layout, native signoff and device performance are still open.

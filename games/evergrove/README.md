@@ -12,7 +12,7 @@ Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006
 
 ## Canonical documentation (2026-11-22)
 
-**Read the [full Evergrove product and engineering handbook](docs/README.md)**: [product](docs/PRODUCT.md), [game rules](docs/GAMEPLAY_AND_WORLD_RULES.md), [architecture](docs/ARCHITECTURE.md), [save v3/migrations](docs/SAVE_AND_MIGRATION.md), [UX and localization](docs/PLAYER_EXPERIENCE.md), [validation](docs/VALIDATION.md), [build QA](docs/BUILD_AND_QA.md), [risk review](docs/DECISIONS_AND_RISKS.md) and [tóm tắt tiếng Việt](docs/TOM_TAT.vi.md).
+**Read the [full Evergrove product and engineering handbook](docs/README.md)**: [product](docs/PRODUCT.md), [game rules](docs/GAMEPLAY_AND_WORLD_RULES.md), [architecture](docs/ARCHITECTURE.md), [save v4/migrations](docs/SAVE_AND_MIGRATION.md), [UX and localization](docs/PLAYER_EXPERIENCE.md), [validation](docs/VALIDATION.md), [build QA](docs/BUILD_AND_QA.md), [risk review](docs/DECISIONS_AND_RISKS.md) and [tóm tắt tiếng Việt](docs/TOM_TAT.vi.md).
 
 These documents clearly label implemented code, independent C# checks, unverified Unity/device behavior and commercial hypotheses.
 
@@ -33,8 +33,8 @@ These documents clearly label implemented code, independent C# checks, unverifie
 - **12 authored puzzle chapters and 33 branch-sensitive follow-up variants:** six 3×3 fixtures from our own Pipe Garden research and six 4×4 fixtures. From chapters 2–12, the prior ecological choice selects one of three rotated topologies with a visibly protected connection. All variants are deterministic and have unique-solution tests; symmetry preserves difficulty broadly, not perfectly.
 - **Causal memories:** three characters, explicit combination rules, four landscape phases, multiple epilogues and an ordered journal.
 - **Visual design:** procedurally drawn original river, village, tree canopy, flowers, bridge, visitors and butterflies. No third-party visual assets.
-- **Player respect:** large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, optional hints, sound **off by default** with an opt-in gentle chime. No streak anxiety.
-- **Offline-first:** a versioned JSON save (v3 retains original v1/v2 puzzles in progress) in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
+- **Player respect:** large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, three voluntary progressive hints (row → tile → one full alignment), non-color leakage indicators and a visible save-failure warning. Sound **off by default** with an opt-in gentle chime. No streak anxiety.
+- **Offline-first:** a versioned JSON save (v4 preserves original v1/v2/v3 puzzles in progress and supports staged hint progress) in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
 
 The experience supports **Living World** and **Puzzle Only** for exploratory comparison. They share chapter 1; after that Living uses ecology-shaped boards while Puzzle Only uses originals. This is **not a clean narrative-only A/B** after chapter 1. See [experimental plan](docs/VALIDATION.md).
 
@@ -67,9 +67,9 @@ This validates all 12 board shapes and unique solutions, source connectivity, hi
 
 ## Language support: 30 locale choices
 
-Evergrove now includes **English plus 29 additional offline translation catalogs**, with **automatic device-language selection** and an explicit **Language** button near the top of the game. You can change languages without losing your garden or restarting progression. The chosen language is saved separately from the world; **Automatic** follows the device language on future launches. Unrecognized locales fall back to English. For example, `zh-TW` → Traditional Chinese, `zh-CN` → Simplified Chinese, `pt-PT` → Brazilian Portuguese (the only supported Portuguese catalog).
+Evergrove now includes **English plus 29 additional offline translation catalogs**, with **automatic device-language selection** and an explicit **Language** button accessible from the game (beneath the initial puzzle to prioritize the first playable move). You can change languages without losing your garden or restarting progression. The chosen language is saved separately from the world; **Automatic** follows the device language on future launches. Unrecognized locales fall back to English. For example, `zh-TW` → Traditional Chinese, `zh-CN` → Simplified Chinese, `pt-PT` → Brazilian Portuguese (the only supported Portuguese catalog).
 
-The complete 76-key catalog covers the primary interface, all water-puzzle interaction copy, choices, compact localized NPC responses, world consequences, memories, journal and endings. The original, longer English narrative manuscript is preserved in source but not yet professionally translated: localization uses the same shorter authored game script for all 30 languages to keep gameplay meaning consistent. **Every catalog is draft quality until native-speaker review.** See [localization coverage, language list and QA gates](LOCALIZATION.md).
+The complete 81-key catalog covers the primary interface, all water-puzzle interaction copy, choices, compact localized NPC responses, world consequences, memories, journal and endings. The original, longer English narrative manuscript is preserved in source but not yet professionally translated: localization uses the same shorter authored game script for all 30 languages to keep gameplay meaning consistent. **Every catalog is draft quality until native-speaker review.** See [localization coverage, language list and QA gates](LOCALIZATION.md).
 
 **Important rendering limitation:** Unity's current uGUI `Text` controls do not automatically provide the full advanced shaping required for Arabic, Persian, Hebrew, Urdu and Indic scripts. The implementation aligns RTL labels and selects available system fonts where possible, but **a proper advanced-text renderer and real-device font QA are release blockers** for those languages. Having a translation file is not the same as production-ready language support.
 
@@ -110,3 +110,7 @@ An [optional Cloudflare Durable Objects preview](../../backend/evergrove/README.
 Editor compilation, screen-reader behavior, device safe areas, iOS/Android signing, app-store title/trademark clearance, 45+ audience suitability, voluntary D1/D7 return, measurable acquisition and monetization remain **unverified**. No authored game can be called “insanely great” without observing whether real people voluntarily return.
 
 **Next non-negotiable test:** Build with actual Unity on a real phone; recruit 20–30 relevant adults for unprompted observation. Isolate the story, branch mechanics and 2D/2.5D visual effects in different tests. See [validation](docs/VALIDATION.md) and [QA](docs/BUILD_AND_QA.md).
+
+### November 22 implementation increment (source-level, not a verified Unity build)
+
+The [37-feature execution registry](docs/specs/verification-matrix.json) records EG-002/004/005/008/011/101 as **partially implemented and unverified**. This prototype now includes [45 deterministic puzzle profiles](docs/specs/puzzle-catalog.generated.json), a v4 recoverable-save format with persistent progressive hint stage, a concise cause-grounded journal, non-color (!) leak markers and a visible save-error notice. Domain tests check the solver and hint schema, **not** actual mobile text shaping or puzzle readability. Do not call the game release-ready before Unity, device and independent player gates pass.
