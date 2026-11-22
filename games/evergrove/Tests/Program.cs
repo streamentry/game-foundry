@@ -393,7 +393,7 @@ internal static class Program
     private static void LocalizationTests()
     {
         Expect(GameLocalization.Available.Count == 30, "exactly thirty language choices");
-        Expect(GameLocalization.Keys.Count == 73, "authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 76, "authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");

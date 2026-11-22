@@ -28,7 +28,7 @@ At the founder's explicit direction on **2026-11-22**, **Evergrove (`PH-006`)** 
 
 ## Evergrove localization experiment (30 languages)
 
-**2026-11-22:** Added 30 device-detected/hand-selectable languages, 29 bundled UTF-8 JSON catalogs and a built-in English source, with a deterministic localized village script. Manual override persists across sessions without mutating the world save. A 73-key completeness/placeholder validator and .NET state-integrity tests are required in CI.
+**2026-11-22:** Added 30 device-detected/hand-selectable languages, 29 bundled UTF-8 JSON catalogs and a built-in English source, with a deterministic localized village script. Manual override persists across sessions without mutating the world save. A 76-key completeness/placeholder validator and .NET state-integrity tests are required in CI.
 
 **Release gate:** native-speaker translation QA, real-device Unicode font coverage, proper RTL/Indic shaping (legacy uGUI labels alone cannot guarantee it) and compact-phone layout review. [Localization matrix](../games/evergrove/LOCALIZATION.md). This is content and routing infrastructure, **not verified 30-market launch quality**.
 

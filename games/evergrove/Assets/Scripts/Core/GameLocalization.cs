@@ -89,7 +89,8 @@ namespace Evergrove.Core
             "world_tree_bridge","world_tree_flowers","world_bridge_flowers","world_all",
             "mira_new","mira_after","orin_new","orin_after","fen_new","fen_after",
             "ending_all","ending_tree","ending_bridge","ending_flowers",
-            "prompt_early","prompt_mid","prompt_late","journal_entry"
+            "prompt_early","prompt_mid","prompt_late","journal_entry",
+            "landmark_tree","landmark_bridge","landmark_flowers"
         };
 
         private static readonly string[] English = {
@@ -165,7 +166,10 @@ namespace Evergrove.Core
             "A little water can change a place.",
             "The village is beginning to grow.",
             "Every choice becomes part of this place.",
-            "Chapter {0} · {1} · {2}"
+            "Chapter {0} · {1} · {2}",
+            "Tree roots anchor this pipe. It cannot rotate.",
+            "Bridge foundations anchor this pipe. It cannot rotate.",
+            "Wildflowers protect this watercourse. It cannot rotate."
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

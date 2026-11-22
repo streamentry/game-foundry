@@ -105,9 +105,9 @@ namespace Evergrove.Core
             // ecological consequence describes which action caused it.
             switch (world.BoardVariant)
             {
-                case 1: return T("world_tree") + "  ●";
-                case 2: return T("world_bridge") + "  ●";
-                case 3: return T("world_flowers") + "  ●";
+                case 1: return T("landmark_tree");
+                case 2: return T("landmark_bridge");
+                case 3: return T("landmark_flowers");
                 default: return "";
             }
         }
