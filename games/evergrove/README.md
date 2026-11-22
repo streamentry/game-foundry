@@ -31,9 +31,9 @@ These documents clearly label implemented code, independent C# checks, unverifie
 ### Content and accessibility
 
 - **12 authored puzzle chapters and 33 branch-sensitive follow-up variants:** six 3×3 fixtures from our own Pipe Garden research and six 4×4 fixtures. From chapters 2–12, the prior ecological choice selects one of three rotated topologies with a visibly protected connection. All variants are deterministic and have unique-solution tests; symmetry preserves difficulty broadly, not perfectly.
-- **Causal memories:** three characters, explicit combination rules, four landscape phases, multiple epilogues and an ordered journal.
+- **Causal memories:** three characters, explicit combination rules, four landscape phases, multiple epilogues and an ordered journal linking saved choices to the resulting scene. Only a currently evidenced next puzzle variant is named as its consequence; historical migrations never fabricate old effects.
 - **Visual design:** procedurally drawn original river, village, tree canopy, flowers, bridge, visitors and butterflies. No third-party visual assets.
-- **Player respect:** large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, three-stage optional hints, visible save-error warning, sound **off by default** with an opt-in gentle chime. No streak anxiety.
+- **Player respect:** non-color ! markers now identify mismatched water ports in the Unity UI source, in addition to pipe geometry and text feedback; device readability remains unverified.  large portrait-oriented touch targets, scrollable/safe-area-aware layout, undo, restart, three-stage optional hints, visible save-error warning, sound **off by default** with an opt-in gentle chime. No streak anxiety.
 - **Offline-first:** a versioned JSON save (v4 preserves in-progress v1/v2/v3 puzzles and optional hint stage) in `Application.persistentDataPath`, backup recovery, migration from the original 6-chapter PlayerPrefs snapshot, and a two-step confirmation for destructive resets.
 
 The experience supports **Living World** and **Puzzle Only** for exploratory comparison. They share chapter 1; after that Living uses ecology-shaped boards while Puzzle Only uses originals. This is **not a clean narrative-only A/B** after chapter 1. See [experimental plan](docs/VALIDATION.md).

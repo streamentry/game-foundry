@@ -32,6 +32,13 @@ This is an **experiment plan**, not a report of completed player studies, revenu
 
 **Report:** numerator/denominator, participant characteristics, recruitment channel, assigned condition, missing follow-up, actual device/build and negative quotes. Never convert small-sample percentages into precise forecasts.
 
+## New source interventions still awaiting human evidence
+
+- Stage-one / stage-two hints are *not* corrections. Measure separately **clue-only requests** and **actual tile corrections**; the local opt-in `LocalPlaytest.hints` currently records all hint-button requests, whereas `WorldModel.HintsUsed` increments only when one tile is corrected.
+- Source-level leak exclamation markers should be evaluated by showing grayscale devices/filters; verify that players can tell **which** connection remains open, not only that the count decreased.
+- The journal now makes choice → immediate scene change explicit and names the latest puzzle rule only when current save history proves it. Test whether this helps independent causal recall without overwhelming the short-session flow.
+- 45 generated puzzle profiles have mathematical minimum clockwise taps, **not** player difficulty or observed solve times; continue to record human time/abandonment/mis-taps and differences between initial 3×3 and later 4×4 boards.
+
 ## Seven-day first reality check
 
 | Day | Work | Deliverable / exit gate |
