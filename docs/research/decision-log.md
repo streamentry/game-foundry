@@ -382,3 +382,15 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Tradeoff:** richer Unity/C# development and familiarity versus an additional engine's maintenance, device validation and licensing/package surface. No claim of verified Android/iOS builds or gameplay retention.
 
 **Falsifier:** if this engine change increases development or QA effort without improving actual player experience, reconsider it before large-scale work. See [Evergrove experiment](evergrove-build-decision-2026-11-22.md) and [Unity project](../../games/evergrove/README.md).
+
+## 2026-11-22 — ADR: Unity/C# is Evergrove's conditional engine choice
+
+**Decision:** Adopt Unity 6.3 LTS + C# for the current Evergrove development and playtest path. Godot remains the studio default for other puzzle games. See [full engine ADR](../decisions/2026-11-22-evergrove-engine-unity-csharp.md).
+
+**Reason:** Potential 2.5D/3D living-world evolution and C# tooling; retain independently testable pure C# simulation. A coherent, consequential world matters more than rendering technology or unrestricted generative AI.
+
+**Strongest contrary case:** Unity's proprietary license, editor weight and tooling overhead may not be justified if the experience remains a simple 2D puzzle; Godot would then be a better small-studio fit.
+
+**Test:** Verify editor import, real iOS/Android builds, offline save and full game loop. Separately compare Living World with puzzle-only among recruited players. Record concrete costs and failures.
+
+**Revisit if:** Unity cannot reliably ship, its economics deteriorate, or measured player value does not justify its complexity. No automatic migration of other games.
