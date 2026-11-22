@@ -63,6 +63,7 @@ namespace Evergrove.UnityClient
         private Text[] visibleLeaks; // punctuation, not hue, denotes unmatched water ports
         private Text feedbackText;
         private Button undoButton;
+        private RectTransform decisionHeading; // anchor for intentional post-solve navigation
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -399,6 +400,7 @@ namespace Evergrove.UnityClient
             visibleLeaks = null;
             feedbackText = null;
             undoButton = null;
+            decisionHeading = null;
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 GameObject old = content.GetChild(i).gameObject;
@@ -442,6 +444,12 @@ namespace Evergrove.UnityClient
                     Button(content, "Keep unreadable files", GameLocalization.Text("keep"),
                         () => { confirmReset = false; Rebuild(); }, 44);
             }
+
+            // A first-time player must see a tappable channel before any
+            // decorative illustration. The source-connected water remains
+            // legible on each tile even when the optional world is below.
+            if (firstPuzzle)
+                BuildPuzzle();
 
             if (living)
             {
@@ -536,7 +544,7 @@ namespace Evergrove.UnityClient
                         Rebuild();
                     });
             }
-            else
+            else if (!firstPuzzle)
                 BuildPuzzle();
             if (firstPuzzle && !languagePicker &&
                 LocaleRuntime.SelectableLanguages.Count > 1)
@@ -850,8 +858,8 @@ namespace Evergrove.UnityClient
                     }, 59, true);
                 else
                 {
-                    Label(content, "Choose title", GameLocalization.Text("choose"),
-                        14, 52, Leaf, TextAnchor.MiddleCenter);
+                    decisionHeading = Label(content, "Choose title", GameLocalization.Text("choose"),
+                        14, 52, Leaf, TextAnchor.MiddleCenter).rectTransform;
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
                         VillageChoice choice = (VillageChoice)choiceIndex;
@@ -1036,8 +1044,25 @@ namespace Evergrove.UnityClient
 
         private IEnumerator ScrollToDecision()
         {
-            yield return null;
-            if (scroll != null) scroll.verticalNormalizedPosition = 0f;
+            // Bottom-of-page scrolling skips the actual decision and lands
+            // on secondary settings/footer on compact screens. Instead show
+            // the first choice header with some context above it.
+            yield return null; // allow one layout frame after full completion
+            if (scroll == null || decisionHeading == null || content == null ||
+                scroll.viewport == null) yield break;
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            float distance = content.rect.height - scroll.viewport.rect.height;
+            if (distance <= 0f) yield break;
+            Vector3 worldTop = decisionHeading.TransformPoint(
+                new Vector3(decisionHeading.rect.center.x, decisionHeading.rect.yMax, 0f));
+            float targetTop = content.rect.yMax -
+                content.InverseTransformPoint(worldTop).y;
+            // Keep some of the preceding restored-world context visible.
+            float context = Mathf.Min(110f, scroll.viewport.rect.height * 0.23f);
+            scroll.StopMovement();
+            scroll.verticalNormalizedPosition = 1f -
+                Mathf.Clamp01((targetTop - context) / distance);
         }
 
         private void MakeChoice(VillageChoice choice)

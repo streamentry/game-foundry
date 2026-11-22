@@ -8,7 +8,7 @@
 
 | Moment | What the player should perceive | Implemented surface | Biggest uncertainty |
 | --- | --- | --- | --- |
-| Launch | A calm place, a dried creek, no login or advertisement | Warm paper UI; 2D original village art by default; local save | Does header/language selector/art push the first tile below fold? |
+| Launch | A calm place and an immediately tappable puzzle, no login or advertisement | The Unity first-chapter source now builds the puzzle **before** the optional village illustration; the water/creek are still inspectable below | Do the first tile and its tap feedback actually fit and remain discoverable at 320px and larger phones? |
 | First ~10 s | I can tap a pipe; the interaction does something | blue-wave/sprout endpoint icons, 3×3 board, one-tap rotation, changing channel graphics | Mobile hitbox/legibility and actual zero-coaching comprehension |
 | First attempts | An additional connection visibly carries water; a lost connection visibly dries | Only spring-connected pipe geometry becomes blue; dry channels stay earthen; 2D creek advances with reach; connected count and ! leak cues remain | Do people grasp real connectivity without coaching, including grayscale play? |
 | First solution | The previously dry downstream creek fills completely | `VillageScenePlan.WaterRestored` switches only after complete leak-free connectivity; partial water remains distinct from restoration | Is this more rewarding than incremental flow, without confetti? |
@@ -44,7 +44,7 @@ Portrait scrolling UI
   Offline, no-pressure footer
 ```
 
-This is an **implementation map**, not a guarantee everything is visible without scrolling. Pressing a choice rebuilds the UI; board interactions update existing tile widgets. The 2D/2.5D renderer switch is intentionally below the core game, not a mandatory choice.
+This is an **implementation map**, not a guarantee everything is visible without scrolling. The unsolved first board is now ordered before the illustrated village in Unity source; on solve, an anchored scroll goes to the actual choice heading with preceding context instead of blindly to the footer. These positions require **real-device measurement** at 320px/large text/safe-area sizes. Pressing a choice rebuilds the UI; board interactions update existing tile widgets. The 2D/2.5D renderer switch is intentionally below the core game, not a mandatory choice.
 
 ### Interaction states
 

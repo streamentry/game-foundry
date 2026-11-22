@@ -41,7 +41,7 @@ For **8–12** uncoached formative sessions, report exact numerator/denominator 
 
 ### First-screen code increment (partial, no user evidence)
 
-The generated Unity UI now compresses the initial title, moves the first puzzle into the initial scroll flow, places the secondary Language control below that board, and repaints genuinely spring-connected pipe geometry and partial upstream 2D water on each tap. This is a **source-level layout/feedback change**; the first playable tap, accessibility and 320–430-width phone rendering have not been measured in a licensed Unity player. If a wrong auto-detected locale obstructs play, language selection must remain discoverable with no data-loss risk. No new menu, forced language modal or experiment control may delay the first water move.
+The generated Unity UI now compresses the initial title, places the **first unsolved puzzle before optional village artwork**, puts secondary Language settings below that board, and repaints genuinely spring-connected pipe geometry and partial upstream 2D water on each tap. On completion it navigates to the specific choice heading rather than jumping to a footer. This is a **source-level layout/feedback change**; the first playable tap, accessibility and 320–430-width phone rendering have not been measured in a licensed Unity player. If a wrong auto-detected locale obstructs play, language selection must remain discoverable with no data-loss risk. No new menu, forced language modal or experiment control may delay the first water move.
 
 ## The first 60 seconds — proposed storyboard
 
