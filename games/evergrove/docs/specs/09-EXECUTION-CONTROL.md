@@ -69,6 +69,12 @@ The current research pipeline uses the Unity **Development Build** option, which
 
 Official source: [Unity 6.3 Development Build scripting define](https://docs.unity.com/en-us/engine/6000.3/manual/building-and-publishing/build-settings/build-profiles-reference).
 
+## Newly integrated implementation, gate statuses unchanged
+
+The repo now contains source-level versions of EG-002 (compact first screen), EG-004 (45 derived board profiles), EG-005 (three stages of hint in v4), EG-008 (visible save failure), EG-011 (noncolor leak cue), and EG-101 (truthful causal journal). The 30 offline translation choices now cover **81 draft runtime keys**. The original **37 features × 46 test contracts** remain the accountability boundary: none of the above has independent Unity/device/human evidence, and M1–M6 are still open.
+
+The `BuildOptions.Development` research pipeline and `UNITY_EDITOR || DEVELOPMENT_BUILD` compile guards must remain intact. Do not let a later merge reintroduce public Puzzle Only, renderer switches or local study export controls into a release build.
+
 ## Test registry and evidence rule
 
 [verification-matrix.json](verification-matrix.json) contains stable IDs under: `BLD-*`, `SAVE-*`, `PUZ-*`, `LOC-*`, `A11Y-*`, `PRIV-*`, `VAL-*`, `WLD-*`, `UX-*`, `TOOL-*`, `PERF-*`, `STORE-*`. Each feature must point to at least one defined test.

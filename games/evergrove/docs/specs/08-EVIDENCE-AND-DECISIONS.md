@@ -11,7 +11,7 @@
 | 12 authored puzzles and 33 transformed variants exist in C# | Verified-source, **not device** | Pure C# solver output; human difficulty separately measured | Puzzle/branch source changes |
 | Unity 6.3 imports and builds Evergrove | **Unverified** | Licensed Unity Editor compile, log, build-run URL and artifact hash (`BLD-001..003`) | Relevant Unity dependency/source changes |
 | Full Android and iPhone campaign playable | **Unverified** | Physical sessions of all 12 streams (`BLD-004/005`) | Tested build change |
-| 30 draft translation catalogs exist | Verified-source (catalog parity only) | UTF-8 76-key registry/CI; device/native signoff is separate | Translation registry or assets change |
+| 30 draft translation catalogs exist | Verified-source (catalog parity only) | UTF-8 81-key registry/CI; device/native signoff is separate | Translation registry or assets change |
 | Thirty production-ready languages | **Unsupported** | Per-locale technical, native, device and store certification (`LOC-002/003/004`) | Any release/language change |
 | Offline save survives interruption | **Unverified beyond source-level backup strategy** | `SAVE-001/002/003` on device and exact backup/migration logs | Save/build/platform change |
 | No unexpected data transmission | **Unverified** | Production binary packet capture and SDK inventory (`PRIV-001`) | Any binary/package change |
@@ -87,6 +87,18 @@ Evergrove could be **two weak experiences joined together**: familiar pipe rotat
 - Owner and next observable action:
 - Revisit date or trigger:
 ```
+
+## 2026-11-22 — source-level P0/P1 integration (unverified in Unity)
+
+- **EG-002:** first-screen puzzle promoted ahead of secondary settings; actual usability untested.
+- **EG-004:** 45 source-derived profiles, exact solution checks and source/JSON comparison. Human solve times/quality remain unmeasured.
+- **EG-005:** three-stage non-punitive hints with v4 persisted progress; stages 1/2 do not mutate rotations; stage 3 aligns a tile, with Undo. C# checks are not player evidence.
+- **EG-008:** visible localized save-failure message. Atomicity/crash recovery unproven.
+- **EG-011:** textual `!` leak cues. Actual contrast/accessible understanding unproven.
+- **EG-101:** truthful choice-triggered journal, only provenance-confirmed latest next-puzzle mechanics; no made-up history.
+- **Research isolation:** main's `UNITY_EDITOR || DEVELOPMENT_BUILD` guard and icon-only spring/garden markers have been retained alongside these additions.
+
+**The audit-baseline commit in this ledger is intentionally historical.** The modified feature branch must obtain *new* Unity and device artifacts before any implementation becomes `Verified`. The [machine-readable ledger](verification-matrix.json) has **zero Verified features**, not a false certification.
 
 ## Current decision register (documentation only)
 

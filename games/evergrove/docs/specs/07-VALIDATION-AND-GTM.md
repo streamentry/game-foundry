@@ -47,6 +47,16 @@ If matching cannot be implemented yet, limit the first study to the **identical 
 
 **Report:** numerator/denominator, participant characteristics, recruitment channel, assigned condition, missing follow-up, actual device/build and negative quotes. Never convert small-sample percentages into precise forecasts.
 
+## Newly implemented prototypes awaiting independent validation
+
+- The three hint stages are **explicit choices**; Stage 1/2 are clue-only, Stage 3 aligns one incorrect tile. Count `LocalPlaytest.hints` as **all hint requests**, not the number of mutated tiles. `WorldModel.HintsUsed` increments only when a tile is aligned. Report both definitions honestly.
+- A non-color `!` now marks leaking tiles, but which joint is actually open may remain ambiguous: evaluate interpretation with grayscale displays.
+- The source-grounded journal includes only the **latest** proven board rule and avoids fictional past effects. Test unprompted recall after a genuine choice.
+- The 45 deterministic diagnostic board profiles expose **minimum clockwise taps**, not human challenge; keep observations null until a real user dataset exists.
+- The first board has been moved earlier in the Unity-generated scroll hierarchy, but actual first-tap time remains unknown.
+
+**Validation remains blocked until M1/M2**: no inference about retention, adoption or comfort should be drawn from these source changes.
+
 ## Seven-day first reality check
 
 | Day | Work | Deliverable / exit gate |

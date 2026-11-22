@@ -21,7 +21,7 @@ Official design references: [Apple accessibility HIG](https://developer.apple.co
 
 ## Existing localization infrastructure
 
-[LOCALIZATION.md](../../LOCALIZATION.md) is the canonical inventory and detection specification. Current code has **30 selectable languages** (English plus 29 JSON catalogs), auto-detection, manual override, bundled offline resources and state-independent language switching. All **76 compact player-facing keys** are present in the catalog inventory, but **translations are editorial drafts**. The richer original English narrative is not translated in full; `LocalizedVillage` supplies a concise cross-locale authored script.
+[LOCALIZATION.md](../../LOCALIZATION.md) is the canonical inventory and detection specification. Current code has **30 selectable languages** (English plus 29 JSON catalogs), auto-detection, manual override, bundled offline resources and state-independent language switching. All **81 compact player-facing keys** are present in the catalog inventory, but **translations are editorial drafts**. The richer original English narrative is not translated in full; `LocalizedVillage` supplies a concise cross-locale authored script.
 
 **Available locale codes (30):** `en`, `zh-Hans`, `zh-Hant`, `es`, `pt-BR`, `fr`, `de`, `ja`, `ko`, `ar`, `hi`, `ru`, `id`, `vi`, `tr`, `th`, `it`, `nl`, `pl`, `uk`, `fa`, `he`, `ms`, `fil`, `bn`, `ur`, `ta`, `te`, `sw`, `sv`.
 
@@ -38,7 +38,7 @@ The current UI uses **legacy Unity uGUI Text** and best-effort OS fonts. Right a
 | Thai `th` | Word/line breaking without spaces, clipping, focus and long choice text |
 | Chinese `zh-Hans/zh-Hant`, Japanese `ja`, Korean `ko` | Glyph coverage, punctuation, compact layout, consistent font fallback |
 | Vietnamese `vi` and other Latin/extended Latin locales | Diacritics, line-height, truncation, long compound words and button widths |
-| All 30 | Full 76-key coverage, placeholder parity, meaning, gender, cultural nuance, font license, screen reader, save independence |
+| All 30 | Full 81-key coverage, placeholder parity, meaning, gender, cultural nuance, font license, screen reader, save independence |
 
 Reference: [Unity Advanced Text Generator](https://docs.unity.com/en-us/engine/6000.0/manual/uitoolkits/uielements/uie-work-with-text/uie-advanced-text-generator) and [language direction](https://docs.unity.com/en-us/engine/6000.3/manual/uitoolkits/uielements/uie-work-with-text/language-direction). Do not distribute system fonts or assume OS availability.
 
@@ -66,6 +66,8 @@ Current first-stream markers in the code branch have been changed from text `S/G
 ### Complex text architecture decision
 
 The current app still uses generated uGUI Text controls and best-effort OS fonts. **Correct direction/alignment alone is not shaping.** Evaluate Unity UI Toolkit Advanced Text Generator or a tested equivalent in an architecture spike: record shaping screenshot tests, fallback font licensing, binary/memory costs and screen-reader interaction. Native review follows technical shape/readability review. Until then, Arabic, Persian, Urdu, Hebrew and Indic scripts are **unverified release blockers if enabled**.
+
+**Additional source-only affordance:** `PipeRules.Inspect` now exposes per-tile leaking flags, and Unity UI draws a visible `!` on leaking water tiles. Verify grayscale, punctuation legibility at large text, actual touch targets and TalkBack/VoiceOver; this is **not** an accessibility certification. Five new draft help/save-warning messages bring catalogs to 81 canonical keys. The preview still uses legacy uGUI and does **not** implement complex-script shaping.
 
 ## Launch locale certification, not catalog count (EG-010)
 

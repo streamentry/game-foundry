@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | Puzzle topology, ports, connectivity, exhaustive solver | [PipeRules.cs](../../Assets/Scripts/Core/PipeRules.cs) | Deterministic, Unity-free logic; no hidden random answer |
 | 12 authored puzzles and 33 choice variants | [PipeRules.cs](../../Assets/Scripts/Core/PipeRules.cs), [ReactiveWatercourses.cs](../../Assets/Scripts/Core/ReactiveWatercourses.cs) | Variant derived from previous saved choice; anchored tile consistent |
-| Event history, current board, v3 snapshot and migration | [WorldModel.cs](../../Assets/Scripts/Core/WorldModel.cs) | One authoritative history; no double choice or forged save |
+| Event history, current board, v4 snapshot and v1/v2/v3 migration | [WorldModel.cs](../../Assets/Scripts/Core/WorldModel.cs) | One authoritative history; no double choice or forged save |
 | Story and localized state-dependent text | [VillageStory.cs](../../Assets/Scripts/Core/VillageStory.cs), [LocalizedVillage.cs](../../Assets/Scripts/Core/LocalizedVillage.cs) | NPCs never invent unsaved events |
 | Pure scene state | [VillageScenePlan.cs](../../Assets/Scripts/Core/VillageScenePlan.cs) | Both renderers show identical world facts |
 | UI, input, sound and local playtest opt-in | [EvergroveApp.cs](../../Assets/Scripts/Unity/EvergroveApp.cs) | Real touch, safe area, language switching, optional controls |
@@ -41,7 +41,7 @@
 
 **Research channel:** `EvergroveBuild.Build` now explicitly requests `BuildOptions.Development`. Unity's `DEVELOPMENT_BUILD` compile symbol gates experiment mode, 2D/2.5D comparison, miniature motion and local research export controls in `EvergroveApp`. A future store build must use a **separate non-development pipeline** with `BLD-007` static and runtime verification. Do not sign/upload a GameCI playtest APK as a consumer release.
 
-**Save filename hazard:** the persistent filename is `evergrove-world-v2.json` but the **WorldSnapshot schema is v3**. The filename is a historical storage identifier; **do not rename it merely because the schema increments**, without explicit file migration and regression tests.
+**Save filename hazard:** the persistent filename is `evergrove-world-v2.json` but the **WorldSnapshot schema is v4**. The filename is a historical storage identifier; **do not rename it merely because the schema increments**, without explicit file migration and regression tests.
 
 ### Candidate build evidence record
 
@@ -66,9 +66,13 @@ Decision: BLOCKED | REWORK | GO
 
 No placeholder in this template is evidence. Only a real record tied to the source/build SHA can move a feature to `Verified`. See [execution controls](09-EXECUTION-CONTROL.md) and [46 named test contracts](verification-matrix.json).
 
+**New source-only data contracts:** snapshot version `4` persists staged help (`hintStep` and `hintTile`) and migrates versions 1, 2 and 3 without changing existing boards. The GUI now warns about a failed disk write; **this is not evidence of power-loss or forced-kill durability**. `SAVE-001/002/003` must still pass on devices.
+
+**Pure C# metadata guard:** `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release -- --check-puzzle-catalog` must reproduce all 45 authored/choice-conditioned profiles from deterministic code. This proves catalog/source parity, **not experienced difficulty**.
+
 ## Save integrity (EG-008)
 
-Current `WorldStore` writes `evergrove-world-v2.json` (filename is v2; **snapshot schema is v3**), validates JSON via `WorldModel.TryRestore`, writes a temporary file, attempts replacement with backup and has a copy-based fallback. It can recover a previous valid backup and migrate old PlayerPrefs v1 data. **This is an implemented strategy, not a verified atomic guarantee on every mobile filesystem.**
+Current `WorldStore` writes `evergrove-world-v2.json` (filename is v2; **snapshot schema is v4**), validates JSON via `WorldModel.TryRestore`, writes a temporary file, attempts replacement with backup and has a copy-based fallback. It can recover a previous valid backup and migrate old PlayerPrefs v1 data. **This is an implemented strategy, not a verified atomic guarantee on every mobile filesystem.**
 
 Required fault-injection plan:
 1. Make one rotation, save, terminate; reopen and compare board, variant and hints.
