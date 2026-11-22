@@ -9,13 +9,13 @@
 | ID | Feature | Priority | Status | Type | R/I/C/E | Score |
 | --- | --- | --- | --- | --- | --- | ---: |
 | [EG-001](#eg-001--verified-phone-builds) | Verified phone builds | P0 | Scaffolded | Reliability | 5/5/5/2 | 62.5 |
-| [EG-002](#eg-002--first-60-second-complete-loop) | First 60-second complete loop | P0 | Proposed UX change | Core quality | 5/5/3/2 | 37.5 |
+| [EG-002](#eg-002--first-60-second-complete-loop) | First 60-second complete loop | P0 | Compact intro code; phone QA open | Core quality | 5/5/3/2 | 37.5 |
 | [EG-003](#eg-003--consequence-first-visual-reveal) | Consequence-first visual reveal | P0 | Scene changes exist | Core quality | 5/5/3/2 | 37.5 |
-| [EG-004](#eg-004--puzzle-solver-and-difficulty-metadata) | Puzzle solver and difficulty metadata | P0 | Unique-solution solver tests exist | Core quality | 5/4/4/3 | 26.7 |
-| [EG-005](#eg-005--progressive-non-punitive-hints) | Progressive non-punitive hints | P0 | One-tile Guide Me exists | Core quality | 5/4/4/2 | 40.0 |
+| [EG-004](#eg-004--puzzle-solver-and-difficulty-metadata) | Puzzle solver and difficulty metadata | P0 | 45 source-derived profiles; human QA open | Core quality | 5/4/4/3 | 26.7 |
+| [EG-005](#eg-005--progressive-non-punitive-hints) | Progressive non-punitive hints | P0 | 3-stage v4 code; phone QA open | Core quality | 5/4/4/2 | 40.0 |
 | [EG-006](#eg-006--correct-complex-script-text-rendering) | Correct complex-script text rendering | P0 | Legacy uGUI Text and best-effort OS fonts | Release quality | 4/5/5/4 | 25.0 |
 | [EG-007](#eg-007--large-forgiving-touch-and-readable-text) | Large, forgiving touch and readable text | P0 | Safe-area scroll and large controls exist | Release quality | 5/5/5/2 | 62.5 |
-| [EG-008](#eg-008--crash-safe-offline-saves) | Crash-safe offline saves | P0 | Versioned JSON v3, backup and migration implemented | Reliability | 5/5/5/2 | 62.5 |
+| [EG-008](#eg-008--crash-safe-offline-saves) | Crash-safe offline saves | P0 | v4 + warning; device fault tests open | Reliability | 5/5/5/2 | 62.5 |
 | [EG-009](#eg-009--offlineprivacy-binary-verification) | Offline/privacy binary verification | P0 | Offline design and opt-in in-memory playtest exist | Trust | 5/5/5/2 | 62.5 |
 | [EG-010](#eg-010--native-certified-launch-locale-subset) | Native-certified launch locale subset | P0 | 30 complete draft catalogs | Release quality | 4/4/5/3 | 26.7 |
 | [EG-011](#eg-011--non-color-connectivity-and-contrast) | Non-color connectivity and contrast | P0 | Color-coded scene/pipe UI exists | Release quality | 5/4/5/2 | 50.0 |
@@ -46,6 +46,10 @@
 | [EG-207](#eg-207--aso-positioning-experiments) | ASO positioning experiments | P2 | Proposed | Distribution | 4/4/3/2 | 24.0 |
 | [EG-208](#eg-208--tabletpc-expansion-after-mobile-proof) | Tablet/PC expansion after mobile proof | P2 | Proposed | Expansion | 2/3/2/4 | 3.0 |
 
+## Status update — actual code is not player evidence
+
+This pass adds source-derived puzzle metadata, staged help, a shortened initial layout and visible save warnings. **Each remains partial against its original P0 acceptance criteria** until real Unity Editor compilation, phone QA and players prove the intended improvement. All 37 feature IDs and historical illustrative prioritization scores remain traceable.
+
 ## P0 — release and core-quality gates
 
 ### EG-001 — Verified phone builds
@@ -60,7 +64,7 @@
 
 ### EG-002 — First 60-second complete loop
 
-**State:** Proposed UX change; dry→flowing water already exists. **Type:** Core quality. **Risk:** Over-directed opening may feel trivial. **Evidence:** R1,R3,Q1. **R/I/C/E:** 5/5/3/2; **illustrative score:** 37.5.
+**State:** Compact first-puzzle art and language controls rearranged in code; no measured first-minute results or device pass. **Type:** Core quality. **Risk:** Over-directed opening may feel trivial. **Evidence:** R1,R3,Q1. **R/I/C/E:** 5/5/3/2; **illustrative score:** 37.5.
 
 - **Player problem:** Players may see menus or a generic pipe board before Evergrove's value.
 - **Player-visible behavior:** Start at dry creek with obvious first tile; first rotations extend water; first solve visibly revives a village detail.
@@ -80,20 +84,20 @@
 
 ### EG-004 — Puzzle solver and difficulty metadata
 
-**State:** Unique-solution solver tests exist; authoring metadata proposed. **Type:** Core quality. **Risk:** Solver complexity mistaken for felt difficulty. **Evidence:** R1,Q2,H1. **R/I/C/E:** 5/4/4/3; **illustrative score:** 26.7.
+**State:** 45 source-derived board profiles checked against pure C#; observed human difficulty, forced moves and editorial acceptance remain unknown. **Type:** Core quality. **Risk:** Solver complexity mistaken for felt difficulty. **Evidence:** R1,Q2,H1. **R/I/C/E:** 5/4/4/3; **illustrative score:** 26.7.
 
 - **Player problem:** Unique solution does not guarantee fair or engaging difficulty.
-- **Player-visible behavior:** Store solution proof, minimum rotations, error traps, hint path, ecological rule, target band and observed solve times per board.
+- **Player-visible behavior:** [45 checked-in profiles](puzzle-catalog.generated.json) now include layout, solution and at-most-two solution count, minimum clockwise taps, initial leaks/reach, and anchor. Advanced forced-move/hint-path metrics, difficulty labels and observed human times remain unimplemented or unknown.
 - **Acceptance criteria:** All 12 originals and 33 variants have reproducible validity checks; no unsolvable/multi-solution shipping board; human times recorded separately.
 - **Success signal:** No invalid boards; flag >2× adjacent solve-time spikes for review, not automatic rejection.
 - **Dependencies:** PipeRules, Tests/Program.cs, representative testers.
 
 ### EG-005 — Progressive non-punitive hints
 
-**State:** One-tile Guide Me exists; 3-stage ladder proposed. **Type:** Core quality. **Risk:** Hint reveals too much or implies a unique move when multiple are possible. **Evidence:** R1,Q1,H1. **R/I/C/E:** 5/4/4/2; **illustrative score:** 40.0.
+**State:** Three on-request clue stages (row, tile, one aligned connection) implemented and persisted in v4; target-device accessibility and recovery remain unverified. **Type:** Core quality. **Risk:** Hint reveals too much or implies a unique move when multiple are possible. **Evidence:** R1,Q1,H1. **R/I/C/E:** 5/4/4/2; **illustrative score:** 40.0.
 
 - **Player problem:** One hint may spoil a puzzle or fail to unstick a player.
-- **Player-visible behavior:** Stage 1 highlights a useful region; stage 2 names a tile; stage 3 performs one correct rotation; no penalty/currency.
+- **Player-visible behavior:** Stage 1 highlights a row; stage 2 marks the target tile; stage 3 aligns exactly one pipe to its reference orientation; no penalty/currency.
 - **Acceptance criteria:** Each stage makes valid progress on every board/variant; anchored tiles remain fixed; hint state survives undo/restart appropriately.
 - **Success signal:** ≥80% of stuck testers resume unaided; <20% report unwanted full spoiler.
 - **Dependencies:** EG-004, undo and save contracts.
@@ -120,7 +124,7 @@
 
 ### EG-008 — Crash-safe offline saves
 
-**State:** Versioned JSON v3, backup and migration implemented; device fault tests open. **Type:** Reliability. **Risk:** Platform-specific File.Replace/fallback semantics. **Evidence:** R1,R2. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
+**State:** v4 JSON, backup and v1/v2/v3 migration; visible translated warning on failed save. Device fault tests still open. **Type:** Reliability. **Risk:** Platform-specific File.Replace/fallback semantics. **Evidence:** R1,R2. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
 
 - **Player problem:** Lost garden history destroys trust and emotional ownership.
 - **Player-visible behavior:** Write validated snapshots, recover previous valid save, migrate v1/v2, confirm destructive reset.

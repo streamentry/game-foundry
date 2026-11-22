@@ -22,6 +22,10 @@
 
 See [source map](08-EVIDENCE-AND-DECISIONS.md) and [project README](../../README.md). The repository implements 12 authored 3×3/4×4 boards, 33 deterministic choice-conditioned variants, a fixed ecological landmark, authored reactions from Mira/Orin/Fen, journal/endings, 2D and opt-in 2.5D, offline save/backup/migration and 30 draft locale choices. Current consequences are **limited**: rotating existing topology and anchoring a tile is not a new ecological rule. The 2.5D renderer is an experiment, not a production art commitment. Unity and real-device gates are open.
 
+## Implementation note: initial layout shortened, outcome unmeasured
+
+The default first chapter now uses a compact dry-creek preview and moves language settings below the puzzle to make the first tap more discoverable. The <15-second median first action, player comprehension and small-phone viewport behavior have **not** been measured. The plan below remains a testable storyboard, not a recorded result.
+
 ## The first 60 seconds — proposed storyboard
 
 | Moment | Player sees/does | Design and test intent |
@@ -87,7 +91,7 @@ Other failure modes: accessibility fails on compact devices; translations render
 2. Dry stream → immediate touch → flowing water → village reaction in the first minute.
 3. Visually explicit consequences **before** explanatory dialogue.
 4. Solver metadata and human-calibrated difficulty for all 12 authored boards.
-5. Progressive, non-punitive hints.
+5. Three-stage, non-punitive hints in code; phone UX and comprehension still require testing.
 6. Correct Unicode/RTL/Indic text rendering; certify a smaller launch locale set.
 7. Large targets, non-color cues, scaling and accessibility device QA.
 8. Ecological choices that genuinely alter future puzzle reasoning.
