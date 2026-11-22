@@ -20,6 +20,10 @@
 
 **Architecture rule:** domain model is authoritative. Renderer, language, haptic/sound, test mode and future store entitlement must not rewrite ecology choices or solution history. No backend dependency for core play. Optional Cloudflare preview is not connected to game state.
 
+## Build/evidence separation
+
+Follow [11 — Release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) for exact source SHA vs binary hash, research/consumer build-channel audit, signature and platform evidence. **Do not confuse a green C# domain job with a verified Unity import, Android APK installed on a phone or iOS Xcode export.** The manual Ubuntu workflow exposes iOS as an option; the export host/toolchain must be verified by a real successful run. All current device/build evidence stays unverified until supplied.
+
 ## Build ladder — every step records evidence
 
 | Gate | Procedure | Passing evidence |

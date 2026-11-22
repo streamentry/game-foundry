@@ -6,6 +6,12 @@
 
 **Product goal:** a short, excellent puzzle that leaves a legible, truthful change in an offline village. The backlog is an *opportunity inventory*, **not 37 features promised for release**. Default next work is risk retirement, not additional scope.
 
+## Gate start versus final verification
+
+A feature's machine-register `decision_gate` is its **earliest work/evidence gate**, not automatically the final milestone needed to verify it. For example `EG-001` starts at M1 but requires BLD-004–006 physical tests at M2; `EG-007` begins at M2 but includes A11Y-005 in M5. Only after **all required** tests have real build-linked evidence may a feature become `Verified`.
+
+**Fresh source caution:** the current repository also includes **v4 state, 81-key locales and 45 source-derived puzzle profiles**. This changes the historical audit baseline but **does not mean** Unity has compiled or players were tested. Open feature PRs may still be changing the same source. See [experiment protocols](10-EXPERIMENT-PROTOCOLS.md) and [release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md).
+
 ## Source versus verification states
 
 The feature state machine is:
@@ -57,6 +63,10 @@ The gates are **sequential evidence requirements**, not calendar milestones. M1/
 
 **Immediate highest-value action:** use [manual Unity playtest workflow](../../../../.github/workflows/evergrove-unity-playtest.yml) with maintainer-controlled Unity activation. It generates research/development artifacts, **not** signed store releases. The connector cannot supply private Unity license, Android signing or Xcode credentials. Record blockers and do not bypass the gate.
 
+## Export-host realism
+
+The manual Unity Action uses Ubuntu and lists an iOS option. This is **not proof** an unsigned Xcode project is actually generated from that runner. Log build-system support for the chosen platform and change to a supported host if necessary. Never mark M1 or BLD-003 complete without an actual Editor/export log, artifact and hash. An exported Xcode project is also not a signed, installed iPhone build (M2).
+
 ## Research vs consumer build channel
 
 The current research pipeline uses the Unity **Development Build** option, which defines `DEVELOPMENT_BUILD` under Unity 6.3. `EvergroveApp` includes Puzzle Only comparison, 2D/2.5D switch, miniature motion and private playtest-report controls **only under `#if UNITY_EDITOR || DEVELOPMENT_BUILD`**. Ordinary non-development player builds omit those UI branches and force 2D fallback. This is a **source-level guard**, not yet a verified shipping binary; perform `BLD-007` before release.
@@ -74,6 +84,19 @@ Official source: [Unity 6.3 Development Build scripting define](https://docs.uni
 The repo now contains source-level versions of EG-002 (compact first screen), EG-004 (45 derived board profiles), EG-005 (three stages of hint in v4), EG-008 (visible save failure), EG-011 (noncolor leak cue), and EG-101 (truthful causal journal). The 30 offline translation choices now cover **81 draft runtime keys**. The original **37 features × 46 test contracts** remain the accountability boundary: none of the above has independent Unity/device/human evidence, and M1–M6 are still open.
 
 The `BuildOptions.Development` research pipeline and `UNITY_EDITOR || DEVELOPMENT_BUILD` compile guards must remain intact. Do not let a later merge reintroduce public Puzzle Only, renderer switches or local study export controls into a release build.
+
+## Cross-cutting tests owned by milestone gates
+
+Seven tests have no single-feature owner and therefore belong in `verification-matrix.json.gate_required_verification_ids`:
+
+| Gate | IDs | Why release must check them |
+| --- | --- | --- |
+| M2 | `SAVE-004`, `PUZ-007` | Settings do not mutate world state; language-independent endpoints work on phones |
+| M3 | `PUZ-006` | Compact-phone first-action accuracy and errors are cross-feature usability evidence |
+| M5 | `BLD-007`, `VAL-003` | No experiment controls in consumer build; visual comparison has actual evidence |
+| M6 | `STORE-001`, `STORE-002` | Name/store clearance and privacy declarations apply to the whole product |
+
+This makes **all 46 tests owned**. The added doc checker rejects orphan tests; ownership is **not PASS evidence**.
 
 ## Test registry and evidence rule
 

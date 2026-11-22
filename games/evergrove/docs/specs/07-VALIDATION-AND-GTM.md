@@ -4,6 +4,10 @@
 
 This is an **experiment plan**, not a report of completed player studies, revenue or retention.
 
+## Research operations contract
+
+Use [10 — Preregistered experiments](10-EXPERIMENT-PROTOCOLS.md) for assignment, fixture matching, timing, prompts, failure inclusion and data handling. Source-implemented v4 hints or altered board difficulties may **confound** comparisons if study arms differ. Do not call current Living vs PuzzleOnly a narrative-only randomized A/B after chapter 1. Record an actual study report and build SHA with [11 — Evidence packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) before concluding any lift.
+
 ## Three different experiments — do not combine their conclusions
 
 | Experiment | Question | Design | Suggested sample / limitation |

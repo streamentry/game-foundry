@@ -101,6 +101,8 @@ SPEC_DOCUMENTS = [
     "07-VALIDATION-AND-GTM.md",
     "08-EVIDENCE-AND-DECISIONS.md",
     "09-EXECUTION-CONTROL.md",
+    "10-EXPERIMENT-PROTOCOLS.md",
+    "11-EVIDENCE-AND-RELEASE-PACKETS.md",
 ]
 
 
@@ -219,6 +221,24 @@ def check_specification_contract() -> None:
     for feature_id in feature_by_id:
         visit(feature_id)
 
+    # Every named test must have a feature owner OR explicit milestone owner.
+    # No orphan tests can vanish silently from the release decision.
+    linked_ids = {ref for feature in features for ref in feature["verification_ids"]}
+    gate_tests = matrix.get("gate_required_verification_ids")
+    if not isinstance(gate_tests, dict):
+        fail("Missing canonical milestone-level test ownership map")
+    for gate, refs in gate_tests.items():
+        if gate not in gates or not isinstance(refs, list):
+            fail(f"Invalid gate-wide test list: {gate}")
+        if len(refs) != len(set(refs)):
+            fail(f"Duplicate gate-wide test assignment: {gate}")
+        for ref in refs:
+            if ref not in test_by_id or test_by_id[ref]["gate"] != gate:
+                fail(f"Unknown or wrongly assigned milestone test: {gate}/{ref}")
+            linked_ids.add(ref)
+    if set(test_by_id) != linked_ids:
+        fail(f"Unowned verification tests: {sorted(set(test_by_id) - linked_ids)}")
+
     # Static release isolation is a prerequisite, never a runtime-certification.
     ui = source_text(GAME / "Assets/Scripts/Unity/EvergroveApp.cs")
     builder = source_text(GAME / "Assets/Editor/EvergroveBuild.cs")
@@ -257,7 +277,7 @@ def check_specification_contract() -> None:
             fail(f"First puzzle localization still depends on English S/G: {file.name}")
     print(
         f"Evergrove execution contract: {len(features)} feature records, "
-        f"{len(tests)} test IDs, 10 linked feature specs, "
+        f"{len(tests)} test IDs, {len(SPEC_DOCUMENTS)} linked feature specs, "
         "zero claimed device/human verification unless proof exists."
     )
 
