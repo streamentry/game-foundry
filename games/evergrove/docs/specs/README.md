@@ -18,6 +18,20 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 | [06 — Engineering and release QA](06-ENGINEERING-AND-RELEASE.md) | Existing code boundaries, save/privacy/device test plan, performance, build and shipping gates |
 | [07 — Validation and go-to-market](07-VALIDATION-AND-GTM.md) | Seven-day experiment, six-week sequence, matched controls, thresholds, ASO, ethical pricing, naming check |
 | [08 — Evidence and decisions](08-EVIDENCE-AND-DECISIONS.md) | Repo-source map, external evidence, confidence levels, strongest opposing case, load-bearing assumptions, decision log |
+| [09 — Execution control](09-EXECUTION-CONTROL.md) | Immutable audit baseline, lifecycle, owners, milestone gates, defect severity, proof artifacts, release vs research build contract |
+| [Verification matrix](verification-matrix.json) | Machine-checked 37-feature × 46-test contracts; no fabricated verification evidence |
+
+## Specification control (2026-11-22 v2)
+
+**Source audited at immutable SHA:** [`84713febd1e9d5921706d1916132b309b74a604f`](https://github.com/streamentry/game-foundry/commit/84713febd1e9d5921706d1916132b309b74a604f). This is a historic *audit baseline*, not a completed Unity build. The current source branch may include subsequent fixes.
+
+**Responsible roles:** Product Owner; Gameplay Engineer; Unity/Release Engineer; UX & Accessibility QA; Localization Lead; independent Native Reviewer; Research Moderator; Store/Legal Owner. Roles are accountability categories, **not assigned individuals**. Each Ready feature needs a real assignee.
+
+**Lifecycle:** `Proposed → Ready → In Progress → Implemented-Unverified → Verified` or `Deferred/Rejected`; `Blocked` is independent. **Verified requires a build SHA and mandatory test artifacts, not just code or a green pure-C# job.** See [09 — Execution control](09-EXECUTION-CONTROL.md).
+
+**Evidence-first gates:** M0 specs → M1 Unity compile/build → M2 two physical devices and save/privacy → M3 first-session usability → M4 properly matched narrative-value study → M5 certified locale/text architecture → M6 commercial release. Do not implement replay, daily content or expansion systems as a substitute for a failed gate.
+
+**Thirty draft locales ≠ thirty production-ready languages.** The 37 backlog features are conditional opportunities, **not a promise to ship 37**. Current `verification-matrix.json` contains **no certified test evidence**.
 
 ## What exists versus what is only specified
 
