@@ -11,7 +11,7 @@
 | 12 authored puzzles and 33 transformed variants exist in C# | Verified-source, **not device** | Pure C# solver output; human difficulty separately measured | Puzzle/branch source changes |
 | Unity 6.3 imports and builds Evergrove | **Unverified** | Licensed Unity Editor compile, log, build-run URL and artifact hash (`BLD-001..003`) | Relevant Unity dependency/source changes |
 | Full Android and iPhone campaign playable | **Unverified** | Physical sessions of all 12 streams (`BLD-004/005`) | Tested build change |
-| 30 draft translation catalogs exist | Verified-source (catalog parity only) | UTF-8 76-key registry/CI; device/native signoff is separate | Translation registry or assets change |
+| 30 draft translation catalogs exist | Verified-source (catalog parity only) | UTF-8 81-key registry/CI; device/native signoff is separate | Translation registry or assets change |
 | Thirty production-ready languages | **Unsupported** | Per-locale technical, native, device and store certification (`LOC-002/003/004`) | Any release/language change |
 | Offline save survives interruption | **Unverified beyond source-level backup strategy** | `SAVE-001/002/003` on device and exact backup/migration logs | Save/build/platform change |
 | No unexpected data transmission | **Unverified** | Production binary packet capture and SDK inventory (`PRIV-001`) | Any binary/package change |

@@ -181,7 +181,7 @@ This pass adds source-derived puzzle metadata, staged help, a shortened initial 
 **Execution:** `Proposed`; **M3**; owner role **UX & Accessibility QA**; verification **`A11Y-002`**; expected evidence `games/evergrove/docs/evidence/<BUILD_SHA>/EG-011/verification.md` (**NOT COLLECTED**); **rollback/stop:** Flow or protected state is indistinguishable without hue.
 
 - **Player problem:** Players may not distinguish connected, leaking and anchored tiles by hue.
-- **Player-visible behavior:** Port geometry, S/G text, global leak count, and new visible ! per leaking tile are present in source. High-contrast preference, adaptive visual feedback and device verification are still proposed.
+- **Player-visible behavior:** Port geometry, blue-wave/sprout endpoint icons, global leak count, and new visible ! per leaking tile are present in source. High-contrast preference, adaptive visual feedback and device verification are still proposed.
 - **Acceptance criteria:** Solve full sample in grayscale/color-filter conditions; all states recognizable without audio or color.
 - **Success signal:** No critical state-confusion failures in accessibility test.
 - **Dependencies:** PipeGraphic, EG-007, user testing.
