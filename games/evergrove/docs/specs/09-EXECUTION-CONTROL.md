@@ -63,6 +63,10 @@ The gates are **sequential evidence requirements**, not calendar milestones. M1/
 
 **Immediate highest-value action:** use [manual Unity playtest workflow](../../../../.github/workflows/evergrove-unity-playtest.yml) with maintainer-controlled Unity activation. It generates research/development artifacts, **not** signed store releases. The connector cannot supply private Unity license, Android signing or Xcode credentials. Record blockers and do not bypass the gate.
 
+## Concrete M1 source repair and next blocked proof
+
+The project previously requested Unity **6000.3.0f1** but pinned `com.unity.ugui@2.6.0`, a core package version associated with Unity 6.6. This risks import/package resolution **before gameplay even starts**. Fixed to Unity-6.3-matched **uGUI 2.0.0** with a static CI compatibility assertion. The new manual build provenance step will record source SHA, platform, editor version and actual artifact SHA256 once a **licensed build succeeds**. Neither the pin fix nor a static check constitutes `BLD-001/002/003` PASS. See [engineering spec](06-ENGINEERING-AND-RELEASE.md).
+
 ## Export-host realism
 
 The manual Unity Action uses Ubuntu and lists an iOS option. This is **not proof** an unsigned Xcode project is actually generated from that runner. Log build-system support for the chosen platform and change to a supported host if necessary. Never mark M1 or BLD-003 complete without an actual Editor/export log, artifact and hash. An exported Xcode project is also not a signed, installed iPhone build (M2).

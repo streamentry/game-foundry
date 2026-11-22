@@ -20,6 +20,12 @@
 
 **Architecture rule:** domain model is authoritative. Renderer, language, haptic/sound, test mode and future store entitlement must not rewrite ecology choices or solution history. No backend dependency for core play. Optional Cloudflare preview is not connected to game state.
 
+## Package/Editor compatibility — first verified static blocker
+
+**2026-11-22 source fix:** `Packages/manifest.json` previously pinned `com.unity.ugui@2.6.0` while `ProjectSettings/ProjectVersion.txt` requested **Unity 6000.3.0f1**. Unity documents uGUI as an **editor-matched core package**, not an arbitrary package upgrade. Unity 6.3 uses **uGUI 2.0.0**; the uGUI 2.6.0 upgrade is associated with Unity 6.6. The manifest now pins **2.0.0**; `tools/verify_evergrove_project.py` rejects a regression. The separate `com.unity.inputsystem@1.20.1` is documented as released for Unity 6.3 and is retained. This is **source compatibility repair**, not evidence Unity imports successfully.
+
+Authoritative sources: [Unity 6.3 uGUI core package](https://docs.unity.com/en-us/engine/6000.3/manual/packages-list/packages-all/pack-core/com-unity-ugui), [Unity 6.6 release notes](https://unity.com/releases/editor/whats-new/6000.6.0f1), [Unity 6.3 Input System release list](https://docs.unity.com/en-us/engine/6000.3/manual/packages-list/packages-all/pack-safe/com-unity-inputsystem).
+
 ## Build/evidence separation
 
 Follow [11 — Release packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) for exact source SHA vs binary hash, research/consumer build-channel audit, signature and platform evidence. **Do not confuse a green C# domain job with a verified Unity import, Android APK installed on a phone or iOS Xcode export.** The manual Ubuntu workflow exposes iOS as an option; the export host/toolchain must be verified by a real successful run. All current device/build evidence stays unverified until supplied.
@@ -73,6 +79,10 @@ No placeholder in this template is evidence. Only a real record tied to the sour
 **New source-only data contracts:** snapshot version `4` persists staged help (`hintStep` and `hintTile`) and migrates versions 1, 2 and 3 without changing existing boards. The GUI now warns about a failed disk write; **this is not evidence of power-loss or forced-kill durability**. `SAVE-001/002/003` must still pass on devices.
 
 **Pure C# metadata guard:** `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release -- --check-puzzle-catalog` must reproduce all 45 authored/choice-conditioned profiles from deterministic code. This proves catalog/source parity, **not experienced difficulty**.
+
+## M1 build provenance — exact new deliverable
+
+On a licensed GameCI run, `tools/evergrove_build_provenance.py` must verify platform-specific nonempty output, hash each exported file, and create a machine-readable manifest shipped **inside the private artifact**. Its `source_commit_sha` is not the binary's SHA256; `payload_tree_sha256` is a content-tree digest, not the GitHub artifact ZIP checksum. Use the workflow run logs to confirm the actual editor version and `BuildResult.Succeeded`. Synthetic script tests are run in normal CI, but **BLD-001/002/003 remain unverified** without real licensed export and reviewer evidence. See [release packet](11-EVIDENCE-AND-RELEASE-PACKETS.md).
 
 ## Save integrity (EG-008)
 

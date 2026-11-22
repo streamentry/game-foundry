@@ -32,6 +32,12 @@ These specifications translate the supplied *Evergrove: evidence-backed product 
 
 **A complete specification does not mean 37 completed features.** No feature is `Verified` without real evidence tied to the target build. The as-built [handbook](../README.md) was updated for v4 in PR #49; keep it synchronized with subsequent changes. **The exact source commit remains the authority** whenever documentation and code differ.
 
+## M1 readiness repair (source-level only)
+
+The Unity 6.3 project previously pinned the uGUI **2.6.0** core package, which belongs to the Unity 6.6 line. The manifest now requests **uGUI 2.0.0** to match Unity 6.3, with a CI regression check. A successful **licensed** GameCI export must emit `evergrove-build-provenance.json` containing per-file SHA256, source SHA, workflow link, requested Unity version and research build channel; missing/empty platform artifacts fail closed. Six synthetic Python tests cover this tool.
+
+**Not passed by the repair:** BLD-001 (real Editor compile), BLD-002/003 (real platform export), BLD-004/005/006 (physical device and suspend/resume), Unity accessibility, or player trials. Follow [Release evidence packets](11-EVIDENCE-AND-RELEASE-PACKETS.md) and the [manual workflow](../../../../.github/workflows/evergrove-unity-playtest.yml). The Android synthetic test file is **not** a real APK.
+
 ## Specification control (2026-11-22 v2)
 
 **Source audited at immutable SHA:** [`84713febd1e9d5921706d1916132b309b74a604f`](https://github.com/streamentry/game-foundry/commit/84713febd1e9d5921706d1916132b309b74a604f). This is a historic *audit baseline*, not a completed Unity build. The current source branch may include subsequent fixes.
