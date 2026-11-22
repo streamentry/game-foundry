@@ -6,6 +6,7 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Sixth game prototype:** [Kakuro Compass](games/kakuro-compass/) — eight uniqueness-tested beginner cross-sum puzzles with a visible across/down candidate inspector, large digit keypad, undo and offline progress. **A research prototype for GF-001, not an ASO/production greenlight.**
 - **Fifth game prototype:** [Odd Bloom](games/odd-bloom/) — twelve deterministic visual-difference rounds, single-structural-anomaly validation, large tap controls and offline save/replay. **No age-specific demand or retention verified.**
 - **Fourth game prototype:** [Shikaku Garden](games/shikaku-garden/) — eight independently authored, uniqueness-checked rectangle-partition puzzles with corner-to-corner controls, undo and offline progression. **Not market-validated; the GF-018 ASO research gate remains open.**
 - **Third visual playtest:** [One Path](games/one-path/) — eight verified Euler-trail graphs, non-junction crossings, tap/drag and letter-button entry, undo and offline resume. **Prototype only; user demand untested.**
@@ -50,6 +51,7 @@ games/quiet-shot/          Second visual-planning experiment (one planned shot)
 games/one-path/            Third visual logic experiment (Euler trail)
 games/shikaku-garden/      Fourth experiment (numbered rectangular partitions)
 games/odd-bloom/           Fifth experiment (one different flower)
+games/kakuro-compass/      Sixth experiment (guided crossing sums)
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -109,6 +111,10 @@ python3 serve.py
 Open the printed **http://127.0.0.1:8000/** URL on that computer. Run `python3 serve.py --check` to verify completeness and file hashes, or `python3 serve.py --smoke` to check HTTP 200, MIME types and full byte delivery. For older artifacts without `serve.py`, use `python3 -m http.server 8000 --bind 127.0.0.1` from the same directory. The workflows now test this HTTP path before uploading. This does **not** amount to real-browser/WebGL verification or public deployment.
 
 See [the exact troubleshooting guide](docs/web-networkerror.md). If it still fails, provide the browser's failing request and HTTP status from DevTools → Network.
+
+## Play Kakuro Compass locally
+
+Open `games/kakuro-compass/project.godot` in Godot 4.7.2 and press **F5**. The [game README](games/kakuro-compass/README.md) explains its intersection inspector, deterministic puzzle tests and [downloadable browser preview](.github/workflows/kakuro-compass-preview.yml). All browser artifacts include `serve.py` to avoid `file://` asset-fetch errors.
 
 ## Share a tested browser-playtest build
 

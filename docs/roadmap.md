@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Sixth game: Kakuro Compass (primary search-led proof, still gated)
+
+[Kakuro Compass](../games/kakuro-compass/README.md) is an original **proof-of-play** implementation of the already documented conditional [GF-001 Kakuro hypothesis](research/first-game-decision-2026-11-21.md). Its key experiment is whether a *persistent across/down candidate inspector* improves first-board comprehension and completion compared with mature apps already claiming hints and beginner tutorials. The eight boards are verified for unique solutions. Device usability, search availability, head-to-head preference, return and commercial viability remain unknown. Avoid content-factory automation until real feedback is recorded.
+
 ## Fifth visual research prototype (not a distribution winner)
 
 [Odd Bloom](../games/odd-bloom/README.md) tests immediate visual discrimination and one-tap repeat play in twelve no-timer rounds. Unlike rule-heavy Shikaku Garden, it has almost no instruction overhead, but the direct competitor category is crowded and novelty can fade quickly. The user's directive to build more games changes the *implementation queue*, **not** the evidence needed to enter production. Do not scale a content factory before testing voluntary replay and return.

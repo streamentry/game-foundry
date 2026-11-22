@@ -77,3 +77,10 @@ Watch the first tap and second-corner intent, note number/area confusion, record
 The independent [Odd Bloom prototype](../games/odd-bloom/README.md) has a downloadable WebGL2 artifact via [Odd Bloom Web Playtest](../.github/workflows/odd-bloom-preview.yml). The artifact is not a public playable URL; extract and serve over local HTTP to test.
 
 Try six-target rounds before introducing the denser 4×4 grid. Record obvious vs genuinely subtle differences, accidental taps, whether older players can comfortably see the petal/center contrasts, and which game they voluntarily continue playing when compared with an existing odd-one-out competitor. Do not assume non-color structural differences automatically make the game accessible to every player.
+
+
+## Kakuro Compass — guided intersection comparison
+
+The [standalone Kakuro Compass prototype](../games/kakuro-compass/README.md) has eight authored unique-solution cross-sum boards and a persistent explanation of locally feasible digits for both intersecting clue runs. [Kakuro Compass Web Playtest](../.github/workflows/kakuro-compass-preview.yml) exports the complete WebGL2 artifact with `serve.py`, not a live link.
+
+Compare against a current Kakuro incumbent **on actual player phones**: can players discover the first entry, understand the arrows, and use the visible inspector correctly? Does the inspector make the deduction clearer without just giving the answer? All gameplay checks are code tests, not evidence of age-specific usability or preference.
