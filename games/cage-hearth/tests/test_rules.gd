@@ -30,7 +30,6 @@ func _initialize() -> void:
     invalid[invalid.size() - 1] = 999
     expect(not Rules.valid_entries(first, invalid), "out-of-range entry rejected")
 
-    var first: Dictionary = Factory.make(0)
     expect(first["cages"].size() >= 7, "arithmetical groups are visible and varied")
     var bad: Array = Factory.reference_solution(0)
     bad[0] = bad[1]

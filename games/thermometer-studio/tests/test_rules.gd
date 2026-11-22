@@ -30,7 +30,6 @@ func _initialize() -> void:
     invalid[invalid.size() - 1] = 999
     expect(not Rules.valid_entries(first, invalid), "out-of-range entry rejected")
 
-    var first: Dictionary = Factory.make(0)
     expect(Rules.cell_map(first).size() == 16, "every board square belongs to one thermometer")
     var empty: Dictionary = Rules.counts(first, Rules.blank(first))
     expect(empty["rows"] == [0, 0, 0, 0] and empty["cols"] == [0, 0, 0, 0],
