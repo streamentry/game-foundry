@@ -7,8 +7,19 @@ root = Path(__file__).resolve().parents[1]
 game = root / "games" / "evergrove"
 manifest = json.loads((game / "Packages" / "manifest.json").read_text())
 deps = manifest["dependencies"]
-assert deps.get("com.unity.ugui"), "Unity uGUI dependency is required"
-assert deps.get("com.unity.inputsystem"), "modern Unity touch input package required"
+# uGUI is a CORE package: Unity chooses its version. Unity 6.3 pins
+# com.unity.ugui 2.0.0; 2.6.0 belongs to Unity 6.6, not this editor.
+editor_version = (game / "ProjectSettings" / "ProjectVersion.txt").read_text().strip()
+assert editor_version == "m_EditorVersion: 6000.3.0f1", (
+    "Review Unity core-package versions when changing editor", editor_version
+)
+assert deps.get("com.unity.ugui") == "2.0.0", (
+    "Unity 6.3 ships core uGUI 2.0.0; do not pin uGUI 2.6.0 from Unity 6.6",
+    deps.get("com.unity.ugui")
+)
+assert deps.get("com.unity.inputsystem") == "1.20.1", (
+    "Input System package must match the verified Unity 6.3-compatible release"
+)
 ui = (game / "Assets" / "Scripts" / "Unity" / "EvergroveApp.cs").read_text()
 assert "ENABLE_INPUT_SYSTEM" in ui and "InputSystemUIInputModule" in ui
 assert "ENABLE_LEGACY_INPUT_MANAGER" in ui and "StandaloneInputModule" in ui
