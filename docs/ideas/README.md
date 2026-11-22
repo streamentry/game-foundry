@@ -16,6 +16,8 @@ The [2034 top-50 speculative forecast](2034-top-50-speculative-forecast.md) reco
 
 The [living worlds and social systems 2026–2036 thesis](living-worlds-social-systems-2026-2036.md) captures runtime AI, persistent co-created spaces, cloud/mobile reach, systemic simulation and creator tooling as **unverified hypotheses**, and defines four small `LW-*` falsification probes linked to existing `GX-*`/`GC-*` concepts. These are experiment briefs, **not new game approvals or additional titles**.
 
+The [projected 50 global hits for 2026–2036](projected-global-hits-2026-2036.md) preserves the founder's 50 ranked speculative original IP concepts (`PH-001`–`PH-050`) with mechanics, overlap mapping, and falsification gates. **These are forecasts and research concepts, not independently validated build commitments.**
+
 ## Data dictionary
 
 | Field | Meaning |
