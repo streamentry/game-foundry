@@ -6,6 +6,8 @@ Evergrove is Game Foundry's founder-selected long-horizon research bet, **PH-006
 
 **Technology decision:** [Unity + C# ADR](../../docs/decisions/2026-11-22-evergrove-engine-unity-csharp.md). Unity is a provisional choice for Evergrove, subject to verified device and player tests; all other studio games retain Godot.
 
+**Visual direction:** [2.5D miniature living-world ADR](../../docs/decisions/2026-11-22-evergrove-visual-direction-2p5d.md). Target an elevated orthographic 3D diorama with a readable 2D puzzle overlay **only if** a fair comparison against the current illustrated 2D scene justifies the extra art and device costs. This is a **directional hypothesis**, not a currently completed 3D scene.
+
 ## What the player does
 
 1. Restore a winding stream by rotating tiles. No time limit, score penalty, account or advertisements.
