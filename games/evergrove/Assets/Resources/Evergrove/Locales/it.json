@@ -304,6 +304,26 @@
     {
       "key": "landmark_flowers",
       "value": "I fiori proteggono questo tratto. Non può ruotare."
+    },
+    {
+      "key": "hint_notice",
+      "value": "Guarda la riga {0}. Una connessione va controllata."
+    },
+    {
+      "key": "hint_focus",
+      "value": "Riga {0}, colonna {1}: confronta le estremità aperte."
+    },
+    {
+      "key": "hint_more",
+      "value": "Un altro indizio"
+    },
+    {
+      "key": "hint_turn",
+      "value": "Correggi un collegamento"
+    },
+    {
+      "key": "save_warning",
+      "value": "Impossibile salvare i progressi. Controlla lo spazio sul dispositivo."
     }
   ]
 }
