@@ -2,6 +2,8 @@
 
 **Status:** C# implementation of a local-first, experimental game. **Not a shipped app or verified Unity build.** It is the founder-selected long-horizon bet `PH-006`, with influences from `GC-021 Little Worlds`. See [experiment decision](../../docs/research/evergrove-build-decision-2026-11-22.md).
 
+**Technology decision:** [Unity + C# ADR](../../docs/decisions/2026-11-22-evergrove-engine-unity-csharp.md). This is a provisional Evergrove-specific choice; re-evaluate on actual mobile devices and after the first playtest, rather than treating a ten-year engine choice as permanent.
+
 ## Gameplay
 
 Tap to rotate nine stream tiles to create one continuous water route. Once the water flows, decide what the village gains:

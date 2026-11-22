@@ -41,6 +41,8 @@ Sources:
 - https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html
 - https://developer.apple.com/app-store/review/guidelines/
 
+**Engine decision ADR:** [Unity/C# for Evergrove; Godot for the remaining portfolio](decisions/2026-11-22-evergrove-engine-unity-csharp.md). Includes review gates for real devices, player evidence, licensing and reversible migration.
+
 ## Evergrove-specific engine exception (2026-11-22)
 
 At the user's direct request, **Evergrove** uses **Unity 6.3 + C#** under `games/evergrove/`. This does **not** convert, invalidate or silently migrate other Godot projects, and does not revise the studio-wide default without an explicit future decision. Its pure C# model is testable with `.NET 8`; the Unity editor scene is generated from C# at runtime. A separate **optional** Cloudflare Workers + Durable Objects example remains TypeScript, off by default, and does not yet synchronize the actual offline game state. Review engine overhead and real-device usability before scaling.
