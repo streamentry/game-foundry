@@ -6,6 +6,11 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Prototype 17:** [Cage Hearth](games/cage-hearth/) — Fill 1–4 once per row and column while solving connected cages labeled with sums, products, differences, exact quotients or single values. six original uniquely solvable 4×4 arithmetic-cage grids. **Engineering playtest only; organic demand/45+ retention unverified.**
+- **Prototype 16:** [Thermometer Studio](games/thermometer-studio/) — Fill liquid from each tube's bulb toward its tip only. Row and column totals constrain all eight disjoint two-cell thermometers. six original uniquely solvable 4×4 thermometer layouts. **Engineering playtest only; organic demand/45+ retention unverified.**
+- **Prototype 15:** [Skyline Steps](games/skyline-steps/) — Fill tower heights 1–4 without repeating any height in a row or column. Perimeter numbers count how many buildings are visible from that direction. six original uniquely solvable 4×4 visibility puzzles. **Engineering playtest only; organic demand/45+ retention unverified.**
+- **Prototype 14:** [Hidato Walk](games/hidato-walk/) — Place numbers 1–16 exactly once so every consecutive pair touches horizontally, vertically or diagonally, while preserving given numbers. six original uniquely solvable 4×4 walking paths. **Engineering playtest only; organic demand/45+ retention unverified.**
+- **Prototype 13:** [Nurikabe Bay](games/nurikabe-bay/) — Classify every square as sea or island. Numbered islands have exact sizes; each island contains one clue, the sea is connected, and there can be no 2×2 all-sea block. six original uniquely solvable 4×4 bay puzzles. **Engineering playtest only; organic demand/45+ retention unverified.**
 - **Prototype 12:** [Hitori Grove](games/hitori-grove/) — Shade repeated numbers, ensuring no horizontally or vertically adjacent shaded squares and one connected group of unshaded squares. six playtest boards. **Unvalidated market opportunity.**
 - **Prototype 11:** [Loop Lantern](games/loop-lantern/) — Draw a single closed nonbranching Slitherlink loop using cell clues that specify how many surrounding edges are selected. six playtest boards. **Unvalidated market opportunity.**
 - **Prototype 10:** [Bridge Isles](games/bridge-isles/) — Connect visible neighboring numbered islands with zero, one or two straight bridges, without crossings, and keep the network connected. six playtest boards. **Unvalidated market opportunity.**
@@ -64,6 +69,11 @@ games/star-atlas/       Star Atlas playtest
 games/bridge-isles/     Bridge Isles playtest
 games/loop-lantern/     Loop Lantern playtest
 games/hitori-grove/     Hitori Grove playtest
+games/nurikabe-bay/        Nurikabe Bay independent experiment
+games/hidato-walk/         Hidato Walk independent experiment
+games/skyline-steps/       Skyline Steps independent experiment
+games/thermometer-studio/  Thermometer Studio independent experiment
+games/cage-hearth/         Cage Hearth independent experiment
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -131,6 +141,10 @@ Open `games/kakuro-compass/project.godot` in Godot 4.7.2 and press **F5**. The [
 ## Play Quiet Camp locally
 
 Open `games/quiet-camp/project.godot` in Godot 4.7.2 and press **F5**. Its [independent README](games/quiet-camp/README.md) describes gameplay, test commands, and the [downloadable WebGL2 preview](.github/workflows/quiet-camp-preview.yml). The artifact includes `serve.py` to avoid unsupported `file://` loading.
+
+## Play prototypes 13–17
+
+Each of the five new games has a separate Godot 4.7.2 project and its own verified-download workflow. Open a `games/<slug>/project.godot` in Godot and press F5. Browser artifacts include `serve.py`: extract every file, run `python3 serve.py`, then visit `http://127.0.0.1:8000/`. A ZIP artifact is **not** a hosted public website. See the [new five-game decision](docs/research/game-experiments-13-to-17-2026-11-22.md).
 
 ## Share a tested browser-playtest build
 

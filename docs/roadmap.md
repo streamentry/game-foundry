@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Five additional distinct game experiments — prototypes 13–17
+
+The user requested five more independent playable games. [Nurikabe Bay](../games/nurikabe-bay/), [Hidato Walk](../games/hidato-walk/), [Skyline Steps](../games/skyline-steps/), [Thermometer Studio](../games/thermometer-studio/), and [Cage Hearth](../games/cage-hearth/) are implementation-only tests of GF-010, GF-013, GF-019, GF-021 and GF-023 respectively, with no production approval. Their exact-fit 4×4 solver tests prove mathematical correctness, not user appeal. The already recognized lack of distribution and 45+ user evidence is now a larger risk than inability to implement more puzzles. [Read the decision and stopping condition](research/game-experiments-13-to-17-2026-11-22.md).
+
 ## Five additional standalone puzzle experiments — prototypes 8–12
 
 At user direction, build [Futoshiki Terrace](../games/futoshiki-terrace/), [Star Atlas](../games/star-atlas/), [Bridge Isles](../games/bridge-isles/), [Loop Lantern](../games/loop-lantern/), and [Hitori Grove](../games/hitori-grove/) as five independent Godot proofs of play. These implement existing GF-004, GF-005, GF-007, GF-008 and GF-009 hypotheses **without promoting them to production**. Each project has small original, solver-verified boards, its own design, local save/recovery and downloadable browser artifact. No age-specific adoption or ASO search volume is measured. See the [experiment decision](research/next-five-game-experiments-2026-11-22.md); recruit target players and compare to incumbents before adding more titles or content.

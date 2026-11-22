@@ -26,6 +26,10 @@ The separate [global 45+ playtest shortlist](../research/global-45plus-top-three
 
 Run `python3 tools/validate_ideas.py docs/ideas/candidates.csv` after editing.
 
+## Five further implemented prototypes, without demand validation (2026-11-22)
+
+[Nurikabe Bay](../../games/nurikabe-bay/) (GF-010) · [Hidato Walk](../../games/hidato-walk/) (GF-013) · [Skyline Steps](../../games/skyline-steps/) (GF-019) · [Thermometer Studio](../../games/thermometer-studio/) (GF-021) · [Cage Hearth](../../games/cage-hearth/) (GF-023) implement five previously listed **unvalidated** search-intent hypotheses. They do not add candidates, measured popularity, paying users or permission for multiple near-identical App Store submissions. [Read their comparative research plan](../research/game-experiments-13-to-17-2026-11-22.md).
+
 ## Five additional game implementations (2026-11-22)
 
 [Futoshiki Terrace](../../games/futoshiki-terrace/) (GF-004), [Star Atlas](../../games/star-atlas/) (GF-005), [Bridge Isles](../../games/bridge-isles/) (GF-007), [Loop Lantern](../../games/loop-lantern/) (GF-008), and [Hitori Grove](../../games/hitori-grove/) (GF-009) are standalone **engineering prototypes only**. Their [research decision brief](../research/next-five-game-experiments-2026-11-22.md) sets comparison and stopping criteria. This does not alter the 100 hypotheses or imply keyword popularity, player demand, or Apple App Store production approval.

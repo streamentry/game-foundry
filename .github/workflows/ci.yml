@@ -146,3 +146,43 @@ jobs:
         run: godot --headless --path games/hitori-grove --script res://tests/test_progress.gd
       - name: Smoke test Hitori Grove player input, undo and win
         run: godot --headless --path games/hitori-grove --script res://tests/test_scene.gd
+      - name: Import Nurikabe Bay independent Godot project
+        run: godot --headless --path games/nurikabe-bay --editor --import --quit
+      - name: Verify Nurikabe Bay mathematical rules and unique puzzles
+        run: godot --headless --path games/nurikabe-bay --script res://tests/test_rules.gd
+      - name: Verify Nurikabe Bay safe save and progress
+        run: godot --headless --path games/nurikabe-bay --script res://tests/test_progress.gd
+      - name: Smoke test Nurikabe Bay player inputs and win
+        run: godot --headless --path games/nurikabe-bay --script res://tests/test_scene.gd
+      - name: Import Hidato Walk independent Godot project
+        run: godot --headless --path games/hidato-walk --editor --import --quit
+      - name: Verify Hidato Walk mathematical rules and unique puzzles
+        run: godot --headless --path games/hidato-walk --script res://tests/test_rules.gd
+      - name: Verify Hidato Walk safe save and progress
+        run: godot --headless --path games/hidato-walk --script res://tests/test_progress.gd
+      - name: Smoke test Hidato Walk player inputs and win
+        run: godot --headless --path games/hidato-walk --script res://tests/test_scene.gd
+      - name: Import Skyline Steps independent Godot project
+        run: godot --headless --path games/skyline-steps --editor --import --quit
+      - name: Verify Skyline Steps mathematical rules and unique puzzles
+        run: godot --headless --path games/skyline-steps --script res://tests/test_rules.gd
+      - name: Verify Skyline Steps safe save and progress
+        run: godot --headless --path games/skyline-steps --script res://tests/test_progress.gd
+      - name: Smoke test Skyline Steps player inputs and win
+        run: godot --headless --path games/skyline-steps --script res://tests/test_scene.gd
+      - name: Import Thermometer Studio independent Godot project
+        run: godot --headless --path games/thermometer-studio --editor --import --quit
+      - name: Verify Thermometer Studio mathematical rules and unique puzzles
+        run: godot --headless --path games/thermometer-studio --script res://tests/test_rules.gd
+      - name: Verify Thermometer Studio safe save and progress
+        run: godot --headless --path games/thermometer-studio --script res://tests/test_progress.gd
+      - name: Smoke test Thermometer Studio player inputs and win
+        run: godot --headless --path games/thermometer-studio --script res://tests/test_scene.gd
+      - name: Import Cage Hearth independent Godot project
+        run: godot --headless --path games/cage-hearth --editor --import --quit
+      - name: Verify Cage Hearth mathematical rules and unique puzzles
+        run: godot --headless --path games/cage-hearth --script res://tests/test_rules.gd
+      - name: Verify Cage Hearth safe save and progress
+        run: godot --headless --path games/cage-hearth --script res://tests/test_progress.gd
+      - name: Smoke test Cage Hearth player inputs and win
+        run: godot --headless --path games/cage-hearth --script res://tests/test_scene.gd
