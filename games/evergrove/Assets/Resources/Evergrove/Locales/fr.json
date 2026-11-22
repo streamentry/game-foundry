@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Chapitre {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Les racines fixent ce tuyau. Il ne peut pas tourner."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Les fondations du pont fixent ce tuyau. Il ne peut pas tourner."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Les fleurs protègent ce passage. Il ne peut pas tourner."
     }
   ]
 }

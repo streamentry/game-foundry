@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "第{0}章 · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "木の根がこの水路を固定しています。回転できません。"
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "橋の土台がこの水路を固定しています。回転できません。"
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "野の花がこの場所を守っています。回転できません。"
     }
   ]
 }

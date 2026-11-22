@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Capítulo {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "As raízes prendem este cano. Não é possível girá-lo."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "A base da ponte fixa este cano. Não é possível girá-lo."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "As flores protegem este trecho. Não é possível girá-lo."
     }
   ]
 }

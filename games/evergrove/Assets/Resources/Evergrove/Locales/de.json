@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Kapitel {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Baumwurzeln halten dieses Rohr fest. Es lässt sich nicht drehen."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Das Brückenfundament hält dieses Rohr fest. Es lässt sich nicht drehen."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Die Wildblumen schützen diese Stelle. Sie lässt sich nicht drehen."
     }
   ]
 }

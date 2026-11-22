@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "제{0}장 · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "나무뿌리가 이 물길을 고정해요. 회전할 수 없어요."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "다리의 기초가 이 물길을 고정해요. 회전할 수 없어요."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "들꽃이 이 구간을 지켜요. 회전할 수 없어요."
     }
   ]
 }

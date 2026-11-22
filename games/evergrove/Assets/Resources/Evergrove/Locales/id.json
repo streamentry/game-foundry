@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Bab {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Akar pohon menahan pipa ini. Tidak bisa diputar."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Pondasi jembatan menahan pipa ini. Tidak bisa diputar."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Bunga liar menjaga aliran ini. Tidak bisa diputar."
     }
   ]
 }

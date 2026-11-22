@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Capítulo {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Las raíces fijan esta tubería. No se puede girar."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Los cimientos del puente fijan esta tubería. No se puede girar."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Las flores protegen este cauce. No se puede girar."
     }
   ]
 }

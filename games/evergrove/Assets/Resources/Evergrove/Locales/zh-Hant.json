@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "第 {0} 章 · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "樹根固定了這段水管，無法旋轉。"
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "橋墩固定了這段水管，無法旋轉。"
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "野花保護著這段河道，無法旋轉。"
     }
   ]
 }

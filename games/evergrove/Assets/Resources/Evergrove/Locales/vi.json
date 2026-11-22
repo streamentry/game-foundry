@@ -292,6 +292,18 @@
     {
       "key": "journal_entry",
       "value": "Chương {0} · {1} · {2}"
+    },
+    {
+      "key": "landmark_tree",
+      "value": "Rễ cây giữ cố định ống nước này, không thể xoay."
+    },
+    {
+      "key": "landmark_bridge",
+      "value": "Móng cầu giữ cố định ống nước này, không thể xoay."
+    },
+    {
+      "key": "landmark_flowers",
+      "value": "Bãi hoa dại bảo vệ đoạn suối này, không thể xoay."
     }
   ]
 }
