@@ -39,7 +39,7 @@ def main() -> int:
     checked_links = 0
     for path in target_docs:
         body = source_text(path)
-        if "`" in body:
+        if "§" in body:
             fail(f"Markdown placeholder was not replaced in {path}")
         if body.count("```") % 2:
             fail(f"Unmatched fenced code block in {path}")
