@@ -326,6 +326,19 @@ def check_specification_contract() -> None:
         fail("Save journal interruption tests are untracked")
     if "WorldStore.RecoveryBlocked" not in app or "ConfirmedReset()" not in app:
         fail("Unreadable save lacks a visible explicit reset path")
+    # A save warning *inside* scroll content can be invisible when a tile
+    # write fails and can remain on screen after a later successful save.
+    for marker in (
+        'Node("Persistent save warning", scrollNode.transform)',
+        "saveWarningBanner.SetActive(saveFailed);",
+        "warningViewport.offsetMax = new Vector2(0f, saveFailed ? -72f : 0f);",
+        'saveWarningCaption.text = GameLocalization.Text("save_warning");',
+        "UpdateSaveWarning(); // toggles immediately even without a full UI rebuild",
+    ):
+        if marker not in app:
+            fail(f"Persistent and reversible save-warning UI guard missing: {marker}")
+    if "WorldStore.RecoveryBlocked && world.Round == 0" in app:
+        fail("Unreadable save reset is hidden for imported legacy progress")
 
     locale_dir = GAME / "Assets/Resources/Evergrove/Locales"
     for file in locale_dir.glob("*.json"):

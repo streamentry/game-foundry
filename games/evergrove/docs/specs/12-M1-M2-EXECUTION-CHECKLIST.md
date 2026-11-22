@@ -71,11 +71,13 @@ The manual workflow lists iOS but its Ubuntu host/toolchain capability is **unve
 | --- | --- | --- |
 | `BLD-004` / `BLD-005` | Fresh install; finish **all 12 streams** on Android and iPhone separately, including a choice each chapter | Actual 12/12 progress per device, scene/goal/choice visible, no S0/S1; capture chapter-specific defects |
 | `BLD-006` | Suspend, resume, OS back, force-close just after rotation and just after ecology choice | Restored exact board/choices, warning if persistence fails, no duplicate event |
-| `SAVE-001` | With a **backed-up test-only save**, corrupt primary but preserve valid backup | Recovery of exact prior valid state; log expected vs observed; no production-user files touched |
+| `SAVE-001` | With a **backed-up test-only save**, corrupt primary but preserve valid backup | Recovery of exact prior valid state; log expected vs observed; no production-user files touched; confirm warning/recovery state and that any blocked-reset action remains reachable at nonzero chapter |
 | `SAVE-002` | Inject interruption points through write/backup/rename lifecycle | Pre-registered **100 attempts**, all outcomes logged; do not report 100/100 without 100 observed results |
 | `A11Y-001` / `A11Y-002` | Inspect actual hit rectangles, grayscale icons, leak/anchor cues, compact safe areas | ≥44 pt iOS / ≥48 dp Android frequent targets, water path distinguishable without hue |
 | `PUZ-007` / `SAVE-004` | Icons + language/renderer changes on each phone | No S/G text dependence; world/history/solution unchanged |
 | `PRIV-001` / `PRIV-002` | Offline/airplane mode, then controlled network capture, local report consent toggles | No unaccounted traffic; opt-in counters/copy only; declare exactly what was inspected |
+
+**Save-banner device obligation:** induce a permission/disk-full failure on both phones while the player is scrolled to the active puzzle. Confirm the localized **fixed safe-area warning remains visible throughout scrolling**, reserves room without hiding board/tap targets, and disappears as soon as an actual subsequent save succeeds. Verify that all-invalid storage never prompts an unconfirmed wipe even when a valid legacy PlayerPrefs game exists. These runtime display and fault checks are **unverified**.
 
 **Pure C# source test:** `SaveJournalTests.Run()` now exercises backup/staged recovery, 100 deterministic primary/staging interruption cases and 100 stage-only-last-good recovery cases in ordinary C# CI. This does **not** close `SAVE-001` or `SAVE-002`: those require native Unity save/restore, actual interruption points and hardware/file-system observations.
 

@@ -67,6 +67,8 @@ Current first-stream markers in the code branch have been changed from text `S/G
 
 The current app still uses generated uGUI Text controls and best-effort OS fonts. **Correct direction/alignment alone is not shaping.** Evaluate Unity UI Toolkit Advanced Text Generator or a tested equivalent in an architecture spike: record shaping screenshot tests, fallback font licensing, binary/memory costs and screen-reader interaction. Native review follows technical shape/readability review. Until then, Arabic, Persian, Urdu, Hebrew and Indic scripts are **unverified release blockers if enabled**.
 
+**Persistent save-warning source control:** the Unity warning now lives in a pinned, safe-area-aware banner outside the scrollable puzzle. When writing succeeds after an earlier failure, the banner is immediately removed rather than leaving a stale error; during failure, it stays visible while scrolling. This fixes a demonstrable UI state/scroll positioning risk in source, **not** VoiceOver/TalkBack or small-phone verification. M2 must test save-warning readability and that the reserved viewport does not clip puzzle controls.
+
 **Additional source-only affordance:** `PipeRules.Inspect` now exposes per-tile leaking flags, and Unity UI draws a visible `!` on leaking water tiles. Verify grayscale, punctuation legibility at large text, actual touch targets and TalkBack/VoiceOver; this is **not** an accessibility certification. Five new draft help/save-warning messages bring catalogs to 81 canonical keys. The preview still uses legacy uGUI and does **not** implement complex-script shaping.
 
 ## Launch locale certification, not catalog count (EG-010)
