@@ -394,3 +394,15 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Test:** Verify editor import, real iOS/Android builds, offline save and full game loop. Separately compare Living World with puzzle-only among recruited players. Record concrete costs and failures.
 
 **Revisit if:** Unity cannot reliably ship, its economics deteriorate, or measured player value does not justify its complexity. No automatic migration of other games.
+
+## 2026-11-22 — Evergrove 2.5D miniature-world visual direction
+
+**Decision:** Select a stylized, mostly fixed-camera orthographic **2.5D garden/village** as Evergrove's *preferred long-term art hypothesis*, using lightweight 3D environments and characters with a crisp 2D puzzle interface. **No 3D implementation or production art-pipeline approval yet.** The current original 2D illustration remains the playable baseline. See the [full 2.5D ADR](../decisions/2026-11-22-evergrove-visual-direction-2p5d.md).
+
+**Reasoning:** Persistent decisions (tree growth, bridge repair, visitor paths, flowers, NPC routines) might be more legible and emotionally tangible in a stable miniature environment. Actual effect on repeat play, performance and art costs is unknown.
+
+**Strongest opposing case:** Excellent 2D art might provide equal attachment with lower asset/animation costs, stronger performance and simpler production. Simulation depth does not depend on 3D.
+
+**Cheapest test:** First verify the existing 2D Unity game on real devices; then show the same one-garden scene and consequences in 2D versus 2.5D to ~10–15 target players, counterbalancing order. Measure comprehensibility, preference, attachment, art hours, mobile rendering and readability. Small samples are directional only. Keep this separate from the living-world vs puzzle-only retention experiment.
+
+**Continue/stop:** Continue toward 2.5D only if additional player value warrants measurable cost; otherwise retain 2D. Do not develop full 3D exploration without a new decision and validated player need.
