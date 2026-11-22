@@ -24,10 +24,10 @@ Mỗi vòng chơi dự kiến ngắn, nhẹ nhàng:
 | --- | --- |
 | 12 màn gốc: 6 màn 3×3 và 6 màn 4×4 | Game chạy tốt trên thiết bị thật |
 | 33 **biến thể tiếp theo** theo cây/cầu/hoa (11 chương × 3) | 33 màn độc lập hoàn toàn: hiện chỉ biến đổi bằng phép xoay mạng gốc và một ô cố định |
-| Trạng thái, undo, hint, restart, khôi phục dữ liệu v1/v2→v3 | Mô phỏng sinh thái thật sự, cây cần nước/ánh sáng, nền kinh tế, chuỗi nhân quả sâu |
+| Trạng thái, undo, hint, restart, khôi phục dữ liệu v1/v2/v3→v4 | Mô phỏng sinh thái thật sự, cây cần nước/ánh sáng, nền kinh tế, chuỗi nhân quả sâu |
 | Cảnh làng 2D và thử nghiệm diorama 2.5D | Minh họa 2.5D đạt chất lượng mỹ thuật tương đương game dẫn đầu |
 | 3 NPC có lời thoại phụ thuộc lựa chọn | NPC có ý chí, học hỏi, trí nhớ hội thoại hay AI runtime |
-| 30 lựa chọn ngôn ngữ, 76 khóa mỗi bản | Bản dịch được người bản ngữ duyệt, RTL/Indic hiển thị chuẩn |
+| 30 lựa chọn ngôn ngữ, 81 khóa mỗi bản | Bản dịch được người bản ngữ duyệt, RTL/Indic hiển thị chuẩn |
 | Kiểm thử .NET và workflow build Unity thủ công | D1/D7, lượng tìm kiếm ASO, sẵn lòng trả tiền, kênh phân phối thực tế |
 
 **Mấu chốt về tính trung thực:** 33 biến thể chỉ là cùng các đồ thị được xoay 90°/180°/270° và giữ cố định một nút. Đây là bước **cơ chế có hệ quả giới hạn**, chưa phải thế giới mô phỏng “sống” thật.
@@ -36,7 +36,7 @@ Mỗi vòng chơi dự kiến ngắn, nhẹ nhàng:
 
 - **Core thuần C#:** `PipeRules` (đường nước), `ReactiveWatercourses` (biến thể), `WorldModel` (trạng thái thật), `VillageStory` (nội dung), `VillageScenePlan` (quyết định hình ảnh).
 - **Unity chỉ hiển thị và lấy tương tác:** `EvergroveApp`, `VillageIllustration`, `VillageDiorama`, `PipeGraphic`.
-- **Save offline:** `WorldStore` ghi file JSON có backup; schema v3, tên file hiện còn `evergrove-world-v2.json` để tương thích bản cũ.
+- **Save offline:** `WorldStore` ghi file JSON có backup; schema v4, tên file hiện còn `evergrove-world-v2.json` để tương thích bản cũ.
 - **Ngôn ngữ:** `GameLocalization` + `LocalizedVillage`; đổi ngôn ngữ không được đổi trạng thái game.
 - **Cloudflare backend:** **chỉ là demo tách rời**, chưa đồng bộ lịch sử game, không nên bật mặc định.
 

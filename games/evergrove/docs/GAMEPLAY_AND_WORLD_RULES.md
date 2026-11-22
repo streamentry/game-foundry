@@ -9,7 +9,7 @@
 - Each `Puzzle` contains `Name`, `Size`, `Kinds[]`, `Initial[]`, `Solution[]`, optionally `AnchoredTile` and `EnvironmentalRule`.
 - Pipe kinds: `E` endpoint (1 port, four rotations); `I` straight (opposite ports, two rotations); `L` corner (adjacent ports, four rotations).
 - Rotations are **1-based**. Directions are north=0, east=1, south=2, west=3. For an endpoint, rotation maps directly to its port. A straight at 1 is north/south; at 2, east/west. A corner at rotation `r` opens direction `r-1` and the following clockwise direction.
-- The first `E` in row-major traversal is the spring; second `E` is the garden outlet. In UI they are labeled **S** and **G**, regardless of location.
+- The first `E` in row-major traversal is the spring; second `E` is the garden outlet. In current Unity UI, they are represented by **three blue water-wave strokes (spring)** and a **green sprout (garden)**, drawn as geometry rather than locale-specific letters. Device recognizability, contrast and screen-reader semantics remain unverified.
 
 ### Deterministic win condition
 
