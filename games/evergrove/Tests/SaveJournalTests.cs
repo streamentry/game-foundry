@@ -74,6 +74,20 @@ internal static class SaveJournalTests
             Expect(SaveJournal.Commit(path, "valid:restored", Valid),
                    "a staged recovery can be re-committed");
             ExpectLoad(path, "valid:restored", "primary");
+            Expect(File.ReadAllText(path + ".bak") == "valid:staged",
+                   "the only valid staged snapshot is preserved before the next write");
+
+            // A damaged primary plus an invalid backup/stage is NOT a fresh
+            // install, even if a caller bypasses the Unity RecoveryBlocked flag.
+            File.WriteAllText(path, "corrupt");
+            File.WriteAllText(path + ".bak", "also corrupt");
+            File.WriteAllText(path + ".tmp", "{invalid");
+            Expect(!SaveJournal.Commit(path, "valid:unsafe", Valid),
+                   "all-invalid existing slots fail closed");
+            Expect(File.ReadAllText(path) == "corrupt" &&
+                   File.ReadAllText(path + ".bak") == "also corrupt" &&
+                   File.ReadAllText(path + ".tmp") == "{invalid",
+                   "rejected commit leaves all original corrupt evidence intact");
         });
 
         // 100 deterministic interruptions across two write boundaries, *not*
@@ -105,6 +119,31 @@ internal static class SaveJournalTests
                 ExpectLoad(path, repaired, "primary");
                 Expect(File.ReadAllText(path + ".bak") == previous,
                        "last known good backup survived recovery");
+            });
+        }
+
+        // Simulate the exact last-good-stage hazard: primary and backup are
+        // corrupted; the only valid file is .tmp. A new Commit must first
+        // preserve this file in backup, so an interrupted primary overwrite
+        // can always recover a known-good world.
+        for (int i = 0; i < 100; i++)
+        {
+            int step = i;
+            InTemp(path =>
+            {
+                string old = "valid:stage-only-" + step;
+                File.WriteAllText(path, "corrupt primary");
+                File.WriteAllText(path + ".bak", "corrupt backup");
+                File.WriteAllText(path + ".tmp", old);
+                ExpectLoad(path, old, "temporary");
+                Expect(SaveJournal.Commit(path, "valid:new-world-" + step, Valid),
+                       "stage-only recovery commit succeeds");
+                Expect(File.ReadAllText(path + ".bak") == old,
+                       "previous sole valid stage copied into backup before publication");
+                // Power loss during primary overwrite, represented by
+                // truncated bytes, must still restore the previous valid stage.
+                File.WriteAllText(path, "corrupt");
+                ExpectLoad(path, old, "backup");
             });
         }
 
