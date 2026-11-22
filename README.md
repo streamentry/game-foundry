@@ -6,6 +6,11 @@
 
 - **Engine:** Godot **4.7.2 stable** (pinned; Godot 4.8 is beta).
 - **First gated ASO experiment:** **Kakuro**, U.S. adults 50-75 first; U.K. and Japan follow-up hypotheses. [Global ASO recheck](docs/research/kakuro-global-aso-45plus-2026-11-21.md) identifies **direct competitors already claiming explainable hints**. No production greenlight until demand, storefront rank, and comparative player tests pass.
+- **Prototype 22:** [Kuromasu Windows](games/kuromasu-windows/) — Shade black cells so black cells never share an edge, all white cells stay connected, and each numbered white square sees exactly its indicated white squares in its row and column. 6 original uniquely determined 4×4 visibility boards; original engineer-tested playtest only. **45+ preference and organic acquisition unmeasured.**
+- **Prototype 21:** [Battleship Harbor](games/battleship-harbor/) — Find a fleet of exactly one length-3, one length-2, and one single-cell ship on a 5×5 chart, with no ship touching another even diagonally and exact line totals. 6 original 5×5 unique fleet layouts; original engineer-tested playtest only. **45+ preference and organic acquisition unmeasured.**
+- **Prototype 20:** [Ripple Rooms](games/ripple-rooms/) — Fill irregular connected rooms with 1 through the room size, ensuring any repeated k in the same row or column has at least k cells between it. 6 original irregular-room 4×4 unique puzzles; original engineer-tested playtest only. **45+ preference and organic acquisition unmeasured.**
+- **Prototype 19:** [Kropki Pairs](games/kropki-pairs/) — Fill 1–4 once per row and column; white dots mean consecutive digits, black dots exact 2:1 ratios. Undotted edges are unconstrained. 6 unique original 4×4 positive-dot Latin boards; original engineer-tested playtest only. **45+ preference and organic acquisition unmeasured.**
+- **Prototype 18:** [Numberlink Paths](games/numberlink-paths/) — Two original orthogonal routes cover an entire 4×4 grid without crossing or branching; each connects a same-letter endpoint pair. 6 full-coverage two-pair boards with unique route assignments; original engineer-tested playtest only. **45+ preference and organic acquisition unmeasured.**
 - **Prototype 17:** [Cage Hearth](games/cage-hearth/) — Fill 1–4 once per row and column while solving connected cages labeled with sums, products, differences, exact quotients or single values. six original uniquely solvable 4×4 arithmetic-cage grids. **Engineering playtest only; organic demand/45+ retention unverified.**
 - **Prototype 16:** [Thermometer Studio](games/thermometer-studio/) — Fill liquid from each tube's bulb toward its tip only. Row and column totals constrain all eight disjoint two-cell thermometers. six original uniquely solvable 4×4 thermometer layouts. **Engineering playtest only; organic demand/45+ retention unverified.**
 - **Prototype 15:** [Skyline Steps](games/skyline-steps/) — Fill tower heights 1–4 without repeating any height in a row or column. Perimeter numbers count how many buildings are visible from that direction. six original uniquely solvable 4×4 visibility puzzles. **Engineering playtest only; organic demand/45+ retention unverified.**
@@ -74,6 +79,11 @@ games/hidato-walk/         Hidato Walk independent experiment
 games/skyline-steps/       Skyline Steps independent experiment
 games/thermometer-studio/  Thermometer Studio independent experiment
 games/cage-hearth/         Cage Hearth independent experiment
+games/numberlink-paths/     Numberlink Paths independent prototype
+games/kropki-pairs/         Kropki Pairs independent prototype
+games/ripple-rooms/         Ripple Rooms independent prototype
+games/battleship-harbor/    Battleship Harbor independent prototype
+games/kuromasu-windows/     Kuromasu Windows independent prototype
 tools/                     Research-data validation and deterministic checks
 docs/ideas/                100 research candidates and a source-backed shortlist
 docs/research/             Demand, competition and review research protocol
@@ -145,6 +155,10 @@ Open `games/quiet-camp/project.godot` in Godot 4.7.2 and press **F5**. Its [inde
 ## Play prototypes 13–17
 
 Each of the five new games has a separate Godot 4.7.2 project and its own verified-download workflow. Open a `games/<slug>/project.godot` in Godot and press F5. Browser artifacts include `serve.py`: extract every file, run `python3 serve.py`, then visit `http://127.0.0.1:8000/`. A ZIP artifact is **not** a hosted public website. See the [new five-game decision](docs/research/game-experiments-13-to-17-2026-11-22.md).
+
+## Play prototypes 18–22 locally
+
+Each is an independent Godot 4.7.2 project at `games/<slug>/project.godot`; open one in Godot and press **F5**. Each successful per-game GitHub Action produces a downloadable ZIP containing `serve.py`: extract the ZIP, run `python3 serve.py`, and open `http://127.0.0.1:8000/`. This is **not public hosting**. Review the [experiment decision](docs/research/game-experiments-18-to-22-2026-11-22.md) before investing in broader content.
 
 ## Share a tested browser-playtest build
 

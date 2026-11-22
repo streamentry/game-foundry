@@ -26,6 +26,10 @@ The separate [global 45+ playtest shortlist](../research/global-45plus-top-three
 
 Run `python3 tools/validate_ideas.py docs/ideas/candidates.csv` after editing.
 
+## Independent game implementations, 18–22 (2026-11-22)
+
+[Numberlink Paths](../../games/numberlink-paths/) (GF-014) · [Kropki Pairs](../../games/kropki-pairs/) (GF-020) · [Ripple Rooms](../../games/ripple-rooms/) (GF-022) · [Battleship Harbor](../../games/battleship-harbor/) (GF-026) · [Kuromasu Windows](../../games/kuromasu-windows/) (GF-028) are playable engineering experiments from already listed hypotheses. All five remain **unvalidated** for age 45+, official Apple keyword popularity, competitor preference, voluntary return or paying demand. The Numberlink and Kropki projects explicitly implement **variants**, not the full range of classical rules. [Research brief and stop rule](../research/game-experiments-18-to-22-2026-11-22.md).
+
 ## Five further implemented prototypes, without demand validation (2026-11-22)
 
 [Nurikabe Bay](../../games/nurikabe-bay/) (GF-010) · [Hidato Walk](../../games/hidato-walk/) (GF-013) · [Skyline Steps](../../games/skyline-steps/) (GF-019) · [Thermometer Studio](../../games/thermometer-studio/) (GF-021) · [Cage Hearth](../../games/cage-hearth/) (GF-023) implement five previously listed **unvalidated** search-intent hypotheses. They do not add candidates, measured popularity, paying users or permission for multiple near-identical App Store submissions. [Read their comparative research plan](../research/game-experiments-13-to-17-2026-11-22.md).

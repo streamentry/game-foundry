@@ -11,6 +11,10 @@
 - Mark low-volume or branded-only terms as `reject` or `park`, not as opportunities.
 - Pick at most 3 technical/market candidates. Define clear user differentiation and organic distribution channel.
 
+## Five further independently playable puzzle experiments — games 18–22
+
+[Numberlink Paths](../games/numberlink-paths/), [Kropki Pairs](../games/kropki-pairs/), [Ripple Rooms](../games/ripple-rooms/), [Battleship Harbor](../games/battleship-harbor/), and [Kuromasu Windows](../games/kuromasu-windows/) implement the existing GF-014, GF-020, GF-022, GF-026 and GF-028 hypotheses as user-requested, isolated Godot research prototypes, **not new store-launch approvals**. They test five distinct deduction mechanisms and six original uniquely-solvable fixtures per game. Age-specific fit, differentiating value, official search popularity and real retention remain unknown. See the [latest comparison and stop gates](research/game-experiments-18-to-22-2026-11-22.md).
+
 ## Five additional distinct game experiments — prototypes 13–17
 
 The user requested five more independent playable games. [Nurikabe Bay](../games/nurikabe-bay/), [Hidato Walk](../games/hidato-walk/), [Skyline Steps](../games/skyline-steps/), [Thermometer Studio](../games/thermometer-studio/), and [Cage Hearth](../games/cage-hearth/) are implementation-only tests of GF-010, GF-013, GF-019, GF-021 and GF-023 respectively, with no production approval. Their exact-fit 4×4 solver tests prove mathematical correctness, not user appeal. The already recognized lack of distribution and 45+ user evidence is now a larger risk than inability to implement more puzzles. [Read the decision and stopping condition](research/game-experiments-13-to-17-2026-11-22.md).

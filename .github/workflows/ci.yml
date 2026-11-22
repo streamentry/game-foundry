@@ -186,3 +186,43 @@ jobs:
         run: godot --headless --path games/cage-hearth --script res://tests/test_progress.gd
       - name: Smoke test Cage Hearth player inputs and win
         run: godot --headless --path games/cage-hearth --script res://tests/test_scene.gd
+      - name: Import Numberlink Paths independent project
+        run: godot --headless --path games/numberlink-paths --editor --import --quit
+      - name: Verify Numberlink Paths exact rule and uniqueness tests
+        run: godot --headless --path games/numberlink-paths --script res://tests/test_rules.gd
+      - name: Verify Numberlink Paths saved progress
+        run: godot --headless --path games/numberlink-paths --script res://tests/test_progress.gd
+      - name: Smoke test Numberlink Paths real UI playthrough
+        run: godot --headless --path games/numberlink-paths --script res://tests/test_scene.gd
+      - name: Import Kropki Pairs independent project
+        run: godot --headless --path games/kropki-pairs --editor --import --quit
+      - name: Verify Kropki Pairs exact rule and uniqueness tests
+        run: godot --headless --path games/kropki-pairs --script res://tests/test_rules.gd
+      - name: Verify Kropki Pairs saved progress
+        run: godot --headless --path games/kropki-pairs --script res://tests/test_progress.gd
+      - name: Smoke test Kropki Pairs real UI playthrough
+        run: godot --headless --path games/kropki-pairs --script res://tests/test_scene.gd
+      - name: Import Ripple Rooms independent project
+        run: godot --headless --path games/ripple-rooms --editor --import --quit
+      - name: Verify Ripple Rooms exact rule and uniqueness tests
+        run: godot --headless --path games/ripple-rooms --script res://tests/test_rules.gd
+      - name: Verify Ripple Rooms saved progress
+        run: godot --headless --path games/ripple-rooms --script res://tests/test_progress.gd
+      - name: Smoke test Ripple Rooms real UI playthrough
+        run: godot --headless --path games/ripple-rooms --script res://tests/test_scene.gd
+      - name: Import Battleship Harbor independent project
+        run: godot --headless --path games/battleship-harbor --editor --import --quit
+      - name: Verify Battleship Harbor exact rule and uniqueness tests
+        run: godot --headless --path games/battleship-harbor --script res://tests/test_rules.gd
+      - name: Verify Battleship Harbor saved progress
+        run: godot --headless --path games/battleship-harbor --script res://tests/test_progress.gd
+      - name: Smoke test Battleship Harbor real UI playthrough
+        run: godot --headless --path games/battleship-harbor --script res://tests/test_scene.gd
+      - name: Import Kuromasu Windows independent project
+        run: godot --headless --path games/kuromasu-windows --editor --import --quit
+      - name: Verify Kuromasu Windows exact rule and uniqueness tests
+        run: godot --headless --path games/kuromasu-windows --script res://tests/test_rules.gd
+      - name: Verify Kuromasu Windows saved progress
+        run: godot --headless --path games/kuromasu-windows --script res://tests/test_progress.gd
+      - name: Smoke test Kuromasu Windows real UI playthrough
+        run: godot --headless --path games/kuromasu-windows --script res://tests/test_scene.gd
