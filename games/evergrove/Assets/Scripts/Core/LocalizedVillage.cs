@@ -86,7 +86,18 @@ namespace Evergrove.Core
             for (int i = 0; i < choices.Length; i++)
             {
                 string person = choices[i] == 0 ? "Mira" : choices[i] == 1 ? "Orin" : "Fen";
-                lines[i] = T("journal_entry", i + 1, person, Choice((VillageChoice)choices[i]));
+                // Journal facts are derived from observed, saved choices.
+                // A historical migration may not have used rotated puzzles,
+                // so only claim a mechanical effect when the *current* saved
+                // variant demonstrably matches the most recent event.
+                string immediate = choices[i] == 0 ? T("world_tree") :
+                    choices[i] == 1 ? T("world_bridge") : T("world_flowers");
+                string entry = T("journal_entry", i + 1, person,
+                    Choice((VillageChoice)choices[i])) + "\n" + immediate;
+                if (i == choices.Length - 1 && !world.Completed &&
+                    world.BoardVariant == choices[i] + 1)
+                    entry += "\n" + EnvironmentalRule(world);
+                lines[i] = entry;
             }
             return lines;
         }
@@ -95,7 +106,15 @@ namespace Evergrove.Core
         {
             string[] lines = Journal(world);
             if (lines.Length == 0) return T("world_none");
-            return lines[lines.Length - 1] + "\n" + Memory(world) + "\n" + Consequence(world);
+            // Keep the story interlude concise; the detailed factual chain
+            // belongs in the optional journal, not a mandatory tall card.
+            int[] history = world.Choices;
+            int last = history.Length - 1;
+            string person = history[last] == 0 ? "Mira" :
+                history[last] == 1 ? "Orin" : "Fen";
+            return T("journal_entry", last + 1, person,
+                Choice((VillageChoice)history[last])) + "\n" +
+                Memory(world) + "\n" + Consequence(world);
         }
 
         public static string EnvironmentalRule(WorldModel world)
