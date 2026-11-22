@@ -6,9 +6,9 @@ using UnityEngine;
 namespace Evergrove.UnityClient
 {
     /// <summary>
-    /// Offline-first, versioned snapshots with a recoverable backup.
-    /// Old PlayerPrefs v1 progress is migrated once when this build loads.
-    /// This is not encrypted storage or a multiplayer authority.
+    /// Offline-first versioned snapshots. The filename stays v2 for upgrade
+    /// compatibility although the active data schema is v4.
+    /// Failed validation never authorizes silently erasing old player files.
     /// </summary>
     public static class WorldStore
     {
@@ -18,95 +18,83 @@ namespace Evergrove.UnityClient
         private static string SaveFile { get { return Path.Combine(Application.persistentDataPath, FileName); } }
         private static string BackupFile { get { return SaveFile + ".bak"; } }
 
-        private static bool TryRead(string path, out WorldModel model)
+        /// <summary>
+        /// True when files exist but no slot can be restored. A deliberate
+        /// user reset is required before replacing them with a new game.
+        /// </summary>
+        public static bool RecoveryBlocked { get; private set; }
+
+        private static bool ValidSnapshot(string json)
         {
-            model = null;
-            if (!File.Exists(path)) return false;
             try
             {
-                string raw = File.ReadAllText(path);
-                WorldSnapshot candidate = JsonUtility.FromJson<WorldSnapshot>(raw);
-                return WorldModel.TryRestore(candidate, out model);
+                WorldModel candidate;
+                return !string.IsNullOrEmpty(json) &&
+                    WorldModel.TryRestore(JsonUtility.FromJson<WorldSnapshot>(json), out candidate);
             }
-            catch (Exception ex)
-            {
-                Debug.LogWarning("Evergrove save file unreadable: " + ex.GetType().Name);
-                return false;
-            }
+            catch (Exception) { return false; }
         }
 
         public static WorldModel Load()
         {
-            WorldModel world;
-            if (TryRead(SaveFile, out world)) return world;
-            if (TryRead(BackupFile, out world))
+            RecoveryBlocked = false;
+            string payload, origin;
+            if (SaveJournal.TryLoad(SaveFile, ValidSnapshot, out payload, out origin))
             {
-                Debug.LogWarning("Evergrove recovered a previous valid save.");
-                try { File.Copy(BackupFile, SaveFile, true); }
-                catch (Exception ex) {
-                    Debug.LogWarning("Could not restore backup to primary: " + ex.GetType().Name);
+                WorldModel restored;
+                if (WorldModel.TryRestore(JsonUtility.FromJson<WorldSnapshot>(payload), out restored))
+                {
+                    if (origin != "primary")
+                        Debug.LogWarning("Evergrove recovered a " + origin +
+                            " save. Recent progress may have been lost; verify before continuing.");
+                    // Do not copy fallback bytes to the primary during load.
+                    // A later validated save repairs the primary while keeping
+                    // a good backup when the previous primary is corrupt.
+                    return restored;
                 }
-                return world;
             }
+
+            // Distinguish a fresh install from an unrecoverable older save.
+            // Blocking prevents the next move from overwriting corrupt slots.
+            RecoveryBlocked = SaveJournal.HasAnySlot(SaveFile);
             if (PlayerPrefs.HasKey(LegacyKey))
             {
                 try
                 {
-                    WorldSnapshot old = JsonUtility.FromJson<WorldSnapshot>(PlayerPrefs.GetString(LegacyKey));
-                    if (WorldModel.TryRestore(old, out world))
+                    var old = JsonUtility.FromJson<WorldSnapshot>(PlayerPrefs.GetString(LegacyKey));
+                    WorldModel imported;
+                    if (WorldModel.TryRestore(old, out imported))
                     {
-                        if (Save(world))
+                        // When newer files exist but cannot be read, keep them
+                        // untouched; the old PlayerPrefs snapshot is still
+                        // playable in memory, but writing remains blocked.
+                        if (!RecoveryBlocked && Save(imported))
                         {
                             PlayerPrefs.DeleteKey(LegacyKey);
                             PlayerPrefs.Save();
                         }
-                        return world;
+                        return imported;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning("Legacy Evergrove save could not be upgraded: " + ex.GetType().Name);
+                    Debug.LogWarning("Legacy Evergrove save could not be upgraded: " +
+                        ex.GetType().Name);
                 }
             }
+
+            if (RecoveryBlocked)
+                Debug.LogError("Unreadable Evergrove save retained. Saving is disabled until an explicit reset.");
             return WorldModel.New();
         }
 
         public static bool Save(WorldModel world)
         {
-            string destination = SaveFile;
-            string temporary = destination + ".tmp";
+            if (RecoveryBlocked || world == null) return false;
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(destination));
                 string payload = JsonUtility.ToJson(world.Export());
-                // Refuse a round-trip that would destroy the current session.
-                WorldModel check;
-                if (!WorldModel.TryRestore(JsonUtility.FromJson<WorldSnapshot>(payload), out check))
-                    return false;
-                File.WriteAllText(temporary, payload);
-                if (File.Exists(destination))
-                {
-                    try
-                    {
-                        File.Replace(temporary, destination, BackupFile);
-                    }
-                    catch (PlatformNotSupportedException)
-                    {
-                        File.Copy(destination, BackupFile, true);
-                        File.Copy(temporary, destination, true);
-                        File.Delete(temporary);
-                    }
-                    catch (IOException)
-                    {
-                        // Some mobile filesystems don't support replacement;
-                        // retain a valid backup before the copy.
-                        File.Copy(destination, BackupFile, true);
-                        File.Copy(temporary, destination, true);
-                        File.Delete(temporary);
-                    }
-                }
-                else File.Move(temporary, destination);
-                return true;
+                return SaveJournal.Commit(SaveFile, payload, ValidSnapshot);
             }
             catch (Exception ex)
             {
@@ -115,15 +103,37 @@ namespace Evergrove.UnityClient
             }
         }
 
-        public static void Clear()
+        /// <summary>
+        /// Return false if *any* file or preference could not be deleted.
+        /// Callers must not display a successful reset on partial deletion.
+        /// </summary>
+        public static bool Clear()
         {
+            bool success = true;
             foreach (string path in new[] { SaveFile, BackupFile, SaveFile + ".tmp" })
             {
                 try { if (File.Exists(path)) File.Delete(path); }
-                catch (Exception ex) { Debug.LogWarning("Could not clear Evergrove file: " + ex.GetType().Name); }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning("Could not clear Evergrove file: " + ex.GetType().Name);
+                    success = false;
+                }
             }
-            PlayerPrefs.DeleteKey(LegacyKey);
-            PlayerPrefs.Save();
+            if (success)
+            {
+                try
+                {
+                    PlayerPrefs.DeleteKey(LegacyKey);
+                    PlayerPrefs.Save();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning("Could not clear legacy save: " + ex.GetType().Name);
+                    success = false;
+                }
+            }
+            RecoveryBlocked = !success;
+            return success;
         }
     }
 }

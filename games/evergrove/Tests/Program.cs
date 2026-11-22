@@ -741,6 +741,7 @@ internal static class Program
             if (args.Length != 0) throw new ArgumentException("Unknown test argument.");
             ContentAndRules();
             RestoreAndMigration();
+            SaveJournalTests.Run();
             StoryAndCompleteRun();
             ScenicCausality();
             ReactiveCampaign();

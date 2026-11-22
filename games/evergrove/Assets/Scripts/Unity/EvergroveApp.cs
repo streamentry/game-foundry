@@ -78,6 +78,8 @@ namespace Evergrove.UnityClient
         private void Awake()
         {
             world = WorldStore.Load();
+            // An unreadable save cannot silently be overwritten by fresh progress.
+            saveFailed = WorldStore.RecoveryBlocked;
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
             // Default to the proven-in-code 2D art; keep the experimental
             // orthographic 3D visual opt-in until real player/device evidence.
@@ -381,6 +383,21 @@ namespace Evergrove.UnityClient
                 return;
             }
 
+            // Only an explicit two-step player decision may erase save slots
+            // that failed validation on launch. The game remains playable in
+            // memory, but every SaveWorld call is blocked until reset.
+            if (WorldStore.RecoveryBlocked && world.Round == 0)
+            {
+                Button(content, "Recover or erase unreadable save",
+                    GameLocalization.Text(confirmReset ? "erase" : "explore"), () => {
+                        if (!confirmReset) { confirmReset = true; Rebuild(); return; }
+                        ConfirmedReset();
+                    }, 52, confirmReset);
+                if (confirmReset)
+                    Button(content, "Keep unreadable files", GameLocalization.Text("keep"),
+                        () => { confirmReset = false; Rebuild(); }, 44);
+            }
+
             if (living)
             {
                 var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
@@ -464,13 +481,7 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text("erase") : GameLocalization.Text("explore"),
                     () => {
                         if (!confirmReset) { confirmReset = true; Rebuild(); return; }
-                        WorldStore.Clear();
-                        world = WorldModel.New();
-                        confirmReset = false;
-                        showJournal = false;
-                        showingMemory = false;
-                        speakingWith = -1;
-                        Rebuild(true);
+                        ConfirmedReset();
                     }, 62, confirmReset);
                 if (confirmReset)
                     Button(content, "Cancel reset", GameLocalization.Text("keep"), () => {
@@ -567,12 +578,7 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text(confirmReset ? "erase" : "explore"),
                     () => {
                         if (!confirmReset) { confirmReset = true; Rebuild(); return; }
-                        WorldStore.Clear();
-                        world = WorldModel.New();
-                        confirmReset = false;
-                        showJournal = false;
-                        showingMemory = false;
-                        Rebuild(true);
+                        ConfirmedReset();
                     }, 45, confirmReset);
                 if (confirmReset)
                     Button(content, "Cancel", GameLocalization.Text("keep"), () => {
@@ -984,6 +990,25 @@ namespace Evergrove.UnityClient
             showJournal = false;
             speakingWith = -1;
             PlayChime();
+            Rebuild(true);
+        }
+
+        private void ConfirmedReset()
+        {
+            if (!WorldStore.Clear())
+            {
+                // Never announce a new saved garden when any old slot could
+                // not be cleared; keep the in-memory world and warn instead.
+                saveFailed = true;
+                Rebuild();
+                return;
+            }
+            world = WorldModel.New();
+            saveFailed = false;
+            confirmReset = false;
+            showJournal = false;
+            showingMemory = false;
+            speakingWith = -1;
             Rebuild(true);
         }
 

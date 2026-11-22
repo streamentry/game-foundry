@@ -21,7 +21,7 @@ dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configu
 python3 tools/verify_evergrove_project.py
 ```
 
-These commands validate domain logic, 12 source puzzles + 33 branch presentation variants, saves, locale catalogs and structural configuration. They **cannot** inspect real Unity shader imports, UI text shaping, audio, native signing or phone touch behavior.
+These commands validate domain logic, 12 source puzzles + 33 branch presentation variants, **100 simulated save-journal interruptions**, migration, locale catalogs and structural configuration. They **cannot** inspect real Unity shader imports, UI text shaping, audio, native signing or phone touch behavior.
 
 ### Unity Editor manual smoke
 
@@ -82,12 +82,12 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 | EG-12 | 2D ↔ 2.5D | Same history and facts; default still; gracefully return to 2D if rendering unsupported |
 | EG-13 | Kill/relaunch after move and choice | Rotations, variant, history survive or explicit save error surfaced; no inconsistent character |
 | EG-14 | v1 six-chapter save, v2 mid-chapter save | Six choices remain; old active board not silently transformed; new branch rules only after the next eligible choice; no rewrite of saved active board |
-| EG-15 | Corrupt primary, valid backup | Recover previous valid garden; log and note discrepancy as user-impacting limitation |
+| EG-15 | Corrupt primary, valid backup | Recover valid prior garden without poisoning backup; log potential loss of the latest move |
 | EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 81 keys load correctly |
 | EG-17 | 320px phone + tablets + cutout devices | No clipped/out-of-view actionable puzzle, controls, wave/sprout endpoint icons or choices |
 | EG-18 | VoiceOver/TalkBack, keyboard and RTL/Indic | Accessible names, focus order and shaped text actually correct; **currently unverified** |
 | EG-19 | In-game local playtest report | Zero counters without opt-in; copy only when tapped; no network/identifiers |
-| EG-20 | Disk full / unavailable storage | No silent impression that progress is safe; a localized save-error warning exists in source, but visibility and recovery require device proof |
+| EG-20 | Disk full / unavailable storage | Warning appears; no save success is claimed. Corrupt-all-slots blocks writes until explicit reset. Verify on phones |
 
 **Cross-platform matrix:** at least one small/older Android phone, one recent Android, one small iPhone, one large iPhone, relevant tablet, and WebGL when chosen as distribution. Capture OS build/version, device class, repro steps, screenshot, memory and frame-time evidence. Avoid invented “60 FPS on all phones” claims.
 

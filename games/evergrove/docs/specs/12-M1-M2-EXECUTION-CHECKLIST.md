@@ -71,6 +71,8 @@ The manual workflow lists iOS but its Ubuntu host/toolchain capability is **unve
 | `PUZ-007` / `SAVE-004` | Icons + language/renderer changes on each phone | No S/G text dependence; world/history/solution unchanged |
 | `PRIV-001` / `PRIV-002` | Offline/airplane mode, then controlled network capture, local report consent toggles | No unaccounted traffic; opt-in counters/copy only; declare exactly what was inspected |
 
+**Pure C# source test:** `SaveJournalTests.Run()` now exercises backup/staged recovery and 100 deterministic truncation cases in ordinary C# CI. This does **not** close `SAVE-001` or `SAVE-002`: those require native Unity save/restore, actual interruption points and hardware/file-system observations.
+
 **All 12 streams matter:** a test that sees only the first board is not `BLD-004` or `BLD-005`. For `SAVE-002`, record attempted/valid/recovered/lost denominators by injection stage. No fault-injection harness or 100-observation dataset has yet been supplied; keep it open rather than assuming 100/100 reliability.
 
 ## 5. Log a real result and decide
