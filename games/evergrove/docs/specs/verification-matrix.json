@@ -50,7 +50,7 @@
       "title": "First 60-second complete loop",
       "owner_role": "UX & Accessibility QA",
       "decision_gate": "M3",
-      "status": "Proposed",
+      "status": "Implemented-Unverified",
       "blocked": false,
       "dependency_ids": [
         "EG-001"
@@ -91,7 +91,7 @@
       "title": "Puzzle solver and difficulty metadata",
       "owner_role": "Gameplay Engineer",
       "decision_gate": "M3",
-      "status": "Proposed",
+      "status": "Implemented-Unverified",
       "blocked": false,
       "dependency_ids": [],
       "dependency_notes": "PipeRules, Tests/Program.cs, representative testers.",
@@ -109,7 +109,7 @@
       "title": "Progressive non-punitive hints",
       "owner_role": "Gameplay Engineer",
       "decision_gate": "M3",
-      "status": "Proposed",
+      "status": "Implemented-Unverified",
       "blocked": false,
       "dependency_ids": [
         "EG-004"
@@ -227,7 +227,7 @@
       "title": "Non-color connectivity and contrast",
       "owner_role": "UX & Accessibility QA",
       "decision_gate": "M3",
-      "status": "Proposed",
+      "status": "Implemented-Unverified",
       "blocked": false,
       "dependency_ids": [
         "EG-007"
@@ -285,7 +285,7 @@
       "title": "Causal journal",
       "owner_role": "Gameplay Engineer",
       "decision_gate": "M4",
-      "status": "Proposed",
+      "status": "Implemented-Unverified",
       "blocked": false,
       "dependency_ids": [
         "EG-003"
@@ -866,7 +866,7 @@
       "id": "PUZ-001",
       "gate": "M3",
       "method": "Automated",
-      "passing_criteria": "All 12 authored and 33 branch variants have exactly one solution",
+      "passing_criteria": "All 12 authored plus 33 choice-conditioned boards remain uniquely solvable and the 45 generated puzzle profiles match deterministic C# source.",
       "evidence_required": "Solver test log and puzzle IDs",
       "verified": false,
       "evidence_path": null
@@ -875,7 +875,7 @@
       "id": "PUZ-002",
       "gate": "M3",
       "method": "Automated",
-      "passing_criteria": "Existing Guide Me aligns one tile to solution and Undo reverses the action",
+      "passing_criteria": "Progressive stages 1 (row) and 2 (tile) never modify rotations; stage 3 aligns exactly one incorrect movable tile and is undoable. v4 persistence and direct GuideOneConnection compatibility pass deterministic tests.",
       "evidence_required": "C# regression log; future ladder stages separately tested",
       "verified": false,
       "evidence_path": null
