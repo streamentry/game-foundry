@@ -1,5 +1,7 @@
 # ADR: 2.5D miniature living world as Evergrove's target visual direction
 
+> **2026-11-22 implementation update:** Original future-tense statements below are historical. An opt-in procedural 2.5D renderer now exists at [VillageDiorama.cs](../../games/evergrove/Assets/Scripts/Unity/VillageDiorama.cs), but this is **not a verified Unity/device build or a production art approval**. See [current handbook](../../games/evergrove/docs/README.md).
+
 - **Date:** 2026-11-22
 - **Decision owner:** Founder / Game Foundry
 - **Status:** **Accepted as a directional art hypothesis; not a production art-pipeline commitment**
