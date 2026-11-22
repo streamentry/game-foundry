@@ -75,20 +75,43 @@ namespace Evergrove.Core
             string staged = primary + ".tmp";
             string backup = primary + ".bak";
 
+            // Recovery corner case: if .tmp is the ONLY valid save left, a
+            // normal staging write would destroy it before a second good copy
+            // exists. Preserve that last good staged snapshot in .bak FIRST.
+            // Also fail closed when existing files are all unreadable; callers
+            // must never turn data corruption into silent world replacement.
+            string oldPrimary, oldBackup, oldStaged;
+            bool primaryValid = ReadValid(primary, accepts, out oldPrimary);
+            bool backupValid = ReadValid(backup, accepts, out oldBackup);
+            bool stagedValid = ReadValid(staged, accepts, out oldStaged);
+            if (!primaryValid && !backupValid)
+            {
+                if (!stagedValid && HasAnySlot(primary)) return false;
+                if (stagedValid)
+                {
+                    File.Copy(staged, backup, true);
+                    string preserved;
+                    if (!ReadValid(backup, accepts, out preserved) ||
+                        !string.Equals(preserved, oldStaged, StringComparison.Ordinal))
+                        return false;
+                }
+            }
+
             File.WriteAllText(staged, payload);
             string validated;
             if (!ReadValid(staged, accepts, out validated) ||
                 !string.Equals(validated, payload, StringComparison.Ordinal))
                 return false;
 
-            // Do not let a corrupted old primary replace the only valid backup.
-            // If backup copy fails, publication has not started and the primary
-            // is still intact. The new candidate remains staged.
-            string old;
-            if (ReadValid(primary, accepts, out old))
+            // A validated primary can be rotated to backup only after a
+            // validated staging write exists. A corrupt primary must never
+            // overwrite the last good backup.
+            if (primaryValid)
             {
                 File.Copy(primary, backup, true);
-                if (!ReadValid(backup, accepts, out old))
+                string preserved;
+                if (!ReadValid(backup, accepts, out preserved) ||
+                    !string.Equals(preserved, oldPrimary, StringComparison.Ordinal))
                     return false;
             }
 

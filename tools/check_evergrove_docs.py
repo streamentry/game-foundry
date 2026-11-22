@@ -317,7 +317,8 @@ def check_specification_contract() -> None:
         if marker not in store:
             fail(f"Save recovery guard missing from Unity adapter: {marker}")
     for marker in ('ReadValid(primary + ".bak"', 'ReadValid(primary + ".tmp"',
-                   'ReadValid(primary, accepts, out old)', 'File.Copy(primary, backup, true)'):
+                   'ReadValid(primary, accepts, out oldPrimary)', 'File.Copy(primary, backup, true)',
+                   'File.Copy(staged, backup, true)', 'if (!stagedValid && HasAnySlot(primary))'):
         if marker not in journal:
             fail(f"Save journal last-good-copy contract drift: {marker}")
     if ("SaveJournalTests.Run();" not in test_runner or

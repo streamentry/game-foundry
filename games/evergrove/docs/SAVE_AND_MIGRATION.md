@@ -80,14 +80,14 @@ The save file lives under `Application.persistentDataPath/evergrove-world-v2.jso
 
 1. Reject invalid v4 JSON and refuse any write while `WorldStore.RecoveryBlocked` is set.
 2. Write a complete `.tmp` candidate and revalidate it before publishing anything.
-3. If the existing primary is valid, copy it to `.bak` and check that the backup is valid before replacing primary. **Never rotate a corrupt primary over the last valid backup.**
+3. If the existing primary is valid, copy it to `.bak` and confirm the backup matches before replacing primary. **If neither primary nor backup validates but `.tmp` does, copy `.tmp` to backup before writing a new stage.** Never rotate corrupt bytes over the last valid copy.
 4. Publish the validated stage to primary and revalidate it. Keep `.tmp` if publishing fails; delete it only after success.
 5. On load, prefer valid primary, then valid backup, then valid `.tmp`. Do **not** copy recovered backup bytes over the primary during loading.
-6. If files exist but none can be validated, leave them untouched; show the localized save warning, block future writes, and require an explicit two-step reset. `WorldStore.Clear()` returns success/failure and UI does not claim success after a partial deletion.
+6. If files exist but none can be validated, leave them untouched; show the localized save warning, block future writes, and require an explicit two-step reset. The pure-C# journal also rejects such a commit even if a caller bypasses the Unity guard. `WorldStore.Clear()` returns success/failure and UI does not claim success after a partial deletion.
 
 **Limitations:** This is best-effort fault recovery, not proven mobile flash durability. `File.Copy` / `File.WriteAllText` cannot guarantee atomicity or a fully durable fsync across power loss. Recovered backup may omit the most recent move. A distinct in-game notice for recovered-but-older progress remains to be designed and verified. Saves are not encrypted or synchronized.
 
-**Test scope:** [SaveJournalTests.cs](../Tests/SaveJournalTests.cs) adds pure-C# backup and staged recovery plus 100 deterministic interruption/truncation simulations. These are **not** 100 actual Android/iOS force-closes, filesystem permission/disk-full tests or `SAVE-001/002` verification; two-device testing remains mandatory.
+**Test scope:** [SaveJournalTests.cs](../Tests/SaveJournalTests.cs) adds pure-C# backup and staged recovery, 100 deterministic interruption/truncation simulations and 100 stage-only-last-valid recovery simulations. These are **not** 100 actual Android/iOS force-closes, filesystem permission/disk-full tests or `SAVE-001/002` verification; two-device testing remains mandatory.
 
 ## 6. Invariants and extra QA
 
