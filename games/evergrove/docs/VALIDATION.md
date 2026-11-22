@@ -31,7 +31,7 @@ For 2D/2.5D, show the same actions and art information in both, with no extra an
 | Day | Observable action / artifact | Hard stop before proceeding |
 | --- | --- | --- |
 | 1 | Run manual Unity Editor build/import; correct any compiler errors; capture launch and first chapter on a real target phone | No player study while app can't be controlled |
-| 2 | QA 3×3 and 4×4 taps, S/G labels, 2D/2.5D fallback, force-kill saves, locale switch and reset | Fix data loss, broken input or unreadable text |
+| 2 | QA 3×3 and 4×4 taps, blue-wave/sprout endpoint icons and ! leak markers, 2D/2.5D fallback, force-kill saves, locale switch and reset | Fix data loss, broken input or unreadable text |
 | 3 | Recruit 20–30 relevant adults via personal outreach and narrow communities; include the proposed 45+ segment explicitly | Do not substitute only founder friends / staff |
 | 4 | Observe 8–10 first plays in a pre-balanced A schedule; record verbatim “what changed and why?” | If most cannot solve or explain the creek, simplify onboarding before scale |
 | 5 | Observe 8–10 more; run a separate small visual C comparison (10–15 people, order counterbalanced) | Do not interpret art preference as retention |

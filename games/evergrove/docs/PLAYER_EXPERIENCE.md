@@ -7,7 +7,7 @@
 | Moment | What the player should perceive | Implemented surface | Biggest uncertainty |
 | --- | --- | --- | --- |
 | Launch | A calm place, a dried creek, no login or advertisement | Warm paper UI; 2D original village art by default; local save | Does header/language selector/art push the first tile below fold? |
-| First ~10 s | I can tap a pipe; the interaction does something | S/G endpoint labels, 3×3 board, one-tap rotation, changing channel graphics | Mobile hitbox/legibility and actual zero-coaching comprehension |
+| First ~10 s | I can tap a pipe; the interaction does something | blue-wave/sprout endpoint icons, 3×3 board, one-tap rotation, changing channel graphics | Mobile hitbox/legibility and actual zero-coaching comprehension |
 | First attempts | Water reaches more cells; a mismatch is understandable | Connected-tile count, leak feedback and highlighted reachable channels | Do players understand leaks, or guess until success? |
 | First solution | The creek is flowing where it was dry | `VillageScenePlan.WaterRestored` and art state change | Is the restoration visibly rewarding without confetti? |
 | First choice | I am choosing what this place will need next | Tree / crossing / flowers, promised outcome on each button | Do consequences feel meaningful or like three similar menu labels? |
@@ -30,7 +30,7 @@ Portrait scrolling UI
     Stream title / environmental landmark notice
     One short prompt
     3x3 or 4x4 tap-to-rotate water board
-       S = spring, G = garden outlet
+       Blue wave icon = spring, green sprout = garden outlet
        visibly marked non-rotatable environmental tile on branched boards
     Connected water / leak feedback
     Undo, Guide me, Restart (or choices after solved)
@@ -110,7 +110,7 @@ See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **Eng
 | Requirement | Current implementation | Real validation before launch |
 | --- | --- | --- |
 | Large touch targets | Dynamic grid aims ~90px for 3×3 and ~67px for 4×4 at reference 414px; smaller phones clamp lower | Verify effective pixel hit areas and non-overlap at 320px/landscape/tablets |
-| Distinct states | S/G labels and warm protected-tile badge, water color + text counters | Colorblind comprehension, high contrast, distinguishable rotation/lock without relying on amber |
+| Distinct states | blue-wave/sprout icons, ! leak marker and warm protected-tile badge, water color + text counters | Colorblind comprehension, high contrast, distinguishable rotation/lock without relying on amber |
 | No pressure | No countdown/streak; Undo, Restart, optional Guide me | Observe no shame/forced help; examine difficulty spikes |
 | Hearing independence | Sound optional and default off | Verify mute/ringer and audio interruption on iOS/Android |
 | Motion sensitivity | 2.5D motion optional/off initially | Test OS reduced-motion preference; check flashing and 12fps animation artifacts |
