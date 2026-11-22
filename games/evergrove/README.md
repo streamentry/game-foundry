@@ -40,7 +40,7 @@ The experience supports **Living World** and **Puzzle Only** for exploratory com
 
 ## Play the first minute in a browser (research only)
 
-Before setting up Unity, you can open the **[offline first-minute research slice](research/first-minute/)** in any modern browser. It uses the **identical chapter-one pipe fixture and reachability rules**, with original responsive spring/creek art and three immediate visual choices. No account, tracking, external assets, server or build step; no complete 12-stream progression either.
+Before setting up Unity, you can open the **[offline first-minute research slice](research/first-minute/index.html)** in any modern browser. It uses the **identical chapter-one pipe fixture and reachability rules**, with original responsive spring/creek art and three immediate visual choices. No account, tracking, external assets, server or build step; no complete 12-stream progression either.
 
 It is a fast, testable **concept/interaction stimulus** to find out whether people *understand the water* and *notice the consequence*. It is **not** a Unity export or an acceptable substitute for M1/M2, native accessibility, retention or randomized narrative-value evidence. Read its [research README](research/first-minute/README.md) before interviewing players.
 

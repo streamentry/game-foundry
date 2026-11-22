@@ -80,7 +80,7 @@ test("all three consequences are real, mutually exclusive and choice-gated", () 
     assert.equal(game.choose(choice), false);
     solve(game);
     assert.equal(game.choose(choice), true);
-    assert.match(CHOICES[choice].result, /\S{10,}/);
+    assert.ok(CHOICES[choice].result.trim().length >= 45, "choice has meaningful written consequence");
     assert.equal(game.choose(choice), false);
   }
   assert.equal(new Game().choose("fake"), false);
