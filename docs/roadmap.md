@@ -22,6 +22,12 @@ At the founder's explicit direction on **2026-11-22**, **Evergrove (`PH-006`)** 
 - **Stop/simplify:** puzzle-only wins, players don't understand consequences, or maintaining a living world makes economics or trust worse.
 - **Source of decision:** [research decision record](research/evergrove-build-decision-2026-11-22.md). Any store launch still needs a separate evidence-backed review.
 
+## Evergrove visual-comparison and character-memory experiment
+
+**2026-11-22 implementation:** [optional 2.5D diorama and authored NPC conversations](../games/evergrove/README.md), with the existing 2D art remaining the default control. A deterministic `VillageScenePlan` keeps both visual modes tied to the same history. The 2.5D scene is generated with native Unity primitives and bounded still/12fps rendering; no external assets, server or new game engine are needed.
+
+**Evidence gate:** Compare 2D and 2.5D at matched state/content with 10–15 players, separating art comprehension from novelty. Verify Unity Editor compilation and mobile frame-time, memory, heat, accessibility and actual device behavior. [Protocol](research/evergrove-visual-comparison-protocol-2026-11-22.md). A 2.5D renderer is **not** itself proof of improved retention.
+
 ## Evergrove Chapter One — quality milestone (not a store launch)
 
 **Engine ADR:** [Evergrove uses Unity/C# provisionally](decisions/2026-11-22-evergrove-engine-unity-csharp.md). Real Unity Editor, Android/iOS and player validation must confirm the decision; the remaining Godot portfolio is unchanged.
