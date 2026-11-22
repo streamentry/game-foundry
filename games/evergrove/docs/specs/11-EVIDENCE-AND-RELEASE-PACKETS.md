@@ -62,6 +62,10 @@ Never commit this example with a fabricated SHA, result or tester name and then 
 - If a source or dependency changes, evaluate evidence invalidation; don't inherit PASS from a different binary without justification.
 - A source-level smoke or generated screenshot must never impersonate a physical-device test.
 
+## Cross-cutting milestone tests
+
+Not every named test belongs naturally to one feature. The canonical register explicitly assigns these gate-wide requirements: **M2:** SAVE-004 and PUZ-007; **M3:** PUZ-006; **M5:** BLD-007 and VAL-003; **M6:** STORE-001 and STORE-002. Any failure blocks the corresponding milestone irrespective of feature priority. See [Execution control](09-EXECUTION-CONTROL.md).
+
 ## 4. Release acceptance matrix
 
 | Gate | Test classes | Human sign-off | Current default |

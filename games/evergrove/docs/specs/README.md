@@ -41,6 +41,8 @@ The [10 — experiment protocols](10-EXPERIMENT-PROTOCOLS.md) and [11 — eviden
 
 **Evidence-first gates:** M0 specs → M1 Unity compile/build → M2 two physical devices and save/privacy → M3 first-session usability → M4 properly matched narrative-value study → M5 certified locale/text architecture → M6 commercial release. Do not implement replay, daily content or expansion systems as a substitute for a failed gate.
 
+**All 46 verification test IDs have an explicit owner:** 39 feature-linked or shared tests, plus **7 gate-wide contracts** (M2/M3/M5/M6) in the machine register. This is inventory coverage, **not 46 passed tests**.
+
 **Thirty draft locales ≠ thirty production-ready languages.** The 37 backlog features are conditional opportunities, **not a promise to ship 37**. Current `verification-matrix.json` contains **no certified test evidence**.
 
 ## What exists versus what is only specified

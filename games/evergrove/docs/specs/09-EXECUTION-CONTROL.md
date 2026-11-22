@@ -81,6 +81,19 @@ The current research pipeline uses the Unity **Development Build** option, which
 
 Official source: [Unity 6.3 Development Build scripting define](https://docs.unity.com/en-us/engine/6000.3/manual/building-and-publishing/build-settings/build-profiles-reference).
 
+## Gate-level test ownership (not tied to a single feature)
+
+Seven checks apply across the **whole build/release**, so they are recorded in `verification-matrix.json.gate_required_verification_ids` rather than artificially assigned to one of the 37 features:
+
+| Gate | Test IDs | Why this must be a milestone-wide decision |
+| --- | --- | --- |
+| M2 | `SAVE-004`, `PUZ-007` | Locale/renderer must not alter world truth; endpoint icons must be language-independent on actual devices |
+| M3 | `PUZ-006` | Unprompted compact-phone touch and mis-taps matter across every puzzle feature |
+| M5 | `BLD-007`, `VAL-003` | Release controls must be absent and 2D/2.5D cost/value decision documented |
+| M6 | `STORE-001`, `STORE-002` | Public name clearance and store privacy declarations are global release blockers |
+
+The docs checker rejects **unowned test IDs**. Gate-level checks require actual evidence exactly as feature-level tests do; these seven tests cannot be marked PASS by filling a JSON reference alone. A milestone is not passed just because feature statuses are green.
+
 ## Test registry and evidence rule
 
 [verification-matrix.json](verification-matrix.json) contains stable IDs under: `BLD-*`, `SAVE-*`, `PUZ-*`, `LOC-*`, `A11Y-*`, `PRIV-*`, `VAL-*`, `WLD-*`, `UX-*`, `TOOL-*`, `PERF-*`, `STORE-*`. Each feature must point to at least one defined test.
