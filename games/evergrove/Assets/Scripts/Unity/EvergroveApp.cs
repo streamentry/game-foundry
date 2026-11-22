@@ -29,6 +29,7 @@ namespace Evergrove.UnityClient
         private RectTransform content;
         private RectTransform scrollArea;
         private ScrollRect scroll;
+        private CanvasScaler viewportScaler;
         private Rect lastSafeArea;
         private Vector2Int lastScreen;
         private bool showingMemory;
@@ -132,6 +133,7 @@ namespace Evergrove.UnityClient
             var canvas = canvasNode.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = canvasNode.AddComponent<CanvasScaler>();
+            viewportScaler = scaler;
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(414, 896);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
@@ -468,8 +470,15 @@ namespace Evergrove.UnityClient
                 TextAnchor.MiddleCenter);
             var board = Card(content, "The water puzzle", White);
             var gridNode = Node("Water connections", board.transform);
-            int tileSize = puzzle.Size == 3 ? 90 : 67;
+            // Keep the entire puzzle inside a compact phone, including the
+            // story card's horizontal padding and safe-area insets.
             int gap = puzzle.Size == 3 ? 7 : 5;
+            float scale = viewportScaler == null ? 1f :
+                Mathf.Max(0.1f, viewportScaler.scaleFactor);
+            float layoutWidth = Screen.safeArea.width / scale;
+            float available = Mathf.Max(225f, layoutWidth - 34f - 20f - 5f);
+            int ideal = Mathf.FloorToInt((available - (puzzle.Size - 1) * gap) / puzzle.Size);
+            int tileSize = Mathf.Clamp(ideal, 48, puzzle.Size == 3 ? 90 : 67);
             int span = (tileSize + gap) * puzzle.Size - gap;
             Height(gridNode, span + 1);
             var grid = gridNode.AddComponent<GridLayoutGroup>();

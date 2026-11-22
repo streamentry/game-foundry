@@ -219,10 +219,14 @@ namespace Evergrove.UnityClient
         {
             Box("Cottage", new Vector3(-2.8f, 0.50f, 0.9f),
                 new Vector3(1.45f, 0.95f, 1.25f), "#EAC99E");
-            Box("Copper roof front", new Vector3(-3.17f, 1.18f, 0.9f),
-                new Vector3(1.05f, 0.16f, 1.55f), "#956851", null, -32f);
-            Box("Copper roof back", new Vector3(-2.42f, 1.18f, 0.9f),
-                new Vector3(1.05f, 0.16f, 1.55f), "#956851", null, 32f);
+            var roofWest = Primitive(PrimitiveType.Cube, "Sloping copper roof west",
+                new Vector3(-3.16f, 1.19f, 0.9f),
+                new Vector3(1.02f, 0.15f, 1.55f), "#956851");
+            roofWest.transform.localRotation = Quaternion.Euler(0f, 0f, -31f);
+            var roofEast = Primitive(PrimitiveType.Cube, "Sloping copper roof east",
+                new Vector3(-2.43f, 1.19f, 0.9f),
+                new Vector3(1.02f, 0.15f, 1.55f), "#956851");
+            roofEast.transform.localRotation = Quaternion.Euler(0f, 0f, 31f);
             Box("Cottage door", new Vector3(-2.8f, 0.31f, 1.535f),
                 new Vector3(0.29f, 0.62f, 0.045f), "#725848");
             Box("Cottage window", new Vector3(-3.29f, 0.72f, 1.54f),
@@ -308,7 +312,11 @@ namespace Evergrove.UnityClient
 
         private void Build(VillageScenePlan plan)
         {
-            if (stage != null) Destroy(stage.gameObject);
+            if (stage != null)
+            {
+                stage.gameObject.SetActive(false); // old geometry must not ghost during a choice frame
+                Destroy(stage.gameObject);
+            }
             var root = new GameObject("Your little village — a stateful miniature");
             PutOnSceneLayer(root);
             root.transform.SetParent(transform, false);
