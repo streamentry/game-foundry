@@ -21,8 +21,8 @@ namespace Evergrove.UnityClient.Editor
         public static void Build()
         {
             BuildTarget target = EditorUserBuildSettings.activeBuildTarget;
-            if (target != BuildTarget.Android && target != BuildTarget.WebGL)
-                throw new NotSupportedException("Evergrove preview supports only Android or WebGL.");
+            if (target != BuildTarget.Android && target != BuildTarget.WebGL && target != BuildTarget.iOS)
+                throw new NotSupportedException("Evergrove preview supports Android, WebGL and unsigned iOS Xcode export.");
 
             EvergroveSceneSetup.CreateScene();
 
@@ -43,7 +43,9 @@ namespace Evergrove.UnityClient.Editor
             Directory.CreateDirectory(outDir);
             string output = target == BuildTarget.Android
                 ? Path.Combine(outDir, "Evergrove-Playtest.apk")
-                : Path.Combine(outDir, "Evergrove-Playtest");
+                : target == BuildTarget.iOS
+                    ? Path.Combine(outDir, "Evergrove-Xcode")
+                    : Path.Combine(outDir, "Evergrove-Playtest");
 
             PlayerSettings.productName = "Evergrove Playtest";
             PlayerSettings.companyName = "Game Foundry";
@@ -56,6 +58,13 @@ namespace Evergrove.UnityClient.Editor
                     "com.streamentry.evergrove.playtest");
                 EditorUserBuildSettings.buildAppBundle = false;
                 EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+            }
+            else if (target == BuildTarget.iOS)
+            {
+                // Generating an Xcode project is not a signed .ipa build.
+                PlayerSettings.SetApplicationIdentifier(
+                    UnityEditor.Build.NamedBuildTarget.iOS,
+                    "com.streamentry.evergrove.playtest");
             }
 
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions

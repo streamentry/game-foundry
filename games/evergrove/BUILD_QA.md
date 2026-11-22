@@ -4,11 +4,11 @@ As of 2026-11-22, pure C# domain tests run in GitHub Actions. **No licensed Unit
 
 ## One-click preview builds
 
-A manual [Build Evergrove Unity Playtest](../../.github/workflows/evergrove-unity-playtest.yml) workflow can produce an **unsigned Android test APK** or **unhosted WebGL ZIP artifact**. It uses `game-ci/unity-builder@v4`, a custom Editor build method `EvergroveBuild.Build` and the requested Unity 6.3 version from `ProjectSettings/ProjectVersion.txt`.
+A manual [Build Evergrove Unity Playtest](../../.github/workflows/evergrove-unity-playtest.yml) workflow can produce an **unsigned Android test APK**, **unhosted WebGL ZIP artifact**, or **unsigned iOS Xcode project**. It uses `game-ci/unity-builder@v4`, a custom Editor build method `EvergroveBuild.Build` and the requested Unity 6.3 version from `ProjectSettings/ProjectVersion.txt`.
 
 **Maintainer setup (one time):** Open repository **Settings → Secrets and variables → Actions** and configure a supported Unity license. GameCI Personal activation requires `UNITY_LICENSE`; Pro activation uses `UNITY_SERIAL`, `UNITY_EMAIL`, `UNITY_PASSWORD`. Do not paste credentials into chat, commit them or log them. See [GameCI activation instructions](https://game.ci/docs/github/activation/). This workflow refuses to run without license information, and it never publishes an app or deploys the optional Cloudflare backend.
 
-Once credentials are configured, visit **Actions → Build Evergrove Unity Playtest → Run workflow** and choose **Android** or **WebGL**. After success, download the artifact from the workflow run. Android produces `Evergrove-Playtest.apk` (not a signed Play Store release). WebGL produces a folder for self-hosting; serve over localhost or HTTPS (do not double-click `index.html` from a `file://` URL).
+Once credentials are configured, visit **Actions → Build Evergrove Unity Playtest → Run workflow** and choose **Android**, **WebGL** or **iOS**. After success, download the artifact from the workflow run. Android produces `Evergrove-Playtest.apk` (not a signed Play Store release). iOS produces an unsigned **Xcode project**: open and sign it on your own Mac with Xcode; it is **not an IPA**. WebGL produces a folder for self-hosting; serve over localhost or HTTPS (do not double-click `index.html` from a `file://` URL).
 
 The automated Unity build method creates the otherwise empty bootstrap scene. **No manually authored scene asset is needed in the repository.** Runtime UI is constructed in code. This is a conscious temporary workflow; final studio-quality work should be imported into proper scenes, prefabs and assets after player validation.
 

@@ -20,7 +20,7 @@ study = (game / "Assets" / "Scripts" / "Core" / "LocalPlaytest.cs").read_text().
 for forbidden in ("httprequest", "deviceuniqueidentifier", "unityanalytics", "webrequest"):
     assert forbidden not in study, forbidden
 editor = (game / "Assets" / "Editor" / "EvergroveBuild.cs").read_text()
-for required in ("public static void Build()", "BuildPipeline.BuildPlayer", "BuildTarget.Android", "BuildTarget.WebGL"):
+for required in ("public static void Build()", "BuildPipeline.BuildPlayer", "BuildTarget.Android", "BuildTarget.WebGL", "BuildTarget.iOS"):
     assert required in editor, required
 workflow = (root / ".github" / "workflows" / "evergrove-unity-playtest.yml").read_text()
 for required in ("workflow_dispatch:", "game-ci/unity-builder@v4", "buildMethod: Evergrove.UnityClient.Editor.EvergroveBuild.Build", "secrets.UNITY_LICENSE", "secrets.UNITY_SERIAL"):
