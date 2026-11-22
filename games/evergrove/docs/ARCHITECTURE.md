@@ -30,7 +30,7 @@ flowchart TD
 | --- | --- | --- |
 | `Assets/Scripts/Core/PipeRules.cs` | 3×3/4×4 authored board data, port rotations, adjacency, leaks, connectivity, exhaustive uniqueness search | Pure logic; no engine or network; some arrays publicly exposed through `Puzzle` are by convention treated immutable |
 | `Assets/Scripts/Core/ReactiveWatercourses.cs` | Three deterministic rotated/anchored follow-up variants per later chapter | Rotations preserve base graph; no actual resource/ecosystem dynamics |
-| `Assets/Scripts/Core/WorldModel.cs` | Canonical state machine; actions, choices, schema v3 export/restore | Preserves current variant and older active boards; source of truth |
+| `Assets/Scripts/Core/WorldModel.cs` | Canonical state machine; actions, choices, schema v4 export/restore | Preserves current variant and older active boards; source of truth |
 | `Assets/Scripts/Core/VillageStory.cs` | Longer authored English story logic, character responses, endings | References real choices; deterministic, not learned |
 | `Assets/Scripts/Core/LocalizedVillage.cs` | Compact 30-language state-dependent game copy | 76-key localization catalog, independent of core rules |
 | `Assets/Scripts/Core/GameLocalization.cs` | Language registry, BCP-47 routing/fallback, catalog checks and text formatting | Pure C# and covered by .NET tests; no state mutation |
@@ -69,7 +69,7 @@ Full matrix and QA: [LOCALIZATION](../LOCALIZATION.md); [player experience](PLAY
 
 ## 5. Offline persistence and system boundaries
 
-The only authoritative local world store is `WorldStore` and the in-memory `WorldModel`. The filename remains `evergrove-world-v2.json` while the **content schema is currently version 3** (backwards-compatible path, not a version-name mismatch to “fix” casually). Each change attempts a local validated JSON save, with a previous backup and legacy PlayerPrefs import.
+The only authoritative local world store is `WorldStore` and the in-memory `WorldModel`. The filename remains `evergrove-world-v2.json` while the **content schema is currently version 4** (backwards-compatible path, not a version-name mismatch to “fix” casually). Each change attempts a local validated JSON save, with a previous backup and legacy PlayerPrefs import.
 
 There is **no** account identity, cloud sync, remote conflict resolution, multiplayer authoritative simulation or server-side live narrative. See [Save and migration](SAVE_AND_MIGRATION.md).
 
