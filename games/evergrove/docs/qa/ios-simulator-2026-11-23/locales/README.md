@@ -67,3 +67,10 @@ Found on `ja/04-consequence-shade-tree.png`; these likely apply to every non-Eng
 - **Not clipped; it was below the fold.** The tour now scrolls the main ScrollRect to the bottom and captures `vi/11b-ending-bottom.png`. The footer line ("Không cần mạng · Không giới hạn giờ · Không quảng cáo · Không tài khoản", wrapping to "khoản") is fully visible with clear space below it. The unscrolled `vi/11-ending.png` only cut it off because the capture stopped at the first viewport.
 - Bottom captures `04b` and `10b` were also added to the dev-only tour; those screenshots were not reviewed for this verdict.
 - No player-facing layout change was made.
+
+## Result: CJK line-start punctuation fixed via measured line breaks (2026-11-23)
+
+- Approach: uGUI does not honor U+2060, so `KinsokuLineBreaks` (Core) measures each CJK label's wrapped lines and inserts an explicit `\n` one character earlier when a line would start with closing punctuation (or end with an opening bracket). `CjkLineBreakFixer` (Unity) keeps the original source and re-fits on width or font-size change. Applied through `Label` and the feedback label, only for `ja`, `zh-Hans` and `zh-Hant`.
+- Evidence: `ja/10-journal-kinsoku-fixed.png`. The water-route note now ends `回転できませ` / `ん。`, and no line starts with `。` or `、`. The previous lone-`。` line is gone. Checked on the iOS Simulator (ja, fresh install); 04 and 11 show no line starting with closing punctuation.
+- Limits: only Label text is covered. Button captions and the dev-only English buttons are not. Verified on the Simulator only, not on a physical device or with a native-speaker review.
+- Simulator language restored to `en` / `en_US` and rebooted.
