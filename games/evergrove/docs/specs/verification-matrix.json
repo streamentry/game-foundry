@@ -835,8 +835,12 @@
       "method": "Unity",
       "passing_criteria": "Nondevelopment player has no experiment modes, visual comparison or playtest export controls",
       "evidence_required": "Release candidate screenshot and source guard audit",
-      "verified": false,
-      "evidence_path": null
+      "verified": true,
+      "evidence_path": "games/evergrove/docs/evidence/79d19ec09be5323db91077517b4f8325409c402a/BLD-007/verification.md",
+      "source_commit_sha": "79d19ec09be5323db91077517b4f8325409c402a",
+      "build_artifact_sha256": "77c1d0621408f4bf2c36150f6b845551b90c3e0117780fa0dd604b503c24dbb3",
+      "reviewer_role": "AI agent (Claude Opus 5.5) build, strings scan and simulator screenshot review; not independent human verification",
+      "reviewed_at_utc": "2026-11-23T06:04:57Z"
     },
     {
       "id": "SAVE-001",
