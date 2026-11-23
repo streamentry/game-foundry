@@ -1540,11 +1540,6 @@ namespace Evergrove.UnityClient
 
             if (world.Solved)
             {
-                Button revisit = IconButton(CenteredRow("Revisit row"), "Revisit water",
-                    GameLocalization.Text("undo_last"), MosseloraArt.IconUndo,
-                    () => Act(() => world.Undo(), "undo"), 52, MosseloraTheme.QuietAction);
-                Width(revisit, 96);
-                revisit.interactable = world.CanUndo;
                 // Both puzzle-only and matched runs have no village decisions;
                 // only the Living world may show choices.
                 if (world.Mode != PlayMode.Living)
@@ -1568,6 +1563,13 @@ namespace Evergrove.UnityClient
                         ChoiceCard(choice, () => MakeChoice(choice));
                     }
                 }
+                // Second thoughts live after the decision, not between the payoff
+                // line and the choices, where a lone back-arrow read as "go back".
+                Button revisit = IconButton(CenteredRow("Revisit row"), "Revisit water",
+                    GameLocalization.Text("undo_last"), MosseloraArt.IconUndo,
+                    () => Act(() => world.Undo(), "undo"), 48, MosseloraTheme.QuietAction);
+                Width(revisit, 84);
+                revisit.interactable = world.CanUndo;
             }
             else
             {

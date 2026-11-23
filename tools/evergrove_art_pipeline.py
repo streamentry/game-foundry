@@ -198,6 +198,9 @@ UI_ICONS = ("ui-undo", "ui-hint", "ui-restart", "ui-language",
             "ui-restore-file", "ui-new-garden", "ui-confirm", "ui-cancel")
 
 
+SUPERSEDED = {"ui-board-size", "ui-chime-on", "ui-chime-off", "ui-change"}
+
+
 def grid(sheet: Image.Image, columns: int, rows: int) -> list[Image.Image]:
     w, h = sheet.size
     cw, ch = w // columns, h // rows
@@ -273,6 +276,14 @@ def main() -> None:
     ui = master("icons-ui")
     if ui:
         for name, cell in zip(UI_ICONS, grid(ui, 4, 4)):
+            if name in SUPERSEDED:
+                continue  # replaced by clearer glyphs from icons-ui-2.png
+            save(white_glyph(cell), name)
+
+    ui2 = master("icons-ui-2")
+    if ui2:
+        for name, cell in zip(("ui-exchange", "ui-sound-on", "ui-sound-off", "ui-zoom-board"),
+                              grid(ui2, 2, 2)):
             save(white_glyph(cell), name)
 
     neighbors = master("neighbors")

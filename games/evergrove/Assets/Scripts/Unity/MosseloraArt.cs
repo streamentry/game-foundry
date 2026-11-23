@@ -33,12 +33,12 @@ namespace Evergrove.UnityClient
         public const string IconRestart = "ui-restart";
         public const string IconLanguage = "ui-language";
         public const string IconTextSize = "ui-text-size";
-        public const string IconBoardSize = "ui-board-size";
-        public const string IconChimeOn = "ui-chime-on";
-        public const string IconChimeOff = "ui-chime-off";
+        public const string IconBoardSize = "ui-zoom-board";
+        public const string IconChimeOn = "ui-sound-on";
+        public const string IconChimeOff = "ui-sound-off";
         public const string IconJournal = "ui-journal";
         public const string IconContinue = "ui-continue";
-        public const string IconChange = "ui-change";
+        public const string IconChange = "ui-exchange"; // distinct from the circular Restart
         public const string IconCopyFile = "ui-copy-file";
         public const string IconRestoreFile = "ui-restore-file";
         public const string IconNewGarden = "ui-new-garden";
@@ -101,6 +101,15 @@ namespace Evergrove.UnityClient
             sprite = BuildRounded(radius, 2.2f);
             RingCache[radius] = sprite;
             return sprite;
+        }
+
+        private static Sprite boldRing;
+
+        /// <summary>A heavier full-circle ring for small markers on busy tiles.</summary>
+        public static Sprite BoldRing()
+        {
+            if (boldRing == null) boldRing = BuildRounded(8, 3.6f);
+            return boldRing;
         }
 
         // Textures are drawn at 2x so corners stay smooth on retina phones;
@@ -235,7 +244,7 @@ namespace Evergrove.UnityClient
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(size, size);
             var image = node.AddComponent<Image>();
-            image.sprite = MosseloraArt.Ring(8); // a full circle when drawn unsliced
+            image.sprite = MosseloraArt.BoldRing(); // a full circle when drawn unsliced
             image.type = Image.Type.Simple;
             image.color = stroke;
             image.raycastTarget = false;

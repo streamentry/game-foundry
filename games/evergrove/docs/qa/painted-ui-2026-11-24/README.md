@@ -78,3 +78,14 @@ Same simulator method as above (iPhone 17 Pro, iOS 26.5, English). The QA tour p
 Process note: the Android run collided with another session's Bengali test on the same emulator; that session was told its run used this build.
 
 Still not verified: icon comprehension with adults 45+ (age fit not validated), VoiceOver/TalkBack on a device, physical phones, Large board with the new skin.
+
+### Follow-up review fixes (b10)
+
+An independent Haiku re-review of b9 marked choice cards resolved and raised three new issues. All three are now fixed:
+
+- Change choice used circular arrows like Restart; it is now two opposite straight arrows (new Codex glyph, `art/generated/icons-ui-2.png`).
+- The chime bell read as "notifications"; it is now a speaker with waves or a speaker with an X.
+- The post-win "revisit water" undo sat between the payoff line and the choices, where it read as "go back"; it now sits below the choices.
+- Board size uses a magnifier over a grid instead of a grid with a plus. Open-end rings use a heavier stroke so they stay visible on pale-blue wet tiles.
+
+Evidence: `icons-v2-b10-150pct.png` (b10 tour at 150% text; all 17 screens produced).

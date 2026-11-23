@@ -29,8 +29,9 @@ Typography: the device's Avenir Next (iOS) or Roboto (Android) for English when 
 
 ### Icon language (2026-11-24)
 
-- Frequent, universally understood actions are icon-only: Undo (curved arrow, forest), Guide me (lightbulb, teal; a 1/2 or 2/2 badge shows hint depth), Restart stream (circular arrow, terracotta), Continue (arrow), Change choice (swap arrows), journal (open book), settings row of language (globe), text size (small/large A, badge shows 125%/150%), board size (grid with plus, badge 1.2x) and chime (bell / bell with slash).
-- Rare or destructive actions keep a short label beside the icon: copy/restore garden file, erase/confirm, keep/cancel, explore another garden.
+- Frequent, universally understood actions are icon-only: Undo (curved arrow, forest), Guide me (lightbulb, teal; a 1/2 or 2/2 badge shows hint depth), Restart stream (circular arrow, terracotta), Continue (arrow), Change choice (two opposite straight arrows, deliberately unlike the circular Restart), journal (open book), settings row of language (globe), text size (small/large A, badge shows 125%/150%), board size (magnifier over a grid, badge 1.2x) and chime (speaker with waves / speaker with X; a bell read as "notifications").
+- Garden file copy/restore and "explore another garden" are icon-only; words appear only on the erase confirmation, beside an icon-only cancel. The unreadable-save recovery flow keeps words (rare, data-loss risk).
+- After a solve, the board holds about 1.25 s on the finished creek (bloom, full droplet meter), then glides to the choices; the small "revisit water" undo sits below the choices, not between the payoff and the decision.
 - Neighbors are painted portrait medallions with their name beneath; the current speaker gets a leaf-green ring.
 - Every icon button keeps its localized label as a hidden child Text named "Caption", which ScreenReaderBridge speaks; names used by the QA tour are unchanged.
 - Controls squash to 94% under the finger (PressSquash); a tapped pipe swings 90 degrees into place (about 160 ms) and undo swings back; the painted creek fades toward the measured water reach instead of popping. Restart and multi-step jumps snap.
