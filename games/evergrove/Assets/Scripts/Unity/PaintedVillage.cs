@@ -32,6 +32,8 @@ namespace Evergrove.UnityClient
         private Image dry;
         private Image flowing;
         private RectTransform landmarks;
+        private float targetReach;
+        private bool shownOnce;
         private int shownTrees = -1;
         private int shownBridges = -1;
         private int shownFlowers = -1;
@@ -74,6 +76,15 @@ namespace Evergrove.UnityClient
             return image;
         }
 
+        private void Update()
+        {
+            if (flowing == null) return;
+            float current = flowing.color.a;
+            if (Mathf.Abs(current - targetReach) < 0.002f) return;
+            float next = Mathf.MoveTowards(current, targetReach, Time.unscaledDeltaTime * 1.8f);
+            flowing.color = new Color(1f, 1f, 1f, next);
+        }
+
         public void Show(int chapterIndex, int shade, int crossings, int meadows,
                          bool restored, int waterReachPercent)
         {
@@ -81,7 +92,10 @@ namespace Evergrove.UnityClient
             // Honest water: alpha follows the measured spring reach, and
             // only a solved, leak-free route shows the whole flowing creek.
             float reach = restored ? 1f : Mathf.Clamp01(waterReachPercent / 100f) * 0.85f;
-            flowing.color = new Color(1f, 1f, 1f, reach);
+            // Water arrives over ~half a second rather than popping in; the
+            // target is still exactly the measured reach.
+            targetReach = reach;
+            if (!shownOnce) { flowing.color = new Color(1f, 1f, 1f, reach); shownOnce = true; }
             // Later chapters are a touch warmer and greener: the village has lived longer.
             float season = Mathf.Clamp01(chapterIndex / 11f);
             dry.color = Color.Lerp(new Color(0.97f, 0.95f, 0.90f), Color.white, season);

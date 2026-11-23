@@ -192,6 +192,35 @@ def save(image: Image.Image, name: str) -> None:
     print(f"{target.relative_to(ROOT)}  {image.width}x{image.height}  {image.mode}")
 
 
+UI_ICONS = ("ui-undo", "ui-hint", "ui-restart", "ui-language",
+            "ui-text-size", "ui-board-size", "ui-chime-on", "ui-chime-off",
+            "ui-journal", "ui-continue", "ui-change", "ui-copy-file",
+            "ui-restore-file", "ui-new-garden", "ui-confirm", "ui-cancel")
+
+
+def grid(sheet: Image.Image, columns: int, rows: int) -> list[Image.Image]:
+    w, h = sheet.size
+    cw, ch = w // columns, h // rows
+    return [sheet.crop((c * cw, r * ch, (c + 1) * cw, (r + 1) * ch))
+            for r in range(rows) for c in range(columns)]
+
+
+def white_glyph(cell: Image.Image, size: int = 128) -> Image.Image:
+    """Dark glyph -> tintable white glyph on a square transparent canvas."""
+    rgba = knock_out_paper(cell)
+    alpha = rgba.getchannel("A")
+    # Ink darkness, not paper, carries the shape when the master is opaque.
+    luminance = rgba.convert("L").point(lambda v: 255 - v)
+    alpha = ImageChops.multiply(alpha, luminance.point(lambda v: min(255, v * 2)))
+    glyph = Image.new("RGBA", rgba.size, (255, 255, 255, 0))
+    glyph.putalpha(alpha)
+    glyph = trim(glyph, 2)
+    side = max(glyph.width, glyph.height)
+    square = Image.new("RGBA", (side, side), (255, 255, 255, 0))
+    square.alpha_composite(glyph, ((side - glyph.width) // 2, (side - glyph.height) // 2))
+    return square.resize((size, size), Image.LANCZOS)
+
+
 def quadrants(sheet: Image.Image) -> list[Image.Image]:
     w, h = sheet.size
     return [sheet.crop((x, y, x + w // 2, y + h // 2))
@@ -240,6 +269,17 @@ def main() -> None:
         for name, part in zip(names, quadrants(knock_out_paper(small))):
             limit = (384, 128) if name == "glyph-sprig" else (160, 160)
             save(fit(trim(part, 4), *limit), name)
+
+    ui = master("icons-ui")
+    if ui:
+        for name, cell in zip(UI_ICONS, grid(ui, 4, 4)):
+            save(white_glyph(cell), name)
+
+    neighbors = master("neighbors")
+    if neighbors:
+        for name, cell in zip(("portrait-mira", "portrait-orin", "portrait-fen"),
+                              grid(neighbors.convert("RGBA"), 3, 1)):
+            save(fit(trim(knock_out_paper(cell), 2), 256, 256), name)
 
 
 if __name__ == "__main__":

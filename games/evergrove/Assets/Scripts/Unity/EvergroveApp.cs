@@ -77,6 +77,8 @@ namespace Evergrove.UnityClient
         private PipeGraphic[] tileArtwork;
         private Text[] visibleLeaks; // punctuation, not hue, denotes unmatched water ports
         private Text feedbackText;
+        private bool celebrateSolve; // one-shot: the rebuild after the solving tap blooms
+        private Image[] waterDrops; // one painted droplet per tile the water can reach
         private Button undoButton;
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
         // Set by a rebuilt screen (ending card, journal) so a player who opens it
@@ -566,6 +568,7 @@ namespace Evergrove.UnityClient
             var button = node.AddComponent<Button>();
             button.targetGraphic = image;
             button.colors = PressTint();
+            PressSquash.Add(node);
             var textNode = Node("Caption", node.transform);
             Fill(textNode.GetComponent<RectTransform>());
             var text = textNode.AddComponent<Text>();
@@ -596,6 +599,180 @@ namespace Evergrove.UnityClient
             palette.disabledColor = new Color(0.86f, 0.86f, 0.84f, 0.55f);
             palette.fadeDuration = 0.08f;
             return palette;
+        }
+
+        // Icon-first control. The caption stays as a hidden "Caption" Text so
+        // screen readers (ScreenReaderBridge.CaptionOf) and QA keep the same
+        // label; showCaption puts it beside the icon for rare or destructive
+        // actions where a picture alone is not enough. badge shows live state.
+        private Button IconButton(Transform parent, string name, string caption, string icon,
+                                  Action action, int height, Color tone,
+                                  bool showCaption = false, string badge = null)
+        {
+            Sprite glyph = MosseloraArt.Load(icon);
+            if (glyph == null) return Button(parent, name, caption, action, height, tone);
+            bool quiet = tone == MosseloraTheme.QuietAction;
+            Color ink = quiet ? Ink : White;
+            var node = Node(name, parent);
+            MinHeight(node, showCaption ? TextScale.Scale(height) : height);
+            var image = node.AddComponent<Image>();
+            MosseloraArt.Round(image, tone, 18);
+            MosseloraArt.Lift(image, 2f, quiet ? 0.10f : 0.24f);
+            if (quiet) MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
+            var button = node.AddComponent<Button>();
+            button.targetGraphic = image;
+            button.colors = PressTint();
+            button.onClick.AddListener(() => action());
+            PressSquash.Add(node);
+            var group = node.AddComponent<HorizontalLayoutGroup>();
+            group.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
+            group.padding = new RectOffset(12, 12, 6, 6);
+            group.spacing = 8;
+            group.childAlignment = TextAnchor.MiddleCenter;
+            group.childControlWidth = true;
+            group.childControlHeight = true;
+            group.childForceExpandWidth = false;
+            group.childForceExpandHeight = false;
+            float iconSize = Mathf.Round(height * (showCaption ? 0.42f : 0.52f));
+            var iconNode = Node("Icon", node.transform);
+            var iconLayout = iconNode.AddComponent<LayoutElement>();
+            iconLayout.minWidth = iconLayout.preferredWidth = iconSize;
+            iconLayout.minHeight = iconLayout.preferredHeight = iconSize;
+            var iconImage = iconNode.AddComponent<Image>();
+            iconImage.sprite = glyph;
+            iconImage.preserveAspect = true;
+            iconImage.color = ink;
+            iconImage.raycastTarget = false;
+            if (badge != null)
+            {
+                Text value = Label(node.transform, "Value", badge, 15, 0, ink, TextAnchor.MiddleCenter);
+                Emphasize(value);
+            }
+            var textNode = Node("Caption", node.transform);
+            var text = textNode.AddComponent<Text>();
+            StyleText(text, 16);
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.text = GameLocalization.Display(caption);
+            if (showCaption)
+            {
+                text.color = ink;
+                Emphasize(text);
+                textNode.AddComponent<LayoutElement>().flexibleWidth = 0;
+            }
+            else
+            {
+                // Spoken, not shown.
+                text.color = new Color(ink.r, ink.g, ink.b, 0f);
+                textNode.AddComponent<LayoutElement>().ignoreLayout = true;
+                Fill(textNode.GetComponent<RectTransform>());
+            }
+            return button;
+        }
+
+        // Progress at a glance: a droplet per tile, filled as real water reaches it.
+        // The sentence below stays as the exact, spoken statement.
+        private void WaterMeter(int tiles, int reached)
+        {
+            Sprite drop = MosseloraArt.Load(MosseloraArt.Droplet);
+            if (drop == null) return;
+            Transform row = CenteredRow("Water meter", tiles > 9 ? 3f : 6f);
+            MinHeight(row.gameObject, 26);
+            waterDrops = new Image[tiles];
+            float height = tiles > 9 ? 19f : 23f;
+            for (int i = 0; i < tiles; i++)
+            {
+                var node = Node("Water drop", row);
+                var layout = node.AddComponent<LayoutElement>();
+                layout.minWidth = layout.preferredWidth = height * MosseloraArt.Aspect(drop);
+                layout.minHeight = layout.preferredHeight = height;
+                var image = node.AddComponent<Image>();
+                image.sprite = drop;
+                image.preserveAspect = true;
+                image.raycastTarget = false;
+                waterDrops[i] = image;
+            }
+            PaintDrops(reached);
+        }
+
+        private void PaintDrops(int reached)
+        {
+            if (waterDrops == null) return;
+            for (int i = 0; i < waterDrops.Length; i++)
+                waterDrops[i].color = i < reached
+                    ? Color.white
+                    : new Color(0.55f, 0.50f, 0.42f, 0.28f); // dry: faded earth silhouette
+        }
+
+        // A row that centres compact controls instead of stretching them edge to edge.
+        private Transform CenteredRow(string name, float spacing = 12f)
+        {
+            var row = Node(name, content);
+            var group = row.AddComponent<HorizontalLayoutGroup>();
+            group.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
+            group.childAlignment = TextAnchor.MiddleCenter;
+            group.spacing = spacing;
+            group.childControlWidth = true;
+            group.childControlHeight = true;
+            group.childForceExpandWidth = false;
+            group.childForceExpandHeight = false;
+            return row.transform;
+        }
+
+        private static void Width(Component control, float width, float flexible = 0f)
+        {
+            var layout = control.gameObject.GetComponent<LayoutElement>();
+            if (layout == null) layout = control.gameObject.AddComponent<LayoutElement>();
+            layout.minWidth = width;
+            layout.preferredWidth = width;
+            layout.flexibleWidth = flexible;
+        }
+
+        // Neighbor as a painted portrait medallion with their name beneath.
+        private void PortraitButton(Transform parent, int villager)
+        {
+            string label = LocalizedVillage.Name(villager);
+            Sprite face = MosseloraArt.Portrait(villager);
+            string name = villager == 0 ? "Mira" : villager == 1 ? "Orin" : "Fen";
+            if (face == null)
+            {
+                Button(parent, name, label, () => OpenConversation(villager), 52);
+                return;
+            }
+            var node = Node(name, parent);
+            var stack = node.AddComponent<VerticalLayoutGroup>();
+            stack.spacing = 4;
+            stack.childAlignment = TextAnchor.UpperCenter;
+            stack.childControlWidth = true;
+            stack.childControlHeight = true;
+            stack.childForceExpandWidth = false;
+            stack.childForceExpandHeight = false;
+            var hit = node.AddComponent<Image>();
+            hit.color = new Color(1f, 1f, 1f, 0f); // whole medallion and name are the target
+            var button = node.AddComponent<Button>();
+            button.targetGraphic = hit;
+            button.transition = Selectable.Transition.None;
+            button.onClick.AddListener(() => OpenConversation(villager));
+            PressSquash.Add(node);
+            var picture = Node("Portrait", node.transform);
+            var pictureLayout = picture.AddComponent<LayoutElement>();
+            pictureLayout.minWidth = pictureLayout.preferredWidth = 76;
+            pictureLayout.minHeight = pictureLayout.preferredHeight = 76;
+            var pictureImage = picture.AddComponent<Image>();
+            pictureImage.sprite = face;
+            pictureImage.preserveAspect = true;
+            pictureImage.raycastTarget = false;
+            MosseloraArt.Lift(pictureImage, 2f, 0.18f);
+            if (speakingWith == villager)
+            {
+                var ring = MosseloraArt.Ornament(picture.transform, "Speaking ring", MosseloraArt.Ring(16),
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(84f, 84f), Vector2.zero);
+                if (ring != null) ring.color = Leaf;
+            }
+            var caption = Label(node.transform, "Caption", label, 15, 0, Ink, TextAnchor.MiddleCenter);
+            Emphasize(caption);
         }
 
         // Painted page header: generated wordmark with vine corners. The
@@ -730,6 +907,7 @@ namespace Evergrove.UnityClient
             tileArtwork = null;
             visibleLeaks = null;
             feedbackText = null;
+            waterDrops = null;
             undoButton = null;
             decisionHeading = null;
             screenHeading = null;
@@ -758,13 +936,18 @@ namespace Evergrove.UnityClient
             Text subtitle = Label(content, "Title", GameLocalization.Text("subtitle"),
                 puzzleScreen ? 17 : 24, puzzleScreen ? 28 : 44, Ink, TextAnchor.MiddleCenter);
             if (!puzzleScreen) Emphasize(subtitle);
-            if (multiLanguage && settingsAtTop)
-                Button(content, "Language settings",
-                    GameLocalization.Text("language") + ": " +
-                    GameLocalization.NativeName(GameLocalization.Current),
-                    () => { languagePicker = !languagePicker; Rebuild(true); }, 48);
             if (settingsAtTop)
-                TextSizeButton(content);
+            {
+                Transform topSettings = CenteredRow("Top settings");
+                if (multiLanguage)
+                    Width(IconButton(topSettings, "Language settings",
+                        GameLocalization.Text("language") + ": " +
+                        GameLocalization.NativeName(GameLocalization.Current),
+                        MosseloraArt.IconLanguage,
+                        () => { languagePicker = !languagePicker; Rebuild(true); }, 56,
+                        languagePicker ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction), 72);
+                TextSizeButton(topSettings);
+            }
             if (languagePicker)
             {
                 BuildLanguagePicker();
@@ -894,12 +1077,9 @@ namespace Evergrove.UnityClient
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(10f, -8f));
                 MosseloraArt.Ornament(moment.transform, "Sprig right", memorySprig, new Vector2(1f, 1f),
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(-10f, -8f), true);
-                Button(content, "Continue", GameLocalization.Text("continue"), () => {
-                    showingMemory = false;
-                    revealNewScreen = true; // the ending, if reached, opens at its heading
-                    Rebuild(true);
-                }, 60, MosseloraTheme.WaterAction);
-                Button(content, "Change your choice", GameLocalization.Text("change"), () => {
+                Transform next = CenteredRow("Memory actions");
+                Button changeButton = IconButton(next, "Change your choice", GameLocalization.Text("change"),
+                    MosseloraArt.IconChange, () => {
                     if (!world.ReconsiderLatestChoice()) return;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     if (localPlaytest != null) localPlaytest.Reconsider(Time.unscaledTime);
@@ -907,7 +1087,15 @@ namespace Evergrove.UnityClient
                     SaveWorld();
                     showingMemory = false;
                     Rebuild(false);
-                }, 47);
+                }, 64, MosseloraTheme.QuietAction);
+                Width(changeButton, 76);
+                Button continueButton = IconButton(next, "Continue", GameLocalization.Text("continue"),
+                    MosseloraArt.IconContinue, () => {
+                        showingMemory = false;
+                        revealNewScreen = true; // the ending, if reached, opens at its heading
+                        Rebuild(true);
+                    }, 64, MosseloraTheme.WaterAction);
+                Width(continueButton, 160, 1f);
                 SettingsRow(multiLanguage);
             }
             else if (world.Completed)
@@ -922,17 +1110,19 @@ namespace Evergrove.UnityClient
                     19, 0, Ink, TextAnchor.MiddleCenter);
                 Emphasize(finalWords);
                 if (living) MemoryJournal();
-                Button(content, "Reset title", confirmReset ?
+                IconButton(content, "Reset title", confirmReset ?
                     GameLocalization.Text("erase") : GameLocalization.Text("explore"),
+                    confirmReset ? MosseloraArt.IconConfirm : MosseloraArt.IconNewGarden,
                     () => {
                         if (!confirmReset) { confirmReset = true; Rebuild(); return; }
                         ConfirmedReset();
-                    }, 62, confirmReset);
+                    }, 60, confirmReset ? MosseloraTheme.EarthAction : MosseloraTheme.WaterAction, true);
                 if (confirmReset)
-                    Button(content, "Cancel reset", GameLocalization.Text("keep"), () => {
-                        confirmReset = false;
-                        Rebuild();
-                    });
+                    IconButton(content, "Cancel reset", GameLocalization.Text("keep"), MosseloraArt.IconCancel,
+                        () => {
+                            confirmReset = false;
+                            Rebuild();
+                        }, 56, MosseloraTheme.QuietAction, true);
             }
             if (puzzleScreen && !languagePicker)
                 SettingsRow(multiLanguage);
@@ -948,19 +1138,21 @@ namespace Evergrove.UnityClient
                 Text neighborsTitle = Label(content, "Neighbors", GameLocalization.Text("neighbors"),
                     14, 30, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(neighborsTitle);
-                var neighbors = Row(content, "Speak with a neighbor");
-                Button(neighbors.transform, "Mira", LocalizedVillage.Name(0), () => OpenConversation(0), 52);
-                Button(neighbors.transform, "Orin", LocalizedVillage.Name(1), () => OpenConversation(1), 52);
-                Button(neighbors.transform, "Fen", LocalizedVillage.Name(2), () => OpenConversation(2), 52);
+                Transform neighbors = CenteredRow("Speak with a neighbor", 26f);
+                PortraitButton(neighbors, 0);
+                PortraitButton(neighbors, 1);
+                PortraitButton(neighbors, 2);
                 if (speakingWith >= 0)
                 {
-                    var conversation = Card(content, "A neighbor's memory", Sand);
-                    Label(conversation.transform, "Neighbor name",
-                        LocalizedVillage.Name(speakingWith), 16, 31, Leaf);
+                    var conversation = Card(content, "A neighbor's memory", MosseloraTheme.CardFill);
+                    Text speaker = Label(conversation.transform, "Neighbor name",
+                        LocalizedVillage.Name(speakingWith), 16, 31, Leaf, TextAnchor.MiddleCenter);
+                    Emphasize(speaker);
                     Label(conversation.transform, "What they say",
-                        LocalizedVillage.Speak(world, speakingWith), 16, 0, Ink);
-                    Button(conversation.transform, "Thanks", GameLocalization.Text("thanks"),
-                        () => { speakingWith = -1; Rebuild(); }, 50, true);
+                        LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleCenter);
+                    IconButton(conversation.transform, "Thanks", GameLocalization.Text("thanks"),
+                        MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 54,
+                        MosseloraTheme.ForestAction);
                 }
             }
 
@@ -1031,27 +1223,21 @@ namespace Evergrove.UnityClient
 
 #endif
             BuildGardenFileSection();
-            Button(content, "Quiet audio setting",
-                GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
-                () => {
-                    soundOn = !soundOn;
-                    PlayerPrefs.SetInt("evergrove:gentle-audio", soundOn ? 1 : 0);
-                    PlayerPrefs.Save();
-                    Rebuild();
-                }, 44);
             if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
-                Button(content, "Restart garden",
+                IconButton(content, "Restart garden",
                     GameLocalization.Text(confirmReset ? "erase" : "explore"),
+                    confirmReset ? MosseloraArt.IconConfirm : MosseloraArt.IconNewGarden,
                     () => {
                         if (!confirmReset) { confirmReset = true; Rebuild(); return; }
                         ConfirmedReset();
-                    }, 45, confirmReset);
+                    }, 52, confirmReset ? MosseloraTheme.EarthAction : MosseloraTheme.QuietAction, true);
                 if (confirmReset)
-                    Button(content, "Cancel", GameLocalization.Text("keep"), () => {
-                        confirmReset = false;
-                        Rebuild();
-                    }, 44);
+                    IconButton(content, "Cancel", GameLocalization.Text("keep"), MosseloraArt.IconCancel,
+                        () => {
+                            confirmReset = false;
+                            Rebuild();
+                        }, 52, MosseloraTheme.QuietAction, true);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest == null)
@@ -1113,12 +1299,13 @@ namespace Evergrove.UnityClient
 
         private void MemoryJournal()
         {
-            Button(content, "Memories",
-                GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"), () => {
+            Width(IconButton(CenteredRow("Memories row"), "Memories",
+                GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"),
+                MosseloraArt.IconJournal, () => {
                     showJournal = !showJournal;
                     revealNewScreen = showJournal; // opening the journal lands on its title
                     Rebuild();
-                });
+                }, 58, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction), 120);
             if (!showJournal) return;
             var journal = Card(content, "A living journal", MosseloraTheme.CardFill);
             screenHeading = journal.GetComponent<RectTransform>();
@@ -1240,6 +1427,16 @@ namespace Evergrove.UnityClient
                 colors.disabledColor = Color.white;
                 tile.colors = colors;
                 tile.onClick.AddListener(() => TapTile(tappedIndex));
+                if (!world.Solved) PressSquash.Add(tileNode);
+                else if (celebrateSolve)
+                {
+                    // The finished creek blooms outward from the spring, tile by tile.
+                    int spring = Array.IndexOf(puzzle.Kinds, PipeKind.End);
+                    int steps = spring < 0 ? 0 :
+                        Mathf.Abs(index / puzzle.Size - spring / puzzle.Size) +
+                        Mathf.Abs(index % puzzle.Size - spring % puzzle.Size);
+                    BloomPulse.Add(tileNode, 0.08f + steps * 0.07f);
+                }
                 visibleTiles[index] = tile;
                 tileBackgrounds[index] = image;
 
@@ -1326,24 +1523,30 @@ namespace Evergrove.UnityClient
                 }
             }
 
+            celebrateSolve = false;
             string feedback = world.Solved
                 ? GameLocalization.Text("solved")
                 : GameLocalization.Text("progress", insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
+            WaterMeter(puzzle.CellCount, world.Solved ? puzzle.CellCount : insight.ConnectedCount);
             feedbackText = Label(content, "Water feedback", feedback, 17, 34, Ink, TextAnchor.MiddleCenter);
             Emphasize(feedbackText);
 
             if (world.Solved)
             {
-                Button(content, "Revisit water", GameLocalization.Text("undo_last"),
-                    () => Act(() => world.Undo(), "undo"), 44).interactable = world.CanUndo;
+                Button revisit = IconButton(CenteredRow("Revisit row"), "Revisit water",
+                    GameLocalization.Text("undo_last"), MosseloraArt.IconUndo,
+                    () => Act(() => world.Undo(), "undo"), 52, MosseloraTheme.QuietAction);
+                Width(revisit, 96);
+                revisit.interactable = world.CanUndo;
                 // Both puzzle-only and matched runs have no village decisions;
                 // only the Living world may show choices.
                 if (world.Mode != PlayMode.Living)
-                    Button(content, "Next stream", GameLocalization.Text("next"), () => {
-                        if (!world.NextPuzzle()) return;
-                        SaveWorld();
-                        Rebuild(true);
-                    }, 59, true);
+                    IconButton(content, "Next stream", GameLocalization.Text("next"),
+                        MosseloraArt.IconContinue, () => {
+                            if (!world.NextPuzzle()) return;
+                            SaveWorld();
+                            Rebuild(true);
+                        }, 64, MosseloraTheme.ForestAction);
                 else
                 {
                     Text chooseTitle = Label(content, "Choose title", GameLocalization.Text("choose"),
@@ -1362,15 +1565,19 @@ namespace Evergrove.UnityClient
             else
             {
                 var tools = Row(content, "Gentle controls");
-                undoButton = Button(tools.transform, "Undo", GameLocalization.Text("undo"), () => Act(() => world.Undo(), "undo"),
-                    56, MosseloraTheme.ForestAction);
+                undoButton = IconButton(tools.transform, "Undo", GameLocalization.Text("undo"),
+                    MosseloraArt.IconUndo, () => Act(() => world.Undo(), "undo"),
+                    64, MosseloraTheme.ForestAction);
                 undoButton.interactable = world.CanUndo;
-                Button(tools.transform, "Hint",
+                // Hint depth shows as a small 1/2 or 2/2 badge, not words.
+                IconButton(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
-                    UseGentleHint, 56, MosseloraTheme.WaterAction);
-                Button(tools.transform, "Restart", GameLocalization.Text("restart"),
-                    () => Act(() => world.Restart(), "restart"), 56, MosseloraTheme.EarthAction);
+                    MosseloraArt.IconHint, UseGentleHint, 64, MosseloraTheme.WaterAction, false,
+                    world.HintStep == 0 ? null : world.HintStep + "/2");
+                IconButton(tools.transform, "Restart", GameLocalization.Text("restart"),
+                    MosseloraArt.IconRestart, () => Act(() => world.Restart(), "restart"),
+                    64, MosseloraTheme.EarthAction);
                 if (world.HintStep > 0 && world.HintTile >= 0)
                 {
                     int hintRow = world.HintTile / puzzle.Size + 1;
@@ -1400,6 +1607,7 @@ namespace Evergrove.UnityClient
             button.targetGraphic = image;
             button.colors = PressTint();
             button.onClick.AddListener(() => action());
+            PressSquash.Add(node);
             var group = node.AddComponent<HorizontalLayoutGroup>();
             group.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
             group.padding = new RectOffset(12, 14, 10, 10);
@@ -1445,12 +1653,22 @@ namespace Evergrove.UnityClient
             panel.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(10, 10, 10, 10);
             GameObject row = Row(panel.transform, "Settings row");
             if (offerLanguage)
-                Button(row.transform, "Language settings",
+                IconButton(row.transform, "Language settings",
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
-                    () => { languagePicker = true; Rebuild(true); }, 48);
+                    MosseloraArt.IconLanguage, () => { languagePicker = true; Rebuild(true); }, 56,
+                    MosseloraTheme.QuietAction);
             TextSizeButton(row.transform);
             BoardSizeButton(row.transform);
+            IconButton(row.transform, "Quiet audio setting",
+                GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
+                soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
+                () => {
+                    soundOn = !soundOn;
+                    PlayerPrefs.SetInt("evergrove:gentle-audio", soundOn ? 1 : 0);
+                    PlayerPrefs.Save();
+                    Rebuild();
+                }, 56, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
         }
 
         // Language-neutral label: the tile scale of the current board (EG-112).
@@ -1458,19 +1676,23 @@ namespace Evergrove.UnityClient
         // board on a 390-point phone (109 px vs 90 px tile cap); 4x4 is closer to 1.03x.
         private void BoardSizeButton(Transform parent)
         {
-            Button(parent, "Board size", BoardSize.IsLarge ? "▦ 1.2×" : "▦ 1×", () => {
-                BoardSize.Toggle();
-                Rebuild();
-            }, 52);
+            IconButton(parent, "Board size", BoardSize.IsLarge ? "▦ 1.2×" : "▦ 1×",
+                MosseloraArt.IconBoardSize, () => {
+                    BoardSize.Toggle();
+                    Rebuild();
+                }, 56, BoardSize.IsLarge ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, BoardSize.IsLarge ? "1.2×" : null);
         }
 
         // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.
         private void TextSizeButton(Transform parent)
         {
-            Button(parent, "Text size", "Aa " + TextScale.Percent + "%", () => {
-                TextScale.Cycle();
-                Rebuild();
-            }, 52);
+            IconButton(parent, "Text size", "Aa " + TextScale.Percent + "%",
+                MosseloraArt.IconTextSize, () => {
+                    TextScale.Cycle();
+                    Rebuild();
+                }, 56, TextScale.Percent > 100 ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, TextScale.Percent > 100 ? TextScale.Percent + "%" : null);
         }
 
         private void BuildLanguagePicker()
@@ -1491,10 +1713,11 @@ namespace Evergrove.UnityClient
                 Text caption = item.GetComponentInChildren<Text>();
                 if (caption != null) caption.font = LocaleFonts.Choose(captured, baseFont);
             }
-            Button(content, "Close language picker", GameLocalization.Text("continue"), () => {
-                languagePicker = false;
-                Rebuild(true);
-            }, 58);
+            IconButton(content, "Close language picker", GameLocalization.Text("continue"),
+                MosseloraArt.IconConfirm, () => {
+                    languagePicker = false;
+                    Rebuild(true);
+                }, 60, MosseloraTheme.ForestAction);
         }
 
         private void SelectLanguage(string preference)
@@ -1659,6 +1882,7 @@ namespace Evergrove.UnityClient
                 if (visibleLeaks != null && visibleLeaks[i] != null)
                     visibleLeaks[i].text = insight.Leaking[i] ? "○" : "";
             }
+            PaintDrops(world.Solved ? puzzle.CellCount : insight.ConnectedCount);
             if (feedbackText != null)
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
                     insight.ConnectedCount, puzzle.CellCount, insight.LeakCount));
@@ -1686,6 +1910,7 @@ namespace Evergrove.UnityClient
             {
                 // Completion changes the available choices and navigation,
                 // so this is the one moment that merits rebuilding the view.
+                celebrateSolve = !wasSolved && world.Solved;
                 Rebuild();
                 if (!wasSolved && world.Solved)
                 {
@@ -1796,21 +2021,21 @@ namespace Evergrove.UnityClient
         private void BuildGardenFileSection()
         {
             var card = Card(content, "Garden file", MosseloraTheme.CardFill);
-            Button(card.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
-                CopyGardenFile, 54, MosseloraTheme.ForestAction);
+            IconButton(card.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
+                MosseloraArt.IconCopyFile, CopyGardenFile, 54, MosseloraTheme.ForestAction, true);
             if (!WorldStore.RecoveryBlocked)
             {
                 if (!gardenRestoreConfirm)
-                    Button(card.transform, "Restore garden file", GameLocalization.Text("garden_restore"),
-                        ReadGardenFile, 54, MosseloraTheme.WaterAction);
+                    IconButton(card.transform, "Restore garden file", GameLocalization.Text("garden_restore"),
+                        MosseloraArt.IconRestoreFile, ReadGardenFile, 54, MosseloraTheme.WaterAction, true);
                 else
                 {
                     Label(card.transform, "Garden replace warning", GameLocalization.Text("garden_replace"),
                         13, 40, Ink);
-                    Button(card.transform, "Confirm garden restore", GameLocalization.Text("erase"),
-                        ConfirmGardenRestore, 52, true);
-                    Button(card.transform, "Cancel garden restore", GameLocalization.Text("keep"),
-                        CancelGardenRestore, 44);
+                    IconButton(card.transform, "Confirm garden restore", GameLocalization.Text("erase"),
+                        MosseloraArt.IconConfirm, ConfirmGardenRestore, 54, MosseloraTheme.EarthAction, true);
+                    IconButton(card.transform, "Cancel garden restore", GameLocalization.Text("keep"),
+                        MosseloraArt.IconCancel, CancelGardenRestore, 50, MosseloraTheme.QuietAction, true);
                 }
             }
             if (gardenNoticeKey.Length > 0)

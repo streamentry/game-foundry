@@ -27,6 +27,15 @@ The visual identity is **tender, grounded, alive**, without exaggeration, gamifi
 
 Typography: the device's Avenir Next (iOS) or Roboto (Android) for English when installed, bold for headings and actions; locale fonts unchanged for other languages. No font is bundled.
 
+### Icon language (2026-11-24)
+
+- Frequent, universally understood actions are icon-only: Undo (curved arrow, forest), Guide me (lightbulb, teal; a 1/2 or 2/2 badge shows hint depth), Restart stream (circular arrow, terracotta), Continue (arrow), Change choice (swap arrows), journal (open book), settings row of language (globe), text size (small/large A, badge shows 125%/150%), board size (grid with plus, badge 1.2x) and chime (bell / bell with slash).
+- Rare or destructive actions keep a short label beside the icon: copy/restore garden file, erase/confirm, keep/cancel, explore another garden.
+- Neighbors are painted portrait medallions with their name beneath; the current speaker gets a leaf-green ring.
+- Every icon button keeps its localized label as a hidden child Text named "Caption", which ScreenReaderBridge speaks; names used by the QA tour are unchanged.
+- Controls squash to 94% under the finger (PressSquash); a tapped pipe swings 90 degrees into place (about 160 ms) and undo swings back; the painted creek fades toward the measured water reach instead of popping. Restart and multi-step jumps snap.
+- Open risk: icon-only controls have not been tested with adults 45+; watch for hesitation on Guide me, text size and board size in the first-session test.
+
 Type hierarchy (approximate logical px): title **25**, game decisions **15–17**, guidance **13–15**, metadata **11–12**. Use built-in typography for reproducible builds; commission distinctive typography only after verifying packaging and rights.
 
 **Layout:** Safe-area-aware scroll, first move visible quickly, 3×3 cells ~90px, 4×4 cells ~67px at 414px reference width, 52–77px actions, 17px side margins. Verify on 320px–430px phones, larger displays and iPad; do not infer accessibility from logical size alone.

@@ -12,14 +12,37 @@ namespace Evergrove.UnityClient
         private bool completed;
         private bool hasWater;
 
+        private bool configured;
+        private float spin;            // remaining visual offset in degrees, eases to 0
+        private const float SpinSpeed = 22f;
+
         public void Configure(PipeKind pipeKind, int rotation, bool sourceConnected, bool solved)
         {
+            // A single quarter turn (tap or undo) swings into place instead of
+            // snapping, so the player sees which way the channel moved. The mesh
+            // is already in its final orientation; only the transform eases.
+            if (configured && pipeKind == kind && rotation != orientation)
+            {
+                int step = ((rotation - orientation) % 4 + 4) % 4;
+                if (step == 1) spin = 90f;        // clockwise turn: start a quarter back
+                else if (step == 3) spin = -90f;  // undo: counter-clockwise
+                else spin = 0f;                   // restart or larger jumps snap
+            }
+            configured = true;
             kind = pipeKind;
             orientation = rotation;
             completed = solved;
             hasWater = sourceConnected || solved;
             raycastTarget = false;
             SetVerticesDirty();
+        }
+
+        private void Update()
+        {
+            if (spin == 0f) return;
+            spin = Mathf.Abs(spin) < 0.5f ? 0f
+                : Mathf.Lerp(spin, 0f, 1f - Mathf.Exp(-SpinSpeed * Time.unscaledDeltaTime));
+            rectTransform.localRotation = Quaternion.Euler(0f, 0f, spin);
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Evergrove.UnityClient
@@ -26,6 +27,33 @@ namespace Evergrove.UnityClient
         public const string Droplet = "glyph-droplet";
         public const string Sprig = "glyph-sprig";
         public const string SpringWaves = "glyph-waves";
+        // Tintable white UI glyphs (icons-ui.png, sliced 4x4).
+        public const string IconUndo = "ui-undo";
+        public const string IconHint = "ui-hint";
+        public const string IconRestart = "ui-restart";
+        public const string IconLanguage = "ui-language";
+        public const string IconTextSize = "ui-text-size";
+        public const string IconBoardSize = "ui-board-size";
+        public const string IconChimeOn = "ui-chime-on";
+        public const string IconChimeOff = "ui-chime-off";
+        public const string IconJournal = "ui-journal";
+        public const string IconContinue = "ui-continue";
+        public const string IconChange = "ui-change";
+        public const string IconCopyFile = "ui-copy-file";
+        public const string IconRestoreFile = "ui-restore-file";
+        public const string IconNewGarden = "ui-new-garden";
+        public const string IconConfirm = "ui-confirm";
+        public const string IconCancel = "ui-cancel";
+
+        public static Sprite Portrait(int villager)
+        {
+            switch (villager)
+            {
+                case 0: return Load("portrait-mira");
+                case 1: return Load("portrait-orin");
+                default: return Load("portrait-fen");
+            }
+        }
 
         private static readonly Dictionary<string, Sprite> Loaded = new Dictionary<string, Sprite>();
         private static readonly Dictionary<int, Sprite> RoundedCache = new Dictionary<int, Sprite>();
@@ -221,6 +249,73 @@ namespace Evergrove.UnityClient
         private void LateUpdate()
         {
             if (ring != null && source != null) ring.enabled = source.text.Length > 0;
+        }
+    }
+
+    /// <summary>
+    /// Tactile press: the control squashes slightly under the finger and
+    /// springs back, so every tap is felt as well as seen. Scale only; the
+    /// hit area and layout do not move.
+    /// </summary>
+    internal sealed class PressSquash : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        private const float Pressed = 0.94f;
+        private const float Speed = 18f;
+        private float target = 1f;
+        private Selectable selectable;
+
+        public static void Add(GameObject node)
+        {
+            if (node.GetComponent<PressSquash>() == null) node.AddComponent<PressSquash>();
+        }
+
+        private void Awake() { selectable = GetComponent<Selectable>(); }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (selectable == null || selectable.interactable) target = Pressed;
+        }
+
+        public void OnPointerUp(PointerEventData eventData) { target = 1f; }
+        public void OnPointerExit(PointerEventData eventData) { target = 1f; }
+
+        private void Update()
+        {
+            float current = transform.localScale.x;
+            if (Mathf.Abs(current - target) < 0.001f) return;
+            float next = Mathf.Lerp(current, target, 1f - Mathf.Exp(-Speed * Time.unscaledDeltaTime));
+            transform.localScale = new Vector3(next, next, 1f);
+        }
+    }
+
+    /// <summary>
+    /// One gentle swell (about 7%) after a delay, used once when a creek is
+    /// completed. Not looped, not decorative idling: it marks the solve.
+    /// </summary>
+    internal sealed class BloomPulse : MonoBehaviour
+    {
+        private const float Duration = 0.36f;
+        private float delay;
+        private float elapsed;
+
+        public static void Add(GameObject node, float startDelay)
+        {
+            node.AddComponent<BloomPulse>().delay = startDelay;
+        }
+
+        private void Update()
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = (elapsed - delay) / Duration;
+            if (t < 0f) return;
+            if (t >= 1f)
+            {
+                transform.localScale = Vector3.one;
+                Destroy(this);
+                return;
+            }
+            float swell = 1f + 0.07f * Mathf.Sin(Mathf.PI * t);
+            transform.localScale = new Vector3(swell, swell, 1f);
         }
     }
 }
