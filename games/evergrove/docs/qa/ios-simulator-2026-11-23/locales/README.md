@@ -61,3 +61,9 @@ Found on `ja/04-consequence-shade-tree.png`; these likely apply to every non-Eng
 - **Japanese line-start `。` (not fixed).** Tried inserting U+2060 WORD JOINER before closing punctuation and after opening brackets in the label/button text path (legacy uGUI Text). Rebuilt for the iOS Simulator and re-ran the ja tour. `ja/10-journal-after-fix.png` still shows a lone `。` at the start of the last line after "回転できません", so uGUI does not honor U+2060 for this wrap. The change was reverted and nothing was committed for it. Options to try next: a line-break-safe font or TextMeshPro, or a small text-layout pass that moves the punctuation onto the previous line. Not verified.
 - **Vietnamese ending footer (ambiguous, not fixed).** `vi/11-ending-after-fix.png` (same as `vi/11-ending.png`) shows the last footer line cut at the bottom edge of the capture. The tour captures one viewport and does not scroll, so this does not prove clipping. The footer is probably below the fold in the scroll area. A swipe-based check on the simulator is still needed to decide.
 - Simulator language restored to `en` / `en_US` and rebooted. Dev-only buttons are still English, as noted above.
+
+## Verdict: vi ending footer (2026-11-23)
+
+- **Not clipped; it was below the fold.** The tour now scrolls the main ScrollRect to the bottom and captures `vi/11b-ending-bottom.png`. The footer line ("Không cần mạng · Không giới hạn giờ · Không quảng cáo · Không tài khoản", wrapping to "khoản") is fully visible with clear space below it. The unscrolled `vi/11-ending.png` only cut it off because the capture stopped at the first viewport.
+- Bottom captures `04b` and `10b` were also added to the dev-only tour; those screenshots were not reviewed for this verdict.
+- No player-facing layout change was made.

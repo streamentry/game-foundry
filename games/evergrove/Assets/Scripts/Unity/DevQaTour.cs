@@ -130,6 +130,10 @@ namespace Evergrove.UnityClient
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10-journal.png");
+                    ScrollToBottom();
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("10b-journal-bottom.png");
                     Press("Memories"); // close it before the rest of the run
                     for (int f = 0; f < 4; f++) yield return null;
                 }
@@ -139,6 +143,10 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 4; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("11-ending.png");
+            ScrollToBottom();
+            for (int f = 0; f < 4; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("11b-ending-bottom.png");
 
             // Runs B-D: a fresh world per village choice on chapter 1. Each shows
             // the consequence (04-06) and the chapter-2 board it produced (07-09).
@@ -155,6 +163,13 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng(consequenceShots[b]);
+                if (b == 0)
+                {
+                    ScrollToBottom();
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("04b-consequence-shade-tree-bottom.png");
+                }
                 Press("Continue");
                 for (int f = 0; f < 6; f++) yield return null;
                 ScrollTo("Chapter");
@@ -319,6 +334,18 @@ namespace Evergrove.UnityClient
             float targetTop = content.rect.yMax - content.InverseTransformPoint(worldTop).y;
             scroll.StopMovement();
             scroll.verticalNormalizedPosition = 1f - Mathf.Clamp01((targetTop - 16f) / distance);
+        }
+
+        // Scrolls the main ScrollRect to its lowest position so the capture shows
+        // whatever sits below the fold on long screens.
+        private void ScrollToBottom()
+        {
+            var scroll = FindFirstObjectByType<ScrollRect>();
+            if (scroll == null) throw new InvalidOperationException("Scroll view missing");
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
+            scroll.StopMovement();
+            scroll.verticalNormalizedPosition = 0f;
         }
 
         private static string ReadArg(string name)
