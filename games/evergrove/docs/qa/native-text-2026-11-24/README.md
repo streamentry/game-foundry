@@ -23,7 +23,7 @@ Earlier iterations: the first Android attempt used the wrong class (`StaticLayou
 
 ## Exceptions seen
 
-- Android development console: `Could not produce class with ID 115` repeats about 99,000 times in logcat from app start and appears as an overlay in the QA frames. Class ID 115 is `MonoBehaviour`. The message points to `Strip Engine Code`. This was not investigated and it is not established whether the native text change causes it. Treat as an open issue on the Android development build.
+- Android development console: `Could not produce class with ID 115` flooded logcat (tens of thousands of lines) in the pre-merge APK, in English and bn. Root cause: stripping removed the TextCore classes that the uGUI font path needs. Main already carries `Assets/link.xml` preserving `UnityEngine.TextCoreTextEngineModule`, `TextCoreFontEngineModule` and `UnityEngine.UI`. The branch was built before merging main, so it lacked that file. After `git merge main`, a fresh install of the merged build on emulator-5570 gives 0 class-115 lines in English and 0 in bn (logcat counts, 35 s after launch). The bn screenshot shows natively formed conjuncts and no overlay.
 - Android emulator `ImmersiveModeConfirmation` appears on first launch and was dismissed by tap.
 - `adb` daemon restart: an emulator (`emulator-5560`) owned by another session was used by mistake before the serial was corrected. Its results were discarded. The reported Android results come only from `emulator-5570` with a build installed and verified by lastUpdateTime.
 - iOS: the simulator container was reset during the session. The reported iOS frames come from a re-run after reinstall.
