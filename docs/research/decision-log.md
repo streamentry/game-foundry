@@ -667,3 +667,16 @@ The new [binary inspection report](../../games/evergrove/docs/qa/privacy-binary-
 
 The new `ending_title` key is present in all 29 offline locale catalogs, bringing them to **82 keys each**. The Python project verifier passes and the current pure C# suite passes **38,864 assertions**. These checks cover catalog structure and rules; the recorded Unity import/smoke predates this UI localization change, so a fresh Unity import and device render are still required. The 25 store-description drafts remain native-review pending.
 
+## 2026-11-23 — M1 build evidence; undo history, garden-file UI, screen-reader first pass
+
+**M1:** `tools/evergrove_unity_local_preflight.sh` passed `smoke`, `Android` and `iOS` at source `5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba` (Unity 6000.3.0f1 Personal license, tracked tree clean). The editor logs name the pinned version, the import check, and `EVERGROVE_BUILD_SUCCEEDED` with each run's own output path; there are zero compile errors. Evidence packets live under `games/evergrove/docs/evidence/5acbac4…/BLD-00{1,2,3}/`, with hashes only; raw logs stay in the git-ignored `.evergrove-evidence/`. BLD-001/002/003 are marked verified in the matrix, and the reviewer role says this was an AI agent's log review, not independent human verification. The committed iOS default SDK is now the device SDK; simulator builds switch it at build time.
+
+**Implemented (verified in code, Unity compile and the macOS tour; not on devices):**
+- EG-111 ten-step undo, with an additive `history` snapshot field and legacy fallback.
+- Copy and restore of the garden file through the clipboard, with a two-step confirmation and per-error messages (9 keys). The QA tour checks an exact round trip.
+- EG-113 first-pass `UnityEngine.Accessibility` hierarchy: 35 labelled nodes on a puzzle screen; tiles can be activated through the tap path (6 keys). Not yet tried with VoiceOver or TalkBack.
+
+**Verification on main:** 39,466 C# assertions; project verifier and docs contract pass at 97 keys; Unity macOS build has 0 compile errors; QA tour 14/14.
+
+**Still human-gated:** a physical-phone run (Apple signing, or an Android device or emulator), M3 sessions with 8–12 uncoached adults 45+, the founder's M3/M4 threshold decisions, and attorney name clearance.
+
