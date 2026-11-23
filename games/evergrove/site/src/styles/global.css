@@ -217,7 +217,7 @@ h2 { margin-bottom: 1.1rem; font-size: clamp(2rem, 4.1vw, 3.4rem); line-height: 
   .site-header { align-items: flex-start; flex-direction: column; padding-block: 0.8rem; }
   .site-header nav { width: 100%; justify-content: space-between; padding-bottom: 0.2rem; }
   .hero { padding-top: 1.6rem; }
-  h1 { font-size: clamp(2.5rem, 12vw, 3.35rem); }
+  .hero h1 { max-width: none; font-size: clamp(2.1rem, 10vw, 3rem); }
   .hero-actions { align-items: flex-start; flex-direction: column; gap: 1rem; }
   .button { min-height: 50px; }
   .choice-list li { grid-template-columns: 7.2rem 1fr; }
