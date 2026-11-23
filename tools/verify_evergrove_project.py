@@ -47,8 +47,8 @@ assert 'insight.Leaking[i] ? "○"' in ui
 assert "AddDisc(vh, stroke * 0.60f, outer)" in pipe_graphic
 # Source layout guard: first-tap onboarding precedes the world art, while
 # the completed state lands on a real choice anchor rather than page bottom.
-first_board = "if (firstPuzzle)\n                BuildPuzzle();"
-assert first_board in ui, "First board lost its early-onboarding position"
+first_board = "if (puzzleScreen)\n                BuildPuzzle();"
+assert first_board in ui, "Puzzle board lost its board-first position"
 assert ui.index(first_board) < ui.index("VillageScenePlan scenePlan = VillageScenePlan.From(world);"), (
     "World art must not push first interactive tile below the title/controls"
 )
@@ -141,7 +141,8 @@ for required in ('new GameLanguage("en", "English")', "researchBuild ? GameLocal
                  "GameLocalization.Fallback"):
     assert required in shipping_policy, "Consumer locale policy must require review to expand: " + required
 assert "foreach (GameLanguage choice in LocaleRuntime.SelectableLanguages)" in ui
-assert ui.count("LocaleRuntime.SelectableLanguages.Count > 1") == 2
+# One settings row now hosts the language control on every screen.
+assert ui.count("LocaleRuntime.SelectableLanguages.Count > 1") == 1
 assert "LocaleRuntime.Initialize();" in ui and "BuildLanguagePicker()" in ui
 assert "LocalizedVillage." in ui and "GameLocalization.Text(" in ui
 print(f"Evergrove language assets: English source + {len(supported)} complete offline catalogs, {len(keys)} keys each")
