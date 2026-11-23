@@ -1,0 +1,15 @@
+MOSSELORA_TEXT_SPIKE_FONT legacy ar -> Geeza Pro
+MOSSELORA_TEXT_SPIKE_FONT legacy fa -> Geeza Pro
+MOSSELORA_TEXT_SPIKE_FONT legacy he -> Arial Hebrew
+MOSSELORA_TEXT_SPIKE_FONT legacy hi -> Kohinoor Devanagari
+MOSSELORA_TEXT_SPIKE_FONT legacy bn -> Kohinoor Bangla
+MOSSELORA_TEXT_SPIKE_FONT legacy ta -> Tamil Sangam MN
+MOSSELORA_TEXT_SPIKE_FONT legacy th -> Thonburi
+MOSSELORA_TEXT_SPIKE_FONT uitk ar -> Geeza Pro
+MOSSELORA_TEXT_SPIKE_FONT uitk fa -> Geeza Pro
+MOSSELORA_TEXT_SPIKE_FONT uitk he -> Arial Hebrew
+MOSSELORA_TEXT_SPIKE_FONT uitk hi -> Kohinoor Devanagari
+MOSSELORA_TEXT_SPIKE_FONT uitk bn -> Kohinoor Bangla
+MOSSELORA_TEXT_SPIKE_FONT uitk ta -> Tamil Sangam MN
+MOSSELORA_TEXT_SPIKE_FONT uitk th -> Thonburi
+MOSSELORA_TEXT_SPIKE_FRAME 0 t=2.634678
