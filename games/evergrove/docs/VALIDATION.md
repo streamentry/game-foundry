@@ -22,7 +22,7 @@ Do **not** jump from code volume / localization breadth / passing unit tests to 
 | **C — visual treatment** | 2D garden, fixed world history | 2.5D miniature, **same** history and UI | Does 2.5D help causal comprehension enough to justify cost? | Unaided explanation, forced preference with counterbalanced order, device GPU/heat |
 | **D — voluntary return and distribution** | Best polished reference / relevant acquisition channel cohort | Evergreen candidate experience with equal onboarding commitment | Is there an actual reason to return and a viable discovery channel? | D1/D7 actual return with denominators, source/search intent, willingness to recommend/pay |
 
-> **Letter mapping (labels only, not renumbered):** VALIDATION A ≈ spec 07 B / spec 10 B restricted to chapter 1; VALIDATION B has no spec equivalent (matched branch-mechanics control); VALIDATION C = spec 07 C = spec 10 C; VALIDATION D has no spec equivalent. Spec 07/10 "A" (uncoached usability, VAL-001) corresponds to §3 Day 4 and the §4 metrics here.
+> **Letter mapping (labels only, not renumbered):** VALIDATION A ≈ spec 07 B / spec 10 B restricted to chapter 1; VALIDATION B has no spec equivalent (matched branch-mechanics control); VALIDATION C = spec 07 C = spec 10 C; VALIDATION D has no spec equivalent. Spec 07/10 "A" (uncoached usability, VAL-001) corresponds to section 3 Day 4 and the section 4 metrics here.
 
 **Existing in-app PuzzleOnly switch only isolates part of A.** Beyond chapter 1 its board rules diverge from Living, so **do not report a “narrative retention lift” from current two-mode data**.
 
@@ -76,12 +76,12 @@ These are **heuristic go/no-go triggers**, not powered statistical effect thresh
 
 | Measure | Threshold stated | Source | Gate |
 | --- | --- | --- | --- |
-| First correct action / valid tap | 8 of 10 starters (80%) act within 30 s | [design.md §12](../design.md) | M3 |
+| First correct action / valid tap | 8 of 10 starters (80%) act within 30 s | [design.md section 12](../design.md) | M3 |
 | First correct action | ~70% within 30 s (provisional) | This file, "Provisional decision thresholds" | M3 |
-| Goal explained unaided | 3+ of 10 cannot infer goal → redesign (i.e. ≥70% needed) | design.md §12 | M3 |
+| Goal explained unaided | 3+ of 10 cannot infer goal → redesign (i.e. ≥70% needed) | design.md section 12 | M3 |
 | Goal explained unaided | ≥80% | [spec 07](specs/07-VALIDATION-AND-GTM.md) | M3 |
-| Restoration recognized | 3+ of 10 miss → redesign (i.e. ≥70% needed) | design.md §12 | M3 |
-| Consequence noticed | 7+ of 10 notice (70%) | design.md §12 | M3 |
+| Restoration recognized | 3+ of 10 miss → redesign (i.e. ≥70% needed) | design.md section 12 | M3 |
+| Consequence noticed | 7+ of 10 notice (70%) | design.md section 12 | M3 |
 | Consequence recalled after 10 min | ≥70–75% | spec 07 | M3 |
 | Consequence described unaided | ~60% (provisional) | This file, "Provisional decision thresholds" | M3 |
 | Median first meaningful input | <15 s | [spec 01](specs/01-PRODUCT-AND-EXPERIENCE.md) | M3 (observed) |
@@ -90,15 +90,15 @@ These are **heuristic go/no-go triggers**, not powered statistical effect thresh
 
 **Which rule the facilitator applies**
 
-- **M3:** Gate 09 requires 8–12 uncoached participants, all starters counted, and failures fixed or documented. The only numeric rule with a defined action is the 10-starter rule in design.md §12. Apply that rule and record raw counts. Do not apply the 70%/60% or 80%/70–75% figures. **FOUNDER DECISION NEEDED:** confirm design.md §12 as the M3 stop/proceed rule.
+- **M3:** Gate 09 requires 8–12 uncoached participants, all starters counted, and failures fixed or documented. The only numeric rule with a defined action is the 10-starter rule in design.md section 12. Apply that rule and record raw counts. Do not apply the 70%/60% or 80%/70–75% figures. **FOUNDER DECISION NEEDED:** confirm design.md section 12 as the M3 stop/proceed rule.
 - **M4:** Gate 09 requires a preregistered, puzzle-identical study (VAL-002). It cannot be run on the current mode toggle, so no M4 number applies yet. **FOUNDER DECISION NEEDED:** choose M4 thresholds before the matched build is tested.
 
 **Remaining disagreements (FOUNDER DECISION NEEDED)**
 
-1. First action: 80% (design.md §12) vs ~70% (this file).
-2. Goal comprehension: ≥70% implied by design.md §12 vs ≥80% in spec 07.
+1. First action: 80% (design.md section 12) vs ~70% (this file).
+2. Goal comprehension: ≥70% implied by design.md section 12 vs ≥80% in spec 07.
 3. Consequence: notice (70%, design.md), 10-minute recall (70–75%, spec 07) and unaided description (60%, this file) are three different measures. Choose which one gates M3.
-4. Preference: spec 07's "clear majority prefers the living world" cannot be observed in a between-subject design, because each participant experiences only one condition and so never states a preference between them. It needs within-subject exposure to both conditions, which conflicts with the matched-exposure controls in §2. Choose a within-subject design or drop the metric.
+4. Preference: spec 07's "clear majority prefers the living world" cannot be observed in a between-subject design, because each participant experiences only one condition and so never states a preference between them. It needs within-subject exposure to both conditions, which conflicts with the matched-exposure controls in section 2. Choose a within-subject design or drop the metric.
 5. Speed: median first input <15 s (spec 01) and first correct action within 30 s measure different statistics. Record both; neither replaces the other.
 
 ## 5. Qualitative interview script (no leading)

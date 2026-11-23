@@ -769,8 +769,12 @@
       "method": "Unity",
       "passing_criteria": "Editor 6.3 imports, compiles and executes scene/bootstrap smoke without errors",
       "evidence_required": "Editor log, Unity version and commit",
-      "verified": false,
-      "evidence_path": null
+      "verified": true,
+      "evidence_path": "games/evergrove/docs/evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-001/verification.md",
+      "source_commit_sha": "5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba",
+      "build_artifact_sha256": "bed9375a24216e30cfca2e5265d2cc3f4082398964614e9b3dd9e9be8ca5647b",
+      "reviewer_role": "AI agent (Claude Opus 5.5) local log review; not independent human verification",
+      "reviewed_at_utc": "2026-11-23T04:39:13Z"
     },
     {
       "id": "BLD-002",
@@ -778,8 +782,12 @@
       "method": "Unity",
       "passing_criteria": "Unsigned Android APK artifact built by manual workflow with recorded SHA",
       "evidence_required": "Run URL, APK hash and log",
-      "verified": false,
-      "evidence_path": null
+      "verified": true,
+      "evidence_path": "games/evergrove/docs/evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-002/verification.md",
+      "source_commit_sha": "5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba",
+      "build_artifact_sha256": "2897d95432122775cac3c178eb8e69bdce79825755e62f0e1cea809dc0baa2a7",
+      "reviewer_role": "AI agent (Claude Opus 5.5) local log review; not independent human verification",
+      "reviewed_at_utc": "2026-11-23T04:39:13Z"
     },
     {
       "id": "BLD-003",
@@ -787,8 +795,12 @@
       "method": "Unity",
       "passing_criteria": "iOS Xcode project exported with compile log; signing remains separate",
       "evidence_required": "Run URL, Xcode project hash",
-      "verified": false,
-      "evidence_path": null
+      "verified": true,
+      "evidence_path": "games/evergrove/docs/evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-003/verification.md",
+      "source_commit_sha": "5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba",
+      "build_artifact_sha256": "fe60275ecaad330825470c3fea6793fe2424ae69737c3828803d26b114adc186",
+      "reviewer_role": "AI agent (Claude Opus 5.5) local log review; not independent human verification",
+      "reviewed_at_utc": "2026-11-23T04:39:13Z"
     },
     {
       "id": "BLD-004",
