@@ -198,7 +198,7 @@ namespace Evergrove.Core
 
         public static string Ending(WorldModel world)
         {
-            if (!world.Completed || world.Mode == PlayMode.PuzzleOnly)
+            if (!world.Completed || world.Mode != PlayMode.Living)
                 return "The last stream is still waiting.";
             int trees = Trees(world), bridges = Bridges(world), flowers = Flowers(world);
             if (HasLivingHeart(world))

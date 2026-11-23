@@ -26,7 +26,7 @@
 | Field | Meaning | Important invariant |
 | --- | --- | --- |
 | `version` | Snapshot schema version | Current **4**; v1/v2/v3 migrations recognized |
-| `mode` | `living` or `puzzle` | Strict match |
+| `mode` | `living`, `puzzle` or `matched` | Strict match; `matched` requires v4 |
 | `round` | Zero-based index of current chapter | 0..12; 12 means completed |
 | `solved` | Current puzzle completed | Must equal independent `PipeRules.IsComplete` validation |
 | `rotations` | Current puzzle orientation per tile | Length = current board cells (9/16), range and anchor valid; empty at completion |
@@ -37,6 +37,7 @@
 | `hintTile` | Target tile index, -1 at idle | Must be currently wrong and not anchored whenever stage is 1 or 2 |
 | `boardVariant` | Active puzzle geometry from prior choice | 0 base/legacy; 1 tree; 2 bridge; 3 flowers; 0 on first and completed chapter |
 | `lastSolvedVariant` | Variant of previous completed board | Restores exact board on `ReconsiderLatestChoice` |
+| `variantSchedule` | Optional, additive (v4; absent in older JSON reads as `[]`) | `matched` only: exactly 11 ints, each 1..3, the variants of boards 2..12. Must be `[]` in `living` and `puzzle` saves. `boardVariant` and `lastSolvedVariant` must equal the schedule entries for the current chapter |
 
 **Critical distinction:** `round` indexes 0..11 active content; player-facing UI shows 1..12. Completed `round=12` has no grid or active puzzle, but the history stays.
 

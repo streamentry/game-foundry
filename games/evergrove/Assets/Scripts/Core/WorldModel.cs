@@ -2,7 +2,12 @@ using System;
 
 namespace Evergrove.Core
 {
-    public enum PlayMode { Living, PuzzleOnly }
+    /// <summary>
+    /// Living: village choices shape later boards. PuzzleOnly: unchanged
+    /// authored boards, no choices. PuzzleMatched: no choices or story, but
+    /// boards follow a predeclared variant schedule (the M4 control).
+    /// </summary>
+    public enum PlayMode { Living, PuzzleOnly, PuzzleMatched }
     public enum VillageChoice { ShadeTree = 0, Bridge = 1, Flowers = 2 }
 
     /// <summary>
@@ -24,6 +29,9 @@ namespace Evergrove.Core
         public int lastSolvedVariant; // exact board to reopen after reconsidering
         public int hintStep;          // 0=no hint, 1=row noticed, 2=tile focused
         public int hintTile = -1;     // chosen wrong tile, -1 when hintStep=0
+        // Optional, additive (absent in older JSON). Only for mode "matched":
+        // the variant of boards 2..12, each 1..3, fixed when the run began.
+        public int[] variantSchedule = Array.Empty<int>();
     }
 
     /// <summary>
@@ -37,7 +45,15 @@ namespace Evergrove.Core
 
         private WorldModel(WorldSnapshot snapshot) { state = snapshot; }
 
-        public PlayMode Mode { get { return state.mode == "living" ? PlayMode.Living : PlayMode.PuzzleOnly; } }
+        public PlayMode Mode {
+            get {
+                if (state.mode == "living") return PlayMode.Living;
+                return state.mode == "matched" ? PlayMode.PuzzleMatched : PlayMode.PuzzleOnly;
+            }
+        }
+        /// <summary>Number of later boards whose variant is predeclared (boards 2..12).</summary>
+        public static int ScheduleLength { get { return PuzzleCatalog.Count - 1; } }
+        public int[] VariantSchedule { get { return (int[])state.variantSchedule.Clone(); } }
         public int Round { get { return state.round; } }
         public bool Solved { get { return state.solved; } }
         public bool Completed { get { return state.round == PuzzleCatalog.Count; } }
@@ -58,13 +74,66 @@ namespace Evergrove.Core
 
         public static WorldModel New(PlayMode mode = PlayMode.Living)
         {
+            if (mode == PlayMode.PuzzleMatched)
+                throw new ArgumentException("Matched control needs a variant schedule; use NewMatched.", nameof(mode));
+            return Fresh(mode == PlayMode.Living ? "living" : "puzzle", Array.Empty<int>());
+        }
+
+        /// <summary>
+        /// Matched control: same board stream a Living player would receive for
+        /// the given variants (schedule[i] = variant of board i+2), but no village
+        /// choices. The schedule is copied and persisted with the run.
+        /// </summary>
+        public static WorldModel NewMatched(int[] variantSchedule)
+        {
+            if (!IsValidSchedule(variantSchedule))
+                throw new ArgumentException("Schedule must have " + ScheduleLength + " entries, each 1..3.", nameof(variantSchedule));
+            return Fresh("matched", variantSchedule);
+        }
+
+        /// <summary>True when the schedule has exactly ScheduleLength entries, each 1..3.</summary>
+        public static bool IsValidSchedule(int[] schedule)
+        {
+            if (schedule == null || schedule.Length != ScheduleLength) return false;
+            foreach (int variant in schedule)
+                if (variant < 1 || variant > 3) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Converts a Living run's choices into the schedule a matched player needs.
+        /// Only the first ScheduleLength choices affect boards; the last choice is inert.
+        /// </summary>
+        public static int[] ScheduleFromChoices(int[] choices)
+        {
+            if (choices == null || choices.Length < ScheduleLength)
+                throw new ArgumentException("Need at least " + ScheduleLength + " Living choices.", nameof(choices));
+            int[] schedule = new int[ScheduleLength];
+            for (int i = 0; i < ScheduleLength; i++)
+            {
+                if (choices[i] < 0 || choices[i] > 2)
+                    throw new ArgumentException("Choice out of range.", nameof(choices));
+                schedule[i] = ReactiveWatercourses.VariantAfterChoice((VillageChoice)choices[i]);
+            }
+            return schedule;
+        }
+
+        /// <summary>Variant of the board at a chapter index; chapter 0 and completion are unchanged.</summary>
+        private static int MatchedVariantFor(int[] schedule, int chapter)
+        {
+            return chapter <= 0 || chapter >= PuzzleCatalog.Count ? 0 : schedule[chapter - 1];
+        }
+
+        private static WorldModel Fresh(string mode, int[] schedule)
+        {
             return new WorldModel(new WorldSnapshot {
-                version = Version, mode = mode == PlayMode.Living ? "living" : "puzzle",
+                version = Version, mode = mode,
                 round = 0, solved = false, hintsUsed = 0,
                 boardVariant = 0, lastSolvedVariant = 0,
                 hintStep = 0, hintTile = -1,
                 rotations = (int[])PuzzleCatalog.Get(0).Initial.Clone(),
-                previous = Array.Empty<int>(), choices = Array.Empty<int>()
+                previous = Array.Empty<int>(), choices = Array.Empty<int>(),
+                variantSchedule = (int[])schedule.Clone()
             });
         }
 
@@ -75,7 +144,8 @@ namespace Evergrove.Core
                 rotations = (int[])state.rotations.Clone(), previous = (int[])state.previous.Clone(),
                 choices = (int[])state.choices.Clone(), hintsUsed = state.hintsUsed,
                 boardVariant = state.boardVariant, lastSolvedVariant = state.lastSolvedVariant,
-                hintStep = state.hintStep, hintTile = state.hintTile
+                hintStep = state.hintStep, hintTile = state.hintTile,
+                variantSchedule = (int[])state.variantSchedule.Clone()
             };
         }
 
@@ -85,7 +155,8 @@ namespace Evergrove.Core
             result = null;
             if (source == null || (source.version != 1 && source.version != 2 &&
                  source.version != 3 && source.version != Version) ||
-                (source.mode != "living" && source.mode != "puzzle") ||
+                (source.mode != "living" && source.mode != "puzzle" && source.mode != "matched") ||
+                (source.mode == "matched" && source.version != Version) ||
                 source.round < 0 || source.round > PuzzleCatalog.Count ||
                 source.choices == null || source.rotations == null || source.previous == null ||
                 source.hintsUsed < 0 || source.hintsUsed > 1000000 ||
@@ -96,8 +167,11 @@ namespace Evergrove.Core
                  (source.hintStep < 0 || source.hintStep > 2 ||
                   (source.hintStep == 0 && source.hintTile != -1))))
                 return false;
+            int[] schedule = source.variantSchedule ?? Array.Empty<int>();
             if ((source.mode == "living" && source.choices.Length != source.round) ||
-                (source.mode == "puzzle" && source.choices.Length != 0))
+                (source.mode != "living" && source.choices.Length != 0))
+                return false;
+            if (source.mode == "matched" ? !IsValidSchedule(schedule) : schedule.Length != 0)
                 return false;
             foreach (int choice in source.choices)
                 if (choice < 0 || choice > 2) return false;
@@ -110,7 +184,13 @@ namespace Evergrove.Core
             int lastVariant = source.version >= 3 ? source.lastSolvedVariant : 0;
             int hintStep = source.version == Version ? source.hintStep : 0;
             int hintTile = source.version == Version ? source.hintTile : -1;
-            if ((source.mode == "puzzle" && (variant != 0 || lastVariant != 0)) ||
+            if (source.mode == "matched")
+            {
+                if (variant != MatchedVariantFor(schedule, chapter) ||
+                    lastVariant != MatchedVariantFor(schedule, chapter - 1))
+                    return false;
+            }
+            else if ((source.mode == "puzzle" && (variant != 0 || lastVariant != 0)) ||
                 (chapter == 0 && variant != 0) ||
                 (chapter == PuzzleCatalog.Count && variant != 0) ||
                 (variant != 0 && (chapter < 1 || source.choices[chapter - 1] + 1 != variant)))
@@ -148,7 +228,8 @@ namespace Evergrove.Core
                 rotations = rotations, previous = previous,
                 choices = (int[])source.choices.Clone(), hintsUsed = source.hintsUsed,
                 boardVariant = variant, lastSolvedVariant = lastVariant,
-                hintStep = hintStep, hintTile = hintTile
+                hintStep = hintStep, hintTile = hintTile,
+                variantSchedule = (int[])schedule.Clone()
             });
             return true;
         }
@@ -161,6 +242,7 @@ namespace Evergrove.Core
 
         public bool CanSwitchMode {
             get {
+                if (Mode == PlayMode.PuzzleMatched) return false; // research condition is fixed at start
                 if (Completed || Round != 0 || Solved || state.choices.Length != 0) return false;
                 int[] initial = PuzzleCatalog.Get(0).Initial;
                 for (int i = 0; i < initial.Length; i++)
@@ -272,9 +354,15 @@ namespace Evergrove.Core
             state.round++;
             state.solved = false;
             state.previous = Array.Empty<int>();
-            state.boardVariant = Completed || Mode == PlayMode.PuzzleOnly ? 0 :
-                ReactiveWatercourses.VariantAfterChoice((VillageChoice)state.choices[state.choices.Length - 1]);
+            state.boardVariant = Completed ? 0 : NextVariant();
             state.rotations = Completed ? Array.Empty<int>() : (int[])CurrentPuzzle.Initial.Clone();
+        }
+
+        private int NextVariant()
+        {
+            if (Mode == PlayMode.PuzzleOnly) return 0;
+            if (Mode == PlayMode.PuzzleMatched) return MatchedVariantFor(state.variantSchedule, Round);
+            return ReactiveWatercourses.VariantAfterChoice((VillageChoice)state.choices[state.choices.Length - 1]);
         }
 
         public bool Choose(VillageChoice choice)
@@ -315,7 +403,7 @@ namespace Evergrove.Core
 
         public bool NextPuzzle()
         {
-            if (Mode != PlayMode.PuzzleOnly || Completed || !Solved ||
+            if (Mode == PlayMode.Living || Completed || !Solved ||
                 !PipeRules.IsComplete(CurrentPuzzle, state.rotations)) return false;
             Advance();
             return true;

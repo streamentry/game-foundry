@@ -759,6 +759,268 @@ internal static class Program
         Expect(GameLocalization.SetCurrent("en"), "English remains available after invalid imports");
     }
 
+    private static bool Throws<TException>(Action action) where TException : Exception
+    {
+        try { action(); }
+        catch (Exception ex) { return ex is TException; }
+        return false;
+    }
+
+    private static readonly JsonSerializerOptions SaveOptions =
+        new JsonSerializerOptions { IncludeFields = true };
+
+    private static WorldSnapshot CopySnapshot(WorldSnapshot source)
+    {
+        return JsonSerializer.Deserialize<WorldSnapshot>(
+            JsonSerializer.Serialize(source, SaveOptions), SaveOptions);
+    }
+
+    private static int FirstMovable(Puzzle board)
+    {
+        for (int tile = 0; tile < board.CellCount; tile++)
+            if (!board.IsAnchored(tile)) return tile;
+        throw new Exception("board has no movable tile");
+    }
+
+    private static string Describe(Puzzle board, int variant, int[] rotations)
+    {
+        return board.Name + "|v" + variant + "|size=" + board.Size +
+            "|anchor=" + board.AnchoredTile +
+            "|kinds=" + string.Join(",", board.Kinds) +
+            "|initial=" + string.Join(",", board.Initial) +
+            "|solution=" + string.Join(",", board.Solution) +
+            "|rotations=" + string.Join(",", rotations);
+    }
+
+    private static string BoardKey(WorldModel world)
+    {
+        return Describe(world.CurrentPuzzle, world.BoardVariant, world.Rotations);
+    }
+
+    private static void SolveQuietly(WorldModel world)
+    {
+        Puzzle board = world.CurrentPuzzle;
+        for (int tile = 0; tile < board.CellCount; tile++)
+        {
+            int guard = 0;
+            while (world.Rotations[tile] != board.Solution[tile])
+            {
+                if (!world.Rotate(tile) || ++guard > 4)
+                    throw new Exception("solve failed at tile " + tile);
+            }
+        }
+        if (!world.Solved) throw new Exception("solved board not accepted");
+    }
+
+    // Plays from the current chapter to the end. Living consumes the choices;
+    // matched and puzzle-only advance with NextPuzzle and never receive them.
+    private static string[] PlayRun(WorldModel world, int[] choices)
+    {
+        string[] boards = new string[PuzzleCatalog.Count];
+        for (int chapter = world.Round; chapter < PuzzleCatalog.Count; chapter++)
+        {
+            boards[chapter] = BoardKey(world);
+            SolveQuietly(world);
+            bool advanced = world.Mode == PlayMode.Living
+                ? world.Choose((VillageChoice)choices[chapter])
+                : world.NextPuzzle();
+            if (!advanced) throw new Exception("could not advance at chapter " + chapter);
+        }
+        if (!world.Completed) throw new Exception("run did not complete");
+        return boards;
+    }
+
+    // Living run for these choices versus a matched run on the derived schedule.
+    private static string[] AssertMatchedEqualsLiving(int[] choices)
+    {
+        var living = WorldModel.New(PlayMode.Living);
+        string[] livingBoards = PlayRun(living, choices);
+        Expect(living.Choices.Length == PuzzleCatalog.Count,
+            "living run records one choice per chapter");
+
+        var matched = WorldModel.NewMatched(WorldModel.ScheduleFromChoices(choices));
+        string[] matchedBoards = PlayRun(matched, choices);
+        Expect(matched.Completed && matched.Choices.Length == 0,
+            "matched run completes with no village choices");
+        for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+            Expect(livingBoards[chapter] == matchedBoards[chapter],
+                "matched board identical to living board at chapter " + chapter);
+        return livingBoards;
+    }
+
+    private static void MatchedControlCondition()
+    {
+        // Input validation: exactly 11 later boards, each a branch variant 1..3.
+        Expect(WorldModel.ScheduleLength == 11, "schedule covers boards 2..12");
+        Expect(Throws<ArgumentException>(() => WorldModel.NewMatched(null)),
+            "null schedule rejected");
+        Expect(Throws<ArgumentException>(() => WorldModel.NewMatched(new int[10])),
+            "short schedule rejected");
+        Expect(Throws<ArgumentException>(() => WorldModel.NewMatched(new int[12])),
+            "long schedule rejected");
+        int[] zeroVariant = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 };
+        int[] fourVariant = { 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        Expect(Throws<ArgumentException>(() => WorldModel.NewMatched(zeroVariant)),
+            "variant 0 rejected in a matched schedule");
+        Expect(Throws<ArgumentException>(() => WorldModel.NewMatched(fourVariant)),
+            "variant 4 rejected in a matched schedule");
+        Expect(Throws<ArgumentException>(() => WorldModel.New(PlayMode.PuzzleMatched)),
+            "matched mode cannot be created without an explicit schedule");
+        Expect(Throws<ArgumentException>(() => WorldModel.ScheduleFromChoices(new int[10])),
+            "too few living choices cannot derive a schedule");
+        Expect(Throws<ArgumentException>(() => WorldModel.ScheduleFromChoices(
+            new[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3 })),
+            "invalid living choice cannot derive a schedule");
+
+        int[] source = { 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2 };
+        WorldModel copied = WorldModel.NewMatched(source);
+        source[0] = 3;
+        Expect(copied.VariantSchedule[0] == 1, "schedule is copied, not aliased");
+        Expect(copied.Mode == PlayMode.PuzzleMatched && copied.Round == 0 &&
+               copied.BoardVariant == 0 && !copied.CanSwitchMode,
+            "matched run starts on the unchanged first board and locks its condition");
+        Expect(!copied.Choose(VillageChoice.ShadeTree) && !copied.ReconsiderLatestChoice(),
+            "matched mode never accepts village choices");
+        Expect(!copied.NextPuzzle(), "matched board cannot advance before it is solved");
+
+        // Every chapter x every branch variant: a living player reaching that
+        // variant must see the same board as a matched player given the schedule.
+        for (int chapter = 1; chapter < PuzzleCatalog.Count; chapter++)
+            for (int variant = 1; variant <= 3; variant++)
+            {
+                int[] choices = new int[PuzzleCatalog.Count];
+                for (int i = 0; i < choices.Length; i++) choices[i] = (i + chapter) % 3;
+                choices[chapter - 1] = variant - 1;
+                string[] boards = AssertMatchedEqualsLiving(choices);
+                Puzzle expected = ReactiveWatercourses.ForChapter(chapter, variant);
+                Expect(boards[chapter] == Describe(expected, variant, expected.Initial),
+                    "living chapter " + chapter + " really shows variant " + variant);
+            }
+
+        // All 3^7 = 2187 living prefixes for chapters 1..7, with varied tails.
+        int enumerated = 0;
+        for (int code = 0; code < 2187; code++)
+        {
+            int[] choices = new int[PuzzleCatalog.Count];
+            int rest = code;
+            for (int i = 0; i < 7; i++) { choices[i] = rest % 3; rest /= 3; }
+            for (int i = 7; i < choices.Length; i++) choices[i] = (i + code) % 3;
+            AssertMatchedEqualsLiving(choices);
+            enumerated++;
+        }
+        Expect(enumerated == 2187, "all 3^7 living prefixes compared against matched runs");
+
+        // Three full 12-chapter living paths with distinct choice sequences.
+        int[][] named = {
+            new int[PuzzleCatalog.Count],
+            new[] { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+            new[] { 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2 }
+        };
+        foreach (int[] path in named) AssertMatchedEqualsLiving(path);
+
+        // Mid-game save: the transformed board, rotation and schedule survive.
+        int[] midChoices = { 0, 2, 1, 1, 0, 2, 0, 1, 2, 0, 1, 0 };
+        int[] midSchedule = WorldModel.ScheduleFromChoices(midChoices);
+        string[] reference = AssertMatchedEqualsLiving(midChoices);
+        var world = WorldModel.NewMatched(midSchedule);
+        for (int chapter = 0; chapter < 5; chapter++)
+        {
+            SolveQuietly(world);
+            Expect(world.NextPuzzle(), "matched advances like puzzle-only after a solve");
+        }
+        Puzzle expectedBoard5 = ReactiveWatercourses.ForChapter(5, midSchedule[4]);
+        string expectedBoard5Key = Describe(expectedBoard5, midSchedule[4], expectedBoard5.Initial);
+        Expect(BoardKey(world) == expectedBoard5Key, "chapter 6 uses the scheduled transformed board");
+        Expect(world.Rotate(FirstMovable(expectedBoard5)), "mid-game turn on the matched board");
+        string midKey = BoardKey(world);
+        string json = JsonSerializer.Serialize(world.Export(), SaveOptions);
+
+        WorldModel restored;
+        Expect(WorldModel.TryRestore(CopySnapshot(world.Export()), out restored),
+            "mid-game matched save restores");
+        Expect(restored.Mode == PlayMode.PuzzleMatched && restored.Round == 5 && !restored.Solved,
+            "restored matched run keeps its mode and progress");
+        Expect(BoardKey(restored) == midKey, "restored board, rotations and variant are identical");
+        Expect(string.Join(",", restored.VariantSchedule) == string.Join(",", midSchedule),
+            "variant schedule persists through save");
+        WorldSnapshot reloaded = JsonSerializer.Deserialize<WorldSnapshot>(json, SaveOptions);
+        Expect(WorldModel.TryRestore(reloaded, out restored) &&
+               JsonSerializer.Serialize(restored.Export(), SaveOptions) == json,
+            "matched JSON round trip is stable");
+        Expect(restored.Undo() && BoardKey(restored) == expectedBoard5Key,
+            "undo returns to the transformed initial board");
+        Expect(restored.AdvanceGentleHint() == 1 && restored.AdvanceGentleHint() == 2 &&
+               restored.AdvanceGentleHint() == 3 && restored.HintsUsed == 1,
+            "staged hint acts on the transformed board");
+        Expect(!restored.Rotate(expectedBoard5.AnchoredTile),
+            "protected tile of the transformed board stays fixed after restore");
+        Expect(restored.Restart() && BoardKey(restored) == expectedBoard5Key,
+            "restart keeps the transformed board");
+        string[] tail = PlayRun(restored, midChoices);
+        for (int chapter = 5; chapter < PuzzleCatalog.Count; chapter++)
+            Expect(tail[chapter] == reference[chapter],
+                "resumed matched run equals living board at chapter " + chapter);
+        Expect(restored.Completed && restored.Choices.Length == 0,
+            "resumed matched run completes without choices");
+
+        // Ending and consequences equal puzzle-only: neither has village decisions.
+        var solo = WorldModel.New(PlayMode.PuzzleOnly);
+        PlayRun(solo, midChoices);
+        var matchedDone = WorldModel.NewMatched(midSchedule);
+        PlayRun(matchedDone, midChoices);
+        Expect(matchedDone.Ending == solo.Ending && matchedDone.Consequence == solo.Consequence &&
+               matchedDone.Journal.Length == 0,
+            "matched control shows no village story, same as puzzle-only");
+
+        var notes = new LocalPlaytest(PlayMode.PuzzleMatched, false, 0, 10.0);
+        Expect(notes.Report(10.0).Contains("condition=PuzzleMatched"),
+            "private playtest notes distinguish the matched condition");
+
+        // Snapshot tampering fails closed.
+        WorldSnapshot good = world.Export();
+        WorldSnapshot bad = CopySnapshot(good);
+        bad.variantSchedule = null;
+        Expect(!WorldModel.TryRestore(bad, out restored), "matched save without schedule rejected");
+        bad = CopySnapshot(good);
+        bad.variantSchedule = new int[10];
+        Expect(!WorldModel.TryRestore(bad, out restored), "short persisted schedule rejected");
+        bad = CopySnapshot(good);
+        bad.variantSchedule[4] = 0;
+        Expect(!WorldModel.TryRestore(bad, out restored), "zero persisted variant rejected");
+        bad = CopySnapshot(good);
+        bad.variantSchedule[10] = 4;
+        Expect(!WorldModel.TryRestore(bad, out restored), "out-of-range persisted variant rejected");
+        bad = CopySnapshot(good);
+        bad.version = 3;
+        Expect(!WorldModel.TryRestore(bad, out restored), "matched mode cannot exist before v4");
+        bad = CopySnapshot(good);
+        bad.choices = new[] { 0 };
+        Expect(!WorldModel.TryRestore(bad, out restored), "matched save with village choices rejected");
+        bad = CopySnapshot(good);
+        bad.boardVariant = midSchedule[4] % 3 + 1;
+        Expect(!WorldModel.TryRestore(bad, out restored), "board inconsistent with schedule rejected");
+        bad = CopySnapshot(good);
+        bad.lastSolvedVariant = midSchedule[3] % 3 + 1;
+        Expect(!WorldModel.TryRestore(bad, out restored), "previous board inconsistent with schedule rejected");
+        WorldSnapshot livingWithSchedule = WorldModel.New().Export();
+        livingWithSchedule.variantSchedule = midSchedule;
+        Expect(!WorldModel.TryRestore(livingWithSchedule, out restored),
+            "living save cannot smuggle a schedule");
+        WorldSnapshot puzzleWithSchedule = WorldModel.New(PlayMode.PuzzleOnly).Export();
+        puzzleWithSchedule.variantSchedule = midSchedule;
+        Expect(!WorldModel.TryRestore(puzzleWithSchedule, out restored),
+            "puzzle-only save cannot smuggle a schedule");
+
+        // Existing v4 saves written before this field existed still restore.
+        string plain = JsonSerializer.Serialize(WorldModel.New().Export(), SaveOptions);
+        string legacyJson = plain.Replace(",\"variantSchedule\":[]", "");
+        Expect(legacyJson != plain, "test removes the optional field from a v4 save");
+        Expect(WorldModel.TryRestore(JsonSerializer.Deserialize<WorldSnapshot>(legacyJson, SaveOptions),
+            out restored) && restored.Mode == PlayMode.Living &&
+            restored.Export().variantSchedule.Length == 0,
+            "v4 save without variantSchedule restores as living");
+    }
+
     public static int Main(string[] args)
     {
         try
@@ -786,6 +1048,7 @@ internal static class Program
             StoryAndCompleteRun();
             ScenicCausality();
             ReactiveCampaign();
+            MatchedControlCondition();
             ProgressiveHintAndSaveV4();
             NonColorLeaksAndCausalJournal();
             PuzzleDiagnosticsTests();
