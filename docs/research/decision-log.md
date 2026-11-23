@@ -710,11 +710,11 @@ The new `ending_title` key is present in all 29 offline locale catalogs, bringin
 
 ## 2026-11-23 — First Android runtime: blank-screen bug found and fixed
 
-The user approved the Android emulator. Unity's bundled SDK gained the emulator and an Android 15 arm64 \`google_apis\` image (SDK licenses accepted with the user's approval). The AVD and all build output now live on the SSD, after the system disk filled up with scratchpad builds; about 9.4 GB of the agent's own regenerable outputs were deleted.
+The user approved the Android emulator. Unity's bundled SDK gained the emulator and an Android 15 arm64 `google_apis` image (SDK licenses accepted with the user's approval). The AVD and all build output now live on the SSD, after the system disk filled up with scratchpad builds; about 9.4 GB of the agent's own regenerable outputs were deleted.
 
-**Bug:** the first APK ran its game loop but drew nothing. logcat showed \`Could not produce class with ID 115\` (stripped native class) from \`EvergroveApp.Label → TextSettings.GetCachedFontAsset → FontAsset.CreateFontAssetOSFallbackList\`. Every label threw. **Android players would have seen a blank screen**, and no earlier check could have caught it.
+**Bug:** the first APK ran its game loop but drew nothing. logcat showed `Could not produce class with ID 115` (stripped native class) from `EvergroveApp.Label → TextSettings.GetCachedFontAsset → FontAsset.CreateFontAssetOSFallbackList`. Every label threw. **Android players would have seen a blank screen**, and no earlier check could have caught it.
 
-**Fix:** \`EvergroveBuild\` sets \`PlayerSettings.stripEngineCode = false\`, and ProjectSettings is committed to match. After the fix, chapter 1 renders board-first with zero class-115 errors, and six real \`adb input tap\` events solve it and reach the choice screen. Cost: the APK grows from about 44 to about 68 MB. A \`link.xml\` that keeps stripping is a later optimization. Evidence: \`games/evergrove/docs/qa/android-emulator-2026-11-23/\`.
+**Fix:** `EvergroveBuild` sets `PlayerSettings.stripEngineCode = false`, and ProjectSettings is committed to match. After the fix, chapter 1 renders board-first with zero class-115 errors, and six real `adb input tap` events solve it and reach the choice screen. Cost: the APK grows from about 44 to about 68 MB. A `link.xml` that keeps stripping is a later optimization. Evidence: `games/evergrove/docs/qa/android-emulator-2026-11-23/`.
 
 **Still open for M2:** physical Android and iPhone devices, TalkBack/VoiceOver, and Android save interruption.
 
