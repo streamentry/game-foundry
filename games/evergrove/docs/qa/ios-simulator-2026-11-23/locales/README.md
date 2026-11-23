@@ -55,3 +55,9 @@ Overall: PASS with one open item (footer clipping on screen 11) that needs a re-
 Found on `ja/04-consequence-shade-tree.png`; these likely apply to every non-English locale:
 1. **Untranslated character name in the memory card:** "第1章 · Mira · 木陰をつくる木を植える" uses the Latin name "Mira", while the NPC line above uses "ミラ". The memory-card name is not localized.
 2. **Board-size button is English:** "▦ Standard" / "▦ Large" are English words, not a language-neutral label like "Aa 100%".
+
+## Follow-up: kinsoku and vi footer re-check (2026-11-23)
+
+- **Japanese line-start `。` (not fixed).** Tried inserting U+2060 WORD JOINER before closing punctuation and after opening brackets in the label/button text path (legacy uGUI Text). Rebuilt for the iOS Simulator and re-ran the ja tour. `ja/10-journal-after-fix.png` still shows a lone `。` at the start of the last line after "回転できません", so uGUI does not honor U+2060 for this wrap. The change was reverted and nothing was committed for it. Options to try next: a line-break-safe font or TextMeshPro, or a small text-layout pass that moves the punctuation onto the previous line. Not verified.
+- **Vietnamese ending footer (ambiguous, not fixed).** `vi/11-ending-after-fix.png` (same as `vi/11-ending.png`) shows the last footer line cut at the bottom edge of the capture. The tour captures one viewport and does not scroll, so this does not prove clipping. The footer is probably below the fold in the scroll area. A swipe-based check on the simulator is still needed to decide.
+- Simulator language restored to `en` / `en_US` and rebooted. Dev-only buttons are still English, as noted above.
