@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "DIN TRÄDGÅRDS BERÄTTELSE"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Rad {0}, kolumn {1}: {2}, ansluten till vatten."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Rad {0}, kolumn {1}: {2}, torr."
+    },
+    {
+      "key": "sr_straight",
+      "value": "rak rör"
+    },
+    {
+      "key": "sr_corner",
+      "value": "vinkelrör"
+    },
+    {
+      "key": "sr_spring",
+      "value": "vattenkälla"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "trädgårdens utlopp"
     }
   ]
 }

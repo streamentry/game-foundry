@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "قصة حديقتك"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "الصف {0}، العمود {1}: {2}، متصل بالماء."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "الصف {0}، العمود {1}: {2}، جاف."
+    },
+    {
+      "key": "sr_straight",
+      "value": "أنبوب مستقيم"
+    },
+    {
+      "key": "sr_corner",
+      "value": "أنبوب زاوية"
+    },
+    {
+      "key": "sr_spring",
+      "value": "ينبوع الماء"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "مخرج الحديقة"
     }
   ]
 }

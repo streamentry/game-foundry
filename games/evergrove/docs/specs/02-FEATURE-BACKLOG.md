@@ -355,7 +355,7 @@
 
 ### EG-113 — Screen-reader puzzle semantics
 
-**State:** Unverified; current generated uGUI has no certified screen-reader path. **Type:** Accessibility. **Risk:** Screen-reader interaction with dynamic puzzle may require substantial redesign. **Evidence:** R2,P1. **R/I/C/E:** 3/5/4/4; **illustrative score:** 15.0.
+**State:** First-pass code: `ScreenReaderBridge.cs` publishes a reading-order AccessibilityHierarchy for puzzle screens on iOS/Android while a screen reader is on; tile labels and activation reuse the tap path. Unity 6000.3.0f1 batch compile and editor smoke pass. **Unverified:** no VoiceOver/TalkBack device run, no first-three-boards completion; frame accuracy and focus behavior unproven. **Type:** Accessibility. **Risk:** Screen-reader interaction with dynamic puzzle may require substantial redesign. **Evidence:** R2,P1. **R/I/C/E:** 3/5/4/4; **illustrative score:** 15.0.
 
 **Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-003`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-113/verification.md` (**NOT COLLECTED**); **rollback/stop:** Screen reader cannot complete first three boards.
 

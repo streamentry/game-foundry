@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "LA STORIA DEL TUO GIARDINO"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Riga {0}, colonna {1}: {2}, collegato all'acqua."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Riga {0}, colonna {1}: {2}, asciutto."
+    },
+    {
+      "key": "sr_straight",
+      "value": "tubo dritto"
+    },
+    {
+      "key": "sr_corner",
+      "value": "tubo ad angolo"
+    },
+    {
+      "key": "sr_spring",
+      "value": "sorgente d'acqua"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "uscita del giardino"
     }
   ]
 }

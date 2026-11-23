@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "HET VERHAAL VAN JE TUIN"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Rij {0}, kolom {1}: {2}, verbonden met water."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Rij {0}, kolom {1}: {2}, droog."
+    },
+    {
+      "key": "sr_straight",
+      "value": "recht buisstuk"
+    },
+    {
+      "key": "sr_corner",
+      "value": "hoekbuisstuk"
+    },
+    {
+      "key": "sr_spring",
+      "value": "waterbron"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "tuinuitlaat"
     }
   ]
 }

@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "HADITHI YA BUSTANI YAKO"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Safu {0}, safuwima {1}: {2}, imeunganishwa na maji."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Safu {0}, safuwima {1}: {2}, kavu."
+    },
+    {
+      "key": "sr_straight",
+      "value": "bomba moja kwa moja"
+    },
+    {
+      "key": "sr_corner",
+      "value": "bomba la kona"
+    },
+    {
+      "key": "sr_spring",
+      "value": "chemchemi ya maji"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "njia ya kutoka bustanini"
     }
   ]
 }

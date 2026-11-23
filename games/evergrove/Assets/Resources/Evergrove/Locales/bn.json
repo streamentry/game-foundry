@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "বাগানের গল্প"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "সারি {0}, কলাম {1}: {2}, পানির সঙ্গে সংযুক্ত।"
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "সারি {0}, কলাম {1}: {2}, শুকনো।"
+    },
+    {
+      "key": "sr_straight",
+      "value": "সরল পাইপ"
+    },
+    {
+      "key": "sr_corner",
+      "value": "বাঁকা পাইপ"
+    },
+    {
+      "key": "sr_spring",
+      "value": "পানির উৎস"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "বাগানের নির্গম"
     }
   ]
 }

@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "정원의 이야기"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "{0}행 {1}열: {2}, 물과 연결됨."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "{0}행 {1}열: {2}, 말라 있음."
+    },
+    {
+      "key": "sr_straight",
+      "value": "직선 파이프"
+    },
+    {
+      "key": "sr_corner",
+      "value": "꺾임 파이프"
+    },
+    {
+      "key": "sr_spring",
+      "value": "물 샘"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "정원 출구"
     }
   ]
 }

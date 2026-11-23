@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "CERITA KEBUN ANDA"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Baris {0}, lajur {1}: {2}, bersambung dengan air."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Baris {0}, lajur {1}: {2}, kering."
+    },
+    {
+      "key": "sr_straight",
+      "value": "paip lurus"
+    },
+    {
+      "key": "sr_corner",
+      "value": "paip bengkok"
+    },
+    {
+      "key": "sr_spring",
+      "value": "mata air"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "alur keluar taman"
     }
   ]
 }

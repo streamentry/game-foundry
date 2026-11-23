@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "花园的故事"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "第{0}行，第{1}列：{2}，已连通水流。"
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "第{0}行，第{1}列：{2}，干燥。"
+    },
+    {
+      "key": "sr_straight",
+      "value": "直管"
+    },
+    {
+      "key": "sr_corner",
+      "value": "弯管"
+    },
+    {
+      "key": "sr_spring",
+      "value": "水源"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "花园出水口"
     }
   ]
 }

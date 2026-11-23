@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "HISTORIA TWOJEGO OGRODU"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Wiersz {0}, kolumna {1}: {2}, połączone z wodą."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Wiersz {0}, kolumna {1}: {2}, sucho."
+    },
+    {
+      "key": "sr_straight",
+      "value": "prosta rura"
+    },
+    {
+      "key": "sr_corner",
+      "value": "zakręt rury"
+    },
+    {
+      "key": "sr_spring",
+      "value": "źródło wody"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "wylot do ogrodu"
     }
   ]
 }

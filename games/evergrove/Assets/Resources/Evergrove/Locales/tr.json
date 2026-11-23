@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "BAHÇENİN HİKÂYESİ"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Satır {0}, sütun {1}: {2}, suya bağlı."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Satır {0}, sütun {1}: {2}, kuru."
+    },
+    {
+      "key": "sr_straight",
+      "value": "düz boru"
+    },
+    {
+      "key": "sr_corner",
+      "value": "köşe boru"
+    },
+    {
+      "key": "sr_spring",
+      "value": "su kaynağı"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "bahçe çıkışı"
     }
   ]
 }

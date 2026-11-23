@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "KWENTO NG IYONG HARDIN"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Hilera {0}, hanay {1}: {2}, konektado sa tubig."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Hilera {0}, hanay {1}: {2}, tuyo."
+    },
+    {
+      "key": "sr_straight",
+      "value": "tuwid na tubo"
+    },
+    {
+      "key": "sr_corner",
+      "value": "tubong kanto"
+    },
+    {
+      "key": "sr_spring",
+      "value": "bukal ng tubig"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "labasan ng hardin"
     }
   ]
 }

@@ -328,6 +328,30 @@
     {
       "key": "ending_title",
       "value": "เรื่องราวของสวนคุณ"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "แถว {0} คอลัมน์ {1}: {2} เชื่อมกับน้ำแล้ว"
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "แถว {0} คอลัมน์ {1}: {2} แห้ง"
+    },
+    {
+      "key": "sr_straight",
+      "value": "ท่อตรง"
+    },
+    {
+      "key": "sr_corner",
+      "value": "ท่อโค้งมุม"
+    },
+    {
+      "key": "sr_spring",
+      "value": "น้ำพุ"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "ทางออกสวน"
     }
   ]
 }
