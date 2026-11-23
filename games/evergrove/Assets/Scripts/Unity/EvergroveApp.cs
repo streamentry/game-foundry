@@ -62,6 +62,11 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private LocalPlaytest localPlaytest; // opt-in, in-memory only
         private bool playtestCopied;
+        // Opt-in return diary (local dates only). PlayerPrefs, separate from the garden save.
+        private const string ReturnDiaryKey = "evergrove:return-diary";
+        private ReturnDiary returnDiary = new ReturnDiary();
+        private bool returnDiaryAsked;
+        private bool returnDiaryCopied;
 #endif
         private bool saveFailed; // shown visibly; do not silently pretend an unsaved session is safe
         // Garden file (clipboard): a parsed garden waits for an explicit second tap.
@@ -147,6 +152,10 @@ namespace Evergrove.UnityClient
             sound = gameObject.AddComponent<AudioSource>();
             sound.playOnAwake = false;
             sound.volume = 0.13f;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            returnDiary = ReturnDiary.Parse(PlayerPrefs.GetString(ReturnDiaryKey, ""));
+            RecordReturnDiaryOpen();
+#endif
             CreateRoot();
             Rebuild(true);
 #if UNITY_IOS || UNITY_ANDROID
@@ -1088,6 +1097,44 @@ namespace Evergrove.UnityClient
                 Button(content, "Stop playtest", GameLocalization.Text("clear"),
                     () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
             }
+            // Return diary: explicit two-step consent; dates only; copy or delete in one action.
+            Label(content, "Return diary", returnDiary.Consented
+                ? returnDiary.Days.Count + " local dates recorded on this device"
+                : "not recording", 12, 43, Moss, TextAnchor.MiddleCenter);
+            if (!returnDiary.Consented && !returnDiaryAsked)
+            {
+                Button(content, "Return diary consent", "Start return diary",
+                    () => { returnDiaryAsked = true; Rebuild(); }, 44);
+            }
+            else if (!returnDiary.Consented)
+            {
+                Label(content, "Consent",
+                    "Records only the local dates this app is opened on this device. Nothing is uploaded. Delete any time.",
+                    12, 43, Moss, TextAnchor.MiddleCenter);
+                Button(content, "Agree and record dates", "Agree and record dates",
+                    () => {
+                        returnDiary.GrantConsent(DateTime.Now.Date);
+                        SaveReturnDiary();
+                        returnDiaryAsked = false;
+                        Rebuild();
+                    }, 44);
+                Button(content, "Not now", "Not now",
+                    () => { returnDiaryAsked = false; Rebuild(); }, 43);
+            }
+            else
+            {
+                Button(content, "Copy return diary", "Copy return diary",
+                    () => {
+                        GUIUtility.systemCopyBuffer = returnDiary.Export(DateTime.Now.Date);
+                        returnDiaryCopied = true;
+                        Rebuild();
+                    }, 48);
+                if (returnDiaryCopied)
+                    Label(content, "Copied privately", "Copied privately",
+                        12, 43, Moss, TextAnchor.MiddleCenter);
+                Button(content, "Delete return diary", "Delete return diary",
+                    () => { ClearReturnDiary(); Rebuild(); }, 43);
+            }
 #endif
             Sprig();
             Text promise = Label(content, "Respectful play", GameLocalization.Text("offline"),
@@ -1915,6 +1962,32 @@ namespace Evergrove.UnityClient
             speakingWith = -1;
             Rebuild(true);
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private void RecordReturnDiaryOpen()
+        {
+            if (returnDiary.RecordOpen(DateTime.Now.Date)) SaveReturnDiary();
+        }
+
+        private void SaveReturnDiary()
+        {
+            PlayerPrefs.SetString(ReturnDiaryKey, returnDiary.Serialize());
+            PlayerPrefs.Save();
+        }
+
+        private void ClearReturnDiary()
+        {
+            returnDiary.Delete();
+            returnDiaryCopied = false;
+            PlayerPrefs.DeleteKey(ReturnDiaryKey);
+            PlayerPrefs.Save();
+        }
+
+        private void OnApplicationPause(bool paused)
+        {
+            if (!paused) RecordReturnDiaryOpen();
+        }
+#endif
 
         private void SaveWorld()
         {

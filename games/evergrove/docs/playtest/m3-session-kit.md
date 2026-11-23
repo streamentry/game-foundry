@@ -110,6 +110,7 @@ Copy this table per session. Fill in only what was observed. Leave blanks blank;
 | Hint requests | Count of all hint requests. Note whether a tile was aligned. `LocalPlaytest.hints` counts requests; `WorldModel.HintsUsed` counts aligned tiles ([07](../specs/07-VALIDATION-AND-GTM.md)). Record both if available. | |
 | Restarts and undos | Count of restarts and undos, per chapter | |
 | Abandoned or stopped | Yes / No, the reason given, and the time | |
+| Return diary (opt-in, research builds only) | Only if the participant agrees after the consent step, the in-app return diary records local dates only. Ask them to copy the text at the end, or to delete it. Record `day1_return`, `day7_return` and `returned_within_7_days` from the copied text. Do not infer returns from anything else. Non-consenting participants stay on manual follow-up. | |
 | Interruptions | Facilitator interventions, if any (should be zero), with the reason | |
 | Verbatim quotes | Exact words, by prompt number from section 3 | |
 | Failure modes observed | Couldn't see tile / wrong target / didn't understand rotate / no response / misread water flow / other | |

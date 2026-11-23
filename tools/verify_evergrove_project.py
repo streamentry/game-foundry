@@ -82,6 +82,12 @@ assert "GUIUtility.systemCopyBuffer" in ui, "playtest export must be explicit"
 study = (game / "Assets" / "Scripts" / "Core" / "LocalPlaytest.cs").read_text().lower()
 for forbidden in ("httprequest", "deviceuniqueidentifier", "unityanalytics", "webrequest"):
     assert forbidden not in study, forbidden
+diary = (game / "Assets" / "Scripts" / "Core" / "ReturnDiary.cs").read_text().lower()
+for forbidden in ("httprequest", "webrequest", "deviceuniqueidentifier", "unityanalytics",
+                  "datetime.now", "datetime.utcnow", "datetimeoffset", "guid.", "systeminfo",
+                  "unityengine", "playerprefs", "system.net"):
+    assert forbidden not in diary, "ReturnDiary must stay pure and offline: " + forbidden
+assert "#if UNITY_EDITOR || DEVELOPMENT_BUILD || EVERGROVE_RESEARCH_TOOLS" in (game / "Assets" / "Scripts" / "Core" / "ReturnDiary.cs").read_text()
 editor = (game / "Assets" / "Editor" / "EvergroveBuild.cs").read_text()
 for required in ("public static void Build()", "BuildPipeline.BuildPlayer", "BuildTarget.Android", "BuildTarget.WebGL", "BuildTarget.iOS", "EvergroveSceneSetup.ValidateImportedProject()"):
     assert required in editor, required
@@ -168,6 +174,7 @@ APPROVED_GUARDS = {
 }
 DEV_ONLY_TOKENS = [
     r"\bDevQaTour\b", r"\bDevScreenshot\b", r"\bTextSpike\b", r"\bLocalPlaytest\b",
+    r"\bReturnDiary\b", r"\bReturnStatus\b",
     r"\bVillageDiorama\b", r"\bQaReplaceWorld\b", r"\bQaWorld\b", r"\bLogForQa\b",
     r"mosseloraQaTour", r"mosseloraScreenshot", r"mosseloraTextSpike", r"mosseloraTextScale",
     r"matched control", r"Matched control", r"Playtest consent", r"Diorama visual comparison",
