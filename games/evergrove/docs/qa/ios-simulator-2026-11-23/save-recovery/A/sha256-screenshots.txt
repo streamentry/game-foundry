@@ -1,0 +1,5 @@
+9293682be724204e13fc8a8bdd3ba5bd1383e8d085cb7ff51e04ae87a7579164  A/A1-first-launch.png
+9293682be724204e13fc8a8bdd3ba5bd1383e8d085cb7ff51e04ae87a7579164  A/A2-after-relaunch.png
+cc656d09c56d4b37f084a844509b6e4e88725ef50266ccba38b8689f5dbcc84f  D/D1-foreground-before-suspend.png
+de8dfcb37a937d0792162065998ef44b1dabb10df4f4f7cef2c2741d99be4425  D/D2-settings-foreground.png
+cc656d09c56d4b37f084a844509b6e4e88725ef50266ccba38b8689f5dbcc84f  D/D3-resumed-after-background.png
