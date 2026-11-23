@@ -627,7 +627,7 @@ Four parallel read-only audits covered `games/evergrove/docs/specs/`, the handbo
 
 ## 2026-11-23 — scripted desktop QA tour captured
 
-**Change:** development-only `DevQaTour` runs a fresh in-memory world, invokes real UI button listeners and saves twelve named PNG states. It does not load or save player progress. The committed evidence set now has 15 macOS Development-player screenshots: three standalone frames and twelve tour states under `games/evergrove/docs/qa/mac-player-2026-11-23/`. Screenshot 03 confirms the new spring-wave glyph; the tour screenshot for the M4 matched chapter remains development UI.
+**Change:** development-only `DevQaTour` runs a fresh in-memory world, invokes real UI button listeners and saves thirteen named PNG states. It does not load or save player progress. The committed evidence set now has 29 macOS Development-player screenshots: three standalone frames, thirteen core-loop tour states and thirteen 150% text-size tour states under `games/evergrove/docs/qa/mac-player-2026-11-23/`. Screenshot 03 confirms the new spring-wave glyph; the tour screenshot for the M4 matched chapter remains development UI.
 
 **Verification:** the current pure C# suite passed 38,835 assertions, the static Unity contract verifier passed, and the browser first-minute suite passed 10/10. These results establish source behavior and desktop rendering only. The tour invokes button callbacks programmatically; it is not touch-input, device, human-use or store-preview footage evidence.
 
@@ -639,11 +639,11 @@ The new [binary inspection report](../../games/evergrove/docs/qa/privacy-binary-
 
 ## 2026-11-23 — EG-007 text-size control implemented
 
-`TextScale` adds an in-game 100% / 125% / 150% text-size control. The preference is stored separately from the garden save; dev QA can override one run without persistence. A 12-frame 150% tour at 375×667 was captured from the macOS Development player. The UI captures show the board, choice, memory and ending states at that scale, but they do not verify iPhone/Android safe areas, OS text-size integration, screen-reader behavior, or adults aged 45+.
+`TextScale` adds an in-game 100% / 125% / 150% text-size control. The preference is stored separately from the garden save; dev QA can override one run without persistence. A 13-frame 150% tour at 375×667 was captured from the macOS Development player. The UI captures show the board, choice, memory and ending states at that scale, but they do not verify iPhone/Android safe areas, OS text-size integration, screen-reader behavior, or adults aged 45+.
 
 ## 2026-11-23 — Vision execution waves 3–5: visual QA loop and pre-M3 fixes
 
-**Tooling:** a dev-only `-mosseloraQaTour <dir>` drives the real `EvergroveApp` through puzzle → choice → consequence → choice-shaped chapter 2 → journal → ending → matched control → anchored-tile tap. It uses an in-memory world and never touches the player's save. 13 PNGs are in `games/evergrove/docs/qa/mac-player-2026-11-23/tour/`, plus a 375×667 set at 150% text.
+**Tooling:** a dev-only `-mosseloraQaTour <dir>` drives the real `EvergroveApp` through puzzle → choice → consequence → choice-shaped chapter 2 → journal → ending → matched control → anchored-tile tap. It uses an in-memory world and never touches the player's save. 13 core-loop PNGs are in `games/evergrove/docs/qa/mac-player-2026-11-23/tour/` and 13 text-size PNGs are in the 375×667 150% set; the 13th frame covers tapping an anchored tile.
 
 **Defects the tour found and fixed (verified in the macOS dev player, not on a phone):**
 - The spring marker looked like a menu icon. It's now three parallel procedural waves.

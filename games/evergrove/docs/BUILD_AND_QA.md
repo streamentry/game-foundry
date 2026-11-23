@@ -1,6 +1,6 @@
 # Evergrove — build, quality gates, reproducibility and release runbook
 
-**Status:** automated **pure C#** logic and translation tests exist; a manually triggered **Unity** export workflow exists, but the repository does not contain independently verified Unity Editor/device build evidence. This runbook does **not** claim store readiness.
+**Status:** the pure C# suite passes 38,835 assertions; a recorded Unity 6000.3.0f1 Editor import/compile/scene smoke passed, and 29 macOS Development-player QA screenshots are archived (3 standalone frames, a 13-state core-loop tour, and a 13-state 150% text-size tour at 375x667). The anchored-tile tap state shows its explanation without a move or save. These are desktop visual evidence, not phone, OS text-size or touch-input verification. No Android/iOS export, signed build, device launch or store artifact is verified. This runbook does **not** claim store readiness.
 
 ## 1. Toolchain and entrypoints
 

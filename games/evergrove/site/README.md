@@ -18,6 +18,6 @@ npm run preview
 
 ## Cloudflare Worker deployment
 
-The static build goes to `dist/` and Wrangler deploys that directory as Worker assets. The target custom domain is `mosselora.com`; Wrangler requires an authenticated Cloudflare account with an active zone for the domain. Do not create or change DNS records manually if the zone is unavailable. `npm run deploy` publishes the static site and configures the custom domain from `wrangler.jsonc`.
+The static build goes to `dist/` and Wrangler deploys that directory as Worker assets. The site uses the existing proxied `mosselora.com` DNS records with a Worker route; this avoids deleting the zone's A/AAAA records. Deployment requires an authenticated Cloudflare account with the active zone. `npm run deploy` publishes the site and installs the route in `wrangler.jsonc`.
 
 The separate Worker API is in `../backend/`. It is a limited `WATER_TREE` experiment, not cloud save for the mobile game. Keep it detached from game state until authentication, quota controls, privacy review, and player evidence pass their gates.

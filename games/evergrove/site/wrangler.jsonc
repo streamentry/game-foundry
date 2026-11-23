@@ -7,6 +7,6 @@
     "directory": "./dist"
   },
   "routes": [
-    { "pattern": "mosselora.com", "custom_domain": true }
+    { "pattern": "mosselora.com/*", "zone_name": "mosselora.com" }
   ]
 }
