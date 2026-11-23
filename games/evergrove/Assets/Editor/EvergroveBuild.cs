@@ -80,11 +80,12 @@ namespace Evergrove.UnityClient.Editor
                 PlayerSettings.SetIcons(UnityEditor.Build.NamedBuildTarget.Unknown, new[] { appIcon }, IconKind.Any);
             PlayerSettings.companyName = "Game Foundry";
             PlayerSettings.bundleVersion = releaseCandidate ? ReadBundleVersion() : "0.1.0";
-            // On Android, uGUI labels resolve OS fallback fonts through
-            // TextCore FontAsset creation, which needs a native class that
-            // "Strip Engine Code" removes ("Could not produce class with ID
-            // 115"): every label throws and nothing renders. Keep engine code.
-            PlayerSettings.stripEngineCode = false;
+            // Engine stripping keeps the Android APK near 44 MB instead of 68 MB.
+            // The uGUI TextCore font path needs native classes that stripping can
+            // remove ("Could not produce class with ID 115"), so Assets/link.xml
+            // preserves the TextCore and UI modules. Re-check on a device after any
+            // font or link.xml change.
+            PlayerSettings.stripEngineCode = true;
             // UnityEngine.Accessibility (screen-reader hierarchy, EG-113) needs
             // Android API 26+; keep the minimum there so TalkBack support works.
             if (PlayerSettings.Android.minSdkVersion < AndroidSdkVersions.AndroidApiLevel26)

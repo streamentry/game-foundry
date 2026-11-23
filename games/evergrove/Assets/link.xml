@@ -1,0 +1,14 @@
+<linker>
+  <!--
+    Managed code stripping (PlayerSettings.stripEngineCode = true) removes
+    native engine classes that are only reached at runtime. On Android the
+    uGUI Text path builds OS fallback fonts through TextCore FontAsset
+    creation, which needs the TextCore modules and their class registrations
+    (class ID 115 MonoScript). Without this file every label threw
+    "Could not produce class with ID 115" and nothing rendered.
+    See docs/qa/android-emulator-2026-11-23/README.md.
+  -->
+  <assembly fullname="UnityEngine.TextCoreTextEngineModule" preserve="all"/>
+  <assembly fullname="UnityEngine.TextCoreFontEngineModule" preserve="all"/>
+  <assembly fullname="UnityEngine.UI" preserve="all"/>
+</linker>

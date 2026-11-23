@@ -11,3 +11,17 @@
 
 **Cost of the fix:** the APK grew from about 44 MB (stripped) to about 68 MB. Re-enabling stripping safely, with a `link.xml` or a preserved TextCore type, is a possible size optimization once a device test confirms it.
 **Not verified:** physical Android devices, TalkBack, performance or battery, and save interruption on Android.
+
+## Engine stripping restored
+
+**Change:** `Assets/link.xml` preserves `UnityEngine.TextCoreTextEngineModule`, `UnityEngine.TextCoreFontEngineModule` and `UnityEngine.UI`; `EvergroveBuild` sets `stripEngineCode = true` again. The Android min SDK 26 logic is unchanged. Basis: Unity manual "Distribution size and code stripping" (https://docs.unity3d.com/6000.7/Documentation/Manual/webgl-distributionsize-codestripping.html) and "Link XML formatting reference" (https://docs.unity.com/en-us/engine/7000.0/manual/programming-environment/script-compilation/managed-code-stripping/xml-formatting).
+
+**Size:** development APK 67,872,862 bytes before, 31,922,505 bytes after (about 53% smaller; both are unsigned development builds).
+
+**Emulator (Android 15, API 35, arm64, not a physical phone):**
+- Fresh `install -r`; saved world files removed; logcat cleared; 20 s wait.
+- `Could not produce class` count: 0. FATAL count: 0.
+- `strip.png`: chapter 1 renders, board first.
+- Six taps at (283,1252)x2, (796,1252)x2, (796,996), (540,996): the choice screen renders ("The water flows through every tile.", three village choices). Screenshot: `strip-solved.png`.
+
+**Not verified:** physical devices, TalkBack, performance, and the release-candidate AAB. Other locales' font fallback was not re-tested after stripping.
