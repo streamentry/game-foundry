@@ -343,7 +343,7 @@
 
 ### EG-112 — Large-board focus mode
 
-**State:** Proposed. **Type:** Accessibility. **Risk:** Scrolling conflicts with tile taps. **Evidence:** Q1,P1. **R/I/C/E:** 4/4/4/3; **illustrative score:** 21.3.
+**State:** First-pass code: Standard/Large board preference (`BoardSize`, PlayerPrefs `evergrove:board-size:v1`, settings-row control "▦ Standard"/"▦ Large"). Large widens the board card, fills the width and lifts the tile cap; markers and badges scale with the tile; no zoom or pan. Unity 6000.3.0f1 batch compile passes. **Unverified:** no visual check on the iOS Simulator or devices, no low-vision testers, and no confirmation that controls stay reachable without scrolling at 402×874 pt on 4×4. **Type:** Accessibility. **Risk:** Scrolling conflicts with tile taps. **Evidence:** Q1,P1. **R/I/C/E:** 4/4/4/3; **illustrative score:** 21.3.
 
 **Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-001`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-112/verification.md` (**NOT COLLECTED**); **rollback/stop:** Board zoom hides controls or adds mis-taps.
 

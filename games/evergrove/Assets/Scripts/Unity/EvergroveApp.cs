@@ -139,7 +139,8 @@ namespace Evergrove.UnityClient
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
             LocaleRuntime.Initialize();
             TextScale.Initialize();
-            font = LocaleFonts.Choose(LocaleRuntime.Current, baseFont);
+            BoardSize.Initialize();
+            font =LocaleFonts.Choose(LocaleRuntime.Current, baseFont);
             sound = gameObject.AddComponent<AudioSource>();
             sound.playOnAwake = false;
             sound.volume = 0.13f;
@@ -256,7 +257,7 @@ namespace Evergrove.UnityClient
             image.raycastTarget = false;
         }
 
-        private static void DrawEndpointIcon(Transform parent, bool spring)
+        private static void DrawEndpointIcon(Transform parent, bool spring, float scale)
         {
             if (spring)
             {
@@ -268,9 +269,9 @@ namespace Evergrove.UnityClient
             else
             {
                 Color green = Hex("#2B7150");
-                IconPart(parent, "Sprout stem", green, new Vector2(3f, 13f), new Vector2(0f, -3f));
-                IconPart(parent, "Left leaf", green, new Vector2(9f, 6f), new Vector2(-4f, 4f), 35f);
-                IconPart(parent, "Right leaf", green, new Vector2(9f, 6f), new Vector2(4f, 6f), -35f);
+                IconPart(parent, "Sprout stem", green, new Vector2(3f, 13f) * scale, new Vector2(0f, -3f) * scale);
+                IconPart(parent, "Left leaf", green, new Vector2(9f, 6f) * scale, new Vector2(-4f, 4f) * scale, 35f);
+                IconPart(parent, "Right leaf", green, new Vector2(9f, 6f) * scale, new Vector2(4f, 6f) * scale, -35f);
             }
         }
 
@@ -888,6 +889,9 @@ namespace Evergrove.UnityClient
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
         }
 
+        // Upper bound for Large tiles so a tablet-width board stays reachable.
+        private const int LargeTileCap = 120;
+
         private void BuildPuzzle()
         {
             Puzzle puzzle = world.CurrentPuzzle;
@@ -911,9 +915,24 @@ namespace Evergrove.UnityClient
             float scale = viewportScaler == null ? 1f :
                 Mathf.Max(0.1f, viewportScaler.scaleFactor);
             float layoutWidth = Screen.safeArea.width / scale;
+            // Standard keeps the EG-007 sizing exactly. Large (EG-112) trims the
+            // card's side padding and lifts the tile cap so the board uses the width.
             float available = Mathf.Max(225f, layoutWidth - 34f - 20f - 5f);
-            int ideal = Mathf.FloorToInt((available - (puzzle.Size - 1) * gap) / puzzle.Size);
-            int tileSize = Mathf.Clamp(ideal, 48, puzzle.Size == 3 ? 90 : 67);
+            int standardTile = Mathf.Clamp(
+                Mathf.FloorToInt((available - (puzzle.Size - 1) * gap) / puzzle.Size),
+                48, puzzle.Size == 3 ? 90 : 67);
+            int tileSize = standardTile;
+            if (BoardSize.IsLarge)
+            {
+                var boardPadding = board.GetComponent<VerticalLayoutGroup>();
+                boardPadding.padding = new RectOffset(6, 6, 14, 14);
+                float largeAvailable = Mathf.Max(225f, layoutWidth - 34f - 12f - 2f);
+                tileSize = Mathf.Clamp(
+                    Mathf.FloorToInt((largeAvailable - (puzzle.Size - 1) * gap) / puzzle.Size),
+                    48, LargeTileCap);
+            }
+            // Markers, badges and endpoint icons scale with the tile; Standard is 1.
+            float markerScale = tileSize / (float)standardTile;
             int span = (tileSize + gap) * puzzle.Size - gap;
             Height(gridNode, span + 1);
             var grid = gridNode.AddComponent<GridLayoutGroup>();
@@ -978,11 +997,11 @@ namespace Evergrove.UnityClient
                 leakRect.anchorMin = Vector2.zero;
                 leakRect.anchorMax = Vector2.zero;
                 leakRect.pivot = Vector2.zero;
-                leakRect.sizeDelta = new Vector2(23f, 23f);
-                leakRect.anchoredPosition = new Vector2(3f, 3f);
+                leakRect.sizeDelta = new Vector2(23f, 23f) * markerScale;
+                leakRect.anchoredPosition = new Vector2(3f, 3f) * markerScale;
                 var leakText = leakNode.AddComponent<Text>();
                 leakText.font = font;
-                leakText.fontSize = 23;
+                leakText.fontSize = Mathf.RoundToInt(23 * markerScale);
                 leakText.fontStyle = FontStyle.Bold;
                 leakText.alignment = TextAnchor.MiddleCenter;
                 leakText.color = MosseloraTheme.EarthInk;
@@ -996,11 +1015,11 @@ namespace Evergrove.UnityClient
                     clueRect.anchorMin = new Vector2(1f, 0f);
                     clueRect.anchorMax = new Vector2(1f, 0f);
                     clueRect.pivot = new Vector2(1f, 0f);
-                    clueRect.sizeDelta = new Vector2(23f, 23f);
-                    clueRect.anchoredPosition = new Vector2(-3f, 3f);
+                    clueRect.sizeDelta = new Vector2(23f, 23f) * markerScale;
+                    clueRect.anchoredPosition = new Vector2(-3f, 3f) * markerScale;
                     var clueLabel = clueNode.AddComponent<Text>();
                     clueLabel.font = font;
-                    clueLabel.fontSize = 17;
+                    clueLabel.fontSize = Mathf.RoundToInt(17 * markerScale);
                     clueLabel.alignment = TextAnchor.MiddleCenter;
                     clueLabel.color = Ink;
                     clueLabel.raycastTarget = false;
@@ -1017,9 +1036,9 @@ namespace Evergrove.UnityClient
                     markerRect.anchorMin = new Vector2(0f, 1f);
                     markerRect.anchorMax = new Vector2(0f, 1f);
                     markerRect.pivot = new Vector2(0f, 1f);
-                    markerRect.sizeDelta = new Vector2(25f, 23f);
-                    markerRect.anchoredPosition = new Vector2(4f, -4f);
-                    DrawEndpointIcon(markerNode.transform, spring);
+                    markerRect.sizeDelta = new Vector2(25f, 23f) * markerScale;
+                    markerRect.anchoredPosition = new Vector2(4f, -4f) * markerScale;
+                    DrawEndpointIcon(markerNode.transform, spring, markerScale);
                 }
             }
 
@@ -1093,6 +1112,16 @@ namespace Evergrove.UnityClient
                     GameLocalization.NativeName(GameLocalization.Current),
                     () => { languagePicker = true; Rebuild(true); }, 48);
             TextSizeButton(row.transform);
+            BoardSizeButton(row.transform);
+        }
+
+        // Language-neutral label: the current board, Standard or Large (EG-112).
+        private void BoardSizeButton(Transform parent)
+        {
+            Button(parent, "Board size", BoardSize.IsLarge ? "▦ Large" : "▦ Standard", () => {
+                BoardSize.Toggle();
+                Rebuild();
+            }, 52);
         }
 
         // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.

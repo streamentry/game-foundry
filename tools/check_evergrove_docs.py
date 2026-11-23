@@ -302,7 +302,7 @@ def check_specification_contract() -> None:
         fail("Local playtest consent/export must be gated from consumer UI")
     if 'marker.text = seenEnds == 1 ? "S" : "G"' in ui:
         fail("Nonlocalized S/G board markers regressed")
-    if "DrawEndpointIcon(markerNode.transform, spring)" not in ui:
+    if "DrawEndpointIcon(markerNode.transform, spring, markerScale)" not in ui:
         fail("Language-neutral board endpoint markers are missing")
     store = source_text(GAME / "Assets/Scripts/Unity/WorldStore.cs")
     journal = source_text(GAME / "Assets/Scripts/Core/SaveJournal.cs")
