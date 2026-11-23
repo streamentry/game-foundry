@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "این پروندهٔ باغ برای یک باغ Mosselora بیش از حد بزرگ است. باغ شما تغییر نکرد."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "ردیف {0}، ستون {1}: {2}، به آب متصل است."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "ردیف {0}، ستون {1}: {2}، خشک است."
+    },
+    {
+      "key": "sr_straight",
+      "value": "لوله مستقیم"
+    },
+    {
+      "key": "sr_corner",
+      "value": "لوله زانویی"
+    },
+    {
+      "key": "sr_spring",
+      "value": "چشمه آب"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "خروجی باغ"
     }
   ]
 }

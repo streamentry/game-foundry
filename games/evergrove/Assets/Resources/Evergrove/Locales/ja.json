@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "このファイルは大きすぎて Mosselora の庭にはできません。庭は変更されていません。"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "{0}行目・{1}列目：{2}、水とつながっています。"
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "{0}行目・{1}列目：{2}、乾いています。"
+    },
+    {
+      "key": "sr_straight",
+      "value": "直管"
+    },
+    {
+      "key": "sr_corner",
+      "value": "曲がり管"
+    },
+    {
+      "key": "sr_spring",
+      "value": "水源"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "庭の出口"
     }
   ]
 }

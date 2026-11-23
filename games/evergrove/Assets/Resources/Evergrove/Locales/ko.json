@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "이 정원 파일은 Mosselora 정원으로 보기에는 너무 큽니다. 정원은 바뀌지 않았습니다."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "{0}행 {1}열: {2}, 물과 연결됨."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "{0}행 {1}열: {2}, 말라 있음."
+    },
+    {
+      "key": "sr_straight",
+      "value": "직선 파이프"
+    },
+    {
+      "key": "sr_corner",
+      "value": "꺾임 파이프"
+    },
+    {
+      "key": "sr_spring",
+      "value": "물 샘"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "정원 출구"
     }
   ]
 }

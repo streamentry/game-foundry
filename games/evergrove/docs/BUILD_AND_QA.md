@@ -1,6 +1,6 @@
 # Evergrove — build, quality gates, reproducibility and release runbook
 
-**Status:** the pure C# suite passes 38,864 assertions; a recorded Unity 6000.3.0f1 Editor smoke passed on the earlier 81-key source; the 82-key ending title has not had a fresh Unity import/build. Twenty-nine macOS Development-player QA screenshots from earlier source are archived (3 standalone frames, a 13-state core-loop tour, and a 13-state 150% text-size tour at 375x667). The anchored-tile tap state shows its explanation without a move or save. These are desktop visual evidence, not phone, OS text-size or touch-input verification. No Android/iOS export, signed build, device launch or store artifact is verified. This runbook does **not** claim store readiness.
+**Status:** the pure C# suite passes 38,864 assertions; a recorded Unity 6000.3.0f1 Editor smoke passed on the earlier 81-key source; the 88-key source (including the EG-113 first-pass screen-reader hierarchy) passed the Unity 6000.3.0f1 batch compile and editor smoke with no compile errors; no device or VoiceOver/TalkBack run has been recorded. Twenty-nine macOS Development-player QA screenshots from earlier source are archived (3 standalone frames, a 13-state core-loop tour, and a 13-state 150% text-size tour at 375x667). The anchored-tile tap state shows its explanation without a move or save. These are desktop visual evidence, not phone, OS text-size or touch-input verification. No Android/iOS export, signed build, device launch or store artifact is verified. This runbook does **not** claim store readiness.
 
 ## 1. Toolchain and entrypoints
 
@@ -70,7 +70,7 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 | Suite / command | Current scope | Does not prove |
 | --- | --- | --- |
 | `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release` | Fixture shape, exhaustive uniqueness, leaks/connectivity, 33 branch variants, immutable landmarks, campaign completion, Hint/Undo/Restart/Choice/Reconsider, save v1/v2/v3 rules, scene flags and local playtest counters; catalog validation for 29 non-English languages | Unity UI compile, gameplay feel, device performance, bilingual rendering |
-| `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 91 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
+| `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 97 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
 | `npm test` under `games/evergrove/backend` | Separate optional Worker model API behavior | Any linkage to actual offline game; cloud security or billing |
 | `.github/workflows/ci.yml` | Repo-wide research tooling and unrelated Godot game jobs | Unity-native correctness |
 
@@ -95,7 +95,7 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 | EG-13 | Kill/relaunch after move and choice | Rotations, variant, history survive or explicit save error surfaced; no inconsistent character |
 | EG-14 | v1 six-chapter save, v2 mid-chapter save | Six choices remain; old active board not silently transformed; new branch rules only after the next eligible choice; no rewrite of saved active board |
 | EG-15 | Corrupt primary, valid backup | Recover valid prior garden without poisoning backup; log potential loss of the latest move |
-| EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 91 keys load correctly |
+| EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 97 keys load correctly |
 | EG-17 | 320px phone + tablets + cutout devices | No clipped/out-of-view actionable puzzle, controls, wave/sprout endpoint icons or choices |
 | EG-18 | VoiceOver/TalkBack, keyboard and RTL/Indic | Accessible names, focus order and shaped text actually correct; **currently unverified** |
 | EG-19 | In-game local playtest report | Zero counters without opt-in; copy only when tapped; no network/identifiers |

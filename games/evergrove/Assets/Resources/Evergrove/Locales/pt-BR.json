@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "Este arquivo do jardim é grande demais para ser um jardim do Mosselora. Seu jardim não foi alterado."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Linha {0}, coluna {1}: {2}, conectado à água."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Linha {0}, coluna {1}: {2}, seco."
+    },
+    {
+      "key": "sr_straight",
+      "value": "tubo reto"
+    },
+    {
+      "key": "sr_corner",
+      "value": "tubo de curva"
+    },
+    {
+      "key": "sr_spring",
+      "value": "nascente de água"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "saída do jardim"
     }
   ]
 }

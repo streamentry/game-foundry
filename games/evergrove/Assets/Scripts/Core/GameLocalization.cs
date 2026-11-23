@@ -94,7 +94,8 @@ namespace Evergrove.Core
             "hint_notice","hint_focus","hint_more","hint_turn","save_warning","ending_title",
             "garden_copy","garden_copied","garden_restore","garden_replace",
             "garden_err_empty","garden_err_not_garden","garden_err_newer",
-            "garden_err_damaged","garden_err_too_large"
+            "garden_err_damaged","garden_err_too_large",
+            "sr_tile_wet","sr_tile_dry","sr_straight","sr_corner","sr_spring","sr_outlet"
         };
 
         private static readonly string[] English = {
@@ -188,7 +189,13 @@ namespace Evergrove.Core
             "This is not a Mosselora garden file.",
             "This garden file came from a newer version of Mosselora. Update the game to open it.",
             "This garden file is damaged or incomplete. Your garden was not changed.",
-            "This garden file is too large to be a Mosselora garden. Your garden was not changed."
+            "This garden file is too large to be a Mosselora garden. Your garden was not changed.",
+            "Row {0}, column {1}: {2}, connected to water.",
+            "Row {0}, column {1}: {2}, dry.",
+            "straight pipe",
+            "corner pipe",
+            "water spring",
+            "garden outlet"
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

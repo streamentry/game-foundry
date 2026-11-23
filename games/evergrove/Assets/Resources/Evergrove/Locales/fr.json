@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "Ce fichier de jardin est trop volumineux pour être un jardin Mosselora. Votre jardin n'a pas été modifié."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Ligne {0}, colonne {1} : {2}, relié à l'eau."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Ligne {0}, colonne {1} : {2}, à sec."
+    },
+    {
+      "key": "sr_straight",
+      "value": "tuyau droit"
+    },
+    {
+      "key": "sr_corner",
+      "value": "tuyau coudé"
+    },
+    {
+      "key": "sr_spring",
+      "value": "source d'eau"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "sortie du jardin"
     }
   ]
 }

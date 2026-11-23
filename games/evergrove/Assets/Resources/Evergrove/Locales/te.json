@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "ఈ తోట ఫైల్ Mosselora తోటకు చాలా పెద్దది. మీ తోట మారలేదు."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "వరుస {0}, కాలమ్ {1}: {2}, నీటికి అనుసంధానమైంది."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "వరుస {0}, కాలమ్ {1}: {2}, పొడిగా ఉంది."
+    },
+    {
+      "key": "sr_straight",
+      "value": "నేరు పైపు"
+    },
+    {
+      "key": "sr_corner",
+      "value": "మూల పైపు"
+    },
+    {
+      "key": "sr_spring",
+      "value": "నీటి ఊట"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "తోట నిష్క్రమణ"
     }
   ]
 }

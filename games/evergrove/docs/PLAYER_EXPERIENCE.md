@@ -99,7 +99,7 @@ Implementation tokens: [DESIGN-SYSTEM.md](../DESIGN-SYSTEM.md). Brand direction:
 
 ## 5. Thirty research locales ≠ thirty verified releases
 
-See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **English + 29 offline JSON catalog files**, **91 compact translated keys per catalog**, device-language detection and a manual picker. `LocaleRuntime` keeps the preference separately from `WorldSnapshot`.
+See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **English + 29 offline JSON catalog files**, **97 compact translated keys per catalog**, device-language detection and a manual picker. `LocaleRuntime` keeps the preference separately from `WorldSnapshot`.
 
 - Catalog completeness is **tested**; native-speaker grammar, tone and market relevance are **not**.
 - Font fallback uses available OS fonts; do **not** redistribute proprietary fonts or assume glyph availability.
@@ -119,7 +119,7 @@ See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **Eng
 | Hearing independence | Sound optional and default off | Verify mute/ringer and audio interruption on iOS/Android |
 | Motion sensitivity | 2.5D motion optional/off initially | Test OS reduced-motion preference; check flashing and 12fps animation artifacts |
 | Language | 30 catalogs and OS-font lookup | True RTL, Indic shaping, Thai breaking, native copy QA |
-| Assistive technology | UI object names and labels exist in code | **Not** proven VoiceOver/TalkBack semantics, focus ordering or keyboard/gamepad accessibility |
+| Assistive technology | First-pass screen-reader hierarchy (EG-113) publishes puzzle tiles, status, controls and choices on iOS/Android while a screen reader runs; Unity smoke passes | **Not** verified on VoiceOver/TalkBack devices; focus order, activation and frame accuracy are unproven; keyboard/gamepad accessibility not covered |
 | Save durability | Backup/restore guards and a pinned error banner exist in source | Kill/upgrade/disk-full/migration tests on devices; banner readability and recovery still unverified |
 
 **Do not equate accessibility-oriented source code with measured accessible UX.** At least one person who uses assistive technology should be included before making public accessibility claims.

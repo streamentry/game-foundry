@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "Ten plik ogrodu jest zbyt duży, by był ogrodem Mosselory. Twój ogród nie został zmieniony."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Wiersz {0}, kolumna {1}: {2}, połączone z wodą."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Wiersz {0}, kolumna {1}: {2}, sucho."
+    },
+    {
+      "key": "sr_straight",
+      "value": "prosta rura"
+    },
+    {
+      "key": "sr_corner",
+      "value": "zakręt rury"
+    },
+    {
+      "key": "sr_spring",
+      "value": "źródło wody"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "wylot do ogrodu"
     }
   ]
 }

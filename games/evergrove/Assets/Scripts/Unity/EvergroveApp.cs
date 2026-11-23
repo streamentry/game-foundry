@@ -75,7 +75,11 @@ namespace Evergrove.UnityClient
         private RectTransform screenHeading;
         private bool revealNewScreen; // one-shot: the current rebuild opened a new screen
         private const float RevealMarginPx = 16f;
+        // EG-113: the screen-reader hierarchy is republished once per frame in
+        // which the visible screen changed (see ScreenReaderBridge).
+        private bool semanticsDirty;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private bool semanticsLogged; // dev QA: log the first puzzle's node list once
         private bool qaInMemoryOnly; // dev QA tour: never reads or writes the player's save
         // Matched M4 facilitator state; exists only in research-capable builds.
         private bool matchedEntryOpen;
@@ -133,6 +137,16 @@ namespace Evergrove.UnityClient
             sound.volume = 0.13f;
             CreateRoot();
             Rebuild(true);
+#if UNITY_IOS || UNITY_ANDROID
+            UnityEngine.Accessibility.AssistiveSupport.screenReaderStatusChanged += OnScreenReaderStatusChanged;
+#endif
+        }
+
+        private void OnDestroy()
+        {
+#if UNITY_IOS || UNITY_ANDROID
+            UnityEngine.Accessibility.AssistiveSupport.screenReaderStatusChanged -= OnScreenReaderStatusChanged;
+#endif
         }
 
         private void Update()
@@ -146,6 +160,64 @@ namespace Evergrove.UnityClient
                 lastSafeArea = safe;
                 FitSafeArea();
             }
+        }
+
+        // Runs after this frame's layout, so every node frame is final.
+        // Does nothing on desktop unless a dev QA tour asks for the log.
+        private void LateUpdate()
+        {
+            if (!semanticsDirty || content == null) return;
+            semanticsDirty = false;
+            bool logThisScreen = false;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            logThisScreen = DevQaTour.IsRequested && !semanticsLogged && visibleTiles != null;
+#endif
+            if (!logThisScreen && !ScreenReaderBridge.Active) return;
+            var nodes = ScreenReaderBridge.Collect(content, DescribeButton);
+            ScreenReaderBridge.Publish(nodes);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (logThisScreen)
+            {
+                semanticsLogged = true;
+                ScreenReaderBridge.LogForQa(nodes);
+            }
+#endif
+        }
+
+#if UNITY_IOS || UNITY_ANDROID
+        private void OnScreenReaderStatusChanged(bool enabled)
+        {
+            semanticsDirty = true;
+        }
+#endif
+
+        // Button label/hint override. Tiles speak the same state RefreshBoard draws.
+        private ScreenReaderBridge.Speech? DescribeButton(Button button)
+        {
+            if (visibleTiles == null || world == null) return null;
+            int index = Array.IndexOf(visibleTiles, button);
+            return index < 0 ? (ScreenReaderBridge.Speech?)null : TileSpeech(index);
+        }
+
+        private ScreenReaderBridge.Speech TileSpeech(int index)
+        {
+            Puzzle puzzle = world.CurrentPuzzle;
+            PipeInsight insight = world.Insight;
+            int firstEnd = Array.IndexOf(puzzle.Kinds, PipeKind.End);
+            string kind;
+            if (puzzle.Kinds[index] == PipeKind.End)
+                kind = GameLocalization.Text(index == firstEnd ? "sr_spring" : "sr_outlet");
+            else
+                kind = GameLocalization.Text(puzzle.Kinds[index] == PipeKind.Corner ? "sr_corner" : "sr_straight");
+            int row = index / puzzle.Size + 1;
+            int column = index % puzzle.Size + 1;
+            string label = GameLocalization.Text(insight.Flowing[index] ? "sr_tile_wet" : "sr_tile_dry",
+                row, column, kind);
+            bool protectedTile = puzzle.IsAnchored(index);
+            // The landmark sentence already says the pipe is protected and cannot rotate.
+            if (protectedTile) label += " " + LocalizedVillage.EnvironmentalRule(world);
+            string hint = world.Solved || protectedTile ? "" : GameLocalization.Text("how");
+            return new ScreenReaderBridge.Speech(label, hint);
         }
 
         private static GameObject Node(string name, Transform parent)
@@ -443,6 +515,7 @@ namespace Evergrove.UnityClient
         private void Rebuild(bool top = false)
         {
             if (content == null) return;
+            semanticsDirty = true;
             UpdateSaveWarning();
             float previousPosition = scroll.verticalNormalizedPosition;
             visibleTiles = null;
@@ -1190,6 +1263,7 @@ namespace Evergrove.UnityClient
 #endif
         private void RefreshBoard()
         {
+            semanticsDirty = true;
             if (world.Completed || visibleTiles == null) return;
             Puzzle puzzle = world.CurrentPuzzle;
             if (visibleTiles.Length != puzzle.CellCount) { Rebuild(); return; }
@@ -1263,6 +1337,7 @@ namespace Evergrove.UnityClient
                 // entry, no save. The next real action redraws the progress text.
                 string landmark = LocalizedVillage.EnvironmentalRule(world);
                 if (feedbackText != null && landmark.Length > 0) feedbackText.text = landmark;
+                semanticsDirty = true;
                 return;
             }
             bool before = world.Solved;

@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "Masyadong malaki ang file ng hardin na ito para maging hardin ng Mosselora. Hindi binago ang iyong hardin."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Hilera {0}, hanay {1}: {2}, konektado sa tubig."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Hilera {0}, hanay {1}: {2}, tuyo."
+    },
+    {
+      "key": "sr_straight",
+      "value": "tuwid na tubo"
+    },
+    {
+      "key": "sr_corner",
+      "value": "tubong kanto"
+    },
+    {
+      "key": "sr_spring",
+      "value": "bukal ng tubig"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "labasan ng hardin"
     }
   ]
 }

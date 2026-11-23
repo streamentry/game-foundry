@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "Этот файл слишком большой для сада Mosselora. Ваш сад не изменён."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Строка {0}, столбец {1}: {2}, соединено с водой."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Строка {0}, столбец {1}: {2}, сухо."
+    },
+    {
+      "key": "sr_straight",
+      "value": "прямая труба"
+    },
+    {
+      "key": "sr_corner",
+      "value": "угловая труба"
+    },
+    {
+      "key": "sr_spring",
+      "value": "родник"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "выход в сад"
     }
   ]
 }

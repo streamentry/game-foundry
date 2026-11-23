@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "یہ باغ فائل Mosselora کے باغ کے لیے بہت بڑی ہے۔ آپ کا باغ تبدیل نہیں ہوا۔"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "قطار {0}، کالم {1}: {2}، پانی سے جڑا ہوا۔"
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "قطار {0}، کالم {1}: {2}، خشک۔"
+    },
+    {
+      "key": "sr_straight",
+      "value": "سیدھا پائپ"
+    },
+    {
+      "key": "sr_corner",
+      "value": "موڑ والا پائپ"
+    },
+    {
+      "key": "sr_spring",
+      "value": "پانی کا چشمہ"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "باغ کا نکاس"
     }
   ]
 }

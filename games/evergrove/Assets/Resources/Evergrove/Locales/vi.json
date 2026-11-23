@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "Tệp vườn này quá lớn để là một khu vườn Mosselora. Khu vườn của bạn không thay đổi."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Hàng {0}, cột {1}: {2}, đã nối với nước."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Hàng {0}, cột {1}: {2}, khô."
+    },
+    {
+      "key": "sr_straight",
+      "value": "ống thẳng"
+    },
+    {
+      "key": "sr_corner",
+      "value": "ống góc"
+    },
+    {
+      "key": "sr_spring",
+      "value": "nguồn nước"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "cửa ra vườn"
     }
   ]
 }

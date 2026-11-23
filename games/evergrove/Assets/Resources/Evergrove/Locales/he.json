@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "קובץ הגן גדול מדי לגן של Mosselora. הגן שלכם לא השתנה."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "שורה {0}, עמודה {1}: {2}, מחובר למים."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "שורה {0}, עמודה {1}: {2}, יבש."
+    },
+    {
+      "key": "sr_straight",
+      "value": "צינור ישר"
+    },
+    {
+      "key": "sr_corner",
+      "value": "צינור פינה"
+    },
+    {
+      "key": "sr_spring",
+      "value": "מעיין מים"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "יציאת הגן"
     }
   ]
 }

@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "File kebun ini terlalu besar untuk menjadi kebun Mosselora. Kebun Anda tidak berubah."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Baris {0}, kolom {1}: {2}, terhubung ke air."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Baris {0}, kolom {1}: {2}, kering."
+    },
+    {
+      "key": "sr_straight",
+      "value": "pipa lurus"
+    },
+    {
+      "key": "sr_corner",
+      "value": "pipa siku"
+    },
+    {
+      "key": "sr_spring",
+      "value": "mata air"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "outlet kebun"
     }
   ]
 }

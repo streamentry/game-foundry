@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "這個花園檔案太大，不像是 Mosselora 的花園。你的花園沒有改變。"
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "第{0}行、第{1}列：{2}，已接通水流。"
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "第{0}行、第{1}列：{2}，乾燥。"
+    },
+    {
+      "key": "sr_straight",
+      "value": "直管"
+    },
+    {
+      "key": "sr_corner",
+      "value": "彎管"
+    },
+    {
+      "key": "sr_spring",
+      "value": "水源"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "花園出水口"
     }
   ]
 }

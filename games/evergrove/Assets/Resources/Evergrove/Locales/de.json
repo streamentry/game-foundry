@@ -364,6 +364,30 @@
     {
       "key": "garden_err_too_large",
       "value": "Diese Gartendatei ist zu groß für einen Mosselora-Garten. Dein Garten wurde nicht verändert."
+    },
+    {
+      "key": "sr_tile_wet",
+      "value": "Zeile {0}, Spalte {1}: {2}, mit Wasser verbunden."
+    },
+    {
+      "key": "sr_tile_dry",
+      "value": "Zeile {0}, Spalte {1}: {2}, trocken."
+    },
+    {
+      "key": "sr_straight",
+      "value": "gerades Rohr"
+    },
+    {
+      "key": "sr_corner",
+      "value": "Eckrohr"
+    },
+    {
+      "key": "sr_spring",
+      "value": "Wasserquelle"
+    },
+    {
+      "key": "sr_outlet",
+      "value": "Gartenauslass"
     }
   ]
 }
