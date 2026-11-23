@@ -129,6 +129,10 @@ test("first playable board precedes decorative world in DOM and keyboard order",
   assert.match(app, /toggleAttribute\("hidden", model\.choice !== key\)/,
     "SVG world changes must remove the hidden attribute, not set an expando");
   assert.match(style, /max-width: 430px\) and \(max-height: 680px/);
+  assert.match(html, /<title>Mosselora — a living garden<\/title>/);
+  assert.match(html, /class="brand-sigil"/);
+  assert.match(app, /tile-alert[^\n]*○/);
+  assert.doesNotMatch(html, /EVERGROVE/);
 });
 
 test("facilitator notes preserve attempts before restart and disclose that fact", () => {

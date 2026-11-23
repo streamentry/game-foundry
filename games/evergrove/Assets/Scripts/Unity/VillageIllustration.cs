@@ -118,8 +118,8 @@ namespace Evergrove.UnityClient
             if (rectTransform.rect.width <= 0 || rectTransform.rect.height <= 0) return;
             // All layers are clipped by the ScrollRect viewport. Composition is
             // intentionally restrained: a small world, not a procedural art feed.
-            Color32 sky = chapter >= 9 ? C("#E3CEBD") : chapter >= 6 ? C("#DCE8D8") : C("#E9EAD9");
-            Color32 skyTop = chapter >= 9 ? C("#B7CCD0") : C("#C9E5E3");
+            Color32 sky = chapter >= 9 ? C("#E8D6C1") : chapter >= 6 ? C("#DDE8D9") : C("#E5ECDD");
+            Color32 skyTop = chapter >= 9 ? C("#C4D4D1") : C("#CDE9DF");
             Rect(vh, 0f, 0f, 1f, 1f, sky);
             Rect(vh, 0f, 0.62f, 1f, 0.38f, skyTop);
             Circle(vh, 0.78f, 0.77f, 0.060f, chapter >= 9 ? C("#F7D39A") : C("#FCE9BB"));
@@ -152,13 +152,28 @@ namespace Evergrove.UnityClient
                 Quad(vh, P(0.44f, 0.42f), P(0.64f, 0.42f),
                     P(right, y), P(left, y), C("#6FB4BA"));
             }
+            // Smooth stones line the bank whether wet or dry. They should not
+            // make the creek look magically restored before the player solves.
+            Circle(vh, 0.28f, 0.065f, 0.025f, C("#92A58C"), 12);
+            Circle(vh, 0.73f, 0.077f, 0.024f, C("#A2B29A"), 12);
+            Circle(vh, 0.79f, 0.052f, 0.018f, C("#8CA18E"), 12);
             Rect(vh, 0f, 0f, 1f, 0.025f, C("#8CAD8E"));
 
             // Tiny home on the left, emerging as a landmark.
             Rect(vh, 0.075f, 0.23f, 0.15f, 0.18f, C("#F5E2BB"));
             Triangle(vh, 0.055f, 0.41f, 0.15f, 0.56f, 0.249f, 0.41f, C("#956955"));
             Rect(vh, 0.137f, 0.23f, 0.040f, 0.10f, C("#8E715D"));
-            Rect(vh, 0.09f, 0.345f, 0.032f, 0.035f, C("#95CAC6"));
+            // A warm inhabited cottage is a recurring visual anchor. Its
+            // lantern is not gameplay feedback: water truth remains in creek.
+            Circle(vh, 0.106f, 0.363f, 0.037f, C("#EBD7A1"), 16);
+            Rect(vh, 0.09f, 0.345f, 0.032f, 0.035f, C("#E8B958"));
+            Rect(vh, 0.104f, 0.345f, 0.004f, 0.035f, C("#956955"));
+            Rect(vh, 0.09f, 0.361f, 0.032f, 0.004f, C("#956955"));
+            // Small moss and leaf shapes give the otherwise spare vector
+            // village the same material cues as the illustrated brand.
+            Circle(vh, 0.034f, 0.24f, 0.037f, C("#638E6C"), 12);
+            Circle(vh, 0.049f, 0.27f, 0.024f, C("#8AB879"), 12);
+            Circle(vh, 0.275f, 0.246f, 0.034f, C("#658D69"), 12);
 
             if (bridges > 0)
             {

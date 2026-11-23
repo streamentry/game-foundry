@@ -68,6 +68,11 @@ def run() -> None:
                             "Initial render moved the page without player input")
                     require(page.locator("#water-count").inner_text().startswith("4 of 9"),
                             "Initial fixture is not the real First Bend board")
+                    require(page.locator(".brand").inner_text().endswith("MOSSELORA"),
+                            "Mosselora branding is absent from the playable page")
+                    require(page.locator(".tile-alert").count() > 0 and
+                            page.locator(".tile-alert").first.inner_text() == "○",
+                            "Loose ends need a gentle visible shape, not red alarm punctuation")
                     require(page.locator("#world-status").inner_text() == "A PLACE WAITING FOR WATER",
                             "New garden must not claim already restored water")
                     page.screenshot(path=str(OUT / f"{width}x{height}-first.png"))

@@ -432,3 +432,13 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Mechanism limitations:** rotations preserve the underlying puzzle graph; theoretical minimum taps are not difficulty; historical v3 saves do not contain enough branch event detail to justify retrospective claims. No proper complex-script shaping, lossless crash-resilient save certification, full contrast or VoiceOver/TalkBack sign-off, customer research, organic D1/D7, trademark clearance or monetization is implied.
 
 **Next high-value reality gate:** licensed Unity Editor compile, physical Android/iOS smoke with early participants, then one controlled matched-puzzle comparison of whether actual causal consequences increase voluntary next-chapter play. Avoid interpreting task completion count as improved player value.
+
+## 2026-11-23 — Mosselora working identity and design-system code slice
+
+**Decision:** Implement a reversible player-facing rebrand and visual simplification in the Evergrove Unity source and one-puzzle browser study: Mosselora wordmark, shared palette, rounder pipe hearts, calmer non-color open-end markers, equal visual choice weighting, slightly richer original village artwork and consistent story/memory controls. Keep existing save paths and engine IDs unchanged; the name is **not legally cleared**.
+
+**Mechanism:** comprehension should improve when water, puzzle and village share one causal visual language; the first choice should not be preselected by styling. These are hypotheses, not results.
+
+**Strongest objection:** the new marker may be less obvious and art may increase friction; all work is lower value than a real Unity build and uncoached players. Do not over-interpret browser screenshots as proof of mobile user delight.
+
+**Cheapest disproof / status:** run static/C#/browser checks, licensed Unity import and real-device QA; observe 8–12 uncoached players aged 45+ in a first-minute task. Continue only if goal, flow and consequence are understood; simplify if 3/10 starters fail on goal or restoration. No release or retention claims follow from passing CI.

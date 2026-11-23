@@ -28,12 +28,12 @@ namespace Evergrove.UnityClient
             // Dry pipes are warm/earthen. Only genuinely spring-connected
             // pipes receive teal water, and completion uses deeper green.
             // The channel geometry remains readable without any color.
-            Color32 outer = completed ? new Color32(28, 100, 84, 255) :
-                hasWater ? new Color32(40, 117, 139, 255) :
-                new Color32(137, 128, 110, 255);
+            Color32 outer = completed ? new Color32(39, 109, 84, 255) :
+                hasWater ? new Color32(23, 108, 131, 255) :
+                new Color32(140, 118, 91, 255);
             Color32 inner = hasWater ?
-                new Color32(191, 229, 226, 255) :
-                new Color32(225, 215, 190, 255);
+                new Color32(211, 239, 231, 255) :
+                new Color32(239, 224, 194, 255);
             Rect area = rectTransform.rect;
             float half = Mathf.Min(area.width, area.height) * 0.44f;
             float stroke = Mathf.Max(12f, half * 0.32f);
@@ -60,9 +60,27 @@ namespace Evergrove.UnityClient
                         break;
                 }
             }
-            AddRect(vh, new Rect(-stroke / 2f, -stroke / 2f, stroke, stroke), outer);
-            if (kind == PipeKind.End)
-                AddRect(vh, new Rect(-4f, -4f, 8f, 8f), new Color32(255, 245, 215, 255));
+            // Rounded heart where channels meet: a water-worn stone, not a
+            // square plumbing junction. Keep true connectivity as the only
+            // source of wet styling; this is visual geometry only.
+            AddDisc(vh, stroke * 0.60f, outer);
+            AddDisc(vh, kind == PipeKind.End ? 4.5f : 3.0f,
+                kind == PipeKind.End ? new Color32(255, 245, 215, 255) : inner);
+        }
+
+        private static void AddDisc(VertexHelper vh, float radius, Color32 shade)
+        {
+            const int segments = 16;
+            int start = vh.currentVertCount;
+            vh.AddVert(Vector3.zero, shade, Vector2.zero);
+            for (int i = 0; i < segments; i++)
+            {
+                float angle = 2f * Mathf.PI * i / segments;
+                vh.AddVert(new Vector3(radius * Mathf.Cos(angle),
+                    radius * Mathf.Sin(angle), 0f), shade, Vector2.zero);
+            }
+            for (int i = 0; i < segments; i++)
+                vh.AddTriangle(start, start + 1 + i, start + 1 + (i + 1) % segments);
         }
 
         private static void AddRect(VertexHelper vh, Rect box, Color32 shade)

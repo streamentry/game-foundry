@@ -30,6 +30,20 @@ assert "WaterRestored" in scene_plan and "WaterReachPercent" in scene_plan
 assert "insight.Flowing[index], world.Solved" in ui
 assert "insight.Flowing[i], world.Solved" in ui
 assert "activeIllustration.Show" in ui
+# Mosselora is player-facing only. Preserve all legacy save keys and package IDs.
+theme = (game / "Assets/Scripts/Unity/MosseloraTheme.cs").read_text()
+for token in ("Paper", "Ink", "SecondaryInk", "WaterInk", "LeafAction",
+              "DryTile", "WetTile", "AnchoredTile", "TileFill"):
+    assert token in theme, "Missing shared Mosselora token: " + token
+assert ui.count("MosseloraTheme.TileFill") == 2, (
+    "Initial puzzle and in-place refresh must use identical visual state rules"
+)
+assert "choiceIndex == 0" not in ui, (
+    "No visually privileged tree choice: the first option biases uncoached tests"
+)
+assert 'insight.Leaking[index] ? "○"' in ui
+assert 'insight.Leaking[i] ? "○"' in ui
+assert "AddDisc(vh, stroke * 0.60f, outer)" in pipe_graphic
 # Source layout guard: first-tap onboarding precedes the world art, while
 # the completed state lands on a real choice anchor rather than page bottom.
 first_board = "if (firstPuzzle)\n                BuildPuzzle();"
@@ -110,6 +124,7 @@ for code in sorted(supported):
     translations = contents["entries"]
     by_key = {item["key"]: item["value"] for item in translations}
     assert len(translations) == len(keys) == len(by_key), ("Duplicate/missing keys", code)
+    assert by_key["title"] == "MOSSELORA", ("Inconsistent player-facing wordmark", code)
     assert set(by_key) == set(keys), ("Translation coverage gap", code)
     for key, value in by_key.items():
         assert isinstance(value, str) and value.strip(), ("Empty translation", code, key)

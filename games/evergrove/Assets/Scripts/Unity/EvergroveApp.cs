@@ -18,14 +18,14 @@ namespace Evergrove.UnityClient
     /// </summary>
     public sealed class EvergroveApp : MonoBehaviour
     {
-        private static readonly Color Paper = Hex("#F7F4E9");
-        private static readonly Color Ink = Hex("#23443C");
-        private static readonly Color Moss = Hex("#52685F");
-        private static readonly Color Leaf = Hex("#276D54");
-        private static readonly Color Pale = Hex("#DFEBDD");
-        private static readonly Color Sand = Hex("#F2E7D4");
+        private static readonly Color Paper = MosseloraTheme.Paper;
+        private static readonly Color Ink = MosseloraTheme.Ink;
+        private static readonly Color Moss = MosseloraTheme.SecondaryInk;
+        private static readonly Color Leaf = MosseloraTheme.LeafAction;
+        private static readonly Color Pale = MosseloraTheme.LeafSoft;
+        private static readonly Color Sand = MosseloraTheme.Sand;
         private static readonly Color White = Color.white;
-        private static readonly Color River = Hex("#DCEDEF");
+        private static readonly Color River = MosseloraTheme.RiverWash;
 
         private WorldModel world;
         private Font font;
@@ -237,7 +237,7 @@ namespace Evergrove.UnityClient
             content.sizeDelta = Vector2.zero;
             var column = body.AddComponent<VerticalLayoutGroup>();
             column.childAlignment = TextAnchor.UpperCenter;
-            column.padding = new RectOffset(17, 17, 15, 30);
+            column.padding = new RectOffset(17, 17, 15, 36);
             column.spacing = 9;
             column.childControlWidth = true;
             column.childControlHeight = true;
@@ -334,7 +334,7 @@ namespace Evergrove.UnityClient
             image.color = fill;
             var stack = node.AddComponent<VerticalLayoutGroup>();
             stack.childAlignment = TextAnchor.UpperCenter;
-            stack.padding = new RectOffset(10, 10, 10, 10);
+            stack.padding = new RectOffset(14, 14, 14, 14);
             stack.spacing = 8;
             stack.childControlWidth = true;
             stack.childControlHeight = true;
@@ -350,13 +350,13 @@ namespace Evergrove.UnityClient
             var node = Node(name, parent);
             Height(node, height);
             var image = node.AddComponent<Image>();
-            image.color = primary ? Leaf : Pale;
+            image.color = primary ? Leaf : Pale; // Primary actions are rare; choices are equal.
             var button = node.AddComponent<Button>();
             button.targetGraphic = image;
             var palette = button.colors;
             palette.highlightedColor = primary ? Hex("#337C63") : Hex("#C6DFC9");
             palette.pressedColor = primary ? Hex("#1D4C3A") : Hex("#B2CCBB");
-            palette.disabledColor = Hex("#CFD2CB");
+            palette.disabledColor = Hex("#DADDD5");
             button.colors = palette;
             var textNode = Node("Caption", node.transform);
             Fill(textNode.GetComponent<RectTransform>());
@@ -412,9 +412,11 @@ namespace Evergrove.UnityClient
             // Keep the first playable board in the first visible viewport,
             // rather than putting language/settings and a giant hero above it.
             bool firstPuzzle = world.Round == 0 && !world.Solved && !showingMemory;
-            Label(content, "Brand", GameLocalization.Text("title"), 12, 24, Leaf);
+            Text wordmark = Label(content, "Mosselora wordmark", GameLocalization.Text("title"),
+                15, 26, Leaf);
+            wordmark.fontStyle = FontStyle.Bold;
             Label(content, "Title", GameLocalization.Text("subtitle"),
-                firstPuzzle ? 19 : 25, firstPuzzle ? 29 : 46, Ink);
+                firstPuzzle ? 16 : 24, firstPuzzle ? 28 : 44, Ink);
             if (LocaleRuntime.SelectableLanguages.Count > 1 &&
                 (!firstPuzzle || languagePicker))
                 Button(content, "Language settings",
@@ -455,7 +457,7 @@ namespace Evergrove.UnityClient
             {
                 VillageScenePlan scenePlan = VillageScenePlan.From(world);
                 var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
-                Height(illustration, firstPuzzle ? 96 : 193);
+                Height(illustration, firstPuzzle ? 96 : 193); // Art never takes the first playable fold.
                 bool renderedMiniature = false;
                 if (showMiniature)
                 {
@@ -512,7 +514,7 @@ namespace Evergrove.UnityClient
             if (showingMemory && world.Choices.Length > 0 && living)
             {
                 var moment = Card(content, "A remembered moment", Sand);
-                Label(moment.transform, "Moment title", GameLocalization.Text("memory_title"), 12, 26, Leaf);
+                Label(moment.transform, "Moment title", GameLocalization.Text("memory_title"), 15, 31, Leaf);
                 Label(moment.transform, "Story", LocalizedVillage.MemoryEvent(world), 17, 170, Ink);
                 Button(content, "Continue", GameLocalization.Text("continue"), () => {
                     showingMemory = false;
@@ -741,13 +743,9 @@ namespace Evergrove.UnityClient
                 var tileNode = Node("Water tile", gridNode.transform);
                 var image = tileNode.AddComponent<Image>();
                 bool reached = insight.Flowing[index];
-                image.color = world.Solved ? Hex("#D1E6C8") :
-                    reached ? Hex("#D8EFED") : Hex("#F0F1E8");
-                if (world.HintStep == 1 && world.HintTile >= 0 &&
-                    index / puzzle.Size == world.HintTile / puzzle.Size)
-                    image.color = Hex("#F7E8BB");
-                if (world.HintStep == 2 && index == world.HintTile)
-                    image.color = Hex("#EFD38B");
+                image.color = MosseloraTheme.TileFill(world.Solved, reached,
+                    puzzle.IsAnchored(index), world.HintStep, world.HintTile,
+                    index, puzzle.Size);
                 var tile = tileNode.AddComponent<Button>();
                 tile.targetGraphic = image;
                 tile.interactable = !world.Solved && !puzzle.IsAnchored(index);
@@ -764,7 +762,7 @@ namespace Evergrove.UnityClient
                 tileNode.name = "Row " + (index / puzzle.Size + 1) + " column " +
                     (index % puzzle.Size + 1) + " " + kind +
                     (puzzle.IsAnchored(index) ? ", protected landmark" : ", tap to turn");
-                if (puzzle.IsAnchored(index)) image.color = Hex("#F1DDB3");
+                // An anchored landmark is always visually distinct, even under hints.
                 var pipeNode = Node("Visible channel", tileNode.transform);
                 Fill(pipeNode.GetComponent<RectTransform>());
                 var pipe = pipeNode.AddComponent<PipeGraphic>();
@@ -772,8 +770,8 @@ namespace Evergrove.UnityClient
                     insight.Flowing[index], world.Solved);
                 pipe.raycastTarget = false;
                 tileArtwork[index] = pipe;
-                // A visible ! denotes any unmatched/out-of-bounds connection.
-                // It remains legible in grayscale and without animations.
+                // A hollow circle denotes an open water join. Keep the
+                // non-color cue; avoid alarming red error punctuation.
                 var leakNode = Node("Unmatched water port marker", tileNode.transform);
                 RectTransform leakRect = leakNode.GetComponent<RectTransform>();
                 leakRect.anchorMin = Vector2.zero;
@@ -783,12 +781,12 @@ namespace Evergrove.UnityClient
                 leakRect.anchoredPosition = new Vector2(3f, 3f);
                 var leakText = leakNode.AddComponent<Text>();
                 leakText.font = font;
-                leakText.fontSize = 18;
+                leakText.fontSize = 23;
                 leakText.fontStyle = FontStyle.Bold;
                 leakText.alignment = TextAnchor.MiddleCenter;
-                leakText.color = Hex("#983E37");
+                leakText.color = MosseloraTheme.EarthInk;
                 leakText.raycastTarget = false;
-                leakText.text = insight.Leaking[index] ? "!" : "";
+                leakText.text = insight.Leaking[index] ? "○" : "";
                 visibleLeaks[index] = leakText;
                 if (puzzle.IsAnchored(index))
                 {
@@ -859,14 +857,16 @@ namespace Evergrove.UnityClient
                 else
                 {
                     decisionHeading = Label(content, "Choose title", GameLocalization.Text("choose"),
-                        14, 52, Leaf, TextAnchor.MiddleCenter).rectTransform;
+                        22, 56, Leaf, TextAnchor.MiddleCenter).rectTransform;
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
                         VillageChoice choice = (VillageChoice)choiceIndex;
                         string caption = LocalizedVillage.Choice(choice) +
                             "\n" + LocalizedVillage.ChoiceOutcome(choice, world);
-                        Button(content, "Choice " + choice, caption, () => MakeChoice(choice), 77,
-                            choiceIndex == 0);
+                        // None is visually preselected. A golden default would
+                        // bias research toward the first habitat, not player care.
+                        Button(content, "Choice " + choice, caption, () => MakeChoice(choice), 84,
+                            false);
                     }
                 }
             }
@@ -957,17 +957,14 @@ namespace Evergrove.UnityClient
             int[] angles = world.Rotations;
             for (int i = 0; i < puzzle.CellCount; i++)
             {
-                tileBackgrounds[i].color = puzzle.IsAnchored(i) ? Hex("#F1DDB3") :
-                    world.HintStep == 2 && i == world.HintTile ? Hex("#EFD38B") :
-                    world.HintStep == 1 && world.HintTile >= 0 &&
-                        i / puzzle.Size == world.HintTile / puzzle.Size ? Hex("#F7E8BB") :
-                    world.Solved ? Hex("#D1E6C8") :
-                    insight.Flowing[i] ? Hex("#D8EFED") : Hex("#F0F1E8");
+                tileBackgrounds[i].color = MosseloraTheme.TileFill(world.Solved,
+                    insight.Flowing[i], puzzle.IsAnchored(i), world.HintStep,
+                    world.HintTile, i, puzzle.Size);
                 visibleTiles[i].interactable = !world.Solved && !puzzle.IsAnchored(i);
                 tileArtwork[i].Configure(puzzle.Kinds[i], angles[i],
                     insight.Flowing[i], world.Solved);
                 if (visibleLeaks != null && visibleLeaks[i] != null)
-                    visibleLeaks[i].text = insight.Leaking[i] ? "!" : "";
+                    visibleLeaks[i].text = insight.Leaking[i] ? "○" : "";
             }
             if (feedbackText != null)
                 feedbackText.text = GameLocalization.Text("progress",
