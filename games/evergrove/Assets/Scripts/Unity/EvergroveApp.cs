@@ -803,6 +803,14 @@ namespace Evergrove.UnityClient
                     (index % puzzle.Size + 1) + " " + kind +
                     (puzzle.IsAnchored(index) ? ", protected landmark" : ", tap to turn");
                 // An anchored landmark is always visually distinct, even under hints.
+                if (puzzle.IsAnchored(index))
+                {
+                    // Created before the channel so arms and endpoints draw on top.
+                    var landmarkNode = Node("Protected landmark marker", tileNode.transform);
+                    Fill(landmarkNode.GetComponent<RectTransform>());
+                    landmarkNode.AddComponent<LandmarkGraphic>()
+                        .Configure(Mathf.Clamp(world.BoardVariant, 1, 3));
+                }
                 var pipeNode = Node("Visible channel", tileNode.transform);
                 Fill(pipeNode.GetComponent<RectTransform>());
                 var pipe = pipeNode.AddComponent<PipeGraphic>();
@@ -828,23 +836,6 @@ namespace Evergrove.UnityClient
                 leakText.raycastTarget = false;
                 leakText.text = insight.Leaking[index] ? "○" : "";
                 visibleLeaks[index] = leakText;
-                if (puzzle.IsAnchored(index))
-                {
-                    var badge = Node("Protected landmark marker", tileNode.transform);
-                    RectTransform badgeRect = badge.GetComponent<RectTransform>();
-                    badgeRect.anchorMin = new Vector2(1f, 1f);
-                    badgeRect.anchorMax = new Vector2(1f, 1f);
-                    badgeRect.pivot = new Vector2(1f, 1f);
-                    badgeRect.sizeDelta = new Vector2(22f, 22f);
-                    badgeRect.anchoredPosition = new Vector2(-3f, -3f);
-                    var badgeLabel = badge.AddComponent<Text>();
-                    badgeLabel.font = font;
-                    badgeLabel.fontSize = 14;
-                    badgeLabel.alignment = TextAnchor.MiddleCenter;
-                    badgeLabel.color = Ink;
-                    badgeLabel.raycastTarget = false;
-                    badgeLabel.text = "●";
-                }
                 if (world.HintStep == 2 && index == world.HintTile)
                 {
                     var clueNode = Node("Hint focus marker", tileNode.transform);

@@ -27,6 +27,9 @@ namespace Evergrove.UnityClient
         public static readonly Color AnchoredTile = Hex("#F1DEB6");
         public static readonly Color HintRowTile = Hex("#F7E8BB");
         public static readonly Color HintFocusTile = Hex("#E8CB8C");
+        /// <summary>Protected-landmark frame and badge ink: heavy bark brown, high contrast on AnchoredTile.</summary>
+        public static readonly Color LandmarkFrame = Hex("#4A3524");
+        public static readonly Color LandmarkPlate = Hex("#FFF9EC");
 
         private static Color Hex(string html)
         {
