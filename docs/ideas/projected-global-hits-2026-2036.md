@@ -19,7 +19,7 @@ The supplied thesis emphasizes AI-native living worlds, remembered NPCs and pers
 | 3 / PH-003 | **Solstice Collective** | Persistent cooperative survival settlement with faction politics, scarce seasons, migration and AI populations. | LW-02, GX-003 |
 | 4 / PH-004 | **Lumen Protocol** | Adaptive narrative RPG where playstyle, morality and relationships change future story conditions. | GX-005, GX-006 |
 | 5 / PH-005 | **Iron Veil** | Extraction survival with enemy/ally memory, grudges and globally evolving raid territory. | BR-039 |
-| 6 / PH-006 | **Evergrove** | Mobile-first cozy world grower with AI companions, light strategy and trading among players. | GC-021, GX-014 |
+| 6 / PH-006 | **Evergrove** *(superseded 2026-11-23)* | ~~Mobile-first cozy world grower with AI companions, light strategy and trading among players.~~ **Superseded:** now **Mosselora**, an offline-first water puzzle with authored neighbors whose choices reshape the next puzzle. No runtime AI, trading, multiplayer or required cloud sync. See [as-built product](../../games/evergrove/docs/PRODUCT.md) and [long-range vision](../../games/evergrove/vision.md). | GC-021, GX-014 |
 | 7 / PH-007 | **Chronicle Engine** | Civilization strategy sim with autonomous everyday agents, diplomacy and emergent history. | LW-01, GX-007 |
 | 8 / PH-008 | **Vesper Reach** | Co-op space exploration, colonies, reactive alien ecosystems and relationship-rich crews. | GX-001, LW-02 |
 | 9 / PH-009 | **Mirage Markets** | Economic social intrigue featuring player-driven markets, AI traders, alliances and deception. | GX-003 |

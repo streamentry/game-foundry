@@ -560,3 +560,12 @@ Inspected `games/evergrove/Packages/manifest.json` and tracked C# sources. The m
 ## 2026-11-23 — App Store category set for Mosselora
 
 The App Store Connect record is a pipe-connection logic puzzle. Set and saved its primary category to **Games** and first subcategory to **Puzzle**. Left the optional second subcategory and secondary category blank. The subtitle is `A Living Garden`. The app remains `Prepare for Submission`; this category change does not alter eligibility, review or availability.
+
+## 2026-11-23 — PH-006 pitch superseded; Mosselora long-range vision recorded
+
+**User direction:** mark the original PH-006 pitch (hybrid-casual life-sim, AI companions, global player trading, cloud sync, "extremely high retention") as superseded, and write a long-range vision aiming for a century-lasting game with 100 million lifetime players.
+
+**Change:** `docs/ideas/projected-global-hits-2026-2036.md` now marks PH-006 superseded and points to the as-built product. `games/evergrove/vision.md` brings back companions, a living ecology, player exchange and optional sync as **gated future layers** (authored companions, gifting without markets, an offline-complete core). Each layer is locked behind a growth stage with a stop rule.
+
+**Evidence status:** no new player or market evidence. The 100-million figure is a founder-chosen target, not a forecast. The Seed stage (M1–M6) remains unfinished. Nothing in the vision authorizes building beyond the current specs.
+

@@ -25,7 +25,7 @@
 | [Decisions, risks and open questions](DECISIONS_AND_RISKS.md) | Trade-offs, strongest objections, explicit unknowns, prioritized action | Everyone |
 | [Tóm tắt chiến lược (Tiếng Việt)](TOM_TAT.vi.md) | Bản tóm tắt tiếng Việt có thể đưa cho team | Founder, collaborators |
 
-**Existing canonical companions:** [Design system](../DESIGN-SYSTEM.md), [localization status](../LOCALIZATION.md), [original build QA](../BUILD_QA.md), [founder selection and 7-day experiment](../../../docs/research/evergrove-build-decision-2026-11-22.md), [2D vs 2.5D test protocol](../../../docs/research/evergrove-visual-comparison-protocol-2026-11-22.md), [Unity engine ADR](../../../docs/decisions/2026-11-22-evergrove-engine-unity-csharp.md), [visual ADR](../../../docs/decisions/2026-11-22-evergrove-visual-direction-2p5d.md).
+**Existing canonical companions:** [Long-range vision (aspiration, not approval)](../vision.md), [Design system](../DESIGN-SYSTEM.md), [localization status](../LOCALIZATION.md), [original build QA](../BUILD_QA.md), [founder selection and 7-day experiment](../../../docs/research/evergrove-build-decision-2026-11-22.md), [2D vs 2.5D test protocol](../../../docs/research/evergrove-visual-comparison-protocol-2026-11-22.md), [Unity engine ADR](../../../docs/decisions/2026-11-22-evergrove-engine-unity-csharp.md), [visual ADR](../../../docs/decisions/2026-11-22-evergrove-visual-direction-2p5d.md).
 
 ## Evidence ladder — do not skip levels
 
