@@ -9,7 +9,8 @@ manifest = json.loads((game / "Packages" / "manifest.json").read_text())
 deps = manifest["dependencies"]
 # uGUI is a CORE package: Unity chooses its version. Unity 6.3 pins
 # com.unity.ugui 2.0.0; 2.6.0 belongs to Unity 6.6, not this editor.
-editor_version = (game / "ProjectSettings" / "ProjectVersion.txt").read_text().strip()
+# A real Unity import appends m_EditorVersionWithRevision; only the pin matters.
+editor_version = (game / "ProjectSettings" / "ProjectVersion.txt").read_text().strip().splitlines()[0]
 assert editor_version == "m_EditorVersion: 6000.3.0f1", (
     "Review Unity core-package versions when changing editor", editor_version
 )

@@ -61,3 +61,6 @@ docs/research/raw/
 
 # Playwright CLI local snapshots/session state.
 .playwright-cli/
+
+# Claude Code agent worktrees
+/.claude/worktrees/

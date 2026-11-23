@@ -593,3 +593,13 @@ Four parallel read-only audits covered `games/evergrove/docs/specs/`, the handbo
 
 **Configuration change:** `ProjectSettings.asset` now names the product Mosselora and lists `com.streamentry.evergrove` for Android and iOS. This is not a release build setting yet: the existing `EvergroveBuild.Build()` entrypoint overrides the product name and IDs with playtest values and enables Development builds. The Unity CLI 1.0.1 self-update check succeeds outside the sandbox and confirms 1.0.1 is current. Keep upload and submission gates closed until a valid signed Editor, licensing, platform modules and production build path are verified, and the separate device, privacy, signing, audience and account-owner declaration gates pass.
 
+## 2026-11-23 — First Unity Editor verification; vision execution wave 1
+
+**Observed:** the local Unity `6000.3.0f1` Editor (installed at `/Volumes/SSD/unity`) ran `EvergroveSceneSetup.VerifyProject` headlessly. Output: `EVERGROVE_UNITY_IMPORT_CHECK_OK editor=6000.3.0f1 puzzles=12 importedLocales=29 snapshotSchema=4` and "Evergrove Unity Editor compilation, scene setup and puzzle smoke passed." This is the first time the Unity-specific C# has compiled. Unity also generated its standard ProjectSettings, `.meta` files and `packages-lock.json`, which are now tracked. The .NET 8 SDK (8.0.428) was installed to `/Volumes/SSD/dotnet`, and the pure core suite passed locally with 5,499 assertions.
+
+**Blocked:** `EvergroveBuild.Build -buildTarget iOS` fails because the editor reports "0 entitlements" and loads only the Mac platform module. Player builds need the account owner to sign in to Unity Hub and activate a license; agents cannot do this. The Android module is also not installed. M1 is **partial**: editor import and smoke pass; APK and Xcode exports are not done.
+
+**Research added (agent-prepared, unmeasured):** `pipe-puzzle-competitor-scan-2026-11-23.md` (15 listings, observed listing evidence only), `pipe-water-keyword-queue-2026-11-23.csv/.md` (26 queued queries, every measurement `unknown`), and the `games/evergrove/docs/playtest/` M3 kit and M4 preregistration draft (no sessions run). The playtest review found that vision.md attributed D1/D7 heuristics to the wrong file; this is now corrected.
+
+**Decision:** continue Seed-stage work. The next human steps are Unity license activation and recruiting 8–12 uncoached adults 45+ for M3.
+

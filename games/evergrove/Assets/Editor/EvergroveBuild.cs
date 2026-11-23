@@ -77,6 +77,12 @@ namespace Evergrove.UnityClient.Editor
                 PlayerSettings.SetApplicationIdentifier(
                     UnityEditor.Build.NamedBuildTarget.iOS,
                     "com.streamentry.evergrove.playtest");
+                // EVERGROVE_IOS_SDK=simulator exports an unsigned Xcode
+                // project for the iOS Simulator (local QA only); default is device.
+                bool simulator = string.Equals(
+                    Environment.GetEnvironmentVariable("EVERGROVE_IOS_SDK"), "simulator",
+                    StringComparison.OrdinalIgnoreCase);
+                PlayerSettings.iOS.sdkVersion = simulator ? iOSSdkVersion.SimulatorSDK : iOSSdkVersion.DeviceSDK;
             }
 
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
