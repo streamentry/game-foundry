@@ -38,8 +38,14 @@ namespace Evergrove.Core
                 throw new ArgumentOutOfRangeException(nameof(nowSeconds));
             startSeconds = nowSeconds;
             initialChapter = chapter;
-            condition = mode == PlayMode.Living ? "LivingWorld" : "PuzzleOnly";
+            condition = ConditionName(mode);
             visual = miniature ? "Miniature" : "Storybook";
+        }
+
+        private static string ConditionName(PlayMode mode)
+        {
+            if (mode == PlayMode.Living) return "LivingWorld";
+            return mode == PlayMode.PuzzleMatched ? "PuzzleMatched" : "PuzzleOnly";
         }
 
         private static bool ValidTime(double seconds)
@@ -78,7 +84,7 @@ namespace Evergrove.Core
         public void ChangeMode(PlayMode mode, double now)
         {
             Check(now);
-            string next = mode == PlayMode.Living ? "LivingWorld" : "PuzzleOnly";
+            string next = ConditionName(mode);
             if (next != condition) modeSwitches++;
             condition = next;
         }

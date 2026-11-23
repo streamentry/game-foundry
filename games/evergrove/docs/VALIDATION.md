@@ -22,7 +22,9 @@ Do **not** jump from code volume / localization breadth / passing unit tests to 
 | **C — visual treatment** | 2D garden, fixed world history | 2.5D miniature, **same** history and UI | Does 2.5D help causal comprehension enough to justify cost? | Unaided explanation, forced preference with counterbalanced order, device GPU/heat |
 | **D — voluntary return and distribution** | Best polished reference / relevant acquisition channel cohort | Evergreen candidate experience with equal onboarding commitment | Is there an actual reason to return and a viable discovery channel? | D1/D7 actual return with denominators, source/search intent, willingness to recommend/pay |
 
-**Existing in-app PuzzleOnly switch only isolates part of A.** Beyond chapter 1 its board rules diverge from Living, so **do not report a “narrative retention lift” from current two-mode data**. A proper B control requires a new code condition or carefully matched external test build.
+**Existing in-app PuzzleOnly switch only isolates part of A.** Beyond chapter 1 its board rules diverge from Living, so **do not report a “narrative retention lift” from current two-mode data**.
+
+**B control implemented in core (`PlayMode.PuzzleMatched`, M4 gate prerequisite).** The matched condition shows no village choices or story, but its boards for chapters 2–12 come from a predeclared 11-entry variant schedule. Deriving that schedule from a Living run (`WorldModel.ScheduleFromChoices`) gives byte-identical boards chapter by chapter; the .NET suite checks all 33 chapter×variant pairs, all 3^7 choice prefixes, and three full Living paths. This proves **board equivalence in code only**. It does not yet supply participant evidence, and the Unity UI does not expose the condition yet, so M4 remains blocked until the UI wiring and a real session protocol exist. Puzzle-only still uses unchanged boards and must not be reported as a B control.
 
 For 2D/2.5D, show the same actions and art information in both, with no extra animation/sound given only to treatment.
 

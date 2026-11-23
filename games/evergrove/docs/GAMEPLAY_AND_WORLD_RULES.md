@@ -63,7 +63,8 @@ The **11 later chapters × 3 variants = 33 possible choice-specific board presen
 | `Restart()` | Non-completed run | Restore `CurrentPuzzle.Initial` including fixed anchors | Keeps history and world variant |
 | `Choose(choice)` | Living mode, solved board, one choice per finished chapter | Append choice; choose next rotated board; update history | No ability to pick all three after one solve |
 | `ReconsiderLatestChoice()` | Living mode and at least one committed choice | Pop latest choice, reopen prior board solved | UI offers this during the memory interlude; core currently permits it in other states |
-| `NextPuzzle()` | PuzzleOnly, just solved | Advance to next *original* board | No environmental choice |
+| `NextPuzzle()` | PuzzleOnly or PuzzleMatched, just solved | Advance to next board: original for PuzzleOnly; scheduled variant for PuzzleMatched | No environmental choice |
+| `WorldModel.NewMatched(schedule)` | Schedule is 11 ints, each 1..3 | Create the M4 control: no choices or story, boards follow `schedule` | `ArgumentException` on null, wrong length or out-of-range entries; `New(PlayMode.PuzzleMatched)` is rejected; schedule is copied and cannot change mid-run |
 | `WorldModel.TryRestore(snapshot)` | Save schema and board invariants valid | Reconstruct authoritative state | Rejects malformed/corrupted snapshots; not cryptographic anti-tamper |
 
 ### State machine

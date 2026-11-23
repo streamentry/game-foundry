@@ -142,7 +142,7 @@ namespace Evergrove.Core
         public static string Ending(WorldModel world)
         {
             if (!world.Completed) return T("world_none");
-            if (world.Mode == PlayMode.PuzzleOnly) return T("complete");
+            if (world.Mode != PlayMode.Living) return T("complete");
             if (world.Count(VillageChoice.ShadeTree) > 0 &&
                 world.Count(VillageChoice.Bridge) > 0 &&
                 world.Count(VillageChoice.Flowers) > 0)
