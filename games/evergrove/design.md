@@ -1,7 +1,7 @@
 # Mosselora — Living Garden Design System
 > **Status (2026-11-23):** partially implemented in the Unity/C# and offline browser source. Artwork and visual behavior still require Unity/device QA and uncoached player validation.  
 > **Scope:** Mosselora (formerly Evergrove), mobile-first, offline-first living-garden puzzle.  
-> **Canonical design proposal:** this file. Existing implementation reference: [DESIGN.md](DESIGN.md), [player experience](docs/PLAYER_EXPERIENCE.md), and [browser research slice](research/first-minute/README.md).  
+> **Canonical design proposal:** this file. Existing implementation reference: [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md), [player experience](docs/PLAYER_EXPERIENCE.md), and [browser research slice](research/first-minute/README.md).  
 > **Brand decision:** Mosselora is a working name pending formal trademark clearance; do not silently rename shipped assets, save identifiers, packages, namespaces or public URLs.
 
 ## 1. The one sentence
@@ -185,7 +185,7 @@ A readable offline/save status when necessary, explicit destructive reset confir
 
 **Current evidence (as of 2026-11-22):** the game has a Unity/C# prototype, deterministic puzzle/world rules, save journal, a browser first-minute research slice, automated Chromium viewport checks and C# assertions. These support specific implementation claims, **not** a production-quality native build, delight, retention or broad accessibility.
 
-**Now implemented in source:** a shared Unity `MosseloraTheme` for paper/ink/leaf/water and tile-state precedence; branded English and 29 draft-locale titles; balanced ecological choice cards; a gentler open-circle leak marker; rounded pipe junctions; warmer cottage/world details in the original 2D illustration; a corresponding optional 2.5D palette; and a Mosselora-branded offline first-minute browser slice with automated viewport checks. These are **source changes and design hypotheses**, not proof of a native build or user preference. Current code and [DESIGN.md](DESIGN.md) remain the authority on what actually runs.
+**Now implemented in source:** a shared Unity `MosseloraTheme` for paper/ink/leaf/water and tile-state precedence; branded English and 29 draft-locale titles; balanced ecological choice cards; a gentler open-circle leak marker; rounded pipe junctions; warmer cottage/world details in the original 2D illustration; a corresponding optional 2.5D palette; and a Mosselora-branded offline first-minute browser slice with automated viewport checks. These are **source changes and design hypotheses**, not proof of a native build or user preference. Current code and [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) remain the authority on what actually runs.
 
 **Suggested implementation order:**
 1. **Truth audit:** identify where the current browser and Unity UI diverge from this contract. Prioritize incorrect state, unreadable pipes, hidden first tap and inaccurate consequence copy.

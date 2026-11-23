@@ -61,7 +61,7 @@ This is an **implementation map**, not a guarantee everything is visible without
 
 ## 3. Art design language
 
-Canon: [DESIGN.md](../DESIGN.md). Working visual tokens:
+Implementation tokens: [DESIGN-SYSTEM.md](../DESIGN-SYSTEM.md). Brand direction: [design.md](../design.md). Working visual tokens:
 
 | Name | HEX | Purpose |
 | --- | --- | --- |

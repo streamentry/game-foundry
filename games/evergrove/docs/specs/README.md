@@ -4,7 +4,7 @@
 **Baseline date:** 2026-11-22. **Scope:** `games/evergrove/` (Unity 6.3/C#).  
 **Product promise:** **A little world that changes because you were here.**
 
-These specifications translate the supplied *Evergrove: evidence-backed product and feature strategy* research into a traceable, testable implementation plan. They complement, rather than overwrite, the [current project README](../../README.md), [design system](../../DESIGN.md), [build checklist](../../BUILD_QA.md), and [localization reality check](../../LOCALIZATION.md).
+These specifications translate the supplied *Evergrove: evidence-backed product and feature strategy* research into a traceable, testable implementation plan. They complement, rather than overwrite, the [current project README](../../README.md), [design system](../../DESIGN-SYSTEM.md), [build checklist](../../BUILD_QA.md), and [localization reality check](../../LOCALIZATION.md).
 
 ## Read in this order
 

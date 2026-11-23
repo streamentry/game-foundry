@@ -6,7 +6,7 @@
 - **Decision owner:** Founder / Game Foundry
 - **Status:** **Accepted as a directional art hypothesis; not a production art-pipeline commitment**
 - **Scope:** Evergrove (`PH-006`) only
-- **Related:** [Evergrove design system](../../games/evergrove/DESIGN.md) · [Unity/C# engine ADR](2026-11-22-evergrove-engine-unity-csharp.md) · [Evergrove game](../../games/evergrove/README.md) · [world-on/off experiment](../research/evergrove-build-decision-2026-11-22.md)
+- **Related:** [Mosselora design proposal](../../games/evergrove/design.md) · [prior implementation design](../../games/evergrove/DESIGN-SYSTEM.md) · [Unity/C# engine ADR](2026-11-22-evergrove-engine-unity-csharp.md) · [Evergrove game](../../games/evergrove/README.md) · [world-on/off experiment](../research/evergrove-build-decision-2026-11-22.md)
 
 ## Decision
 
