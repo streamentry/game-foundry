@@ -326,6 +326,10 @@
       "value": "Imeshindikana kuhifadhi maendeleo. Angalia nafasi ya kifaa."
     },
     {
+      "key": "save_unreadable",
+      "value": "Hatukuweza kusoma bustani yako iliyohifadhiwa. Iko salama. Chagua “Chunguza bustani nyingine” ili uanze upya."
+    },
+    {
       "key": "ending_title",
       "value": "HADITHI YA BUSTANI YAKO"
     },

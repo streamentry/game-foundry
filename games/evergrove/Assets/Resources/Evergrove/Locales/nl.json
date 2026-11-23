@@ -326,6 +326,10 @@
       "value": "Voortgang kon niet worden opgeslagen. Controleer de opslagruimte."
     },
     {
+      "key": "save_unreadable",
+      "value": "We konden je opgeslagen tuin niet lezen. Hij is veilig bewaard. Kies „Verken een andere tuin” om opnieuw te beginnen."
+    },
+    {
       "key": "ending_title",
       "value": "HET VERHAAL VAN JE TUIN"
     },

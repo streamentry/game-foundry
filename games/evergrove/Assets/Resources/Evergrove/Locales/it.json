@@ -326,6 +326,10 @@
       "value": "Impossibile salvare i progressi. Controlla lo spazio sul dispositivo."
     },
     {
+      "key": "save_unreadable",
+      "value": "Non siamo riusciti a leggere il tuo giardino salvato. È al sicuro. Scegli «Esplora un altro giardino» per ricominciare."
+    },
+    {
       "key": "ending_title",
       "value": "LA STORIA DEL TUO GIARDINO"
     },

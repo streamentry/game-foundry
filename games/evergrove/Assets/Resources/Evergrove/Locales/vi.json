@@ -326,6 +326,10 @@
       "value": "Không lưu được tiến trình. Hãy kiểm tra bộ nhớ thiết bị."
     },
     {
+      "key": "save_unreadable",
+      "value": "Không đọc được khu vườn đã lưu của bạn. Khu vườn vẫn được giữ an toàn. Chọn “Khám phá một khu vườn khác” để bắt đầu lại."
+    },
+    {
       "key": "ending_title",
       "value": "CÂU CHUYỆN KHU VƯỜN CỦA BẠN"
     },

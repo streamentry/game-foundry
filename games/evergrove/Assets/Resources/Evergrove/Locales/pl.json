@@ -326,6 +326,10 @@
       "value": "Nie udało się zapisać postępu. Sprawdź pamięć urządzenia."
     },
     {
+      "key": "save_unreadable",
+      "value": "Nie udało się odczytać zapisanego ogrodu. Jest bezpiecznie zachowany. Wybierz „Odkryj inny ogród”, aby zacząć od nowa."
+    },
+    {
       "key": "ending_title",
       "value": "HISTORIA TWOJEGO OGRODU"
     },

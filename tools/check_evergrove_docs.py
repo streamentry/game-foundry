@@ -77,7 +77,7 @@ def main() -> int:
     keys = re.search(
         r"private static readonly string\[\] Ids = \{([\s\S]*?)\};", locale
     )
-    if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 97:
+    if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 98:
         fail("Localization key count changed; update documentation and catalog validator")
 
     # Compare the legacy build handbook against the actual dependency manifest.
@@ -96,7 +96,7 @@ def main() -> int:
     print(
         f"Evergrove documentation contract: {len(target_docs)} documents, "
         f"{checked_links} verified local links, 12 puzzles, "
-        "v4 saves, 30 language choices, 97 keys."
+        "v4 saves, 30 language choices, 98 keys."
     )
     return 0
 
@@ -332,7 +332,8 @@ def check_specification_contract() -> None:
         'Node("Persistent save warning", scrollNode.transform)',
         "saveWarningBanner.SetActive(saveFailed);",
         "warningViewport.offsetMax = new Vector2(0f, saveFailed ? -SaveBannerHeight() : 0f);",
-        'saveWarningCaption.text = GameLocalization.Text("save_warning");',
+        'saveWarningCaption.text = GameLocalization.Text(',
+        'WorldStore.RecoveryBlocked ? "save_unreadable" : "save_warning");',
         "UpdateSaveWarning(); // toggles immediately even without a full UI rebuild",
     ):
         if marker not in app:

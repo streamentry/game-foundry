@@ -326,6 +326,10 @@
       "value": "Det gick inte att spara framstegen. Kontrollera enhetens lagring."
     },
     {
+      "key": "save_unreadable",
+      "value": "Vi kunde inte läsa din sparade trädgård. Den är säkrad. Välj ”Utforska en annan trädgård” för att börja om."
+    },
+    {
       "key": "ending_title",
       "value": "DIN TRÄDGÅRDS BERÄTTELSE"
     },

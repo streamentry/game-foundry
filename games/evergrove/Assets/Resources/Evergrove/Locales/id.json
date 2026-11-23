@@ -326,6 +326,10 @@
       "value": "Progres tidak dapat disimpan. Periksa penyimpanan perangkat."
     },
     {
+      "key": "save_unreadable",
+      "value": "Kami tidak dapat membaca taman tersimpan Anda. Taman itu tetap aman. Pilih “Jelajahi taman lain” untuk memulai dari awal."
+    },
+    {
       "key": "ending_title",
       "value": "CERITA KEBUNMU"
     },

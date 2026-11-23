@@ -326,6 +326,10 @@
       "value": "Não foi possível salvar o progresso. Verifique o armazenamento do aparelho."
     },
     {
+      "key": "save_unreadable",
+      "value": "Não foi possível ler seu jardim salvo. Ele está guardado em segurança. Escolha “Explorar outro jardim” para começar de novo."
+    },
+    {
       "key": "ending_title",
       "value": "A HISTÓRIA DO SEU JARDIM"
     },

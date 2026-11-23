@@ -326,6 +326,10 @@
       "value": "Fortschritt konnte nicht gespeichert werden. Prüfe den Gerätespeicher."
     },
     {
+      "key": "save_unreadable",
+      "value": "Dein gespeicherter Garten konnte nicht gelesen werden. Er ist sicher aufgehoben. Wähle „Einen anderen Garten erkunden“, um neu zu beginnen."
+    },
+    {
       "key": "ending_title",
       "value": "DIE GESCHICHTE DEINES GARTENS"
     },

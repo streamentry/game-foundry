@@ -7,35 +7,35 @@
 | Language code | Language (native) | Coverage |
 | --- | --- | --- |
 | en | English | Built-in canonical text |
-| zh-Hans | 简体中文 | 97/97 |
-| zh-Hant | 繁體中文 | 97/97 |
-| es | Español | 97/97 |
-| pt-BR | Português (Brasil) | 97/97 |
-| fr | Français | 97/97 |
-| de | Deutsch | 97/97 |
-| ja | 日本語 | 97/97 |
-| ko | 한국어 | 97/97 |
-| ar | العربية | 97/97; RTL QA needed |
-| hi | हिन्दी | 97/97; shaping QA needed |
-| ru | Русский | 97/97 |
-| id | Bahasa Indonesia | 97/97 |
-| vi | Tiếng Việt | 97/97 |
-| tr | Türkçe | 97/97 |
-| th | ไทย | 97/97; line-break QA needed |
-| it | Italiano | 97/97 |
-| nl | Nederlands | 97/97 |
-| pl | Polski | 97/97 |
-| uk | Українська | 97/97 |
-| fa | فارسی | 97/97; RTL QA needed |
-| he | עברית | 97/97; RTL QA needed |
-| ms | Bahasa Melayu | 97/97 |
-| fil | Filipino | 97/97 |
-| bn | বাংলা | 97/97; shaping QA needed |
-| ur | اردو | 97/97; RTL QA needed |
-| ta | தமிழ் | 97/97; shaping QA needed |
-| te | తెలుగు | 97/97; shaping QA needed |
-| sw | Kiswahili | 97/97 |
-| sv | Svenska | 97/97 |
+| zh-Hans | 简体中文 | 98/98 |
+| zh-Hant | 繁體中文 | 98/98 |
+| es | Español | 98/98 |
+| pt-BR | Português (Brasil) | 98/98 |
+| fr | Français | 98/98 |
+| de | Deutsch | 98/98 |
+| ja | 日本語 | 98/98 |
+| ko | 한국어 | 98/98 |
+| ar | العربية | 98/98; RTL QA needed |
+| hi | हिन्दी | 98/98; shaping QA needed |
+| ru | Русский | 98/98 |
+| id | Bahasa Indonesia | 98/98 |
+| vi | Tiếng Việt | 98/98 |
+| tr | Türkçe | 98/98 |
+| th | ไทย | 98/98; line-break QA needed |
+| it | Italiano | 98/98 |
+| nl | Nederlands | 98/98 |
+| pl | Polski | 98/98 |
+| uk | Українська | 98/98 |
+| fa | فارسی | 98/98; RTL QA needed |
+| he | עברית | 98/98; RTL QA needed |
+| ms | Bahasa Melayu | 98/98 |
+| fil | Filipino | 98/98 |
+| bn | বাংলা | 98/98; shaping QA needed |
+| ur | اردو | 98/98; RTL QA needed |
+| ta | தமிழ் | 98/98; shaping QA needed |
+| te | తెలుగు | 98/98; shaping QA needed |
+| sw | Kiswahili | 98/98 |
+| sv | Svenska | 98/98 |
 
 These 30 languages are a **commercially broad coverage set**, not a mathematically ranked list of the world's 30 most spoken languages. Country-specific translation for other regions and dialects may be added later when evidence warrants it.
 
@@ -57,7 +57,7 @@ The game reads bundled `Assets/Resources/Evergrove/Locales/<locale>.json` using 
 
 ## What is and is not translated
 
-All **97 player-facing compact-copy keys** (water puzzle prompts/feedback, game modes, language switcher, settings, world state, causal choices, NPC dialogue, memories, journal, endings and the nine garden-file keys and six screen-reader keys) have non-empty localizations. To avoid 30 unrelated narrative variants in an early experiment, **all 30 languages use one concise state-dependent script** (`LocalizedVillage.cs`); the richer original *English* prose (`VillageStory.cs`) is kept intact for future editorial expansion. These are editorial first drafts; a native speaker must review them before a store listing claims high-quality translation.
+All **98 player-facing compact-copy keys** (water puzzle prompts/feedback, game modes, language switcher, settings, world state, causal choices, NPC dialogue, memories, journal, endings and the nine garden-file keys and six screen-reader keys) have non-empty localizations. To avoid 30 unrelated narrative variants in an early experiment, **all 30 languages use one concise state-dependent script** (`LocalizedVillage.cs`); the richer original *English* prose (`VillageStory.cs`) is kept intact for future editorial expansion. These are editorial first drafts; a native speaker must review them before a store listing claims high-quality translation.
 
 Twelve original **puzzle names** are English-only and are deliberately not shown in non-English sessions; stream number remains localized. Character proper names Mira, Orin and Fen are retained across locales. The local copy-to-clipboard playtest report intentionally stays in English structured key=value format for comparable researcher data; UI consent/explanation is localized.
 
@@ -77,7 +77,7 @@ python3 tools/verify_evergrove_project.py
 dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release
 ```
 
-The static validator checks all 29 catalog files, 97 keys, locale code consistency, interpolation syntax and source-level consumer-locale isolation. Pure C# tests also assert draft locale selection is allowed only by the research policy; they do **not** replace compiled-player verification. .NET tests import every JSON resource, assert no missing keys or incorrect placeholders and verify changing locale cannot alter water puzzle/choice history.
+The static validator checks all 29 catalog files, 98 keys, locale code consistency, interpolation syntax and source-level consumer-locale isolation. Pure C# tests also assert draft locale selection is allowed only by the research policy; they do **not** replace compiled-player verification. .NET tests import every JSON resource, assert no missing keys or incorrect placeholders and verify changing locale cannot alter water puzzle/choice history.
 
 **Before any international launch:** native-speaker review of each locale; screenshot QA of settings, choice cards, long dialogues and endings; real-device glyph coverage; true RTL and Indic text shaping; word breaking for Thai; screen-reader labels; and mobile performance. If the first-phone QA fails, keep that locale disabled in production instead of showing broken text.
 
@@ -87,6 +87,10 @@ The 82nd key, `ending_title`, is the visible heading of the ending card (English
 
 ## New v4 prototype copy (draft, not certified)
 
-The 97 canonical text keys include five staged-help/save-warning phrases: `hint_notice`, `hint_focus`, `hint_more`, `hint_turn`, and `save_warning`. The first-puzzle instructions refer to geometric blue waves for the spring and a green sprout for the garden; they no longer depend on Latin `S/G` glyphs. Every translation remains an unreviewed **draft**. Font shaping, RTL/Indic display, layout, native signoff and device performance are still open.
+The 98 canonical text keys include five staged-help/save-warning phrases: `hint_notice`, `hint_focus`, `hint_more`, `hint_turn`, and `save_warning`. The first-puzzle instructions refer to geometric blue waves for the spring and a green sprout for the garden; they no longer depend on Latin `S/G` glyphs. Every translation remains an unreviewed **draft**. Font shaping, RTL/Indic display, layout, native signoff and device performance are still open.
 
 The nine `garden_*` keys (copy, copied, restore, replace warning, and five plain-language import errors) support the settings garden file. They were added as **machine-drafted** text in all 29 catalogs and English, pending native review. Keys: `garden_copy`, `garden_copied`, `garden_restore`, `garden_replace`, `garden_err_empty`, `garden_err_not_garden`, `garden_err_newer`, `garden_err_damaged`, `garden_err_too_large`.
+
+## Unreadable saved garden `save_unreadable` (machine-drafted, pending native review)
+
+The 98th key, `save_unreadable`, is the banner shown when both save files exist but cannot be read (`WorldStore.RecoveryBlocked`). It is distinct from `save_warning`, which is kept for genuine write failures such as a full device. Its English source is in `GameLocalization.cs`; all 29 non-English translations are **machine-drafted** and remain unreviewed. The banner keeps the TextScale sizing used by the other save warning. It is not included in the screen-reader bridge.

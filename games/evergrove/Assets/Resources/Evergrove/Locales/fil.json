@@ -326,6 +326,10 @@
       "value": "Hindi na-save ang progreso. Suriin ang storage ng device."
     },
     {
+      "key": "save_unreadable",
+      "value": "Hindi namin mabasa ang na-save mong hardin. Ligtas itong nakatago. Piliin ang “Tuklasin ang ibang hardin” para magsimulang muli."
+    },
+    {
       "key": "ending_title",
       "value": "KWENTO NG IYONG HARDIN"
     },

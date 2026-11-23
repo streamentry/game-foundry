@@ -426,7 +426,10 @@ namespace Evergrove.UnityClient
             if (saveWarningBanner == null || saveWarningCaption == null || warningViewport == null)
                 return;
             saveWarningCaption.font = font;
-            saveWarningCaption.text = GameLocalization.Text("save_warning");
+            // An unreadable saved garden is not a write failure: say so, so players
+            // do not hunt for a device-storage problem that does not exist.
+            saveWarningCaption.text = GameLocalization.Text(
+                WorldStore.RecoveryBlocked ? "save_unreadable" : "save_warning");
             saveWarningBanner.SetActive(saveFailed);
             warningViewport.offsetMax = new Vector2(0f, saveFailed ? -SaveBannerHeight() : 0f);
         }
