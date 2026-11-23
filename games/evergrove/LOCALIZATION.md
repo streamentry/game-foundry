@@ -87,6 +87,6 @@ The 82nd key, `ending_title`, is the visible heading of the ending card (English
 
 ## New v4 prototype copy (draft, not certified)
 
-The 82 canonical text keys (later 91) now include five staged-help/save-warning phrases: `hint_notice`, `hint_focus`, `hint_more`, `hint_turn`, and `save_warning`. The first-puzzle instructions refer to geometric blue waves for the spring and a green sprout for the garden; they no longer depend on Latin `S/G` glyphs. Every translation remains an unreviewed **draft**. Font shaping, RTL/Indic display, layout, native signoff and device performance are still open.
+The 91 canonical text keys include five staged-help/save-warning phrases: `hint_notice`, `hint_focus`, `hint_more`, `hint_turn`, and `save_warning`. The first-puzzle instructions refer to geometric blue waves for the spring and a green sprout for the garden; they no longer depend on Latin `S/G` glyphs. Every translation remains an unreviewed **draft**. Font shaping, RTL/Indic display, layout, native signoff and device performance are still open.
 
 The nine `garden_*` keys (copy, copied, restore, replace warning, and five plain-language import errors) support the settings garden file. They were added as **machine-drafted** text in all 29 catalogs and English, pending native review. Keys: `garden_copy`, `garden_copied`, `garden_restore`, `garden_replace`, `garden_err_empty`, `garden_err_not_garden`, `garden_err_newer`, `garden_err_damaged`, `garden_err_too_large`.
