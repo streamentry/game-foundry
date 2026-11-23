@@ -36,7 +36,7 @@ namespace Evergrove.Core
 
         private static readonly HashSet<string> SnapshotKeys = new HashSet<string> {
             "version", "mode", "round", "solved", "rotations", "previous", "choices",
-            "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile"
+            "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -161,6 +161,7 @@ namespace Evergrove.Core
               .Append(",\"lastSolvedVariant\":").Append(Int(s.lastSolvedVariant))
               .Append(",\"hintStep\":").Append(Int(s.hintStep))
               .Append(",\"hintTile\":").Append(Int(s.hintTile))
+              .Append(",\"variantSchedule\":").Append(IntArray(s.variantSchedule))
               .Append('}');
             return sb.ToString();
         }
@@ -234,7 +235,8 @@ namespace Evergrove.Core
                    ReadInt(fields, "boardVariant", ref snapshot.boardVariant) &&
                    ReadInt(fields, "lastSolvedVariant", ref snapshot.lastSolvedVariant) &&
                    ReadInt(fields, "hintStep", ref snapshot.hintStep) &&
-                   ReadInt(fields, "hintTile", ref snapshot.hintTile);
+                   ReadInt(fields, "hintTile", ref snapshot.hintTile) &&
+                   ReadInts(fields, "variantSchedule", ref snapshot.variantSchedule);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)

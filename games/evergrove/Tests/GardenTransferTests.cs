@@ -220,6 +220,30 @@ internal static class GardenTransferTests
         Expect(run.Choices.Length == 0, "puzzle-only has no village choices");
     }
 
+    private static void MatchedRunRoundTrips()
+    {
+        int[] schedule = { 1, 2, 3, 3, 2, 1, 1, 2, 3, 1, 2 };
+        WorldModel run = WorldModel.NewMatched(schedule);
+        SolveChapter(run);
+        Expect(run.NextPuzzle(), "matched control advances without a choice");
+        RotateFirstMutableTile(run);
+        ExpectRoundTrip(run, "matched second board in progress");
+        string text = Exported(run);
+        WorldModel imported;
+        GardenImportError error;
+        Expect(GardenTransfer.TryImport(text, out imported, out error) &&
+               imported.Mode == PlayMode.PuzzleMatched &&
+               SameInts(imported.VariantSchedule, schedule) &&
+               imported.BoardVariant == schedule[0],
+               "matched export keeps mode, schedule and transformed board");
+        while (!run.Completed)
+        {
+            SolveChapter(run);
+            Expect(run.NextPuzzle(), "matched control advances");
+        }
+        ExpectRoundTrip(run, "matched completed");
+    }
+
     private static List<string> ContinuePlay(WorldModel model)
     {
         var log = new List<string>();
@@ -366,6 +390,7 @@ internal static class GardenTransferTests
         EnvelopeShapeAndChecksumDefinition();
         FullLivingRunRoundTrips();
         PuzzleOnlyRunRoundTrips();
+        MatchedRunRoundTrips();
         ImportedWorldContinuesIdentically();
         HistoricalSnapshotVersionsImport();
         ErrorCases();

@@ -36,7 +36,7 @@ The separate [37-feature product specifications](docs/specs/README.md) are **pro
 
 - That 90°/180°/270° variants are 33 independent authored ecosystem simulations.
 - That NPCs have agent goals or learned conversational memory.
-- That Living World vs PuzzleOnly isolates narrative after chapter 1; the puzzle differs.
+- That Living World vs PuzzleOnly isolates narrative after chapter 1; the puzzle differs. Only Living vs **PuzzleMatched** (same variant schedule) is puzzle-identical, and its Unity UI is not wired yet.
 - That 30 locale catalogs mean 30 native-reviewed, RTL/Indic-safe releases.
 - That .NET tests prove Unity Editor, iOS or Android works.
 - That Evergrove as a public app name is cleared, or that global market demand is established.
