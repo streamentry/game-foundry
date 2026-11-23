@@ -58,6 +58,9 @@ docs/research/raw/
 /backend/evergrove/.wrangler/
 /backend/evergrove/.dev.vars
 /backend/evergrove/.dev.vars.*
+**/.wrangler/
+**/.dev.vars
+**/.dev.vars.*
 
 # Playwright CLI local snapshots/session state.
 .playwright-cli/

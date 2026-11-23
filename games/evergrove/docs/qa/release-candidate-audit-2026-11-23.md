@@ -100,7 +100,12 @@ These are inert text or domain code. They are not controls, and no player path r
 3. The `RC` locale staging relies on Unity's asset database refresh. It was verified once, on this machine and this Unity build.
 4. No positive-control dev build was run. The check that the locale catalogs are absent relies on the absence of any `Locales/` path string, not on a dev build containing one.
 
-## Pending (lead)
+## iOS Simulator confirmation (2026-11-23)
 
-- Capture an iOS-simulator release-candidate screenshot from `EVERGROVE_BUILD_CHANNEL=release-candidate` and attach it to BLD-007 with this audit. Confirm no matched, mode, miniature, comparison, or playtest controls are visible.
-- Playtest and accessibility review with the intended 45+ audience is out of scope for this audit.
+- Captured and attached [the iOS Simulator release-candidate first-launch screenshot](ios-simulator-release-candidate-2026-11-23/mosselora-first-launch-build1.png) from `EVERGROVE_BUILD_CHANNEL=release-candidate`, compiled with Xcode for iOS 26.5 Simulator and `CFBundleVersion=1`. It shows no matched mode, mode switch, miniature, comparison or playtest controls. Normal player controls (Undo, Guide me, Restart stream) remain visible.
+- Captured a 15-second actual-build preview clip in the same folder. The app launched with bundle ID `com.streamentry.evergrove`, version `1.0.0`. This is a simulator build with code signing disabled, not an App Store device binary.
+- The visible-control portion of M5 is complete for this simulator build. It does not close signing, physical-device QA, VoiceOver/TalkBack, or 45+ usability gates.
+
+## Mobile release-candidate binary string check (2026-11-23)
+
+The Android AAB's IL2CPP metadata and native libraries, plus the iOS device and Simulator app metadata, UnityFramework and app executable, were scanned for the listed development-only control identifiers from this audit. None were found; the positive control `Mosselora` was present in each bundle. This is a bounded string scan, not a full behavior or security audit. Both iOS artifacts remain unsigned; Android upload-signature and bundle validation are recorded separately in [the release-candidate evidence report](mosselora-release-candidate-2026-11-23.md).

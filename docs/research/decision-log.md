@@ -718,3 +718,13 @@ The user approved the Android emulator. Unity's bundled SDK gained the emulator 
 
 **Still open for M2:** physical Android and iPhone devices, TalkBack/VoiceOver, and Android save interruption.
 
+## 2026-11-24 — Mosselora store-release checkpoint
+
+Current `HEAD` and `origin/main` are `f915f6722a55aabc4033732531f1c3b915602dad`. The pure C# suite passes 39,680 assertions on .NET SDK 8.0.428; the project verifier passes 101 keys across 29 offline catalogs. The latest source includes Android min SDK 26, accessibility, CJK and RTL changes. The signed Android AAB (version 1.0.0/code 1, min SDK 25) and iOS build-1 captures predate those changes and are not release candidates. No build from current `HEAD` has completed.
+
+**Editor blocker:** the installed Unity 6.3.0f1 bundle is present with both mobile modules, but `codesign --verify --deep --strict` reports that its signature was modified. Unity CLI 1.0 finds no registered Editors and rejects the app bundle. I did not bypass its signature/bundle-ID validation. The user must authorize that exact bypass or provide a verified Hub-managed Editor before a current-source build can proceed.
+
+**Web/store progress:** after the user explicitly requested apex configuration, the production Worker `mosselora-site` was deployed to `mosselora.com/*` (version `f8c23470-8134-4aee-adbf-6a6a3411f2ea`). GET checks returned HTTP 200 for the homepage, support, privacy, preview and promo-art paths; the support page displays `hi@mosselora.com`. The site still passes its 10 tests. App Store Connect version 1.0 retains automatic release after review; Support and Marketing URLs use `mosselora.com`. Its submission checklist still requires Content Rights, age rating, mobile privacy URL, build, Admin privacy completion and review contact fields. Play Home search returns no Mosselora app; the Create App form is restaged with both legal attestations unchecked. No store upload, submission, approval or public availability is verified.
+
+**Release gates:** Xcode has zero valid Apple signing identities; App Store Connect still lacks the mobile privacy URL, copyright and reviewer contact. Google Play's Create App form remains staged with both account-owner attestations unchecked, so no app record exists. The only Android AAB is stale. BidiSharp is MIT licensed but its source note keeps it off the shipping allowlist and records Unicode 6.3 data. No current-build screenshots, physical-device QA, adult-45+ session, or VoiceOver/TalkBack validation is complete. The top-30 listing drafts have zero native reviews. Keep both store submissions paused until these gates are resolved.
+

@@ -14,6 +14,11 @@ case "$MODE" in
   smoke|Android|iOS|WebGL) ;;
   *) usage ;;
 esac
+BUILD_CHANNEL="${EVERGROVE_BUILD_CHANNEL:-development}"
+case "$BUILD_CHANNEL" in
+  development|release-candidate) ;;
+  *) echo "EVERGROVE_BUILD_CHANNEL must be development or release-candidate." >&2; exit 2 ;;
+esac
 
 ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -75,6 +80,7 @@ record_untracked_inputs() {
 record_untracked_inputs before || exit 1
 LOG="$EVIDENCE/unity-editor.log"
 STDOUT="$EVIDENCE/editor-stdout.log"
+PROJECT_SETTINGS_BUILD_INPUT_SHA=""
 
 ARGS=(-batchmode -nographics -quit -projectPath "$PROJECT")
 if [ "$MODE" = "smoke" ]; then
@@ -84,7 +90,7 @@ else
 fi
 ARGS+=(-logFile "$LOG")
 
-echo "Evergrove local probe: $MODE (requested Editor $EXPECTED_VERSION, source $SOURCE_SHA)"
+echo "Evergrove local probe: $MODE/$BUILD_CHANNEL (requested Editor $EXPECTED_VERSION, source $SOURCE_SHA)"
 if ! "$UNITY_BIN" "${ARGS[@]}" >"$STDOUT" 2>&1; then
   echo "Unity exited with failure. Inspect the private log: $LOG" >&2
   tail -n 35 "$LOG" >&2 || true
@@ -94,11 +100,24 @@ if [ ! -f "$LOG" ]; then
   echo "Unity returned without an Editor log; no build proof." >&2
   exit 1
 fi
-# Package upgrades and tracked project-setting edits produced during import
-# must not inherit the pre-import Git SHA in a build evidence packet.
+# Unity writes PlayerSettings (product name, app ID, version and SDK choice)
+# into this tracked asset while building. Capture the exact effective file,
+# then restore only that expected generated edit. Any other tracked change
+# still blocks provenance and is left untouched for review.
 if ! git diff --quiet HEAD -- games/evergrove tools/evergrove_unity_local_preflight.sh; then
-  echo "Unity modified tracked project inputs. Review and commit them, then repeat the probe; the original SHA no longer describes this build." >&2
-  exit 1
+  CHANGED_PATHS="$(git diff --name-only HEAD -- games/evergrove tools/evergrove_unity_local_preflight.sh)"
+  if [ "$CHANGED_PATHS" != "games/evergrove/ProjectSettings/ProjectSettings.asset" ]; then
+    echo "Unity modified tracked project inputs outside the expected PlayerSettings asset: $CHANGED_PATHS" >&2
+    exit 1
+  fi
+  cp "$PROJECT/ProjectSettings/ProjectSettings.asset" "$EVIDENCE/ProjectSettings.asset.effective-build-input"
+  shasum -a 256 "$EVIDENCE/ProjectSettings.asset.effective-build-input" > "$EVIDENCE/ProjectSettings.asset.effective-build-input.sha256"
+  PROJECT_SETTINGS_BUILD_INPUT_SHA="$(awk '{print $1}' "$EVIDENCE/ProjectSettings.asset.effective-build-input.sha256")"
+  git show HEAD:games/evergrove/ProjectSettings/ProjectSettings.asset > "$PROJECT/ProjectSettings/ProjectSettings.asset"
+  if ! git diff --quiet HEAD -- games/evergrove tools/evergrove_unity_local_preflight.sh; then
+    echo "Restoring the captured PlayerSettings asset did not return tracked project files to HEAD." >&2
+    exit 1
+  fi
 fi
 record_untracked_inputs after || exit 1
 # The importer itself validates actual Unity JsonUtility and 29 bundled
@@ -120,7 +139,11 @@ else
   OUTDIR="$EVERGROVE_OUTPUT_ROOT/$MODE"
   case "$MODE" in
     Android)
-      OUTPUT="$OUTDIR/Evergrove-Playtest.apk"
+      if [ "$BUILD_CHANNEL" = "release-candidate" ]; then
+        OUTPUT="$OUTDIR/Mosselora.aab"
+      else
+        OUTPUT="$OUTDIR/Evergrove-Playtest.apk"
+      fi
       MARKER="$OUTPUT"
       ;;
     iOS)
@@ -134,7 +157,12 @@ else
   esac
   # Check the EXACT unique path that this invocation requested, not a
   # generic success log from a different output directory.
-  if ! grep -Fq "EVERGROVE_BUILD_SUCCEEDED $OUTPUT" "$LOG"; then
+  if [ "$BUILD_CHANNEL" = "release-candidate" ]; then
+    EXPECTED_MARKER="EVERGROVE_BUILD_SUCCEEDED release-candidate $OUTPUT"
+  else
+    EXPECTED_MARKER="EVERGROVE_BUILD_SUCCEEDED $OUTPUT"
+  fi
+  if ! grep -Fq "$EXPECTED_MARKER" "$LOG"; then
     echo "Unity success marker does not identify this invocation's output: $OUTPUT" >&2
     exit 1
   fi
@@ -143,14 +171,14 @@ else
     exit 1
   fi
   shasum -a 256 "$MARKER" > "$EVIDENCE/marker.sha256"
-  python3 - "$OUTDIR" "$EVIDENCE" "$SOURCE_SHA" "$MODE" "$EXPECTED_VERSION" <<'PY'
+  python3 - "$OUTDIR" "$EVIDENCE" "$SOURCE_SHA" "$MODE" "$EXPECTED_VERSION" "$BUILD_CHANNEL" "$PROJECT_SETTINGS_BUILD_INPUT_SHA" <<'PY'
 import hashlib
 import json
 from pathlib import Path
 import sys
 
 root, evidence = Path(sys.argv[1]), Path(sys.argv[2])
-sha, platform, requested_version = sys.argv[3:6]
+sha, platform, requested_version, build_channel, project_settings_sha = sys.argv[3:8]
 items = []
 for file in sorted(root.rglob("*")):
     if file.is_symlink():
@@ -173,7 +201,8 @@ manifest = {
     "source_commit_sha": sha,
     "requested_unity_editor_version": requested_version,
     "platform": platform,
-    "build_channel": "development-research-only",
+    "build_channel": build_channel,
+    "effective_project_settings_sha256": project_settings_sha or None,
     "does_not_prove": [
         "actual Editor version without log review",
         "signed or installed phone app",
@@ -188,8 +217,12 @@ PY
 fi
 
 shasum -a 256 "$LOG" > "$EVIDENCE/editor-log.sha256"
-printf 'source_commit_sha=%s\nrequested_unity_editor_version=%s\nmode=%s\nlocal_run_dir=%s\n' \
-  "$SOURCE_SHA" "$EXPECTED_VERSION" "$MODE" "$EVIDENCE" > "$EVIDENCE/probe-context.txt"
+printf 'source_commit_sha=%s\nrequested_unity_editor_version=%s\nmode=%s\nbuild_channel=%s\nlocal_run_dir=%s\n' \
+  "$SOURCE_SHA" "$EXPECTED_VERSION" "$MODE" "$BUILD_CHANNEL" "$EVIDENCE" > "$EVIDENCE/probe-context.txt"
+if [ -n "$PROJECT_SETTINGS_BUILD_INPUT_SHA" ]; then
+  printf 'effective_project_settings_sha256=%s\neffective_project_settings_file=%s\n' \
+    "$PROJECT_SETTINGS_BUILD_INPUT_SHA" "$EVIDENCE/ProjectSettings.asset.effective-build-input" >> "$EVIDENCE/probe-context.txt"
+fi
 if [ -s "$EVIDENCE/untracked-unity-inputs.after.sha256" ]; then
   printf 'provenance_status=PROVISIONAL_GENERATED_INPUTS_NOT_IN_GIT\n' >> "$EVIDENCE/probe-context.txt"
   echo "WARNING: imported Unity .meta / settings / package-lock files are untracked." >&2

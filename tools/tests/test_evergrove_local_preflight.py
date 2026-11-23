@@ -22,6 +22,7 @@ set -euo pipefail
 project=""
 log=""
 platform="smoke"
+channel="${EVERGROVE_BUILD_CHANNEL:-development}"
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -projectPath) project="$2"; shift 2 ;;
@@ -35,6 +36,7 @@ mkdir -p "$(dirname "$log")" "$project/Assets/Scripts" "$project/Packages" "$pro
 echo generated > "$project/Assets/Scripts/Mock.cs.meta"
 echo '{"locked":true}' > "$project/Packages/packages-lock.json"
 echo settings > "$project/ProjectSettings/ProjectSettings.asset"
+echo generated-settings > "$project/ProjectSettings/GeneratedSettings.asset"
 if [ "${MOCK_EDIT_TRACKED:-0}" = 1 ]; then
   echo m_EditorVersion: 6000.3.999f1 > "$project/ProjectSettings/ProjectVersion.txt"
 fi
@@ -49,7 +51,11 @@ repo="$(dirname "$(dirname "$project")")"
 root="${EVERGROVE_OUTPUT_ROOT:-$repo/build}"
 case "$platform" in
   Android)
-    output="$root/Android/Evergrove-Playtest.apk"
+    if [ "$channel" = "release-candidate" ]; then
+      output="$root/Android/Mosselora.aab"
+    else
+      output="$root/Android/Evergrove-Playtest.apk"
+    fi
     marker="$output"
     ;;
   iOS)
@@ -64,6 +70,8 @@ case "$platform" in
 esac
 if [ "${MOCK_WRONG_LOG_PATH:-0}" = 1 ]; then
   echo "EVERGROVE_BUILD_SUCCEEDED /old-run/Evergrove-Playtest.apk" >> "$log"
+elif [ "$channel" = "release-candidate" ]; then
+  echo "EVERGROVE_BUILD_SUCCEEDED $channel $output" >> "$log"
 else
   echo "EVERGROVE_BUILD_SUCCEEDED $output" >> "$log"
 fi
@@ -85,6 +93,9 @@ class PreflightShellContractTests(unittest.TestCase):
         (proj / "Assets" / "Scripts").mkdir(parents=True)
         (proj / "ProjectSettings" / "ProjectVersion.txt").write_text(
             "m_EditorVersion: 6000.3.0f1\n", encoding="utf-8"
+        )
+        (proj / "ProjectSettings" / "ProjectSettings.asset").write_text(
+            "original settings\n", encoding="utf-8"
         )
         (proj / "Assets" / "Scripts" / "Mock.cs").write_text(
             "// Synthetic tracked source file\n", encoding="utf-8"
@@ -134,7 +145,13 @@ class PreflightShellContractTests(unittest.TestCase):
         generated = (record / "untracked-unity-inputs.after.sha256").read_text()
         self.assertIn("Mock.cs.meta", generated)
         self.assertIn("packages-lock.json", generated)
-        self.assertIn("ProjectSettings.asset", generated)
+        self.assertIn("GeneratedSettings.asset", generated)
+        self.assertEqual(
+            (self.root / "games" / "evergrove" / "ProjectSettings" / "ProjectSettings.asset").read_text(),
+            "original settings\n",
+        )
+        self.assertTrue((record / "ProjectSettings.asset.effective-build-input").is_file())
+        self.assertIn("effective_project_settings_sha256", (record / "probe-context.txt").read_text())
         self.assertIn("WARNING", first.stderr)
 
         # A real first Unity import generates .meta and project settings:
@@ -144,8 +161,21 @@ class PreflightShellContractTests(unittest.TestCase):
         android_run = self._single_run(sha, "Android")
         manifest = android_run / "local-export-manifest.json"
         self.assertTrue(manifest.is_file())
+        self.assertIn("effective_project_settings_sha256", manifest.read_text())
         self.assertIn("FAKE", (android_run / "output" / "Android" / "Evergrove-Playtest.apk").read_text())
         self.assertIn(str(android_run / "output"), (android_run / "unity-editor.log").read_text())
+
+    def test_release_candidate_android_uses_aab_and_channel_marker(self) -> None:
+        result = self._run("Android", EVERGROVE_BUILD_CHANNEL="release-candidate")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=self.root, text=True
+        ).strip()
+        run = self._single_run(sha, "Android")
+        artifact = run / "output" / "Android" / "Mosselora.aab"
+        self.assertTrue(artifact.is_file())
+        self.assertIn("release-candidate", (run / "local-export-manifest.json").read_text())
+        self.assertIn("EVERGROVE_BUILD_SUCCEEDED release-candidate", (run / "unity-editor.log").read_text())
 
     def test_untracked_unrecognized_source_blocks_run(self) -> None:
         file = self.root / "games" / "evergrove" / "Assets" / "Scripts" / "Unexpected.cs"

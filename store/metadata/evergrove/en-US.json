@@ -2,8 +2,8 @@
   "schema_version": 1,
   "game_slug": "evergrove",
   "product_name": "Mosselora",
-  "source_commit": "fc9d7daebf8b5ddff5301d9ef582cce3dfd17801",
-  "source_note": "Mosselora is the current public working name; Evergrove remains the internal project codename and slug. Unity 6.3 Chapter One playtest prototype; Editor and device builds are not verified.",
+  "source_commit": "f915f6722a55aabc4033732531f1c3b915602dad",
+  "source_note": "Mosselora is the public product name; Evergrove remains the internal codename. Current source includes Android engine-stripping, minimum-SDK, accessibility, CJK and RTL updates. The signed Android AAB (1.0.0/code 1) predates these changes and is not a current release candidate; the iOS device build is unsigned. No store upload, submission, approval or public availability is verified. The listing remains a draft, the mobile privacy disclosure is incomplete, and formal title clearance and age fit are unknown.",
   "status": "draft — not release approved",
   "source_locale": "en-US",
   "apple": {
@@ -15,14 +15,16 @@
     "secondary_category": null,
     "description": "Restore a village stream one pipe puzzle at a time. Rotate tiles to connect the spring to the garden, watch water reach the route, then choose what to restore: shade trees, a footbridge or wildflowers.\n\nYour choice changes the next stream and the village story. Follow twelve chapters, revisit your journal and see how a small set of decisions combine. Optional hints, undo and restart let you take the puzzle at your own pace.\n\nPlay offline, without an account or network connection. Progress is saved on this device.",
     "keywords": "pipe,water,logic,puzzle,garden,village,story,offline,stream",
-    "support_url": null,
+    "support_url": "https://mosselora.com/support/",
+    "marketing_url": "https://mosselora.com/",
     "privacy_policy_url": null
   },
   "google_play": {
     "title": "Mosselora",
     "short_description": "Rotate pipes, restore a stream, and shape a village garden.",
     "full_description": "Restore a village stream one pipe puzzle at a time. Rotate tiles to connect the spring to the garden, watch water reach the route, then choose what to restore: shade trees, a footbridge or wildflowers.\n\nYour choice changes the next stream and the village story. Follow twelve chapters, revisit your journal and see how a small set of decisions combine. Optional hints, undo and restart let you take the puzzle at your own pace.\n\nPlay offline, without an account or network connection. Progress is saved on this device.",
-    "support_url": null,
+    "support_url": "https://mosselora.com/support/",
+    "marketing_url": "https://mosselora.com/",
     "privacy_policy_url": null
   },
   "release_decisions": {
@@ -33,13 +35,13 @@
     "price": "free (user-confirmed 2026-11-23; Apple $0.00 schedule saved across 175 territories, effective when Ready for Sale; Google Play not configured)",
     "territories": "Apple App Availability not configured; Google Play not configured",
     "age_rating": "not completed",
-    "privacy_and_data_safety": "Desktop Development-player binary inspection found no third-party SDK assemblies; Unity cloud services are disabled; WorldClient is compiled but unattached; no outbound TCP was seen in four samples during one approximately 6-second run, but a Development Player Connection listener on TCP 55000 was present. This does not verify a mobile release or establish no traffic. Signed iOS/Android binary inspection, controlled device network capture and account-owner disclosures remain pending.",
-    "automatic_release": "Apple iOS 1.0: Automatically release after App Review selected and read back; no submission. Google: standard publishing requested; app record not created.",
+    "privacy_and_data_safety": "The signed Android AAB contains android.permission.INTERNET. Source review finds the optional Cloudflare WorldClient is not attached to the default boot scene; the API is not used for save sync. No controlled mobile network capture or final privacy/data-safety declaration is complete. Keep disclosure pending account-owner review.",
+    "automatic_release": "Apple iOS 1.0: Automatically release after App Review selected and read back; no submission. Google Play: standard publishing requested; no app record or submission.",
     "audience_fit_45_plus": "unknown",
     "title_clearance": "USPTO search on 2026-11-23: exact wordmark Mosselora returned no results; root mossel returned five results, including live registered MOSSEL in IC 010 and live pending MOSSEL in IC 017 for foam supports for floral arrangements. Preliminary federal screen only; full legal clearance remains pending.",
     "app_store_sku": "GF-EVERGROVE-IOS-20261122",
-    "app_store_record": "created 2026-11-23; app id 6838015597; public name changed to Mosselora on 2026-11-23; version 1.0 Prepare for Submission; English description and keywords saved",
-    "package_id_candidate": "com.streamentry.evergrove; package availability rechecked after setting Mosselora title; no app record created",
+    "app_store_record": "Created 2026-11-23; app id 6838015597; public name Mosselora; version 1.0 Prepare for Submission; no uploaded build.",
+    "package_id_candidate": "com.streamentry.evergrove; Play package availability confirmed; no Play app record created.",
     "apple_version_name": "1.0 (ASC record only; no build uploaded)",
     "app_store_category": "Games",
     "app_store_primary_subcategory": "Puzzle",
@@ -50,5 +52,5 @@
   },
   "keyword_status": "draft terms; no keyword-demand evidence",
   "english_review": "not reviewed by a native editor or account owner",
-  "locale_status": "English-only consumer build candidate; English itself is not M5-certified"
+  "locale_status": "English-only consumer build candidate. Top-30 roster map/drafts are in descriptions-draft.tsv; 25 machine translations remain native-review pending, proxy/unsupported rows are explicitly marked, and none is approved for submission."
 }
