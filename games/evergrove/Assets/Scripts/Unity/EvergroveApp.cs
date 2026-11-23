@@ -120,6 +120,7 @@ namespace Evergrove.UnityClient
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
             LocaleRuntime.Initialize();
+            TextScale.Initialize();
             font = LocaleFonts.Choose(LocaleRuntime.Current, baseFont);
             sound = gameObject.AddComponent<AudioSource>();
             sound.playOnAwake = false;
@@ -202,6 +203,25 @@ namespace Evergrove.UnityClient
             element.preferredHeight = amount;
         }
 
+        // Floor only: the element grows with its text when text scale is raised.
+        private static void MinHeight(GameObject obj, float amount)
+        {
+            var element = obj.AddComponent<LayoutElement>();
+            element.minHeight = amount;
+        }
+
+        // Applies the single text-size scale to a generated Text.
+        private void StyleText(Text text, int basePoints)
+        {
+            text.font = font;
+            text.fontSize = TextScale.Scale(basePoints);
+        }
+
+        private static int SaveBannerHeight()
+        {
+            return TextScale.Scale(72);
+        }
+
         private void FitSafeArea()
         {
             if (Screen.width <= 0 || Screen.height <= 0 || scrollArea == null) return;
@@ -276,7 +296,7 @@ namespace Evergrove.UnityClient
             warningRect.anchorMin = new Vector2(0f, 1f);
             warningRect.anchorMax = new Vector2(1f, 1f);
             warningRect.pivot = new Vector2(0.5f, 1f);
-            warningRect.sizeDelta = new Vector2(0f, 72f);
+            warningRect.sizeDelta = new Vector2(0f, SaveBannerHeight());
             warningRect.anchoredPosition = Vector2.zero;
             var warningBackground = saveWarningBanner.AddComponent<Image>();
             warningBackground.color = Hex("#F9E5E0");
@@ -287,11 +307,10 @@ namespace Evergrove.UnityClient
             warningTextRect.offsetMin = new Vector2(12f, 0f);
             warningTextRect.offsetMax = new Vector2(-12f, 0f);
             saveWarningCaption = warningTextNode.AddComponent<Text>();
-            saveWarningCaption.font = font;
-            saveWarningCaption.fontSize = 14;
+            StyleText(saveWarningCaption, 14);
             saveWarningCaption.resizeTextForBestFit = true;
-            saveWarningCaption.resizeTextMinSize = 12;
-            saveWarningCaption.resizeTextMaxSize = 14;
+            saveWarningCaption.resizeTextMinSize = TextScale.Scale(12);
+            saveWarningCaption.resizeTextMaxSize = TextScale.Scale(14);
             saveWarningCaption.color = Hex("#983E37");
             saveWarningCaption.alignment = TextAnchor.MiddleCenter;
             saveWarningCaption.raycastTarget = false;
@@ -322,7 +341,7 @@ namespace Evergrove.UnityClient
             saveWarningCaption.font = font;
             saveWarningCaption.text = GameLocalization.Text("save_warning");
             saveWarningBanner.SetActive(saveFailed);
-            warningViewport.offsetMax = new Vector2(0f, saveFailed ? -72f : 0f);
+            warningViewport.offsetMax = new Vector2(0f, saveFailed ? -SaveBannerHeight() : 0f);
         }
 
         private Text Label(Transform parent, string name, string value, int size, int minimum,
@@ -335,8 +354,7 @@ namespace Evergrove.UnityClient
             var layout = node.AddComponent<LayoutElement>();
             layout.minHeight = minimum;
             var label = node.AddComponent<Text>();
-            label.font = font;
-            label.fontSize = size;
+            StyleText(label, size);
             label.color = color;
             label.alignment = GameLocalization.IsRtl(GameLocalization.Current) &&
                 alignment == TextAnchor.MiddleLeft ? TextAnchor.MiddleRight : alignment;
@@ -369,7 +387,15 @@ namespace Evergrove.UnityClient
                               int height = 52, bool primary = false)
         {
             var node = Node(name, parent);
-            Height(node, height);
+            // Minimum target height scales with text; the caption layout grows it further.
+            MinHeight(node, TextScale.Scale(height));
+            var stack = node.AddComponent<VerticalLayoutGroup>();
+            stack.padding = new RectOffset(10, 10, 6, 6);
+            stack.childAlignment = TextAnchor.MiddleCenter;
+            stack.childControlWidth = true;
+            stack.childControlHeight = true;
+            stack.childForceExpandWidth = true;
+            stack.childForceExpandHeight = true;
             var image = node.AddComponent<Image>();
             image.color = primary ? Leaf : Pale; // Primary actions are rare; choices are equal.
             var button = node.AddComponent<Button>();
@@ -382,8 +408,7 @@ namespace Evergrove.UnityClient
             var textNode = Node("Caption", node.transform);
             Fill(textNode.GetComponent<RectTransform>());
             var text = textNode.AddComponent<Text>();
-            text.font = font;
-            text.fontSize = 15;
+            StyleText(text, 15);
             text.color = primary ? White : Ink;
             text.alignment = TextAnchor.MiddleCenter;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -405,7 +430,7 @@ namespace Evergrove.UnityClient
             group.childControlHeight = true;
             group.childForceExpandWidth = true;
             group.childForceExpandHeight = false;
-            Height(row, 54);
+            MinHeight(row, TextScale.Scale(54));
             return row;
         }
 
@@ -445,6 +470,8 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
                     () => { languagePicker = !languagePicker; Rebuild(true); }, 48);
+            if (!firstPuzzle || languagePicker)
+                TextSizeButton(content);
             if (languagePicker)
             {
                 BuildLanguagePicker();
@@ -578,6 +605,8 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
                     () => { languagePicker = true; Rebuild(true); }, 48);
+            if (firstPuzzle && !languagePicker)
+                TextSizeButton(content);
 
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
@@ -959,6 +988,15 @@ namespace Evergrove.UnityClient
                 13, 56, Moss, TextAnchor.MiddleCenter);
         }
 
+        // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.
+        private void TextSizeButton(Transform parent)
+        {
+            Button(parent, "Text size", "Aa " + TextScale.Percent + "%", () => {
+                TextScale.Cycle();
+                Rebuild();
+            }, 52);
+        }
+
         private void BuildLanguagePicker()
         {
             Label(content, "Language information", GameLocalization.Text("language_help"),
@@ -1047,7 +1085,7 @@ namespace Evergrove.UnityClient
         private void CreateMatchedInput(Transform parent)
         {
             var node = Node("Matched schedule input", parent);
-            Height(node, 48);
+            MinHeight(node, TextScale.Scale(48));
             var background = node.AddComponent<Image>();
             background.color = White;
             var field = node.AddComponent<InputField>();
@@ -1057,8 +1095,7 @@ namespace Evergrove.UnityClient
             textNode.GetComponent<RectTransform>().offsetMin = new Vector2(10f, 0f);
             textNode.GetComponent<RectTransform>().offsetMax = new Vector2(-10f, 0f);
             var text = textNode.AddComponent<Text>();
-            text.font = font;
-            text.fontSize = 16;
+            StyleText(text, 16);
             text.color = Ink;
             text.supportRichText = false;
             text.raycastTarget = false;
@@ -1068,8 +1105,7 @@ namespace Evergrove.UnityClient
             placeholderNode.GetComponent<RectTransform>().offsetMin = new Vector2(10f, 0f);
             placeholderNode.GetComponent<RectTransform>().offsetMax = new Vector2(-10f, 0f);
             var placeholder = placeholderNode.AddComponent<Text>();
-            placeholder.font = font;
-            placeholder.fontSize = 16;
+            StyleText(placeholder, 16);
             placeholder.fontStyle = FontStyle.Italic;
             placeholder.color = Moss;
             placeholder.supportRichText = false;
