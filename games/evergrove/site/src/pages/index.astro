@@ -1,0 +1,122 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+
+const steps = [
+  {
+    title: "Connect",
+    text: "Turn pipe tiles until the spring reaches the garden. Water follows the real connections."
+  },
+  {
+    title: "Restore",
+    text: "See the village stream return when the puzzle is solved without leaks."
+  },
+  {
+    title: "Choose",
+    text: "Plant shade, repair a crossing, or make room for wildflowers. Later puzzles remember the choice."
+  }
+];
+
+const questions = [
+  {
+    question: "Is Mosselora available to download?",
+    answer: "Not yet. The native mobile game is still in development and has not been submitted to either store."
+  },
+  {
+    question: "Can I play at my own pace?",
+    answer: "The current design has no timer or score penalty. It includes undo, restart, and optional hints. Native device testing is still in progress."
+  },
+  {
+    question: "Does the browser preview save or send my play?",
+    answer: "No. The one-puzzle preview runs in your browser, uses no account or analytics, and does not send puzzle actions to a server."
+  }
+];
+---
+
+<SiteLayout
+  title="Mosselora | A Living Garden Puzzle"
+  description="A quiet pipe puzzle where every choice changes the next waterway and the village around it."
+>
+  <section class="hero section-wrap" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="eyebrow">A living-garden puzzle</p>
+      <h1 id="hero-title">Guide the stream.<br />Grow the garden.</h1>
+      <p class="hero-lede">Turn pipe tiles, restore a stream, then choose what grows in a village that remembers.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="/preview/">Try the first puzzle</a>
+        <a class="text-link" href="#gameplay">How it plays <span aria-hidden="true">↘</span></a>
+      </div>
+      <p class="release-note">The browser preview is one puzzle. The full mobile game is still in development.</p>
+    </div>
+    <figure class="hero-art">
+      <img
+        src="/brand/mosselora-logo.png"
+        alt="Mosselora logo framed by moss, a stream, flowers, a butterfly, and a cottage"
+        width="2172"
+        height="724"
+        fetchpriority="high"
+      />
+      <figcaption>Mosselora logo, not a gameplay screen.</figcaption>
+    </figure>
+  </section>
+
+  <section id="gameplay" class="gameplay section-wrap" aria-labelledby="gameplay-title">
+    <div class="section-intro">
+      <h2 id="gameplay-title">Water moves only when the path is real.</h2>
+      <p>Every tile turn changes the connected route. Solve the pipe puzzle, then make one choice that shapes the next stream.</p>
+    </div>
+    <ol class="step-list">
+      {steps.map((step) => (
+        <li>
+          <h3>{step.title}</h3>
+          <p>{step.text}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section id="garden" class="garden-section" aria-labelledby="garden-title">
+    <div class="garden-copy">
+      <h2 id="garden-title">A tree, a crossing, or a field of flowers.</h2>
+      <p>Each choice changes the village and anchors a different connection in a later puzzle. The world responds to saved game state, not a decorative progress bar.</p>
+      <ul class="choice-list">
+        <li><strong>Shade</strong><span>Plant a tree beside the stream.</span></li>
+        <li><strong>Crossing</strong><span>Reconnect the two banks.</span></li>
+        <li><strong>Wildflowers</strong><span>Make room for a meadow.</span></li>
+      </ul>
+    </div>
+    <figure class="concept-art">
+      <img
+        src="/images/mosselora-garden-concept.png"
+        alt="Concept illustration of a village garden with a winding stream, a small bridge, trees, and wildflowers"
+        width="1672"
+        height="941"
+        loading="lazy"
+      />
+      <figcaption>Garden concept art. It is not a capture from the game.</figcaption>
+    </figure>
+  </section>
+
+  <section class="pace-section section-wrap" aria-labelledby="pace-title">
+    <div>
+      <h2 id="pace-title">No rush. No penalty for a wrong turn.</h2>
+    </div>
+    <div class="pace-copy">
+      <p>Use a gentle hint when you want one. Undo a move, restart a stream, or close the game and return later.</p>
+      <p>The game is designed to work offline and without an account. Native save, accessibility, and privacy checks are still in progress.</p>
+    </div>
+  </section>
+
+  <section class="questions-section section-wrap" aria-labelledby="questions-title">
+    <div class="section-intro">
+      <h2 id="questions-title">A few clear answers.</h2>
+    </div>
+    <div class="question-list">
+      {questions.map((item) => (
+        <details>
+          <summary>{item.question}</summary>
+          <p>{item.answer}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+</SiteLayout>

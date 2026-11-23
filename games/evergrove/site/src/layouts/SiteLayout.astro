@@ -1,0 +1,61 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  noIndex?: boolean;
+}
+
+const { title, description, noIndex = false } = Astro.props;
+const siteUrl = Astro.site ?? new URL("https://mosselora.com");
+const canonical = new URL(Astro.url.pathname, siteUrl).toString();
+const socialImage = new URL("/brand/mosselora-logo.png", siteUrl).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#173d33" />
+    <meta name="description" content={description} />
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/png" href="/brand/mosselora-app-icon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mosselora" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Mosselora home">
+        <img src="/brand/mosselora-app-icon.png" alt="" width="42" height="42" />
+        <span>Mosselora</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="/#gameplay">How it plays</a>
+        <a href="/#garden">The garden</a>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <a class="footer-brand" href="/">Mosselora</a>
+      <p>A puzzle about water, small choices, and a village that changes.</p>
+      <nav aria-label="Footer navigation">
+        <a href="/privacy/">Privacy</a>
+        <a href="/support/">Support</a>
+      </nav>
+      <small>Mobile game in development. No release date announced.</small>
+    </footer>
+  </body>
+</html>

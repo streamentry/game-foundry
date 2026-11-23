@@ -19,6 +19,10 @@ Build **distinctive, accessible, mobile-first games for adults aged 45 and older
 - Test readability, contrast, touch precision, pacing, help and recovery with adults 45+ from the intended audience when feasible. Keep accessibility options visible and adjustable; do not make timers, small text, color-only cues, or fast gestures the only route through play.
 - Do not claim that a game improves memory, cognition, or health without appropriate evidence. Do not infer age-specific demand from broad keyword volumes, language speaker counts, category popularity, or competitor age assumptions. Mark it `unknown` unless the source directly supports the 45+ audience.
 
+## Naming: Mosselora = Evergrove
+
+**Mosselora** is the public product name (app, store listing, web site at mosselora.com). **Evergrove** is its *internal codename* and remains in paths (`games/evergrove/`), code namespaces, bundle IDs, docs and the decision log. Do not rename internal identifiers. Use "Mosselora" in anything a player or store reviewer sees. Brand masters live in `games/evergrove/brand/` (`mosselora-logo.png`, `mosselora-app-icon-1024.png`); the site and Unity project use copies of them.
+
 ## Source of truth
 
 1. `docs/research/README.md` governs demand research and evidentiary labels.
@@ -26,6 +30,7 @@ Build **distinctive, accessible, mobile-first games for adults aged 45 and older
 3. `docs/architecture.md` governs project boundaries.
 4. `DESIGN.md` governs product quality, with per-game design specs overriding aesthetics only.
 5. Each game's `project.godot`, tests and README govern build/run commands.
+6. `docs/store-publishing-workflow.md` governs iOS and Android listing, localization, assets, binary upload, review and release settings.
 
 ## First-principles operating discipline
 
@@ -94,7 +99,7 @@ If answers are weak, run the falsification test before expanding the implementat
 - Never add copied iconography, level packs, sounds, screenshots or trade dress.
 - No arbitrary third-party SDK copied from a gist; audit version, maintenance, licenses, privacy and mobile platform support.
 - Keep independent Godot projects per game. Share tested code via explicitly versioned add-ons or vendoring; never fragile `../` resource paths.
-- Keep app IDs, certificates, Apple/Google credentials and API tokens out of git. Do not make publishing automatic.
+- Keep app IDs, certificates, Apple/Google credentials and API tokens out of git. Do not submit or release a game without explicit user authorization for that release. When the user explicitly requests automatic release after store approval, configure that store option while preserving all build, review, privacy and legal gates. Never automate spending or an account owner's legal attestation.
 - Never fabricate API metrics, keyword volumes, reviews, retention, LTV or competitor weaknesses.
 - Never present broad market metrics as proof of demand or usability among adults aged 45+.
 - The proposed first-launch target of 1,000 non-branded organic installs within 60 days is an experiment goal, not an industry benchmark or forecast. Define a numeric Day-7 retention threshold before launch; do not call retention “meaningful” without a predeclared measure.
@@ -106,7 +111,7 @@ If answers are weak, run the falsification test before expanding the implementat
 - **Producer:** Write a one-page game hypothesis for adults 45+ with differentiation, monetization and stop criteria.
 - **Builder:** Deliver a complete game loop, original visuals and accessible input, with pure rules.
 - **Reviewer:** Try to falsify uniqueness, correctness, mobile usability for the intended 45+ audience, security and policy compliance.
-- **Publisher:** Validate exports, metadata, receipts/consent where used and rollback plan. Requires human approval.
+- **Publisher:** Validate exports, metadata, receipts/consent where used and rollback plan. Requires explicit user authorization to submit; account-owner declarations remain for the account owner to confirm.
 
 ## Done means
 

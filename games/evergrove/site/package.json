@@ -1,0 +1,18 @@
+{
+  "name": "mosselora-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.23.4" },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "test": "node --test ../research/first-minute/game.test.cjs",
+    "preview": "wrangler dev",
+    "deploy": "astro build && wrangler deploy"
+  },
+  "devDependencies": {
+    "astro": "7.4.13",
+    "wrangler": "^4.0.0"
+  }
+}

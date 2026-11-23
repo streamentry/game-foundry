@@ -1,5 +1,7 @@
 # Evergrove AGENTS.md — source-grounded execution contract
 
+> **Mosselora is Evergrove.** Evergrove is the internal codename; Mosselora is the public name. Keep internal identifiers; use Mosselora for player-facing text. Logo and app icon masters: `brand/` (copies in `Assets/Branding/` and `site/public/brand/`).
+
 Read [repository AGENTS.md](../../AGENTS.md) and the [Evergrove handbook](docs/README.md) **before** changing this Unity/C# project. It is the approved engine exception in Game Foundry's mostly Godot portfolio.
 
 The separate [37-feature product specifications](docs/specs/README.md) are **proposals** (P0/P1/P2), not part of the current implemented contract. The [execution gates](docs/specs/09-EXECUTION-CONTROL.md) and [machine-readable verification registry](docs/specs/verification-matrix.json) control readiness: **M1 real Unity build → M2 devices/recovery/privacy → M3 first-session usability → M4 puzzle-identical narrative comparison → M5 certified locales → M6 commercial release**. New P1/P2 features are blocked by evidence, not a high abstract score. Check the as-built handbook and code before taking a proposed feature into a PR.
@@ -18,7 +20,7 @@ The separate [37-feature product specifications](docs/specs/README.md) are **pro
 - `Assets/Scripts/Unity/EvergroveApp.cs`: Unity UI, not another world authority.
 - `Assets/Scripts/Core/SaveJournal.cs` + `Assets/Scripts/Unity/WorldStore.cs`: validated primary/backup/staged recovery, safe backup rotation, and explicit write block when all slots fail. The UI warns and requires a confirmed reset; **physical interruption and recovery remain unverified**.
 - `Assets/Scripts/Unity/VillageIllustration.cs` / `VillageDiorama.cs`: 2D default and optional experimental 2.5D.
-- `Assets/Scripts/Unity/WorldClient.cs` and `backend/evergrove`: detached demo, not real cloud game sync.
+- `Assets/Scripts/Unity/WorldClient.cs` and `backend/`: detached prototype, not real cloud game sync.
 
 ## Definition of done
 

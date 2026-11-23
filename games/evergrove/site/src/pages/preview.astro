@@ -1,0 +1,23 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="Mosselora browser preview"
+  description="Try one pipe puzzle in the Mosselora research prototype."
+  noIndex={true}
+>
+  <section class="preview-page section-wrap" aria-labelledby="preview-page-title">
+    <p class="eyebrow">Research prototype</p>
+    <h1 id="preview-page-title">One puzzle, not the full game.</h1>
+    <p class="page-lede">The browser slice shows the first water puzzle and one village choice. It is not a native build. It does not save progress or send puzzle actions to a server.</p>
+    <p><a class="text-link" href="/">Back to Mosselora</a></p>
+    <iframe
+      src="/preview/game/index.html"
+      title="Mosselora one-puzzle browser research prototype"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+    ></iframe>
+    <p class="preview-fallback">If the embedded preview does not fit your screen, <a href="/preview/game/index.html">open it on its own page</a>.</p>
+  </section>
+</SiteLayout>

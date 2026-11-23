@@ -56,7 +56,10 @@ namespace Evergrove.UnityClient.Editor
                     ? Path.Combine(outDir, "Evergrove-Xcode")
                     : Path.Combine(outDir, "Evergrove-Playtest");
 
-            PlayerSettings.productName = "Evergrove Playtest";
+            PlayerSettings.productName = "Mosselora Playtest";
+            Texture2D appIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Branding/MosseloraAppIcon.png");
+            if (appIcon != null)
+                PlayerSettings.SetIcons(UnityEditor.Build.NamedBuildTarget.Unknown, new[] { appIcon }, IconKind.Any);
             PlayerSettings.companyName = "Game Foundry";
             PlayerSettings.bundleVersion = "0.1.0";
             // No production app ID, store signing keys or release deployment.

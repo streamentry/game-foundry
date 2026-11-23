@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /preview/game/
+
+Sitemap: https://mosselora.com/sitemap.xml
