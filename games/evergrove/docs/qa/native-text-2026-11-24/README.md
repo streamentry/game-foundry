@@ -39,3 +39,11 @@ Earlier iterations: the first Android attempt used the wrong class (`StaticLayou
 - Texture cache is per label. A label re-renders only when its key changes. There is no cross-label cache.
 - Unity Editor and desktop fall back to uGUI (no native path).
 - `ProjectSettings.asset` changes from the build (SDK version bump) were reverted. `Packages/manifest.json` gained `com.unity.modules.androidjni`, which the Android native path needs.
+
+## Lead fix: empty chapter pill (2026-11-24)
+
+The lead checked the bn Android capture after the merge. The chapter pill ("ঝরনা 1 / 12") was an empty pale square. The pill's HorizontalLayoutGroup sizes itself to its child's preferred width. A disabled uGUI Text reports none, so the label width was 0 and the native renderer never ran (it skips widths ≤ 0). The fix is in `NativeTextLabel`: when the parent row controls the child width without force-expanding it, the label sets its `LayoutElement.preferredWidth` from the uGUI estimate plus a 12% margin. The estimate is recomputed when the text changes and cleared if the native path fails. Full-width labels are unaffected.
+
+- Evidence: [android/bn-chapter1-pill-fixed.png](android/bn-chapter1-pill-fixed.png). Emulator-5570, fresh install, bn app locale. The pill shows formed text, and the logcat has 0 `class with ID 115` lines and no Unity exceptions.
+- Checks after the fix: `verify_evergrove_project.py`, `check_evergrove_docs.py`, and the Unity batch smoke (`VerifyProject`) pass. The fix is in Unity-only code, so the C# Core tests are unaffected.
+- Not run: iOS Simulator recheck of the pill.

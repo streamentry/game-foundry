@@ -24,6 +24,11 @@ namespace Evergrove.UnityClient
         private Texture2D texture;
         private bool failed;
         private bool dirty = true;
+        // True when the parent layout sizes this label to its content (e.g. the
+        // chapter pill). A disabled Text reports no preferred width, which would
+        // collapse such a parent to zero, so the width is supplied here instead.
+        private bool sizesToContent;
+        private string widthFor;
 
         // Last rendered state; a render happens only when one of these changes.
         private string lastText;
@@ -69,8 +74,26 @@ namespace Evergrove.UnityClient
             image.enabled = false;
             layout = source.GetComponent<LayoutElement>();
             if (layout == null) layout = source.gameObject.AddComponent<LayoutElement>();
+            var row = source.transform.parent != null
+                ? source.transform.parent.GetComponent<HorizontalLayoutGroup>() : null;
+            sizesToContent = row != null && row.childControlWidth && !row.childForceExpandWidth;
             source.enabled = false;
             dirty = true;
+        }
+
+        // Margin over the uGUI estimate: native Bengali clusters can be a little
+        // wider than uGUI's unshaped glyph run.
+        private const float ContentWidthMargin = 1.12f;
+
+        private void UpdateContentWidth()
+        {
+            string text = source.text ?? "";
+            if (text == widthFor) return;
+            widthFor = text;
+            // Text.preferredWidth uses the text generator and works while disabled.
+            layout.preferredWidth = text.Length == 0 ? -1f
+                : Mathf.Ceil(source.preferredWidth * ContentWidthMargin);
+            LayoutRebuilder.MarkLayoutForRebuild((RectTransform)source.transform);
         }
 
         private void OnRectTransformDimensionsChange()
@@ -81,6 +104,7 @@ namespace Evergrove.UnityClient
         private void LateUpdate()
         {
             if (failed || source == null || image == null) return;
+            if (sizesToContent) UpdateContentWidth();
             float scale = ScaleFactor();
             Rect rect = ((RectTransform)source.transform).rect;
             int widthPx = Mathf.RoundToInt(rect.width * scale);
@@ -141,6 +165,7 @@ namespace Evergrove.UnityClient
             ReleaseTexture();
             image.enabled = false;
             layout.preferredHeight = -1f;
+            if (sizesToContent) layout.preferredWidth = -1f;
             source.text = IndicVisualOrder.Visual(Locale, source.text);
             source.enabled = true;
             Debug.LogWarning("Mosselora native text unavailable; using uGUI Text for this label.");
