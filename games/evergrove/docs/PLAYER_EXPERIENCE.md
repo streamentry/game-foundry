@@ -100,7 +100,7 @@ Implementation tokens: [DESIGN-SYSTEM.md](../DESIGN-SYSTEM.md). Brand direction:
 
 ## 5. Thirty research locales ≠ thirty verified releases
 
-See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **English + 29 offline JSON catalog files**, **98 compact translated keys per catalog**, device-language detection and a manual picker. `LocaleRuntime` keeps the preference separately from `WorldSnapshot`.
+See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **English + 29 offline JSON catalog files**, **101 compact translated keys per catalog**, device-language detection and a manual picker. `LocaleRuntime` keeps the preference separately from `WorldSnapshot`.
 
 - Catalog completeness is **tested**; native-speaker grammar, tone and market relevance are **not**.
 - Font fallback uses available OS fonts; do **not** redistribute proprietary fonts or assume glyph availability.

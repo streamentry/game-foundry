@@ -95,7 +95,8 @@ namespace Evergrove.Core
             "garden_copy","garden_copied","garden_restore","garden_replace",
             "garden_err_empty","garden_err_not_garden","garden_err_newer",
             "garden_err_damaged","garden_err_too_large",
-            "sr_tile_wet","sr_tile_dry","sr_straight","sr_corner","sr_spring","sr_outlet"
+            "sr_tile_wet","sr_tile_dry","sr_straight","sr_corner","sr_spring","sr_outlet",
+            "name_mira","name_orin","name_fen"
         };
 
         private static readonly string[] English = {
@@ -196,7 +197,10 @@ namespace Evergrove.Core
             "straight pipe",
             "corner pipe",
             "water spring",
-            "garden outlet"
+            "garden outlet",
+            "Mira",
+            "Orin",
+            "Fen"
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

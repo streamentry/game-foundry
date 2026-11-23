@@ -462,6 +462,43 @@ internal static class Program
             "no assistance allowed after water puzzle is already solved");
     }
 
+    // Memory cards and journal lines must use the active locale's NPC name,
+    // not the Latin source name.
+    private static void LocalizedCharacterNamesInMemories()
+    {
+        string file = Path.Combine(FindLocaleDirectory(), "ja.json");
+        TranslationBundle bundle = JsonSerializer.Deserialize<TranslationBundle>(
+            File.ReadAllText(file), new JsonSerializerOptions { IncludeFields = true });
+        Expect(GameLocalization.Register(bundle) && GameLocalization.SetCurrent("ja"),
+            "Japanese catalog with character names activates");
+        try
+        {
+            var names = new[] { "ミラ", "オリン", "フェン" };
+            var choices = new[] { VillageChoice.ShadeTree, VillageChoice.Bridge, VillageChoice.Flowers };
+            for (int i = 0; i < choices.Length; i++)
+            {
+                var world = WorldModel.New();
+                Solve(world);
+                Expect(world.Choose(choices[i]), "localized name source action");
+                string journal = LocalizedVillage.Journal(world)[0];
+                string memory = LocalizedVillage.MemoryEvent(world);
+                Expect(journal.Contains(names[i]) && memory.Contains(names[i]),
+                    "memory and journal show the localized name " + names[i]);
+                Expect(!journal.Contains("Mira") && !journal.Contains("Orin") &&
+                       !journal.Contains("Fen") && !memory.Contains("Mira") &&
+                       !memory.Contains("Orin") && !memory.Contains("Fen"),
+                    "no Latin NPC name leaks into a Japanese memory card");
+                Expect(LocalizedVillage.Name(i) == names[i], "Name matches the catalog NPC name");
+            }
+        }
+        finally
+        {
+            GameLocalization.SetCurrent("en");
+        }
+        Expect(GameLocalization.Text("name_mira") == "Mira",
+            "English source keeps Mira after the locale is restored");
+    }
+
     private static void NonColorLeaksAndCausalJournal()
     {
         for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
@@ -646,7 +683,7 @@ internal static class Program
                LocaleShippingPolicy.Resolve("ja", true) == "ja" &&
                LocaleShippingPolicy.Resolve("invalid", true) == "en",
             "old research preferences and auto-detected draft locales safely fall back");
-        Expect(GameLocalization.Keys.Count == 98,"authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 101,"authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");
@@ -1081,6 +1118,7 @@ internal static class Program
             MatchedScheduleText();
             ProgressiveHintAndSaveV4();
             NonColorLeaksAndCausalJournal();
+            LocalizedCharacterNamesInMemories();
             PuzzleDiagnosticsTests();
             PrivatePlaytestReport();
             LocalizationTests();

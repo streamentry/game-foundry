@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "తోట నిష్క్రమణ"
+    },
+    {
+      "key": "name_mira",
+      "value": "మీరా"
+    },
+    {
+      "key": "name_orin",
+      "value": "ఓరిన్"
+    },
+    {
+      "key": "name_fen",
+      "value": "ఫెన్"
     }
   ]
 }

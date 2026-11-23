@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "مخرج الحديقة"
+    },
+    {
+      "key": "name_mira",
+      "value": "ميرا"
+    },
+    {
+      "key": "name_orin",
+      "value": "أورين"
+    },
+    {
+      "key": "name_fen",
+      "value": "فين"
     }
   ]
 }

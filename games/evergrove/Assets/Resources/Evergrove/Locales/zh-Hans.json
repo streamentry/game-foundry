@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "花园出水口"
+    },
+    {
+      "key": "name_mira",
+      "value": "米拉"
+    },
+    {
+      "key": "name_orin",
+      "value": "奥林"
+    },
+    {
+      "key": "name_fen",
+      "value": "芬"
     }
   ]
 }

@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "বাগানের নির্গম"
+    },
+    {
+      "key": "name_mira",
+      "value": "মীরা"
+    },
+    {
+      "key": "name_orin",
+      "value": "ওরিন"
+    },
+    {
+      "key": "name_fen",
+      "value": "ফেন"
     }
   ]
 }

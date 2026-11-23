@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "தோட்ட வெளியேற்றம்"
+    },
+    {
+      "key": "name_mira",
+      "value": "மீரா"
+    },
+    {
+      "key": "name_orin",
+      "value": "ஓரின்"
+    },
+    {
+      "key": "name_fen",
+      "value": "ஃபென்"
     }
   ]
 }

@@ -726,14 +726,14 @@ namespace Evergrove.UnityClient
                 Label(content, "Neighbors", GameLocalization.Text("neighbors"),
                     12, 27, Leaf);
                 var neighbors = Row(content, "Speak with a neighbor");
-                Button(neighbors.transform, "Mira", "Mira", () => OpenConversation(0), 52);
-                Button(neighbors.transform, "Orin", "Orin", () => OpenConversation(1), 52);
-                Button(neighbors.transform, "Fen", "Fen", () => OpenConversation(2), 52);
+                Button(neighbors.transform, "Mira", LocalizedVillage.Name(0), () => OpenConversation(0), 52);
+                Button(neighbors.transform, "Orin", LocalizedVillage.Name(1), () => OpenConversation(1), 52);
+                Button(neighbors.transform, "Fen", LocalizedVillage.Name(2), () => OpenConversation(2), 52);
                 if (speakingWith >= 0)
                 {
                     var conversation = Card(content, "A neighbor's memory", Sand);
                     Label(conversation.transform, "Neighbor name",
-                        speakingWith == 0 ? "Mira" : speakingWith == 1 ? "Orin" : "Fen", 16, 31, Leaf);
+                        LocalizedVillage.Name(speakingWith), 16, 31, Leaf);
                     Label(conversation.transform, "What they say",
                         LocalizedVillage.Speak(world, speakingWith), 16, 0, Ink);
                     Button(conversation.transform, "Thanks", GameLocalization.Text("thanks"),
@@ -1130,10 +1130,12 @@ namespace Evergrove.UnityClient
             BoardSizeButton(row.transform);
         }
 
-        // Language-neutral label: the current board, Standard or Large (EG-112).
+        // Language-neutral label: the tile scale of the current board (EG-112).
+        // Standard is 1x by definition. Large measures about 1.2x for a 3x3
+        // board on a 390-point phone (109 px vs 90 px tile cap); 4x4 is closer to 1.03x.
         private void BoardSizeButton(Transform parent)
         {
-            Button(parent, "Board size", BoardSize.IsLarge ? "▦ Large" : "▦ Standard", () => {
+            Button(parent, "Board size", BoardSize.IsLarge ? "▦ 1.2×" : "▦ 1×", () => {
                 BoardSize.Toggle();
                 Rebuild();
             }, 52);

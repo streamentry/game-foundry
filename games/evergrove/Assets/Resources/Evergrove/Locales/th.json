@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "ทางออกสวน"
+    },
+    {
+      "key": "name_mira",
+      "value": "มีรา"
+    },
+    {
+      "key": "name_orin",
+      "value": "โอริน"
+    },
+    {
+      "key": "name_fen",
+      "value": "เฟน"
     }
   ]
 }

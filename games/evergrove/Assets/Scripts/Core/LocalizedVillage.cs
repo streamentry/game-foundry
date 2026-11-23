@@ -87,13 +87,24 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>Localized NPC name, shared with the dialogue lines in each catalog.</summary>
+        public static string Name(int index)
+        {
+            switch (index)
+            {
+                case 0: return T("name_mira");
+                case 1: return T("name_orin");
+                default: return T("name_fen");
+            }
+        }
+
         public static string[] Journal(WorldModel world)
         {
             int[] choices = world.Choices;
             string[] lines = new string[choices.Length];
             for (int i = 0; i < choices.Length; i++)
             {
-                string person = choices[i] == 0 ? "Mira" : choices[i] == 1 ? "Orin" : "Fen";
+                string person = Name(choices[i]);
                 // Journal facts are derived from observed, saved choices.
                 // A historical migration may not have used rotated puzzles,
                 // so only claim a mechanical effect when the *current* saved
@@ -118,8 +129,7 @@ namespace Evergrove.Core
             // belongs in the optional journal, not a mandatory tall card.
             int[] history = world.Choices;
             int last = history.Length - 1;
-            string person = history[last] == 0 ? "Mira" :
-                history[last] == 1 ? "Orin" : "Fen";
+            string person = Name(history[last]);
             return T("journal_entry", last + 1, person,
                 Choice((VillageChoice)history[last])) + "\n" +
                 Memory(world) + "\n" + Consequence(world);

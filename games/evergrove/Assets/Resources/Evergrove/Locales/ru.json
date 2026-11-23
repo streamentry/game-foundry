@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "выход в сад"
+    },
+    {
+      "key": "name_mira",
+      "value": "Мира"
+    },
+    {
+      "key": "name_orin",
+      "value": "Орин"
+    },
+    {
+      "key": "name_fen",
+      "value": "Фен"
     }
   ]
 }

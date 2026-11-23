@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "बगीचे का निकास"
+    },
+    {
+      "key": "name_mira",
+      "value": "मीरा"
+    },
+    {
+      "key": "name_orin",
+      "value": "ओरिन"
+    },
+    {
+      "key": "name_fen",
+      "value": "फ़ेन"
     }
   ]
 }

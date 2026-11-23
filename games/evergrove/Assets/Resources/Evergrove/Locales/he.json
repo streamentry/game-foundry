@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "יציאת הגן"
+    },
+    {
+      "key": "name_mira",
+      "value": "מירה"
+    },
+    {
+      "key": "name_orin",
+      "value": "אורין"
+    },
+    {
+      "key": "name_fen",
+      "value": "פן"
     }
   ]
 }

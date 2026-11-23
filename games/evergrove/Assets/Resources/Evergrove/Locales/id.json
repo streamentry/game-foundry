@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "outlet kebun"
+    },
+    {
+      "key": "name_mira",
+      "value": "Mira"
+    },
+    {
+      "key": "name_orin",
+      "value": "Orin"
+    },
+    {
+      "key": "name_fen",
+      "value": "Fen"
     }
   ]
 }

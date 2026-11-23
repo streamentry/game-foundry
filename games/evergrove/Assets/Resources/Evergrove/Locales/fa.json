@@ -392,6 +392,18 @@
     {
       "key": "sr_outlet",
       "value": "خروجی باغ"
+    },
+    {
+      "key": "name_mira",
+      "value": "میرا"
+    },
+    {
+      "key": "name_orin",
+      "value": "اورین"
+    },
+    {
+      "key": "name_fen",
+      "value": "فن"
     }
   ]
 }
