@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "İlerleme kaydedilemedi. Cihaz depolama alanını kontrol edin."
+    },
+    {
+      "key": "ending_title",
+      "value": "BAHÇENİN HİKÂYESİ"
     }
   ]
 }

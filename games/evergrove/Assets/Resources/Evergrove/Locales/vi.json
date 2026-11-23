@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Không lưu được tiến trình. Hãy kiểm tra bộ nhớ thiết bị."
+    },
+    {
+      "key": "ending_title",
+      "value": "CÂU CHUYỆN KHU VƯỜN CỦA BẠN"
     }
   ]
 }

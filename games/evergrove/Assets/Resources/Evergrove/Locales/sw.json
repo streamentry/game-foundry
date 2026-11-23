@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Imeshindikana kuhifadhi maendeleo. Angalia nafasi ya kifaa."
+    },
+    {
+      "key": "ending_title",
+      "value": "HADITHI YA BUSTANI YAKO"
     }
   ]
 }

@@ -588,6 +588,8 @@ namespace Evergrove.UnityClient
             {
                 var conclusion = Card(content, "The ending", Sand);
                 screenHeading = conclusion.GetComponent<RectTransform>();
+                Label(conclusion.transform, "Ending title", GameLocalization.Text("ending_title"),
+                    15, 31, Leaf);
                 Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
                     17, 0, Ink);
                 if (living) MemoryJournal();

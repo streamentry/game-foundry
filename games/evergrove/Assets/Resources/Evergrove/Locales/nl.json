@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Voortgang kon niet worden opgeslagen. Controleer de opslagruimte."
+    },
+    {
+      "key": "ending_title",
+      "value": "HET VERHAAL VAN JE TUIN"
     }
   ]
 }

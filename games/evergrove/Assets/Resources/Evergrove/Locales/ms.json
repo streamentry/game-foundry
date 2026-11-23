@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Kemajuan tidak dapat disimpan. Semak storan peranti."
+    },
+    {
+      "key": "ending_title",
+      "value": "CERITA KEBUN ANDA"
     }
   ]
 }

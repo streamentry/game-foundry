@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Det gick inte att spara framstegen. Kontrollera enhetens lagring."
+    },
+    {
+      "key": "ending_title",
+      "value": "DIN TRÄDGÅRDS BERÄTTELSE"
     }
   ]
 }

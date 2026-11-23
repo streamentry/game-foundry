@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "无法保存进度，请检查设备存储空间。"
+    },
+    {
+      "key": "ending_title",
+      "value": "花园的故事"
     }
   ]
 }

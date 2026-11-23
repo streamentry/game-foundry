@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Fortschritt konnte nicht gespeichert werden. Prüfe den Gerätespeicher."
+    },
+    {
+      "key": "ending_title",
+      "value": "DIE GESCHICHTE DEINES GARTENS"
     }
   ]
 }

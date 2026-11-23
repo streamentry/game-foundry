@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Nie udało się zapisać postępu. Sprawdź pamięć urządzenia."
+    },
+    {
+      "key": "ending_title",
+      "value": "HISTORIA TWOJEGO OGRODU"
     }
   ]
 }

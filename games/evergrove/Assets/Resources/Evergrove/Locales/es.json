@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "No se pudo guardar el progreso. Revisa el espacio del dispositivo."
+    },
+    {
+      "key": "ending_title",
+      "value": "LA HISTORIA DE TU JARDÍN"
     }
   ]
 }

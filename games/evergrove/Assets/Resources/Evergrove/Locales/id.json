@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Progres tidak dapat disimpan. Periksa penyimpanan perangkat."
+    },
+    {
+      "key": "ending_title",
+      "value": "CERITA KEBUNMU"
     }
   ]
 }

@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Hindi na-save ang progreso. Suriin ang storage ng device."
+    },
+    {
+      "key": "ending_title",
+      "value": "KWENTO NG IYONG HARDIN"
     }
   ]
 }

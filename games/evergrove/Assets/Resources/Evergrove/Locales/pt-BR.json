@@ -324,6 +324,10 @@
     {
       "key": "save_warning",
       "value": "Não foi possível salvar o progresso. Verifique o armazenamento do aparelho."
+    },
+    {
+      "key": "ending_title",
+      "value": "A HISTÓRIA DO SEU JARDIM"
     }
   ]
 }

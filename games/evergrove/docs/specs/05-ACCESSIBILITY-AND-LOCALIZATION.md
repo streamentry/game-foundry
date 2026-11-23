@@ -21,7 +21,7 @@ Official design references: [Apple accessibility HIG](https://developer.apple.co
 
 ## Existing localization infrastructure
 
-[LOCALIZATION.md](../../LOCALIZATION.md) is the canonical inventory and detection specification. Current code has **30 selectable development/research languages** (English plus 29 JSON catalogs), auto-detection, manual override, bundled offline resources and state-independent language switching. A source-level [consumer locale policy](../../Assets/Scripts/Core/LocaleShippingPolicy.cs) restricts future non-development candidates to English until specifically reviewed locales are added. All **81 compact player-facing keys** are present in the catalog inventory, but **translations are editorial drafts**. The richer original English narrative is not translated in full; `LocalizedVillage` supplies a concise cross-locale authored script.
+[LOCALIZATION.md](../../LOCALIZATION.md) is the canonical inventory and detection specification. Current code has **30 selectable development/research languages** (English plus 29 JSON catalogs), auto-detection, manual override, bundled offline resources and state-independent language switching. A source-level [consumer locale policy](../../Assets/Scripts/Core/LocaleShippingPolicy.cs) restricts future non-development candidates to English until specifically reviewed locales are added. All **82 compact player-facing keys** are present in the catalog inventory, but **translations are editorial drafts**. The richer original English narrative is not translated in full; `LocalizedVillage` supplies a concise cross-locale authored script.
 
 **Available locale codes (30):** `en`, `zh-Hans`, `zh-Hant`, `es`, `pt-BR`, `fr`, `de`, `ja`, `ko`, `ar`, `hi`, `ru`, `id`, `vi`, `tr`, `th`, `it`, `nl`, `pl`, `uk`, `fa`, `he`, `ms`, `fil`, `bn`, `ur`, `ta`, `te`, `sw`, `sv`.
 
@@ -38,7 +38,7 @@ The current UI uses **legacy Unity uGUI Text** and best-effort OS fonts. Right a
 | Thai `th` | Word/line breaking without spaces, clipping, focus and long choice text |
 | Chinese `zh-Hans/zh-Hant`, Japanese `ja`, Korean `ko` | Glyph coverage, punctuation, compact layout, consistent font fallback |
 | Vietnamese `vi` and other Latin/extended Latin locales | Diacritics, line-height, truncation, long compound words and button widths |
-| All 30 | Full 81-key coverage, placeholder parity, meaning, gender, cultural nuance, font license, screen reader, save independence |
+| All 30 | Full 82-key coverage, placeholder parity, meaning, gender, cultural nuance, font license, screen reader, save independence |
 
 Reference: [Unity Advanced Text Generator](https://docs.unity.com/en-us/engine/6000.0/manual/uitoolkits/uielements/uie-work-with-text/uie-advanced-text-generator) and [language direction](https://docs.unity.com/en-us/engine/6000.3/manual/uitoolkits/uielements/uie-work-with-text/language-direction). Do not distribute system fonts or assume OS availability.
 
@@ -69,7 +69,7 @@ The current app still uses generated uGUI Text controls and best-effort OS fonts
 
 **Persistent save-warning source control:** the Unity warning now lives in a pinned, safe-area-aware banner outside the scrollable puzzle. When writing succeeds after an earlier failure, the banner is immediately removed rather than leaving a stale error; during failure, it stays visible while scrolling. This fixes a demonstrable UI state/scroll positioning risk in source, **not** VoiceOver/TalkBack or small-phone verification. M2 must test save-warning readability and that the reserved viewport does not clip puzzle controls.
 
-**Additional source-only affordance:** `PipeRules.Inspect` now exposes per-tile leaking flags, and Unity UI draws a visible `!` on leaking water tiles. Verify grayscale, punctuation legibility at large text, actual touch targets and TalkBack/VoiceOver; this is **not** an accessibility certification. Five new draft help/save-warning messages bring catalogs to 81 canonical keys. The preview still uses legacy uGUI and does **not** implement complex-script shaping.
+**Additional source-only affordance:** `PipeRules.Inspect` now exposes per-tile leaking flags, and Unity UI draws a visible `!` on leaking water tiles. Verify grayscale, punctuation legibility at large text, actual touch targets and TalkBack/VoiceOver; this is **not** an accessibility certification. Five new draft help/save-warning messages bring catalogs to 81 canonical keys (82 with `ending_title`). The preview still uses legacy uGUI and does **not** implement complex-script shaping.
 
 ## Launch locale certification, not catalog count (EG-010)
 

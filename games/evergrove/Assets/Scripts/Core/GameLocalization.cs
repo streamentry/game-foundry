@@ -91,7 +91,7 @@ namespace Evergrove.Core
             "ending_all","ending_tree","ending_bridge","ending_flowers",
             "prompt_early","prompt_mid","prompt_late","journal_entry",
             "landmark_tree","landmark_bridge","landmark_flowers",
-            "hint_notice","hint_focus","hint_more","hint_turn","save_warning"
+            "hint_notice","hint_focus","hint_more","hint_turn","save_warning","ending_title"
         };
 
         private static readonly string[] English = {
@@ -175,7 +175,8 @@ namespace Evergrove.Core
             "Row {0}, column {1}: compare the open ends.",
             "Show a closer clue",
             "Fix one connection",
-            "Progress could not be saved. Check device storage."
+            "Progress could not be saved. Check device storage.",
+            "YOUR GARDEN'S STORY"
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();
