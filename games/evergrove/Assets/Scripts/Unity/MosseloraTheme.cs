@@ -10,7 +10,7 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal static class MosseloraTheme
     {
-        public static readonly Color Paper = Hex("#F7F4E9");
+        public static readonly Color Paper = Hex("#F9F2E3");
         public static readonly Color Ink = Hex("#183E34");
         public static readonly Color SecondaryInk = Hex("#49645A");
         public static readonly Color LeafAction = Hex("#276D54");
@@ -19,11 +19,22 @@ namespace Evergrove.UnityClient
         public static readonly Color RiverWash = Hex("#DCEDEF");
         public static readonly Color EarthInk = Hex("#765F45");
         public static readonly Color WaterInk = Hex("#176C83");
-        /// <summary>Dry channel stroke; #7D684F passes 3:1 on every dry tile state (contrast audit 2026-11-23).</summary>
-        public static readonly Color DryChannel = Hex("#7D684F");
-        public static readonly Color DryTile = Hex("#EAE8DC");
-        public static readonly Color WetTile = Hex("#D9EEEB");
-        public static readonly Color SolvedTile = Hex("#DDECDD");
+        /// <summary>Dry copper channel; #9C5A38 passes 3:1 on every tile state, incl. HintFocusTile 3.39:1 (painted UI audit 2026-11-23).</summary>
+        public static readonly Color DryChannel = Hex("#9C5A38");
+        /// <summary>Spring-connected teal channel; #18717F passes 3:1 on every tile state.</summary>
+        public static readonly Color WaterChannel = Hex("#18717F");
+        public static readonly Color DryTile = Hex("#F4ECDA");
+        public static readonly Color WetTile = Hex("#E1F0EC");
+        public static readonly Color SolvedTile = Hex("#E0EDD9");
+        public static readonly Color TileEdge = Hex("#D5C6A4");
+        public static readonly Color CardFill = Hex("#FBF7EC");
+        public static readonly Color CardEdge = Hex("#D9CCAB");
+        public static readonly Color SagePanel = Hex("#E3EBD6");
+        /// <summary>Action tones; white captions pass 4.5:1 on all three.</summary>
+        public static readonly Color ForestAction = Hex("#1F5A43");
+        public static readonly Color WaterAction = Hex("#1C6F7A");
+        public static readonly Color EarthAction = Hex("#A4583A");
+        public static readonly Color QuietAction = Hex("#EFE6D2");
         public static readonly Color AnchoredTile = Hex("#F1DEB6");
         public static readonly Color HintRowTile = Hex("#F7E8BB");
         public static readonly Color HintFocusTile = Hex("#E8CB8C");

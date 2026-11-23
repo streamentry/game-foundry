@@ -30,45 +30,85 @@ namespace Evergrove.UnityClient
             // Non-color cue (WCAG 1.4.1): connected channels carry a solid,
             // wider water stripe along each arm; dry channels carry a
             // segmented, broken stripe. Same arm geometry and hit area.
-            Color32 outer = completed ? new Color32(39, 109, 84, 255) :
-                hasWater ? new Color32(23, 108, 131, 255) :
+            Color32 outer = completed ? new Color32(30, 110, 90, 255) :
+                hasWater ? (Color32)MosseloraTheme.WaterChannel :
                 (Color32)MosseloraTheme.DryChannel;
+            Color32 collar = completed ? new Color32(20, 81, 63, 255) :
+                hasWater ? new Color32(16, 86, 98, 255) :
+                new Color32(122, 67, 40, 255);
             Color32 inner = hasWater ?
-                new Color32(211, 239, 231, 255) :
-                new Color32(239, 224, 194, 255);
+                new Color32(205, 239, 240, 255) :
+                new Color32(236, 197, 162, 255);
             Rect area = rectTransform.rect;
-            float half = Mathf.Min(area.width, area.height) * 0.44f;
-            float stroke = Mathf.Max(12f, half * 0.32f);
-            float flowWidth = hasWater ? Mathf.Max(5f, stroke * 0.42f) : Mathf.Max(3f, stroke * 0.22f);
+            float half = Mathf.Min(area.width, area.height) * 0.47f;
+            float stroke = Mathf.Max(14f, half * 0.40f);
+            float flowWidth = hasWater ? Mathf.Max(5f, stroke * 0.36f) : Mathf.Max(3f, stroke * 0.22f);
+            float collarLength = stroke * 0.32f;
+            float collarWidth = stroke * 1.32f;
             for (int direction = 0; direction < 4; direction++)
             {
                 if (!PipeRules.HasPort(kind, orientation, direction)) continue;
-                switch (direction)
-                {
-                    case 0:
-                        AddRect(vh, new Rect(-stroke / 2f, 0, stroke, half), outer);
-                        AddStripe(vh, new Rect(-flowWidth / 2f, 0, flowWidth, half * 0.90f), inner, hasWater, true);
-                        break;
-                    case 1:
-                        AddRect(vh, new Rect(0, -stroke / 2f, half, stroke), outer);
-                        AddStripe(vh, new Rect(0, -flowWidth / 2f, half * 0.90f, flowWidth), inner, hasWater, false);
-                        break;
-                    case 2:
-                        AddRect(vh, new Rect(-stroke / 2f, -half, stroke, half), outer);
-                        AddStripe(vh, new Rect(-flowWidth / 2f, -half * 0.90f, flowWidth, half * 0.90f), inner, hasWater, true);
-                        break;
-                    case 3:
-                        AddRect(vh, new Rect(-half, -stroke / 2f, half, stroke), outer);
-                        AddStripe(vh, new Rect(-half * 0.90f, -flowWidth / 2f, half * 0.90f, flowWidth), inner, hasWater, false);
-                        break;
-                }
+                // Rotate one canonical arm (pointing up) into place: copper
+                // tube, flowing/dry stripe, then a coupling collar at the rim.
+                Vector2 along = Dir(direction);
+                Vector2 across = new Vector2(along.y, -along.x);
+                AddBar(vh, along, across, 0f, half, stroke, outer);
+                if (hasWater)
+                    AddBar(vh, along, across, 0f, half * 0.90f, flowWidth, inner);
+                else
+                    AddDashes(vh, along, across, half * 0.86f, flowWidth, inner);
+                AddBar(vh, along, across, half - collarLength, half, collarWidth, collar);
+                AddBar(vh, along, across, half - collarLength * 0.62f, half - collarLength * 0.38f,
+                    collarWidth, inner);
             }
             // Rounded heart where channels meet: a water-worn stone, not a
             // square plumbing junction. Keep true connectivity as the only
             // source of wet styling; this is visual geometry only.
             AddDisc(vh, stroke * 0.60f, outer);
-            AddDisc(vh, kind == PipeKind.End ? 4.5f : 3.0f,
+            AddDisc(vh, kind == PipeKind.End ? stroke * 0.30f : stroke * 0.18f,
                 kind == PipeKind.End ? new Color32(255, 245, 215, 255) : inner);
+        }
+
+        private static Vector2 Dir(int direction)
+        {
+            switch (direction)
+            {
+                case 0: return Vector2.up;
+                case 1: return Vector2.right;
+                case 2: return Vector2.down;
+                default: return Vector2.left;
+            }
+        }
+
+        /// <summary>A bar from <paramref name="from"/> to <paramref name="to"/> along an arm.</summary>
+        private static void AddBar(VertexHelper vh, Vector2 along, Vector2 across,
+                                   float from, float to, float width, Color32 shade)
+        {
+            Vector2 side = across * (width / 2f);
+            Vector2 a = along * from;
+            Vector2 b = along * to;
+            int offset = vh.currentVertCount;
+            vh.AddVert(a - side, shade, Vector2.zero);
+            vh.AddVert(b - side, shade, Vector2.up);
+            vh.AddVert(b + side, shade, Vector2.one);
+            vh.AddVert(a + side, shade, Vector2.right);
+            vh.AddTriangle(offset, offset + 1, offset + 2);
+            vh.AddTriangle(offset, offset + 2, offset + 3);
+        }
+
+        /// <summary>
+        /// Dry: three separated segments with gaps, so the state reads as
+        /// broken or dry in grayscale (WCAG 1.4.1 non-color cue).
+        /// </summary>
+        private static void AddDashes(VertexHelper vh, Vector2 along, Vector2 across,
+                                      float length, float width, Color32 shade)
+        {
+            const int segments = 3;
+            const float gapRatio = 0.18f;
+            float step = length / segments;
+            float inset = step * gapRatio;
+            for (int i = 0; i < segments; i++)
+                AddBar(vh, along, across, step * i + inset, step * (i + 1) - inset, width, shade);
         }
 
         private static void AddDisc(VertexHelper vh, float radius, Color32 shade)
@@ -84,44 +124,6 @@ namespace Evergrove.UnityClient
             }
             for (int i = 0; i < segments; i++)
                 vh.AddTriangle(start, start + 1 + i, start + 1 + (i + 1) % segments);
-        }
-
-        /// <summary>
-        /// Connected: one continuous water stripe. Dry: three separated
-        /// segments with gaps, so the state reads as broken or dry in grayscale.
-        /// </summary>
-        private static void AddStripe(VertexHelper vh, Rect box, Color32 shade, bool flowing, bool vertical)
-        {
-            if (flowing)
-            {
-                AddRect(vh, box, shade);
-                return;
-            }
-            const int segments = 3;
-            const float gapRatio = 0.18f;
-            float length = vertical ? box.height : box.width;
-            float step = length / segments;
-            float inset = step * gapRatio;
-            for (int i = 0; i < segments; i++)
-            {
-                float from = step * i + inset;
-                float to = step * (i + 1) - inset;
-                Rect dash = vertical
-                    ? new Rect(box.xMin, box.yMin + from, box.width, to - from)
-                    : new Rect(box.xMin + from, box.yMin, to - from, box.height);
-                AddRect(vh, dash, shade);
-            }
-        }
-
-        private static void AddRect(VertexHelper vh, Rect box, Color32 shade)
-        {
-            int offset = vh.currentVertCount;
-            vh.AddVert(new Vector3(box.xMin, box.yMin), shade, Vector2.zero);
-            vh.AddVert(new Vector3(box.xMin, box.yMax), shade, Vector2.up);
-            vh.AddVert(new Vector3(box.xMax, box.yMax), shade, Vector2.one);
-            vh.AddVert(new Vector3(box.xMax, box.yMin), shade, Vector2.right);
-            vh.AddTriangle(offset, offset + 1, offset + 2);
-            vh.AddTriangle(offset, offset + 2, offset + 3);
         }
     }
 }

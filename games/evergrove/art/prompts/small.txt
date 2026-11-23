@@ -1,0 +1,12 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI, no API key needed). Any attached images are STYLE references only unless told otherwise (soft hand-painted watercolor/gouache storybook illustration, warm cream light, sage and leaf greens, teal water, terracotta, honey-brown wood). Generate exactly ONE image.
+Use case: stylized-concept
+Asset type: sprite sheet of four small painted UI glyphs for a mobile game
+Primary request: a 2x2 grid, each item isolated and centred in its own quadrant with lots of empty transparent space around it:
+ top-left: a tiny green seedling sprout with two rounded leaves on a small mound of dark soil;
+ top-right: a single teal water droplet with a soft highlight;
+ bottom-left: a horizontal leafy sprig divider ornament: a thin stem with small symmetrical leaves fanning from a central three-leaf bud, wide and low (about 4:1 shape);
+ bottom-right: a small curl of three teal water waves (a spring source symbol), simple and bold.
+Simple, bold silhouettes that remain readable at 32 pixels; watercolor texture but clean edges.
+Background: fully TRANSPARENT (alpha). Square 1024x1024.
+Constraints: no text, no watermark, no frame.
+Copy the final PNG to games/evergrove/art/generated/icons-small.png and print the path. Do nothing else.

@@ -1,0 +1,7 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI, no API key needed). Any attached images are STYLE references only unless told otherwise (soft hand-painted watercolor/gouache storybook illustration, warm cream light, sage and leaf greens, teal water, terracotta, honey-brown wood). Generate exactly ONE image.
+Use case: illustration-story
+Asset type: tall hero illustration for the top of a mobile game "memory moment" screen
+Primary request: a warm sunny village garden scene: a great old tree arching over the top-left with dappled leaves, a stone cottage with terracotta roof, wisteria and window boxes, a curved stone footbridge over a clear teal stream with small cascades and rounded stones, wildflowers (white daisies, lavender, pink) in the foreground; in the middle distance two older adults (a woman and a man, both around 60) share tea at a garden table and a younger adult in a straw hat tends flowers by the bridge. They look capable and relaxed, not frail. Rolling green hills and a second cottage far behind.
+Composition: portrait 1024x1536; the BOTTOM 15 percent fades softly into plain cream #F7F4E9 (no hard edge) so text can sit below it.
+Constraints: no text, no logo, no watermark, no border. Avoid cartoon caricature; gentle realistic storybook proportions.
+Copy the final PNG to games/evergrove/art/generated/hero-village.png and print the path. Do nothing else.

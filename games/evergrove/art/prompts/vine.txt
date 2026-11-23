@@ -1,0 +1,8 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI, no API key needed). Any attached images are STYLE references only unless told otherwise (soft hand-painted watercolor/gouache storybook illustration, warm cream light, sage and leaf greens, teal water, terracotta, honey-brown wood). Generate exactly ONE image.
+Use case: stylized-concept
+Asset type: decorative UI corner ornament for a mobile game header, placed in the TOP-LEFT corner of a cream page
+Primary request: a leafy watercolor branch entering from the top-left corner and curling gently to the right and down, with soft green leaves of varied sizes and three or four small white five-petal blossoms with yellow centres. Delicate, airy, not dense.
+Composition: square 1024x1024; the branch must touch the top edge and the left edge (it grows in from the corner) and occupy roughly the top-left 60 percent; the rest is empty.
+Background: fully TRANSPARENT background (alpha), clean edges, no paper texture, no shadow box.
+Constraints: no text, no watermark, no frame.
+Copy the final PNG to games/evergrove/art/generated/vine-corner.png and print the path. Do nothing else.

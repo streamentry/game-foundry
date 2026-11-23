@@ -31,6 +31,12 @@ assert "WaterRestored" in scene_plan and "WaterReachPercent" in scene_plan
 assert "insight.Flowing[index], world.Solved" in ui
 assert "insight.Flowing[i], world.Solved" in ui
 assert "activeIllustration.Show" in ui
+# Painted skin keeps the same causal inputs: water reach drives the flowing
+# creek's alpha, and saved choice counts place painted landmarks.
+painted = (game / "Assets" / "Scripts" / "Unity" / "PaintedVillage.cs").read_text()
+assert "activePainting.Show" in ui
+for marker in ("Mathf.Clamp01(waterReachPercent / 100f)", "restored ? 1f", "TreeSlots, shade", "BridgeSlots, crossings", "FlowerSlots, meadows"):
+    assert marker in painted, "painted village lost causal state: " + marker
 # Mosselora is player-facing only. Preserve all legacy save keys and package IDs.
 theme = (game / "Assets/Scripts/Unity/MosseloraTheme.cs").read_text()
 for token in ("Paper", "Ink", "SecondaryInk", "WaterInk", "LeafAction",
@@ -53,7 +59,8 @@ assert ui.index(first_board) < ui.index("VillageScenePlan scenePlan = VillageSce
     "World art must not push first interactive tile below the title/controls"
 )
 for marker in ("private RectTransform decisionHeading;",
-               "decisionHeading = Label(content, \"Choose title\"",
+               "Label(content, \"Choose title\"",
+               "decisionHeading = chooseTitle.rectTransform;",
                "content.InverseTransformPoint(worldTop).y",
                "scroll.StopMovement()"):
     assert marker in ui, "Missing anchored post-solve navigation: " + marker
