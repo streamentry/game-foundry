@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "CERITA KEBUN ANDA"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Salin fail taman"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Fail taman telah disalin. Simpan di tempat yang selamat."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Pulihkan daripada fail taman"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Ini akan menggantikan taman anda yang sekarang."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Belum ada apa-apa yang disalin. Salin fail taman dahulu, kemudian cuba lagi."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Ini bukan fail taman Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Fail taman ini datang daripada versi Mosselora yang lebih baharu. Kemas kini permainan untuk membukanya."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Fail taman ini rosak atau tidak lengkap. Taman anda tidak diubah."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Fail taman ini terlalu besar untuk menjadi taman Mosselora. Taman anda tidak diubah."
     }
   ]
 }

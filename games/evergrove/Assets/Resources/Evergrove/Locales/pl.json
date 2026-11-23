@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "HISTORIA TWOJEGO OGRODU"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Kopiuj plik ogrodu"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Skopiowano plik ogrodu. Przechowuj go w bezpiecznym miejscu."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Przywróć z pliku ogrodu"
+    },
+    {
+      "key": "garden_replace",
+      "value": "To zastąpi Twój obecny ogród."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Nic jeszcze nie skopiowano. Najpierw skopiuj plik ogrodu, a potem spróbuj ponownie."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "To nie jest plik ogrodu Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Ten plik ogrodu pochodzi z nowszej wersji Mosselory. Zaktualizuj grę, aby go otworzyć."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Ten plik ogrodu jest uszkodzony lub niekompletny. Twój ogród nie został zmieniony."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Ten plik ogrodu jest zbyt duży, by był ogrodem Mosselory. Twój ogród nie został zmieniony."
     }
   ]
 }

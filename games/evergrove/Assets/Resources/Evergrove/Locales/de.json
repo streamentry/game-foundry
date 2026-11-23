@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "DIE GESCHICHTE DEINES GARTENS"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Gartendatei kopieren"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Gartendatei kopiert. Bewahre sie gut auf."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Aus Gartendatei wiederherstellen"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Dies ersetzt deinen aktuellen Garten."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Noch nichts kopiert. Kopiere zuerst eine Gartendatei und versuche es dann erneut."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Das ist keine Mosselora-Gartendatei."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Diese Gartendatei stammt aus einer neueren Version von Mosselora. Aktualisiere das Spiel, um sie zu öffnen."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Diese Gartendatei ist beschädigt oder unvollständig. Dein Garten wurde nicht verändert."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Diese Gartendatei ist zu groß für einen Mosselora-Garten. Dein Garten wurde nicht verändert."
     }
   ]
 }

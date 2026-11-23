@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "آپ کے باغ کی کہانی"
+    },
+    {
+      "key": "garden_copy",
+      "value": "باغ کی فائل کاپی کریں"
+    },
+    {
+      "key": "garden_copied",
+      "value": "باغ کی فائل کاپی ہو گئی۔ اسے محفوظ جگہ پر رکھیں۔"
+    },
+    {
+      "key": "garden_restore",
+      "value": "باغ کی فائل سے بحال کریں"
+    },
+    {
+      "key": "garden_replace",
+      "value": "اس سے آپ کا موجودہ باغ بدل جائے گا۔"
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "ابھی تک کچھ کاپی نہیں ہوا۔ پہلے باغ کی فائل کاپی کریں، پھر دوبارہ کوشش کریں۔"
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "یہ Mosselora کی باغ فائل نہیں ہے۔"
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "یہ باغ فائل Mosselora کے نئے ورژن سے ہے۔ اسے کھولنے کے لیے گیم اپ ڈیٹ کریں۔"
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "یہ باغ فائل خراب یا نامکمل ہے۔ آپ کا باغ تبدیل نہیں ہوا۔"
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "یہ باغ فائل Mosselora کے باغ کے لیے بہت بڑی ہے۔ آپ کا باغ تبدیل نہیں ہوا۔"
     }
   ]
 }

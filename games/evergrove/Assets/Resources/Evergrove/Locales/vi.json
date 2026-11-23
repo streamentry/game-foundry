@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "CÂU CHUYỆN KHU VƯỜN CỦA BẠN"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Sao chép tệp vườn"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Đã sao chép tệp vườn. Hãy cất giữ ở nơi an toàn."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Khôi phục từ tệp vườn"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Thao tác này sẽ thay thế khu vườn hiện tại của bạn."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Chưa có gì được sao chép. Hãy sao chép một tệp vườn trước, rồi thử lại."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Đây không phải là tệp vườn của Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Tệp vườn này được tạo từ phiên bản Mosselora mới hơn. Hãy cập nhật trò chơi để mở."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Tệp vườn này bị hỏng hoặc chưa đầy đủ. Khu vườn của bạn không thay đổi."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Tệp vườn này quá lớn để là một khu vườn Mosselora. Khu vườn của bạn không thay đổi."
     }
   ]
 }

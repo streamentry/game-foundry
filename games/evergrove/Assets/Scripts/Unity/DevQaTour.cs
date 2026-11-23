@@ -195,6 +195,34 @@ namespace Evergrove.UnityClient
                 SavePng("13-anchored-tap.png");
             }
 
+            // Step 14: garden file round trip through the real settings buttons and
+            // the system clipboard. Copy, change the garden, restore, and require
+            // the restored garden to match the copied one exactly.
+            const string probeStamp = "2026-01-01T00:00:00Z";
+            string beforeCopy = GardenTransfer.Export(app.QaWorld, probeStamp);
+            Press("Copy garden file");
+            for (int f = 0; f < 4; f++) yield return null;
+            WorldModel copiedWorld;
+            GardenImportError copyError;
+            if (!GardenTransfer.TryImport(GUIUtility.systemCopyBuffer, out copiedWorld, out copyError))
+                throw new InvalidOperationException("Copied garden file did not import: " + copyError);
+            if (GardenTransfer.Export(copiedWorld, probeStamp) != beforeCopy)
+                throw new InvalidOperationException("Clipboard garden file differs from the live garden");
+            app.QaReplaceWorld(WorldModel.New());
+            for (int f = 0; f < 4; f++) yield return null;
+            if (GardenTransfer.Export(app.QaWorld, probeStamp) == beforeCopy)
+                throw new InvalidOperationException("Garden change did not take effect before restore");
+            Press("Restore garden file");
+            for (int f = 0; f < 4; f++) yield return null;
+            Press("Confirm garden restore");
+            for (int f = 0; f < 4; f++) yield return null;
+            if (GardenTransfer.Export(app.QaWorld, probeStamp) != beforeCopy)
+                throw new InvalidOperationException("Restored garden does not match the copied garden");
+            ScrollTo("Garden file");
+            for (int f = 0; f < 4; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("14-garden-file.png");
+
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
             Application.Quit();
         }

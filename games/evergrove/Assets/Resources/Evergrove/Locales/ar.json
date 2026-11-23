@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "قصة حديقتك"
+    },
+    {
+      "key": "garden_copy",
+      "value": "نسخ ملف الحديقة"
+    },
+    {
+      "key": "garden_copied",
+      "value": "تم نسخ ملف الحديقة. احفظه في مكان آمن."
+    },
+    {
+      "key": "garden_restore",
+      "value": "استعادة من ملف الحديقة"
+    },
+    {
+      "key": "garden_replace",
+      "value": "سيحل هذا محل حديقتك الحالية."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "لم يتم نسخ أي شيء بعد. انسخ ملف حديقة أولاً ثم حاول مرة أخرى."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "هذا ليس ملف حديقة من Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "هذا ملف الحديقة من إصدار أحدث من Mosselora. حدّث اللعبة لفتحه."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "ملف الحديقة هذا تالف أو غير مكتمل. لم تتغير حديقتك."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "ملف الحديقة هذا كبير جدًا ليكون حديقة Mosselora. لم تتغير حديقتك."
     }
   ]
 }

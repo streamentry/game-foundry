@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "DIN TRÄDGÅRDS BERÄTTELSE"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Kopiera trädgårdsfil"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Trädgårdsfilen kopierades. Förvara den på ett säkert ställe."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Återställ från trädgårdsfil"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Detta ersätter din nuvarande trädgård."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Inget har kopierats än. Kopiera en trädgårdsfil först och försök sedan igen."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Detta är inte en Mosselora-trädgårdsfil."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Den här trädgårdsfilen kommer från en nyare version av Mosselora. Uppdatera spelet för att öppna den."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Den här trädgårdsfilen är skadad eller ofullständig. Din trädgård ändrades inte."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Den här trädgårdsfilen är för stor för att vara en Mosselora-trädgård. Din trädgård ändrades inte."
     }
   ]
 }

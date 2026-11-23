@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "CERITA KEBUNMU"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Salin file kebun"
+    },
+    {
+      "key": "garden_copied",
+      "value": "File kebun disalin. Simpan di tempat yang aman."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Pulihkan dari file kebun"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Ini akan menggantikan kebun Anda saat ini."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Belum ada yang disalin. Salin file kebun terlebih dahulu, lalu coba lagi."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Ini bukan file kebun Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "File kebun ini berasal dari versi Mosselora yang lebih baru. Perbarui gim untuk membukanya."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "File kebun ini rusak atau tidak lengkap. Kebun Anda tidak berubah."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "File kebun ini terlalu besar untuk menjadi kebun Mosselora. Kebun Anda tidak berubah."
     }
   ]
 }

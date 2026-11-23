@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "סיפור הגן שלכם"
+    },
+    {
+      "key": "garden_copy",
+      "value": "העתקת קובץ הגן"
+    },
+    {
+      "key": "garden_copied",
+      "value": "קובץ הגן הועתק. שמרו אותו במקום בטוח."
+    },
+    {
+      "key": "garden_restore",
+      "value": "שחזור מקובץ גן"
+    },
+    {
+      "key": "garden_replace",
+      "value": "פעולה זו תחליף את הגן הנוכחי שלכם."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "עדיין לא הועתק דבר. העתיקו קודם קובץ גן ונסו שוב."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "זה אינו קובץ גן של Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "קובץ גן זה נוצר בגרסה חדשה יותר של Mosselora. עדכנו את המשחק כדי לפתוח אותו."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "קובץ הגן פגום או לא שלם. הגן שלכם לא השתנה."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "קובץ הגן גדול מדי לגן של Mosselora. הגן שלכם לא השתנה."
     }
   ]
 }

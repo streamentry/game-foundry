@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "花园的故事"
+    },
+    {
+      "key": "garden_copy",
+      "value": "复制花园文件"
+    },
+    {
+      "key": "garden_copied",
+      "value": "花园文件已复制。请妥善保存。"
+    },
+    {
+      "key": "garden_restore",
+      "value": "从花园文件恢复"
+    },
+    {
+      "key": "garden_replace",
+      "value": "这将替换你当前的花园。"
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "还没有复制任何内容。请先复制一个花园文件，然后再试一次。"
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "这不是 Mosselora 的花园文件。"
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "这个花园文件来自较新版本的 Mosselora。请更新游戏后再打开。"
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "这个花园文件已损坏或不完整。你的花园没有改变。"
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "这个花园文件太大，不像是 Mosselora 的花园。你的花园没有改变。"
     }
   ]
 }
