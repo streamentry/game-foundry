@@ -15,7 +15,7 @@ var shape: PackedVector2Array = PackedVector2Array()
 var angle_degrees: float = 0.0
 var offset: float = 0.0
 var revealed: bool = false
-var _dragging: bool = false
+var _mouse_dragging: bool = false
 
 
 func set_round(points: PackedVector2Array) -> void:
@@ -103,24 +103,23 @@ func _set_from_pointer(position: Vector2) -> void:
 
 
 func _gui_input(event: InputEvent) -> void:
-    if revealed:
-        return
     if event is InputEventScreenTouch:
         var touch: InputEventScreenTouch = event
-        if touch.pressed:
+        if touch.pressed and not revealed:
             _set_from_pointer(touch.position)
         accept_event()
-    elif event is InputEventScreenDrag:
-        var drag: InputEventScreenDrag = event
-        _set_from_pointer(drag.position)
-        accept_event()
-    elif event is InputEventMouseButton:
+        return
+    if event is InputEventMouseButton:
         var mouse: InputEventMouseButton = event
         if mouse.button_index == MOUSE_BUTTON_LEFT:
-            _dragging = mouse.pressed
-            if mouse.pressed:
+            _mouse_dragging = mouse.pressed and not revealed
+            if _mouse_dragging:
                 _set_from_pointer(mouse.position)
             accept_event()
-    elif event is InputEventMouseMotion and _dragging:
+        return
+    if revealed:
+        _mouse_dragging = false
+        return
+    if event is InputEventMouseMotion and _mouse_dragging:
         _set_from_pointer(event.position)
         accept_event()

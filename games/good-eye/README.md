@@ -5,7 +5,7 @@
 ## Play
 
 1. Open `games/good-eye/project.godot` in **Godot 4.7.2 stable** (standard GDScript) and press **F5**.
-2. Drag/touch the large shape board to move the line. Use **Move − / Turn − / Turn + / Move +** for precise adjustment. On a keyboard use arrows and Enter.
+2. Tap the large shape where you want the cut line. Use **Move − / Turn − / Turn + / Move +** to fine-tune it. Practice gives a short direction cue. Daily Five keeps its first cut unhinted. On a keyboard use arrows and Enter.
 3. Press **Cut shape**. See area A, area B, percentage-point error and an eye score (100 = perfect). Percentages stay hidden before cutting.
 4. **Practice** lets you retry an identical seeded shape or advance to a new one. **Daily five** offers five reproducible UTC-day shapes and locks each first-attempt score. Progress saves locally.
 

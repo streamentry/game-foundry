@@ -1,5 +1,7 @@
 # Mosselora — a living garden that remembers
 
+**Internal project codename:** Evergrove. The source path, Unity namespaces, save keys, bundle/package identifiers and playtest build labels retain this internal name.
+
 **Working player-facing brand: Mosselora** (previously Evergrove). Trademark clearance is not complete. **Status: integrated Unity/C# playtest, not a published game or independently verified Unity Editor build.**
 
 **Design implementation (2026-11-23):** [Mosselora living-garden system](design.md) is now applied to the Unity first puzzle, later boards, choice/memory/journal surfaces, 2D illustration, optional 2.5D color direction, and the [offline browser first-minute slice](research/first-minute/README.md). The former `evergrove` folder, Unity class/namespace names, save keys and package IDs remain intentionally unchanged to protect saved worlds. The generated golden-M app icon is a creative reference **not yet committed as a verified shipping asset**. C# and browser CI do not replace licensed Unity/device QA.
@@ -111,7 +113,7 @@ The preview defaults to **no animation**. Players can enable a restrained 12fps 
 - Procedural landscape: `Assets/Scripts/Unity/VillageIllustration.cs`
 - Offline saved progress: `Assets/Scripts/Unity/WorldStore.cs`
 
-An [optional Cloudflare Durable Objects preview](../../backend/evergrove/README.md) is **not deployed or attached**. Its demo `WATER_TREE` action does not synchronize game decisions, NPC memory or puzzle state. Do not add live AI or cloud infrastructure until independent players demonstrate that the core loop merits it.
+The [Mosselora Cloudflare Worker backend](backend/README.md) is a separate prototype. It does not synchronize game decisions, NPC memory or puzzle state, and is not attached to the default game. The game remains playable offline; do not describe the API as cloud save or connect it to player data until security, quota, privacy and player-value gates pass.
 
 ## What is still unknown
 

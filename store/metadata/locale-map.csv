@@ -1,0 +1,31 @@
+rank,roster_language,apple_locale,google_play_locale,translation_group,mapping_note,review_status
+1,English,en-US,en-US,en-US,English master listing; U.S. storefront is the initial hypothesis,source master not a translation
+2,Mandarin Chinese,zh-Hans,zh-CN,zh-Hans,Mainland written Simplified Chinese; current roster is a language-speaker proxy,draft — native review pending
+3,Hindi,hi,hi-IN,hi,India locale; current roster is a language-speaker proxy,draft — native review pending
+4,Spanish,es-MX,es-419,es-MX,Apple Mexico Spanish; Google Latin America Spanish,draft — native review pending
+5,Modern Standard Arabic,ar-SA,ar,ar,Formal Arabic; one Arabic locale shared with the Egyptian Arabic roster row,draft — native review pending
+6,French,fr-FR,fr-FR,fr-FR,France French,draft — native review pending
+7,Bengali,bn-BD,bn-BD,bn,Bangla locale; Bangladesh anchor,draft — native review pending
+8,Portuguese,pt-BR,pt-BR,pt-BR,Brazilian Portuguese; do not reuse as Portugal Portuguese,draft — native review pending
+9,Indonesian,id,id,id,Indonesian,draft — native review pending
+10,Urdu,ur-PK,ur,ur,Urdu; Shahmukhi script,draft — native review pending
+11,Russian,ru,ru-RU,ru-RU,Russian,draft — native review pending
+12,Standard German,de-DE,de-DE,de-DE,Standard German,draft — native review pending
+13,Japanese,ja,ja-JP,ja-JP,Japanese,draft — native review pending
+14,Nigerian Pidgin,unsupported,unsupported,,No distinct store locale; English metadata is not a Pidgin translation,not translated — no direct locale
+15,Egyptian Arabic,ar-SA,ar,ar,No separate Egyptian Arabic store locale; share the Arabic draft and request Egyptian native review,draft — regional review pending
+16,Marathi,mr-IN,mr-IN,mr,Marathi,draft — native review pending
+17,Vietnamese,vi,vi,vi,Vietnamese,draft — native review pending
+18,Telugu,te-IN,te-IN,te,Telugu,draft — native review pending
+19,Swahili,unsupported,sw,sw,Google Play Swahili only; no Apple metadata localization in current official list,draft — native review pending
+20,Hausa,unsupported,unsupported,,No direct Apple or Google Play store-listing locale found,not translated — no direct locale
+21,Turkish,tr,tr-TR,tr-TR,Turkish,draft — native review pending
+22,Western Punjabi,pa-IN,pa,pa,Apple Punjabi (pa-IN) and Google Punjabi (pa); Shahmukhi script presentation must be checked in each console.,draft — script and native review pending
+23,Tagalog,unsupported,fil,fil,Google Play Filipino locale only; confirm this is acceptable for Tagalog copy. No Apple metadata locale.,draft — native review pending
+24,Tamil,ta-IN,ta-IN,ta,Tamil,draft — native review pending
+25,Yue Chinese,zh-Hant,zh-HK,zh-Hant,Traditional written Chinese proxy; this does not isolate spoken Cantonese,draft — native review pending
+26,Wu Chinese,zh-Hans,zh-CN,zh-Hans,Proxy only; share the Mandarin Simplified Chinese draft,not a separate translation — proxy mapping
+27,Iranian Persian,unsupported,fa-IR,fa-IR,Google Play Persian locale only; no Persian locale in current Apple list,draft — native review pending
+28,Korean,ko,ko-KR,ko-KR,Korean,draft — native review pending
+29,Amharic,unsupported,am,am,Google Play Amharic locale only; no Amharic locale in current Apple list,draft — native review pending
+30,Thai,th,th,th,Thai,draft — native review pending

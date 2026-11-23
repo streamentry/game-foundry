@@ -1,6 +1,6 @@
-# Cloudflare Workers + Durable Objects — optional Evergrove sync experiment
+# Mosselora World API on Cloudflare Workers
 
-**Runtime:** TypeScript (Cloudflare Workers), while the **game client is Unity/C#**. Cloudflare Workers do not natively execute Unity C# code. This preview API **has not been deployed**.
+**Runtime:** TypeScript on Cloudflare Workers with SQLite-backed Durable Objects. `Evergrove` is the internal source name; Mosselora is the public working title. The current API remains a **prototype** and is not connected to the game's save data or default boot scene.
 
 This corrects the original in-memory, unauthenticated global-world sketch:
 - SQLite-backed Durable Object storage persists between evictions.
@@ -13,16 +13,20 @@ This corrects the original in-memory, unauthenticated global-world sketch:
 
 ### Local usage
 
-Requires Node.js 22.16+ and a Cloudflare account for any deployment:
+Requires Node.js 22.16+ for the repository's configured scripts. Local test and development do not deploy or change Cloudflare resources:
 
 ```bash
-cd backend/evergrove
+cd games/evergrove/backend
 npm install
+npm run types
 npm test
-npx wrangler dev
+npm run dev
+npm run deploy:dry
 ```
 
-The Unity client script is `games/evergrove/Assets/Scripts/Unity/WorldClient.cs`, disabled by default. Attach it to a GameObject and provide the HTTPS Worker URL **only after the offline experiment has validated the world layer**.
+The Unity reference client is `Assets/Scripts/Unity/WorldClient.cs`, disabled by default. Do not attach it to the game or enter the Worker URL until player evidence, account security, privacy disclosures, quotas and the Cloudflare deployment are reviewed.
+
+The target deployment hostname is `https://api.mosselora.com`. `/healthz` is read-only. The world endpoint below is only the older tree-growth experiment; it does not sync puzzle progress, saved choices, chapters or the village state. It must not be described as production cloud save. Deployment and domain attachment have not yet been verified.
 
 ### API
 
@@ -30,6 +34,6 @@ The Unity client script is `games/evergrove/Assets/Scripts/Unity/WorldClient.cs`
 - `POST /api/world` JSON `{ "type": "WATER_TREE", "operationId": "<UUID>", "expectedRevision": 0 }` → `{ "status": "applied", "world": { ... } }`
 - `409` for stale revision (latest state included); `422` invalid action or mature tree; `DELETE` clears the demo state.
 
-**Critical scope boundary:** This API does **not** yet synchronize Evergrove's twelve authored puzzle chapters, NPC memory, local choice history, or future multiuser world. It should not be connected automatically or described as a complete scalable game backend. Token storage in Unity PlayerPrefs is unsuitable for production secret security; use authenticated, recoverable accounts and OS-secure storage, plus rate limits, quota controls and abuse prevention before public release. No live Cloudflare account is modified by this branch.
+**Critical scope boundary:** this API does **not** synchronize Mosselora's twelve authored puzzle chapters, NPC memory, local choice history or a multiplayer world. It accepts a client-generated bearer capability and has no account system or request quota of its own. CORS is not authentication. Do not connect it to the public game or claim cloud-save support until authentication, abuse limits, cost controls, privacy disclosures and device tests are reviewed. PlayerPrefs is not secure secret storage. The production website and the game remain usable without this API.
 
 References: [Durable Object Storage](https://developers.cloudflare.com/durable-objects/best-practices/access-durable-objects-storage/), [SQLite namespace migrations](https://developers.cloudflare.com/changelog/post/2026-07-09-restrict-new-kv-backed-namespaces/).

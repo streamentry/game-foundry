@@ -12,7 +12,7 @@
 | .NET SDK | 8.x via CI | Pure C# gameplay/locale test runner; **not** a Unity compiler |
 | Python | 3.x | Static Unity/locale Resources contract verifier |
 | GameCI | `.github/workflows/evergrove-unity-playtest.yml` | Manual licensed preview build |
-| Optional cloud | `backend/evergrove` TypeScript/Cloudflare | Separate reference API, never required to play |
+| Optional cloud | `backend/` TypeScript/Cloudflare Worker + Durable Objects | Separate prototype API, never required to play |
 
 From repository root, run:
 
@@ -71,7 +71,7 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 | --- | --- | --- |
 | `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release` | Fixture shape, exhaustive uniqueness, leaks/connectivity, 33 branch variants, immutable landmarks, campaign completion, Hint/Undo/Restart/Choice/Reconsider, save v1/v2/v3 rules, scene flags and local playtest counters; catalog validation for 29 non-English languages | Unity UI compile, gameplay feel, device performance, bilingual rendering |
 | `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 81 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
-| `npm test` under `backend/evergrove` | Separate optional Worker model API behavior | Any linkage to actual offline game; cloud security or billing |
+| `npm test` under `games/evergrove/backend` | Separate optional Worker model API behavior | Any linkage to actual offline game; cloud security or billing |
 | `.github/workflows/ci.yml` | Repo-wide research tooling and unrelated Godot game jobs | Unity-native correctness |
 
 **Important:** On a future source edit, record a **link to the exact CI run**, commit SHA and assertion count in the PR. Do not assume the last successful run applies to a new commit or cite an old number as current.

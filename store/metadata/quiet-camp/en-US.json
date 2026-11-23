@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "game_slug": "quiet-camp",
+  "source_commit": "37422f1",
+  "source_note": "Tents & Trees proof of gameplay; no production decision or demand validation.",
+  "status": "draft — not release approved",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Quiet Camp",
+    "subtitle": "Tents and Trees puzzle",
+    "description": "Place exactly one tent next to each tree, satisfy every row and column total, and keep tents from touching, diagonally included. Solve eight original, uniquely solvable 5×5 and 6×6 boards. Mark grass, undo, restart, and keep your progress on this device. There is no timer or score penalty.",
+    "keywords": "tents trees,logic puzzle,grid,forest,number puzzle,offline",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "google_play": {
+    "title": "Quiet Camp",
+    "short_description": "Place tents, match row totals, and avoid touching.",
+    "full_description": "Place exactly one tent next to each tree, satisfy every row and column total, and keep tents from touching, diagonally included. Solve eight original, uniquely solvable 5×5 and 6×6 boards. Mark grass, undo, restart, and keep your progress on this device. There is no timer or score penalty.",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "release_decisions": {
+    "bundle_id": null,
+    "package_id": null,
+    "version_name": null,
+    "version_code": null,
+    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
+    "territories": "unset",
+    "age_rating": "not completed",
+    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
+    "automatic_release": "requested; not configured",
+    "audience_fit_45_plus": "unknown"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

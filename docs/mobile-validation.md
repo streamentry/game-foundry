@@ -1,12 +1,28 @@
 # Mobile export and SDK assessment
 
-**Checked:** 2026-11-15
+**Previous detailed preflight:** 2026-11-15
+
+## Current verification (2026-11-22)
+
+**Decision:** no game is release-eligible. The eight requested projects remain prototypes without adult-45+ player validation, demand/retention evidence, or production sign-off. Console searches found no exact-title records; no records or listings were created.
+
+**Toolchain:** Godot 4.7.2 standard editor and matching official templates are installed. The template archive SHA-256 was checked against the upstream GitHub release: f298490b8d44d934be425a5a65a51bf15f422428b229a06e11d9ffea248011. Xcode 27.2 and iOS SDK 27.2 are installed; iOS Simulator runtimes 18.5 and 26.5 are present. Android API 36, Build Tools 36.1.0, NDK 29.0.14206865, and current command-line tools are installed. JDK 21 was used for the local export proof; the repository baseline recommends JDK 17, which is not installed.
+
+**Android debug proof:** temporary debug APKs for all eight projects compiled with min SDK 24 and target SDK 36, signed with Godot's debug key, installed, and launched on an Android 16/API 36 Pixel 7 virtual device. All eight Gradle AABs built but are unsigned. ADB found no attached physical Android device. The proofs used temporary package IDs and a generic test icon. The ETC2/ASTC setting is now present in all eight source projects, which re-imported successfully; production app icons remain unset.
+
+Temporary Godot iOS projects for all eight titles exported, and Xcode compiled all eight arm64 device targets without signing. The Kakuro iOS Simulator build failed: local inspection of the installed 4.7.2 simulator framework showed its declared simulator slice contains x86_64-only objects, while this Apple Silicon Simulator target requires arm64. This matches the packaging failure reported for the prior 4.7.1 templates in [Godot issue 122379](https://github.com/godotengine/godot/issues/122379); the local 4.7.2 archive was checked directly. No physical iPhone is attached. Xcode has zero valid code-signing identities; 11 provisioning profiles exist, but none is verified for the unassigned app IDs.
+
+Each game's Android emulator screenshot and short recording are in its native-proof/android-api36-pixel7-avd folder; see the capture index at store/assets/native-proof-index.md. They show real running debug builds but are not physical-device QA or final store media. No iOS capture was possible.
+
+All eight projects passed their existing Godot import, rule, persistence, and scene checks. The research backlog validator and all 50 Python unit tests passed. The web-playtest tests needed loopback access to bind a local HTTP server.
+
+**Remaining release blockers:** permanent bundle/package IDs, production icons, final support and privacy URLs, signed release artifacts and keys, physical-device QA, audience and market gates, age/content and privacy declarations, price and territory decisions, and account-owner confirmations.
 
 **Related issue:** [#4 — validate Godot native iOS/Android export and privacy SDK options](https://github.com/streamentry/game-foundry/issues/4)
 
-**Status:** Partial. The toolchain is documented; signed device builds and physical-device checks are not verified.
+**Current status:** Partial. Local native export proofs exist for Kakuro only; signed store builds and physical-device checks remain open.
 
-## Current project
+## Historical Takuzu Lab project snapshot (2026-11-15)
 
 Takuzu Lab is an engineering reference, not a release candidate. It uses the Compatibility renderer and **already has local, versioned JSON progress save/resume** (`scripts/progress_store.gd`) plus a **Web Playtest export preset** (`export_presets.cfg`). It has **no iOS or Android export presets**, platform app identifiers, mobile signing setup, or SDK plugins yet. No platform SDK should be added until a real game needs it.
 
@@ -78,17 +94,21 @@ Apple requires App Store privacy disclosures to include data practices of third-
 
 ## Remaining acceptance work (not yet signed off)
 
-- [ ] Install Godot 4.7.2 and matching standard templates; capture the exact installed template version.
-- [ ] Export, sign, install, and launch on a physical iPhone; record iOS deployment target, Xcode project settings, and blockers.
-- [ ] Install the Android API 36 toolchain; export, sign, install, and launch on a physical Android device; record the final manifest minimum/target SDK and template names.
-- [ ] Complete the device checks above, including a representative lower-end Android device.
-- [ ] Recheck the SDK choices only against the actual product, then document the privacy forms and third-party licenses for any SDK selected.
+- [x] Install Godot 4.7.2 and matching standard export templates; archive SHA-256 recorded above.
+- [x] Install Android API 36, Build Tools 36.1.0, NDK 29.0.14206865, and current command-line tools. JDK 21 was used in the local proof; install/retest with the documented JDK 17 baseline before release.
+- [x] Export and inspect temporary Android debug APKs for all eight titles; min SDK 24 and target SDK 36 verified; install and launch each on a Pixel 7 AVD.
+- [x] Export and compile temporary iOS arm64 device targets for all eight titles without signing.
+- [ ] Produce a release-signed Android AAB with a production package ID and user-owned upload key.
+- [ ] Sign and install an iOS build using the verified Apple team identity and a matching provisioning profile.
+- [ ] Rebuild the iOS Simulator template for arm64 or use a supported simulator build; current template fails on this Apple Silicon host.
+- [ ] Run physical-device checks on an iPhone and Android phone, including a representative lower-end device.
+- [ ] Complete adult-45+ usability and market gates, then finalize each app's privacy, age/content, export, price, territory, rights, and account-owner declarations.
 
 ## Sources
 
 - [Godot 4.7.2 archive and standard export templates](https://godotengine.org/download/archive/4.7.2-stable/)
 - [Godot 4.7.2 Android build config](https://github.com/godotengine/godot/blob/4.7.2-stable/platform/android/java/app/config.gradle)
-- [Godot 4.7 Android export guide](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_android.html) and [iOS export guide](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_ios.html)
+- [Godot 4.7 Android export guide](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_android.html), [iOS export guide](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_ios.html), and [Godot issue 122379 on the simulator architecture packaging defect](https://github.com/godotengine/godot/issues/122379)
 - [Google Play target API requirement](https://developer.android.com/google/play/requirements/target-sdk)
 - [GodotGooglePlayBilling documentation](https://docs.godotengine.org/en/stable/tutorials/platform/android/android_in_app_purchases.html)
 - [Apple App Privacy Details](https://developer.apple.com/app-store/app-privacy-details/) and [Google Play Data safety](https://support.google.com/googleplay/android-developer/answer/10787469)

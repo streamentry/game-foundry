@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "game_slug": "takuzu-lab",
+  "source_commit": "37422f1",
+  "source_note": "Engineering reference; README says not to launch as a standalone catalogue app.",
+  "status": "draft — not release approved",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Takuzu Lab",
+    "subtitle": "Daily binary puzzles",
+    "description": "Play a daily 4×4 Takuzu puzzle or free 4×4 and 6×6 boards. Rows and columns must balance, avoid three identical numbers in a row, and avoid duplicate completed lines. Use hints, undo, redo, and restart. Progress saves locally. This is an engineering reference, not an approved product.",
+    "keywords": "takuzu,binary,binairo,logic,number puzzle,daily,grid",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "google_play": {
+    "title": "Takuzu Lab",
+    "short_description": "Solve binary grids with hints and local progress.",
+    "full_description": "Play a daily 4×4 Takuzu puzzle or free 4×4 and 6×6 boards. Rows and columns must balance, avoid three identical numbers in a row, and avoid duplicate completed lines. Use hints, undo, redo, and restart. Progress saves locally. This is an engineering reference, not an approved product.",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "release_decisions": {
+    "bundle_id": null,
+    "package_id": null,
+    "version_name": null,
+    "version_code": null,
+    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
+    "territories": "unset",
+    "age_rating": "not completed",
+    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
+    "automatic_release": "requested; not configured",
+    "audience_fit_45_plus": "unknown"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

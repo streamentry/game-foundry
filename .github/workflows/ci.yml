@@ -364,5 +364,5 @@ jobs:
         with:
           node-version: '22'
       - name: Verify Cloudflare reference-model behavior (no deployment)
-        working-directory: backend/evergrove
+        working-directory: games/evergrove/backend
         run: npm test

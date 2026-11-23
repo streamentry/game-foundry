@@ -1,4 +1,4 @@
-/* Evergrove first-minute research slice: exact Unity chapter-one fixture.
+/* Mosselora first-minute research slice: exact Unity chapter-one fixture.
  * No framework, telemetry, account, persistence, external assets or network.
  * Browser prototype only. A real Unity/device QA pass is still mandatory.
  */
@@ -156,7 +156,7 @@
   const API = { FIXTURE, CHOICES, DIRECTIONS, orientations, hasPort, neighbor, inspect, Game };
   if (typeof module !== "undefined" && module.exports) module.exports = API;
   if (typeof document === "undefined") return;
-  root.EvergrovePreview = API;
+  root.MosseloraPreview = API;
   const node = id => document.getElementById(id);
   const model = new Game();
   const board = node("board"), tileButtons = [];

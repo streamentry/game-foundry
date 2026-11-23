@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "game_slug": "shikaku-garden",
+  "source_commit": "37422f1",
+  "source_note": "Fallback playtest candidate; not a production selection.",
+  "status": "draft — not release approved",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Shikaku Garden",
+    "subtitle": "Rectangle logic puzzle",
+    "description": "Divide the grid into rectangles. Each rectangle must stay inside the board, contain exactly one clue, and cover the number of cells shown by that clue. Solve eight original boards with tap-to-select corners, undo, restart, unlocked progression, and local saves. There is no timer.",
+    "keywords": "shikaku,rectangle,number puzzle,logic,grid,area,geometry",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "google_play": {
+    "title": "Shikaku Garden",
+    "short_description": "Divide the grid into clue-sized rectangles.",
+    "full_description": "Divide the grid into rectangles. Each rectangle must stay inside the board, contain exactly one clue, and cover the number of cells shown by that clue. Solve eight original boards with tap-to-select corners, undo, restart, unlocked progression, and local saves. There is no timer.",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "release_decisions": {
+    "bundle_id": null,
+    "package_id": null,
+    "version_name": null,
+    "version_code": null,
+    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
+    "territories": "unset",
+    "age_rating": "not completed",
+    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
+    "automatic_release": "requested; not configured",
+    "audience_fit_45_plus": "unknown"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

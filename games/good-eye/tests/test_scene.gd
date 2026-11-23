@@ -29,6 +29,24 @@ func _run() -> void:
     expect(app.board.shape.size() >= 3, "original shape shown")
     expect(app.cut_button.custom_minimum_size.y >= 48.0, "large cut button")
     expect(not app.cut_button.disabled and app.next_button.disabled, "first round ready")
+    var square := PackedVector2Array([
+        Vector2(-0.5, -0.5), Vector2(0.5, -0.5),
+        Vector2(0.5, 0.5), Vector2(-0.5, 0.5)
+    ])
+    app.board.set_round(square)
+    app._refresh()
+    expect(app.status_label.text == "Almost even. Cut when you're ready.", "practice shows a non-numeric close cue")
+    var tap_a: Vector2 = app.board.size * 0.5 + Vector2(0.0, -app.board._scale() * 0.25)
+    app.board._set_from_pointer(tap_a)
+    expect(absf(app.board.offset + 0.25) < 0.001, "tap position places the cut line")
+    expect(app.status_label.text.contains("A side is larger") and app.status_label.text.contains("Move +"),
+        "practice hints the direction when A is larger")
+    var tap_b: Vector2 = app.board.size * 0.5 + Vector2(0.0, app.board._scale() * 0.25)
+    app.board._set_from_pointer(tap_b)
+    expect(app.status_label.text.contains("B side is larger") and app.status_label.text.contains("Move −"),
+        "practice hints the direction when B is larger")
+    app.board._set_from_pointer(app.board.size * 0.5)
+    expect(absf(app.board.offset) < 0.001, "hint checks restore the default aim")
     var seed: int = Model.current_seed(app.state)
     app._rotate(10.0)
     expect(absf(app.board.angle_degrees - 10.0) < 0.001, "turn control changes aim")
@@ -46,6 +64,7 @@ func _run() -> void:
     app._switch_mode("daily")
     expect(app.state["mode"] == "daily", "daily tab switches")
     expect(app.retry_button.disabled, "daily retry disabled")
+    expect(app.status_label.text == "Adjust the line before your first cut.", "daily remains a blind first cut")
     app._cut_shape()
     expect(app.state["daily_percents"].size() == 1, "daily result stored")
     app._next_shape()

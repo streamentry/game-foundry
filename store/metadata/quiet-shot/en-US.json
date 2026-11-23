@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "game_slug": "quiet-shot",
+  "source_commit": "37422f1",
+  "source_note": "Exploratory spatial-prediction prototype; not production-approved.",
+  "status": "draft — not release approved",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Quiet Shot",
+    "subtitle": "One-shot mirror puzzle",
+    "description": "Aim once, fire, and predict how a ray reflects from fixed mirrors to clear every target. Adjust your angle and retry without a timer. Explore eight original boards and save progress locally. A shot stops when targets are cleared, it leaves the board, or the four-reflection limit is reached.",
+    "keywords": "ricochet,ray,mirror,one shot,aim,physics,puzzle,spatial",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "google_play": {
+    "title": "Quiet Shot",
+    "short_description": "Aim once, predict reflections, and clear each board.",
+    "full_description": "Aim once, fire, and predict how a ray reflects from fixed mirrors to clear every target. Adjust your angle and retry without a timer. Explore eight original boards and save progress locally. A shot stops when targets are cleared, it leaves the board, or the four-reflection limit is reached.",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "release_decisions": {
+    "bundle_id": null,
+    "package_id": null,
+    "version_name": null,
+    "version_code": null,
+    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
+    "territories": "unset",
+    "age_rating": "not completed",
+    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
+    "automatic_release": "requested; not configured",
+    "audience_fit_45_plus": "unknown"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

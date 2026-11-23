@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "game_slug": "good-eye",
+  "source_commit": "37422f1",
+  "source_note": "Visual-mechanic research prototype; local Good Eye usability edits are uncommitted.",
+  "status": "draft — not release approved",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Good Eye",
+    "subtitle": "Shape splitting puzzle",
+    "description": "Choose a line to split an original shape, then see how close the two areas are to equal. Adjust its position and angle before the cut. Practice offers a short direction cue; Daily Five gives five UTC-based rounds and preserves first-attempt scores. Seeded practice and progress save on this device.",
+    "keywords": "shape,puzzle,area,geometry,split,visual,logic,daily,estimate",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "google_play": {
+    "title": "Good Eye",
+    "short_description": "Compare both areas after splitting an original shape.",
+    "full_description": "Choose a line to split an original shape, then see how close the two areas are to equal. Adjust its position and angle before the cut. Practice offers a short direction cue; Daily Five gives five UTC-based rounds and preserves first-attempt scores. Seeded practice and progress save on this device.",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "release_decisions": {
+    "bundle_id": null,
+    "package_id": null,
+    "version_name": null,
+    "version_code": null,
+    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
+    "territories": "unset",
+    "age_rating": "not completed",
+    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
+    "automatic_release": "requested; not configured",
+    "audience_fit_45_plus": "unknown"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

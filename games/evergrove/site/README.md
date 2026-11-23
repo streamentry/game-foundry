@@ -4,7 +4,7 @@ Static Astro site deployed as a Cloudflare Worker Static Assets project. The sou
 
 ## Local use
 
-Requires Node.js 22.12 or newer.
+Requires Node.js 22.23.4 or newer. `.nvmrc` selects 24.22.2.
 
 ```sh
 npm install

@@ -1,16 +1,15 @@
 import { DurableObject } from "cloudflare:workers";
 import { applyWater, initialWorld, parseAction, publicWorld, type World } from "./model";
 
-interface Env {
-  WORLD: DurableObjectNamespace<WorldState>;
-  ALLOWED_ORIGIN?: string;
-}
 const PATH = "/api/world";
 const MAX_BODY = 2048;
 const CAPABILITY = /^[A-Za-z0-9_-]{43}$/;
 
 function json(value: unknown, status = 200): Response {
-  return Response.json(value, { status, headers: { "Cache-Control": "no-store" } });
+  return Response.json(value, { status, headers: {
+    "Cache-Control": "no-store",
+    "X-Robots-Tag": "noindex, nofollow"
+  } });
 }
 
 export class WorldState extends DurableObject<Env> {
@@ -69,35 +68,49 @@ function withCors(reply: Response, origin: string | null, env: Env): Response {
   return new Response(reply.body, { status: reply.status, headers });
 }
 
+async function handleRequest(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const origin = request.headers.get("Origin");
+  if (url.pathname === "/healthz" && request.method === "GET")
+    return json({ service: "mosselora-world-api", status: "prototype", gameplaySync: false });
+  if (url.pathname !== PATH) return json({ error: "NOT_FOUND" }, 404);
+  if (origin !== null && origin !== env.ALLOWED_ORIGIN) return json({ error: "ORIGIN_DENIED" }, 403);
+  if (request.method === "OPTIONS")
+    return origin === null ? json({ error: "ORIGIN_REQUIRED" }, 403) : withCors(new Response(null, { status: 204 }), origin, env);
+  if (!["GET", "POST", "DELETE"].includes(request.method)) return json({ error: "METHOD_NOT_ALLOWED" }, 405);
+  const authorization = request.headers.get("Authorization") ?? "";
+  if (!authorization.startsWith("Bearer ") || !CAPABILITY.test(authorization.slice(7)))
+    return json({ error: "CAPABILITY_REQUIRED" }, 401);
+  if (request.method === "POST" && request.headers.get("Content-Type")?.split(";")[0].trim() !== "application/json")
+    return json({ error: "JSON_REQUIRED" }, 415);
+
+  let body: string | undefined;
+  if (request.method === "POST") {
+    body = await request.text();
+    if (new TextEncoder().encode(body).byteLength > MAX_BODY) return json({ error: "PAYLOAD_TOO_LARGE" }, 413);
+  }
+  // Per-capability private DO; never store or log the bearer token in the object.
+  const key = await keyForCapability(authorization.slice(7));
+  const object = env.WORLD.get(env.WORLD.idFromName(key));
+  const proxy = new Request("https://mosselora.internal/state", {
+    method: request.method,
+    headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
+    body
+  });
+  const reply = await object.fetch(proxy);
+  return withCors(reply, origin, env);
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-    if (url.pathname !== PATH) return json({ error: "NOT_FOUND" }, 404);
-    const origin = request.headers.get("Origin");
-    if (origin !== null && origin !== env.ALLOWED_ORIGIN) return json({ error: "ORIGIN_DENIED" }, 403);
-    if (request.method === "OPTIONS")
-      return origin === null ? json({ error: "ORIGIN_REQUIRED" }, 403) : withCors(new Response(null, { status: 204 }), origin, env);
-    if (!["GET", "POST", "DELETE"].includes(request.method)) return json({ error: "METHOD_NOT_ALLOWED" }, 405);
-    const authorization = request.headers.get("Authorization") ?? "";
-    if (!authorization.startsWith("Bearer ") || !CAPABILITY.test(authorization.slice(7)))
-      return json({ error: "CAPABILITY_REQUIRED" }, 401);
-    if (request.method === "POST" && request.headers.get("Content-Type")?.split(";")[0].trim() !== "application/json")
-      return json({ error: "JSON_REQUIRED" }, 415);
-
-    let body: string | undefined;
-    if (request.method === "POST") {
-      body = await request.text();
-      if (new TextEncoder().encode(body).byteLength > MAX_BODY) return json({ error: "PAYLOAD_TOO_LARGE" }, 413);
+    try {
+      return await handleRequest(request, env);
+    } catch (error) {
+      console.error(JSON.stringify({
+        event: "mosselora_api_error",
+        errorType: error instanceof Error ? error.name : "UnknownError"
+      }));
+      return withCors(json({ error: "INTERNAL_ERROR" }, 500), request.headers.get("Origin"), env);
     }
-    // Per-capability private DO; never store or log the bearer token in the object.
-    const key = await keyForCapability(authorization.slice(7));
-    const object = env.WORLD.get(env.WORLD.idFromName(key));
-    const proxy = new Request("https://evergrove.internal/state", {
-      method: request.method,
-      headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
-      body
-    });
-    const reply = await object.fetch(proxy);
-    return withCors(reply, origin, env);
   }
-};
+} satisfies ExportedHandler<Env>;

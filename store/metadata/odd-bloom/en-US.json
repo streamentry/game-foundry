@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "game_slug": "odd-bloom",
+  "source_commit": "37422f1",
+  "source_note": "Visual playtest prototype; desirability and repeat play remain unmeasured.",
+  "status": "draft — not release approved",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Odd Bloom",
+    "subtitle": "Find the different bloom",
+    "description": "Find the one original flower whose structure differs from the others. Boards grow from 6 to 16 flowers across twelve deterministic rounds. Tap to choose, revisit earlier rounds, replay a pattern, and save progress on this device. There is no timer, score penalty, or forced streak.",
+    "keywords": "odd one out,flower,pattern,visual,logic,spot difference,puzzle",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "google_play": {
+    "title": "Odd Bloom",
+    "short_description": "Find the flower with the different structure.",
+    "full_description": "Find the one original flower whose structure differs from the others. Boards grow from 6 to 16 flowers across twelve deterministic rounds. Tap to choose, revisit earlier rounds, replay a pattern, and save progress on this device. There is no timer, score penalty, or forced streak.",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "release_decisions": {
+    "bundle_id": null,
+    "package_id": null,
+    "version_name": null,
+    "version_code": null,
+    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
+    "territories": "unset",
+    "age_rating": "not completed",
+    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
+    "automatic_release": "requested; not configured",
+    "audience_fit_45_plus": "unknown"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

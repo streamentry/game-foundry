@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "game_slug": "one-path",
+  "source_commit": "37422f1",
+  "source_note": "Graph-puzzle research prototype; player and acquisition gates remain open.",
+  "status": "draft — not release approved",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "One Path",
+    "subtitle": "Use each line exactly once",
+    "description": "Use each visible connection exactly once. You may revisit dots; crossings without a dot are not junctions. Solve eight original graph boards by tracing or tapping large dot buttons. Undo, restart, revisit earlier boards, and resume your local route and unlocked progress.",
+    "keywords": "one line,graph,route,edge puzzle,connect dots,euler trail,logic",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "google_play": {
+    "title": "One Path",
+    "short_description": "Plan a route that uses every connection once.",
+    "full_description": "Use each visible connection exactly once. You may revisit dots; crossings without a dot are not junctions. Solve eight original graph boards by tracing or tapping large dot buttons. Undo, restart, revisit earlier boards, and resume your local route and unlocked progress.",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "release_decisions": {
+    "bundle_id": null,
+    "package_id": null,
+    "version_name": null,
+    "version_code": null,
+    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
+    "territories": "unset",
+    "age_rating": "not completed",
+    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
+    "automatic_release": "requested; not configured",
+    "audience_fit_45_plus": "unknown"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

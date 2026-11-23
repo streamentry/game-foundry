@@ -1,5 +1,5 @@
 {
-  "name": "@game-foundry/evergrove-cloudflare-preview",
+  "name": "@game-foundry/mosselora-world-api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,6 +7,9 @@
   "scripts": {
     "test": "node --experimental-strip-types --test tests/model.test.mjs",
     "dev": "wrangler dev",
+    "types": "wrangler types",
+    "deploy:dry": "wrangler deploy --dry-run",
+    "check": "npm test && wrangler deploy --dry-run",
     "deploy": "wrangler deploy"
   },
   "devDependencies": { "wrangler": "^4.0.0" }

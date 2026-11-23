@@ -156,7 +156,7 @@ func _build_view() -> void:
 
     column.add_child(_label("GOOD EYE  /  A SMALL TEST OF JUDGMENT", 12, ACCENT))
     column.add_child(_label("How close to half?", 30))
-    column.add_child(_label("Split the shape into two equal areas. No timer. Trust your eye.", 16, MUTED))
+    column.add_child(_label("Tap the shape to set the cut. Use Move and Turn to fine-tune it.", 16, MUTED))
 
     var modes := _row()
     column.add_child(modes)
@@ -174,7 +174,7 @@ func _build_view() -> void:
     board.mouse_filter = Control.MOUSE_FILTER_STOP
     board.clip_contents = true
     board.accessibility_name = "Shape with adjustable dividing line"
-    board.accessibility_description = "Drag on the board to move the cutting line; use the four buttons below to make precise changes."
+    board.accessibility_description = "Tap on the board to place the cutting line. Move buttons shift it; Turn buttons rotate it. Practice provides a direction cue before you cut."
     column.add_child(board)
 
     result_label = _label("", 24, INK, true)
@@ -185,13 +185,13 @@ func _build_view() -> void:
     var fine_controls := _row()
     column.add_child(fine_controls)
     var move_back := _button("Move −", _move.bind(-0.03))
-    move_back.accessibility_description = "Move the cut toward side A."
+    move_back.accessibility_description = "Move the cut toward side B."
     var turn_back := _button("Turn −", _rotate.bind(-10.0))
     turn_back.accessibility_description = "Rotate the cutting line ten degrees counterclockwise."
     var turn_forward := _button("Turn +", _rotate.bind(10.0))
     turn_forward.accessibility_description = "Rotate the cutting line ten degrees clockwise."
     var move_forward := _button("Move +", _move.bind(0.03))
-    move_forward.accessibility_description = "Move the cut toward side B."
+    move_forward.accessibility_description = "Move the cut toward side A."
     fine_controls.add_child(move_back)
     fine_controls.add_child(turn_back)
     fine_controls.add_child(turn_forward)
@@ -214,7 +214,8 @@ func _build_view() -> void:
 
     status_label = _label("", 13, MUTED, true)
     column.add_child(status_label)
-    column.add_child(_label("Touch or drag the board to position the line. Turn and move buttons allow precise adjustments. Keyboard: arrows + Enter.", 13, MUTED))
+    board.aim_changed.connect(_update_aim_feedback)
+    column.add_child(_label("Practice lets you retry the same shape. Daily Five saves the first cut. Keyboard: arrows + Enter.", 14, MUTED))
 
 
 func _load_round() -> void:
@@ -248,8 +249,8 @@ func _refresh() -> void:
 
     if not finished:
         result_label.text = "Your cut is ready"
-        detail_label.text = "The percentages stay hidden until you cut."
-        status_label.text = "Aim for 50 / 50."
+        detail_label.text = "The exact split appears after the cut."
+        _update_aim_feedback()
         return
 
     var pct: float = Model.current_percent(state)
@@ -262,6 +263,28 @@ func _refresh() -> void:
         status_label.text = "First attempt saved. Ready for the next shape?"
     else:
         status_label.text = "Try the same shape again, or move on."
+
+
+func _update_aim_feedback() -> void:
+    if status_label == null or state.is_empty() or Model.revealed(state):
+        return
+    if state["mode"] == "daily":
+        status_label.text = "Adjust the line before your first cut."
+        return
+
+    var calculation: Dictionary = board.measure()
+    if not calculation.get("valid", false):
+        status_label.text = "Keep the line crossing the shape."
+        return
+
+    var percent_a: float = float(calculation["percent_a"])
+    var error: float = absf(50.0 - percent_a)
+    if error <= 2.0:
+        status_label.text = "Almost even. Cut when you're ready."
+    elif percent_a > 50.0:
+        status_label.text = "A side is larger. Try Move + to bring it closer to half."
+    else:
+        status_label.text = "B side is larger. Try Move − to bring it closer to half."
 
 
 func _cut_shape() -> void:

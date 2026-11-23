@@ -19,7 +19,7 @@
 | Save schema v4 and v1/v2/v3 migration | No player should lose a garden when routing evolves | Rollback compatibility and disk errors need real-platform QA | [Save spec](SAVE_AND_MIGRATION.md) |
 | 30 selectable draft languages | Broadens global usability hypothesis without network translation | Unreviewed copy and RTL/Indic shaping make broad release unsafe | [Localization](../LOCALIZATION.md) |
 | Consent-first local playtest notes only | Learn with minimal personal data | Can't measure D1/D7 cohorts without separate consent/process | [Validation](VALIDATION.md) |
-| Cloudflare demo not attached | Avoids identity, security, latency and moderation before proof of need | Cloud sync eventually helpful for portability; require separate ADR | [Cloudflare preview](../../../backend/evergrove/README.md) |
+| Cloudflare prototype not attached to gameplay | Avoids identity, security, latency and moderation before proof of need | Cloud sync may help portability; require separate ADR | [Mosselora Worker backend](../backend/README.md) |
 
 ## 2. Strongest opposing case
 

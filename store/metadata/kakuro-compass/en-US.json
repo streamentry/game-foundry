@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "game_slug": "kakuro-compass",
+  "source_commit": "37422f1",
+  "source_note": "Search-led proof-of-play candidate; not a production greenlight.",
+  "status": "draft — not release approved",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Kakuro Compass",
+    "subtitle": "Clear crossing clues",
+    "description": "Fill each Kakuro run with digits 1–9 so its total matches the clue; do not repeat a digit within a run. Solve eight original 5×5 boards to unlock the next. The Compass inspector shows across and down totals and locally feasible digits for the selected cell. Undo, erase, restart, and local progress are included.",
+    "keywords": "kakuro,number cross,sums,logic,arithmetic,grid,puzzle",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "google_play": {
+    "title": "Kakuro Compass",
+    "short_description": "Solve crossing sums with a clear cell inspector.",
+    "full_description": "Fill each Kakuro run with digits 1–9 so its total matches the clue; do not repeat a digit within a run. Solve eight original 5×5 boards to unlock the next. The Compass inspector shows across and down totals and locally feasible digits for the selected cell. Undo, erase, restart, and local progress are included.",
+    "support_url": null,
+    "privacy_policy_url": null
+  },
+  "release_decisions": {
+    "bundle_id": null,
+    "package_id": null,
+    "version_name": null,
+    "version_code": null,
+    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
+    "territories": "unset",
+    "age_rating": "not completed",
+    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
+    "automatic_release": "requested; not configured",
+    "audience_fit_45_plus": "unknown"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

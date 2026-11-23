@@ -442,3 +442,121 @@ Mathematically unique: Renzoku, 3-word square card placement, Nonogram, Akari, p
 **Strongest objection:** the new marker may be less obvious and art may increase friction; all work is lower value than a real Unity build and uncoached players. Do not over-interpret browser screenshots as proof of mobile user delight.
 
 **Cheapest disproof / status:** run static/C#/browser checks, licensed Unity import and real-device QA; observe 8–12 uncoached players aged 45+ in a first-minute task. Continue only if goal, flow and consequence are understood; simplify if 3/10 starters fail on goal or restoration. No release or retention claims follow from passing CI.
+
+## 2026-11-22 — Eight-game mobile publishing audit
+
+**Decision:** do not create app records or submit any title yet. None of the eight prototypes has passed the repository's audience, market, physical-device, and release-readiness gates. The request for automatic release after approval remains unconfigured and does not waive those gates.
+
+**Store evidence:** signed-in App Store Connect and Google Play Console were readable in the built-in Browser. Exact-title searches found no records for Good Eye, Kakuro Compass, Odd Bloom, One Path, Quiet Camp, Quiet Shot, Shikaku Garden, or Takuzu Lab. No store records or listings were created or changed. Play Console showed 24 account apps, 11 production apps, 11 apps with policy tasks, and one submission not yet sent for review. The console labels the account Personal; confirm the legal publisher/account owner before declarations.
+
+**Search evidence:** Semrush keyword reports were unavailable because the connected account had no API units. Existing Google Keyword Planner rows are broad web-search ranges for 2025-11 through 2026-10; they are not App Store volume, installs, ranking, or evidence of 45+ searcher fit. No opportunity score or new search metric was generated.
+
+**Local evidence:** all eight Godot 4.7.2 projects imported and passed their existing rules, persistence, and scene scripts. The research backlog validator and all 50 Python unit tests passed after the loopback-only web-playtest checks were rerun with local server access.
+
+**Native export proof:** the matching official Godot 4.7.2 templates were downloaded from the upstream release and SHA-256 verified. Temporary debug APKs for all eight titles compiled with min SDK 24/target SDK 36, were signed with Godot's debug key, installed, and launched on an Android 16/API 36 Pixel 7 AVD. All eight Gradle AABs built but are unsigned. The required ETC2/ASTC Android texture-import setting was added to all eight requested projects and all eight re-imported successfully. Eight Android screenshots and short recordings are stored in each game's native-proof folder. Temporary Xcode projects for all eight titles exported and all eight arm64 device targets compiled without signing. Kakuro's Simulator link failed because the distributed simulator library slice is x86_64-only while this Apple Silicon Simulator target requires arm64. No physical iPhone or Android device is attached. Xcode has zero valid signing identities; 11 provisioning profiles exist but none is verified for these unassigned bundle IDs.
+
+**What changed:** store/release-status.csv separates each game's iOS and Android record, build, upload, review, approval, release-setting, and public-availability state. Eight English masters and 200 translated-description drafts cover 25 unique store locales. All translation drafts remain native-review-pending; unsupported or proxy-only roster rows are not represented as direct translations. Generated feature-art concepts remain unapproved; all eight titles now have debug-only Android AVD captures, none of which are physical-device or store-ready evidence.
+
+**Next decision gate:** recruit the intended adult-45+ players, complete the comparative market/player gate for each candidate, agree permanent identifiers and listing decisions with the account owner, then produce signed builds and run physical-device QA before any store submission. Takuzu Lab remains outside production selection.
+
+## 2026-11-22 — Evergrove publishing preflight remains blocked at M1
+
+**Source:** `795526432577120ed76bca432ea4ea8675622d23`, fetched `origin/main`; no newer upstream commit was present. Evergrove project files remain unchanged.
+
+**Passed locally:** `tools/verify_evergrove_project.py` and `tools/check_evergrove_docs.py` passed. The required pure C# suite passed **5,404 assertions** with .NET SDK `8.0.428` installed under `/private/tmp`; this is domain logic evidence only.
+
+**Still blocked:** the licensed Unity `6000.3.0f1` Editor is absent, so the local M1 preflight failed before Unity import. No Android or iOS Unity build, signing, physical-device run, or actual gameplay capture exists. Existing `EvergroveBuild` only emits development APK / unsigned Xcode playtest outputs with a playtest identifier, not production AAB/IPA artifacts.
+
+**Store state:** App Store Connect redirected to login; the user was handed the Browser. Play Console was not checked. No app record was created, no binary uploaded, no review submitted, no approval or public listing verified, and no release option configured.
+
+**Decision:** keep Evergrove ineligible for store submission. M1–M6 and the account-owner, title, privacy, pricing/territory, physical-device and player-evidence gates remain open. The English listing, 25 locale drafts and promotional key-art concept are preparation only; the translations are not natively reviewed and the image is not gameplay footage.
+
+## 2026-11-23 — Free pricing confirmed for the publishing batch
+
+**User decision:** all games in the current publishing batch, including Evergrove, are free. The English metadata masters now record that decision. No platform price setting has been applied because Evergrove has no app records yet and the original eight have not passed their release gates. This does not waive territory, rating, account-owner, build or review requirements.
+
+## 2026-11-23 — Evergrove exact-title store lookup
+
+**Observed in signed-in consoles:** the App Store Connect Apps search and Google Play Console app-table search both returned no exact-title `Evergrove` result. No app records or store settings were created. Evergrove's iOS bundle ID and Android package ID remain unassigned.
+
+**Current decision:** prepare to create records only after the permanent identifiers and missing metadata choices are settled. The user confirmed a free price for every title; production territories, content rating, title clearance and owner declarations remain unresolved. Automatic Apple release and Google standard publishing remain requested but unconfigured. M1–M6 still prohibit submission.
+
+## 2026-11-23 — Evergrove app identity and store-record attempt
+
+**Apple:** registered the explicit Bundle ID `com.streamentry.evergrove` in the signed-in developer team, based on the source project's `com.streamentry.evergrove.playtest` namespace. Creating the App Store Connect app record failed validation because Apple reports the public name `Evergrove` is already in use. No trademark claim was filed; no app record was created.
+
+**Google Play:** the signed-in account search had no exact-title result. The Create App form requires the account owner to attest Developer Program Policy compliance and U.S. export-law compliance. Neither checkbox was accepted, and no app record was created.
+
+**Decision:** hold both store records until the account owner clears or changes the Apple title and can make the required Play attestations from the actual build. Free pricing is user-confirmed for all titles; no price setting, upload, review submission, or release configuration changed.
+
+## 2026-11-23 — Evergrove: Living Garden store-record setup
+
+**User-selected alternate:** after App Store Connect reported the name `Evergrove` was already in use, the user selected `Evergrove: Living Garden`. No trademark claim was filed; exact-title web searches found no indexed result, but legal trademark clearance remains unverified.
+
+**iOS:** registered Bundle ID `com.streamentry.evergrove` and created App Store Connect app ID `6838015597` with internal SKU `GF-EVERGROVE-IOS-20261122`, primary language English (U.S.), and limited access. Version 1.0 is `Prepare for Submission`; **Automatically release this version** is selected. No build is uploaded and no review has been submitted.
+
+**Android:** Play Console reports package name `com.streamentry.evergrove` available in the Create App form. The user-selected title, English (U.S.), Game type and Free price were entered for the preflight. The record was not created because Google requires the account owner to affirm Developer Program Policy compliance and U.S. export-law compliance. Both attestations remain unchecked; no package name is reserved.
+
+**Decision:** keep both platforms unsubmitted. Unity M1, signed builds, device/player gates, privacy/support metadata, final rating/territories, trademark clearance and account-owner declarations remain open. All games are free per user instruction, but store pricing has not yet been configured.
+
+## 2026-11-23 — Evergrove: Living Garden listing staged in App Store Connect
+
+**User title decision:** use `Evergrove: Living Garden` as the alternate title.
+
+**iOS record:** App Store Connect app ID `6838015597` exists with Bundle ID `com.streamentry.evergrove`, SKU `GF-EVERGROVE-IOS-20261122`, English (U.S.) and limited access. Version 1.0 remains `Prepare for Submission`. The source-based description and keywords are saved; sign-in-required is off. Automatic release after App Review is selected and read back. The record has no build, screenshot asset, support URL, privacy URL or review contact; it has not been submitted.
+
+**Android:** package name `com.streamentry.evergrove` passed Play Console's availability check but is not reserved. The Create App form is staged with the selected title, English (U.S.), Game and Free. The account owner’s Developer Program Policy and U.S. export-law confirmations remain unchecked, so no Android app record exists.
+
+**Limit:** App Store Connect accepted the alternate title for record creation; this is not legal trademark clearance. No public app is available on either store. M1–M6 and all build, privacy, device, player and owner-attestation gates remain open.
+
+## 2026-11-23 — Evergrove Apple free-price schedule configured
+
+**Store setting:** saved a $0.00 Apple price schedule with U.S. base pricing and comparable $0.00 prices for all 175 listed territories. Apple says this takes effect only when the app is Ready for Sale. App Availability is still unset, so this did not make the app public. Apple Silicon Mac and Vision Pro distribution were disabled to keep the release scope on iOS; the app's release-after-review option remains selected.
+
+**Android:** no price setting exists yet because the Play app record is still blocked at the two account-owner certifications. No Play policy or U.S. export-law box was checked.
+
+## 2026-11-23 — Play app creation halted at owner attestations
+
+**Preflight:** entered `Evergrove: Living Garden`, `com.streamentry.evergrove`, English (U.S.), Game and Free in the signed-in Play Console. The account search returned no app with the alternate title, and the console confirmed the package name was available. No record was created because the form requires its account owner to attest that the app meets Developer Program Policies and U.S. export-law requirements. Both boxes remain unchecked; no Android package is reserved. The app has no Unity build yet, so the export declaration is not ready for owner review.
+
+**Decision:** leave Play creation unsubmitted for the account owner. Do not bypass those declarations or use an unsigned/debug build to claim release readiness.
+
+**Additional Play gate:** the signed-in developer account is Personal, but its creation date is not visible in the app table. Google’s current help page requires accounts created after 2023-11-13 to complete a closed test with at least 12 testers opted in continuously for 14 days before production access. Treat this as conditional until the account date and app-specific access state are verified. See [official testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en-419).
+
+## 2026-11-23 — Rechecked the original eight store records
+
+**Observed:** signed-in App Store Connect and Google Play Console searches returned no exact-title result for Good Eye, Kakuro Compass, Odd Bloom, One Path, Quiet Camp, Quiet Shot, Shikaku Garden or Takuzu Lab. No records were created for those eight. Evergrove is separate: Apple has a draft record; Play creation remains blocked at owner attestations.
+
+## 2026-11-23 — Latest Evergrove browser research slice passes automated checks
+
+**Source:** fetched `main` to `5b2e58370caf7335e7ac8035499a3c9c564b57bd`; no overlapping local paths were present, so the fast-forward preserved local publishing work.
+
+**Passed:** current .NET 8.0.428 domain/save suite (**5,469 assertions**); first-minute Node suite (**10/10**); project and docs verifiers; local preflight wrapper tests (**8/8**); offline Chromium viewport smoke at **320×568, 375×667 and 430×932**. Screenshots are generated under ignored `artifacts/evergrove-first-minute/` for human inspection.
+
+**Limit:** the browser slice is not a Unity build, native app, physical-device test, human study, store screenshot or release asset. Unity `6000.3.0f1` remains absent and the local M1 preflight still exits before import.
+
+## 2026-11-23 — No existing Unity action artifact to reuse
+
+`gh run list --repo streamentry/game-foundry --workflow evergrove-unity-playtest.yml` returned no workflow runs. No Unity preview artifact exists to retrieve. The local machine still lacks the licensed Unity 6.3.0f1 Editor; the workflow only emits development artifacts and requires the maintainer's Unity license secret. No workflow was triggered.
+
+## 2026-11-23 — Evergrove: Living Garden promotional concept
+
+Generated and saved a second original key-art concept under `store/assets/evergrove/concepts/` for the user-selected title. It depicts the village creek, bridge, canopy and wildflowers without text, UI or gameplay claims. The PNG is 1672 × 941 (SHA-256 `38300de2056f39ae618de50961f667324db583b195f0c178e940c04cd6361387`). This is concept art only; screenshots and preview footage still require a running native build. No store, release-gate or publication state changed.
+
+## 2026-11-23 — Evergrove source-only privacy inventory
+
+Inspected `games/evergrove/Packages/manifest.json` and tracked C# sources. The manifest uses uGUI and Input System packages plus Unity UI, JSON and UnityWebRequest modules; no third-party analytics, advertising, account or attribution SDK is listed. `Assets/Scripts/Unity/WorldClient.cs` contains a separate optional Cloudflare reference client. No boot/scene reference was found, its Worker URL defaults to empty, and requests require an attached component, a configured HTTPS URL and an explicit method call. If enabled, it persists a random bearer capability in PlayerPrefs and sends a demo `WATER_TREE` GET/POST flow. This scan does not establish what Unity includes in a player binary or prove zero network traffic. Keep privacy/Data Safety declarations pending until a release-build dependency inspection and controlled device network capture confirm the shipped behavior.
+
+## 2026-11-23 — Mosselora public working name
+
+**User direction:** use `Mosselora` as the public working name; `Evergrove` is the internal code name. The latest source commit `fc9d7daebf8b5ddff5301d9ef582cce3dfd17801` adds a Mosselora design proposal that marks the name as pending formal trademark clearance and warns against silently renaming internal identifiers. This volume is case-insensitive and the repository tracked both `DESIGN.md` and `design.md`, so the Evergrove implementation guide was renamed `games/evergrove/DESIGN-SYSTEM.md`; the Mosselora proposal stays at `games/evergrove/design.md` and links were updated.
+
+**Apple:** changed and saved the existing App Store Connect app name to `Mosselora` in App Information. Apple ID `6838015597`, Bundle ID `com.streamentry.evergrove`, SKU, saved free-price schedule, and automatic-release setting remain unchanged. This is a draft app record, not a public listing; trademark clearance remains unverified.
+
+**Google Play:** app-table search for `Mosselora` returned no result. The Create App form is staged with title `Mosselora`, English (U.S.), Game, Free, and package `com.streamentry.evergrove`; the package availability check passed. The Play record was not created, and the account owner's policy and U.S. export-law attestations remain unchecked.
+
+**Internal references:** retain the `evergrove` project path, app identifiers, SKU stem, source namespaces and development build labels. Public listing copy uses Mosselora. The app has no native build or submission; M1–M6 and formal name clearance remain open.
+
+## 2026-11-23 — App Store category set for Mosselora
+
+The App Store Connect record is a pipe-connection logic puzzle. Set and saved its primary category to **Games** and first subcategory to **Puzzle**. Left the optional second subcategory and secondary category blank. The subtitle is `A Living Garden`. The app remains `Prepare for Submission`; this category change does not alter eligibility, review or availability.

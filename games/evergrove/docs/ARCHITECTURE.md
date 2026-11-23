@@ -75,7 +75,7 @@ There is **no** account identity, cloud sync, remote conflict resolution, multip
 
 ### Separate optional Cloudflare example
 
-`backend/evergrove` uses TypeScript Workers + SQLite-backed Durable Objects, a capability-derived per-world object ID, optimistic revisions and one `WATER_TREE` action with limited idempotency history. It is **a security-minded reference service**, not a deployed Evergrove world backend. `WorldClient.cs` only controls that demo tree if explicitly attached and configured. A bearer capability in Unity PlayerPrefs is not secure production authentication. Do not wire in this preview by default.
+`backend/` uses TypeScript Workers + SQLite-backed Durable Objects, a capability-derived per-world object ID, optimistic revisions and one `WATER_TREE` action with limited idempotency history. It is a prototype service, not a production Mosselora world backend. `WorldClient.cs` only controls that demo tree if explicitly attached and configured. A bearer capability in Unity PlayerPrefs is not secure production authentication. Do not wire it into the game by default.
 
 ## 6. Operational flow and build boundaries
 
