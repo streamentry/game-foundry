@@ -1,3 +1,4 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System;
 
 namespace Evergrove.UnityClient
@@ -7,7 +8,7 @@ namespace Evergrove.UnityClient
     /// <c>-name value</c> on the command line. Unity iOS players do not expose
     /// simctl launch arguments through GetCommandLineArgs, so the same option
     /// can also come from an environment variable named without the dash
-    /// (for the iOS Simulator: <c>SIMCTL_CHILD_mosseloraQaTour=/path</c>).
+    /// (on the iOS Simulator, prefix the variable with SIMCTL_CHILD_).
     /// Callers stay responsible for their own development-build guards.
     /// </summary>
     internal static class DevArgs
@@ -23,3 +24,4 @@ namespace Evergrove.UnityClient
         }
     }
 }
+#endif
