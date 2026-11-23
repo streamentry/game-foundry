@@ -35,3 +35,31 @@ Fixed during this check: the English runtime face has no "○" glyph, so open-en
 - Physical iPhone/Android, Android fonts (iOS headings use the runtime face in bold; the optional rounded display face was not found on the simulator), 125/150% text and Large board with the new skin, RTL/CJK locales with the new skin, VoiceOver.
 - Age fit not validated: no adults 45+ have seen this skin.
 - Contrast: token pairs computed (see `DESIGN-SYSTEM.md`); not measured on rendered pixels.
+
+## Icon-first build (b6, 2026-11-24)
+
+Same simulator method as above (iPhone 17 Pro, iOS 26.5, English). The QA tour produced all 17 screens. The build uses a Codex-generated 16-glyph icon set and painted neighbor portraits (masters in `art/generated/icons-ui.png` and `neighbors.png`).
+
+- Stream 1 labels the three tools with small captions under the icons (Undo, Guide me, Restart stream). From stream 2 they are icon-only. This is deliberate progressive disclosure, responding to an independent review that flagged unlabeled icons as a risk for players aged 45 to 75.
+- Droplet meter: one droplet per tile, filled teal as water reaches it. The text line below it is unchanged.
+- Open-end rings are enlarged to 18 pt in terracotta.
+- Memory screen: icon-only swap and arrow (continue). Settings row of four icons: globe, text size, board size, chime.
+- Neighbors are portrait medallions with names.
+- Motion (pipe swing on tap/undo, press squash, creek fade, solve bloom) is in the build but not visible in still screenshots and not verified frame by frame.
+
+### Screens
+
+| File | Verdict | Note |
+| --- | --- | --- |
+| icons-01-first-stream.png | PASS | Captions under all three tools; 4/9 droplets; open-end rings visible. |
+| icons-07-chapter2.png | PASS | Tools are icon-only; root-anchored pipe note; 1/9 droplets. |
+| icons-04-memory.png | PASS | Icons and settings row render. The "(dev)" controls below are development-build only (`UNITY_EDITOR \|\| DEVELOPMENT_BUILD`; verifier release guard OK). |
+| icons-10-neighbors-journal.png | PASS | Choice icons and Mira, Orin, Fen medallions render. Dev-only controls as above. |
+
+### Not verified
+
+- Icon comprehension by adults 45+ (age fit not validated).
+- VoiceOver reading of hidden captions on a device.
+- Physical iPhone and Android.
+- 125/150% text with captions.
+- Motion frame by frame.

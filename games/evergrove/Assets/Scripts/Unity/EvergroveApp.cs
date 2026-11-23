@@ -607,7 +607,8 @@ namespace Evergrove.UnityClient
         // actions where a picture alone is not enough. badge shows live state.
         private Button IconButton(Transform parent, string name, string caption, string icon,
                                   Action action, int height, Color tone,
-                                  bool showCaption = false, string badge = null)
+                                  bool showCaption = false, string badge = null,
+                                  bool captionBelow = false)
         {
             Sprite glyph = MosseloraArt.Load(icon);
             if (glyph == null) return Button(parent, name, caption, action, height, tone);
@@ -624,16 +625,20 @@ namespace Evergrove.UnityClient
             button.colors = PressTint();
             button.onClick.AddListener(() => action());
             PressSquash.Add(node);
-            var group = node.AddComponent<HorizontalLayoutGroup>();
-            group.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
-            group.padding = new RectOffset(12, 12, 6, 6);
-            group.spacing = 8;
+            HorizontalOrVerticalLayoutGroup group = captionBelow
+                ? (HorizontalOrVerticalLayoutGroup)node.AddComponent<VerticalLayoutGroup>()
+                : node.AddComponent<HorizontalLayoutGroup>();
+            if (!captionBelow)
+                ((HorizontalLayoutGroup)group).reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
+            group.padding = captionBelow ? new RectOffset(6, 6, 8, 6) : new RectOffset(12, 12, 6, 6);
+            group.spacing = captionBelow ? 2 : 8;
             group.childAlignment = TextAnchor.MiddleCenter;
             group.childControlWidth = true;
             group.childControlHeight = true;
             group.childForceExpandWidth = false;
             group.childForceExpandHeight = false;
-            float iconSize = Mathf.Round(height * (showCaption ? 0.42f : 0.52f));
+            if (captionBelow) showCaption = true;
+            float iconSize = Mathf.Round(height * (captionBelow ? 0.40f : showCaption ? 0.42f : 0.52f));
             var iconNode = Node("Icon", node.transform);
             var iconLayout = iconNode.AddComponent<LayoutElement>();
             iconLayout.minWidth = iconLayout.preferredWidth = iconSize;
@@ -650,7 +655,7 @@ namespace Evergrove.UnityClient
             }
             var textNode = Node("Caption", node.transform);
             var text = textNode.AddComponent<Text>();
-            StyleText(text, 16);
+            StyleText(text, captionBelow ? 13 : 16);
             text.alignment = TextAnchor.MiddleCenter;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
@@ -1478,7 +1483,7 @@ namespace Evergrove.UnityClient
                 leakText.color = MosseloraTheme.EarthInk;
                 leakText.raycastTarget = false;
                 leakText.text = insight.Leaking[index] ? "○" : "";
-                OpenEndRing.Attach(leakText, MosseloraTheme.EarthInk, 13f * markerScale);
+                OpenEndRing.Attach(leakText, MosseloraTheme.DryChannel, 18f * markerScale);
                 visibleLeaks[index] = leakText;
                 if (world.HintStep == 2 && index == world.HintTile)
                 {
@@ -1565,19 +1570,23 @@ namespace Evergrove.UnityClient
             else
             {
                 var tools = Row(content, "Gentle controls");
+                // Progressive disclosure: the first stream teaches the three tools
+                // with small captions; afterwards they are pictures only.
+                bool teach = world.Round == 0;
+                int toolHeight = teach ? 72 : 64;
                 undoButton = IconButton(tools.transform, "Undo", GameLocalization.Text("undo"),
                     MosseloraArt.IconUndo, () => Act(() => world.Undo(), "undo"),
-                    64, MosseloraTheme.ForestAction);
+                    toolHeight, MosseloraTheme.ForestAction, false, null, teach);
                 undoButton.interactable = world.CanUndo;
                 // Hint depth shows as a small 1/2 or 2/2 badge, not words.
                 IconButton(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
-                    MosseloraArt.IconHint, UseGentleHint, 64, MosseloraTheme.WaterAction, false,
-                    world.HintStep == 0 ? null : world.HintStep + "/2");
+                    MosseloraArt.IconHint, UseGentleHint, toolHeight, MosseloraTheme.WaterAction, false,
+                    world.HintStep == 0 ? null : world.HintStep + "/2", teach);
                 IconButton(tools.transform, "Restart", GameLocalization.Text("restart"),
                     MosseloraArt.IconRestart, () => Act(() => world.Restart(), "restart"),
-                    64, MosseloraTheme.EarthAction);
+                    toolHeight, MosseloraTheme.EarthAction, false, null, teach);
                 if (world.HintStep > 0 && world.HintTile >= 0)
                 {
                     int hintRow = world.HintTile / puzzle.Size + 1;
@@ -1634,7 +1643,7 @@ namespace Evergrove.UnityClient
             var words = Node("Choice words", node.transform);
             words.AddComponent<LayoutElement>().flexibleWidth = 1;
             var stack = words.AddComponent<VerticalLayoutGroup>();
-            stack.spacing = 3;
+            stack.spacing = 6;
             stack.childAlignment = TextAnchor.MiddleLeft;
             stack.childControlWidth = true;
             stack.childControlHeight = true;
