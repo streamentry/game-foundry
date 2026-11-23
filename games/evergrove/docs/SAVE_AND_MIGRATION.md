@@ -125,3 +125,59 @@ Manual fault-injection matrix:
 ## 8. Settings vs progress
 
 World data persists to `Application.persistentDataPath`. Separate PlayerPrefs hold language override `evergrove:language-choice:v1`, sound preference, 2D/2.5D view, optional motion and the unconnected Cloudflare demo capability. Deleting/recreating a world should not be described as revoking that demo token or erasing all OS preferences. For privacy disclosures, note local-only world state and opt-in clipboard report separately.
+
+## 9. Player-exportable garden file (format v1)
+
+**Source of truth:** [GardenTransfer.cs](../Assets/Scripts/Core/GardenTransfer.cs), tested in [GardenTransferTests.cs](../Tests/GardenTransferTests.cs). The core only builds and parses text; it never reads the clock. The caller supplies `exportedAtUtc`.
+
+### Envelope
+
+```json
+{"format":"mosselora-garden","formatVersion":1,"exportedAtUtc":"2026-11-23T09:00:00Z","checksumSha256":"<64 lowercase hex>","snapshot":{ ...WorldSnapshot... }}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `format` | Must be exactly `mosselora-garden`. |
+| `formatVersion` | Envelope version. Current **1**. Integer only. |
+| `exportedAtUtc` | Caller-supplied timestamp string, at most 64 characters. Informational; not covered by the checksum. |
+| `checksumSha256` | Lowercase SHA-256 hex of the UTF-8 bytes of the canonical `snapshot` text. |
+| `snapshot` | The existing `WorldSnapshot` schema, field order identical to Unity `JsonUtility.ToJson`. |
+
+The canonical snapshot text is produced by hand-written string building, so the same bytes come out in Unity and in the .NET 8 test project. Import parses the envelope with a strict minimal reader (no duplicate keys, no trailing content, depth limit 16).
+
+### Import
+
+`GardenTransfer.TryImport(text, out world, out error)` returns one of:
+
+| Error | Cause |
+| --- | --- |
+| `Empty` | Null, empty or whitespace-only input. |
+| `TooLarge` | More than **1 MB** (1,048,576 UTF-8 bytes). |
+| `Malformed` | Not JSON, not an object, duplicate key, or missing `exportedAtUtc`/`checksumSha256`. |
+| `WrongFormat` | Missing or different `format`; `formatVersion` missing, non-integer or below 1. |
+| `UnsupportedFutureVersion` | `formatVersion` greater than 1. |
+| `ChecksumMismatch` | Recomputed checksum differs from the stored one. |
+| `InvalidSnapshot` | Snapshot missing, wrong JSON type, non-integer number, unknown key, or failing `WorldModel.TryRestore`. |
+
+Errors are checked in that order. Import always goes through `WorldModel.TryRestore`, so every snapshot version that `TryRestore` accepts (v1, v2, v3, v4) imports and migrates to the current version on the next export.
+
+### Versioning and compatibility promise
+
+- Envelope `formatVersion` changes only when the envelope itself changes. A new reader must keep accepting every older envelope version.
+- Snapshot versions follow the save-contract rules in sections 1 to 7. A snapshot that `TryRestore` rejects is never silently repaired.
+- Older binaries that do not know a future `formatVersion` must refuse the file with `UnsupportedFutureVersion` rather than guessing.
+
+### What the checksum does and does NOT do
+
+- **Does:** detect accidental corruption, such as a truncated copy, a bit flip or a partial paste, of the snapshot text.
+- **Does NOT:** provide tamper-proofing, authentication or anti-cheat. The algorithm is public, so anyone can edit a garden and recompute the checksum. A checksum-valid snapshot is still checked by `TryRestore`, so forged progress must also satisfy the puzzle rules, but it is not prevented.
+- **Does NOT cover** `exportedAtUtc` or any other envelope field. Editing the timestamp still imports.
+
+### Not implemented yet
+
+**UI is NOT implemented.** There is no share sheet, file picker, clipboard action or in-app import button. Unity files in `Assets/Scripts/Unity/*` are untouched by this change. The pure core only exports and imports text. Platform file handling, storage permissions, large-file behavior on device, and the player-facing wording are unverified and still need a design and device pass.
+
+### Evidence
+
+The core test suite adds deterministic checks for round trips at start, mid-puzzle, hint focus, each chapter boundary, the completed 12-chapter run and PuzzleOnly. It also covers every error case, tampering, future versions, historical snapshot versions, the 1 MB boundary, and continued play after import matching the original. These are **pure C# tests only**, not Unity JsonUtility, device or file-system evidence.

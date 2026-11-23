@@ -1045,6 +1045,7 @@ internal static class Program
             ContentAndRules();
             RestoreAndMigration();
             SaveJournalTests.Run();
+            assertions += GardenTransferTests.Run();
             StoryAndCompleteRun();
             ScenicCausality();
             ReactiveCampaign();

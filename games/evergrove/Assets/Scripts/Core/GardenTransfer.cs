@@ -1,0 +1,517 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace Evergrove.Core
+{
+    public enum GardenImportError
+    {
+        None = 0,
+        Empty,
+        TooLarge,
+        Malformed,
+        WrongFormat,
+        UnsupportedFutureVersion,
+        ChecksumMismatch,
+        InvalidSnapshot
+    }
+
+    /// <summary>
+    /// Player-exportable garden file, format v1. Pure C#: the caller supplies the
+    /// timestamp and no clock is read. The SHA-256 checksum detects accidental
+    /// corruption only. It is NOT tamper-proofing, because anyone can recompute it.
+    /// Snapshot text is produced in the same field order as Unity JsonUtility.ToJson
+    /// for WorldSnapshot, so the embedded snapshot matches the local save format.
+    /// JSON is written and parsed by hand so the same code runs in Unity and .NET 8.
+    /// </summary>
+    public static class GardenTransfer
+    {
+        public const string FormatName = "mosselora-garden";
+        public const int CurrentFormatVersion = 1;
+        public const int MaxImportBytes = 1024 * 1024;
+        private const int MaxExportedAtLength = 64;
+        private const int MaxNestingDepth = 16;
+
+        private static readonly HashSet<string> SnapshotKeys = new HashSet<string> {
+            "version", "mode", "round", "solved", "rotations", "previous", "choices",
+            "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile"
+        };
+
+        public static string Export(WorldModel world, string exportedAtUtcIso)
+        {
+            if (world == null) throw new ArgumentNullException("world");
+            return ExportSnapshot(world.Export(), exportedAtUtcIso);
+        }
+
+        internal static string ExportSnapshot(WorldSnapshot snapshot, string exportedAtUtcIso)
+        {
+            if (snapshot == null) throw new ArgumentNullException("snapshot");
+            if (string.IsNullOrWhiteSpace(exportedAtUtcIso) || exportedAtUtcIso.Length > MaxExportedAtLength)
+                throw new ArgumentException("A non-empty exportedAtUtc timestamp of at most 64 characters is required.", "exportedAtUtcIso");
+
+            string snapshotJson = SnapshotJson(snapshot);
+            return "{\"format\":" + Quote(FormatName) +
+                ",\"formatVersion\":" + Int(CurrentFormatVersion) +
+                ",\"exportedAtUtc\":" + Quote(exportedAtUtcIso) +
+                ",\"checksumSha256\":\"" + Sha256Hex(snapshotJson) + "\"" +
+                ",\"snapshot\":" + snapshotJson + "}";
+        }
+
+        /// <summary>
+        /// Import goes through the same validation as local saves. Errors are checked
+        /// in order: size, JSON syntax, envelope identity, future version, snapshot
+        /// shape, checksum, then WorldModel.TryRestore rules.
+        /// </summary>
+        public static bool TryImport(string text, out WorldModel world, out GardenImportError error)
+        {
+            world = null;
+            error = GardenImportError.None;
+            if (text == null || text.Trim().Length == 0)
+            {
+                error = GardenImportError.Empty;
+                return false;
+            }
+            if (Encoding.UTF8.GetByteCount(text) > MaxImportBytes)
+            {
+                error = GardenImportError.TooLarge;
+                return false;
+            }
+
+            object root;
+            if (!Parser.TryParse(text, out root))
+            {
+                error = GardenImportError.Malformed;
+                return false;
+            }
+            var envelope = root as Dictionary<string, object>;
+            if (envelope == null)
+            {
+                error = GardenImportError.Malformed;
+                return false;
+            }
+
+            object formatValue;
+            string format = envelope.TryGetValue("format", out formatValue) ? formatValue as string : null;
+            if (format != FormatName)
+            {
+                error = GardenImportError.WrongFormat;
+                return false;
+            }
+
+            int formatVersion;
+            if (!ReadRequiredInt(envelope, "formatVersion", out formatVersion) || formatVersion < 1)
+            {
+                error = GardenImportError.WrongFormat;
+                return false;
+            }
+            if (formatVersion > CurrentFormatVersion)
+            {
+                error = GardenImportError.UnsupportedFutureVersion;
+                return false;
+            }
+
+            string exportedAt;
+            string checksum;
+            if (!ReadRequiredString(envelope, "exportedAtUtc", out exportedAt) ||
+                !ReadRequiredString(envelope, "checksumSha256", out checksum))
+            {
+                error = GardenImportError.Malformed;
+                return false;
+            }
+
+            Dictionary<string, object> snapshotFields;
+            WorldSnapshot snapshot;
+            if (!ReadRequiredObject(envelope, "snapshot", out snapshotFields) ||
+                !TryReadSnapshot(snapshotFields, out snapshot))
+            {
+                error = GardenImportError.InvalidSnapshot;
+                return false;
+            }
+
+            if (!string.Equals(Sha256Hex(SnapshotJson(snapshot)), checksum, StringComparison.Ordinal))
+            {
+                error = GardenImportError.ChecksumMismatch;
+                return false;
+            }
+
+            if (!WorldModel.TryRestore(snapshot, out world))
+            {
+                world = null;
+                error = GardenImportError.InvalidSnapshot;
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>Field order mirrors Unity JsonUtility.ToJson(WorldSnapshot).</summary>
+        internal static string SnapshotJson(WorldSnapshot s)
+        {
+            var sb = new StringBuilder(256);
+            sb.Append("{\"version\":").Append(Int(s.version))
+              .Append(",\"mode\":").Append(Quote(s.mode))
+              .Append(",\"round\":").Append(Int(s.round))
+              .Append(",\"solved\":").Append(s.solved ? "true" : "false")
+              .Append(",\"rotations\":").Append(IntArray(s.rotations))
+              .Append(",\"previous\":").Append(IntArray(s.previous))
+              .Append(",\"choices\":").Append(IntArray(s.choices))
+              .Append(",\"hintsUsed\":").Append(Int(s.hintsUsed))
+              .Append(",\"boardVariant\":").Append(Int(s.boardVariant))
+              .Append(",\"lastSolvedVariant\":").Append(Int(s.lastSolvedVariant))
+              .Append(",\"hintStep\":").Append(Int(s.hintStep))
+              .Append(",\"hintTile\":").Append(Int(s.hintTile))
+              .Append('}');
+            return sb.ToString();
+        }
+
+        internal static string Sha256Hex(string text)
+        {
+            using (SHA256 sha = SHA256.Create())
+            {
+                byte[] hash = sha.ComputeHash(Encoding.UTF8.GetBytes(text));
+                var sb = new StringBuilder(hash.Length * 2);
+                foreach (byte b in hash) sb.Append(b.ToString("x2", CultureInfo.InvariantCulture));
+                return sb.ToString();
+            }
+        }
+
+        private static string Int(int value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        private static string IntArray(int[] values)
+        {
+            if (values == null) return "null";
+            var sb = new StringBuilder();
+            sb.Append('[');
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (i > 0) sb.Append(',');
+                sb.Append(Int(values[i]));
+            }
+            return sb.Append(']').ToString();
+        }
+
+        private static string Quote(string value)
+        {
+            if (value == null) return "null";
+            var sb = new StringBuilder(value.Length + 2);
+            sb.Append('"');
+            foreach (char c in value)
+            {
+                switch (c)
+                {
+                    case '"': sb.Append("\\\""); break;
+                    case '\\': sb.Append("\\\\"); break;
+                    case '\n': sb.Append("\\n"); break;
+                    case '\r': sb.Append("\\r"); break;
+                    case '\t': sb.Append("\\t"); break;
+                    default:
+                        if (c < 0x20) sb.Append("\\u").Append(((int)c).ToString("x4", CultureInfo.InvariantCulture));
+                        else sb.Append(c);
+                        break;
+                }
+            }
+            return sb.Append('"').ToString();
+        }
+
+        private static bool TryReadSnapshot(Dictionary<string, object> fields, out WorldSnapshot snapshot)
+        {
+            // Absent fields keep WorldSnapshot defaults, as JsonUtility does.
+            snapshot = new WorldSnapshot();
+            foreach (string key in fields.Keys)
+                if (!SnapshotKeys.Contains(key)) return false;
+            return ReadInt(fields, "version", ref snapshot.version) &&
+                   ReadString(fields, "mode", ref snapshot.mode) &&
+                   ReadInt(fields, "round", ref snapshot.round) &&
+                   ReadBool(fields, "solved", ref snapshot.solved) &&
+                   ReadInts(fields, "rotations", ref snapshot.rotations) &&
+                   ReadInts(fields, "previous", ref snapshot.previous) &&
+                   ReadInts(fields, "choices", ref snapshot.choices) &&
+                   ReadInt(fields, "hintsUsed", ref snapshot.hintsUsed) &&
+                   ReadInt(fields, "boardVariant", ref snapshot.boardVariant) &&
+                   ReadInt(fields, "lastSolvedVariant", ref snapshot.lastSolvedVariant) &&
+                   ReadInt(fields, "hintStep", ref snapshot.hintStep) &&
+                   ReadInt(fields, "hintTile", ref snapshot.hintTile);
+        }
+
+        private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)
+        {
+            object raw;
+            if (!fields.TryGetValue(key, out raw)) return true;
+            return AsInt(raw, out target);
+        }
+
+        private static bool ReadBool(Dictionary<string, object> fields, string key, ref bool target)
+        {
+            object raw;
+            if (!fields.TryGetValue(key, out raw)) return true;
+            if (!(raw is bool)) return false;
+            target = (bool)raw;
+            return true;
+        }
+
+        private static bool ReadString(Dictionary<string, object> fields, string key, ref string target)
+        {
+            object raw;
+            if (!fields.TryGetValue(key, out raw)) return true;
+            if (raw == null) { target = null; return true; }
+            var text = raw as string;
+            if (text == null) return false;
+            target = text;
+            return true;
+        }
+
+        private static bool ReadInts(Dictionary<string, object> fields, string key, ref int[] target)
+        {
+            object raw;
+            if (!fields.TryGetValue(key, out raw)) return true;
+            if (raw == null) { target = null; return true; }
+            var items = raw as List<object>;
+            if (items == null) return false;
+            var values = new int[items.Count];
+            for (int i = 0; i < items.Count; i++)
+                if (!AsInt(items[i], out values[i])) return false;
+            target = values;
+            return true;
+        }
+
+        private static bool ReadRequiredInt(Dictionary<string, object> fields, string key, out int value)
+        {
+            object raw;
+            value = 0;
+            return fields.TryGetValue(key, out raw) && AsInt(raw, out value);
+        }
+
+        private static bool ReadRequiredString(Dictionary<string, object> fields, string key, out string value)
+        {
+            object raw;
+            value = null;
+            return fields.TryGetValue(key, out raw) && (value = raw as string) != null;
+        }
+
+        private static bool ReadRequiredObject(Dictionary<string, object> fields, string key, out Dictionary<string, object> value)
+        {
+            object raw;
+            value = null;
+            return fields.TryGetValue(key, out raw) && (value = raw as Dictionary<string, object>) != null;
+        }
+
+        /// <summary>Accepts only integer JSON tokens (no fraction or exponent) within int range.</summary>
+        private static bool AsInt(object raw, out int value)
+        {
+            value = 0;
+            var number = raw as JsonNumber;
+            if (number == null) return false;
+            if (number.Raw.IndexOf('.') >= 0 || number.Raw.IndexOf('e') >= 0 || number.Raw.IndexOf('E') >= 0)
+                return false;
+            return int.TryParse(number.Raw, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out value);
+        }
+
+        private sealed class JsonNumber
+        {
+            public readonly string Raw;
+            public JsonNumber(string raw) { Raw = raw; }
+        }
+
+        /// <summary>Strict, minimal RFC 8259 reader: no duplicate keys, no trailing content.</summary>
+        private sealed class Parser
+        {
+            private readonly string text;
+            private int position;
+
+            private Parser(string text) { this.text = text; }
+
+            public static bool TryParse(string text, out object root)
+            {
+                root = null;
+                var parser = new Parser(text);
+                object value;
+                if (!parser.ParseValue(0, out value)) return false;
+                parser.SkipWhitespace();
+                if (parser.position != text.Length) return false;
+                root = value;
+                return true;
+            }
+
+            private bool ParseValue(int depth, out object value)
+            {
+                value = null;
+                if (depth > MaxNestingDepth || position >= text.Length) return false;
+                char c = text[position];
+                if (c == '{') return ParseObject(depth, out value);
+                if (c == '[') return ParseArray(depth, out value);
+                if (c == '"')
+                {
+                    string s;
+                    if (!ParseString(out s)) return false;
+                    value = s;
+                    return true;
+                }
+                if (c == '-' || IsDigit(c)) return ParseNumber(out value);
+                if (Literal("true")) { value = true; return true; }
+                if (Literal("false")) { value = false; return true; }
+                if (Literal("null")) return true;
+                return false;
+            }
+
+            private bool ParseObject(int depth, out object value)
+            {
+                value = null;
+                var result = new Dictionary<string, object>(StringComparer.Ordinal);
+                position++;
+                SkipWhitespace();
+                if (Peek() == '}') { position++; value = result; return true; }
+                while (true)
+                {
+                    string key;
+                    if (Peek() != '"' || !ParseString(out key)) return false;
+                    if (result.ContainsKey(key)) return false;
+                    SkipWhitespace();
+                    if (Peek() != ':') return false;
+                    position++;
+                    SkipWhitespace();
+                    object item;
+                    if (!ParseValue(depth + 1, out item)) return false;
+                    result.Add(key, item);
+                    SkipWhitespace();
+                    char next = Peek();
+                    if (next == ',') { position++; SkipWhitespace(); continue; }
+                    if (next == '}') { position++; value = result; return true; }
+                    return false;
+                }
+            }
+
+            private bool ParseArray(int depth, out object value)
+            {
+                value = null;
+                var items = new List<object>();
+                position++;
+                SkipWhitespace();
+                if (Peek() == ']') { position++; value = items; return true; }
+                while (true)
+                {
+                    object item;
+                    if (!ParseValue(depth + 1, out item)) return false;
+                    items.Add(item);
+                    SkipWhitespace();
+                    char next = Peek();
+                    if (next == ',') { position++; SkipWhitespace(); continue; }
+                    if (next == ']') { position++; value = items; return true; }
+                    return false;
+                }
+            }
+
+            private bool ParseString(out string result)
+            {
+                result = null;
+                if (Peek() != '"') return false;
+                position++;
+                var sb = new StringBuilder();
+                while (position < text.Length)
+                {
+                    char c = text[position++];
+                    if (c == '"') { result = sb.ToString(); return true; }
+                    if (c < 0x20) return false;
+                    if (c != '\\') { sb.Append(c); continue; }
+                    if (position >= text.Length) return false;
+                    char escape = text[position++];
+                    switch (escape)
+                    {
+                        case '"': sb.Append('"'); break;
+                        case '\\': sb.Append('\\'); break;
+                        case '/': sb.Append('/'); break;
+                        case 'b': sb.Append('\b'); break;
+                        case 'f': sb.Append('\f'); break;
+                        case 'n': sb.Append('\n'); break;
+                        case 'r': sb.Append('\r'); break;
+                        case 't': sb.Append('\t'); break;
+                        case 'u':
+                            int code;
+                            if (!ParseHex4(out code)) return false;
+                            sb.Append((char)code);
+                            break;
+                        default:
+                            return false;
+                    }
+                }
+                return false;
+            }
+
+            private bool ParseHex4(out int code)
+            {
+                code = 0;
+                if (position + 4 > text.Length) return false;
+                for (int i = 0; i < 4; i++)
+                {
+                    int digit = HexValue(text[position + i]);
+                    if (digit < 0) return false;
+                    code = code * 16 + digit;
+                }
+                position += 4;
+                return true;
+            }
+
+            private bool ParseNumber(out object value)
+            {
+                value = null;
+                int start = position;
+                if (Peek() == '-') position++;
+                if (Peek() == '0') position++;
+                else if (IsDigit(Peek())) { while (IsDigit(Peek())) position++; }
+                else return false;
+                if (Peek() == '.')
+                {
+                    position++;
+                    if (!IsDigit(Peek())) return false;
+                    while (IsDigit(Peek())) position++;
+                }
+                if (Peek() == 'e' || Peek() == 'E')
+                {
+                    position++;
+                    if (Peek() == '+' || Peek() == '-') position++;
+                    if (!IsDigit(Peek())) return false;
+                    while (IsDigit(Peek())) position++;
+                }
+                value = new JsonNumber(text.Substring(start, position - start));
+                return true;
+            }
+
+            private bool Literal(string word)
+            {
+                if (position + word.Length > text.Length) return false;
+                if (string.CompareOrdinal(text, position, word, 0, word.Length) != 0) return false;
+                position += word.Length;
+                return true;
+            }
+
+            private void SkipWhitespace()
+            {
+                while (position < text.Length &&
+                       (text[position] == ' ' || text[position] == '\t' ||
+                        text[position] == '\n' || text[position] == '\r'))
+                    position++;
+            }
+
+            private char Peek()
+            {
+                return position < text.Length ? text[position] : '\0';
+            }
+
+            private static bool IsDigit(char c)
+            {
+                return c >= '0' && c <= '9';
+            }
+
+            private static int HexValue(char c)
+            {
+                if (c >= '0' && c <= '9') return c - '0';
+                if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+                if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+                return -1;
+            }
+        }
+    }
+}
