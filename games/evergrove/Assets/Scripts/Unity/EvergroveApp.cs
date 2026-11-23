@@ -65,6 +65,7 @@ namespace Evergrove.UnityClient
         private Button undoButton;
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private bool qaInMemoryOnly; // dev QA tour: never reads or writes the player's save
         // Matched M4 facilitator state; exists only in research-capable builds.
         private bool matchedEntryOpen;
         private bool confirmMatchedReplace;     // two-step replace, like confirmReset
@@ -91,7 +92,12 @@ namespace Evergrove.UnityClient
 
         private void Awake()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaInMemoryOnly = DevQaTour.IsRequested;
+            world = qaInMemoryOnly ? WorldModel.New() : WorldStore.Load();
+#else
             world = WorldStore.Load();
+#endif
             // An unreadable save cannot silently be overwritten by fresh progress.
             saveFailed = WorldStore.RecoveryBlocked;
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
@@ -1246,11 +1252,30 @@ namespace Evergrove.UnityClient
 
         private void SaveWorld()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) return; // QA tour: in-memory only, no persistence
+#endif
             saveFailed = !WorldStore.Save(world);
             UpdateSaveWarning(); // toggles immediately even without a full UI rebuild
             if (saveFailed)
                 Debug.LogWarning("Evergrove is playable but cannot persist this change.");
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // Dev-only seam for DevQaTour. Replaces the in-memory world and redraws
+        // through the normal Rebuild path; refuses any world that is not in-memory.
+        internal WorldModel QaWorld { get { return world; } }
+        internal void QaReplaceWorld(WorldModel next)
+        {
+            if (!qaInMemoryOnly || next == null) return;
+            world = next;
+            speakingWith = -1;
+            showingMemory = false;
+            showJournal = false;
+            confirmReset = false;
+            Rebuild(true);
+        }
+#endif
 
         private void PlayChime()
         {
