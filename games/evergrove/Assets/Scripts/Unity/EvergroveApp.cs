@@ -64,6 +64,11 @@ namespace Evergrove.UnityClient
         private Text feedbackText;
         private Button undoButton;
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
+        // Set by a rebuilt screen (ending card, journal) so a player who opens it
+        // lands on its heading instead of wherever the previous screen was scrolled.
+        private RectTransform screenHeading;
+        private bool revealNewScreen; // one-shot: the current rebuild opened a new screen
+        private const float RevealMarginPx = 16f;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private bool qaInMemoryOnly; // dev QA tour: never reads or writes the player's save
         // Matched M4 facilitator state; exists only in research-capable builds.
@@ -324,8 +329,9 @@ namespace Evergrove.UnityClient
                            Color color, TextAnchor alignment = TextAnchor.MiddleLeft)
         {
             var node = Node(name, parent);
-            // Minimum space for touch/visual rhythm; dynamic text's own
-            // preferred height may grow for larger font scales or locales.
+            // Minimum is a floor for short touch/visual rhythm only. Body copy
+            // passes 0: a large floor centers multi-line text inside empty space
+            // (the "gap" bug). Preferred height from the Text grows with locale/font.
             var layout = node.AddComponent<LayoutElement>();
             layout.minHeight = minimum;
             var label = node.AddComponent<Text>();
@@ -416,6 +422,7 @@ namespace Evergrove.UnityClient
             feedbackText = null;
             undoButton = null;
             decisionHeading = null;
+            screenHeading = null;
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 GameObject old = content.GetChild(i).gameObject;
@@ -530,9 +537,10 @@ namespace Evergrove.UnityClient
             {
                 var moment = Card(content, "A remembered moment", Sand);
                 Label(moment.transform, "Moment title", GameLocalization.Text("memory_title"), 15, 31, Leaf);
-                Label(moment.transform, "Story", LocalizedVillage.MemoryEvent(world), 17, 170, Ink);
+                Label(moment.transform, "Story", LocalizedVillage.MemoryEvent(world), 17, 0, Ink);
                 Button(content, "Continue", GameLocalization.Text("continue"), () => {
                     showingMemory = false;
+                    revealNewScreen = true; // the ending, if reached, opens at its heading
                     Rebuild(true);
                 }, 62, true);
                 Button(content, "Change your choice", GameLocalization.Text("change"), () => {
@@ -546,8 +554,9 @@ namespace Evergrove.UnityClient
             else if (world.Completed)
             {
                 var conclusion = Card(content, "The ending", Sand);
+                screenHeading = conclusion.GetComponent<RectTransform>();
                 Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
-                    17, 220, Ink);
+                    17, 0, Ink);
                 if (living) MemoryJournal();
                 Button(content, "Reset title", confirmReset ?
                     GameLocalization.Text("erase") : GameLocalization.Text("explore"),
@@ -590,7 +599,7 @@ namespace Evergrove.UnityClient
                     Label(conversation.transform, "Neighbor name",
                         speakingWith == 0 ? "Mira" : speakingWith == 1 ? "Orin" : "Fen", 16, 31, Leaf);
                     Label(conversation.transform, "What they say",
-                        LocalizedVillage.Speak(world, speakingWith), 16, 132, Ink);
+                        LocalizedVillage.Speak(world, speakingWith), 16, 0, Ink);
                     Button(conversation.transform, "Thanks", GameLocalization.Text("thanks"),
                         () => { speakingWith = -1; Rebuild(); }, 50, true);
                 }
@@ -718,7 +727,26 @@ namespace Evergrove.UnityClient
                 12, 36, Moss, TextAnchor.MiddleCenter);
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-            scroll.verticalNormalizedPosition = top ? 1f : previousPosition;
+            if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
+            else scroll.verticalNormalizedPosition = top ? 1f : previousPosition;
+            revealNewScreen = false;
+        }
+
+        // Puts a newly opened screen's heading near the top of the viewport,
+        // using the post-layout geometry, so its title is visible at once.
+        private void RevealAtTop(RectTransform target)
+        {
+            float distance = content.rect.height - scroll.viewport.rect.height;
+            if (distance <= 0f)
+            {
+                scroll.verticalNormalizedPosition = 1f;
+                return;
+            }
+            scroll.StopMovement();
+            Vector3 worldTop = target.TransformPoint(
+                new Vector3(target.rect.center.x, target.rect.yMax, 0f));
+            float targetTop = content.rect.yMax - content.InverseTransformPoint(worldTop).y;
+            scroll.verticalNormalizedPosition = 1f - Mathf.Clamp01((targetTop - RevealMarginPx) / distance);
         }
 
         private void MemoryJournal()
@@ -726,15 +754,17 @@ namespace Evergrove.UnityClient
             Button(content, "Memories",
                 GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"), () => {
                     showJournal = !showJournal;
+                    revealNewScreen = showJournal; // opening the journal lands on its title
                     Rebuild();
                 });
             if (!showJournal) return;
             var journal = Card(content, "A living journal", River);
+            screenHeading = journal.GetComponent<RectTransform>();
             Label(journal.transform, "Journal title", GameLocalization.Text("journal_title"), 12, 26, Leaf);
             foreach (string entry in LocalizedVillage.Journal(world))
-                Label(journal.transform, "Recorded cause and effect", entry, 14, 87, Ink);
+                Label(journal.transform, "Recorded cause and effect", entry, 14, 0, Ink);
             if (world.Journal.Length == 0)
-                Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 48, Moss);
+                Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
         }
 
         private void BuildPuzzle()
