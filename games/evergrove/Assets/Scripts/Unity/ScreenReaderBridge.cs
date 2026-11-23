@@ -111,6 +111,9 @@ namespace Evergrove.UnityClient
                 }
             }
             AssistiveSupport.activeHierarchy = hierarchy;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            LogPublished(nodes);
+#endif
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -122,6 +125,29 @@ namespace Evergrove.UnityClient
                 labels.Add(item.Role + ": " + item.Label +
                     (string.IsNullOrEmpty(item.Hint) ? "" : " [hint: " + item.Hint + "]"));
             Debug.Log("MOSSELORA_SR_NODES " + nodes.Count + " | " + string.Join(" | ", labels));
+        }
+
+        /// <summary>Dev-only: reports whether the OS screen reader is on, and why it was asked.</summary>
+        public static void LogStatus(string reason)
+        {
+            Debug.Log("MOSSELORA_SR_STATUS enabled=" + AssistiveSupportEnabled() + " reason=" + reason);
+        }
+
+        private static bool AssistiveSupportEnabled()
+        {
+#if UNITY_IOS || UNITY_ANDROID
+            return AssistiveSupport.isScreenReaderEnabled;
+#else
+            return false;
+#endif
+        }
+
+        private static void LogPublished(List<SemanticNode> nodes)
+        {
+            string first = "none";
+            if (nodes.Count > 0 && nodes[0].Rect != null)
+                first = nodes[0].Label + " frame=" + ScreenFrame(nodes[0].Rect, nodes[0].Camera);
+            Debug.Log("MOSSELORA_SR_PUBLISHED " + nodes.Count + " first=" + first);
         }
 #endif
 

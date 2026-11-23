@@ -149,6 +149,9 @@ namespace Evergrove.UnityClient
 #if UNITY_IOS || UNITY_ANDROID
             UnityEngine.Accessibility.AssistiveSupport.screenReaderStatusChanged += OnScreenReaderStatusChanged;
 #endif
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            ScreenReaderBridge.LogStatus("awake");
+#endif
         }
 
         private void OnDestroy()
@@ -196,6 +199,9 @@ namespace Evergrove.UnityClient
 #if UNITY_IOS || UNITY_ANDROID
         private void OnScreenReaderStatusChanged(bool enabled)
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            ScreenReaderBridge.LogStatus("changed-to-" + (enabled ? "on" : "off"));
+#endif
             semanticsDirty = true;
         }
 #endif
