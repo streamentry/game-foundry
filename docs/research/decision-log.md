@@ -569,3 +569,27 @@ The App Store Connect record is a pipe-connection logic puzzle. Set and saved it
 
 **Evidence status:** no new player or market evidence. The 100-million figure is a founder-chosen target, not a forecast. The Seed stage (M1–M6) remains unfinished. Nothing in the vision authorizes building beyond the current specs.
 
+## 2026-11-23 — Mosselora vision revised after full research audit
+
+Four parallel read-only audits covered `games/evergrove/docs/specs/`, the handbook, decision records, `docs/research/` and `docs/ideas/`. The first `vision.md` conflicted with the specs in several places: wall-clock seasons, a supporter tier and paid seasons, the Commons arriving without acknowledging the reject list, ecology deferred to 100k players, M4 and pricing missing from the Seed gate, and saves described as open and durable when they aren't. It also left out discovery, measurement, trademark, text rendering and portfolio order.
+
+**Change:** rewrote `games/evergrove/vision.md`. It now opens with a starting-line table of current evidence. It names one candidate differentiator (a choice changes the next puzzle) that depends on M4. Each layer gets its smallest test and kill rule from the theses. The growth ladder reuses declared thresholds (spec 07 continue rule, M1–M6, 1,000 installs read against search impressions, founder-proposed D1/D7 heuristics). New sections cover discovery, the spec-preferred one-time-unlock model, and a table of where the vision goes beyond current specs.
+
+**Evidence status:** unchanged. Zero human sessions; pipe-puzzle demand is unmeasured. The 100M target remains a founder aspiration.
+
+## 2026-11-23 — Mosselora store category and native toolchain check
+
+**Category:** the game connects pipe tiles to route water through a puzzle, then lets the player choose a village restoration. Apple Games → Puzzle is the best primary category; optional subcategories and secondary category stay blank. The store metadata records Games / Puzzle and App Store Connect previously confirmed the save. The current ASC tab is signed out, so this turn could not read back the live value.
+
+**Name screen:** the official USPTO wordmark search returned no exact `Mosselora` results. Searching `mossel` returned five records, including a live registered `MOSSEL` mark in IC 010 and a live pending `MOSSEL` mark in IC 017 for foam supports for floral arrangements. This is not a legal clearance: sound/appearance, goods relationship, unregistered rights, and other databases still need review. Preserve Mosselora as the user-selected working title, with clearance marked pending.
+
+**Native toolchain:** the Unity executable at `/Volumes/SSD/Unity/editors/6000.3.0f1` reports the pinned version, but `codesign --verify --deep --strict` reports an invalid signature. The Unity CLI refuses to register it. `unity status` and `unity editors running` report no matching instance, including outside the sandbox, while a direct headless launch reports a project-open conflict; the live Editor/lock state is unresolved. `Packages/manifest.json` has no `com.unity.pipeline`; `PlaybackEngines` contains only `MacStandaloneSupport`, with iOS and Android support absent. Headless VerifyProject stalled at the Licensing Client. No Unity import, device build, or native export is verified. Do not bypass signature checks.
+
+**Signing:** a sanitized local check found zero valid Apple code-signing identities and zero of eleven provisioning profiles matching `com.streamentry.evergrove`. Certificate and profile contents were not printed. No signed Apple build can be produced with the current local signing setup.
+
+**Play Console:** the signed-in Create App form shows Mosselora, package `com.streamentry.evergrove` available but not reserved, English (U.S.), Game, Free and automatic protection enabled. Developer Program Policy and U.S. export-law confirmations remain unchecked, so the app record was not created; those are account-owner attestations.
+
+**Cloudflare live check:** the deployed `mosselora-site` workers.dev home, privacy, support and preview pages all returned HTTP 200. Their page titles use Mosselora and the HTML contains no public `Evergrove` text. `https://api.mosselora.com/healthz` returned `{"service":"mosselora-world-api","status":"prototype","gameplaySync":false}`. The requested `https://mosselora.com/` timed out. The site config still contains `mosselora.com/*`; a previous route deployment was rejected because it could replace existing apex-site traffic. Do not deploy that route until the owner explicitly approves the takeover.
+
+**Configuration change:** `ProjectSettings.asset` now names the product Mosselora and lists `com.streamentry.evergrove` for Android and iOS. This is not a release build setting yet: the existing `EvergroveBuild.Build()` entrypoint overrides the product name and IDs with playtest values and enables Development builds. The Unity CLI 1.0.1 self-update check succeeds outside the sandbox and confirms 1.0.1 is current. Keep upload and submission gates closed until a valid signed Editor, licensing, platform modules and production build path are verified, and the separate device, privacy, signing, audience and account-owner declaration gates pass.
+
