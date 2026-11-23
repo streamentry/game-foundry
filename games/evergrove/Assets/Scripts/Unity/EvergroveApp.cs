@@ -462,14 +462,18 @@ namespace Evergrove.UnityClient
             // The post-choice screen leads with the changed world and the new
             // memory; its settings move below the primary actions.
             bool memoryScreen = living && showingMemory && world.Choices.Length > 0;
+            // Every puzzle screen is board-first: stream, anchor, board and its
+            // controls come before the village art, consequence, memory and settings.
+            bool puzzleScreen = !memoryScreen && !world.Completed;
             // An open language picker keeps its own toggle at the top so it can close.
-            bool settingsAtTop = languagePicker || (!firstPuzzle && !memoryScreen);
+            // Only the ending keeps its settings at the top.
+            bool settingsAtTop = languagePicker || (!puzzleScreen && !memoryScreen);
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
             Text wordmark = Label(content, "Mosselora wordmark", GameLocalization.Text("title"),
                 15, 26, Leaf);
             wordmark.fontStyle = FontStyle.Bold;
             Label(content, "Title", GameLocalization.Text("subtitle"),
-                firstPuzzle ? 16 : 24, firstPuzzle ? 28 : 44, Ink);
+                puzzleScreen ? 16 : 24, puzzleScreen ? 28 : 44, Ink);
             if (multiLanguage && settingsAtTop)
                 Button(content, "Language settings",
                     GameLocalization.Text("language") + ": " +
@@ -501,10 +505,10 @@ namespace Evergrove.UnityClient
                         () => { confirmReset = false; Rebuild(); }, 44);
             }
 
-            // A first-time player must see a tappable channel before any
-            // decorative illustration. The source-connected water remains
-            // legible on each tile even when the optional world is below.
-            if (firstPuzzle)
+            // A player must see a tappable channel before any decorative
+            // illustration. The source-connected water remains legible on each
+            // tile even when the optional world is below.
+            if (puzzleScreen)
                 BuildPuzzle();
 
             if (living)
@@ -605,16 +609,8 @@ namespace Evergrove.UnityClient
                         Rebuild();
                     });
             }
-            else if (!firstPuzzle)
-                BuildPuzzle();
-            if (firstPuzzle && !languagePicker &&
-                LocaleRuntime.SelectableLanguages.Count > 1)
-                Button(content, "Language settings",
-                    GameLocalization.Text("language") + ": " +
-                    GameLocalization.NativeName(GameLocalization.Current),
-                    () => { languagePicker = true; Rebuild(true); }, 48);
-            if (firstPuzzle && !languagePicker)
-                TextSizeButton(content);
+            if (puzzleScreen && !languagePicker)
+                SettingsRow(multiLanguage);
 
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
@@ -812,12 +808,13 @@ namespace Evergrove.UnityClient
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count) +
                 (GameLocalization.Current == "en" ? "  ·  " + puzzle.Name : ""),
                 13, 30, Leaf, TextAnchor.MiddleCenter);
-            if (puzzle.AnchoredTile >= 0)
-                Label(content, "Protected habitat", LocalizedVillage.EnvironmentalRule(world),
-                    14, 48, Leaf, TextAnchor.MiddleCenter);
             Label(content, "Prompt", world.Round == 0 ?
                 GameLocalization.Text("first") : LocalizedVillage.Prompt(world), 14, 34, Moss,
                 TextAnchor.MiddleCenter);
+            // The anchor line sits directly above the board: it explains the framed tile.
+            if (puzzle.AnchoredTile >= 0)
+                Label(content, "Protected habitat", LocalizedVillage.EnvironmentalRule(world),
+                    14, 48, Leaf, TextAnchor.MiddleCenter);
             var board = Card(content, "The water puzzle", White);
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
@@ -997,8 +994,8 @@ namespace Evergrove.UnityClient
                 13, 56, Moss, TextAnchor.MiddleCenter);
         }
 
-        // Compact settings below the primary actions of the post-choice screen.
-        // Same controls and behavior as the top-of-screen settings elsewhere.
+        // Compact settings row below the primary content of puzzle and post-choice
+        // screens. Same controls and behavior as the top-of-screen settings.
         private void SettingsRow(bool offerLanguage)
         {
             GameObject row = Row(content, "Settings row");

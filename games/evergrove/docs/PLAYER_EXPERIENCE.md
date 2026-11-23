@@ -23,7 +23,7 @@
 ```text
 Portrait scrolling UI
   Brand + product headline
-  Language selector (Automatic / 30-language picker) and text size "Aa 100% / 125% / 150%" (language-neutral; cycles on tap), above the board except on the post-choice screen
+  Puzzle screen order (board-first, all chapters): title → stream line → flavor prompt → protected-landmark line → **board** → water-reach status → Undo / Hint / Restart → village art → consequence → remembered choice → one settings row (Language, "Aa 100%/125%/150%", language-neutral, cycles on tap). The post-choice screen keeps consequence-first order, and the ending keeps settings at the top
   [Living mode] 2D illustration OR opt-in 2.5D miniature
   World consequence and one remembered action
   [If a choice was committed] world consequence, memory card, Continue + Change choice, then the language/text-size row (unverified with players)
