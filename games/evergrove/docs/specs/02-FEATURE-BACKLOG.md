@@ -367,7 +367,7 @@
 
 ### EG-114 — Comprehensive reduced motion
 
-**State:** 2.5D motion toggle exists; broader mode proposed. **Type:** Accessibility. **Risk:** Separate animation QA paths. **Evidence:** R1,P1. **R/I/C/E:** 3/4/4/2; **illustrative score:** 24.0.
+**State:** Motion audit done (`docs/PLAYER_EXPERIENCE.md` section 6a). Store builds have no animated decorative motion; the only motion is the dev-only 2.5D miniature, gated by one reduced-motion preference defaulting to off. Still-frame and device verification (`A11Y-004`) not collected. **Type:** Accessibility. **Risk:** Separate animation QA paths. **Evidence:** R1,P1. **R/I/C/E:** 3/4/4/2; **illustrative score:** 24.0.
 
 **Execution:** `Proposed`; **M5**; owner role **UX & Accessibility QA**; verification **`A11Y-004`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-114/verification.md` (**NOT COLLECTED**); **rollback/stop:** Reduced motion hides causal effects or still causes discomfort.
 
