@@ -21,8 +21,9 @@ namespace Evergrove.UnityClient.Editor
         public static void Build()
         {
             BuildTarget target = EditorUserBuildSettings.activeBuildTarget;
-            if (target != BuildTarget.Android && target != BuildTarget.WebGL && target != BuildTarget.iOS)
-                throw new NotSupportedException("Evergrove preview supports Android, WebGL and unsigned iOS Xcode export.");
+            if (target != BuildTarget.Android && target != BuildTarget.WebGL && target != BuildTarget.iOS &&
+                target != BuildTarget.StandaloneOSX)
+                throw new NotSupportedException("Evergrove preview supports Android, WebGL, unsigned iOS Xcode export and a local macOS QA player.");
 
             EvergroveSceneSetup.CreateScene();
             // A generated APK or Xcode project must not bypass actual Unity
@@ -54,7 +55,9 @@ namespace Evergrove.UnityClient.Editor
                 ? Path.Combine(outDir, "Evergrove-Playtest.apk")
                 : target == BuildTarget.iOS
                     ? Path.Combine(outDir, "Evergrove-Xcode")
-                    : Path.Combine(outDir, "Evergrove-Playtest");
+                    : target == BuildTarget.StandaloneOSX
+                        ? Path.Combine(outDir, "Mosselora-QA.app")
+                        : Path.Combine(outDir, "Evergrove-Playtest");
 
             PlayerSettings.productName = "Mosselora Playtest";
             Texture2D appIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Branding/MosseloraAppIcon.png");
