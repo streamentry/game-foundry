@@ -47,6 +47,9 @@ namespace Evergrove.UnityClient
         private bool confirmReset;
         private bool soundOn;
         private bool showMiniature;
+        // Decorative motion allowed (true) or reduced (false, the default).
+        // Persisted in PlayerPrefs, separate from the save.
+        private const string ReducedMotionKey = "evergrove:miniature-motion";
         private bool animateMiniature;
         private VillageDiorama diorama;
         private VillageIllustration activeIllustration;
@@ -122,8 +125,13 @@ namespace Evergrove.UnityClient
             // Research-only rendering options must never leak into a store
             // candidate, even when an old development preference is present.
             showMiniature = PlayerPrefs.GetInt("evergrove:visual-miniature", 0) == 1;
-            animateMiniature = PlayerPrefs.GetInt("evergrove:miniature-motion", 0) == 1;
+            // The one reduced-motion preference (EG-114). Unity 6000.3 exposes no
+            // OS reduce-motion API, so the default is 0: no decorative motion.
+            // Every consumer reads this flag; when it is 0 the miniature is a
+            // still frame that shows the same causal state as the animated one.
+            animateMiniature = PlayerPrefs.GetInt(ReducedMotionKey, 0) == 1;
 #else
+            // Store builds ship no decorative motion; the miniature is compiled out.
             showMiniature = false;
             animateMiniature = false;
 #endif
@@ -776,7 +784,7 @@ namespace Evergrove.UnityClient
                     Button(content, "Optional miniature motion",
                         GameLocalization.Text(animateMiniature ? "motion_on" : "motion_off"), () => {
                             animateMiniature = !animateMiniature;
-                            PlayerPrefs.SetInt("evergrove:miniature-motion", animateMiniature ? 1 : 0);
+                            PlayerPrefs.SetInt(ReducedMotionKey, animateMiniature ? 1 : 0);
                             PlayerPrefs.Save();
                             Rebuild();
                         }, 45);

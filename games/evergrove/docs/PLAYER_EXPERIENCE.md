@@ -124,6 +124,28 @@ See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **Eng
 
 **Do not equate accessibility-oriented source code with measured accessible UX.** At least one person who uses assistive technology should be included before making public accessibility claims.
 
+## 6a. Motion audit (EG-114)
+
+Store builds contain no animated decorative motion. The only animation is the 2.5D miniature, compiled out of non-development builds.
+
+| Source | File:line | What moves | Needed to understand the state? | Controllable now? |
+| --- | --- | --- | --- | --- |
+| 2.5D villagers, butterflies, ripples | `VillageDiorama.cs:436-460` (`Update`, 12 fps) | Small bobbing/sway of figures and insects | No | Yes: `motionEnabled` gated by the preference (dev builds only) |
+| 2.5D water glimmer / sway geometry | `VillageDiorama.cs:157, 190` | Built once as static geometry | No | Not animated at runtime |
+| Miniature still frame | `VillageDiorama.cs:416, 422` (`RenderFrame`, `Show`) | Single render of the same causal state | Yes | Always on |
+| Miniature motion toggle | `EvergroveApp.cs:125, 776-779` | Enables the above | No | Yes; dev builds only, default off |
+| Water-front advance | `VillageIllustration.cs:144-150` | Static quad, no timer or easing | Yes (shown as still frame) | N/A |
+| Butterflies in 2D art | `VillageIllustration.cs:108, 208-209` | Static vector shapes | No | N/A |
+| Hint tile highlight | `MosseloraTheme.cs:41-50` | Color change, no animation | Yes | N/A |
+| Scroll to decision | `EvergroveApp.cs:1365-1387` | Instant position set after one layout frame; no tween | Yes | N/A |
+| Scroll inertia | `EvergroveApp.cs:339` | User-driven momentum | No | Not changed (platform norm) |
+| Screen transitions | none | Screens are rebuilt instantly | N/A | N/A |
+| Chime | `EvergroveApp.cs:~1545` | Audio, not motion | N/A | Quiet audio setting |
+
+**Preference.** One PlayerPrefs key (`evergrove:miniature-motion`, stored separately from the save) controls all decorative motion. Default is `0` (reduced) because Unity 6000.3 exposes no OS reduce-motion API (`AccessibilitySettings` covers bold text, closed captions and font scale only). With the preference off, the miniature is a still frame of the same state. No new localization keys were added.
+
+**Not verified.** Still frames on physical iOS/Android devices; sensitivity testing with the 45+ audience (`A11Y-004`).
+
 ## 7. Content QA and design acceptance
 
 A chapter is “done” only when the water rules are valid and unique, the difficulty is observed rather than guessed, the previous choice is clearly seen in the next puzzle, the world illustration and dialogue correspond to the same event history, all supported live UI languages fit, the save survives interruption and the player can stop without guilt.
