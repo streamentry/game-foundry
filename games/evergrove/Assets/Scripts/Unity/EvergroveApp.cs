@@ -162,10 +162,10 @@ namespace Evergrove.UnityClient
         {
             if (spring)
             {
-                Color blue = Hex("#216A96");
-                IconPart(parent, "Upper water ripple", blue, new Vector2(17f, 3f), new Vector2(0f, 6f));
-                IconPart(parent, "Middle water ripple", blue, new Vector2(13f, 3f), new Vector2(0f, 0f));
-                IconPart(parent, "Lower water ripple", blue, new Vector2(17f, 3f), new Vector2(0f, -6f));
+                // Sinusoidal mesh waves, not straight bars: straight stacked
+                // bars read as a menu button (☰) to first-time adult players.
+                var waves = parent.gameObject.AddComponent<WaterWaveIcon>();
+                waves.Configure(Hex("#216A96"));
             }
             else
             {
