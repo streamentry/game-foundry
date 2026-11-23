@@ -29,14 +29,15 @@ namespace Evergrove.UnityClient
             float height = area.height;
             if (width <= 0f || height <= 0f) return;
 
-            float thickness = Mathf.Max(2.5f, height * 0.13f);
-            float amplitude = height * 0.10f;
+            float thickness = Mathf.Max(2.5f, height * 0.11f);
+            float amplitude = height * 0.07f;
             float rowSpacing = height / (StrokeCount + 1);
             for (int stroke = 0; stroke < StrokeCount; stroke++)
             {
                 float baseY = area.yMin + rowSpacing * (stroke + 1);
-                // Stagger phase so the three strokes ripple like a current.
-                float phase = stroke * Mathf.PI * 0.5f;
+                // Same phase keeps the strokes parallel (like ≋); staggered
+                // phases made them cross and read as a braid in QA screenshots.
+                const float phase = 0f;
                 AddWaveStroke(vh, area.xMin, area.xMax, baseY, amplitude, thickness, phase);
             }
         }
