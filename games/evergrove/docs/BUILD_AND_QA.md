@@ -23,6 +23,24 @@ python3 tools/verify_evergrove_project.py
 
 These commands validate domain logic, 12 source puzzles + 33 branch presentation variants, **200 simulated save-journal interruptions/recoveries**, migration, locale catalogs and structural configuration. They **cannot** inspect real Unity shader imports, UI text shaping, audio, native signing or phone touch behavior.
 
+### Build channels
+
+`EvergroveBuild.Build()` reads `EVERGROVE_BUILD_CHANNEL`:
+
+- `development` (default): `BuildOptions.Development`, research controls enabled, log `EVERGROVE_BUILD_SUCCEEDED <output>`.
+- `release-candidate`: no Development flag, product `Mosselora`, id `com.streamentry.evergrove`, version from `EVERGROVE_BUNDLE_VERSION` (default `0.1.0`), research locale catalogs staged out during the build. Log `EVERGROVE_BUILD_SUCCEEDED release-candidate <output>`. It never signs or uploads.
+
+Headless macOS release candidate (licensed Unity required):
+
+```bash
+EVERGROVE_BUILD_CHANNEL=release-candidate EVERGROVE_OUTPUT_ROOT=/abs/private/out \
+  "$UNITY_BIN" -batchmode -nographics -projectPath "$PWD/games/evergrove" \
+  -buildTarget OSXUniversal -executeMethod Evergrove.UnityClient.Editor.EvergroveBuild.Build \
+  -logFile /abs/private/out/rc.log -quit
+```
+
+The source guard `python3 tools/verify_evergrove_project.py` fails on any dev-only identifier outside an approved research guard. See [release-candidate audit](qa/release-candidate-audit-2026-11-23.md).
+
 ### One-command local licensed preflight
 
 From the repository root of a **clean committed checkout** with Unity 6000.3.0f1 and relevant platform modules installed:

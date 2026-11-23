@@ -6,6 +6,10 @@
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <PropertyGroup>
+    <!-- Core LocalPlaytest is a research recorder; tests exercise it, player builds do not compile it. -->
+    <DefineConstants>$(DefineConstants);EVERGROVE_RESEARCH_TOOLS</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="../Assets/Scripts/Core/*.cs" Link="Core/%(Filename)%(Extension)" />
   </ItemGroup>

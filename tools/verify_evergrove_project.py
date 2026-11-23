@@ -150,3 +150,58 @@ assert "GardenTransfer.Export(world" in ui and "GardenTransfer.TryImport(" in ui
 assert "GUIUtility.systemCopyBuffer" in ui and "Confirm garden restore" in ui
 assert "Cancel garden restore" in ui and "SaveWorld(); // same persistence path" in ui
 print(f"Evergrove language assets: English source + {len(supported)} complete offline catalogs, {len(keys)} keys each")
+
+# BLD-007 release-candidate source guard: every research/dev-only identifier in
+# Assets/ must sit inside an approved research guard (its #else branch does not count).
+# Approved guards are the only ones that compile out of a release-candidate build
+# (no DEVELOPMENT_BUILD, Debug.isDebugBuild false).
+APPROVED_GUARDS = {
+    "#if UNITY_EDITOR || DEVELOPMENT_BUILD",
+    "#if UNITY_EDITOR || DEVELOPMENT_BUILD || EVERGROVE_RESEARCH_TOOLS",
+}
+DEV_ONLY_TOKENS = [
+    r"\bDevQaTour\b", r"\bDevScreenshot\b", r"\bTextSpike\b", r"\bLocalPlaytest\b",
+    r"\bVillageDiorama\b", r"\bQaReplaceWorld\b", r"\bQaWorld\b", r"\bLogForQa\b",
+    r"mosseloraQaTour", r"mosseloraScreenshot", r"mosseloraTextSpike", r"mosseloraTextScale",
+    r"matched control", r"Matched control", r"Playtest consent", r"Diorama visual comparison",
+    r"Copy playtest", r"Living mode", r"Puzzle control", r"Miniature diorama",
+    r"MOSSELORA_QA_TOUR_DONE", r"MOSSELORA_SR_NODES", r"MOSSELORA_TEXT_SCALE_OVERRIDE",
+]
+DEV_ONLY_PATTERN = re.compile("|".join(DEV_ONLY_TOKENS))
+
+
+def dev_only_violations(source):
+    """Return (line_number, text) for dev-only tokens outside an approved guard."""
+    stack = []  # each frame: [approved, in_else]
+    found = []
+    for number, line in enumerate(source.splitlines(), start=1):
+        stripped = line.strip()
+        if stripped.startswith("#if"):
+            stack.append([stripped in APPROVED_GUARDS, False])
+            continue
+        if stripped.startswith("#elif") or stripped.startswith("#else"):
+            if stack:
+                stack[-1][1] = True
+            continue
+        if stripped.startswith("#endif"):
+            if stack:
+                stack.pop()
+            continue
+        if DEV_ONLY_PATTERN.search(line) and not any(a and not e for a, e in stack):
+            found.append((number, stripped))
+    return found
+
+
+# Self-test so a broken scanner cannot silently pass the real tree.
+_sample = "#if UNITY_EDITOR || DEVELOPMENT_BUILD\nclass A { DevQaTour x; }\n#else\nDevQaTour y;\n#endif\nDevScreenshot z;\n"
+assert [n for n, _ in dev_only_violations(_sample)] == [4, 6], "dev-only guard scanner self-test failed"
+
+assets_root = game / "Assets"
+leaks = []
+for path in sorted(assets_root.rglob("*.cs")):
+    if "/Library/" in str(path):
+        continue
+    for number, text in dev_only_violations(path.read_text(encoding="utf-8")):
+        leaks.append(f"{path.relative_to(game)}:{number}: {text}")
+assert not leaks, "Dev-only identifiers outside an approved research guard:\n" + "\n".join(leaks)
+print("Evergrove release-candidate dev-control source guard: OK (no unguarded dev-only identifiers)")

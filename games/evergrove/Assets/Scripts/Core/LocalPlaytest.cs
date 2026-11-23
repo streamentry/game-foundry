@@ -1,3 +1,4 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || EVERGROVE_RESEARCH_TOOLS
 using System;
 using System.Globalization;
 using System.Text;
@@ -129,3 +130,4 @@ namespace Evergrove.Core
         }
     }
 }
+#endif

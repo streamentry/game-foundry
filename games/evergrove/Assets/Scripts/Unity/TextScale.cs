@@ -16,7 +16,9 @@ namespace Evergrove.UnityClient
         public const int DefaultPercent = 100;
         public static readonly int[] Steps = { 100, 125, 150 };
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private const string DevArgument = "-mosseloraTextScale";
+#endif
         private static int percent = DefaultPercent;
         private static bool initialized;
         // Dev-only launch override: applies to this run and is never persisted.
