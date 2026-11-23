@@ -593,9 +593,10 @@ namespace Evergrove.UnityClient
         {
             ColorBlock palette = ColorBlock.defaultColorBlock;
             palette.normalColor = Color.white;
-            palette.highlightedColor = new Color(0.95f, 0.95f, 0.93f);
+            palette.highlightedColor = Color.white; // touch screens: no hover state
             palette.selectedColor = Color.white;
-            palette.pressedColor = new Color(0.84f, 0.84f, 0.80f);
+            // Warm press (sunlit, not grey) so parchment never looks dirty.
+            palette.pressedColor = new Color(0.94f, 0.88f, 0.76f);
             palette.disabledColor = new Color(0.86f, 0.86f, 0.84f, 0.55f);
             palette.fadeDuration = 0.08f;
             return palette;
@@ -652,6 +653,11 @@ namespace Evergrove.UnityClient
             {
                 Text value = Label(node.transform, "Value", badge, 15, 0, ink, TextAnchor.MiddleCenter);
                 Emphasize(value);
+                // State badges are short numbers; never wrap them ("150%" not "150 / %").
+                value.horizontalOverflow = HorizontalWrapMode.Overflow;
+                value.fontSize = Mathf.Min(value.fontSize, 17);
+                var valueLayout = value.GetComponent<LayoutElement>();
+                valueLayout.minWidth = value.preferredWidth;
             }
             var textNode = Node("Caption", node.transform);
             var text = textNode.AddComponent<Text>();
@@ -709,6 +715,24 @@ namespace Evergrove.UnityClient
                 waterDrops[i].color = i < reached
                     ? Color.white
                     : new Color(0.55f, 0.50f, 0.42f, 0.28f); // dry: faded earth silhouette
+        }
+
+        // Start a new garden: a seedling icon first; only the confirm step
+        // spells out the erase, beside an always-visible cancel.
+        private void ResetControls(string resetName, string cancelName, Color tone)
+        {
+            Transform row = CenteredRow(resetName + " row");
+            if (!confirmReset)
+            {
+                Width(IconButton(row, resetName, GameLocalization.Text("explore"),
+                    MosseloraArt.IconNewGarden, () => { confirmReset = true; Rebuild(); },
+                    58, tone), 96);
+                return;
+            }
+            Width(IconButton(row, cancelName, GameLocalization.Text("keep"), MosseloraArt.IconCancel,
+                () => { confirmReset = false; Rebuild(); }, 58, MosseloraTheme.QuietAction), 76);
+            Width(IconButton(row, resetName, GameLocalization.Text("erase"), MosseloraArt.IconConfirm,
+                ConfirmedReset, 58, MosseloraTheme.EarthAction, true), 200, 1f);
         }
 
         // A row that centres compact controls instead of stretching them edge to edge.
@@ -1072,6 +1096,8 @@ namespace Evergrove.UnityClient
             if (memoryScreen)
             {
                 var moment = Card(content, "A remembered moment", MosseloraTheme.CardFill);
+                // Room above the title for the leaf sprigs at any text size.
+                moment.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(14, 14, 34, 16);
                 Text momentTitle = Label(moment.transform, "Moment title",
                     GameLocalization.Text("memory_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(momentTitle);
@@ -1115,19 +1141,7 @@ namespace Evergrove.UnityClient
                     19, 0, Ink, TextAnchor.MiddleCenter);
                 Emphasize(finalWords);
                 if (living) MemoryJournal();
-                IconButton(content, "Reset title", confirmReset ?
-                    GameLocalization.Text("erase") : GameLocalization.Text("explore"),
-                    confirmReset ? MosseloraArt.IconConfirm : MosseloraArt.IconNewGarden,
-                    () => {
-                        if (!confirmReset) { confirmReset = true; Rebuild(); return; }
-                        ConfirmedReset();
-                    }, 60, confirmReset ? MosseloraTheme.EarthAction : MosseloraTheme.WaterAction, true);
-                if (confirmReset)
-                    IconButton(content, "Cancel reset", GameLocalization.Text("keep"), MosseloraArt.IconCancel,
-                        () => {
-                            confirmReset = false;
-                            Rebuild();
-                        }, 56, MosseloraTheme.QuietAction, true);
+                ResetControls("Reset title", "Cancel reset", MosseloraTheme.WaterAction);
             }
             if (puzzleScreen && !languagePicker)
                 SettingsRow(multiLanguage);
@@ -1230,19 +1244,7 @@ namespace Evergrove.UnityClient
             BuildGardenFileSection();
             if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
-                IconButton(content, "Restart garden",
-                    GameLocalization.Text(confirmReset ? "erase" : "explore"),
-                    confirmReset ? MosseloraArt.IconConfirm : MosseloraArt.IconNewGarden,
-                    () => {
-                        if (!confirmReset) { confirmReset = true; Rebuild(); return; }
-                        ConfirmedReset();
-                    }, 52, confirmReset ? MosseloraTheme.EarthAction : MosseloraTheme.QuietAction, true);
-                if (confirmReset)
-                    IconButton(content, "Cancel", GameLocalization.Text("keep"), MosseloraArt.IconCancel,
-                        () => {
-                            confirmReset = false;
-                            Rebuild();
-                        }, 52, MosseloraTheme.QuietAction, true);
+                ResetControls("Restart garden", "Cancel", MosseloraTheme.QuietAction);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest == null)
@@ -2006,10 +2008,33 @@ namespace Evergrove.UnityClient
                 content.InverseTransformPoint(worldTop).y;
             // Keep some of the preceding restored-world context visible.
             float context = Mathf.Min(110f, scroll.viewport.rect.height * 0.23f);
+            float target = 1f - Mathf.Clamp01((targetTop - context) / distance);
+            // The payoff beat: hold on the finished creek while it blooms and
+            // every droplet fills, then glide (not jump) to the decision. A
+            // player who scrolls during the hold keeps control.
+            float held = scroll.verticalNormalizedPosition;
+            float wait = 0f;
+            while (wait < SolveHoldSeconds)
+            {
+                wait += Time.unscaledDeltaTime;
+                yield return null;
+                // A rebuild (choice made, screen changed) or a player scroll cancels the glide.
+                if (scroll == null || decisionHeading == null) yield break;
+                if (Mathf.Abs(scroll.verticalNormalizedPosition - held) > 0.01f) yield break;
+            }
             scroll.StopMovement();
-            scroll.verticalNormalizedPosition = 1f -
-                Mathf.Clamp01((targetTop - context) / distance);
+            float from = scroll.verticalNormalizedPosition;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / SolveGlideSeconds)
+            {
+                if (scroll == null || decisionHeading == null) yield break;
+                scroll.verticalNormalizedPosition = Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t));
+                yield return null;
+            }
+            if (scroll != null) scroll.verticalNormalizedPosition = target;
         }
+
+        private const float SolveHoldSeconds = 1.25f;
+        private const float SolveGlideSeconds = 0.6f;
 
         private void MakeChoice(VillageChoice choice)
         {
@@ -2030,13 +2055,14 @@ namespace Evergrove.UnityClient
         private void BuildGardenFileSection()
         {
             var card = Card(content, "Garden file", MosseloraTheme.CardFill);
-            IconButton(card.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
-                MosseloraArt.IconCopyFile, CopyGardenFile, 54, MosseloraTheme.ForestAction, true);
+            GameObject files = Row(card.transform, "Garden file actions");
+            IconButton(files.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
+                MosseloraArt.IconCopyFile, CopyGardenFile, 56, MosseloraTheme.ForestAction);
             if (!WorldStore.RecoveryBlocked)
             {
                 if (!gardenRestoreConfirm)
-                    IconButton(card.transform, "Restore garden file", GameLocalization.Text("garden_restore"),
-                        MosseloraArt.IconRestoreFile, ReadGardenFile, 54, MosseloraTheme.WaterAction, true);
+                    IconButton(files.transform, "Restore garden file", GameLocalization.Text("garden_restore"),
+                        MosseloraArt.IconRestoreFile, ReadGardenFile, 56, MosseloraTheme.WaterAction);
                 else
                 {
                     Label(card.transform, "Garden replace warning", GameLocalization.Text("garden_replace"),
@@ -2044,7 +2070,7 @@ namespace Evergrove.UnityClient
                     IconButton(card.transform, "Confirm garden restore", GameLocalization.Text("erase"),
                         MosseloraArt.IconConfirm, ConfirmGardenRestore, 54, MosseloraTheme.EarthAction, true);
                     IconButton(card.transform, "Cancel garden restore", GameLocalization.Text("keep"),
-                        MosseloraArt.IconCancel, CancelGardenRestore, 50, MosseloraTheme.QuietAction, true);
+                        MosseloraArt.IconCancel, CancelGardenRestore, 52, MosseloraTheme.QuietAction);
                 }
             }
             if (gardenNoticeKey.Length > 0)

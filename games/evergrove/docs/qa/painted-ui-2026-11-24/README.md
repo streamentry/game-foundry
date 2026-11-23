@@ -63,3 +63,18 @@ Same simulator method as above (iPhone 17 Pro, iOS 26.5, English). The QA tour p
 - Physical iPhone and Android.
 - 125/150% text with captions.
 - Motion frame by frame.
+
+## Verification pass (b8/b9, 2026-11-24)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Pipe swing on tap and undo, frame by frame | PASS: a tap tints the tile warm, then the pipe swings clockwise over about 6 frames (~200 ms); Undo swings it back counter-clockwise. | `motion-tap-undo-frames.png` (30 fps frames from a simulator recording, b7) |
+| Solve payoff | FIXED, then PASS. Before the fix, the solving tap jumped straight to the choices in the same frame, so the bloom and the full creek were never seen. Now the solved board turns green, all droplets fill, tiles bloom outward from the spring, the board holds ~1.25 s, then glides (0.6 s) to "What will you help grow?". A player scroll during the hold cancels the glide. | `motion-solve-hold-glide-frames.png` (b8) |
+| Pressed state | FIXED: the grey multiply looked dirty on parchment; it is now a warm tint. | same frames |
+| 150% text, all 17 tour screens | FIXED, then PASS. The text-size badge wrapped ("150 / %") and the memory title collided with the leaf sprigs; both are fixed in b9. | `text150-before-fix.png`, `text150-after-fix.png` |
+| Android | PASS (emulator, not a phone): development APK on an Android 36 emulator (1080x2400), QA tour `MOSSELORA_QA_TOUR_DONE 17`. Icons, portraits, droplets and the first-stream captions render in Bengali. | `android-bn-icons.png` |
+| Remaining text buttons | Garden-file copy/restore and "explore another garden" are now icon-only. Words appear only on the erase confirmation, next to an icon-only cancel. The unreadable-save recovery flow keeps words on purpose (rare, data-loss risk). | b9 tour |
+
+Process note: the Android run collided with another session's Bengali test on the same emulator; that session was told its run used this build.
+
+Still not verified: icon comprehension with adults 45+ (age fit not validated), VoiceOver/TalkBack on a device, physical phones, Large board with the new skin.
