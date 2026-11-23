@@ -603,3 +603,17 @@ Four parallel read-only audits covered `games/evergrove/docs/specs/`, the handbo
 
 **Decision:** continue Seed-stage work. The next human steps are Unity license activation and recruiting 8–12 uncoached adults 45+ for M3.
 
+## 2026-11-23 — Vision execution wave 2: matched control, exportable saves, first rendered build
+
+**Implemented and verified in code:**
+- `PlayMode.PuzzleMatched` (puzzle-identical M4 control; all 33 chapter×variant pairs and 3^7 choice prefixes checked), selectable through a development-build research control in `EvergroveApp`.
+- `GardenTransfer` exportable save envelope (`mosselora-garden` v1, SHA-256 integrity check, strict parser, 1 MB cap); it round-trips matched schedules. No share or file UI yet.
+- A non-color dashed/solid cue for dry vs connected pipes, `earth.dry` set to `#7D684F`, and contrast fixes in the browser slice (node tests 10/10).
+- Doc drift fixed: 81 keys, Vietnamese endpoint wording, and a canonical M3/M4 threshold table that lists `FOUNDER DECISION NEEDED` items.
+
+**Observed:** the C# suite reports 38,835 assertions. The Unity 6000.3.0f1 compile and smoke pass. **A development macOS player built and rendered chapter 1**, captured with a new dev-only `-mosseloraScreenshot` hook (`games/evergrove/docs/qa/mac-player-2026-11-23/`). Visual finding: the spring endpoint glyph reads like a menu icon; a fix is in progress. This is desktop evidence, not phone evidence.
+
+**Research added:** WCAG contrast audit (21 of 97 pairs failed before fixes), preliminary name knockout (no exact conflict; not clearance), and a post-M4 depth proposal (variants add 0–3 taps; recommends blank root cells and orientation-masked tiles).
+
+**Human blockers (unchanged):** activate a Unity license so iOS builds work, and approve the Android module install (about 3.6 GB download, needs Unity EULA acceptance). Recruit uncoached adults 45+ for M3, give founder decisions on the M3/M4 thresholds, and arrange an attorney name clearance.
+
