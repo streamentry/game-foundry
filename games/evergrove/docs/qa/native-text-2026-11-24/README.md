@@ -47,3 +47,10 @@ The lead checked the bn Android capture after the merge. The chapter pill ("ঝ�
 - Evidence: [android/bn-chapter1-pill-fixed.png](android/bn-chapter1-pill-fixed.png). Emulator-5570, fresh install, bn app locale. The pill shows formed text, and the logcat has 0 `class with ID 115` lines and no Unity exceptions.
 - Checks after the fix: `verify_evergrove_project.py`, `check_evergrove_docs.py`, and the Unity batch smoke (`VerifyProject`) pass. The fix is in Unity-only code, so the C# Core tests are unaffected.
 - iOS Simulator recheck (UDID 938A516A…, fresh Debug arm64 build from main): the bn pill reads "ঝরনা 1 / 12", the tagline conjuncts are formed, the English pill is unchanged ("STREAM 1 / 12 · First Bend"), and there are no console errors. Evidence: [ios/bn-chapter1-pill-fixed.png](ios/bn-chapter1-pill-fixed.png). The check was done by an AI agent and the capture was reviewed by the lead.
+
+## Screen-reader labels with native bn text (Android emulator, 2026-11-24)
+
+`ScreenReaderBridge` skips only inactive GameObjects (`ScreenReaderBridge.cs:160`). It reads `Text.text` even when the Text component is disabled (lines 167–169, captions at 203–208). `NativeTextLabel` keeps the logical string on the disabled Text. With TalkBack enabled on emulator-5570, `MOSSELORA_SR_STATUS enabled=True` was logged and 38 nodes were published (36 in the earlier English run). A `-mosseloraQaTour` run logged every label ([android/sr-nodes-bn.txt](android/sr-nodes-bn.txt)). Labels are Bengali in logical Unicode order, for example "ছোট ছোট সিদ্ধান্ত। প্রাণবন্ত একটি স্থান।", "ঝরনা 1 / 12", and tile buttons such as "সারি 1, কলাম 1: বাঁকা পাইপ, পানির সঙ্গে সংযুক্ত।". The app name node reads "MOSSELORA" in Latin script.
+
+- Native-review note: the prompt uses জল for water, but the tile labels use পানি. A native reviewer should choose one.
+- Not verified: TalkBack speech, focus order and gestures. No person listened. uiautomator still can't see Unity's nodes. iOS VoiceOver is not covered.
