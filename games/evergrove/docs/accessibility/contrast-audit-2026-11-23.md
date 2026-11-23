@@ -183,3 +183,25 @@ Notes on the table:
 - Real-device, screen-reader and playtest verification with adults 45+ is still required.
 
 **Status: computed contrast only; not a substitute for device/assistive-technology testing with adults 45+.**
+
+## Browser slice fixes applied
+
+Applied in commit e3a2773 to `games/evergrove/research/first-minute/style.css` (tokens on `:root`).
+
+| Pair | Before | After | Ratio |
+|---|---|---|---|
+| B04 research tag on paper | #748179 | #67726B | 4.55:1 |
+| B05 eyebrow on world caption | #477663 | #457260 | 4.52:1 |
+| B08 hint detail on paper | #856D4D | #846C4D | 4.51:1 |
+| B09 note on paper | #748076 | #68726A | 4.54:1 |
+| B10 footer on paper | #8B9286 | #6B7267 | 4.51:1 |
+| B17 choice sub-line on ChoiceBg | #65786C | #607266 | 4.50:1 |
+| B27 dry tile glyph on dry tile | #8C765B | #7D684F | 4.31:1 |
+| B35 dry tile border on panel | #D1CDBD | #9C9371 | 3.02:1 |
+| B36 wet tile border on panel | #9CCECB | #4FA09C | 3.02:1 |
+| B39 notes textarea border on panel | #9FB9A5 | #789C80 | 3.01:1 |
+
+- Sub-12px labels raised to 0.75rem: research tag (9px), eyebrow (10px), water-stat label (10px), note (11px), footer (9px).
+- Dry channels get a dashed stroke (`.tile--dry svg g`, butt caps); flowing channels stay solid. Non-color cue, CSS only.
+- Not changed: B34 dry tile fill vs panel stays 1.21:1; the audit expects the border to carry the boundary.
+- Not verified: visual layout at 320px with 12px labels (no browser run in this session); mutual pairs B32/B33 remain color-based but now have the dash cue.
