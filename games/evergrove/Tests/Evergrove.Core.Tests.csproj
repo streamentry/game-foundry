@@ -12,5 +12,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../Assets/Scripts/Core/*.cs" Link="Core/%(Filename)%(Extension)" />
+    <Compile Include="../Assets/ThirdParty/BidiSharp/*.cs" Link="ThirdParty/BidiSharp/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

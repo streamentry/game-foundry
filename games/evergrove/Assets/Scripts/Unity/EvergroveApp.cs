@@ -436,8 +436,22 @@ namespace Evergrove.UnityClient
             // do not hunt for a device-storage problem that does not exist.
             saveWarningCaption.text = GameLocalization.Text(
                 WorldStore.RecoveryBlocked ? "save_unreadable" : "save_warning");
+            if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
+                CjkLineBreakFixer.Attach(saveWarningCaption, saveWarningCaption.text);
             saveWarningBanner.SetActive(saveFailed);
             warningViewport.offsetMax = new Vector2(0f, saveFailed ? -SaveBannerHeight() : 0f);
+        }
+
+        // Right-to-left locales mirror left-aligned text to the right edge. Centered text stays centered.
+        private static TextAnchor RightAligned(TextAnchor alignment)
+        {
+            switch (alignment)
+            {
+                case TextAnchor.UpperLeft: return TextAnchor.UpperRight;
+                case TextAnchor.MiddleLeft: return TextAnchor.MiddleRight;
+                case TextAnchor.LowerLeft: return TextAnchor.LowerRight;
+                default: return alignment;
+            }
         }
 
         private Text Label(Transform parent, string name, string value, int size, int minimum,
@@ -452,14 +466,14 @@ namespace Evergrove.UnityClient
             var label = node.AddComponent<Text>();
             StyleText(label, size);
             label.color = color;
-            label.alignment = GameLocalization.IsRtl(GameLocalization.Current) &&
-                alignment == TextAnchor.MiddleLeft ? TextAnchor.MiddleRight : alignment;
+            label.alignment = GameLocalization.IsRtl(GameLocalization.Current)
+                ? RightAligned(alignment) : alignment;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Overflow;
             label.supportRichText = false;
             label.raycastTarget = false;
             string shown = GameLocalization.Display(value);
-            if (KinsokuLineBreaks.IsCjkLocale(GameLocalization.Current))
+            if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
                 CjkLineBreakFixer.Attach(label, shown);
             else
                 label.text = shown;
@@ -514,7 +528,11 @@ namespace Evergrove.UnityClient
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
             text.raycastTarget = false;
-            text.text = GameLocalization.Display(caption);
+            string shownCaption = GameLocalization.Display(caption);
+            if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
+                CjkLineBreakFixer.Attach(text, shownCaption);
+            else
+                text.text = shownCaption;
             button.onClick.AddListener(() => action());
             return button;
         }

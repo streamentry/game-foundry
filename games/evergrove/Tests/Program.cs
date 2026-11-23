@@ -688,6 +688,68 @@ internal static class Program
         return starts;
     }
 
+    private static string Reversed(string value)
+    {
+        char[] chars = value.ToCharArray();
+        Array.Reverse(chars);
+        return new string(chars);
+    }
+
+    private static void RtlTextTests()
+    {
+        Expect(RtlText.IsRtlScriptLocale("ar") && RtlText.IsRtlScriptLocale("fa") &&
+               RtlText.IsRtlScriptLocale("ur") && RtlText.IsRtlScriptLocale("he"),
+            "ar, fa, ur and he use RTL text preparation");
+        Expect(!RtlText.IsRtlScriptLocale("ja") && !RtlText.IsRtlScriptLocale("en") &&
+               !RtlText.IsRtlScriptLocale("hi"), "other locales skip RTL preparation");
+
+        // Arabic joining: sin takes the initial form, lam+alef form the final lam-alef ligature,
+        // and meem is isolated because alef does not join forward.
+        Expect(ArabicShaper.Shape("سلام") == "ﺳﻼﻡ", "Arabic word takes contextual forms and lam-alef");
+        // Dual-joining letters in the middle of a word take the medial form.
+        Expect(ArabicShaper.Shape("بتب") == "ﺑﺘﺐ","dual-joining letters take initial, medial and final forms");
+        // Lam-alef ligature: isolated alone, final after a joining letter.
+        Expect(ArabicShaper.Shape("لا") == "ﻻ", "lam-alef ligature stands alone");
+        Expect(ArabicShaper.Shape("سلا") == "ﺳﻼ", "lam-alef ligature takes final form after a dual-joining letter");
+        // Urdu tteh, isolated.
+        Expect(ArabicShaper.Shape("ٹ") == "ﭦ", "Urdu letter uses its presentation form");
+        // Hebrew is not joining; shaping leaves it unchanged.
+        Expect(ArabicShaper.Shape("שלום") == "שלום", "Hebrew passes through shaping unchanged");
+
+        // Bidi: a pure RTL word is drawn in reverse logical order.
+        Expect(RtlText.Visual("שלום") == Reversed("שלום"), "Hebrew word is reversed for left-to-right drawing");
+        Expect(RtlText.Visual("سلام") == Reversed(ArabicShaper.Shape("سلام")),
+            "Arabic word is shaped and reversed");
+
+        // Latin and digit runs keep their order inside RTL text.
+        Expect(RtlText.Visual("MOSSELORA") == "MOSSELORA", "Latin run is not reversed");
+        Expect(RtlText.Visual("1/12") == "1/12", "digits and separators are not reversed");
+        Expect(RtlText.Visual("שלום MOSSELORA") == "MOSSELORA " + Reversed("שלום"),
+            "Latin phrase after Hebrew stays left to right and moves to the visual start");
+        Expect(RtlText.Visual("سلام 12") == "12 " + Reversed(ArabicShaper.Shape("سلام")),
+            "Arabic number follows RTL base direction with digits kept in order");
+
+        // Mirroring: brackets in an RTL run swap glyphs (UAX #9 L4).
+        Expect(RtlText.Visual("(שלום)") == "(" + Reversed("שלום") + ")",
+            "brackets around Hebrew are mirrored");
+
+        // Empty input stays empty.
+        Expect(RtlText.Visual("") == "", "empty line stays empty");
+        // Latin-only captions keep LTR base direction, so their brackets are not mirrored.
+        Expect(RtlText.Visual("Start matched control (dev)") == "Start matched control (dev)",
+            "Latin-only line keeps its order and brackets");
+
+        // Wrapping measures visual lines and keeps each line visually ordered.
+        Func<string, float> charWidth = visual => visual.Length;
+        string wrapped = RtlText.Wrap("שלום עולם", 5f, charWidth);
+        Expect(wrapped == RtlText.Visual("שלום") + "\n" + RtlText.Visual("עולם"),
+            "words that do not fit move to the next visual line");
+        Expect(RtlText.Wrap("א\nב", 10f, charWidth) == RtlText.Visual("א") + "\n" + RtlText.Visual("ב"),
+            "source newlines start new paragraphs");
+        Expect(RtlText.Wrap("שלום עולם", 0f, charWidth) == RtlText.Visual("שלום עולם"),
+            "non-positive width disables wrapping");
+    }
+
     private static void KinsokuLineBreakTests()
     {
         Expect(KinsokuLineBreaks.IsCjkLocale("ja") && KinsokuLineBreaks.IsCjkLocale("zh-Hans") &&
@@ -1209,6 +1271,7 @@ internal static class Program
             PrivatePlaytestReport();
             LocalizationTests();
             KinsokuLineBreakTests();
+            RtlTextTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }
