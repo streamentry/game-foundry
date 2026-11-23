@@ -469,6 +469,8 @@ namespace Evergrove.UnityClient
             // do not hunt for a device-storage problem that does not exist.
             saveWarningCaption.text = GameLocalization.Text(
                 WorldStore.RecoveryBlocked ? "save_unreadable" : "save_warning");
+            saveWarningCaption.text = IndicVisualOrder.Visual(GameLocalization.Current,
+                saveWarningCaption.text);
             if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
                 CjkLineBreakFixer.Attach(saveWarningCaption, saveWarningCaption.text);
             saveWarningBanner.SetActive(saveFailed);
@@ -505,7 +507,10 @@ namespace Evergrove.UnityClient
             label.verticalOverflow = VerticalWrapMode.Overflow;
             label.supportRichText = false;
             label.raycastTarget = false;
-            string shown = GameLocalization.Display(value);
+            // uGUI has no Indic shaping: Bengali pre-base vowel signs are
+            // pre-ordered into visual order here (IndicVisualOrder, bn only).
+            string shown = IndicVisualOrder.Visual(GameLocalization.Current,
+                GameLocalization.Display(value));
             if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
                 CjkLineBreakFixer.Attach(label, shown);
             else
@@ -576,7 +581,8 @@ namespace Evergrove.UnityClient
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
             text.raycastTarget = false;
-            string shownCaption = GameLocalization.Display(caption);
+            string shownCaption = IndicVisualOrder.Visual(GameLocalization.Current,
+                GameLocalization.Display(caption));
             if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
                 CjkLineBreakFixer.Attach(text, shownCaption);
             else

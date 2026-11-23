@@ -695,6 +695,65 @@ internal static class Program
         return new string(chars);
     }
 
+    private static void IndicVisualOrderTests()
+    {
+        // ো = U+09C7 + U+09BE: pre-base part moves before the consonant, post-base stays.
+        Expect(IndicVisualOrder.Visual("bn", "\u09B9\u09B2\u09CB") == "\u09B9\u09C7\u09B2\u09BE",
+            "holo (হলো) becomes visual order হেলা");
+        // ি (pre-base) goes before the consonant.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09BF") == "\u09BF\u0995", "i-kar precedes consonant");
+        // ে and ৈ go before the consonant.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09C7") == "\u09C7\u0995", "e-kar precedes consonant");
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09C8") == "\u09C8\u0995", "ai-kar precedes consonant");
+        // ৌ = U+09C7 + U+09D7: pre-base part first, length mark after.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09CC") == "\u09C7\u0995\u09D7", "au-kar split and reordered");
+        // Post-base signs and independent text stay in logical order.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09BE") == "\u0995\u09BE", "aa-kar untouched");
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09C1") == "\u0995\u09C1", "u-kar untouched");
+        // Conjunct cluster with virama: pre-base sign precedes the whole cluster.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09CD\u09B7\u09BF") == "\u09BF\u0995\u09CD\u09B7",
+            "i-kar precedes the virama conjunct cluster");
+        Expect(IndicVisualOrder.Visual("bn", "\u09B8\u09CD\u09A5\u09C7") == "\u09C7\u09B8\u09CD\u09A5",
+            "e-kar precedes a virama conjunct");
+        // Latin, digits and punctuation are untouched; Bengali word inside a Latin line is reordered only locally.
+        Expect(IndicVisualOrder.Visual("bn", "MOSSELORA 12/3 (dev)") == "MOSSELORA 12/3 (dev)",
+            "Latin and digits untouched");
+        Expect(IndicVisualOrder.Visual("bn", "Level \u09B9\u09B2\u09CB 2") == "Level \u09B9\u09C7\u09B2\u09BE 2",
+            "Bengali run reordered inside mixed text");
+        // A sign with no consonant before it keeps its position.
+        Expect(IndicVisualOrder.Visual("bn", "\u09BF") == "\u09BF", "orphan sign kept");
+        Expect(IndicVisualOrder.Visual("bn", " \u09C7\u0995") == " \u09C7\u0995", "sign after space kept");
+        // Multi-line: reordered line by line, line breaks preserved.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09BF\n\u09B9\u09B2\u09CB") ==
+               "\u09BF\u0995\n\u09B9\u09C7\u09B2\u09BE", "multi-line text ordered per line");
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09BF\r\n\u09B9\u09B2\u09CB") ==
+               "\u09BF\u0995\r\n\u09B9\u09C7\u09B2\u09BE", "CRLF text keeps its line breaks");
+        // Other locales are never changed.
+        Expect(IndicVisualOrder.Visual("hi", "\u0995\u09BF") == "\u0995\u09BF", "other locales untouched");
+        Expect(IndicVisualOrder.Visual("bn", "") == "" && IndicVisualOrder.Visual("bn", null) == "",
+            "empty and null input pass through");
+
+        // Every shipped Bengali catalog string: no throw, and only ো/ৌ change length.
+        string file = Path.Combine(FindLocaleDirectory(), "bn.json");
+        using (JsonDocument document = JsonDocument.Parse(File.ReadAllText(file)))
+        {
+            int checkedCount = 0;
+            foreach (JsonElement entry in document.RootElement.GetProperty("entries").EnumerateArray())
+            {
+                string logical = entry.GetProperty("value").GetString() ?? "";
+                string visual = null;
+                bool threw = false;
+                try { visual = IndicVisualOrder.Visual("bn", logical); } catch (Exception) { threw = true; }
+                Expect(!threw && visual != null, "bn catalog string does not throw: " + logical);
+                int twoPart = 0;
+                foreach (char c in logical) if (c == '\u09CB' || c == '\u09CC') twoPart++;
+                Expect(visual.Length == logical.Length + twoPart, "bn catalog string keeps its characters: " + logical);
+                checkedCount++;
+            }
+            Expect(checkedCount > 0, "bn catalog has entries to check");
+        }
+    }
+
     private static void RtlTextTests()
     {
         Expect(RtlText.IsRtlScriptLocale("ar") && RtlText.IsRtlScriptLocale("fa") &&
@@ -1283,6 +1342,7 @@ internal static class Program
             LocalizationTests();
             KinsokuLineBreakTests();
             RtlTextTests();
+            IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }
