@@ -21,6 +21,13 @@
       { "name": "WORLD", "class_name": "WorldState" }
     ]
   },
+  "ratelimits": [
+    {
+      "name": "API_LIMITER",
+      "namespace_id": "726463910002",
+      "simple": { "limit": 60, "period": 60 }
+    }
+  ],
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["WorldState"] }
   ]

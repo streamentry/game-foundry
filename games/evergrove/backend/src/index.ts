@@ -78,6 +78,12 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
   if (request.method === "OPTIONS")
     return origin === null ? json({ error: "ORIGIN_REQUIRED" }, 403) : withCors(new Response(null, { status: 204 }), origin, env);
   if (!["GET", "POST", "DELETE"].includes(request.method)) return json({ error: "METHOD_NOT_ALLOWED" }, 405);
+  const clientIp = request.headers.get("CF-Connecting-IP");
+  if (clientIp !== null) {
+    const delta = request.method === "GET" ? 1 : 5;
+    const limited = await env.API_LIMITER.limit({ key: clientIp, delta });
+    if (!limited.success) return withCors(json({ error: "RATE_LIMITED" }, 429), origin, env);
+  }
   const authorization = request.headers.get("Authorization") ?? "";
   if (!authorization.startsWith("Bearer ") || !CAPABILITY.test(authorization.slice(7)))
     return json({ error: "CAPABILITY_REQUIRED" }, 401);

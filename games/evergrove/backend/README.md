@@ -8,6 +8,7 @@ This corrects the original in-memory, unauthenticated global-world sketch:
 - Only one demo action, `WATER_TREE`, is accepted with a UUID operation key, capped tree stage and optimistic revision. Each mutation is wrapped in a Durable Object storage transaction.
 - Duplicate IDs are remembered for the last **256 accepted operations**; older retries may no longer be deduplicated (revision checks still apply).
 - Requests are authenticated with `Authorization: Bearer <base64url32bytes>`. This is a *bearer-capability prototype*, **not a production identity system**.
+- The Worker applies an approximate per-IP limit of 60 read/write units per minute at each Cloudflare location; writes consume five units. This is basic abuse resistance, not a global spending cap or user authentication.
 - Exact `ALLOWED_ORIGIN` supports browser clients; CORS is not authentication. Native Unity clients normally send no Origin header.
 - DELETE /api/world clears storage for the capability-controlled world. Recovery/deletion/compliance behavior requires further review.
 
@@ -34,6 +35,6 @@ The target deployment hostname is `https://api.mosselora.com`. `/healthz` is rea
 - `POST /api/world` JSON `{ "type": "WATER_TREE", "operationId": "<UUID>", "expectedRevision": 0 }` → `{ "status": "applied", "world": { ... } }`
 - `409` for stale revision (latest state included); `422` invalid action or mature tree; `DELETE` clears the demo state.
 
-**Critical scope boundary:** this API does **not** synchronize Mosselora's twelve authored puzzle chapters, NPC memory, local choice history or a multiplayer world. It accepts a client-generated bearer capability and has no account system or request quota of its own. CORS is not authentication. Do not connect it to the public game or claim cloud-save support until authentication, abuse limits, cost controls, privacy disclosures and device tests are reviewed. PlayerPrefs is not secure secret storage. The production website and the game remain usable without this API.
+**Critical scope boundary:** this API does **not** synchronize Mosselora's twelve authored puzzle chapters, NPC memory, local choice history or a multiplayer world. It accepts a client-generated bearer capability and has no account system or strict global quota. CORS is not authentication. Do not connect it to the public game or claim cloud-save support until authentication, abuse limits, cost controls, privacy disclosures and device tests are reviewed. PlayerPrefs is not secure secret storage. The production website and the game remain usable without this API.
 
 References: [Durable Object Storage](https://developers.cloudflare.com/durable-objects/best-practices/access-durable-objects-storage/), [SQLite namespace migrations](https://developers.cloudflare.com/changelog/post/2026-07-09-restrict-new-kv-backed-namespaces/).
