@@ -323,10 +323,7 @@ namespace Evergrove.UnityClient
 
         private static string ReadArg(string name)
         {
-            string[] args = Environment.GetCommandLineArgs();
-            for (int i = 0; i < args.Length - 1; i++)
-                if (string.Equals(args[i], name, StringComparison.Ordinal)) return args[i + 1];
-            return null;
+            return DevArgs.Read(name);
         }
     }
 }

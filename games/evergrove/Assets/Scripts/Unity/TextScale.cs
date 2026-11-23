@@ -89,19 +89,15 @@ namespace Evergrove.UnityClient
         private static bool TryReadOverride(out int value)
         {
             value = DefaultPercent;
-            string[] args = Environment.GetCommandLineArgs();
-            for (int i = 0; i < args.Length - 1; i++)
+            string raw = DevArgs.Read(DevArgument);
+            if (raw == null) return false;
+            int parsed;
+            if (int.TryParse(raw, out parsed) && Array.IndexOf(Steps, parsed) >= 0)
             {
-                if (!string.Equals(args[i], DevArgument, StringComparison.Ordinal)) continue;
-                int parsed;
-                if (int.TryParse(args[i + 1], out parsed) && Array.IndexOf(Steps, parsed) >= 0)
-                {
-                    value = parsed;
-                    return true;
-                }
-                Debug.LogWarning("Evergrove ignores text scale; use 100, 125 or 150.");
-                return false;
+                value = parsed;
+                return true;
             }
+            Debug.LogWarning("Evergrove ignores text scale; use 100, 125 or 150.");
             return false;
         }
 #endif

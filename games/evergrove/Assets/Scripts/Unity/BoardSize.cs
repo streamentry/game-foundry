@@ -75,21 +75,16 @@ namespace Evergrove.UnityClient
         private static bool TryReadOverride(out bool value)
         {
             value = false;
-            string[] args = Environment.GetCommandLineArgs();
-            for (int i = 0; i < args.Length - 1; i++)
+            string requested = DevArgs.Read(DevArgument);
+            if (requested == null) return false;
+            if (string.Equals(requested, "large", StringComparison.OrdinalIgnoreCase))
             {
-                if (!string.Equals(args[i], DevArgument, StringComparison.Ordinal)) continue;
-                string requested = args[i + 1];
-                if (string.Equals(requested, "large", StringComparison.OrdinalIgnoreCase))
-                {
-                    value = true;
-                    return true;
-                }
-                if (string.Equals(requested, "standard", StringComparison.OrdinalIgnoreCase))
-                    return true;
-                Debug.LogWarning("Evergrove ignores board size; use standard or large.");
-                return false;
+                value = true;
+                return true;
             }
+            if (string.Equals(requested, "standard", StringComparison.OrdinalIgnoreCase))
+                return true;
+            Debug.LogWarning("Evergrove ignores board size; use standard or large.");
             return false;
         }
 #endif
