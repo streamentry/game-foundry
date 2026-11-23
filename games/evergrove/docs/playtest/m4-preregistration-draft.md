@@ -10,7 +10,7 @@
 
 - `PlayMode.Living` uses branch-rotated, anchored boards from chapter two onward. `PlayMode.PuzzleOnly` keeps the original fixtures ([WorldModel.cs](../../Assets/Scripts/Core/WorldModel.cs), [07](../specs/07-VALIDATION-AND-GTM.md), [VALIDATION](../VALIDATION.md)).
 - [09 M4 validity](../specs/09-EXECUTION-CONTROL.md#gate-m4-validity-eliminate-the-confound) requires identical board topology, starting rotations, anchor rules, hint sequence, difficulty settings, device class, text legibility, exposure and session length. Only narrative consequence visibility may differ.
-- A **matched control build** (a new condition with the same boards and the same rules as the Living World build, with the village hidden) must be implemented and test-verified. It is being built separately. **This study does not start until it exists.** Record its Git SHA and fixture hashes in section 1.
+- A **matched control build** (a new condition with the same boards and the same rules as the Living World build, with the village hidden) must be implemented and test-verified. It is now selectable in Editor and Development builds only (facilitator entry, see [VALIDATION.md](../VALIDATION.md)), but it **has not been tested on a device**. **This study does not start until a build with a predeclared Git SHA and hash is recorded.** Record its Git SHA and fixture hashes in section 1.
 - If matching cannot be implemented, the study must be stopped, or relabelled as a non-causal preference observation ([09](../specs/09-EXECUTION-CONTROL.md), [07](../specs/07-VALIDATION-AND-GTM.md)).
 
 ---
