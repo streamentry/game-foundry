@@ -16,8 +16,12 @@ namespace Evergrove.UnityClient
         private float spin;            // remaining visual offset in degrees, eases to 0
         private const float SpinSpeed = 22f;
 
-        public void Configure(PipeKind pipeKind, int rotation, bool sourceConnected, bool solved)
+        private int openPorts; // bit d set: the port facing direction d has no partner
+
+        public void Configure(PipeKind pipeKind, int rotation, bool sourceConnected, bool solved,
+                              int unmatchedPorts = 0)
         {
+            openPorts = unmatchedPorts;
             // A single quarter turn (tap or undo) swings into place instead of
             // snapping, so the player sees which way the channel moved. The mesh
             // is already in its final orientation; only the transform eases.
@@ -88,6 +92,15 @@ namespace Evergrove.UnityClient
                 AddBar(vh, along, across, half - collarLength, half, collarWidth, collar);
                 AddBar(vh, along, across, half - collarLength * 0.62f, half - collarLength * 0.38f,
                     collarWidth, inner);
+                if ((openPorts & (1 << direction)) != 0)
+                {
+                    // An open mouth where water would spill: a cream disc in a
+                    // dark collar, drawn on the pipe end itself ("circles mark
+                    // open ends"), not in a tile corner.
+                    Vector2 mouth = along * (half - collarLength * 0.5f);
+                    AddDisc(vh, stroke * 0.66f, collar, mouth);
+                    AddDisc(vh, stroke * 0.42f, new Color32(255, 246, 226, 255), mouth);
+                }
             }
             // Rounded heart where channels meet: a water-worn stone, not a
             // square plumbing junction. Keep true connectivity as the only
@@ -141,14 +154,19 @@ namespace Evergrove.UnityClient
 
         private static void AddDisc(VertexHelper vh, float radius, Color32 shade)
         {
-            const int segments = 16;
+            AddDisc(vh, radius, shade, Vector2.zero);
+        }
+
+        private static void AddDisc(VertexHelper vh, float radius, Color32 shade, Vector2 centre)
+        {
+            const int segments = 20;
             int start = vh.currentVertCount;
-            vh.AddVert(Vector3.zero, shade, Vector2.zero);
+            vh.AddVert(centre, shade, Vector2.zero);
             for (int i = 0; i < segments; i++)
             {
                 float angle = 2f * Mathf.PI * i / segments;
-                vh.AddVert(new Vector3(radius * Mathf.Cos(angle),
-                    radius * Mathf.Sin(angle), 0f), shade, Vector2.zero);
+                vh.AddVert(new Vector3(centre.x + radius * Mathf.Cos(angle),
+                    centre.y + radius * Mathf.Sin(angle), 0f), shade, Vector2.zero);
             }
             for (int i = 0; i < segments; i++)
                 vh.AddTriangle(start, start + 1 + i, start + 1 + (i + 1) % segments);

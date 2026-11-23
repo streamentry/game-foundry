@@ -710,6 +710,21 @@ namespace Evergrove.UnityClient
             return button;
         }
 
+        // Same rule as PipeRules.Inspect leaks: a port with no partner
+        // (board edge or a neighbor without the facing port) is open.
+        private static int OpenPorts(Puzzle puzzle, int[] rotations, int tile)
+        {
+            int mask = 0;
+            for (int d = 0; d < 4; d++)
+            {
+                if (!PipeRules.HasPort(puzzle.Kinds[tile], rotations[tile], d)) continue;
+                int other = PipeRules.Neighbor(tile, d, puzzle.Size);
+                if (other < 0 || !PipeRules.HasPort(puzzle.Kinds[other], rotations[other], (d + 2) % 4))
+                    mask |= 1 << d;
+            }
+            return mask;
+        }
+
         // Progress at a glance: a droplet per tile, filled as real water reaches it.
         // The sentence below stays as the exact, spoken statement.
         private void WaterMeter(int tiles, int reached)
@@ -1508,7 +1523,7 @@ namespace Evergrove.UnityClient
                 Fill(pipeNode.GetComponent<RectTransform>());
                 var pipe = pipeNode.AddComponent<PipeGraphic>();
                 pipe.Configure(puzzle.Kinds[index], rotations[index],
-                    insight.Flowing[index], world.Solved);
+                    insight.Flowing[index], world.Solved, OpenPorts(puzzle, rotations, index));
                 pipe.raycastTarget = false;
                 tileArtwork[index] = pipe;
                 // A hollow circle denotes an open water join. Keep the
@@ -1528,7 +1543,9 @@ namespace Evergrove.UnityClient
                 leakText.color = MosseloraTheme.EarthInk;
                 leakText.raycastTarget = false;
                 leakText.text = insight.Leaking[index] ? "○" : "";
-                OpenEndRing.Attach(leakText, MosseloraTheme.DryChannel, 18f * markerScale);
+                // The visible mark is now the open mouth drawn on the pipe end;
+                // this "○" stays as the semantic source, invisible.
+                leakText.color = new Color(0f, 0f, 0f, 0f);
                 visibleLeaks[index] = leakText;
                 if (world.HintStep == 2 && index == world.HintTile)
                 {
@@ -1934,7 +1951,7 @@ namespace Evergrove.UnityClient
                     world.HintTile, i, puzzle.Size);
                 visibleTiles[i].interactable = !world.Solved;
                 tileArtwork[i].Configure(puzzle.Kinds[i], angles[i],
-                    insight.Flowing[i], world.Solved);
+                    insight.Flowing[i], world.Solved, OpenPorts(puzzle, angles, i));
                 if (visibleLeaks != null && visibleLeaks[i] != null)
                     visibleLeaks[i].text = insight.Leaking[i] ? "○" : "";
             }
