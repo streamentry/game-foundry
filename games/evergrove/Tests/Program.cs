@@ -700,6 +700,17 @@ internal static class Program
         Expect(RtlText.IsRtlScriptLocale("ar") && RtlText.IsRtlScriptLocale("fa") &&
                RtlText.IsRtlScriptLocale("ur") && RtlText.IsRtlScriptLocale("he"),
             "ar, fa, ur and he use RTL text preparation");
+
+        // Regression: multi-line labels threw "Stack empty" in BidiSharp on every frame.
+        string first = "ذكرى جديدة في القرية", second = "الفصل 1 · ميرا";
+        string multi = null;
+        bool threw = false;
+        try { multi = RtlText.Visual(first + "\n" + second); } catch (Exception) { threw = true; }
+        Expect(!threw, "multi-line RTL text does not throw");
+        Expect(multi == RtlText.Visual(first) + "\n" + RtlText.Visual(second),
+            "multi-line RTL text is reordered line by line");
+        Expect(RtlText.Visual("שלום\r\nעולם") == RtlText.Visual("שלום") + "\n" + RtlText.Visual("עולם"),
+            "CRLF line endings are handled per line");
         Expect(!RtlText.IsRtlScriptLocale("ja") && !RtlText.IsRtlScriptLocale("en") &&
                !RtlText.IsRtlScriptLocale("hi"), "other locales skip RTL preparation");
 

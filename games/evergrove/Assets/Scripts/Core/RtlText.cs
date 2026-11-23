@@ -32,9 +32,33 @@ namespace Evergrove.Core
         public static string Visual(string logicalLine)
         {
             if (string.IsNullOrEmpty(logicalLine)) return logicalLine ?? "";
-            string shaped = ArabicShaper.Shape(logicalLine);
-            int level = ContainsRtlLetter(logicalLine) ? RtlParagraphLevel : 0;
-            return Bidi.LogicalToVisual(shaped, null, level);
+            // UAX #9 treats each paragraph independently, and the vendored
+            // BidiSharp empties its embedding stack on a paragraph separator
+            // ("Stack empty" on every multi-line label), so reorder line by line.
+            if (logicalLine.IndexOf('\n') >= 0 || logicalLine.IndexOf('\r') >= 0)
+            {
+                string[] lines = logicalLine.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+                for (int i = 0; i < lines.Length; i++) lines[i] = VisualLine(lines[i]);
+                return string.Join("\n", lines);
+            }
+            return VisualLine(logicalLine);
+        }
+
+        private static string VisualLine(string line)
+        {
+            if (line.Length == 0) return line;
+            string shaped = ArabicShaper.Shape(line);
+            int level = ContainsRtlLetter(line) ? RtlParagraphLevel : 0;
+            try
+            {
+                return Bidi.LogicalToVisual(shaped, null, level);
+            }
+            catch (InvalidOperationException)
+            {
+                // Never blank or spam a label because of a reordering edge case:
+                // show the shaped logical text instead.
+                return shaped;
+            }
         }
 
         // Hebrew, Arabic, Arabic Supplement, Arabic Presentation Forms-A and -B.
