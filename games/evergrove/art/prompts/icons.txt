@@ -1,0 +1,13 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI, no API key needed). Any attached images are STYLE references only unless told otherwise (soft hand-painted watercolor/gouache storybook illustration, warm cream light, sage and leaf greens, teal water, terracotta, honey-brown wood). Generate exactly ONE image.
+Use case: stylized-concept
+Asset type: sprite sheet of four separate illustrated game icons for choice cards
+Primary request: a 2x2 grid of four isolated vignette icons, each centred in its own quadrant with wide empty transparent space between them (no overlap, nothing crossing quadrant borders):
+ top-left: a young round shade tree on a small grassy mound with a few grass tufts;
+ top-right: a small arched wooden footbridge with railings over a tiny teal stream with stones;
+ bottom-left: a cluster of wildflowers: pink coneflowers, yellow daisies and purple lavender spikes with leaves;
+ bottom-right: a few stacked mossy grey foundation stones (a dry-stone bridge footing) with small ferns.
+Each vignette fits within about 80 percent of its quadrant, viewed from a slight front three-quarter angle, consistent scale and lighting across all four.
+Background: fully TRANSPARENT (alpha) everywhere outside the illustrations; no ground plane joining them, no shadows boxes.
+Composition: square 1024x1024 or larger square.
+Constraints: no text, no labels, no watermark, no frame.
+Copy the final PNG to games/evergrove/art/generated/icons-choices.png and print the path. Do nothing else.

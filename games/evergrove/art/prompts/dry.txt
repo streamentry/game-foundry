@@ -1,0 +1,7 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI, no API key needed). Any attached images are STYLE references only unless told otherwise (soft hand-painted watercolor/gouache storybook illustration, warm cream light, sage and leaf greens, teal water, terracotta, honey-brown wood). Generate exactly ONE image.
+This is an EDIT: the attached image is the base image to edit (load/view it first).
+Use case: precise-object-edit
+Primary request: make the stream DRY. Replace all the flowing water with a dry, empty creek bed of pale sandy earth, small pebbles and the same rounded stones, with a faint damp darker line along the middle. Slightly less lush, a little more straw-coloured grass near the bed, but flowers still present.
+Invariants: keep the exact same composition, canvas size, cottage, trees, hills, stone wall, flowers placement, camera, and the soft cream #F7F4E9 fade at the top. Change only the water and very subtle vegetation tone.
+Constraints: no text, no people, no watermark, no border.
+Copy the final PNG to games/evergrove/art/generated/banner-stream-dry.png and print the path. Do nothing else.

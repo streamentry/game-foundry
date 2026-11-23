@@ -55,6 +55,7 @@ namespace Evergrove.UnityClient
         private VillageDiorama diorama;
 #endif
         private VillageIllustration activeIllustration;
+        private PaintedVillage activePainting; // watercolor skin; same causal inputs
         private AudioSource sound;
         private AudioClip chime;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -137,6 +138,7 @@ namespace Evergrove.UnityClient
 #endif
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
+            baseFont = PreferredLatinFont(baseFont);
             LocaleRuntime.Initialize();
             TextScale.Initialize();
             BoardSize.Initialize();
@@ -152,6 +154,28 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             ScreenReaderBridge.LogStatus("awake");
 #endif
+        }
+
+        // Rounded, warm OS faces read like the painted references; never bundled,
+        // so no font licensing. Falls back to Unity's runtime face.
+        private static Font PreferredLatinFont(Font fallback)
+        {
+            try
+            {
+                string[] installed = Font.GetOSInstalledFontNames();
+                foreach (string wanted in new[] { "Avenir Next", "Avenir", "Google Sans", "Roboto" })
+                    foreach (string name in installed)
+                        if (name.Equals(wanted, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Font chosen = Font.CreateDynamicFontFromOSFont(name, 17);
+                            if (chosen != null) return chosen;
+                        }
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning("Mosselora OS font lookup unavailable: " + exception.GetType().Name);
+            }
+            return fallback;
         }
 
         private void OnDestroy()
@@ -484,7 +508,13 @@ namespace Evergrove.UnityClient
         {
             var node = Node(name, parent);
             var image = node.AddComponent<Image>();
-            image.color = fill;
+            MosseloraArt.Round(image, fill, 18);
+            image.raycastTarget = false;
+            if (fill.a > 0.01f)
+            {
+                MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
+                MosseloraArt.Lift(image, 2f, 0.10f);
+            }
             var stack = node.AddComponent<VerticalLayoutGroup>();
             stack.childAlignment = TextAnchor.UpperCenter;
             stack.padding = new RectOffset(14, 14, 14, 14);
@@ -500,6 +530,16 @@ namespace Evergrove.UnityClient
         private Button Button(Transform parent, string name, string caption, Action action,
                               int height = 52, bool primary = false)
         {
+            return Button(parent, name, caption, action, height,
+                primary ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
+        }
+
+        // Toned buttons carry white captions (all tones pass 4.5:1); the quiet
+        // parchment tone carries ink and a drawn edge, as in the painted references.
+        private Button Button(Transform parent, string name, string caption, Action action,
+                              int height, Color tone)
+        {
+            bool quiet = tone == MosseloraTheme.QuietAction;
             var node = Node(name, parent);
             // Minimum target height scales with text; the caption layout grows it further.
             MinHeight(node, TextScale.Scale(height));
@@ -511,19 +551,18 @@ namespace Evergrove.UnityClient
             stack.childForceExpandWidth = true;
             stack.childForceExpandHeight = true;
             var image = node.AddComponent<Image>();
-            image.color = primary ? Leaf : Pale; // Primary actions are rare; choices are equal.
+            MosseloraArt.Round(image, tone, 16); // Primary actions are rare; choices are equal.
+            MosseloraArt.Lift(image, 2f, quiet ? 0.10f : 0.22f);
+            if (quiet) MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 16);
             var button = node.AddComponent<Button>();
             button.targetGraphic = image;
-            var palette = button.colors;
-            palette.highlightedColor = primary ? Hex("#337C63") : Hex("#C6DFC9");
-            palette.pressedColor = primary ? Hex("#1D4C3A") : Hex("#B2CCBB");
-            palette.disabledColor = Hex("#DADDD5");
-            button.colors = palette;
+            button.colors = PressTint();
             var textNode = Node("Caption", node.transform);
             Fill(textNode.GetComponent<RectTransform>());
             var text = textNode.AddComponent<Text>();
-            StyleText(text, 15);
-            text.color = primary ? White : Ink;
+            StyleText(text, 16);
+            text.color = quiet ? Ink : White;
+            text.fontStyle = FontStyle.Bold;
             text.alignment = TextAnchor.MiddleCenter;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
@@ -535,6 +574,123 @@ namespace Evergrove.UnityClient
                 text.text = shownCaption;
             button.onClick.AddListener(() => action());
             return button;
+        }
+
+        // Multipliers over the tone, so pressed and disabled states stay in palette.
+        private static ColorBlock PressTint()
+        {
+            ColorBlock palette = ColorBlock.defaultColorBlock;
+            palette.normalColor = Color.white;
+            palette.highlightedColor = new Color(0.95f, 0.95f, 0.93f);
+            palette.selectedColor = Color.white;
+            palette.pressedColor = new Color(0.84f, 0.84f, 0.80f);
+            palette.disabledColor = new Color(0.86f, 0.86f, 0.84f, 0.55f);
+            palette.fadeDuration = 0.08f;
+            return palette;
+        }
+
+        // Painted page header: generated wordmark with vine corners. The
+        // localized title stays as transparent text for screen readers.
+        private void GardenHeader(bool compact)
+        {
+            Sprite mark = MosseloraArt.Load(MosseloraArt.Wordmark);
+            if (mark == null)
+            {
+                Text plain = Label(content, "Mosselora wordmark", GameLocalization.Text("title"),
+                    15, 26, Leaf, TextAnchor.MiddleCenter);
+                plain.fontStyle = FontStyle.Bold;
+                return;
+            }
+            float markHeight = compact ? 52f : 64f;
+            var header = Node("Mosselora wordmark", content);
+            Height(header, markHeight + 8f);
+            var markImage = header.AddComponent<Image>();
+            markImage.sprite = mark;
+            markImage.preserveAspect = true;
+            markImage.raycastTarget = false;
+            Text spoken = Label(header.transform, "Title for screen readers",
+                GameLocalization.Text("title"), 15, 0, new Color(0f, 0f, 0f, 0f));
+            spoken.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
+            Sprite vine = MosseloraArt.Load(MosseloraArt.VineCorner);
+            float vineSize = compact ? 112f : 132f;
+            MosseloraArt.Ornament(header.transform, "Vine left", vine, new Vector2(0f, 1f),
+                new Vector2(0f, 1f), new Vector2(vineSize, vineSize), new Vector2(-17f, 15f));
+            MosseloraArt.Ornament(header.transform, "Vine right", vine, new Vector2(1f, 1f),
+                new Vector2(0f, 1f), new Vector2(vineSize, vineSize), new Vector2(17f, 15f), true);
+        }
+
+        // Centered sage pill, e.g. "STREAM 1 / 12 · First Bend".
+        private Text Pill(string name, string value, Color fill)
+        {
+            var row = Node(name + " row", content);
+            var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
+            rowGroup.childAlignment = TextAnchor.MiddleCenter;
+            rowGroup.childControlWidth = true;
+            rowGroup.childControlHeight = true;
+            rowGroup.childForceExpandWidth = false;
+            rowGroup.childForceExpandHeight = false;
+            var pill = Node(name, row.transform);
+            var pillImage = pill.AddComponent<Image>();
+            MosseloraArt.Round(pillImage, fill, 15);
+            pillImage.raycastTarget = false;
+            var pillGroup = pill.AddComponent<HorizontalLayoutGroup>();
+            pillGroup.padding = new RectOffset(18, 18, 5, 5);
+            pillGroup.childAlignment = TextAnchor.MiddleCenter;
+            pillGroup.childControlWidth = true;
+            pillGroup.childControlHeight = true;
+            pillGroup.childForceExpandWidth = false;
+            Text label = Label(pill.transform, name + " text", value, 14, 24, Ink, TextAnchor.MiddleCenter);
+            label.fontStyle = FontStyle.Bold;
+            return label;
+        }
+
+        // Thin leaf sprig between sections; purely decorative.
+        private void Sprig(float height = 22f)
+        {
+            Sprite sprig = MosseloraArt.Load(MosseloraArt.Sprig);
+            if (sprig == null) return;
+            var node = Node("Leaf divider", content);
+            Height(node, height);
+            var image = node.AddComponent<Image>();
+            image.sprite = sprig;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            image.color = new Color(1f, 1f, 1f, 0.9f);
+        }
+
+        // Full-bleed painting with its own aspect; crops nothing.
+        private void Painting(string name, string art, float maxHeight)
+        {
+            Sprite sprite = MosseloraArt.Load(art);
+            if (sprite == null) return;
+            float width = PageWidth() + 34f;
+            float height = Mathf.Min(maxHeight, width / MosseloraArt.Aspect(sprite));
+            var node = Node(name, content);
+            Height(node, height);
+            var frame = Node(name + " frame", node.transform);
+            var rect = frame.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.offsetMin = new Vector2(-17f, 0f);
+            rect.offsetMax = new Vector2(17f, 0f);
+            rect.sizeDelta = new Vector2(34f, width / MosseloraArt.Aspect(sprite));
+            node.AddComponent<RectMask2D>();
+            var image = frame.AddComponent<Image>();
+            image.sprite = sprite;
+            image.raycastTarget = false;
+        }
+
+        // Logical width inside the page margins, from the real safe area.
+        private float PageWidth()
+        {
+            // CanvasScaler.scaleFactor is only the constant-pixel setting; the live
+            // ScaleWithScreenSize factor is on the Canvas. Prefer the laid-out page.
+            if (content != null && content.rect.width > 1f)
+                return Mathf.Max(225f, content.rect.width - 34f);
+            Canvas canvas = viewportScaler == null ? null : viewportScaler.GetComponent<Canvas>();
+            float scale = canvas == null ? 1f : Mathf.Max(0.1f, canvas.scaleFactor);
+            return Mathf.Max(225f, Screen.safeArea.width / scale - 34f);
         }
 
         private GameObject Row(Transform parent, string name)
@@ -560,6 +716,7 @@ namespace Evergrove.UnityClient
             float previousPosition = scroll.verticalNormalizedPosition;
             visibleTiles = null;
             activeIllustration = null;
+            activePainting = null;
             tileBackgrounds = null;
             tileArtwork = null;
             visibleLeaks = null;
@@ -588,11 +745,10 @@ namespace Evergrove.UnityClient
             // Only the ending keeps its settings at the top.
             bool settingsAtTop = languagePicker || (!puzzleScreen && !memoryScreen);
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
-            Text wordmark = Label(content, "Mosselora wordmark", GameLocalization.Text("title"),
-                15, 26, Leaf);
-            wordmark.fontStyle = FontStyle.Bold;
-            Label(content, "Title", GameLocalization.Text("subtitle"),
-                puzzleScreen ? 16 : 24, puzzleScreen ? 28 : 44, Ink);
+            GardenHeader(puzzleScreen);
+            Text subtitle = Label(content, "Title", GameLocalization.Text("subtitle"),
+                puzzleScreen ? 17 : 24, puzzleScreen ? 28 : 44, Ink, TextAnchor.MiddleCenter);
+            if (!puzzleScreen) subtitle.fontStyle = FontStyle.Bold;
             if (multiLanguage && settingsAtTop)
                 Button(content, "Language settings",
                     GameLocalization.Text("language") + ": " +
@@ -638,7 +794,12 @@ namespace Evergrove.UnityClient
 #else
                 var illustration = Node("Living storybook art", content);
 #endif
-                Height(illustration, firstPuzzle ? 96 : 193); // Art never takes the first playable fold.
+                // Art never takes the first playable fold: it follows the board and controls.
+                Sprite bannerArt = MosseloraArt.Load(MosseloraArt.BannerFlowing);
+                float bannerWidth = PageWidth() + 34f;
+                Height(illustration, bannerArt != null
+                    ? Mathf.Round(bannerWidth / MosseloraArt.Aspect(bannerArt) * (memoryScreen ? 1.15f : 1f))
+                    : (firstPuzzle ? 96 : 193));
                 bool renderedMiniature = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                 if (showMiniature)
@@ -673,11 +834,24 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     if (diorama != null) diorama.Hide();
 #endif
-                    var art = illustration.AddComponent<VillageIllustration>();
-                    activeIllustration = art;
-                    art.Show(scenePlan.Chapter, scenePlan.TreeCount,
-                        scenePlan.CrossingCount, scenePlan.FlowerCount,
-                        scenePlan.WaterRestored, scenePlan.WaterReachPercent);
+                    var painting = illustration.AddComponent<PaintedVillage>();
+                    painting.Build(17f);
+                    if (painting.Ready)
+                    {
+                        activePainting = painting;
+                        painting.Show(scenePlan.Chapter, scenePlan.TreeCount,
+                            scenePlan.CrossingCount, scenePlan.FlowerCount,
+                            scenePlan.WaterRestored, scenePlan.WaterReachPercent);
+                    }
+                    else
+                    {
+                        // Vector fallback when painted masters are not in the build.
+                        var art = illustration.AddComponent<VillageIllustration>();
+                        activeIllustration = art;
+                        art.Show(scenePlan.Chapter, scenePlan.TreeCount,
+                            scenePlan.CrossingCount, scenePlan.FlowerCount,
+                            scenePlan.WaterRestored, scenePlan.WaterReachPercent);
+                    }
                 }
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -700,14 +874,22 @@ namespace Evergrove.UnityClient
 
             if (memoryScreen)
             {
-                var moment = Card(content, "A remembered moment", Sand);
-                Label(moment.transform, "Moment title", GameLocalization.Text("memory_title"), 15, 31, Leaf);
-                Label(moment.transform, "Story", LocalizedVillage.MemoryEvent(world), 17, 0, Ink);
+                var moment = Card(content, "A remembered moment", MosseloraTheme.CardFill);
+                Text momentTitle = Label(moment.transform, "Moment title",
+                    GameLocalization.Text("memory_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
+                momentTitle.fontStyle = FontStyle.Bold;
+                Label(moment.transform, "Story", LocalizedVillage.MemoryEvent(world), 17, 0, Ink,
+                    TextAnchor.MiddleCenter);
+                Sprite memorySprig = MosseloraArt.Load(MosseloraArt.Sprig);
+                MosseloraArt.Ornament(moment.transform, "Sprig left", memorySprig, new Vector2(0f, 1f),
+                    new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(10f, -8f));
+                MosseloraArt.Ornament(moment.transform, "Sprig right", memorySprig, new Vector2(1f, 1f),
+                    new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(-10f, -8f), true);
                 Button(content, "Continue", GameLocalization.Text("continue"), () => {
                     showingMemory = false;
                     revealNewScreen = true; // the ending, if reached, opens at its heading
                     Rebuild(true);
-                }, 62, true);
+                }, 60, MosseloraTheme.WaterAction);
                 Button(content, "Change your choice", GameLocalization.Text("change"), () => {
                     if (!world.ReconsiderLatestChoice()) return;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -721,12 +903,15 @@ namespace Evergrove.UnityClient
             }
             else if (world.Completed)
             {
-                var conclusion = Card(content, "The ending", Sand);
+                Painting("Village memory painting", MosseloraArt.HeroVillage, 460f);
+                var conclusion = Card(content, "The ending", MosseloraTheme.CardFill);
                 screenHeading = conclusion.GetComponent<RectTransform>();
-                Label(conclusion.transform, "Ending title", GameLocalization.Text("ending_title"),
-                    15, 31, Leaf);
-                Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
-                    17, 0, Ink);
+                Text endingTitle = Label(conclusion.transform, "Ending title",
+                    GameLocalization.Text("ending_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
+                endingTitle.fontStyle = FontStyle.Bold;
+                Text finalWords = Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
+                    19, 0, Ink, TextAnchor.MiddleCenter);
+                finalWords.fontStyle = FontStyle.Bold;
                 if (living) MemoryJournal();
                 Button(content, "Reset title", confirmReset ?
                     GameLocalization.Text("erase") : GameLocalization.Text("explore"),
@@ -751,8 +936,9 @@ namespace Evergrove.UnityClient
             // It stays below the puzzle so onboarding reaches gameplay first.
             if (living && !showingMemory)
             {
-                Label(content, "Neighbors", GameLocalization.Text("neighbors"),
-                    12, 27, Leaf);
+                Text neighborsTitle = Label(content, "Neighbors", GameLocalization.Text("neighbors"),
+                    14, 30, Leaf, TextAnchor.MiddleCenter);
+                neighborsTitle.fontStyle = FontStyle.Bold;
                 var neighbors = Row(content, "Speak with a neighbor");
                 Button(neighbors.transform, "Mira", LocalizedVillage.Name(0), () => OpenConversation(0), 52);
                 Button(neighbors.transform, "Orin", LocalizedVillage.Name(1), () => OpenConversation(1), 52);
@@ -888,8 +1074,10 @@ namespace Evergrove.UnityClient
                     () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
             }
 #endif
-            Label(content, "Respectful play", GameLocalization.Text("offline"),
-                12, 36, Moss, TextAnchor.MiddleCenter);
+            Sprig();
+            Text promise = Label(content, "Respectful play", GameLocalization.Text("offline"),
+                13, 36, Ink, TextAnchor.MiddleCenter);
+            promise.fontStyle = FontStyle.Bold;
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
             if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
@@ -923,11 +1111,41 @@ namespace Evergrove.UnityClient
                     Rebuild();
                 });
             if (!showJournal) return;
-            var journal = Card(content, "A living journal", River);
+            var journal = Card(content, "A living journal", MosseloraTheme.CardFill);
             screenHeading = journal.GetComponent<RectTransform>();
-            Label(journal.transform, "Journal title", GameLocalization.Text("journal_title"), 12, 26, Leaf);
-            foreach (string entry in LocalizedVillage.Journal(world))
-                Label(journal.transform, "Recorded cause and effect", entry, 14, 0, Ink);
+            Text journalTitle = Label(journal.transform, "Journal title",
+                GameLocalization.Text("journal_title"), 15, 30, Leaf, TextAnchor.MiddleCenter);
+            journalTitle.fontStyle = FontStyle.Bold;
+            string[] entries = LocalizedVillage.Journal(world);
+            int[] chosen = world.Choices;
+            for (int i = 0; i < entries.Length; i++)
+            {
+                // Each remembered chapter carries the painted icon of its choice.
+                var line = Node("Journal chapter", journal.transform);
+                var lineGroup = line.AddComponent<HorizontalLayoutGroup>();
+                lineGroup.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
+                lineGroup.spacing = 10;
+                lineGroup.childAlignment = TextAnchor.MiddleLeft;
+                lineGroup.childControlWidth = true;
+                lineGroup.childControlHeight = true;
+                lineGroup.childForceExpandWidth = false;
+                lineGroup.childForceExpandHeight = false;
+                Sprite icon = i < chosen.Length ? MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]) : null;
+                if (icon != null)
+                {
+                    var picture = Node("Journal picture", line.transform);
+                    var pictureLayout = picture.AddComponent<LayoutElement>();
+                    pictureLayout.preferredWidth = 58;
+                    pictureLayout.minWidth = 58;
+                    pictureLayout.preferredHeight = 52;
+                    var pictureImage = picture.AddComponent<Image>();
+                    pictureImage.sprite = icon;
+                    pictureImage.preserveAspect = true;
+                    pictureImage.raycastTarget = false;
+                }
+                Text words = Label(line.transform, "Recorded cause and effect", entries[i], 14, 0, Ink);
+                words.gameObject.GetComponent<LayoutElement>().flexibleWidth = 1;
+            }
             if (world.Journal.Length == 0)
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
         }
@@ -939,18 +1157,19 @@ namespace Evergrove.UnityClient
         {
             Puzzle puzzle = world.CurrentPuzzle;
             PipeInsight insight = world.Insight;
-            Label(content, "Chapter",
+            Pill("Chapter",
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count) +
                 (GameLocalization.Current == "en" ? "  ·  " + puzzle.Name : ""),
-                13, 30, Leaf, TextAnchor.MiddleCenter);
+                MosseloraTheme.SagePanel);
             Label(content, "Prompt", world.Round == 0 ?
-                GameLocalization.Text("first") : LocalizedVillage.Prompt(world), 14, 34, Moss,
+                GameLocalization.Text("first") : LocalizedVillage.Prompt(world), 16, 34, Ink,
                 TextAnchor.MiddleCenter);
             // The anchor line sits directly above the board: it explains the framed tile.
             if (puzzle.AnchoredTile >= 0)
                 Label(content, "Protected habitat", LocalizedVillage.EnvironmentalRule(world),
                     14, 48, Leaf, TextAnchor.MiddleCenter);
-            var board = Card(content, "The water puzzle", White);
+            // The board sits on the page itself; each tile is its own parchment square.
+            var board = Card(content, "The water puzzle", new Color(1f, 1f, 1f, 0f));
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
             // story card's horizontal padding and safe-area insets.
@@ -997,16 +1216,19 @@ namespace Evergrove.UnityClient
                 var tileNode = Node("Water tile", gridNode.transform);
                 var image = tileNode.AddComponent<Image>();
                 bool reached = insight.Flowing[index];
+                MosseloraArt.Round(image, Color.white, 12);
                 image.color = MosseloraTheme.TileFill(world.Solved, reached,
                     puzzle.IsAnchored(index), world.HintStep, world.HintTile,
                     index, puzzle.Size);
+                MosseloraArt.Lift(image, 2f, 0.14f);
+                MosseloraArt.Edge(tileNode.transform, MosseloraTheme.TileEdge, 12);
                 var tile = tileNode.AddComponent<Button>();
                 tile.targetGraphic = image;
                 // Protected tiles stay tappable: a tap explains them without a move.
                 tile.interactable = !world.Solved;
-                var colors = tile.colors;
-                colors.highlightedColor = Hex("#BFE0DC");
-                colors.pressedColor = Hex("#A3D2CC");
+                ColorBlock colors = PressTint();
+                // A solved board is a finished picture, not a greyed-out control.
+                colors.disabledColor = Color.white;
                 tile.colors = colors;
                 tile.onClick.AddListener(() => TapTile(tappedIndex));
                 visibleTiles[index] = tile;
@@ -1079,16 +1301,26 @@ namespace Evergrove.UnityClient
                     markerRect.anchorMin = new Vector2(0f, 1f);
                     markerRect.anchorMax = new Vector2(0f, 1f);
                     markerRect.pivot = new Vector2(0f, 1f);
-                    markerRect.sizeDelta = new Vector2(25f, 23f) * markerScale;
+                    markerRect.sizeDelta = new Vector2(30f, 30f) * markerScale;
                     markerRect.anchoredPosition = new Vector2(4f, -4f) * markerScale;
-                    DrawEndpointIcon(markerNode.transform, spring, markerScale);
+                    Sprite glyph = MosseloraArt.Load(spring ? MosseloraArt.SpringWaves : MosseloraArt.Sprout);
+                    if (glyph != null)
+                    {
+                        var glyphImage = markerNode.AddComponent<Image>();
+                        glyphImage.sprite = glyph;
+                        glyphImage.preserveAspect = true;
+                        glyphImage.raycastTarget = false;
+                    }
+                    else
+                        DrawEndpointIcon(markerNode.transform, spring, markerScale);
                 }
             }
 
             string feedback = world.Solved
                 ? GameLocalization.Text("solved")
                 : GameLocalization.Text("progress", insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
-            feedbackText = Label(content, "Water feedback", feedback, 15, 42, Ink, TextAnchor.MiddleCenter);
+            feedbackText = Label(content, "Water feedback", feedback, 17, 42, Ink, TextAnchor.MiddleCenter);
+            feedbackText.fontStyle = FontStyle.Bold;
 
             if (world.Solved)
             {
@@ -1104,17 +1336,16 @@ namespace Evergrove.UnityClient
                     }, 59, true);
                 else
                 {
-                    decisionHeading = Label(content, "Choose title", GameLocalization.Text("choose"),
-                        22, 56, Leaf, TextAnchor.MiddleCenter).rectTransform;
+                    Text chooseTitle = Label(content, "Choose title", GameLocalization.Text("choose"),
+                        24, 56, Ink, TextAnchor.MiddleCenter);
+                    chooseTitle.fontStyle = FontStyle.Bold;
+                    decisionHeading = chooseTitle.rectTransform;
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
                         VillageChoice choice = (VillageChoice)choiceIndex;
-                        string caption = LocalizedVillage.Choice(choice) +
-                            "\n" + LocalizedVillage.ChoiceOutcome(choice, world);
                         // None is visually preselected. A golden default would
                         // bias research toward the first habitat, not player care.
-                        Button(content, "Choice " + choice, caption, () => MakeChoice(choice), 84,
-                            false);
+                        ChoiceCard(choice, () => MakeChoice(choice));
                     }
                 }
             }
@@ -1122,13 +1353,14 @@ namespace Evergrove.UnityClient
             {
                 var tools = Row(content, "Gentle controls");
                 undoButton = Button(tools.transform, "Undo", GameLocalization.Text("undo"), () => Act(() => world.Undo(), "undo"),
-                    52);
+                    56, MosseloraTheme.ForestAction);
                 undoButton.interactable = world.CanUndo;
                 Button(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
-                    UseGentleHint, 52);
-                Button(content, "Restart", GameLocalization.Text("restart"), () => Act(() => world.Restart(), "restart"), 46);
+                    UseGentleHint, 56, MosseloraTheme.WaterAction);
+                Button(tools.transform, "Restart", GameLocalization.Text("restart"),
+                    () => Act(() => world.Restart(), "restart"), 56, MosseloraTheme.EarthAction);
                 if (world.HintStep > 0 && world.HintTile >= 0)
                 {
                     int hintRow = world.HintTile / puzzle.Size + 1;
@@ -1144,11 +1376,64 @@ namespace Evergrove.UnityClient
                 13, 56, Moss, TextAnchor.MiddleCenter);
         }
 
+        // Illustrated choice card (painted icon + title + written consequence).
+        // One Button per card, so taps, focus and screen-reader text are unchanged.
+        private void ChoiceCard(VillageChoice choice, Action action)
+        {
+            var node = Node("Choice " + choice, content);
+            MinHeight(node, TextScale.Scale(92));
+            var image = node.AddComponent<Image>();
+            MosseloraArt.Round(image, MosseloraTheme.CardFill, 18);
+            MosseloraArt.Lift(image, 2f, 0.12f);
+            MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
+            var button = node.AddComponent<Button>();
+            button.targetGraphic = image;
+            button.colors = PressTint();
+            button.onClick.AddListener(() => action());
+            var group = node.AddComponent<HorizontalLayoutGroup>();
+            group.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
+            group.padding = new RectOffset(12, 14, 10, 10);
+            group.spacing = 12;
+            group.childAlignment = TextAnchor.MiddleLeft;
+            group.childControlWidth = true;
+            group.childControlHeight = true;
+            group.childForceExpandWidth = false;
+            group.childForceExpandHeight = false;
+            Sprite icon = MosseloraArt.ChoiceIcon(choice);
+            if (icon != null)
+            {
+                var picture = Node("Choice picture", node.transform);
+                var pictureLayout = picture.AddComponent<LayoutElement>();
+                pictureLayout.preferredWidth = 84;
+                pictureLayout.minWidth = 84;
+                pictureLayout.preferredHeight = 76;
+                pictureLayout.flexibleWidth = 0;
+                var pictureImage = picture.AddComponent<Image>();
+                pictureImage.sprite = icon;
+                pictureImage.preserveAspect = true;
+                pictureImage.raycastTarget = false;
+            }
+            var words = Node("Choice words", node.transform);
+            words.AddComponent<LayoutElement>().flexibleWidth = 1;
+            var stack = words.AddComponent<VerticalLayoutGroup>();
+            stack.spacing = 3;
+            stack.childAlignment = TextAnchor.MiddleLeft;
+            stack.childControlWidth = true;
+            stack.childControlHeight = true;
+            stack.childForceExpandWidth = true;
+            stack.childForceExpandHeight = false;
+            Text title = Label(words.transform, "Choice name", LocalizedVillage.Choice(choice), 18, 0, Ink);
+            title.fontStyle = FontStyle.Bold;
+            Label(words.transform, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 15, 0, Moss);
+        }
+
         // Compact settings row below the primary content of puzzle and post-choice
         // screens. Same controls and behavior as the top-of-screen settings.
         private void SettingsRow(bool offerLanguage)
         {
-            GameObject row = Row(content, "Settings row");
+            var panel = Card(content, "Settings panel", MosseloraTheme.SagePanel);
+            panel.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(10, 10, 10, 10);
+            GameObject row = Row(panel.transform, "Settings row");
             if (offerLanguage)
                 Button(row.transform, "Language settings",
                     GameLocalization.Text("language") + ": " +
@@ -1368,14 +1653,19 @@ namespace Evergrove.UnityClient
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
                     insight.ConnectedCount, puzzle.CellCount, insight.LeakCount));
             if (undoButton != null) undoButton.interactable = world.CanUndo;
-            if (activeIllustration != null)
+            if (activeIllustration != null || activePainting != null)
             {
                 // The world responds to meaningful changes in reachable water
                 // without rebuilding the puzzle or moving the scroll position.
                 VillageScenePlan plan = VillageScenePlan.From(world);
-                activeIllustration.Show(plan.Chapter, plan.TreeCount,
-                    plan.CrossingCount, plan.FlowerCount,
-                    plan.WaterRestored, plan.WaterReachPercent);
+                if (activeIllustration != null)
+                    activeIllustration.Show(plan.Chapter, plan.TreeCount,
+                        plan.CrossingCount, plan.FlowerCount,
+                        plan.WaterRestored, plan.WaterReachPercent);
+                if (activePainting != null)
+                    activePainting.Show(plan.Chapter, plan.TreeCount,
+                        plan.CrossingCount, plan.FlowerCount,
+                        plan.WaterRestored, plan.WaterReachPercent);
             }
         }
 

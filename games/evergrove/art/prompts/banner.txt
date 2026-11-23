@@ -1,0 +1,10 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). Attached images are STYLE references only (soft hand-painted watercolor/gouache storybook, warm cream light, sage greens, teal water, terracotta roofs).
+
+Generate ONE image:
+Use case: stylized-concept
+Asset type: mobile game UI bottom banner, displayed full-width under a puzzle on a cream parchment (#F7F4E9) page
+Primary request: a wide panoramic painted strip of a gentle garden stream flowing left to right through a meadow: a small stone cottage with a terracotta roof on the far left behind soft trees, rounded river stones, white daisies and pink wildflowers in the foreground corners, low rolling green hills in the distance, a dry-stone wall on the right.
+Composition: very wide landscape (roughly 3:1, e.g. 1536x512 or the closest wide size available); the TOP edge must fade softly into plain cream #F7F4E9 (no sky box, no hard edge) so it blends into the page; the scene sits in the lower two thirds.
+Constraints: no people, no text, no logo, no watermark, no frame, no border.
+
+After generating, copy the final PNG to games/evergrove/art/generated/banner-stream-flowing.png and print the final path. Do nothing else.

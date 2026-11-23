@@ -1,0 +1,10 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached screenshot is a STYLE reference for the header wordmark only.
+Generate exactly ONE image.
+Use case: logo-brand
+Asset type: in-app header wordmark for a calm garden puzzle game
+Text (verbatim, exact spelling, one word): "Mosselora"  (M-o-s-s-e-l-o-r-a)
+Style: a friendly, confident rounded geometric bold sans-serif wordmark in deep forest green #1D4D3B, flat solid colour with crisp edges (no gradient, no bevel, no outline, no shadow), like the attached reference. A small fresh-green two-leaf sprout (#5E9B4B and #3F7E3C) grows from the top of the final letter "a", slightly overlapping it.
+Composition: wide landscape, about 4:1 (e.g. 1536x384 or the closest wide size), wordmark centred with modest margins.
+Background: fully TRANSPARENT (alpha).
+Constraints: exactly the letters M o s s e l o r a, no tagline, no other text, no watermark.
+Copy the final PNG to games/evergrove/art/generated/wordmark.png and print the path. Do nothing else.

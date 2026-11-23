@@ -10,16 +10,22 @@ The visual identity is **tender, grounded, alive**, without exaggeration, gamifi
 
 ## Aesthetic system
 
-| Token | Value | Role |
+**Painted storybook skin (2026-11-23).** Warm parchment page, original watercolor art (garden stream strip, vine corners, wordmark, illustrated choice icons, ending painting; provenance in [art/README.md](art/README.md)), rounded parchment tiles with copper (dry) and teal (flowing) pipes, and toned pill actions. Art is decoration around the puzzle, never behind instructions; every painted element is non-interactive.
+
+| Token (`MosseloraTheme`) | Value | Role |
 | --- | --- | --- |
-| Paper | `#F7F4E9` | Low-glare background |
-| Evergreen ink | `#23443C` | Primary content |
-| Moss | `#52685F` | Secondary content |
-| Leaf | `#276D54` | Primary actions |
-| Pale | `#DFEBDD` | Tactile buttons |
-| Sand | `#F2E7D4` | Story cards |
-| River | `#DCEDEF` | Memory journal background |
-| Water blue | `#6FB4BA` | Connection motif |
+| Paper | `#F9F2E3` | Page, matched to the painted strip's sky |
+| Ink | `#183E34` | Primary text (10.4:1 on Paper) |
+| SecondaryInk | `#49645A` | Secondary text |
+| DryChannel | `#9C5A38` | Copper pipe, dashed stripe (≥3.39:1 on every tile state) |
+| WaterChannel | `#18717F` | Spring-connected teal pipe, solid stripe (≥3.6:1) |
+| DryTile / WetTile / SolvedTile | `#F4ECDA` / `#E1F0EC` / `#E0EDD9` | Rounded tile fills, `#D5C6A4` edge |
+| CardFill / CardEdge | `#FBF7EC` / `#D9CCAB` | Choice, memory, journal and ending cards |
+| SagePanel | `#E3EBD6` | Stream pill and settings panel |
+| ForestAction / WaterAction / EarthAction | `#1F5A43` / `#1C6F7A` / `#A4583A` | Undo, Guide me, Restart; white bold captions ≥5.2:1 |
+| QuietAction | `#EFE6D2` | Secondary actions with ink caption and drawn edge |
+
+Typography: the device's Avenir Next (iOS) or Roboto (Android) for English when installed, bold for headings and actions; locale fonts unchanged for other languages. No font is bundled.
 
 Type hierarchy (approximate logical px): title **25**, game decisions **15–17**, guidance **13–15**, metadata **11–12**. Use built-in typography for reproducible builds; commission distinctive typography only after verifying packaging and rights.
 
