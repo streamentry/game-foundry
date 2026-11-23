@@ -327,4 +327,101 @@ namespace Evergrove.UnityClient
             transform.localScale = new Vector3(swell, swell, 1f);
         }
     }
+
+    /// <summary>
+    /// Press-and-hold name tip for icon-only controls: after a short hold the
+    /// control's own (localized) caption appears in a bubble above it. A hold
+    /// that showed the tip never triggers the action on release, so curiosity
+    /// about Restart cannot restart the stream.
+    /// </summary>
+    internal sealed class IconTip : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        private const float HoldSeconds = 0.45f;
+        private Text caption;
+        private Color ink;
+        private Color paper;
+        private PointerEventData press;
+        private float held = -1f;
+        private GameObject bubble;
+
+        public static void Add(GameObject node, Text caption, Color ink, Color paper)
+        {
+            var tip = node.AddComponent<IconTip>();
+            tip.caption = caption;
+            tip.ink = ink;
+            tip.paper = paper;
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            press = eventData;
+            held = 0f;
+        }
+
+        public void OnPointerUp(PointerEventData eventData) { Hide(); }
+        public void OnPointerExit(PointerEventData eventData) { Hide(); }
+        private void OnDisable() { Hide(); }
+
+        private void Update()
+        {
+            if (held < 0f || bubble != null) return;
+            held += Time.unscaledDeltaTime;
+            if (held >= HoldSeconds) Show();
+        }
+
+        private void Show()
+        {
+            if (caption == null || string.IsNullOrWhiteSpace(caption.text)) return;
+            if (press != null) press.eligibleForClick = false; // the hold was a question, not a tap
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            Transform root = canvas.rootCanvas.transform;
+            bubble = new GameObject("Icon name tip", typeof(RectTransform));
+            bubble.transform.SetParent(root, false);
+            var rect = bubble.GetComponent<RectTransform>();
+            rect.pivot = new Vector2(0.5f, 0f);
+            var fill = bubble.AddComponent<Image>();
+            MosseloraArt.Round(fill, ink, 14);
+            fill.raycastTarget = false;
+            MosseloraArt.Lift(fill, 3f, 0.25f);
+            var fit = bubble.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var pad = bubble.AddComponent<HorizontalLayoutGroup>();
+            pad.padding = new RectOffset(14, 14, 8, 8);
+            pad.childControlWidth = true;
+            pad.childControlHeight = true;
+            var words = new GameObject("Tip words", typeof(RectTransform));
+            words.transform.SetParent(bubble.transform, false);
+            var text = words.AddComponent<Text>();
+            text.font = caption.font;
+            text.fontSize = Mathf.Max(16, caption.fontSize);
+            text.fontStyle = FontStyle.Bold;
+            text.color = paper;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.text = caption.text;
+            var self = (RectTransform)transform;
+            Vector3 top = self.TransformPoint(new Vector3(self.rect.center.x, self.rect.yMax, 0f));
+            rect.position = top;
+            rect.anchoredPosition += new Vector2(0f, 10f);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+            // Keep the bubble on screen near the edges.
+            var rootRect = (RectTransform)root;
+            float half = rect.rect.width / 2f;
+            float limit = rootRect.rect.width / 2f - 8f;
+            Vector2 at = rect.anchoredPosition;
+            Vector3 local = rootRect.InverseTransformPoint(rect.position);
+            float shift = Mathf.Clamp(local.x, -limit + half, limit - half) - local.x;
+            rect.anchoredPosition = at + new Vector2(shift, 0f);
+        }
+
+        private void Hide()
+        {
+            held = -1f;
+            if (bubble != null) Destroy(bubble);
+            bubble = null;
+        }
+    }
 }

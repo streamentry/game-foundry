@@ -679,6 +679,8 @@ namespace Evergrove.UnityClient
                 text.color = new Color(ink.r, ink.g, ink.b, 0f);
                 textNode.AddComponent<LayoutElement>().ignoreLayout = true;
                 Fill(textNode.GetComponent<RectTransform>());
+                // Shown on press-and-hold, never on a plain tap.
+                IconTip.Add(node, text, Ink, MosseloraTheme.CardFill);
             }
             return button;
         }
@@ -901,11 +903,23 @@ namespace Evergrove.UnityClient
         {
             // CanvasScaler.scaleFactor is only the constant-pixel setting; the live
             // ScaleWithScreenSize factor is on the Canvas. Prefer the laid-out page.
-            if (content != null && content.rect.width > 1f)
+            // On the very first build after launch neither the layout nor
+            // Canvas.scaleFactor is settled yet (the painted strip came out ~3x
+            // too tall on a cold start), so derive the scale from the scaler's
+            // own ScaleWithScreenSize formula, which is valid immediately.
+            if (content != null && content.rect.width > 1f && Time.frameCount > 2)
                 return Mathf.Max(225f, content.rect.width - 34f);
-            Canvas canvas = viewportScaler == null ? null : viewportScaler.GetComponent<Canvas>();
-            float scale = canvas == null ? 1f : Mathf.Max(0.1f, canvas.scaleFactor);
-            return Mathf.Max(225f, Screen.safeArea.width / scale - 34f);
+            return Mathf.Max(225f, Screen.safeArea.width / LiveCanvasScale() - 34f);
+        }
+
+        private float LiveCanvasScale()
+        {
+            if (viewportScaler == null || Screen.width <= 0 || Screen.height <= 0) return 1f;
+            Vector2 reference = viewportScaler.referenceResolution;
+            float logWidth = Mathf.Log(Screen.width / reference.x, 2f);
+            float logHeight = Mathf.Log(Screen.height / reference.y, 2f);
+            return Mathf.Max(0.1f, Mathf.Pow(2f, Mathf.Lerp(logWidth, logHeight,
+                viewportScaler.matchWidthOrHeight)));
         }
 
         private GameObject Row(Transform parent, string name)
@@ -1312,7 +1326,9 @@ namespace Evergrove.UnityClient
                     showJournal = !showJournal;
                     revealNewScreen = showJournal; // opening the journal lands on its title
                     Rebuild();
-                }, 58, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction), 120);
+                }, 58, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                // The memory count makes the book read as "your collection", not "rules".
+                false, world.Choices.Length > 0 ? world.Choices.Length.ToString(CultureInfo.InvariantCulture) : null), 120);
             if (!showJournal) return;
             var journal = Card(content, "A living journal", MosseloraTheme.CardFill);
             screenHeading = journal.GetComponent<RectTransform>();
@@ -1377,9 +1393,9 @@ namespace Evergrove.UnityClient
             // Keep the entire puzzle inside a compact phone, including the
             // story card's horizontal padding and safe-area insets.
             int gap = puzzle.Size == 3 ? 7 : 5;
-            float scale = viewportScaler == null ? 1f :
-                Mathf.Max(0.1f, viewportScaler.scaleFactor);
-            float layoutWidth = Screen.safeArea.width / scale;
+            // CanvasScaler.scaleFactor is only the constant-pixel field (always 1
+            // here); the live ScaleWithScreenSize factor gives true logical width.
+            float layoutWidth = Screen.safeArea.width / LiveCanvasScale();
             // Standard keeps the EG-007 sizing exactly. Large (EG-112) trims the
             // card's side padding and lifts the tile cap so the board uses the width.
             float available = Mathf.Max(225f, layoutWidth - 34f - 20f - 5f);

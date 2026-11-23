@@ -89,3 +89,11 @@ An independent Haiku re-review of b9 marked choice cards resolved and raised thr
 - Board size uses a magnifier over a grid instead of a grid with a plus. Open-end rings use a heavier stroke so they stay visible on pale-blue wet tiles.
 
 Evidence: `icons-v2-b10-150pct.png` (b10 tour at 150% text; all 17 screens produced).
+
+### Learnability and robustness pass (b11/b12)
+
+- **Icon cold-read (proxy, not human evidence):** a fresh Haiku agent saw only the 15 unlabelled icons (`icon-cold-read-sheet.png`). It read 8 with HIGH confidence and 7 with MEDIUM; none was LOW. The one wrong reading, the journal book as "how-to-play rules", is fixed with a memory-count badge on the book. "New garden" was read as "plant something"; it is guarded because its first tap only shows the worded erase confirmation.
+- **Press-and-hold names:** holding any icon-only control for 0.45 s shows its localized name in a bubble. A hold that showed the bubble does not run the action. Verified on the simulator: the bubble appears above the board-size button, and the board stays at 1.2× after release (`b11-long-press-tip.png`). The size controls still show their language-neutral captions ("Aa 100%", "▦ 1.2×"); worded size labels would need new keys in all 30 catalogs and are left as a follow-up.
+- **Screen-reader labels:** the app's semantic tree from the b11 tour (`MOSSELORA_SR_NODES 36`) lists the icon buttons by their spoken captions: Undo, Guide me, Restart stream, Language: English, Aa 100%, ▦ 1×, Gentle chime, Mira, Orin, Fen, Copy garden file, Restore from garden file. This is the app-side label path; VoiceOver itself was not run.
+- **Cold-start bug fixed:** on the first build after launch the painted strip was ~3x too tall, because `CanvasScaler.scaleFactor` is not the live scale. Page width now uses the scaler's ScaleWithScreenSize formula, and board sizing uses the same, which gives identical tiles on current phones. Verified on cold launches with Standard and Large boards (`b12-cold-start-standard-large.png`).
+- **Large board:** renders with the new skin; rings, markers and pipes scale with the tile.
