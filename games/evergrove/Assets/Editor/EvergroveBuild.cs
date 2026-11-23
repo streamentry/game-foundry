@@ -11,13 +11,14 @@ namespace Evergrove.UnityClient.Editor
     /// <summary>
     /// A real (not simulated) Unity build entrypoint for GameCI or a local
     /// licensed Unity Editor. Creates the empty boot scene deterministically
-    /// and places a downloadable WebGL or unsigned Android playtest under
+    /// and places a downloadable WebGL or Android playtest under
     /// the repository's build/ directory.
     ///
     /// Channels (EVERGROVE_BUILD_CHANNEL):
     ///   development (default) - BuildOptions.Development playtest, research controls enabled.
     ///   release-candidate     - no Development flag, store product name and id, no research
-    ///                           controls or research locale catalogs. Never uploads or signs.
+    ///                           controls or research locale catalogs. Does not configure store
+    ///                           signing or upload artifacts.
     ///
     /// IMPORTANT: This method has not been executed until a licensed Unity
     /// runner actually invokes it. It deliberately never uploads or publishes.
@@ -66,7 +67,7 @@ namespace Evergrove.UnityClient.Editor
             string outDir = Path.Combine(outputRoot, platform);
             Directory.CreateDirectory(outDir);
             string output = target == BuildTarget.Android
-                ? Path.Combine(outDir, "Evergrove-Playtest.apk")
+                ? Path.Combine(outDir, releaseCandidate ? "Mosselora.aab" : "Evergrove-Playtest.apk")
                 : target == BuildTarget.iOS
                     ? Path.Combine(outDir, "Evergrove-Xcode")
                     : target == BuildTarget.StandaloneOSX
@@ -79,13 +80,22 @@ namespace Evergrove.UnityClient.Editor
                 PlayerSettings.SetIcons(UnityEditor.Build.NamedBuildTarget.Unknown, new[] { appIcon }, IconKind.Any);
             PlayerSettings.companyName = "Game Foundry";
             PlayerSettings.bundleVersion = releaseCandidate ? ReadBundleVersion() : "0.1.0";
-            // No store signing keys or release deployment in either channel.
+            // On Android, uGUI labels resolve OS fallback fonts through
+            // TextCore FontAsset creation, which needs a native class that
+            // "Strip Engine Code" removes ("Could not produce class with ID
+            // 115"): every label throws and nothing renders. Keep engine code.
+            PlayerSettings.stripEngineCode = false;
+            // Store signing keys and deployment credentials are never read from
+            // the repository. A release-candidate AAB still needs an upload
+            // signature before it can be sent to Google Play.
             if (target == BuildTarget.Android)
             {
                 PlayerSettings.SetApplicationIdentifier(
                     UnityEditor.Build.NamedBuildTarget.Android,
                     releaseCandidate ? StoreApplicationId : "com.streamentry.evergrove.playtest");
-                EditorUserBuildSettings.buildAppBundle = false;
+                if (releaseCandidate)
+                    PlayerSettings.Android.bundleVersionCode = ReadAndroidBundleVersionCode();
+                EditorUserBuildSettings.buildAppBundle = releaseCandidate;
                 EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
             }
             else if (target == BuildTarget.iOS)
@@ -94,6 +104,8 @@ namespace Evergrove.UnityClient.Editor
                 PlayerSettings.SetApplicationIdentifier(
                     UnityEditor.Build.NamedBuildTarget.iOS,
                     releaseCandidate ? StoreApplicationId : "com.streamentry.evergrove.playtest");
+                if (releaseCandidate)
+                    PlayerSettings.iOS.buildNumber = ReadIOSBuildNumber();
                 // EVERGROVE_IOS_SDK=simulator exports an unsigned Xcode
                 // project for the iOS Simulator (local QA only); default is device.
                 bool simulator = string.Equals(
@@ -163,6 +175,34 @@ namespace Evergrove.UnityClient.Editor
                 if (!(char.IsDigit(c) || c == '.'))
                     throw new InvalidOperationException("EVERGROVE_BUNDLE_VERSION may contain only digits and dots.");
             return version;
+        }
+
+        private static int ReadAndroidBundleVersionCode()
+        {
+            string value = Environment.GetEnvironmentVariable("EVERGROVE_ANDROID_BUNDLE_VERSION_CODE");
+            if (string.IsNullOrWhiteSpace(value)) return 1;
+            if (!int.TryParse(value.Trim(), out int versionCode) || versionCode <= 0)
+                throw new InvalidOperationException("EVERGROVE_ANDROID_BUNDLE_VERSION_CODE must be a positive integer.");
+            return versionCode;
+        }
+
+        private static string ReadIOSBuildNumber()
+        {
+            string value = Environment.GetEnvironmentVariable("EVERGROVE_IOS_BUILD_NUMBER");
+            if (string.IsNullOrWhiteSpace(value)) return "1";
+            value = value.Trim();
+            string[] components = value.Split('.');
+            if (components.Length < 1 || components.Length > 3)
+                throw new InvalidOperationException("EVERGROVE_IOS_BUILD_NUMBER must contain one to three dot-separated integers.");
+            foreach (string component in components)
+            {
+                if (component.Length == 0)
+                    throw new InvalidOperationException("EVERGROVE_IOS_BUILD_NUMBER must contain one to three dot-separated integers.");
+                foreach (char c in component)
+                    if (!char.IsDigit(c))
+                        throw new InvalidOperationException("EVERGROVE_IOS_BUILD_NUMBER may contain only digits and dots.");
+            }
+            return value;
         }
 
         // Moves every research catalog out of Assets (and its .meta, so GUIDs survive)
