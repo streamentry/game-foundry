@@ -603,6 +603,14 @@ Four parallel read-only audits covered `games/evergrove/docs/specs/`, the handbo
 
 **Decision:** continue Seed-stage work. The next human steps are Unity license activation and recruiting 8–12 uncoached adults 45+ for M3.
 
+## 2026-11-23 — Source and QA progress after first Editor smoke
+
+**Source changes on local `main`:** `PuzzleMatched` now has a fixed per-run board schedule for M4 comparison; `GardenTransfer` adds a bounded, checksum-checked text save-file format; the macOS Development player has a dev-only screenshot hook; connected and dry pipe strokes now differ by a continuous versus segmented stripe, not color alone. These do not add cloud sync or phone file-picker UI.
+
+**Verification:** `/Volumes/SSD/dotnet/dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release` passed **38,835 assertions** (including 1,626 save-journal and 2,100 transfer assertions). `tools/verify_evergrove_project.py` passed its static checks; the browser first-minute suite passed 10/10. A chapter-one screenshot exists at `games/evergrove/docs/qa/mac-player-2026-11-23/01-launch-chapter1.png` from a macOS Development player. That screenshot predates the connected/dry stripe change, is desktop-only and does not verify phone rendering.
+
+**Limit:** M1 Editor import smoke is recorded, but the currently discoverable Editor still fails macOS signature verification and only the Mac platform module is installed. No iOS/Android export, signed build, phone launch or 45+ session is proven. The contrast audit still lists 21 failed color pairs; further fixes and device review remain open.
+
 ## 2026-11-23 — Vision execution wave 2: matched control, exportable saves, first rendered build
 
 **Implemented and verified in code:**
@@ -611,9 +619,47 @@ Four parallel read-only audits covered `games/evergrove/docs/specs/`, the handbo
 - A non-color dashed/solid cue for dry vs connected pipes, `earth.dry` set to `#7D684F`, and contrast fixes in the browser slice (node tests 10/10).
 - Doc drift fixed: 81 keys, Vietnamese endpoint wording, and a canonical M3/M4 threshold table that lists `FOUNDER DECISION NEEDED` items.
 
-**Observed:** the C# suite reports 38,835 assertions. The Unity 6000.3.0f1 compile and smoke pass. **A development macOS player built and rendered chapter 1**, captured with a new dev-only `-mosseloraScreenshot` hook (`games/evergrove/docs/qa/mac-player-2026-11-23/`). Visual finding: the spring endpoint glyph reads like a menu icon; a fix is in progress. This is desktop evidence, not phone evidence.
+**Observed:** the C# suite reports 38,835 assertions. The Unity 6000.3.0f1 compile and smoke pass. **A development macOS player built and rendered chapter 1**, captured with a new dev-only `-mosseloraScreenshot` hook (`games/evergrove/docs/qa/mac-player-2026-11-23/`). Follow-up: the spring endpoint glyph was changed to three sinusoidal water strokes in commits cd76cf3 and d8a5d38. Screenshot 03 visually shows this correction in the macOS Development player; phone and 45+ validation remain open.
 
 **Research added:** WCAG contrast audit (21 of 97 pairs failed before fixes), preliminary name knockout (no exact conflict; not clearance), and a post-M4 depth proposal (variants add 0–3 taps; recommends blank root cells and orientation-masked tiles).
 
 **Human blockers (unchanged):** activate a Unity license so iOS builds work, and approve the Android module install (about 3.6 GB download, needs Unity EULA acceptance). Recruit uncoached adults 45+ for M3, give founder decisions on the M3/M4 thresholds, and arrange an attorney name clearance.
+
+## 2026-11-23 — scripted desktop QA tour captured
+
+**Change:** development-only `DevQaTour` runs a fresh in-memory world, invokes real UI button listeners and saves twelve named PNG states. It does not load or save player progress. The committed evidence set now has 15 macOS Development-player screenshots: three standalone frames and twelve tour states under `games/evergrove/docs/qa/mac-player-2026-11-23/`. Screenshot 03 confirms the new spring-wave glyph; the tour screenshot for the M4 matched chapter remains development UI.
+
+**Verification:** the current pure C# suite passed 38,835 assertions, the static Unity contract verifier passed, and the browser first-minute suite passed 10/10. These results establish source behavior and desktop rendering only. The tour invokes button callbacks programmatically; it is not touch-input, device, human-use or store-preview footage evidence.
+
+**Follow-up visual work:** commits `fa51c5b` and `2f99d69` add a non-color protected-landmark badge and adjust memory, journal and ending layout/scroll positioning; the corresponding tour frames were regenerated. Screenshot 07 now shows the landmark badge, and frames 10–11 show the revised journal/ending screens. They remain desktop Development-player captures; the screenshot set has no phone or touch-input pass.
+
+## 2026-11-23 — desktop Development-player privacy inspection (EG-009 partial)
+
+The new [binary inspection report](../../games/evergrove/docs/qa/privacy-binary-inspection-2026-11-23.md) covers a macOS Development QA player only. It found no third-party SDK assemblies, Unity cloud services disabled, and `WorldClient` compiled but unattached. A roughly six-second run observed no outbound TCP connections, but did see the Development Player Connection listener on TCP 55000 and unbound UDP sockets. This is not a traffic capture, does not prove no data transfer, and says nothing conclusive about iOS or Android release builds. EG-009 remains open pending signed mobile artifact inspection, controlled device network capture and reconciled store privacy declarations.
+
+## 2026-11-23 — EG-007 text-size control implemented
+
+`TextScale` adds an in-game 100% / 125% / 150% text-size control. The preference is stored separately from the garden save; dev QA can override one run without persistence. A 12-frame 150% tour at 375×667 was captured from the macOS Development player. The UI captures show the board, choice, memory and ending states at that scale, but they do not verify iPhone/Android safe areas, OS text-size integration, screen-reader behavior, or adults aged 45+.
+
+## 2026-11-23 — Vision execution waves 3–5: visual QA loop and pre-M3 fixes
+
+**Tooling:** a dev-only `-mosseloraQaTour <dir>` drives the real `EvergroveApp` through puzzle → choice → consequence → choice-shaped chapter 2 → journal → ending → matched control → anchored-tile tap. It uses an in-memory world and never touches the player's save. 13 PNGs are in `games/evergrove/docs/qa/mac-player-2026-11-23/tour/`, plus a 375×667 set at 150% text.
+
+**Defects the tour found and fixed (verified in the macOS dev player, not on a phone):**
+- The spring marker looked like a menu icon. It's now three parallel procedural waves.
+- The protected landmark showed as a tiny dot. It now has a heavy frame and a badge per choice (roots, bridge footing, flower).
+- Memory, journal and ending cards had fixed minimum heights, which left empty gaps. The ending opened scrolled past its top.
+- On the consequence screen, settings pushed the memory card below the fold. It's now consequence-first (EG-003).
+- Tapping an anchored tile did nothing. It now shows the anchor message.
+
+**Added:** in-game text size 100/125/150% (EG-007; separate PlayerPrefs; no new localization keys). Desktop privacy inspection for EG-009: no third-party SDKs; `WorldClient` compiled but not attached; no outbound sockets in a short run; dev Player Connection port 55000 open (confirm it's absent in release).
+
+**Verification on merged main:** C# 38,835 assertions; verifier OK (81 keys × 30); first-minute node tests 10/10; Unity macOS build with 0 compile errors; QA tour 13/13 screens.
+
+**Open:**
+- The ending has no visible heading; adding one needs a new localization key.
+- The landmark badges are about 27 px and the root badge could be misread. Player testing should check this.
+- All evidence is from desktop and agents. **Age fit is not validated** and there are zero human sessions.
+
+**Decision:** the agent-doable pre-M3 polish is largely done. The next real progress needs people: Unity license activation (iOS), approval of the Android module EULA and download, a phone build, then 8–12 uncoached adults 45+ for M3.
 
