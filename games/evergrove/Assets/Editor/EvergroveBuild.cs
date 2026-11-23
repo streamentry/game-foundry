@@ -86,6 +86,9 @@ namespace Evergrove.UnityClient.Editor
                     Environment.GetEnvironmentVariable("EVERGROVE_IOS_SDK"), "simulator",
                     StringComparison.OrdinalIgnoreCase);
                 PlayerSettings.iOS.sdkVersion = simulator ? iOSSdkVersion.SimulatorSDK : iOSSdkVersion.DeviceSDK;
+                // Apple-silicon simulators on current iOS reject x86_64-only apps.
+                if (simulator)
+                    PlayerSettings.iOS.simulatorSdkArchitecture = AppleMobileArchitectureSimulator.ARM64;
             }
 
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions

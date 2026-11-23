@@ -64,3 +64,4 @@ docs/research/raw/
 
 # Claude Code agent worktrees
 /.claude/worktrees/
+/games/evergrove/.utmp/

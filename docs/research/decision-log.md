@@ -583,7 +583,7 @@ Four parallel read-only audits covered `games/evergrove/docs/specs/`, the handbo
 
 **Name screen:** the official USPTO wordmark search returned no exact `Mosselora` results. Searching `mossel` returned five records, including a live registered `MOSSEL` mark in IC 010 and a live pending `MOSSEL` mark in IC 017 for foam supports for floral arrangements. This is not a legal clearance: sound/appearance, goods relationship, unregistered rights, and other databases still need review. Preserve Mosselora as the user-selected working title, with clearance marked pending.
 
-**Native toolchain:** the Unity executable at `/Volumes/SSD/Unity/editors/6000.3.0f1` reports the pinned version, but `codesign --verify --deep --strict` reports an invalid signature. The Unity CLI refuses to register it. `unity status` and `unity editors running` report no matching instance, including outside the sandbox, while a direct headless launch reports a project-open conflict; the live Editor/lock state is unresolved. `Packages/manifest.json` has no `com.unity.pipeline`; `PlaybackEngines` contains only `MacStandaloneSupport`, with iOS and Android support absent. Headless VerifyProject stalled at the Licensing Client. No Unity import, device build, or native export is verified. Do not bypass signature checks.
+**Native toolchain (initial check before the later Editor smoke):** the Unity executable at `/Volumes/SSD/Unity/editors/6000.3.0f1` reports the pinned version, but `codesign --verify --deep --strict` reports an invalid signature. The Unity CLI refuses to register it. `unity status` and `unity editors running` report no matching instance, including outside the sandbox, while a direct headless launch reports a project-open conflict; the live Editor/lock state is unresolved. `Packages/manifest.json` has no `com.unity.pipeline`; `PlaybackEngines` contains only `MacStandaloneSupport`, with iOS and Android support absent. Headless VerifyProject stalled at the Licensing Client. No Unity import, device build, or native export was verified at this first check; the later Editor smoke is recorded below. Do not bypass signature checks.
 
 **Signing:** a sanitized local check found zero valid Apple code-signing identities and zero of eleven provisioning profiles matching `com.streamentry.evergrove`. Certificate and profile contents were not printed. No signed Apple build can be produced with the current local signing setup.
 
@@ -591,7 +591,7 @@ Four parallel read-only audits covered `games/evergrove/docs/specs/`, the handbo
 
 **Cloudflare live check:** the deployed `mosselora-site` workers.dev home, privacy, support and preview pages all returned HTTP 200. Their page titles use Mosselora and the HTML contains no public `Evergrove` text. `https://api.mosselora.com/healthz` returned `{"service":"mosselora-world-api","status":"prototype","gameplaySync":false}`. The requested `https://mosselora.com/` timed out. The site config still contains `mosselora.com/*`; a previous route deployment was rejected because it could replace existing apex-site traffic. Do not deploy that route until the owner explicitly approves the takeover.
 
-**Configuration change:** `ProjectSettings.asset` now names the product Mosselora and lists `com.streamentry.evergrove` for Android and iOS. This is not a release build setting yet: the existing `EvergroveBuild.Build()` entrypoint overrides the product name and IDs with playtest values and enables Development builds. The Unity CLI 1.0.1 self-update check succeeds outside the sandbox and confirms 1.0.1 is current. Keep upload and submission gates closed until a valid signed Editor, licensing, platform modules and production build path are verified, and the separate device, privacy, signing, audience and account-owner declaration gates pass.
+**Configuration change (current):** ProjectSettings.asset names Mosselora, uses com.streamentry.evergrove.playtest for Android and iPhone, sets overrideDefaultApplicationIdentifier, targets iOS 15.0 and has empty iOS platform icon texture slots. The App Store record uses com.streamentry.evergrove. An uncommitted EvergroveBuild edit requests ARM64 for iOS Simulator, but iOS Build Support is absent so it remains uncompiled. The build entrypoint still uses Development/playtest identities.
 
 ## 2026-11-23 — First Unity Editor verification; vision execution wave 1
 
@@ -662,4 +662,8 @@ The new [binary inspection report](../../games/evergrove/docs/qa/privacy-binary-
 - All evidence is from desktop and agents. **Age fit is not validated** and there are zero human sessions.
 
 **Decision:** the agent-doable pre-M3 polish is largely done. The next real progress needs people: Unity license activation (iOS), approval of the Android module EULA and download, a phone build, then 8–12 uncoached adults 45+ for M3.
+
+## 2026-11-23 — localized ending heading added
+
+The new `ending_title` key is present in all 29 offline locale catalogs, bringing them to **82 keys each**. The Python project verifier passes and the current pure C# suite passes **38,864 assertions**. These checks cover catalog structure and rules; the recorded Unity import/smoke predates this UI localization change, so a fresh Unity import and device render are still required. The 25 store-description drafts remain native-review pending.
 
