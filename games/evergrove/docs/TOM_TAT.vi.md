@@ -10,7 +10,7 @@
 **Lời hứa:** “Một thế giới nhỏ thay đổi vì những điều người chơi đã làm.”
 
 Mỗi vòng chơi dự kiến ngắn, nhẹ nhàng:
-1. Xoay các đoạn ống để nối nước từ **S (suối nguồn)** tới **G (đầu ra)**, không hở mối nối.
+1. Xoay các đoạn ống để nối nước từ **nguồn** (biểu tượng sóng nước xanh) tới **đầu ra của vườn** (biểu tượng chồi xanh), không hở mối nối.
 2. Nước được khôi phục, người chơi chọn **trồng cây**, **sửa cầu** hoặc **gieo hoa**.
 3. Cảnh làng và Mira/Orin/Fen phản ánh đúng lựa chọn trong lịch sử.
 4. **Màn sau bị ảnh hưởng về cơ chế:** lựa chọn trước xoay vị trí mạng đường nước, khóa một đoạn ống đại diện cho rễ cây / móng cầu / khu hoa cần bảo vệ.

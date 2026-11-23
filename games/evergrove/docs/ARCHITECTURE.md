@@ -60,7 +60,7 @@ UI composition is **generated in C#** rather than relying on custom prefabs. The
 ## 4. Localization boundary
 
 - **30 selectable languages:** built-in English plus 29 offline `Assets/Resources/Evergrove/Locales/*.json` bundles.
-- **76 translated keys** are validated for every bundle by `tools/verify_evergrove_project.py` and .NET test. These are **draft text catalogs**, not native-reviewed localization certificates.
+- **81 translated keys** are validated for every bundle by `tools/verify_evergrove_project.py` and .NET test. These are **draft text catalogs**, not native-reviewed localization certificates.
 - `LocaleRuntime` reads optional `evergrove:language-choice:v1` from PlayerPrefs. Automatic mode resolves BCP-47/device UI culture; unsupported languages fall back to English.
 - A locale selection must not change `WorldSnapshot` or puzzles. `LocalizedVillage` intentionally uses shorter canonical authored copy in all UI languages, while `VillageStory` holds richer longer English manuscript.
 - `LocaleFonts` uses OS fonts as best effort; legacy uGUI `Text` does **not** guarantee Arabic/Persian/Urdu/Hebrew bidi or Indic complex shaping. Do not turn on unsupported store locales until native-speaker/device QA and correct text rendering.
