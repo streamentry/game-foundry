@@ -188,4 +188,39 @@ namespace Evergrove.UnityClient
             }
         }
     }
+
+    /// <summary>
+    /// Draws the open-end marker as a ring, mirroring its "○" text. The text
+    /// stays the semantic source (screen readers, refresh logic), but not every
+    /// runtime face has the glyph, so the visible mark is geometry.
+    /// </summary>
+    internal sealed class OpenEndRing : MonoBehaviour
+    {
+        private Text source;
+        private Image ring;
+
+        public static void Attach(Text marker, Color stroke, float size)
+        {
+            var node = new GameObject("Open end ring", typeof(RectTransform));
+            node.transform.SetParent(marker.transform, false);
+            var rect = node.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(size, size);
+            var image = node.AddComponent<Image>();
+            image.sprite = MosseloraArt.Ring(8); // a full circle when drawn unsliced
+            image.type = Image.Type.Simple;
+            image.color = stroke;
+            image.raycastTarget = false;
+            var view = node.AddComponent<OpenEndRing>();
+            view.source = marker;
+            view.ring = image;
+            marker.color = new Color(stroke.r, stroke.g, stroke.b, 0f);
+            view.LateUpdate();
+        }
+
+        private void LateUpdate()
+        {
+            if (ring != null && source != null) ring.enabled = source.text.Length > 0;
+        }
+    }
 }

@@ -31,6 +31,7 @@ namespace Evergrove.UnityClient
         private WorldModel world;
         private Font font;
         private Font baseFont;
+        private Font displayFont; // optional rounded heading face (iOS)
         private bool languagePicker;
         private RectTransform content;
         private RectTransform scrollArea;
@@ -138,7 +139,7 @@ namespace Evergrove.UnityClient
 #endif
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
-            baseFont = PreferredLatinFont(baseFont);
+            displayFont = RoundedDisplayFont();
             LocaleRuntime.Initialize();
             TextScale.Initialize();
             BoardSize.Initialize();
@@ -156,26 +157,34 @@ namespace Evergrove.UnityClient
 #endif
         }
 
-        // Rounded, warm OS faces read like the painted references; never bundled,
-        // so no font licensing. Falls back to Unity's runtime face.
-        private static Font PreferredLatinFont(Font fallback)
+        // Rounded bold display face for English headings and actions, as in the
+        // painted references. iOS ships Arial Rounded MT Bold (a single upright
+        // face); elsewhere headings fall back to the runtime face in bold. Never bundled.
+        private static Font RoundedDisplayFont()
         {
             try
             {
-                string[] installed = Font.GetOSInstalledFontNames();
-                foreach (string wanted in new[] { "Avenir Next", "Avenir", "Google Sans", "Roboto" })
-                    foreach (string name in installed)
-                        if (name.Equals(wanted, StringComparison.OrdinalIgnoreCase))
-                        {
-                            Font chosen = Font.CreateDynamicFontFromOSFont(name, 17);
-                            if (chosen != null) return chosen;
-                        }
+                foreach (string name in Font.GetOSInstalledFontNames())
+                    if (name.StartsWith("Arial Rounded MT", StringComparison.OrdinalIgnoreCase))
+                        return Font.CreateDynamicFontFromOSFont(name, 17);
             }
             catch (Exception exception)
             {
                 Debug.LogWarning("Mosselora OS font lookup unavailable: " + exception.GetType().Name);
             }
-            return fallback;
+            return null;
+        }
+
+        // Headings and action captions: rounded display face in English, bold elsewhere.
+        private void Emphasize(Text text)
+        {
+            if (displayFont != null && font == baseFont && GameLocalization.Current == "en")
+            {
+                text.font = displayFont;
+                text.fontStyle = FontStyle.Normal;
+            }
+            else
+                text.fontStyle = FontStyle.Bold;
         }
 
         private void OnDestroy()
@@ -562,7 +571,7 @@ namespace Evergrove.UnityClient
             var text = textNode.AddComponent<Text>();
             StyleText(text, 16);
             text.color = quiet ? Ink : White;
-            text.fontStyle = FontStyle.Bold;
+            Emphasize(text);
             text.alignment = TextAnchor.MiddleCenter;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
@@ -598,7 +607,7 @@ namespace Evergrove.UnityClient
             {
                 Text plain = Label(content, "Mosselora wordmark", GameLocalization.Text("title"),
                     15, 26, Leaf, TextAnchor.MiddleCenter);
-                plain.fontStyle = FontStyle.Bold;
+                Emphasize(plain);
                 return;
             }
             float markHeight = compact ? 52f : 64f;
@@ -612,7 +621,7 @@ namespace Evergrove.UnityClient
                 GameLocalization.Text("title"), 15, 0, new Color(0f, 0f, 0f, 0f));
             spoken.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
             Sprite vine = MosseloraArt.Load(MosseloraArt.VineCorner);
-            float vineSize = compact ? 112f : 132f;
+            float vineSize = compact ? 100f : 124f;
             MosseloraArt.Ornament(header.transform, "Vine left", vine, new Vector2(0f, 1f),
                 new Vector2(0f, 1f), new Vector2(vineSize, vineSize), new Vector2(-17f, 15f));
             MosseloraArt.Ornament(header.transform, "Vine right", vine, new Vector2(1f, 1f),
@@ -639,8 +648,8 @@ namespace Evergrove.UnityClient
             pillGroup.childControlWidth = true;
             pillGroup.childControlHeight = true;
             pillGroup.childForceExpandWidth = false;
-            Text label = Label(pill.transform, name + " text", value, 14, 24, Ink, TextAnchor.MiddleCenter);
-            label.fontStyle = FontStyle.Bold;
+            Text label = Label(pill.transform, name + " text", value, 14, 0, Ink, TextAnchor.MiddleCenter);
+            Emphasize(label);
             return label;
         }
 
@@ -748,7 +757,7 @@ namespace Evergrove.UnityClient
             GardenHeader(puzzleScreen);
             Text subtitle = Label(content, "Title", GameLocalization.Text("subtitle"),
                 puzzleScreen ? 17 : 24, puzzleScreen ? 28 : 44, Ink, TextAnchor.MiddleCenter);
-            if (!puzzleScreen) subtitle.fontStyle = FontStyle.Bold;
+            if (!puzzleScreen) Emphasize(subtitle);
             if (multiLanguage && settingsAtTop)
                 Button(content, "Language settings",
                     GameLocalization.Text("language") + ": " +
@@ -877,7 +886,7 @@ namespace Evergrove.UnityClient
                 var moment = Card(content, "A remembered moment", MosseloraTheme.CardFill);
                 Text momentTitle = Label(moment.transform, "Moment title",
                     GameLocalization.Text("memory_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
-                momentTitle.fontStyle = FontStyle.Bold;
+                Emphasize(momentTitle);
                 Label(moment.transform, "Story", LocalizedVillage.MemoryEvent(world), 17, 0, Ink,
                     TextAnchor.MiddleCenter);
                 Sprite memorySprig = MosseloraArt.Load(MosseloraArt.Sprig);
@@ -908,10 +917,10 @@ namespace Evergrove.UnityClient
                 screenHeading = conclusion.GetComponent<RectTransform>();
                 Text endingTitle = Label(conclusion.transform, "Ending title",
                     GameLocalization.Text("ending_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
-                endingTitle.fontStyle = FontStyle.Bold;
+                Emphasize(endingTitle);
                 Text finalWords = Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
                     19, 0, Ink, TextAnchor.MiddleCenter);
-                finalWords.fontStyle = FontStyle.Bold;
+                Emphasize(finalWords);
                 if (living) MemoryJournal();
                 Button(content, "Reset title", confirmReset ?
                     GameLocalization.Text("erase") : GameLocalization.Text("explore"),
@@ -938,7 +947,7 @@ namespace Evergrove.UnityClient
             {
                 Text neighborsTitle = Label(content, "Neighbors", GameLocalization.Text("neighbors"),
                     14, 30, Leaf, TextAnchor.MiddleCenter);
-                neighborsTitle.fontStyle = FontStyle.Bold;
+                Emphasize(neighborsTitle);
                 var neighbors = Row(content, "Speak with a neighbor");
                 Button(neighbors.transform, "Mira", LocalizedVillage.Name(0), () => OpenConversation(0), 52);
                 Button(neighbors.transform, "Orin", LocalizedVillage.Name(1), () => OpenConversation(1), 52);
@@ -1077,7 +1086,7 @@ namespace Evergrove.UnityClient
             Sprig();
             Text promise = Label(content, "Respectful play", GameLocalization.Text("offline"),
                 13, 36, Ink, TextAnchor.MiddleCenter);
-            promise.fontStyle = FontStyle.Bold;
+            Emphasize(promise);
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
             if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
@@ -1115,7 +1124,7 @@ namespace Evergrove.UnityClient
             screenHeading = journal.GetComponent<RectTransform>();
             Text journalTitle = Label(journal.transform, "Journal title",
                 GameLocalization.Text("journal_title"), 15, 30, Leaf, TextAnchor.MiddleCenter);
-            journalTitle.fontStyle = FontStyle.Bold;
+            Emphasize(journalTitle);
             string[] entries = LocalizedVillage.Journal(world);
             int[] chosen = world.Choices;
             for (int i = 0; i < entries.Length; i++)
@@ -1162,7 +1171,7 @@ namespace Evergrove.UnityClient
                 (GameLocalization.Current == "en" ? "  ·  " + puzzle.Name : ""),
                 MosseloraTheme.SagePanel);
             Label(content, "Prompt", world.Round == 0 ?
-                GameLocalization.Text("first") : LocalizedVillage.Prompt(world), 16, 34, Ink,
+                GameLocalization.Text("first") : LocalizedVillage.Prompt(world), 16, 0, Ink,
                 TextAnchor.MiddleCenter);
             // The anchor line sits directly above the board: it explains the framed tile.
             if (puzzle.AnchoredTile >= 0)
@@ -1272,6 +1281,7 @@ namespace Evergrove.UnityClient
                 leakText.color = MosseloraTheme.EarthInk;
                 leakText.raycastTarget = false;
                 leakText.text = insight.Leaking[index] ? "○" : "";
+                OpenEndRing.Attach(leakText, MosseloraTheme.EarthInk, 13f * markerScale);
                 visibleLeaks[index] = leakText;
                 if (world.HintStep == 2 && index == world.HintTile)
                 {
@@ -1319,8 +1329,8 @@ namespace Evergrove.UnityClient
             string feedback = world.Solved
                 ? GameLocalization.Text("solved")
                 : GameLocalization.Text("progress", insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
-            feedbackText = Label(content, "Water feedback", feedback, 17, 42, Ink, TextAnchor.MiddleCenter);
-            feedbackText.fontStyle = FontStyle.Bold;
+            feedbackText = Label(content, "Water feedback", feedback, 17, 34, Ink, TextAnchor.MiddleCenter);
+            Emphasize(feedbackText);
 
             if (world.Solved)
             {
@@ -1338,7 +1348,7 @@ namespace Evergrove.UnityClient
                 {
                     Text chooseTitle = Label(content, "Choose title", GameLocalization.Text("choose"),
                         24, 56, Ink, TextAnchor.MiddleCenter);
-                    chooseTitle.fontStyle = FontStyle.Bold;
+                    Emphasize(chooseTitle);
                     decisionHeading = chooseTitle.rectTransform;
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
@@ -1373,7 +1383,7 @@ namespace Evergrove.UnityClient
                 }
             }
             Label(content, "How to play", GameLocalization.Text("how"),
-                13, 56, Moss, TextAnchor.MiddleCenter);
+                14, 0, Moss, TextAnchor.MiddleCenter);
         }
 
         // Illustrated choice card (painted icon + title + written consequence).
@@ -1423,7 +1433,7 @@ namespace Evergrove.UnityClient
             stack.childForceExpandWidth = true;
             stack.childForceExpandHeight = false;
             Text title = Label(words.transform, "Choice name", LocalizedVillage.Choice(choice), 18, 0, Ink);
-            title.fontStyle = FontStyle.Bold;
+            Emphasize(title);
             Label(words.transform, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 15, 0, Moss);
         }
 
@@ -1785,14 +1795,14 @@ namespace Evergrove.UnityClient
         // Lives in settings, below the puzzle, and never on the primary path.
         private void BuildGardenFileSection()
         {
-            var card = Card(content, "Garden file", Sand);
+            var card = Card(content, "Garden file", MosseloraTheme.CardFill);
             Button(card.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
-                CopyGardenFile, 52);
+                CopyGardenFile, 54, MosseloraTheme.ForestAction);
             if (!WorldStore.RecoveryBlocked)
             {
                 if (!gardenRestoreConfirm)
                     Button(card.transform, "Restore garden file", GameLocalization.Text("garden_restore"),
-                        ReadGardenFile, 52);
+                        ReadGardenFile, 54, MosseloraTheme.WaterAction);
                 else
                 {
                     Label(card.transform, "Garden replace warning", GameLocalization.Text("garden_replace"),

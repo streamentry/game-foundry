@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageChops, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 GAME = ROOT / "games" / "evergrove"
@@ -170,6 +170,19 @@ def fit(image: Image.Image, max_w: int, max_h: int) -> Image.Image:
     return image.resize((round(image.width * scale), round(image.height * scale)), Image.LANCZOS)
 
 
+def fade_top(image: Image.Image, share: float = 0.42) -> Image.Image:
+    """Painted sky melts into the page: alpha ramps from 0 at the top edge."""
+    rgba = image.convert("RGBA")
+    ramp = max(1, int(rgba.height * share))
+    alpha = rgba.getchannel("A")
+    mask = Image.new("L", rgba.size, 255)
+    for y in range(ramp):
+        t = y / ramp
+        mask.paste(int(255 * t * t * (3 - 2 * t)), (0, y, rgba.width, y + 1))
+    rgba.putalpha(ImageChops.multiply(alpha, mask))
+    return rgba
+
+
 def save(image: Image.Image, name: str) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     target = OUT / (name + ".png")
@@ -196,7 +209,7 @@ def main() -> None:
     for name in ("banner-stream-flowing", "banner-stream-dry"):
         image = master(name)
         if image:
-            save(fit(image.convert("RGBA"), 1536, 1024), name)
+            save(fade_top(fit(image.convert("RGBA"), 1536, 1024)), name)
 
     hero = master("hero-village")
     if hero:
