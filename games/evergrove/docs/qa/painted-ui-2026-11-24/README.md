@@ -35,3 +35,7 @@ Fixed during this check: the English runtime face has no "○" glyph, so open-en
 - Physical iPhone/Android, Android fonts (iOS headings use the runtime face in bold; the optional rounded display face was not found on the simulator), 125/150% text and Large board with the new skin, RTL/CJK locales with the new skin, VoiceOver.
 - Age fit not validated: no adults 45+ have seen this skin.
 - Contrast: token pairs computed (see `DESIGN-SYSTEM.md`); not measured on rendered pixels.
+
+## Native-resolution simulator capture
+
+`15-high-resolution-live-simulator.png` was captured on 2026-11-24 from the already-running iPhone 17 Pro / iOS 26.5 Simulator. It is 1206 × 2622 pixels. The installed app is `com.streamentry.evergrove.playtest`, version `0.1.0` / build `0`; the screenshot visibly includes the development-only “Start matched control (dev)” button. Keep it as QA evidence and do not upload it as store media.

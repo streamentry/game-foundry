@@ -6,9 +6,9 @@ This is local build and emulator evidence for the `Evergrove` internal project, 
 
 ## Source and checks
 
-- Earlier release-candidate artifacts predate current `HEAD` / `origin/main` `f915f6722a55aabc4033732531f1c3b915602dad`. Current source includes the Android link.xml engine-stripping fix, minimum SDK 26, screen-reader support, CJK line breaking, RTL shaping and more locale assets. No build from current `HEAD` has completed.
+- Earlier release-candidate artifacts predate current `HEAD` / `origin/main` `5435e820a7175aea3d0e834299da9913c3172747`. Unity code last changed at `0d0b76d`; later commits add QA and language findings, including Bengali conjuncts still needing native text. Current code includes painted UI, Android engine-linking/minimum-SDK, accessibility, CJK and RTL changes. No build from current code has completed.
 - Unity `6000.3.0f1` imported the project with 12 source puzzles and 29 locale catalogs. Android and iOS Build Support modules are installed beside the Editor app bundle.
-- The .NET 8 game-core suite passed 39,680 assertions on SDK 8.0.428. The project verifier passed with 101 keys across 29 offline catalogs. These checks do not prove store readiness or human usability.
+- The .NET 8 game-core suite passed 39,900 assertions on SDK 8.0.428. The project verifier passed with 101 keys across 29 offline catalogs. The Unity code is unchanged since `0d0b76d`; later commits add QA findings and documentation. These checks do not prove store readiness or human usability.
 - The release-candidate build method and Android/iOS build-number controls are committed in current source. A clean rebuild still needs the installed Editor path resolved and must use version code/build number 2.
 - The previous Android AAB and iOS device/Simulator apps passed bounded scans for development-only control identifiers; those results do not cover current `HEAD`. Re-run the scan on a newly built current artifact. A bounded strings scan does not replace runtime/privacy/security review.
 
@@ -41,7 +41,7 @@ This is local build and emulator evidence for the `Evergrove` internal project, 
 ## Store media candidates
 
 - JPEG exports are under [`store/assets/evergrove/1.0/`](../../../../store/assets/evergrove/1.0/README.md). They preserve the actual app captures' pixel dimensions and remove the alpha channel; the original PNGs remain in the QA folders.
-- Apple has one actual iOS Simulator screenshot at 1206 × 2622, a listed accepted iPhone Dynamic Island medium-display size. It is not uploaded.
+- Apple has one earlier iOS Simulator screenshot at 1206 × 2622, a listed accepted iPhone Dynamic Island medium-display size; it is from build 1 and is not uploaded. A native-resolution current painted-UI development screenshot is archived at [`painted-ui-2026-11-24/15-high-resolution-live-simulator.png`](painted-ui-2026-11-24/15-high-resolution-live-simulator.png), but it visibly includes a development-only control and is QA-only.
 - Google Play has three actual phone AVD screenshots at 1080 × 2400. They fit Google's 320–3840 pixel dimensions and 2.3:1 maximum aspect ratio, but the game recommendation guidance calls for 9:16 portrait or 16:9 landscape, and the listing still needs a second device type. The current images alone do not meet those targets. No screenshot has been uploaded.
 - Raw preview footage exists for both platforms. The Apple clip still needs accepted-resolution validation; no preview video has been uploaded.
 

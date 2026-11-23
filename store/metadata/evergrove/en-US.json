@@ -2,8 +2,8 @@
   "schema_version": 1,
   "game_slug": "evergrove",
   "product_name": "Mosselora",
-  "source_commit": "f915f6722a55aabc4033732531f1c3b915602dad",
-  "source_note": "Mosselora is the public product name; Evergrove remains the internal codename. Current source includes Android engine-stripping, minimum-SDK, accessibility, CJK and RTL updates. The signed Android AAB (1.0.0/code 1) predates these changes and is not a current release candidate; the iOS device build is unsigned. No store upload, submission, approval or public availability is verified. The listing remains a draft, the mobile privacy disclosure is incomplete, and formal title clearance and age fit are unknown.",
+  "source_commit": "5435e820a7175aea3d0e834299da9913c3172747",
+  "source_note": "Mosselora is the public product name; Evergrove remains the internal codename. Current Unity code includes the painted UI, Android engine-linking/minimum-SDK and accessibility changes, CJK line breaking, RTL shaping and Bengali visual ordering. The signed Android AAB (1.0.0/code 1) and iOS build-1 capture predate these changes and are not current release candidates. No current-source mobile build, store upload, submission, approval or public availability is verified. The listing remains a draft; mobile privacy, BidiSharp shipping approval, formal title clearance and age fit are unresolved.",
   "status": "draft — not release approved",
   "source_locale": "en-US",
   "apple": {

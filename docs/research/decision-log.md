@@ -720,7 +720,7 @@ The user approved the Android emulator. Unity's bundled SDK gained the emulator 
 
 ## 2026-11-24 — Mosselora store-release checkpoint
 
-Current `HEAD` and `origin/main` are `f915f6722a55aabc4033732531f1c3b915602dad`. The pure C# suite passes 39,680 assertions on .NET SDK 8.0.428; the project verifier passes 101 keys across 29 offline catalogs. The latest source includes Android min SDK 26, accessibility, CJK and RTL changes. The signed Android AAB (version 1.0.0/code 1, min SDK 25) and iOS build-1 captures predate those changes and are not release candidates. No build from current `HEAD` has completed.
+Current `HEAD` and `origin/main` are `5435e820a7175aea3d0e834299da9913c3172747`; the Unity code tree last changed at `0d0b76d`. The pure C# suite passes 39,900 assertions on .NET SDK 8.0.428; the project verifier passes 101 keys across 29 offline catalogs. The current code includes the painted UI and Bengali visual-order work; the newest Bengali review still finds conjuncts that need native text. The signed Android AAB (version 1.0.0/code 1, min SDK 25) and iOS build-1 captures predate the current source and are not release candidates. No build from current code has completed.
 
 **Editor blocker:** the installed Unity 6.3.0f1 bundle is present with both mobile modules, but `codesign --verify --deep --strict` reports that its signature was modified. Unity CLI 1.0 finds no registered Editors and rejects the app bundle. I did not bypass its signature/bundle-ID validation. The user must authorize that exact bypass or provide a verified Hub-managed Editor before a current-source build can proceed.
 
