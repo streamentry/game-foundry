@@ -137,7 +137,7 @@ Player counts are **founder targets**, not benchmarks. Each rung reuses threshol
 | **Forest** | 10–50 million | Long-term (≥1 year) players are a measurable group. Localized storefronts sustain organic discovery | Puzzle creation with editorial review, tablet/desktop (EG-208) | Content quality or fairness can't keep pace |
 | **Hundred-Year Garden** | 100 million | Years of fair, profitable, respectful operation | Permanent archive commitments | — |
 
-**Measurement constraint:** the specs ban analytics SDKs and always-on analytics, and D1/D7 is currently a manual, consented follow-up. Every rung above Seed needs a **privacy-reviewed measurement decision**, including the install attribution and retention instrumentation [AGENTS.md](../../AGENTS.md) requires for a shipped game, **before** it can be judged. Without one, the ladder can't be measured.
+**Measurement constraint:** the specs ban analytics SDKs and always-on analytics, and D1/D7 is currently a manual, consented follow-up. Every rung above Seed needs a **privacy-reviewed measurement decision**, including the install attribution and retention instrumentation [AGENTS.md](../../AGENTS.md) requires for a shipped game, **before** it can be judged. Without one, the ladder can't be measured. A [measurement decision proposal](docs/specs/proposals/measurement-decision-2026-11-24.md) now awaits founder approval: research builds get an opt-in, on-device return diary for M3/M4 participants (local dates only, never leaves the device, participant-exported); store builds rely only on platform aggregate analytics.
 
 ---
 
