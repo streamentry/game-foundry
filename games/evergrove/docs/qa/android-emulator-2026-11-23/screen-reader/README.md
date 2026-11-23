@@ -88,3 +88,58 @@ The dump's only element is the root FrameLayout (`bounds="[0,0][1080,2400]"`), p
 - `logcat-a11y-excerpt.txt`: accessibility-related logcat lines (no MOSSELORA_SR line)
 
 Raw working copies are in `/Volumes/SSD/mosselora-builds/screen-reader-2026-11-23/`.
+
+## Instrumented re-test
+
+Build: development channel APK (`BuildOptions.Development`, so `DEVELOPMENT_BUILD` is set), built from this branch with `Evergrove.UnityClient.Editor.EvergroveBuild.Build` to `/Volumes/SSD/mosselora-builds/sr-apk/Android/Evergrove-Playtest.apk` (55.8 MB). Build log: `/Volumes/SSD/mosselora-builds/sr-apk.log` ("Exiting batchmode successfully now!").
+
+Diagnostics added (development builds only, inside `#if UNITY_EDITOR || DEVELOPMENT_BUILD`): `MOSSELORA_SR_STATUS enabled=<isScreenReaderEnabled> reason=<awake|changed-to-on|changed-to-off>` and `MOSSELORA_SR_PUBLISHED <count> first=<label frame=...>`.
+
+Commands (emulator-5554, Android 15, arm64):
+
+```sh
+adb install -r .../Evergrove-Playtest.apk          # Success
+adb shell settings put secure enabled_accessibility_services com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService
+adb shell settings put secure accessibility_enabled 1
+adb shell am force-stop com.streamentry.evergrove.playtest
+adb logcat -c
+adb shell am start -n com.streamentry.evergrove.playtest/com.unity3d.player.UnityPlayerGameActivity
+sleep 25; adb shell uiautomator dump /sdcard/sr-dump.xml; adb logcat -d | grep MOSSELORA_SR
+# Restore (the empty string "" is rejected by this adb shell; null was used)
+adb shell settings put secure enabled_accessibility_services null
+adb shell settings put secure accessibility_enabled 0
+adb shell settings put secure touch_exploration_enabled 0
+```
+
+Logcat (`/Volumes/SSD/mosselora-builds/screen-reader-sr-2026-11-23/logcat-mosselora-sr.txt`):
+
+```
+MOSSELORA_SR_STATUS enabled=True reason=awake
+MOSSELORA_SR_STATUS enabled=True reason=changed-to-on
+MOSSELORA_SR_PUBLISHED 36 first=MOSSELORA frame=(x:44.94, y:2155.62, width:990.12, height:68.73)
+MOSSELORA_SR_STATUS enabled=False reason=changed-to-off
+MOSSELORA_SR_STATUS enabled=True reason=changed-to-on
+MOSSELORA_SR_PUBLISHED 36 first=MOSSELORA frame=(x:44.94, y:2155.62, width:990.12, height:68.73)
+```
+
+Android side (`dumpsys accessibility`, same run): the window "Mosselora Playtest" is window 40 and is the active and focused window. TalkBack is bound and enabled, and `touchExplorationEnabled=true`.
+
+`uiautomator dump`: 2386 bytes, 0 text or content-desc nodes. logcat shows why:
+
+```
+AccessibilityNodeInfoDumper: Skipping invisible child: ... boundsInScreen: Rect(0, 0 - 0, 0); packageName: com.streamentry.evergrove.playtest; importantForAccessibility: false; visible: false
+```
+
+The dumper prunes an invisible child together with its whole subtree. The Unity window's child is that invisible node with zero bounds, so the 36 published nodes are probably below it and are not shown by the dump. The dump cannot show whether they exist.
+
+Interpretation:
+
+- Unity side works: `isScreenReaderEnabled` turns on and off with TalkBack, the status callback fires both ways, and `activeHierarchy` is published with 36 nodes and non-zero screen frames. No managed exception or Unity accessibility error appears in logcat (only `AccessibilityManager:Internal_Update_Impl()` info lines).
+- No bridge bug found in `ScreenReaderBridge.Publish` or `EvergroveApp` (status subscription, dirty flag, and reassignment on TalkBack on all run as the Unity docs require). No code change to the bridge was made.
+- The "0 nodes" result in the first probe was a measurement limit of `uiautomator`, not proof that the nodes are absent. A third-party uGUI bridge (luanrobs, Screen Reader for uGUI) reports the same gap on an Android emulator: Unity publishes, `uiautomator` lists none of Unity's nodes.
+- TalkBack's own log lines ("Failed to query component interface for required system resources: 6", "Could not find package com.google.android.aicore") show that the emulator's TalkBack is not fully provisioned. Speech output was not verified.
+- Not verified: that TalkBack speaks or focuses the 36 nodes. This needs a TalkBack gesture run, on the emulator with a focus probe or on a device with a person listening.
+
+Other finding (not changed here): `ProjectSettings.asset` has `AndroidMinSdkVersion: 25`, but the Unity docs state the Accessibility APIs are supported from Android 8.0 (API 26). On API 25 the bridge is expected to be inactive; decide whether to raise minSdk or to document it.
+
+Conclusion: environment and measurement limit, not a confirmed bridge bug. Screen-reader wiring is verified on the Unity side; TalkBack behavior remains unverified.
