@@ -85,6 +85,10 @@ namespace Evergrove.UnityClient.Editor
             // "Strip Engine Code" removes ("Could not produce class with ID
             // 115"): every label throws and nothing renders. Keep engine code.
             PlayerSettings.stripEngineCode = false;
+            // UnityEngine.Accessibility (screen-reader hierarchy, EG-113) needs
+            // Android API 26+; keep the minimum there so TalkBack support works.
+            if (PlayerSettings.Android.minSdkVersion < AndroidSdkVersions.AndroidApiLevel26)
+                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             // Store signing keys and deployment credentials are never read from
             // the repository. A release-candidate AAB still needs an upload
             // signature before it can be sent to Google Play.
