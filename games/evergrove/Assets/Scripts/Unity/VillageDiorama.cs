@@ -50,9 +50,9 @@ namespace Evergrove.UnityClient
             if (shader == null) return false;
 
             sharedMaterial = new Material(shader);
-            sharedMaterial.name = "Evergrove / Unlit diorama palette";
+            sharedMaterial.name = "Mosselora / restrained garden palette";
             output = new RenderTexture(TextureWidth, TextureHeight, 16, RenderTextureFormat.ARGB32);
-            output.name = "Evergrove 2.5D portrait postcard";
+            output.name = "Mosselora garden miniature";
             output.filterMode = FilterMode.Bilinear;
             output.wrapMode = TextureWrapMode.Clamp;
             output.antiAliasing = 1;
@@ -69,7 +69,7 @@ namespace Evergrove.UnityClient
             sceneCamera.orthographicSize = 4.35f;
             sceneCamera.aspect = (float)TextureWidth / TextureHeight;
             sceneCamera.clearFlags = CameraClearFlags.SolidColor;
-            sceneCamera.backgroundColor = Palette("#E2ECE3");
+            sceneCamera.backgroundColor = Palette("#E5ECDD");
             sceneCamera.cullingMask = 1 << SceneLayer;
             sceneCamera.nearClipPlane = 0.1f;
             sceneCamera.farClipPlane = 50f;
@@ -173,14 +173,14 @@ namespace Evergrove.UnityClient
             stream.transform.SetParent(stage, false);
             var filter = stream.AddComponent<MeshFilter>();
             var mesh = new Mesh();
-            mesh.name = "Evergrove winding water";
+            mesh.name = "Mosselora winding water";
             mesh.vertices = vertices;
             mesh.uv = uvs;
             mesh.triangles = tris;
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             filter.sharedMesh = mesh;
-            Colorize(stream.AddComponent<MeshRenderer>(), flowing ? "#6EADB4" : "#C4B69C");
+            Colorize(stream.AddComponent<MeshRenderer>(), flowing ? "#6FB4BA" : "#C4B69C");
 
             if (!flowing) return;
             for (int i = 0; i < 4; i++)
@@ -207,7 +207,7 @@ namespace Evergrove.UnityClient
                 new Vector3(0.13f, 0.52f * maturity, 0.13f), "#826451", tree.transform);
             Ball("Leaf canopy", new Vector3(0f, 1.28f * maturity, 0f),
                 new Vector3(1.15f * maturity, 0.8f * maturity, 1.02f * maturity),
-                "#6F9874", tree.transform);
+                "#5D906C", tree.transform);
             Ball("Sunlit leaves", new Vector3(-0.28f * maturity, 1.49f * maturity, -0.15f),
                 new Vector3(0.78f * maturity, 0.56f * maturity, 0.74f * maturity),
                 "#A2BC82", tree.transform);
@@ -231,7 +231,7 @@ namespace Evergrove.UnityClient
             Box("Cottage door", new Vector3(-2.8f, 0.31f, 1.535f),
                 new Vector3(0.29f, 0.62f, 0.045f), "#725848");
             Box("Cottage window", new Vector3(-3.29f, 0.72f, 1.54f),
-                new Vector3(0.20f, 0.23f, 0.05f), "#A2D7CE");
+                new Vector3(0.20f, 0.23f, 0.05f), "#E8B958");
             Box("Stone path", new Vector3(-2.8f, 0.02f, 2.2f),
                 new Vector3(0.62f, 0.065f, 1.12f), "#D6CEAA");
         }
@@ -467,7 +467,7 @@ namespace Evergrove.UnityClient
             foreach (MeshFilter filter in stage.GetComponentsInChildren<MeshFilter>(true))
             {
                 Mesh mesh = filter.sharedMesh;
-                if (mesh != null && mesh.name == "Evergrove winding water")
+                if (mesh != null && mesh.name == "Mosselora winding water")
                 {
                     filter.sharedMesh = null;
                     Destroy(mesh);

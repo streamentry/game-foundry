@@ -1,4 +1,4 @@
-# Evergrove · First Minute
+# Mosselora · First Minute (legacy folder: evergrove)
 
 **A playable browser research slice, not an exported Unity game.**
 
@@ -55,3 +55,7 @@ This executable check renders the actual HTML/CSS/JS in an **offline headless Ch
 **Still unverified:** physical iPhone Safari/Android Chrome, screen-reader semantics, contrast and actual human response. Test real devices, zoom/large-font and reduced-motion modes before treating the browser slice as suitable for broad user research.
 
 Authoring intent: *make the first meaningful action delightful, not make the introduction longer.*
+
+## Mosselora design alignment
+
+This research slice now displays the **Mosselora** working brand, a compact botanical monogram, forest/paper/water styling and open-circle indicators instead of alarm-like exclamation marks. Offline puzzle and attempts stay unchanged. The brand is pending formal clearance; the `evergrove` folder, engine identifiers and save keys remain stable. See [design system](../../design.md).

@@ -10,7 +10,7 @@
 | --- | --- | --- | --- |
 | Launch | A calm place and an immediately tappable puzzle, no login or advertisement | The Unity first-chapter source now builds the puzzle **before** the optional village illustration; the water/creek are still inspectable below | Do the first tile and its tap feedback actually fit and remain discoverable at 320px and larger phones? |
 | First ~10 s | I can tap a pipe; the interaction does something | blue-wave/sprout endpoint icons, 3×3 board, one-tap rotation, changing channel graphics | Mobile hitbox/legibility and actual zero-coaching comprehension |
-| First attempts | An additional connection visibly carries water; a lost connection visibly dries | Only spring-connected pipe geometry becomes blue; dry channels stay earthen; 2D creek advances with reach; connected count and ! leak cues remain | Do people grasp real connectivity without coaching, including grayscale play? |
+| First attempts | An additional connection visibly carries water; a lost connection visibly dries | Only spring-connected pipe geometry becomes blue; dry channels stay earthen; 2D creek advances with reach; connected count and hollow-circle open-join cues remain | Do people grasp real connectivity without coaching, including grayscale play? |
 | First solution | The previously dry downstream creek fills completely | `VillageScenePlan.WaterRestored` switches only after complete leak-free connectivity; the pre-choice localized consequence now uses `solved` instead of the stale dry-creek `world_none` label | Is this more rewarding than incremental flow, without confetti? |
 | First choice | I am choosing what this place will need next | Tree / crossing / flowers, promised outcome on each button | Do consequences feel meaningful or like three similar menu labels? |
 | Memory beat | A character and environment acknowledge my action | `LocalizedVillage.MemoryEvent`; explicit choice correction | Does this deepen attachment or interrupt a short puzzle session? |
@@ -112,7 +112,7 @@ See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **Eng
 | Requirement | Current implementation | Real validation before launch |
 | --- | --- | --- |
 | Large touch targets | Dynamic grid aims ~90px for 3×3 and ~67px for 4×4 at reference 414px; smaller phones clamp lower | Verify effective pixel hit areas and non-overlap at 320px/landscape/tablets |
-| Distinct states | blue-wave/sprout icons, ! leak marker and warm protected-tile badge, water color + text counters | Colorblind comprehension, high contrast, distinguishable rotation/lock without relying on amber |
+| Distinct states | blue-wave/sprout icons, hollow-circle open-join marker and warm protected-tile badge, water color + text counters | Colorblind comprehension, high contrast, distinguishable rotation/lock without relying on amber |
 | No pressure | No countdown/streak; Undo, Restart, optional Guide me | Observe no shame/forced help; examine difficulty spikes |
 | Hearing independence | Sound optional and default off | Verify mute/ringer and audio interruption on iOS/Android |
 | Motion sensitivity | 2.5D motion optional/off initially | Test OS reduced-motion preference; check flashing and 12fps animation artifacts |
@@ -127,3 +127,13 @@ See [LOCALIZATION.md](../LOCALIZATION.md). Current implementation provides **Eng
 A chapter is “done” only when the water rules are valid and unique, the difficulty is observed rather than guessed, the previous choice is clearly seen in the next puzzle, the world illustration and dialogue correspond to the same event history, all supported live UI languages fit, the save survives interruption and the player can stop without guilt.
 
 **Most expensive design failure:** content feels like the same pipe puzzle rotated, with an amber non-rotatable cell. If players correctly recognize the transform as superficial, stop producing more rotations; instead test one true physical dependency with an observable opportunity cost. See [validation](VALIDATION.md).
+
+## Mosselora visual-system implementation (2026-11-23)
+
+**Player-facing:** UI/English and all 29 *draft* locale titles now say **Mosselora**, while legacy `Evergrove` source paths, save identifiers, namespaces, asset paths and release automation stay stable. The subtitle's English source is “A living garden that remembers.” Other locale subtitles retain existing drafts. This working name still needs trademark clearance before public launch.
+
+**Unity source:** one `MosseloraTheme.TileFill` rule now colors the initial board **and** updates after tap/Undo/hint, protecting truthful wet/dry/anchored states; rounded pipe hearts soften the plumbing feel without changing ports or reach; a hollow circle replaces the warning-like red exclamation-mark mismatch cue. All three ecological choices now share **equal visual weight** (the former default first-choice green emphasis could bias research). Larger decision typography, a darker forest-ink palette, and warmer 2D/2.5D cottage/stream art are included. Memory, journal, neighbors, choices, end and settings all inherit the same shared UI colors and text styling.
+
+**Browser research:** matching botanical monogram, palette, open-circle explanation, branded copy and compact-viewport checks. It still implements exactly one Unity-authored puzzle; no saved progression. **M1 Unity import/compile, iOS/Android, screen-reader checks, trademark review, contrast audit and actual player liking remain UNVERIFIED.** The two implementations are not pixel-identical and must not be assumed to be.
+
+**Counterargument:** a richer illustration and unfamiliar hollow-circle mark might lower comprehension, particularly for adults 45+, despite looking friendlier. Cheapest test: show a competing build/screenshot and watch 8–12 uncoached players identify loose connections, make a first move, notice the creek restoration, and choose without leading questions. If 3/10 starters misread the goal or miss restoration, simplify the UI before expanding art.

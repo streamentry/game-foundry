@@ -1,4 +1,4 @@
-/* Evergrove first-minute research slice: exact Unity chapter-one fixture.
+/* Mosselora first-minute research slice: exact Unity chapter-one fixture.
  * No framework, telemetry, account, persistence, external assets or network.
  * Browser prototype only. A real Unity/device QA pass is still mandatory.
  */
@@ -221,7 +221,7 @@
       button.innerHTML = tileIcon(i) +
         (isSource ? '<span class="tile-mark" aria-hidden="true">≋</span>' :
          isGarden ? '<span class="tile-mark tile-mark--sprout" aria-hidden="true">✿</span>' : '') +
-        (insight.leaking[i] ? '<span class="tile-alert" aria-hidden="true">!</span>' : '');
+        (insight.leaking[i] ? '<span class="tile-alert" aria-hidden="true">○</span>' : '');
     });
     node("water-count").textContent = insight.connectedCount + " of 9";
     node("creek-front").style.strokeDashoffset = String(100 * (1 - insight.creekReach));
@@ -309,7 +309,7 @@
   });
   node("copy-notes").addEventListener("click", async () => {
     const report = [
-      "EVERGROVE FIRST-MINUTE RESEARCH PROTOTYPE",
+      "MOSSELORA FIRST-MINUTE RESEARCH PROTOTYPE",
       "No identity collected. No automatic recording or upload.",
       "condition=storybook-first-stream",
       "board=First Bend (identical Unity 3x3 fixture)",

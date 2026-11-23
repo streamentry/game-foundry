@@ -86,3 +86,15 @@ When someone changes gameplay, request both a code PR and a doc update:
 - Ship candidate → [BUILD_AND_QA](BUILD_AND_QA.md), real devices, screenshots, full sign-offs.
 
 The north star does **not** change: *a small place that remembers honest choices*. But the implementation, engine, visual style, name and business model must remain falsifiable and reversible.
+
+## 2026-11-23 — Mosselora brand and living-garden visual-system implementation
+
+**Decision:** Adopt **Mosselora** as a *working, player-visible name* and apply the [design system](../design.md) to Unity first/later puzzle boards, choice, memory, storybook/diorama color direction, and the offline first-minute web research slice. Preserve existing save keys, namespace, package IDs, resource paths and `games/evergrove` folder. Do not announce trademark clearance.
+
+**User value hypothesis:** one cohesive, readable living garden communicates water and consequence more quickly, while equal-weight ecological choices reduce a presentation-induced bias. The art should feel warm without competing with puzzle legibility.
+
+**Strongest opposing case:** more illustration and unfamiliar leak marks could reduce recognition; a polished UI cannot redeem a shallow 12-board loop, unverified Unity import or absent distribution. A broad rebrand also risks trademark conflict and localization work.
+
+**Evidence:** browser DOM/unit tests, real headless Chromium viewports and pure C# project assertions can check functional/source contracts after CI. They cannot establish native rendering, genuine delight, player understanding, retention or legal clearance. Brand art from conversation is *not* yet a shipped licensed icon asset.
+
+**Next gate / reversal:** licensed Unity preflight and physical device checks, then 8–12 uncoached players (oversampling 45+). Observe first action, open-join comprehension, restoration, choice consequence and voluntary next chapter. If 3/10 starters misunderstand the goal or miss restoration, prioritize undoing decorative changes. If the mark is risky, revert public branding without touching legacy save identity.

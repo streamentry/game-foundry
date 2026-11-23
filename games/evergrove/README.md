@@ -1,6 +1,8 @@
-# Evergrove — a world that remembers
+# Mosselora — a living garden that remembers
 
-**Status: integrated Unity/C# Chapter One playtest, not a published game or independently verified Unity Editor build.**
+**Working player-facing brand: Mosselora** (previously Evergrove). Trademark clearance is not complete. **Status: integrated Unity/C# playtest, not a published game or independently verified Unity Editor build.**
+
+**Design implementation (2026-11-23):** [Mosselora living-garden system](design.md) is now applied to the Unity first puzzle, later boards, choice/memory/journal surfaces, 2D illustration, optional 2.5D color direction, and the [offline browser first-minute slice](research/first-minute/README.md). The former `evergrove` folder, Unity class/namespace names, save keys and package IDs remain intentionally unchanged to protect saved worlds. The generated golden-M app icon is a creative reference **not yet committed as a verified shipping asset**. C# and browser CI do not replace licensed Unity/device QA.
 
 **Evidence-led product and feature specifications:** [docs/specs/](docs/specs/README.md) contains the complete 37-feature P0/P1/P2 backlog, player experience, puzzle/ecology/narrative contracts, accessibility/localization and device release gates, market evidence, experiments, six-week plan and GTM/stop rules. **These are proposals, not completed features or production approval.** See the [M0–M6 execution and evidence gates](docs/specs/09-EXECUTION-CONTROL.md).
 

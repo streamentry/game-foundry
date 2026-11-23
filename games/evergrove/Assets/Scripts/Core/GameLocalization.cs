@@ -95,8 +95,8 @@ namespace Evergrove.Core
         };
 
         private static readonly string[] English = {
-            "EVERGROVE · A WORLD THAT REMEMBERS",
-            "Little choices. A living place.",
+            "MOSSELORA",
+            "A living garden that remembers.",
             "Language",
             "Automatic (device language)",
             "The device language is used until you choose another.",
@@ -139,7 +139,7 @@ namespace Evergrove.Core
             "Undo",
             "Guide me",
             "Restart stream",
-            "Tap to rotate. Connect every pipe without an open end.",
+            "Tap to turn a pipe. Circles mark open ends; guide water to the garden.",
             "Plant a shade tree",
             "Restore a crossing",
             "Grow wildflowers",

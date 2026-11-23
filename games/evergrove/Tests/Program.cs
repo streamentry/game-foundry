@@ -691,6 +691,8 @@ internal static class Program
                 "catalog has a complete translation for " + language.Code);
             Expect(GameLocalization.Register(bundle), "all keys and placeholders valid for " + language.Code);
             Expect(GameLocalization.SetCurrent(language.Code), "language can be selected");
+            Expect(GameLocalization.Text("title") == "MOSSELORA",
+                "the wordmark is stable across draft language catalogs: " + language.Code);
             int different = 0;
             foreach (string key in GameLocalization.Keys)
             {
@@ -738,6 +740,8 @@ internal static class Program
         Expect(tested == 29, "all translated locale assets validated");
         Expect(GameLocalization.SetCurrent("en"), "English fallback restored");
         Expect(GameLocalization.Text("undo") == "Undo", "English source remains canonical");
+        Expect(GameLocalization.Text("title") == "MOSSELORA",
+            "English player-facing title is Mosselora; save and engine IDs stay legacy");
 
         TranslationBundle incomplete = new TranslationBundle {
             code = "fr", entries = new[] {
