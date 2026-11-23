@@ -23,11 +23,10 @@
 ```text
 Portrait scrolling UI
   Brand + product headline
-  Language selector (Automatic / 30-language picker)
-  Text size control "Aa 100% / 125% / 150%" (language-neutral; cycles on tap)
+  Language selector (Automatic / 30-language picker) and text size "Aa 100% / 125% / 150%" (language-neutral; cycles on tap), above the board except on the post-choice screen
   [Living mode] 2D illustration OR opt-in 2.5D miniature
   World consequence and one remembered action
-  [If a choice was committed] memory interlude + Continue + Change choice
+  [If a choice was committed] world consequence, memory card, Continue + Change choice, then the language/text-size row (unverified with players)
   [If campaign completed] authored epilogue + confirm-before-reset
   [Else]
     Stream title / environmental landmark notice

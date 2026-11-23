@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using Evergrove.Core;
 using UnityEngine;
 using UnityEngine.UI;
@@ -176,6 +177,24 @@ namespace Evergrove.UnityClient
             yield return new WaitForEndOfFrame();
             SavePng("12-matched-chapter2.png");
 
+            // Step 13: tap a protected landmark on that board. It must explain
+            // itself in the status line without spending a move or undo entry.
+            Puzzle board = app.QaWorld.CurrentPuzzle;
+            if (board.AnchoredTile >= 0)
+            {
+                int[] rotationsBefore = app.QaWorld.Rotations;
+                bool undoBefore = app.QaWorld.CanUndo;
+                Tap(board.AnchoredTile, board.Size);
+                for (int f = 0; f < 4; f++) yield return null;
+                if (!Enumerable.SequenceEqual(rotationsBefore, app.QaWorld.Rotations) ||
+                    undoBefore != app.QaWorld.CanUndo)
+                    throw new InvalidOperationException("Protected tap changed the board or undo state");
+                ScrollTo("Water feedback");
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("13-anchored-tap.png");
+            }
+
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
             Application.Quit();
         }
@@ -207,7 +226,10 @@ namespace Evergrove.UnityClient
         private static void Tap(int index, int size)
         {
             string prefix = "Row " + (index / size + 1) + " column " + (index % size + 1) + " ";
-            FindButton(n => n.StartsWith(prefix, StringComparison.Ordinal), prefix).onClick.Invoke();
+            Button tile = FindButton(n => n.StartsWith(prefix, StringComparison.Ordinal), prefix);
+            // Same gate a real pointer press uses: disabled tiles never fire.
+            if (!tile.interactable) throw new InvalidOperationException("Tile not tappable: " + prefix);
+            tile.onClick.Invoke();
         }
 
         private void SolveTile(Puzzle puzzle, int index)

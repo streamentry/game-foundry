@@ -76,7 +76,7 @@
 
 ### EG-003 — Consequence-first visual reveal
 
-**State:** Scene changes exist; reveal sequence needs device/player verification. **Type:** Core quality. **Risk:** Visual clutter or longer forced cutscene. **Evidence:** R1,R4,H1. **R/I/C/E:** 5/5/3/2; **illustrative score:** 37.5.
+**State:** Implemented-Unverified: the post-choice screen now orders illustration, one consequence line, the memory card, then Continue/Change and a settings row; tapping a protected landmark explains it in the status line without spending a move. macOS QA tour screenshots (540x960; 375x667 at 150%) show the memory card above the fold; device and player verification still needed. **Type:** Core quality. **Risk:** Visual clutter or longer forced cutscene. **Evidence:** R1,R4,H1. **R/I/C/E:** 5/5/3/2; **illustrative score:** 37.5.
 
 **Execution:** `Proposed`; **M3**; owner role **Product Owner**; verification **`WLD-001`, `VAL-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-003/verification.md` (**NOT COLLECTED**); **rollback/stop:** Consequence recall does not improve after two iterations.
 

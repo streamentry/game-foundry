@@ -459,18 +459,23 @@ namespace Evergrove.UnityClient
             // Keep the first playable board in the first visible viewport,
             // rather than putting language/settings and a giant hero above it.
             bool firstPuzzle = world.Round == 0 && !world.Solved && !showingMemory;
+            // The post-choice screen leads with the changed world and the new
+            // memory; its settings move below the primary actions.
+            bool memoryScreen = living && showingMemory && world.Choices.Length > 0;
+            // An open language picker keeps its own toggle at the top so it can close.
+            bool settingsAtTop = languagePicker || (!firstPuzzle && !memoryScreen);
+            bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
             Text wordmark = Label(content, "Mosselora wordmark", GameLocalization.Text("title"),
                 15, 26, Leaf);
             wordmark.fontStyle = FontStyle.Bold;
             Label(content, "Title", GameLocalization.Text("subtitle"),
                 firstPuzzle ? 16 : 24, firstPuzzle ? 28 : 44, Ink);
-            if (LocaleRuntime.SelectableLanguages.Count > 1 &&
-                (!firstPuzzle || languagePicker))
+            if (multiLanguage && settingsAtTop)
                 Button(content, "Language settings",
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
                     () => { languagePicker = !languagePicker; Rebuild(true); }, 48);
-            if (!firstPuzzle || languagePicker)
+            if (settingsAtTop)
                 TextSizeButton(content);
             if (languagePicker)
             {
@@ -560,7 +565,7 @@ namespace Evergrove.UnityClient
                 Label(content, "Puzzle condition", GameLocalization.Text("puzzle_desc"),
                     14, 44, Moss, TextAnchor.MiddleCenter);
 
-            if (showingMemory && world.Choices.Length > 0 && living)
+            if (memoryScreen)
             {
                 var moment = Card(content, "A remembered moment", Sand);
                 Label(moment.transform, "Moment title", GameLocalization.Text("memory_title"), 15, 31, Leaf);
@@ -577,6 +582,7 @@ namespace Evergrove.UnityClient
                     showingMemory = false;
                     Rebuild(false);
                 }, 47);
+                SettingsRow(multiLanguage);
             }
             else if (world.Completed)
             {
@@ -847,7 +853,8 @@ namespace Evergrove.UnityClient
                     index, puzzle.Size);
                 var tile = tileNode.AddComponent<Button>();
                 tile.targetGraphic = image;
-                tile.interactable = !world.Solved && !puzzle.IsAnchored(index);
+                // Protected tiles stay tappable: a tap explains them without a move.
+                tile.interactable = !world.Solved;
                 var colors = tile.colors;
                 colors.highlightedColor = Hex("#BFE0DC");
                 colors.pressedColor = Hex("#A3D2CC");
@@ -986,6 +993,19 @@ namespace Evergrove.UnityClient
             }
             Label(content, "How to play", GameLocalization.Text("how"),
                 13, 56, Moss, TextAnchor.MiddleCenter);
+        }
+
+        // Compact settings below the primary actions of the post-choice screen.
+        // Same controls and behavior as the top-of-screen settings elsewhere.
+        private void SettingsRow(bool offerLanguage)
+        {
+            GameObject row = Row(content, "Settings row");
+            if (offerLanguage)
+                Button(row.transform, "Language settings",
+                    GameLocalization.Text("language") + ": " +
+                    GameLocalization.NativeName(GameLocalization.Current),
+                    () => { languagePicker = true; Rebuild(true); }, 48);
+            TextSizeButton(row.transform);
         }
 
         // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.
@@ -1174,7 +1194,7 @@ namespace Evergrove.UnityClient
                 tileBackgrounds[i].color = MosseloraTheme.TileFill(world.Solved,
                     insight.Flowing[i], puzzle.IsAnchored(i), world.HintStep,
                     world.HintTile, i, puzzle.Size);
-                visibleTiles[i].interactable = !world.Solved && !puzzle.IsAnchored(i);
+                visibleTiles[i].interactable = !world.Solved;
                 tileArtwork[i].Configure(puzzle.Kinds[i], angles[i],
                     insight.Flowing[i], world.Solved);
                 if (visibleLeaks != null && visibleLeaks[i] != null)
@@ -1231,6 +1251,14 @@ namespace Evergrove.UnityClient
 
         private void TapTile(int index)
         {
+            if (!world.Solved && world.CurrentPuzzle.IsAnchored(index))
+            {
+                // Explains the landmark in the status line only: no move, no undo
+                // entry, no save. The next real action redraws the progress text.
+                string landmark = LocalizedVillage.EnvironmentalRule(world);
+                if (feedbackText != null && landmark.Length > 0) feedbackText.text = landmark;
+                return;
+            }
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
             if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
