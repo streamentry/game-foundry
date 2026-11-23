@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "HADITHI YA BUSTANI YAKO"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Nakili faili ya bustani"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Faili ya bustani imenakiliwa. Iweke mahali salama."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Rejesha kutoka faili ya bustani"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Hii itachukua nafasi ya bustani yako ya sasa."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Bado hakuna kilichonakiliwa. Nakili faili ya bustani kwanza, kisha ujaribu tena."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Hii si faili ya bustani ya Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Faili hii ya bustani imetoka toleo jipya zaidi la Mosselora. Sasisha mchezo ili kuifungua."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Faili hii ya bustani imeharibika au haijakamilika. Bustani yako haikubadilika."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Faili hii ya bustani ni kubwa mno kuwa bustani ya Mosselora. Bustani yako haikubadilika."
     }
   ]
 }

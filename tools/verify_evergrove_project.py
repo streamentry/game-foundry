@@ -110,7 +110,7 @@ localization_source = (game / "Assets" / "Scripts" / "Core" / "GameLocalization.
 ids_block = re.search(r"private static readonly string\[\] Ids = \{([\s\S]*?)\};", localization_source)
 assert ids_block, "canonical translation IDs not found"
 keys = re.findall(r'"([^"]+)"', ids_block.group(1))
-assert len(keys) == 82 and len(keys) == len(set(keys)), "canonical locale key set drifted"
+assert len(keys) == 91 and len(keys) == len(set(keys)), "canonical locale key set drifted"
 bundle_dir = game / "Assets" / "Resources" / "Evergrove" / "Locales"
 supported = {
     "zh-Hans", "zh-Hant", "es", "pt-BR", "fr", "de", "ja", "ko", "ar",
@@ -145,4 +145,8 @@ assert "foreach (GameLanguage choice in LocaleRuntime.SelectableLanguages)" in u
 assert ui.count("LocaleRuntime.SelectableLanguages.Count > 1") == 1
 assert "LocaleRuntime.Initialize();" in ui and "BuildLanguagePicker()" in ui
 assert "LocalizedVillage." in ui and "GameLocalization.Text(" in ui
+# Garden file: clipboard export/import wired to the settings UI with a second confirmation.
+assert "GardenTransfer.Export(world" in ui and "GardenTransfer.TryImport(" in ui
+assert "GUIUtility.systemCopyBuffer" in ui and "Confirm garden restore" in ui
+assert "Cancel garden restore" in ui and "SaveWorld(); // same persistence path" in ui
 print(f"Evergrove language assets: English source + {len(supported)} complete offline catalogs, {len(keys)} keys each")

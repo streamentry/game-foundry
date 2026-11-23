@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "BAHÇENİN HİKÂYESİ"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Bahçe dosyasını kopyala"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Bahçe dosyası kopyalandı. Güvenli bir yerde saklayın."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Bahçe dosyasından geri yükle"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Bu, mevcut bahçenizin yerine geçer."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Henüz hiçbir şey kopyalanmadı. Önce bir bahçe dosyası kopyalayıp tekrar deneyin."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Bu bir Mosselora bahçe dosyası değil."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Bu bahçe dosyası Mosselora'nın daha yeni bir sürümünden. Açmak için oyunu güncelleyin."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Bu bahçe dosyası bozuk ya da eksik. Bahçeniz değiştirilmedi."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Bu bahçe dosyası bir Mosselora bahçesi olamayacak kadar büyük. Bahçeniz değiştirilmedi."
     }
   ]
 }

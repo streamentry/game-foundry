@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "KWENTO NG IYONG HARDIN"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Kopyahin ang file ng hardin"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Nakopya na ang file ng hardin. Itago ito sa ligtas na lugar."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Ibalik mula sa file ng hardin"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Papalitan nito ang kasalukuyan mong hardin."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Wala pang nakokopya. Kopyahin muna ang file ng hardin, saka subukang muli."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Hindi ito file ng hardin ng Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Galing ang file ng hardin na ito sa mas bagong bersyon ng Mosselora. I-update ang laro para mabuksan ito."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Sira o hindi kumpleto ang file ng hardin na ito. Hindi binago ang iyong hardin."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Masyadong malaki ang file ng hardin na ito para maging hardin ng Mosselora. Hindi binago ang iyong hardin."
     }
   ]
 }

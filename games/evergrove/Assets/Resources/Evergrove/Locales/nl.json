@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "HET VERHAAL VAN JE TUIN"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Tuinbestand kopiëren"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Tuinbestand gekopieerd. Bewaar het op een veilige plek."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Herstellen uit tuinbestand"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Dit vervangt je huidige tuin."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Er is nog niets gekopieerd. Kopieer eerst een tuinbestand en probeer het opnieuw."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Dit is geen Mosselora-tuinbestand."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Dit tuinbestand komt uit een nieuwere versie van Mosselora. Werk het spel bij om het te openen."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Dit tuinbestand is beschadigd of onvolledig. Je tuin is niet veranderd."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Dit tuinbestand is te groot om een Mosselora-tuin te zijn. Je tuin is niet veranderd."
     }
   ]
 }

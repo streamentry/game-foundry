@@ -177,9 +177,17 @@ Errors are checked in that order. Import always goes through `WorldModel.TryRest
 - **Does NOT:** provide tamper-proofing, authentication or anti-cheat. The algorithm is public, so anyone can edit a garden and recompute the checksum. A checksum-valid snapshot is still checked by `TryRestore`, so forged progress must also satisfy the puzzle rules, but it is not prevented.
 - **Does NOT cover** `exportedAtUtc` or any other envelope field. Editing the timestamp still imports.
 
-### Not implemented yet
+### Player UI (clipboard, unverified on device)
 
-**UI is NOT implemented.** There is no share sheet, file picker, clipboard action or in-app import button. Unity files in `Assets/Scripts/Unity/*` are untouched by this change. The pure core only exports and imports text. Platform file handling, storage permissions, large-file behavior on device, and the player-facing wording are unverified and still need a design and device pass.
+Settings contains a **Garden file** card (below the puzzle, never on the primary path):
+
+- **Copy garden file** writes `GardenTransfer.Export(world, UTC timestamp)` to `GUIUtility.systemCopyBuffer`, then shows "Garden file copied. Keep it somewhere safe."
+- **Restore from garden file** reads the system clipboard and runs `TryImport`. A failure shows one plain-language message per error (empty, not a garden file, newer version, damaged, too large). Nothing is replaced on failure.
+- A valid file is parsed into memory and waits for a second tap, **Confirm garden restore** ("This replaces your current garden."). Only then does the app replace the world and save it through `SaveWorld()` and `WorldStore`. Restore is hidden while an unreadable save blocks writes.
+
+The clipboard is the only transport. There is no file picker, share sheet, cloud sync or account. Ownership is not tamper-proof (see above). The dev-only QA tour step 14 copies, changes the garden, restores and asserts an exact match.
+
+**Still unverified:** the macOS Development tour run is desktop evidence only. Clipboard behavior, large-text layout, VoiceOver/TalkBack reading order, paste from other apps, and iOS/Android clipboard permissions have not been checked on a device. The player-facing wording is machine-drafted and awaits native review.
 
 ### Evidence
 

@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "庭の物語"
+    },
+    {
+      "key": "garden_copy",
+      "value": "庭のファイルをコピー"
+    },
+    {
+      "key": "garden_copied",
+      "value": "庭のファイルをコピーしました。安全な場所に保管してください。"
+    },
+    {
+      "key": "garden_restore",
+      "value": "庭のファイルから復元"
+    },
+    {
+      "key": "garden_replace",
+      "value": "現在の庭が置き換わります。"
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "まだ何もコピーされていません。先に庭のファイルをコピーしてから、もう一度お試しください。"
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Mosselora の庭のファイルではありません。"
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "このファイルは新しいバージョンの Mosselora で作られています。開くにはゲームを更新してください。"
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "このファイルは破損しているか不完全です。庭は変更されていません。"
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "このファイルは大きすぎて Mosselora の庭にはできません。庭は変更されていません。"
     }
   ]
 }

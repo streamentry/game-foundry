@@ -91,7 +91,10 @@ namespace Evergrove.Core
             "ending_all","ending_tree","ending_bridge","ending_flowers",
             "prompt_early","prompt_mid","prompt_late","journal_entry",
             "landmark_tree","landmark_bridge","landmark_flowers",
-            "hint_notice","hint_focus","hint_more","hint_turn","save_warning","ending_title"
+            "hint_notice","hint_focus","hint_more","hint_turn","save_warning","ending_title",
+            "garden_copy","garden_copied","garden_restore","garden_replace",
+            "garden_err_empty","garden_err_not_garden","garden_err_newer",
+            "garden_err_damaged","garden_err_too_large"
         };
 
         private static readonly string[] English = {
@@ -176,7 +179,16 @@ namespace Evergrove.Core
             "Show a closer clue",
             "Fix one connection",
             "Progress could not be saved. Check device storage.",
-            "YOUR GARDEN'S STORY"
+            "YOUR GARDEN'S STORY",
+            "Copy garden file",
+            "Garden file copied. Keep it somewhere safe.",
+            "Restore from garden file",
+            "This replaces your current garden.",
+            "Nothing is copied yet. Copy a garden file first, then try again.",
+            "This is not a Mosselora garden file.",
+            "This garden file came from a newer version of Mosselora. Update the game to open it.",
+            "This garden file is damaged or incomplete. Your garden was not changed.",
+            "This garden file is too large to be a Mosselora garden. Your garden was not changed."
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

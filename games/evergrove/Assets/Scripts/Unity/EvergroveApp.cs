@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Globalization;
 using Evergrove.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -54,6 +55,11 @@ namespace Evergrove.UnityClient
         private LocalPlaytest localPlaytest; // opt-in, in-memory only
         private bool playtestCopied;
         private bool saveFailed; // shown visibly; do not silently pretend an unsaved session is safe
+        // Garden file (clipboard): a parsed garden waits for an explicit second tap.
+        private bool gardenRestoreConfirm;
+        private WorldModel pendingGardenRestore;
+        private string gardenNoticeKey = "";
+        private bool gardenNoticeIsError;
         // Keep live puzzle controls mounted during every tap. Recreating the
         // entire uGUI hierarchy on each rotation would cause GC, jank and
         // scroll-position jumps on older phones.
@@ -704,6 +710,7 @@ namespace Evergrove.UnityClient
             }
 
 #endif
+            BuildGardenFileSection();
             Button(content, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 () => {
@@ -1313,6 +1320,106 @@ namespace Evergrove.UnityClient
             speakingWith = -1;
             PlayChime();
             Rebuild(true);
+        }
+
+        // Player-owned copy of the garden. Clipboard only; nothing leaves the device.
+        // Lives in settings, below the puzzle, and never on the primary path.
+        private void BuildGardenFileSection()
+        {
+            var card = Card(content, "Garden file", Sand);
+            Button(card.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
+                CopyGardenFile, 52);
+            if (!WorldStore.RecoveryBlocked)
+            {
+                if (!gardenRestoreConfirm)
+                    Button(card.transform, "Restore garden file", GameLocalization.Text("garden_restore"),
+                        ReadGardenFile, 52);
+                else
+                {
+                    Label(card.transform, "Garden replace warning", GameLocalization.Text("garden_replace"),
+                        13, 40, Ink);
+                    Button(card.transform, "Confirm garden restore", GameLocalization.Text("erase"),
+                        ConfirmGardenRestore, 52, true);
+                    Button(card.transform, "Cancel garden restore", GameLocalization.Text("keep"),
+                        CancelGardenRestore, 44);
+                }
+            }
+            if (gardenNoticeKey.Length > 0)
+                Label(card.transform, "Garden file notice", GameLocalization.Text(gardenNoticeKey),
+                    13, 40, gardenNoticeIsError ? Hex("#983E37") : Moss);
+        }
+
+        private void SetGardenNotice(string key, bool isError)
+        {
+            gardenNoticeKey = key ?? "";
+            gardenNoticeIsError = isError;
+        }
+
+        private void CopyGardenFile()
+        {
+            string stamp = DateTime.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture);
+            GUIUtility.systemCopyBuffer = GardenTransfer.Export(world, stamp);
+            gardenRestoreConfirm = false;
+            pendingGardenRestore = null;
+            SetGardenNotice("garden_copied", false);
+            Rebuild();
+        }
+
+        private void ReadGardenFile()
+        {
+            WorldModel parsed;
+            GardenImportError error;
+            if (!GardenTransfer.TryImport(GUIUtility.systemCopyBuffer ?? "", out parsed, out error))
+            {
+                gardenRestoreConfirm = false;
+                pendingGardenRestore = null;
+                SetGardenNotice(GardenErrorKey(error), true);
+                Rebuild();
+                return;
+            }
+            // Nothing is replaced until the second, explicit confirmation.
+            pendingGardenRestore = parsed;
+            gardenRestoreConfirm = true;
+            SetGardenNotice("", false);
+            Rebuild();
+        }
+
+        private void ConfirmGardenRestore()
+        {
+            if (pendingGardenRestore == null || WorldStore.RecoveryBlocked)
+            {
+                CancelGardenRestore();
+                return;
+            }
+            world = pendingGardenRestore;
+            pendingGardenRestore = null;
+            gardenRestoreConfirm = false;
+            SetGardenNotice("", false);
+            speakingWith = -1;
+            showingMemory = false;
+            showJournal = false;
+            confirmReset = false;
+            SaveWorld(); // same persistence path as every other progress change
+            Rebuild(true);
+        }
+
+        private void CancelGardenRestore()
+        {
+            gardenRestoreConfirm = false;
+            pendingGardenRestore = null;
+            Rebuild();
+        }
+
+        private static string GardenErrorKey(GardenImportError error)
+        {
+            switch (error)
+            {
+                case GardenImportError.Empty: return "garden_err_empty";
+                case GardenImportError.WrongFormat: return "garden_err_not_garden";
+                case GardenImportError.UnsupportedFutureVersion: return "garden_err_newer";
+                case GardenImportError.TooLarge: return "garden_err_too_large";
+                default: return "garden_err_damaged"; // Malformed, ChecksumMismatch, InvalidSnapshot
+            }
         }
 
         private void ConfirmedReset()

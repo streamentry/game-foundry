@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "داستان باغ تو"
+    },
+    {
+      "key": "garden_copy",
+      "value": "کپی پروندهٔ باغ"
+    },
+    {
+      "key": "garden_copied",
+      "value": "پروندهٔ باغ کپی شد. آن را در جای امنی نگه دارید."
+    },
+    {
+      "key": "garden_restore",
+      "value": "بازیابی از پروندهٔ باغ"
+    },
+    {
+      "key": "garden_replace",
+      "value": "این کار باغ فعلی شما را جایگزین می‌کند."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "هنوز چیزی کپی نشده است. ابتدا یک پروندهٔ باغ کپی کنید و دوباره امتحان کنید."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "این پروندهٔ باغ Mosselora نیست."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "این پروندهٔ باغ از نسخهٔ جدیدتر Mosselora است. برای بازکردن آن، بازی را به‌روز کنید."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "این پروندهٔ باغ آسیب‌دیده یا ناقص است. باغ شما تغییر نکرد."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "این پروندهٔ باغ برای یک باغ Mosselora بیش از حد بزرگ است. باغ شما تغییر نکرد."
     }
   ]
 }

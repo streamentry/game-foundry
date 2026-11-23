@@ -328,6 +328,42 @@
     {
       "key": "ending_title",
       "value": "L'HISTOIRE DE VOTRE JARDIN"
+    },
+    {
+      "key": "garden_copy",
+      "value": "Copier le fichier du jardin"
+    },
+    {
+      "key": "garden_copied",
+      "value": "Fichier du jardin copié. Gardez-le en lieu sûr."
+    },
+    {
+      "key": "garden_restore",
+      "value": "Restaurer depuis un fichier de jardin"
+    },
+    {
+      "key": "garden_replace",
+      "value": "Cela remplace votre jardin actuel."
+    },
+    {
+      "key": "garden_err_empty",
+      "value": "Rien n'a encore été copié. Copiez d'abord un fichier de jardin, puis réessayez."
+    },
+    {
+      "key": "garden_err_not_garden",
+      "value": "Ce n'est pas un fichier de jardin Mosselora."
+    },
+    {
+      "key": "garden_err_newer",
+      "value": "Ce fichier de jardin provient d'une version plus récente de Mosselora. Mettez le jeu à jour pour l'ouvrir."
+    },
+    {
+      "key": "garden_err_damaged",
+      "value": "Ce fichier de jardin est endommagé ou incomplet. Votre jardin n'a pas été modifié."
+    },
+    {
+      "key": "garden_err_too_large",
+      "value": "Ce fichier de jardin est trop volumineux pour être un jardin Mosselora. Votre jardin n'a pas été modifié."
     }
   ]
 }
