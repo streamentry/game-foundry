@@ -286,7 +286,7 @@ def check_specification_contract() -> None:
     ui = source_text(GAME / "Assets/Scripts/Unity/EvergroveApp.cs")
     builder = source_text(GAME / "Assets/Editor/EvergroveBuild.cs")
     if ui.count("#if UNITY_EDITOR || DEVELOPMENT_BUILD") < 4 or \
-            "options = BuildOptions.Development" not in builder:
+            "options = releaseCandidate ? BuildOptions.None : BuildOptions.Development" not in builder:
         fail("Research-only controls lack explicit development-build isolation")
     if not re.search(
         r"#if UNITY_EDITOR \|\| DEVELOPMENT_BUILD[\s\S]*?"

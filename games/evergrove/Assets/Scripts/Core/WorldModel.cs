@@ -88,12 +88,12 @@ namespace Evergrove.Core
         public static WorldModel New(PlayMode mode = PlayMode.Living)
         {
             if (mode == PlayMode.PuzzleMatched)
-                throw new ArgumentException("Matched control needs a variant schedule; use NewMatched.", nameof(mode));
+                throw new ArgumentException("Matched mode needs a variant schedule; use NewMatched.", nameof(mode));
             return Fresh(mode == PlayMode.Living ? "living" : "puzzle", Array.Empty<int>());
         }
 
         /// <summary>
-        /// Matched control: same board stream a Living player would receive for
+        /// Matched run: same board stream a Living player would receive for
         /// the given variants (schedule[i] = variant of board i+2), but no village
         /// choices. The schedule is copied and persisted with the run.
         /// </summary>

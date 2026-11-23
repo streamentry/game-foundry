@@ -46,17 +46,21 @@ namespace Evergrove.UnityClient
         private int speakingWith = -1;
         private bool confirmReset;
         private bool soundOn;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private bool showMiniature;
         // Decorative motion allowed (true) or reduced (false, the default).
         // Persisted in PlayerPrefs, separate from the save.
         private const string ReducedMotionKey = "evergrove:miniature-motion";
         private bool animateMiniature;
         private VillageDiorama diorama;
+#endif
         private VillageIllustration activeIllustration;
         private AudioSource sound;
         private AudioClip chime;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private LocalPlaytest localPlaytest; // opt-in, in-memory only
         private bool playtestCopied;
+#endif
         private bool saveFailed; // shown visibly; do not silently pretend an unsaved session is safe
         // Garden file (clipboard): a parsed garden waits for an explicit second tap.
         private bool gardenRestoreConfirm;
@@ -130,10 +134,6 @@ namespace Evergrove.UnityClient
             // Every consumer reads this flag; when it is 0 the miniature is a
             // still frame that shows the same causal state as the animated one.
             animateMiniature = PlayerPrefs.GetInt(ReducedMotionKey, 0) == 1;
-#else
-            // Store builds ship no decorative motion; the miniature is compiled out.
-            showMiniature = false;
-            animateMiniature = false;
 #endif
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
@@ -602,9 +602,14 @@ namespace Evergrove.UnityClient
             if (living)
             {
                 VillageScenePlan scenePlan = VillageScenePlan.From(world);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                 var illustration = Node(showMiniature ? "Miniature diorama" : "Living storybook art", content);
+#else
+                var illustration = Node("Living storybook art", content);
+#endif
                 Height(illustration, firstPuzzle ? 96 : 193); // Art never takes the first playable fold.
                 bool renderedMiniature = false;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                 if (showMiniature)
                 {
                     if (diorama == null)
@@ -631,9 +636,12 @@ namespace Evergrove.UnityClient
                         raw.color = Color.white;
                     }
                 }
+#endif
                 if (!renderedMiniature)
                 {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                     if (diorama != null) diorama.Hide();
+#endif
                     var art = illustration.AddComponent<VillageIllustration>();
                     activeIllustration = art;
                     art.Show(scenePlan.Chapter, scenePlan.TreeCount,
@@ -641,8 +649,10 @@ namespace Evergrove.UnityClient
                         scenePlan.WaterRestored, scenePlan.WaterReachPercent);
                 }
             }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             else if (diorama != null)
                 diorama.Hide();
+#endif
 
             if (living)
             {
@@ -669,7 +679,9 @@ namespace Evergrove.UnityClient
                 }, 62, true);
                 Button(content, "Change your choice", GameLocalization.Text("change"), () => {
                     if (!world.ReconsiderLatestChoice()) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                     if (localPlaytest != null) localPlaytest.Reconsider(Time.unscaledTime);
+#endif
                     SaveWorld();
                     showingMemory = false;
                     Rebuild(false);
@@ -1169,7 +1181,9 @@ namespace Evergrove.UnityClient
         private void OpenConversation(int villagerIndex)
         {
             speakingWith = villagerIndex;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Talk(Time.unscaledTime);
+#endif
             Rebuild();
         }
 
@@ -1342,7 +1356,9 @@ namespace Evergrove.UnityClient
                 Rebuild();
                 if (!wasSolved && world.Solved)
                 {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                     if (localPlaytest != null) localPlaytest.Solve(Time.unscaledTime);
+#endif
                     PlayChime();
                     StartCoroutine(ScrollToDecision());
                 }
@@ -1356,7 +1372,9 @@ namespace Evergrove.UnityClient
             bool wasSolved = world.Solved;
             int stage = world.AdvanceGentleHint();
             if (stage == 0) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Hint(Time.unscaledTime);
+#endif
             SaveWorld();
             Rebuild();
             if (!wasSolved && world.Solved)
@@ -1379,7 +1397,9 @@ namespace Evergrove.UnityClient
             }
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
+#endif
             AfterPuzzleAction(before);
         }
 
@@ -1387,6 +1407,7 @@ namespace Evergrove.UnityClient
         {
             bool before = world.Solved;
             if (!action()) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null)
             {
                 switch (actionKind)
@@ -1396,6 +1417,7 @@ namespace Evergrove.UnityClient
                     case "restart": localPlaytest.Restart(Time.unscaledTime); break;
                 }
             }
+#endif
             AfterPuzzleAction(before);
         }
 
@@ -1425,7 +1447,9 @@ namespace Evergrove.UnityClient
         private void MakeChoice(VillageChoice choice)
         {
             if (!world.Choose(choice)) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Choose(Time.unscaledTime);
+#endif
             SaveWorld();
             showingMemory = true;
             showJournal = false;
