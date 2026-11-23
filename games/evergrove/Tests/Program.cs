@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using Evergrove.Core;
@@ -664,6 +665,91 @@ internal static class Program
         throw new Exception("Could not find checked-in locale assets");
     }
 
+    // Fixed-width wrap used as a stand-in for the engine's measured line starts.
+    private static List<int> FixedWidthLines(string display, int width)
+    {
+        var starts = new List<int> { 0 };
+        int column = 0;
+        for (int index = 0; index < display.Length; index++)
+        {
+            if (display[index] == '\n')
+            {
+                starts.Add(index + 1);
+                column = 0;
+                continue;
+            }
+            if (column == width)
+            {
+                starts.Add(index);
+                column = 0;
+            }
+            column++;
+        }
+        return starts;
+    }
+
+    private static void KinsokuLineBreakTests()
+    {
+        Expect(KinsokuLineBreaks.IsCjkLocale("ja") && KinsokuLineBreaks.IsCjkLocale("zh-Hans") &&
+               KinsokuLineBreaks.IsCjkLocale("zh-Hant"), "CJK locales get line-start rules");
+        Expect(!KinsokuLineBreaks.IsCjkLocale("ko") && !KinsokuLineBreaks.IsCjkLocale("en"),
+            "other locales keep plain wrapping");
+        Expect(KinsokuLineBreaks.IsNoLineStart('。') && KinsokuLineBreaks.IsNoLineStart('、') &&
+               !KinsokuLineBreaks.IsNoLineStart('あ'), "closing punctuation identified");
+        Expect(KinsokuLineBreaks.IsNoLineEnd('「') && !KinsokuLineBreaks.IsNoLineEnd('。'),
+            "opening bracket identified");
+
+        // Source: あ0 い1 う2 え3 お4 。5 か6 き7 — line 2 starts with 。
+        string sentence = "あいうえお。かき";
+        var breaks = KinsokuLineBreaks.FindBreaksBefore(sentence, new[] { 0, 5 });
+        Expect(breaks.Count == 1 && breaks[0] == 4, "closing mark moves the preceding character down");
+        Expect(KinsokuLineBreaks.Insert(sentence, breaks) == "あいうえ\nお。かき",
+            "insert places the break one character earlier");
+
+        // Opening bracket at the end of a line moves down with the next character.
+        string bracket = "さくら「ほ";
+        var openerBreaks = KinsokuLineBreaks.FindBreaksBefore(bracket, new[] { 0, 4 });
+        Expect(openerBreaks.Count == 1 && openerBreaks[0] == 3,
+            "opening bracket at line end moves down with the break before it");
+
+        // Never create an empty line, and never touch the first line.
+        Expect(KinsokuLineBreaks.FindBreaksBefore("あ。い", new[] { 0, 1 }).Count == 0,
+            "a single-character line is not emptied");
+        Expect(KinsokuLineBreaks.FindBreaksBefore("あ\n。い", new[] { 0, 2 }).Count == 0,
+            "an explicit newline is not doubled");
+        Expect(KinsokuLineBreaks.FindBreaksBefore("日本語の文章", new[] { 0, 3 }).Count == 0,
+            "ordinary wrap points are untouched");
+
+        // Fit re-wraps with a fixed-width engine stand-in.
+        string fitted = KinsokuLineBreaks.Fit(sentence, display => FixedWidthLines(display, 5));
+        Expect(fitted == "あいうえ\nお。かき", "fit moves the punctuation off the line start");
+        Expect(KinsokuLineBreaks.Fit(sentence, display => FixedWidthLines(display, 10)) == sentence,
+            "text that already fits is unchanged");
+        Expect(KinsokuLineBreaks.Fit("", display => FixedWidthLines(display, 5)) == "",
+            "empty text stays empty");
+        Expect(KinsokuLineBreaks.Fit(sentence, null) == sentence, "missing measurer keeps source");
+        Expect(KinsokuLineBreaks.Fit(sentence, display => null) == sentence,
+            "missing line starts keep source");
+
+        // Two closing marks in a row: each pass moves one more character down.
+        string run = "あいう。。えお";
+        string runFit = KinsokuLineBreaks.Fit(run, display => FixedWidthLines(display, 3));
+        string[] lines = runFit.Split('\n');
+        foreach (string line in lines)
+            Expect(line.Length == 0 || !KinsokuLineBreaks.IsNoLineStart(line[0]) || line == lines[0],
+                "no wrapped line starts with closing punctuation");
+
+        // Fit stops after MaxPasses even if the engine keeps reporting a bad start.
+        int calls = 0;
+        string bounded = KinsokuLineBreaks.Fit("あいうえおかきくけこ", display =>
+        {
+            calls++;
+            return new List<int> { 0, 1, 2, 3, 4, 5, 6 };
+        });
+        Expect(calls <= KinsokuLineBreaks.MaxPasses, "fit is bounded by MaxPasses");
+        Expect(bounded.Length >= "あいうえおかきくけこ".Length, "bounded fit keeps every character");
+    }
+
     private static void LocalizationTests()
     {
         Expect(GameLocalization.Available.Count == 30, "exactly thirty research catalog choices");
@@ -1122,6 +1208,7 @@ internal static class Program
             PuzzleDiagnosticsTests();
             PrivatePlaytestReport();
             LocalizationTests();
+            KinsokuLineBreakTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }

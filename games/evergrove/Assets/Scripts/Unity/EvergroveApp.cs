@@ -458,7 +458,11 @@ namespace Evergrove.UnityClient
             label.verticalOverflow = VerticalWrapMode.Overflow;
             label.supportRichText = false;
             label.raycastTarget = false;
-            label.text = GameLocalization.Display(value);
+            string shown = GameLocalization.Display(value);
+            if (KinsokuLineBreaks.IsCjkLocale(GameLocalization.Current))
+                CjkLineBreakFixer.Attach(label, shown);
+            else
+                label.text = shown;
             return label;
         }
 
@@ -1343,8 +1347,8 @@ namespace Evergrove.UnityClient
                     visibleLeaks[i].text = insight.Leaking[i] ? "○" : "";
             }
             if (feedbackText != null)
-                feedbackText.text = GameLocalization.Text("progress",
-                    insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
+                CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
+                    insight.ConnectedCount, puzzle.CellCount, insight.LeakCount));
             if (undoButton != null) undoButton.interactable = world.CanUndo;
             if (activeIllustration != null)
             {
@@ -1402,7 +1406,7 @@ namespace Evergrove.UnityClient
                 // Explains the landmark in the status line only: no move, no undo
                 // entry, no save. The next real action redraws the progress text.
                 string landmark = LocalizedVillage.EnvironmentalRule(world);
-                if (feedbackText != null && landmark.Length > 0) feedbackText.text = landmark;
+                if (feedbackText != null && landmark.Length > 0) CjkLineBreakFixer.SetText(feedbackText, landmark);
                 semanticsDirty = true;
                 return;
             }
