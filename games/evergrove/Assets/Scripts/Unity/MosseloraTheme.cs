@@ -19,6 +19,8 @@ namespace Evergrove.UnityClient
         public static readonly Color RiverWash = Hex("#DCEDEF");
         public static readonly Color EarthInk = Hex("#765F45");
         public static readonly Color WaterInk = Hex("#176C83");
+        /// <summary>Dry channel stroke; #7D684F passes 3:1 on every dry tile state (contrast audit 2026-11-23).</summary>
+        public static readonly Color DryChannel = Hex("#7D684F");
         public static readonly Color DryTile = Hex("#EAE8DC");
         public static readonly Color WetTile = Hex("#D9EEEB");
         public static readonly Color SolvedTile = Hex("#DDECDD");

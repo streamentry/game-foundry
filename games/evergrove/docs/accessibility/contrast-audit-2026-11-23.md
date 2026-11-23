@@ -183,3 +183,12 @@ Notes on the table:
 - Real-device, screen-reader and playtest verification with adults 45+ is still required.
 
 **Status: computed contrast only; not a substitute for device/assistive-technology testing with adults 45+.**
+
+## Fix applied (unverified on device)
+
+Applied in code, not yet seen on a device or checked by adults 45+:
+
+- **Non-color cue (finding 2):** `PipeGraphic.cs` now draws connected channels with one continuous, wider water stripe per arm, and dry channels with three separated stripe segments. Arm geometry, hit areas, leak markers and endpoint icons are unchanged. Chosen because it is procedural, needs no new assets, and is visible in grayscale.
+- **Dry color (finding 1, Unity part):** dry channel stroke uses `MosseloraTheme.DryChannel` = `#7D684F`. The `earth.dry` token in `design.md` is updated to match.
+- **Not done here:** the browser slice (`research/first-minute/style.css` `.tile--dry`, `game.js` icon), the other AA fixes in findings 3-6, and the diorama stream colors remain open.
+- **Verification run:** Unity 6000.3.0f1 compile/smoke and the C# Core tests, as recorded in the commit message. Visual appearance was not seen on a device.

@@ -54,7 +54,7 @@ The approved **brand direction** is an illustrated golden, moss-covered ornament
 | `leaf.soft` | `#DFEBDD` | Light action surfaces |
 | `water.deep` | `#176C83` | Connected-water channels and focus accent |
 | `water.light` | `#DCEDEF` | Water surface and journal wash |
-| `earth.dry` | `#9B8266` | Dry channels, with distinct non-color geometry |
+| `earth.dry` | `#7D684F` | Dry channels: segmented water stripe (non-color cue); passes 3:1 on dry tiles (contrast audit 2026-11-23) |
 | `gold.lantern` | `#E8B958` | Rare warm emphasis; never essential small text |
 | `flower.lilac` | `#9A78AE` | Optional botanical accent |
 | `danger.ink` | `#87402F` | Destructive confirmation and real save failures |
