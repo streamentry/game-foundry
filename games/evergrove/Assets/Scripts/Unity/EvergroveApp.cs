@@ -478,10 +478,17 @@ namespace Evergrove.UnityClient
             // do not hunt for a device-storage problem that does not exist.
             saveWarningCaption.text = GameLocalization.Text(
                 WorldStore.RecoveryBlocked ? "save_unreadable" : "save_warning");
-            saveWarningCaption.text = IndicVisualOrder.Visual(GameLocalization.Current,
-                saveWarningCaption.text);
-            if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
-                CjkLineBreakFixer.Attach(saveWarningCaption, saveWarningCaption.text);
+            if (NativeTextLabel.Applies)
+            {
+                NativeTextLabel.Attach(saveWarningCaption);
+            }
+            else
+            {
+                saveWarningCaption.text = IndicVisualOrder.Visual(GameLocalization.Current,
+                    saveWarningCaption.text);
+                if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
+                    CjkLineBreakFixer.Attach(saveWarningCaption, saveWarningCaption.text);
+            }
             saveWarningBanner.SetActive(saveFailed);
             warningViewport.offsetMax = new Vector2(0f, saveFailed ? -SaveBannerHeight() : 0f);
         }
@@ -516,6 +523,13 @@ namespace Evergrove.UnityClient
             label.verticalOverflow = VerticalWrapMode.Overflow;
             label.supportRichText = false;
             label.raycastTarget = false;
+            if (NativeTextLabel.Applies)
+            {
+                // EG-006 iteration 7: the OS shaper draws bn; keep the logical string.
+                label.text = GameLocalization.Display(value);
+                NativeTextLabel.Attach(label);
+                return label;
+            }
             // uGUI has no Indic shaping: Bengali pre-base vowel signs are
             // pre-ordered into visual order here (IndicVisualOrder, bn only).
             string shown = IndicVisualOrder.Visual(GameLocalization.Current,
@@ -590,12 +604,20 @@ namespace Evergrove.UnityClient
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
             text.raycastTarget = false;
-            string shownCaption = IndicVisualOrder.Visual(GameLocalization.Current,
-                GameLocalization.Display(caption));
-            if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
-                CjkLineBreakFixer.Attach(text, shownCaption);
+            if (NativeTextLabel.Applies)
+            {
+                text.text = GameLocalization.Display(caption);
+                NativeTextLabel.Attach(text);
+            }
             else
-                text.text = shownCaption;
+            {
+                string shownCaption = IndicVisualOrder.Visual(GameLocalization.Current,
+                    GameLocalization.Display(caption));
+                if (CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
+                    CjkLineBreakFixer.Attach(text, shownCaption);
+                else
+                    text.text = shownCaption;
+            }
             button.onClick.AddListener(() => action());
             return button;
         }
