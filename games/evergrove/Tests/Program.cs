@@ -848,6 +848,33 @@ internal static class Program
         return livingBoards;
     }
 
+    private static void MatchedScheduleText()
+    {
+        // Facilitator entry must accept exactly the 11-digit form and round-trip it.
+        int[] parsed;
+        Expect(WorldModel.TryParseSchedule("12332112312", out parsed) &&
+               parsed.Length == 11 && parsed[0] == 1 && parsed[2] == 3 && parsed[10] == 2,
+            "11 digits 1..3 parse into a schedule");
+        Expect(WorldModel.IsValidSchedule(parsed), "parsed text is a valid schedule");
+        Expect(WorldModel.FormatSchedule(parsed) == "12332112312", "schedule formats back to the same digits");
+        foreach (string bad in new[] { "", "1233211231", "123321123120", "1233211231 ", "1233211231a",
+                                       "12332112304", "12332112314", "1233211231-" })
+            Expect(!WorldModel.TryParseSchedule(bad, out parsed) && parsed == null,
+                "invalid schedule text rejected: '" + bad + "'");
+        Expect(!WorldModel.TryParseSchedule(null, out parsed), "null schedule text rejected");
+        Expect(Throws<ArgumentException>(() => WorldModel.FormatSchedule(new int[10])),
+            "formatting an invalid schedule is rejected");
+
+        // A Living run's copied schedule must recreate the same matched boards.
+        int[] choices = { 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1 };
+        string copied = WorldModel.FormatSchedule(WorldModel.ScheduleFromChoices(choices));
+        Expect(WorldModel.TryParseSchedule(copied, out parsed) &&
+               WorldModel.IsValidSchedule(parsed), "copied Living schedule is re-enterable");
+        WorldModel entered = WorldModel.NewMatched(parsed);
+        Expect(entered.Mode == PlayMode.PuzzleMatched && !entered.CanSwitchMode && !entered.Choose(VillageChoice.Bridge),
+            "entered schedule starts a locked matched run with no village choices");
+    }
+
     private static void MatchedControlCondition()
     {
         // Input validation: exactly 11 later boards, each a branch variant 1..3.
@@ -1050,6 +1077,7 @@ internal static class Program
             ScenicCausality();
             ReactiveCampaign();
             MatchedControlCondition();
+            MatchedScheduleText();
             ProgressiveHintAndSaveV4();
             NonColorLeaksAndCausalJournal();
             PuzzleDiagnosticsTests();

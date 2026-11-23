@@ -101,6 +101,35 @@ namespace Evergrove.Core
         }
 
         /// <summary>
+        /// Facilitator entry: exactly ScheduleLength characters, each '1'..'3'.
+        /// No whitespace or separators are accepted; the caller trims input.
+        /// </summary>
+        public static bool TryParseSchedule(string text, out int[] schedule)
+        {
+            schedule = null;
+            if (text == null || text.Length != ScheduleLength) return false;
+            int[] parsed = new int[ScheduleLength];
+            for (int i = 0; i < ScheduleLength; i++)
+            {
+                char digit = text[i];
+                if (digit < '1' || digit > '3') return false;
+                parsed[i] = digit - '0';
+            }
+            schedule = parsed;
+            return true;
+        }
+
+        /// <summary>Inverse of TryParseSchedule, for copying a schedule to share with a facilitator.</summary>
+        public static string FormatSchedule(int[] schedule)
+        {
+            if (!IsValidSchedule(schedule))
+                throw new ArgumentException("Schedule must have " + ScheduleLength + " entries, each 1..3.", nameof(schedule));
+            char[] digits = new char[schedule.Length];
+            for (int i = 0; i < schedule.Length; i++) digits[i] = (char)('0' + schedule[i]);
+            return new string(digits);
+        }
+
+        /// <summary>
         /// Converts a Living run's choices into the schedule a matched player needs.
         /// Only the first ScheduleLength choices affect boards; the last choice is inert.
         /// </summary>

@@ -64,6 +64,15 @@ namespace Evergrove.UnityClient
         private Text feedbackText;
         private Button undoButton;
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // Matched M4 facilitator state; exists only in research-capable builds.
+        private bool matchedEntryOpen;
+        private bool confirmMatchedReplace;     // two-step replace, like confirmReset
+        private int[] pendingMatchedSchedule;
+        private string matchedDraft = "";
+        private string matchedError = "";
+        private bool matchedScheduleCopied;
+#endif
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -597,6 +606,31 @@ namespace Evergrove.UnityClient
                     52, !living);
             }
 
+            // Matched M4 control: facilitator-only. Its strings are English
+            // literals by design (the 81-key player catalog would need 30
+            // unreviewed translations for dev-only UI). Nothing here compiles
+            // into a player build, and the entry is hidden while an unreadable
+            // save blocks writes so an unreadable save cannot be silently replaced.
+            if (living && world.Choices.Length >= WorldModel.ScheduleLength)
+            {
+                Button(content, "Copy matched schedule", "Copy this Living run's schedule", CopyLivingSchedule, 46);
+                if (matchedScheduleCopied)
+                    Label(content, "Schedule copied", "Copied privately", 12, 43, Moss, TextAnchor.MiddleCenter);
+            }
+            if (!WorldStore.RecoveryBlocked)
+            {
+                Button(content, "Matched control entry",
+                    matchedEntryOpen ? "Close matched control" : "Start matched control (dev)",
+                    () => {
+                        matchedEntryOpen = !matchedEntryOpen;
+                        confirmMatchedReplace = false;
+                        pendingMatchedSchedule = null;
+                        matchedError = "";
+                        Rebuild();
+                    }, 46);
+                if (matchedEntryOpen) BuildMatchedEntry();
+            }
+
             // Puzzle-only condition must not display or switch into the
             // changing village art: doing so would confound the experiment.
             if (living)
@@ -848,7 +882,9 @@ namespace Evergrove.UnityClient
             {
                 Button(content, "Revisit water", GameLocalization.Text("undo_last"),
                     () => Act(() => world.Undo(), "undo"), 44).interactable = world.CanUndo;
-                if (world.Mode == PlayMode.PuzzleOnly)
+                // Both puzzle-only and matched runs have no village decisions;
+                // only the Living world may show choices.
+                if (world.Mode != PlayMode.Living)
                     Button(content, "Next stream", GameLocalization.Text("next"), () => {
                         if (!world.NextPuzzle()) return;
                         SaveWorld();
@@ -945,6 +981,121 @@ namespace Evergrove.UnityClient
             if (localPlaytest != null) localPlaytest.ChangeMode(mode, Time.unscaledTime);
             SaveWorld();
             Rebuild();
+        }
+
+        private void CopyLivingSchedule()
+        {
+            if (world.Mode != PlayMode.Living || world.Choices.Length < WorldModel.ScheduleLength) return;
+            GUIUtility.systemCopyBuffer = WorldModel.FormatSchedule(
+                WorldModel.ScheduleFromChoices(world.Choices));
+            matchedScheduleCopied = true;
+            Rebuild();
+        }
+
+        private void BuildMatchedEntry()
+        {
+            var card = Card(content, "Matched control card", Sand);
+            Label(card.transform, "Matched explanation",
+                "Enter 11 digits, each 1, 2 or 3: the variant of boards 2 to 12. " +
+                "This run shows no village choices or story.", 12, 52, Ink);
+            CreateMatchedInput(card.transform);
+            if (matchedError.Length > 0)
+                Label(card.transform, "Schedule error", matchedError, 13, 36, Hex("#983E37"));
+            if (!confirmMatchedReplace)
+                Button(card.transform, "Check matched schedule", "Check schedule", RequestMatchedStart, 50, true);
+            else
+            {
+                Label(card.transform, "Replace warning",
+                    "This replaces the saved garden. Tap again to confirm.", 13, 40, Ink);
+                Button(card.transform, "Confirm matched replace", GameLocalization.Text("erase"),
+                    ConfirmMatchedStart, 52, true);
+                Button(card.transform, "Cancel matched replace", GameLocalization.Text("keep"), () => {
+                    confirmMatchedReplace = false;
+                    pendingMatchedSchedule = null;
+                    Rebuild();
+                }, 44);
+            }
+        }
+
+        private void CreateMatchedInput(Transform parent)
+        {
+            var node = Node("Matched schedule input", parent);
+            Height(node, 48);
+            var background = node.AddComponent<Image>();
+            background.color = White;
+            var field = node.AddComponent<InputField>();
+
+            var textNode = Node("Schedule text", node.transform);
+            Fill(textNode.GetComponent<RectTransform>());
+            textNode.GetComponent<RectTransform>().offsetMin = new Vector2(10f, 0f);
+            textNode.GetComponent<RectTransform>().offsetMax = new Vector2(-10f, 0f);
+            var text = textNode.AddComponent<Text>();
+            text.font = font;
+            text.fontSize = 16;
+            text.color = Ink;
+            text.supportRichText = false;
+            text.raycastTarget = false;
+
+            var placeholderNode = Node("Schedule placeholder", node.transform);
+            Fill(placeholderNode.GetComponent<RectTransform>());
+            placeholderNode.GetComponent<RectTransform>().offsetMin = new Vector2(10f, 0f);
+            placeholderNode.GetComponent<RectTransform>().offsetMax = new Vector2(-10f, 0f);
+            var placeholder = placeholderNode.AddComponent<Text>();
+            placeholder.font = font;
+            placeholder.fontSize = 16;
+            placeholder.fontStyle = FontStyle.Italic;
+            placeholder.color = Moss;
+            placeholder.supportRichText = false;
+            placeholder.raycastTarget = false;
+            placeholder.text = "e.g. 12332112312";
+
+            field.targetGraphic = background;
+            field.textComponent = text;
+            field.placeholder = placeholder;
+            field.contentType = InputField.ContentType.Standard;
+            field.lineType = InputField.LineType.SingleLine;
+            field.characterLimit = 0;
+            field.text = matchedDraft;
+            field.onValueChanged.AddListener(value => matchedDraft = value ?? "");
+        }
+
+        private void RequestMatchedStart()
+        {
+            int[] schedule;
+            if (!WorldModel.TryParseSchedule((matchedDraft ?? "").Trim(), out schedule))
+            {
+                matchedError = "Enter exactly 11 digits, each 1, 2 or 3.";
+                Rebuild();
+                return;
+            }
+            matchedError = "";
+            pendingMatchedSchedule = schedule;
+            confirmMatchedReplace = true;
+            Rebuild();
+        }
+
+        private void ConfirmMatchedStart()
+        {
+            if (pendingMatchedSchedule == null || WorldStore.RecoveryBlocked)
+            {
+                confirmMatchedReplace = false;
+                pendingMatchedSchedule = null;
+                Rebuild();
+                return;
+            }
+            world = WorldModel.NewMatched(pendingMatchedSchedule);
+            if (localPlaytest != null) localPlaytest.ChangeMode(PlayMode.PuzzleMatched, Time.unscaledTime);
+            pendingMatchedSchedule = null;
+            confirmMatchedReplace = false;
+            matchedEntryOpen = false;
+            matchedDraft = "";
+            matchedError = "";
+            matchedScheduleCopied = false;
+            speakingWith = -1;
+            showingMemory = false;
+            showJournal = false;
+            SaveWorld();
+            Rebuild(true);
         }
 
 #endif
