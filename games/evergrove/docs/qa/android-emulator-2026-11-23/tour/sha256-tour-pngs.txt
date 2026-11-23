@@ -1,0 +1,14 @@
+6b2a0d309ad41644b9d26c24d41c6002a00fa21b27455b34d7721ae149b00b7c  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/01-chapter1-start.png
+36eab3530a9881dd979b1e19f696b7ffc07957b20033a5abbd2799d93982660a  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/02-chapter1-partially-solved.png
+f94befb3743731e7d55384911f13386ab9a66638dde67fda5e33cb1072149449  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/03-chapter1-solved-choice.png
+03f2f81b69dc5b3e621b5b37ba14b230afdd75bea639564e8c73f74620020a9f  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/04-consequence-shade-tree.png
+1769ce6a95a47884a1418649e694da4e94b9bfcdfe3f5b848ee6a411b94d8a96  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/05-consequence-bridge.png
+eacfe7a430fbb4a9ab7b383d3245149ef6bf47d08c091a8f02fd4b634fd89f01  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/06-consequence-flowers.png
+a274482be46253fad3a0f89bdf44607d805997227fe708bbb6f3df32e07814d3  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/07-chapter2-after-shade-tree.png
+2345d317eaab660b8b3bdcc31aeaa99f9e8c8344522dfcaeaf9c84aca962aaca  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/08-chapter2-after-bridge.png
+9d7e37f97bfc4de2c35e6ae9c6764ed332234b6e743c2c3fbb24bc4edbc7a090  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/09-chapter2-after-flowers.png
+e4103088ba9ebe32a16c6c98039a2f6db1c0bbc92b711e02eb70a433e9bbc959  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/10-journal.png
+efde19d88cb7eac6672833b6d2c8c5fe5e28712b75f9f7d1cb578fa8bd52744d  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/11-ending.png
+2993d707ba45bb630c3b9cc02c7f8074941f4d5bf1ac1b9adcd1bf9c077f6f16  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/12-matched-chapter2.png
+d019bee50c9c04401acc1f903804f60294466d1ca8f5b21753a03b83618c01f1  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/13-anchored-tap.png
+873c2dabd7ee1358d95ac09041f80ab10421b32313b1ea24d56e953d3ca5de85  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/tour/14-garden-file.png

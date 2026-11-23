@@ -1,0 +1,2 @@
+7db39bdb3dd10ad543125d9f79cbfa22e745a1937658c3a00fba9810e16e7fbf  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/save-recovery/A/A1-first-launch.png
+7db39bdb3dd10ad543125d9f79cbfa22e745a1937658c3a00fba9810e16e7fbf  /Volumes/SANDISK-Data/game-foundry/games/evergrove/docs/qa/android-emulator-2026-11-23/save-recovery/A/A2-after-relaunch.png
