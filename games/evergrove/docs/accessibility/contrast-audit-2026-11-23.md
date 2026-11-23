@@ -205,3 +205,12 @@ Applied in commit e3a2773 to `games/evergrove/research/first-minute/style.css` (
 - Dry channels get a dashed stroke (`.tile--dry svg g`, butt caps); flowing channels stay solid. Non-color cue, CSS only.
 - Not changed: B34 dry tile fill vs panel stays 1.21:1; the audit expects the border to carry the boundary.
 - Not verified: visual layout at 320px with 12px labels (no browser run in this session); mutual pairs B32/B33 remain color-based but now have the dash cue.
+
+## Fix applied (unverified on device)
+
+Applied in code, not yet seen on a device or checked by adults 45+:
+
+- **Non-color cue (finding 2):** `PipeGraphic.cs` now draws connected channels with one continuous, wider water stripe per arm, and dry channels with three separated stripe segments. Arm geometry, hit areas, leak markers and endpoint icons are unchanged. Chosen because it is procedural, needs no new assets, and is visible in grayscale.
+- **Dry color (finding 1, Unity part):** dry channel stroke uses `MosseloraTheme.DryChannel` = `#7D684F`. The `earth.dry` token in `design.md` is updated to match.
+- **Not done here:** the browser slice (`research/first-minute/style.css` `.tile--dry`, `game.js` icon), the other AA fixes in findings 3-6, and the diorama stream colors remain open.
+- **Verification run:** Unity 6000.3.0f1 compile/smoke and the C# Core tests, as recorded in the commit message. Visual appearance was not seen on a device.
