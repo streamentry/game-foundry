@@ -680,3 +680,12 @@ The new `ending_title` key is present in all 29 offline locale catalogs, bringin
 
 **Still human-gated:** a physical-phone run (Apple signing, or an Android device or emulator), M3 sessions with 8–12 uncoached adults 45+, the founder's M3/M4 threshold decisions, and attorney name clearance.
 
+## 2026-11-23 — Release-candidate channel (BLD-007), large board, reduced motion, text spike on iOS
+
+- **BLD-007 verified (AI agent review):** `EVERGROVE_BUILD_CHANNEL=release-candidate` produces a non-development player. The audit found and guarded leaks (DevScreenshot, TextSpike, VillageDiorama, LocalPlaytest call sites), and a static source guard now fails on unguarded dev identifiers. At `79d19ec`, the release-candidate iOS Simulator build has zero dev identifiers in IL2CPP metadata (positive controls present). Its screens show only player controls. The evidence packet records the UnityFramework sha256.
+- **EG-112 large board:** a persisted Standard/Large preference with no new keys. On the iOS Simulator, the large 3×3 board fills the width and the Undo row stays visible. The 4×4 case is not checked.
+- **EG-114:** the audit found no decorative motion in store builds; the dev 2.5D miniature motion stays off by default. Unity 6000.3 exposes no OS reduce-motion API.
+- **iOS QA tooling:** `DevArgs` reads dev options from `SIMCTL_CHILD_*` environment variables, because Unity iOS doesn't expose launch arguments. The 14-step QA tour and the EG-006 text spike now run on the iOS Simulator; the macOS session was inactive, so window rendering stopped there.
+- **EG-006 finding:** legacy uGUI on iOS shows Arabic, Persian and Hindi plausibly but Hebrew reversed. Bengali, Tamil and Thai have detached vowel signs. The spike's UI Toolkit `languageDirection=RTL` setup reverses text, including Latin, and doesn't fix the Indic scripts or Thai. Keep every complex-script locale out of shipping builds (allowlist is English only). The next spike needs Advanced text enabled globally and properly licensed (e.g. OFL Noto) font assets, which is a third-party asset decision.
+- **Checks on main:** 39,466 C# assertions; verifier, source guard and docs contract pass (97 keys); Unity compile 0 errors.
+
