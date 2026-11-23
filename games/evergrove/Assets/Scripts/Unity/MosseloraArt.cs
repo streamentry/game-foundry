@@ -150,6 +150,22 @@ namespace Evergrove.UnityClient
                 100f, 0, SpriteMeshType.FullRect, new Vector4(border, border, border, border));
         }
 
+        public const string TilePaper = "tile-paper";
+
+        /// <summary>
+        /// Rounded tile body on Codex-generated watercolor paper (near-white,
+        /// so Image.color still carries the dry/wet/solved/hint state tint).
+        /// </summary>
+        public static void PaperTile(Image image, int radius = 12)
+        {
+            Sprite paper = Load(TilePaper);
+            if (paper == null) { Round(image, Color.white, radius); return; }
+            image.sprite = paper;
+            image.type = Image.Type.Sliced;
+            image.pixelsPerUnitMultiplier = Supersample; // 24 px corner = 12 pt
+            image.color = Color.white;
+        }
+
         /// <summary>Gives an Image a rounded, sliced, tinted body.</summary>
         public static void Round(Image image, Color fill, int radius = 16)
         {

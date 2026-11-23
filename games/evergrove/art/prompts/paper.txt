@@ -1,0 +1,8 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is a STYLE reference (soft watercolor storybook). Generate exactly ONE image.
+Use case: stylized-concept
+Asset type: subtle seamless paper texture overlaid on puzzle tiles in a calm mobile game
+Primary request: a square close-up of warm cold-press WATERCOLOR PAPER: very fine fibres, gentle tooth and a few faint, soft pigment blooms. Very LOW contrast: almost uniform warm off-white (#F4ECDA) with variations of only a few percent, so it can sit behind thin pipe drawings without hurting readability.
+Composition: flat, evenly lit, top-down; must TILE SEAMLESSLY on all four edges; no vignette, no shadows, no objects, no folds, no edges of a sheet.
+Size: 1024x1024.
+Constraints: no text, no watermark, no border.
+Copy the final PNG to games/evergrove/art/generated/paper-grain.png and print the path. Do nothing else.

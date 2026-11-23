@@ -183,12 +183,16 @@ def fade_top(image: Image.Image, share: float = 0.42) -> Image.Image:
     return rgba
 
 
-def save(image: Image.Image, name: str) -> None:
+def save(image: Image.Image, name: str, border: int = 0) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     target = OUT / (name + ".png")
     image.save(target, optimize=True)
     meta = OUT / (name + ".png.meta")
-    meta.write_text(META.format(guid=guid_for(name)))
+    text = META.format(guid=guid_for(name))
+    if border:
+        text = text.replace("spriteBorder: {x: 0, y: 0, z: 0, w: 0}",
+                            f"spriteBorder: {{x: {border}, y: {border}, z: {border}, w: {border}}}")
+    meta.write_text(text)
     print(f"{target.relative_to(ROOT)}  {image.width}x{image.height}  {image.mode}")
 
 
@@ -222,6 +226,20 @@ def white_glyph(cell: Image.Image, size: int = 128) -> Image.Image:
     square = Image.new("RGBA", (side, side), (255, 255, 255, 0))
     square.alpha_composite(glyph, ((side - glyph.width) // 2, (side - glyph.height) // 2))
     return square.resize((size, size), Image.LANCZOS)
+
+
+def paper_tile(paper: Image.Image, size: int = 192, radius: int = 24,
+               gain: float = 3.0) -> Image.Image:
+    """Rounded, near-white, tintable tile carrying the watercolor paper grain."""
+    from PIL import ImageDraw, ImageStat
+    gray = paper.convert("L").resize((size, size), Image.LANCZOS)
+    mean = ImageStat.Stat(gray).mean[0]
+    grain = gray.point(lambda v: max(0, min(255, int(250 - (mean - v) * gain))))
+    mask = Image.new("L", (size * 4, size * 4), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, size * 4 - 1, size * 4 - 1), radius * 4, fill=255)
+    mask = mask.resize((size, size), Image.LANCZOS)
+    tile = Image.merge("RGBA", (grain, grain, grain, mask))
+    return tile
 
 
 def quadrants(sheet: Image.Image) -> list[Image.Image]:
@@ -285,6 +303,10 @@ def main() -> None:
         for name, cell in zip(("ui-exchange", "ui-sound-on", "ui-sound-off", "ui-zoom-board"),
                               grid(ui2, 2, 2)):
             save(white_glyph(cell), name)
+
+    paper = master("paper-grain")
+    if paper:
+        save(paper_tile(paper), "tile-paper", border=26)
 
     neighbors = master("neighbors")
     if neighbors:

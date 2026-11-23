@@ -26,7 +26,12 @@ namespace Evergrove.UnityClient
                 int step = ((rotation - orientation) % 4 + 4) % 4;
                 if (step == 1) spin = 90f;        // clockwise turn: start a quarter back
                 else if (step == 3) spin = -90f;  // undo: counter-clockwise
-                else spin = 0f;                   // restart or larger jumps snap
+                else
+                {
+                    // Restart or larger jumps snap, including mid-swing.
+                    spin = 0f;
+                    rectTransform.localRotation = Quaternion.identity;
+                }
             }
             configured = true;
             kind = pipeKind;

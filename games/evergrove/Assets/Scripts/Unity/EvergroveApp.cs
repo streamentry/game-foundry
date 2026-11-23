@@ -77,6 +77,7 @@ namespace Evergrove.UnityClient
         private PipeGraphic[] tileArtwork;
         private Text[] visibleLeaks; // punctuation, not hue, denotes unmatched water ports
         private Text feedbackText;
+        private int rebuildGeneration; // lets a pending glide notice any later rebuild
         private bool celebrateSolve; // one-shot: the rebuild after the solving tap blooms
         private Image[] waterDrops; // one painted droplet per tile the water can reach
         private Button undoButton;
@@ -609,13 +610,14 @@ namespace Evergrove.UnityClient
         private Button IconButton(Transform parent, string name, string caption, string icon,
                                   Action action, int height, Color tone,
                                   bool showCaption = false, string badge = null,
-                                  bool captionBelow = false)
+                                  bool captionBelow = false, int pips = 0, int pipsOn = 0)
         {
             Sprite glyph = MosseloraArt.Load(icon);
             if (glyph == null) return Button(parent, name, caption, action, height, tone);
             bool quiet = tone == MosseloraTheme.QuietAction;
             Color ink = quiet ? Ink : White;
             var node = Node(name, parent);
+            if (captionBelow) showCaption = true; // before sizing, so the caption's text scale counts
             MinHeight(node, showCaption ? TextScale.Scale(height) : height);
             var image = node.AddComponent<Image>();
             MosseloraArt.Round(image, tone, 18);
@@ -638,7 +640,6 @@ namespace Evergrove.UnityClient
             group.childControlHeight = true;
             group.childForceExpandWidth = false;
             group.childForceExpandHeight = false;
-            if (captionBelow) showCaption = true;
             float iconSize = Mathf.Round(height * (captionBelow ? 0.40f : showCaption ? 0.42f : 0.52f));
             var iconNode = Node("Icon", node.transform);
             var iconLayout = iconNode.AddComponent<LayoutElement>();
@@ -649,6 +650,30 @@ namespace Evergrove.UnityClient
             iconImage.preserveAspect = true;
             iconImage.color = ink;
             iconImage.raycastTarget = false;
+            if (pips > 0)
+            {
+                // Level shown as filled dots, not words or numbers.
+                var dots = Node("Level dots", node.transform);
+                var dotRow = dots.AddComponent<HorizontalLayoutGroup>();
+                dotRow.spacing = 4;
+                dotRow.childAlignment = TextAnchor.MiddleCenter;
+                dotRow.childControlWidth = true;
+                dotRow.childControlHeight = true;
+                dotRow.childForceExpandWidth = false;
+                dotRow.childForceExpandHeight = false;
+                for (int i = 0; i < pips; i++)
+                {
+                    var dot = Node(i < pipsOn ? "Level on" : "Level off", dots.transform);
+                    var dotLayout = dot.AddComponent<LayoutElement>();
+                    dotLayout.minWidth = dotLayout.preferredWidth = 8;
+                    dotLayout.minHeight = dotLayout.preferredHeight = 8;
+                    var dotImage = dot.AddComponent<Image>();
+                    dotImage.sprite = MosseloraArt.Rounded(4);
+                    dotImage.type = Image.Type.Simple;
+                    dotImage.color = i < pipsOn ? ink : new Color(ink.r, ink.g, ink.b, 0.32f);
+                    dotImage.raycastTarget = false;
+                }
+            }
             if (badge != null)
             {
                 Text value = Label(node.transform, "Value", badge, 15, 0, ink, TextAnchor.MiddleCenter);
@@ -939,7 +964,8 @@ namespace Evergrove.UnityClient
 
         private void Rebuild(bool top = false)
         {
-            if (content == null) return;
+            rebuildGeneration++;
+            if (content == null) { celebrateSolve = false; return; }
             semanticsDirty = true;
             UpdateSaveWarning();
             float previousPosition = scroll.verticalNormalizedPosition;
@@ -994,6 +1020,7 @@ namespace Evergrove.UnityClient
             if (languagePicker)
             {
                 BuildLanguagePicker();
+                celebrateSolve = false; // never carry a bloom into a later board
                 Canvas.ForceUpdateCanvases();
                 LayoutRebuilder.ForceRebuildLayoutImmediate(content);
                 scroll.verticalNormalizedPosition = 1f;
@@ -1435,7 +1462,7 @@ namespace Evergrove.UnityClient
                 var tileNode = Node("Water tile", gridNode.transform);
                 var image = tileNode.AddComponent<Image>();
                 bool reached = insight.Flowing[index];
-                MosseloraArt.Round(image, Color.white, 12);
+                MosseloraArt.PaperTile(image, 12);
                 image.color = MosseloraTheme.TileFill(world.Solved, reached,
                     puzzle.IsAnchored(index), world.HintStep, world.HintTile,
                     index, puzzle.Size);
@@ -1603,7 +1630,7 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
                     MosseloraArt.IconHint, UseGentleHint, toolHeight, MosseloraTheme.WaterAction, false,
-                    world.HintStep == 0 ? null : world.HintStep + "/2", teach);
+                    null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
                 IconButton(tools.transform, "Restart", GameLocalization.Text("restart"),
                     MosseloraArt.IconRestart, () => Act(() => world.Restart(), "restart"),
                     toolHeight, MosseloraTheme.EarthAction, false, null, teach);
@@ -1710,7 +1737,7 @@ namespace Evergrove.UnityClient
                     BoardSize.Toggle();
                     Rebuild();
                 }, 56, BoardSize.IsLarge ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, BoardSize.IsLarge ? "1.2×" : null);
+                false, null, false, 2, BoardSize.IsLarge ? 2 : 1);
         }
 
         // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.
@@ -1721,7 +1748,7 @@ namespace Evergrove.UnityClient
                     TextScale.Cycle();
                     Rebuild();
                 }, 56, TextScale.Percent > 100 ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, TextScale.Percent > 100 ? TextScale.Percent + "%" : null);
+                false, null, false, 3, TextScale.Percent >= 150 ? 3 : TextScale.Percent >= 125 ? 2 : 1);
         }
 
         private void BuildLanguagePicker()
@@ -1963,6 +1990,7 @@ namespace Evergrove.UnityClient
             if (localPlaytest != null) localPlaytest.Hint(Time.unscaledTime);
 #endif
             SaveWorld();
+            celebrateSolve = !wasSolved && world.Solved; // a hint that finishes the creek blooms too
             Rebuild();
             if (!wasSolved && world.Solved)
             {
@@ -2027,6 +2055,7 @@ namespace Evergrove.UnityClient
             // Keep some of the preceding restored-world context visible.
             float context = Mathf.Min(110f, scroll.viewport.rect.height * 0.23f);
             float target = 1f - Mathf.Clamp01((targetTop - context) / distance);
+            int generation = rebuildGeneration;
             // The payoff beat: hold on the finished creek while it blooms and
             // every droplet fills, then glide (not jump) to the decision. A
             // player who scrolls during the hold keeps control.
@@ -2036,15 +2065,15 @@ namespace Evergrove.UnityClient
             {
                 wait += Time.unscaledDeltaTime;
                 yield return null;
-                // A rebuild (choice made, screen changed) or a player scroll cancels the glide.
-                if (scroll == null || decisionHeading == null) yield break;
+                // Any rebuild (choice, sound, text size) or a player scroll cancels the glide.
+                if (scroll == null || decisionHeading == null || generation != rebuildGeneration) yield break;
                 if (Mathf.Abs(scroll.verticalNormalizedPosition - held) > 0.01f) yield break;
             }
             scroll.StopMovement();
             float from = scroll.verticalNormalizedPosition;
             for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / SolveGlideSeconds)
             {
-                if (scroll == null || decisionHeading == null) yield break;
+                if (scroll == null || decisionHeading == null || generation != rebuildGeneration) yield break;
                 scroll.verticalNormalizedPosition = Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t));
                 yield return null;
             }
