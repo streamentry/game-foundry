@@ -331,7 +331,7 @@
 
 ### EG-111 — Ten-step undo history
 
-**State:** One-step undo implemented. **Type:** Accessibility. **Risk:** Save compatibility and larger history state. **Evidence:** R1,Q1. **R/I/C/E:** 3/3/4/2; **illustrative score:** 18.0.
+**State:** Ten-step tile-rotation undo implemented in the pure core (v4 additive `history`; legacy `previous` still read and written); pure C# and Unity batch compile verified, device QA not run. **Type:** Accessibility. **Risk:** Save compatibility and larger history state. **Evidence:** R1,Q1. **R/I/C/E:** 3/3/4/2; **illustrative score:** 18.0.
 
 **Execution:** `Proposed`; **M5**; owner role **Gameplay Engineer**; verification **`SAVE-003`, `PUZ-002`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-111/verification.md` (**NOT COLLECTED**); **rollback/stop:** Expanded undo corrupts saves or loses valid history.
 

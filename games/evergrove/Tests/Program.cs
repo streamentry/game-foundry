@@ -1072,6 +1072,7 @@ internal static class Program
             ContentAndRules();
             RestoreAndMigration();
             SaveJournalTests.Run();
+            assertions += UndoHistoryTests.Run();
             assertions += GardenTransferTests.Run();
             StoryAndCompleteRun();
             ScenicCausality();

@@ -30,7 +30,8 @@
 | `round` | Zero-based index of current chapter | 0..12; 12 means completed |
 | `solved` | Current puzzle completed | Must equal independent `PipeRules.IsComplete` validation |
 | `rotations` | Current puzzle orientation per tile | Length = current board cells (9/16), range and anchor valid; empty at completion |
-| `previous` | One-step undo board snapshot | Empty or same valid grid size; empty at completion |
+| `previous` | Newest undo step (legacy mirror) | Equals the last `history` entry when history is non-empty; empty at completion. Older binaries read only this field |
+| `history` | Optional, additive (EG-111; absent in older JSON reads as `[]`). Undo stack of up to **10** prior rotation boards for the current chapter, oldest first, flat | Length is a whole multiple of the board's cell count and ≤ 10 × cells; every entry is a valid orientation set; `[]` at completion. Absent `history` with a non-empty `previous` derives a one-step history. Only allowed in version 4 |
 | `choices` | Ordered `ShadeTree=0, Bridge=1, Flowers=2` | Living: one choice per advanced chapter, length = round; PuzzleOnly: empty |
 | `hintsUsed` | Number of actual helped tile corrections | First two clue stages do not increment it; nonnegative and bounded |
 | `hintStep` | 0 idle; 1 row notice; 2 tile focus | Both preview stages preserve tile rotations and are saved |
@@ -159,6 +160,8 @@ The canonical snapshot text is produced by hand-written string building, so the 
 | `UnsupportedFutureVersion` | `formatVersion` greater than 1. |
 | `ChecksumMismatch` | Recomputed checksum differs from the stored one. |
 | `InvalidSnapshot` | Snapshot missing, wrong JSON type, non-integer number, unknown key, or failing `WorldModel.TryRestore`. |
+
+Gardens exported before EG-111 have no `history` key. Their checksum covers the pre-history text, so import also accepts that exact form when the parsed snapshot has no history; a snapshot carrying `history` must match the current text.
 
 Errors are checked in that order. Import always goes through `WorldModel.TryRestore`, so every snapshot version that `TryRestore` accepts (v1, v2, v3, v4) imports and migrates to the current version on the next export.
 
