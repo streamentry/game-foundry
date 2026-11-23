@@ -36,7 +36,8 @@ namespace Evergrove.Core
 
         private static readonly HashSet<string> SnapshotKeys = new HashSet<string> {
             "version", "mode", "round", "solved", "rotations", "previous", "choices",
-            "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule"
+            "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
+            "history"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -130,7 +131,12 @@ namespace Evergrove.Core
                 return false;
             }
 
-            if (!string.Equals(Sha256Hex(SnapshotJson(snapshot)), checksum, StringComparison.Ordinal))
+            // Gardens exported before EG-111 have no "history" key in their checksummed text.
+            // Accept that exact pre-history canonical form only when the import has no history.
+            bool matchesCurrent = string.Equals(Sha256Hex(SnapshotJson(snapshot)), checksum, StringComparison.Ordinal);
+            bool matchesPreHistory = snapshot.history.Length == 0 &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, false)), checksum, StringComparison.Ordinal);
+            if (!matchesCurrent && !matchesPreHistory)
             {
                 error = GardenImportError.ChecksumMismatch;
                 return false;
@@ -148,6 +154,15 @@ namespace Evergrove.Core
         /// <summary>Field order mirrors Unity JsonUtility.ToJson(WorldSnapshot).</summary>
         internal static string SnapshotJson(WorldSnapshot s)
         {
+            return SnapshotJson(s, true);
+        }
+
+        /// <summary>
+        /// Canonical text. With includeHistory false it reproduces the pre-EG-111
+        /// layout, used only to verify checksums of older garden files.
+        /// </summary>
+        private static string SnapshotJson(WorldSnapshot s, bool includeHistory)
+        {
             var sb = new StringBuilder(256);
             sb.Append("{\"version\":").Append(Int(s.version))
               .Append(",\"mode\":").Append(Quote(s.mode))
@@ -161,9 +176,9 @@ namespace Evergrove.Core
               .Append(",\"lastSolvedVariant\":").Append(Int(s.lastSolvedVariant))
               .Append(",\"hintStep\":").Append(Int(s.hintStep))
               .Append(",\"hintTile\":").Append(Int(s.hintTile))
-              .Append(",\"variantSchedule\":").Append(IntArray(s.variantSchedule))
-              .Append('}');
-            return sb.ToString();
+              .Append(",\"variantSchedule\":").Append(IntArray(s.variantSchedule));
+            if (includeHistory) sb.Append(",\"history\":").Append(IntArray(s.history));
+            return sb.Append('}').ToString();
         }
 
         internal static string Sha256Hex(string text)
@@ -236,7 +251,8 @@ namespace Evergrove.Core
                    ReadInt(fields, "lastSolvedVariant", ref snapshot.lastSolvedVariant) &&
                    ReadInt(fields, "hintStep", ref snapshot.hintStep) &&
                    ReadInt(fields, "hintTile", ref snapshot.hintTile) &&
-                   ReadInts(fields, "variantSchedule", ref snapshot.variantSchedule);
+                   ReadInts(fields, "variantSchedule", ref snapshot.variantSchedule) &&
+                   ReadInts(fields, "history", ref snapshot.history);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)

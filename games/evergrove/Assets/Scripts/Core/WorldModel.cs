@@ -32,6 +32,11 @@ namespace Evergrove.Core
         // Optional, additive (absent in older JSON). Only for mode "matched":
         // the variant of boards 2..12, each 1..3, fixed when the run began.
         public int[] variantSchedule = Array.Empty<int>();
+        // Optional, additive (EG-111, absent in older JSON). Flat undo stack of
+        // prior tile-rotation boards for the current chapter, oldest first.
+        // Length is a multiple of the board's cell count, at most 10 entries.
+        // `previous` mirrors the newest entry for older binaries.
+        public int[] history = Array.Empty<int>();
     }
 
     /// <summary>
@@ -41,6 +46,8 @@ namespace Evergrove.Core
     public sealed class WorldModel
     {
         public const int Version = 4;
+        /// <summary>Maximum number of tile-rotation undo steps kept for one board (EG-111).</summary>
+        public const int UndoLimit = 10;
         private readonly WorldSnapshot state;
 
         private WorldModel(WorldSnapshot snapshot) { state = snapshot; }
@@ -57,7 +64,13 @@ namespace Evergrove.Core
         public int Round { get { return state.round; } }
         public bool Solved { get { return state.solved; } }
         public bool Completed { get { return state.round == PuzzleCatalog.Count; } }
-        public bool CanUndo { get { return !Completed && state.previous.Length == CurrentPuzzle.CellCount; } }
+        /// <summary>Number of undo steps available on the current board, 0..UndoLimit.</summary>
+        public int UndoDepth {
+            get {
+                return Completed || state.history.Length == 0 ? 0 : state.history.Length / CurrentPuzzle.CellCount;
+            }
+        }
+        public bool CanUndo { get { return UndoDepth > 0; } }
         public int HintsUsed { get { return state.hintsUsed; } }
         public int HintStep { get { return state.hintStep; } }
         public int HintTile { get { return state.hintTile; } }
@@ -162,7 +175,7 @@ namespace Evergrove.Core
                 hintStep = 0, hintTile = -1,
                 rotations = (int[])PuzzleCatalog.Get(0).Initial.Clone(),
                 previous = Array.Empty<int>(), choices = Array.Empty<int>(),
-                variantSchedule = (int[])schedule.Clone()
+                variantSchedule = (int[])schedule.Clone(), history = Array.Empty<int>()
             });
         }
 
@@ -174,7 +187,8 @@ namespace Evergrove.Core
                 choices = (int[])state.choices.Clone(), hintsUsed = state.hintsUsed,
                 boardVariant = state.boardVariant, lastSolvedVariant = state.lastSolvedVariant,
                 hintStep = state.hintStep, hintTile = state.hintTile,
-                variantSchedule = (int[])state.variantSchedule.Clone()
+                variantSchedule = (int[])state.variantSchedule.Clone(),
+                history = (int[])state.history.Clone()
             };
         }
 
@@ -188,6 +202,8 @@ namespace Evergrove.Core
                 (source.mode == "matched" && source.version != Version) ||
                 source.round < 0 || source.round > PuzzleCatalog.Count ||
                 source.choices == null || source.rotations == null || source.previous == null ||
+                source.history == null ||
+                (source.version != Version && source.history.Length != 0) ||
                 source.hintsUsed < 0 || source.hintsUsed > 1000000 ||
                 (source.version >= 3 &&
                  (source.boardVariant < 0 || source.boardVariant > 3 ||
@@ -208,6 +224,9 @@ namespace Evergrove.Core
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
             int[] previous = (int[])source.previous.Clone();
+            // Legacy saves carry only `previous`; it becomes a one-entry history.
+            int[] history = source.history.Length == 0 && previous.Length != 0
+                ? (int[])previous.Clone() : (int[])source.history.Clone();
             bool solved = source.solved;
             int variant = source.version >= 3 ? source.boardVariant : 0;
             int lastVariant = source.version >= 3 ? source.lastSolvedVariant : 0;
@@ -235,7 +254,7 @@ namespace Evergrove.Core
             }
             if (chapter == PuzzleCatalog.Count)
             {
-                if (solved || rotations.Length != 0 || previous.Length != 0 ||
+                if (solved || rotations.Length != 0 || previous.Length != 0 || history.Length != 0 ||
                     hintStep != 0 || hintTile != -1)
                     return false;
             }
@@ -244,7 +263,8 @@ namespace Evergrove.Core
                 Puzzle puzzle = ReactiveWatercourses.ForChapter(chapter, variant);
                 if (!PipeRules.ValidRotations(puzzle, rotations) ||
                     solved != PipeRules.IsComplete(puzzle, rotations) ||
-                    (previous.Length != 0 && !PipeRules.ValidRotations(puzzle, previous)))
+                    (previous.Length != 0 && !PipeRules.ValidRotations(puzzle, previous)) ||
+                    !IsValidHistory(puzzle, history, previous))
                     return false;
                 if (hintStep > 0 &&
                     (solved || hintTile < 0 || hintTile >= puzzle.CellCount ||
@@ -258,8 +278,29 @@ namespace Evergrove.Core
                 choices = (int[])source.choices.Clone(), hintsUsed = source.hintsUsed,
                 boardVariant = variant, lastSolvedVariant = lastVariant,
                 hintStep = hintStep, hintTile = hintTile,
-                variantSchedule = (int[])schedule.Clone()
+                variantSchedule = (int[])schedule.Clone(), history = history
             });
+            return true;
+        }
+
+        /// <summary>
+        /// Undo stack must be whole boards of the current size, at most UndoLimit
+        /// deep, each a valid orientation set, and its newest entry must equal `previous`.
+        /// </summary>
+        private static bool IsValidHistory(Puzzle puzzle, int[] history, int[] previous)
+        {
+            int cells = puzzle.CellCount;
+            if (history.Length % cells != 0 || history.Length / cells > UndoLimit) return false;
+            for (int entry = 0; entry < history.Length / cells; entry++)
+            {
+                int[] board = new int[cells];
+                Array.Copy(history, entry * cells, board, 0, cells);
+                if (!PipeRules.ValidRotations(puzzle, board)) return false;
+            }
+            if (history.Length == 0) return previous.Length == 0;
+            if (previous.Length != cells) return false;
+            for (int i = 0; i < cells; i++)
+                if (history[history.Length - cells + i] != previous[i]) return false;
             return true;
         }
 
@@ -284,6 +325,27 @@ namespace Evergrove.Core
         {
             state.hintStep = 0;
             state.hintTile = -1;
+        }
+
+        /// <summary>Replaces the undo stack and keeps the legacy `previous` mirror in step.</summary>
+        private void SetHistory(int[] flat, int cells)
+        {
+            state.history = flat;
+            state.previous = new int[0];
+            if (flat.Length == 0) return;
+            state.previous = new int[cells];
+            Array.Copy(flat, flat.Length - cells, state.previous, 0, cells);
+        }
+
+        /// <summary>Pushes the board as it was before a mutation, dropping the oldest step past the limit.</summary>
+        private void PushHistory(int[] before)
+        {
+            int cells = before.Length;
+            int keep = Math.Min(state.history.Length / cells, UndoLimit - 1) * cells;
+            int[] next = new int[keep + cells];
+            Array.Copy(state.history, state.history.Length - keep, next, 0, keep);
+            Array.Copy(before, 0, next, keep, cells);
+            SetHistory(next, cells);
         }
 
         /// <summary>
@@ -315,7 +377,7 @@ namespace Evergrove.Core
                 ClearHint();
                 return 0;
             }
-            state.previous = (int[])state.rotations.Clone();
+            PushHistory((int[])state.rotations.Clone());
             state.rotations[chosen] = puzzle.Solution[chosen];
             state.hintsUsed++;
             ClearHint();
@@ -328,7 +390,7 @@ namespace Evergrove.Core
             if (Completed || Solved) return false;
             Puzzle puzzle = CurrentPuzzle;
             if (tile < 0 || tile >= puzzle.CellCount || puzzle.IsAnchored(tile)) return false;
-            state.previous = (int[])state.rotations.Clone();
+            PushHistory((int[])state.rotations.Clone());
             ClearHint();
             state.rotations[tile] = state.rotations[tile] % PipeRules.OrientationCount(puzzle.Kinds[tile]) + 1;
             state.solved = PipeRules.IsComplete(puzzle, state.rotations);
@@ -348,7 +410,7 @@ namespace Evergrove.Core
                 if (!puzzle.IsAnchored(i) && state.rotations[i] != puzzle.Solution[i])
                 { tile = i; break; }
             if (tile < 0) return false;
-            state.previous = (int[])state.rotations.Clone();
+            PushHistory((int[])state.rotations.Clone());
             state.rotations[tile] = puzzle.Solution[tile];
             state.hintsUsed++;
             ClearHint();
@@ -359,8 +421,13 @@ namespace Evergrove.Core
         public bool Undo()
         {
             if (!CanUndo) return false;
-            state.rotations = state.previous;
-            state.previous = Array.Empty<int>();
+            int cells = CurrentPuzzle.CellCount;
+            int[] remaining = new int[state.history.Length - cells];
+            Array.Copy(state.history, remaining, remaining.Length);
+            int[] restored = new int[cells];
+            Array.Copy(state.history, remaining.Length, restored, 0, cells);
+            SetHistory(remaining, cells);
+            state.rotations = restored;
             ClearHint();
             state.solved = PipeRules.IsComplete(CurrentPuzzle, state.rotations);
             return true;
@@ -370,7 +437,7 @@ namespace Evergrove.Core
         {
             if (Completed) return false;
             state.rotations = (int[])CurrentPuzzle.Initial.Clone();
-            state.previous = Array.Empty<int>();
+            SetHistory(Array.Empty<int>(), 0);
             ClearHint();
             state.solved = PipeRules.IsComplete(CurrentPuzzle, state.rotations);
             return true;
@@ -382,7 +449,7 @@ namespace Evergrove.Core
             ClearHint();
             state.round++;
             state.solved = false;
-            state.previous = Array.Empty<int>();
+            SetHistory(Array.Empty<int>(), 0);
             state.boardVariant = Completed ? 0 : NextVariant();
             state.rotations = Completed ? Array.Empty<int>() : (int[])CurrentPuzzle.Initial.Clone();
         }
@@ -424,7 +491,7 @@ namespace Evergrove.Core
             state.round = previousChapter;
             state.boardVariant = state.lastSolvedVariant;
             state.rotations = (int[])CurrentPuzzle.Solution.Clone();
-            state.previous = Array.Empty<int>();
+            SetHistory(Array.Empty<int>(), 0);
             ClearHint();
             state.solved = true;
             return true;
