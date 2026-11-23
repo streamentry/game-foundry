@@ -124,7 +124,7 @@
 
 ### EG-007 — Large, forgiving touch and readable text
 
-**State:** Safe-area scroll and large controls exist; device audit unverified. **Type:** Release quality. **Risk:** Larger targets crowd 4×4 board. **Evidence:** R2,P1,Q1. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
+**State:** Safe-area scroll, large controls and in-game text size 100/125/150% (`TextScale`, Aa control) implemented; device/OS audit still unverified. **Type:** Release quality. **Risk:** Larger targets crowd 4×4 board. **Evidence:** R2,P1,Q1. **R/I/C/E:** 5/5/5/2; **illustrative score:** 62.5.
 
 **Execution:** `Proposed`; **M2**; owner role **UX & Accessibility QA**; verification **`A11Y-001`, `A11Y-005`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-007/verification.md` (**NOT COLLECTED**); **rollback/stop:** Targets remain inaccessible or mis-taps block play.
 

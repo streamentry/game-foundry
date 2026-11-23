@@ -24,6 +24,7 @@
 Portrait scrolling UI
   Brand + product headline
   Language selector (Automatic / 30-language picker)
+  Text size control "Aa 100% / 125% / 150%" (language-neutral; cycles on tap)
   [Living mode] 2D illustration OR opt-in 2.5D miniature
   World consequence and one remembered action
   [If a choice was committed] memory interlude + Continue + Change choice
@@ -52,6 +53,7 @@ This is an **implementation map**, not a guarantee everything is visible without
 - **Rotatable tile:** tap turns it clockwise by its allowed orientation cycle.
 - **Protected landscape tile:** after chapter one, one non-endpoint tile is fixed, amber/marked and non-interactable. The explanation references roots/foundation/sanctuary.
   - **Landmark marker (2026-11-23):** the protected tile gets a heavy bark-brown frame plus a badge in its top-left corner, drawn procedurally by `LandmarkGraphic` with no new art. The badge matches the choice: root tendrils (tree), a stone footing under a plank deck (bridge), or a five-petal flower (wildflower sanctuary). The badge sits outside every channel arm, so pipe geometry and endpoint markers stay unchanged. The marker is non-color: frame thickness and badge shape carry the meaning. The text line below the board still reads "…anchor this pipe. It cannot rotate." without naming the marker. **Unverified with players:** the QA screenshots (`docs/qa/mac-player-2026-11-23/tour/07–09`) show the shapes are distinct on a 540×960 frame, but no adult 45+ playtest has confirmed that the marker is noticed unaided.
+- **Text size (EG-007, implemented 2026-11-23):** one central scale in `TextScale` applies to every generated label, button, save banner and dev-only input. The choice is stored in PlayerPrefs (`evergrove:text-scale:v1`) and never touches the world save. Default 100%. Buttons and rows keep a scaled minimum height and grow with their text; board tiles, pipe geometry and the tile-embedded markers (open-join circle, hint "?") stay fixed. QA evidence at 150%, 375x667: `docs/qa/mac-player-2026-11-23/tour-text150-375/`. Dev builds accept `-mosseloraTextScale 150` for one run without persisting it. **Unverified:** physical devices, OS text-size interaction, and adult 45+ testing.
 - **Solved board:** current water path is complete, no leaks; further rotate is blocked, undo may reopen a previous move.
 - **Choice state:** one tree, crossing, or flower decision and a short promise.
 - **Memory state:** shows the result; **Change your choice** reopens the prior solved puzzle without replaying it.
