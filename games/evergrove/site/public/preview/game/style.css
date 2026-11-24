@@ -723,3 +723,9 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
 .tile-mark {
   background: radial-gradient(circle at 35% 35%, #fff 0%, rgba(255,255,255,0) 65%);
 }
+
+
+/* I80: Dynamic Stream Velocity Currents */
+.tile--wet svg path {
+  transition: stroke-dashoffset 120ms ease;
+}
