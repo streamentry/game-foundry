@@ -1183,7 +1183,7 @@ namespace Evergrove.UnityClient
             {
                 // On the play page the seedling stays a bare icon (ending); in the
                 // menu it says what it does.
-                bool inMenu = content == menuContent;
+                bool inMenu = content == menuContent || world.Completed;
                 Width(IconButton(row, resetName, GameLocalization.Text("explore"),
                     MosseloraArt.IconNewGarden, () => { confirmReset = true; Rebuild(); },
                     inMenu ? 78 : 58, tone, false, null, inMenu), inMenu ? 200 : 96);
