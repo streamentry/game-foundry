@@ -580,3 +580,13 @@ h1 em { font-style: italic; color: #34775c; }
   font-size: 16px !important; line-height: 1.7 !important; color: #234d38 !important;
   font-style: italic;
 }
+
+
+/* I40: Seed of Rejuvenation Replay Button */
+.primary-button--sprout {
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 10px;
+  min-height: 54px !important; border-radius: 16px !important; font-size: 16px !important;
+  background: linear-gradient(135deg, #2b7454 0%, #1f5d42 100%) !important;
+  box-shadow: 0 4px 16px rgba(35, 95, 65, .25), inset 0 1px 0 rgba(255,255,255,.3) !important;
+}
+.primary-button--sprout:hover { transform: translateY(-1px); filter: brightness(1.05) !important; }
