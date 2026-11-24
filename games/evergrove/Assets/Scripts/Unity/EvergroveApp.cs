@@ -845,47 +845,63 @@ namespace Evergrove.UnityClient
             if (hero == null) return;
             titleScreen = Node("Title screen", host);
             Fill(titleScreen.GetComponent<RectTransform>());
-            var paper = titleScreen.AddComponent<Image>();
-            paper.color = Paper;
-            var art = Node("Village at the start", titleScreen.transform);
+            titleScreen.AddComponent<Image>().color = Paper;
+
+            // The village at the top, clipped to the upper half.
+            var window = Node("Village window", titleScreen.transform);
+            var windowRect = window.GetComponent<RectTransform>();
+            windowRect.anchorMin = new Vector2(0f, 0.46f);
+            windowRect.anchorMax = Vector2.one;
+            windowRect.offsetMin = windowRect.offsetMax = Vector2.zero;
+            window.AddComponent<RectMask2D>();
+            var art = Node("Village at the start", window.transform);
             var artRect = art.GetComponent<RectTransform>();
-            artRect.anchorMin = new Vector2(0.5f, 1f);
-            artRect.anchorMax = new Vector2(0.5f, 1f);
+            artRect.anchorMin = new Vector2(0f, 1f);
+            artRect.anchorMax = new Vector2(1f, 1f);
             artRect.pivot = new Vector2(0.5f, 1f);
+            artRect.offsetMin = artRect.offsetMax = Vector2.zero;
             var artImage = art.AddComponent<Image>();
             artImage.sprite = hero;
             artImage.raycastTarget = false;
             var fitter = art.AddComponent<AspectRatioFitter>();
             fitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
             fitter.aspectRatio = MosseloraArt.Aspect(hero);
-            artRect.anchorMin = new Vector2(0f, 1f);
-            artRect.anchorMax = new Vector2(1f, 1f);
-            artRect.offsetMin = artRect.offsetMax = Vector2.zero;
-            var band = Node("Title paper", titleScreen.transform);
-            var bandRect = band.GetComponent<RectTransform>();
-            bandRect.anchorMin = new Vector2(0f, 0f);
-            bandRect.anchorMax = new Vector2(1f, 0.42f);
-            bandRect.offsetMin = bandRect.offsetMax = Vector2.zero;
-            var bandImage = band.AddComponent<Image>();
-            bandImage.sprite = MosseloraArt.TopFade();
-            bandImage.color = Paper;
-            bandImage.rectTransform.localScale = new Vector3(1f, -1f, 1f); // opaque at the bottom
-            bandImage.raycastTarget = false;
-            var solid = Node("Title paper base", titleScreen.transform);
-            var solidRect = solid.GetComponent<RectTransform>();
-            solidRect.anchorMin = Vector2.zero;
-            solidRect.anchorMax = new Vector2(1f, 0.30f);
-            solidRect.offsetMin = solidRect.offsetMax = Vector2.zero;
-            solid.AddComponent<Image>().color = Paper;
+            var melt = Node("Village melt", window.transform);
+            var meltRect = melt.GetComponent<RectTransform>();
+            meltRect.anchorMin = Vector2.zero;
+            meltRect.anchorMax = new Vector2(1f, 0.30f);
+            meltRect.offsetMin = meltRect.offsetMax = Vector2.zero;
+            var meltImage = melt.AddComponent<Image>();
+            meltImage.sprite = MosseloraArt.TopFade();
+            meltImage.color = Paper;
+            meltImage.rectTransform.localScale = new Vector3(1f, -1f, 1f);
+            meltImage.raycastTarget = false;
+
+            // Your creek, as you left it: real water, your landmarks, your neighbors.
+            var strip = Node("Your village", titleScreen.transform);
+            var stripRect = strip.GetComponent<RectTransform>();
+            stripRect.anchorMin = new Vector2(0f, 0.33f);
+            stripRect.anchorMax = new Vector2(1f, 0.52f);
+            stripRect.offsetMin = stripRect.offsetMax = Vector2.zero;
+            var painting = strip.AddComponent<PaintedVillage>();
+            painting.Build(0f);
+            if (painting.Ready)
+            {
+                VillageScenePlan plan = VillageScenePlan.From(world);
+                painting.Show(plan.Chapter, plan.TreeCount, plan.CrossingCount, plan.FlowerCount,
+                    plan.WaterRestored, plan.WaterReachPercent);
+            }
+            if (world.Mode == PlayMode.Living) NeighborsOnPainting(strip.transform, true);
+
             var stack = Node("Title stack", titleScreen.transform);
             var stackRect = stack.GetComponent<RectTransform>();
-            stackRect.anchorMin = new Vector2(0f, 0.04f);
-            stackRect.anchorMax = new Vector2(1f, 0.40f);
+            stackRect.anchorMin = new Vector2(0f, 0.03f);
+            stackRect.anchorMax = new Vector2(1f, 0.33f);
             stackRect.offsetMin = new Vector2(24f, 0f);
             stackRect.offsetMax = new Vector2(-24f, 0f);
             var column = stack.AddComponent<VerticalLayoutGroup>();
             column.childAlignment = TextAnchor.MiddleCenter;
-            column.spacing = 14;
+            column.spacing = 12;
             column.childControlWidth = true;
             column.childControlHeight = true;
             column.childForceExpandWidth = true;
@@ -894,20 +910,20 @@ namespace Evergrove.UnityClient
             if (mark != null)
             {
                 var markNode = Node("Mosselora wordmark", stack.transform);
-                Height(markNode, 62f);
+                Height(markNode, 56f);
                 var markImage = markNode.AddComponent<Image>();
                 markImage.sprite = mark;
                 markImage.preserveAspect = true;
                 markImage.raycastTarget = false;
             }
-            Text tagline = Label(stack.transform, "Title", GameLocalization.Text("subtitle"), 18, 0, Ink,
+            Text tagline = Label(stack.transform, "Title", GameLocalization.Text("subtitle"), 17, 0, Ink,
                 TextAnchor.MiddleCenter);
             Emphasize(tagline);
             // How far along the creek this garden has walked: resumes, never resets.
             if (!world.Completed) StreamStones(world.CurrentPuzzle, stack.transform, false);
             Transform play = CenteredRowIn(stack.transform, "Play row");
             Button start = IconButton(play, "Play", GameLocalization.Text("continue"),
-                MosseloraArt.IconContinue, CloseTitle, 84, MosseloraTheme.WaterAction);
+                MosseloraArt.IconContinue, CloseTitle, 80, MosseloraTheme.WaterAction);
             Width(start, 168);
             titleScreen.transform.SetAsLastSibling();
         }
@@ -1093,7 +1109,7 @@ namespace Evergrove.UnityClient
 
         // The villagers stand in their village: portrait medallions along the
         // bottom of the painted strip, names in white over the art.
-        private void NeighborsOnPainting(Transform painting)
+        private void NeighborsOnPainting(Transform painting, bool fromTitle = false)
         {
             var row = Node("Speak with a neighbor", painting);
             row.AddComponent<LayoutElement>().ignoreLayout = true;
@@ -1112,13 +1128,14 @@ namespace Evergrove.UnityClient
             group.childForceExpandWidth = false;
             group.childForceExpandHeight = false;
             for (int villager = 0; villager < 3; villager++)
-                PortraitButton(row.transform, villager, true);
+                PortraitButton(row.transform, villager, true, fromTitle);
             row.transform.SetAsLastSibling();
         }
 
         private void NeighborConversation()
         {
             var conversation = Card(content, "A neighbor's memory", MosseloraTheme.CardFill);
+            screenHeading = conversation.GetComponent<RectTransform>();
             Text speaker = Label(conversation.transform, "Neighbor name",
                 LocalizedVillage.Name(speakingWith), 16, 31, Leaf, TextAnchor.MiddleCenter);
             Emphasize(speaker);
@@ -1130,7 +1147,8 @@ namespace Evergrove.UnityClient
         }
 
         // Neighbor as a painted portrait medallion with their name beneath.
-        private void PortraitButton(Transform parent, int villager, bool onPainting = false)
+        private void PortraitButton(Transform parent, int villager, bool onPainting = false,
+                                    bool fromTitle = false)
         {
             string label = LocalizedVillage.Name(villager);
             Sprite face = MosseloraArt.Portrait(villager);
@@ -1153,7 +1171,10 @@ namespace Evergrove.UnityClient
             var button = node.AddComponent<Button>();
             button.targetGraphic = hit;
             button.transition = Selectable.Transition.None;
-            button.onClick.AddListener(() => OpenConversation(villager));
+            button.onClick.AddListener(() => {
+                if (fromTitle) CloseTitle(); // step from the village straight into their memory
+                OpenConversation(villager);
+            });
             PressSquash.Add(node);
             var picture = Node("Portrait", node.transform);
             var pictureLayout = picture.AddComponent<LayoutElement>();
@@ -2243,6 +2264,7 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Talk(Time.unscaledTime);
 #endif
+            revealNewScreen = true; // land on the neighbor's card, wherever it sits
             Rebuild();
         }
 
