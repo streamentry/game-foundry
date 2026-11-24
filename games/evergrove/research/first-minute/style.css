@@ -557,3 +557,16 @@ h1 em { font-style: italic; color: #34775c; }
   0% { transform: scale(.6); opacity: 1; }
   100% { transform: scale(1.15); opacity: 0; }
 }
+
+
+/* I37: Storybook Illuminated Inscription */
+.memory-panel {
+  background: radial-gradient(circle at 10% 20%, #fbf9f1 0%, #edf4ec 100%) !important;
+  border: 1.5px solid #a8cbb2 !important; border-left: 6px solid #3c825a !important;
+  border-radius: 22px !important; box-shadow: 0 10px 32px rgba(35, 75, 50, .09) !important;
+  position: relative;
+}
+.memory-panel::before {
+  content: "❧"; position: absolute; top: 16px; right: 20px;
+  font-size: 26px; color: #43845e; opacity: .4;
+}
