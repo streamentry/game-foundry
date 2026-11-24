@@ -730,6 +730,15 @@ namespace Evergrove.UnityClient
                 new Vector2(0f, 1f), new Vector2(vineSize, vineSize), new Vector2(-17f, 15f));
             MosseloraArt.Ornament(header.transform, "Vine right", vine, new Vector2(1f, 1f),
                 new Vector2(0f, 1f), new Vector2(vineSize, vineSize), new Vector2(17f, 15f), true);
+            var menuBtn = IconButton(header.transform, "Game menu", MosseloraTheme.GlyphMenu, "Menu", () => {
+                menuDrawerOpen = !menuDrawerOpen;
+                Rebuild();
+            }, 44, MosseloraTheme.QuietAction);
+            RectTransform menuRect = menuBtn.GetComponent<RectTransform>();
+            menuRect.anchorMin = new Vector2(1f, 0.5f);
+            menuRect.anchorMax = new Vector2(1f, 0.5f);
+            menuRect.pivot = new Vector2(1f, 0.5f);
+            menuRect.anchoredPosition = new Vector2(-12f, 0f);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (participantView)
             {
@@ -869,12 +878,12 @@ namespace Evergrove.UnityClient
             Text subtitle = Label(content, "Title", GameLocalization.Text("subtitle"),
                 puzzleScreen ? 17 : 24, puzzleScreen ? 28 : 44, Ink, TextAnchor.MiddleCenter);
             if (!puzzleScreen) Emphasize(subtitle);
-            if (multiLanguage && settingsAtTop)
+            if (multiLanguage && settingsAtTop && menuDrawerOpen)
                 Button(content, "Language settings",
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
                     () => { languagePicker = !languagePicker; Rebuild(true); }, 48);
-            if (settingsAtTop)
+            if (settingsAtTop && menuDrawerOpen)
                 TextSizeButton(content);
             if (languagePicker)
             {
@@ -1045,7 +1054,7 @@ namespace Evergrove.UnityClient
                         Rebuild();
                     });
             }
-            if (puzzleScreen && !languagePicker)
+            if (puzzleScreen && !languagePicker && menuDrawerOpen)
                 SettingsRow(multiLanguage);
 
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
@@ -1383,14 +1392,14 @@ namespace Evergrove.UnityClient
             else
             {
                 var tools = Row(content, "Gentle controls");
-                undoButton = Button(tools.transform, "Undo", GameLocalization.Text("undo"), () => Act(() => world.Undo(), "undo"),
+                undoButton = IconButton(tools.transform, "Undo", MosseloraTheme.GlyphUndo, GameLocalization.Text("undo"), () => Act(() => world.Undo(), "undo"),
                     56, MosseloraTheme.ForestAction);
                 undoButton.interactable = world.CanUndo;
-                Button(tools.transform, "Hint",
+                IconButton(tools.transform, "Hint", MosseloraTheme.GlyphHint,
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
                     UseGentleHint, 56, MosseloraTheme.WaterAction);
-                Button(tools.transform, "Restart", GameLocalization.Text("restart"),
+                IconButton(tools.transform, "Restart", MosseloraTheme.GlyphRestart, GameLocalization.Text("restart"),
                     () => Act(() => world.Restart(), "restart"), 56, MosseloraTheme.EarthAction);
                 if (world.HintStep > 0 && world.HintTile >= 0)
                 {
