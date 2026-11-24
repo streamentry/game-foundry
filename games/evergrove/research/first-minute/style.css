@@ -214,3 +214,16 @@ h1 em { font-style: italic; color: #34775c; }
   background: #e2ece0; padding: 4px 9px; border-radius: 20px;
   font-size: 10px; letter-spacing: .12em; color: #3b6650;
 }
+
+
+/* I04: Full-Bleed Tactile Stage & Framing */
+.puzzle-panel {
+  background: linear-gradient(180deg, #fffdf8 0%, #fbf8f0 100%);
+  border: 1px solid #d4d8c7; border-radius: 28px;
+  box-shadow: 0 10px 32px rgba(45, 65, 50, .07), 0 1px 3px rgba(0,0,0,.03);
+  position: relative; overflow: hidden;
+}
+.puzzle-panel::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  border-radius: 28px; border: 1px solid rgba(255,255,255,.9);
+}
