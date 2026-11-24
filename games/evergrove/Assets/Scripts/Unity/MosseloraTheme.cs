@@ -55,10 +55,9 @@ namespace Evergrove.UnityClient
         public static Color TileFill(bool solved, bool reached, bool anchored,
                                      int hintStep, int hintTile, int index, int size)
         {
+            // Hints draw honey rings over the tiles (EvergroveApp) and never repaint
+            // them: a hint must not hide where the water already reaches (I91).
             if (anchored) return AnchoredTile;
-            if (!solved && hintStep == 2 && index == hintTile) return HintFocusTile;
-            if (!solved && hintStep == 1 && hintTile >= 0 &&
-                index / size == hintTile / size) return HintRowTile;
             return solved ? SolvedTile : reached ? WetTile : DryTile;
         }
     }

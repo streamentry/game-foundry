@@ -112,6 +112,8 @@ namespace Evergrove.UnityClient
 #endif
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
         private RectTransform solvedBoard;     // the board whose payoff the decision glide keeps whole
+        private readonly System.Collections.Generic.List<GameObject> hintMarkers =
+            new System.Collections.Generic.List<GameObject>(); // cleared when a move ends the hint
         // Set by a rebuilt screen (ending card, journal) so a player who opens it
         // lands on its heading instead of wherever the previous screen was scrolled.
         private RectTransform screenHeading;
@@ -1817,6 +1819,7 @@ namespace Evergrove.UnityClient
             visibleTiles = null;
             coachBubble = null;
             goalGlows.Clear();
+            hintMarkers.Clear();
             activeIllustration = null;
             activePainting = null;
             tileBackgrounds = null;
@@ -2496,11 +2499,30 @@ namespace Evergrove.UnityClient
                 // this "○" stays as the semantic source, invisible.
                 leakText.color = new Color(0f, 0f, 0f, 0f);
                 visibleLeaks[index] = leakText;
+                // Hint step 1: soft honey rings along the row to look at; the
+                // tiles keep their water colours (I91).
+                if (world.HintStep == 1 && world.HintTile >= 0 && index / puzzle.Size == world.HintTile / puzzle.Size)
+                {
+                    var rowNode = Node("Hint row marker", tileNode.transform);
+                    rowNode.AddComponent<LayoutElement>().ignoreLayout = true;
+                    RectTransform rowRect = rowNode.GetComponent<RectTransform>();
+                    Fill(rowRect);
+                    rowRect.offsetMin = new Vector2(-3f, -3f);
+                    rowRect.offsetMax = new Vector2(3f, 3f);
+                    var rowRing = rowNode.AddComponent<Image>();
+                    rowRing.sprite = MosseloraArt.Ring(15);
+                    rowRing.type = Image.Type.Sliced;
+                    rowRing.pixelsPerUnitMultiplier = 1.6f; // thinner than the step-2 focus ring
+                    rowRing.color = new Color(0.89f, 0.63f, 0.18f, 0.75f);
+                    rowRing.raycastTarget = false;
+                    hintMarkers.Add(rowNode);
+                }
                 if (world.HintStep == 2 && index == world.HintTile)
                 {
                     // A soft honey glow around the tile to turn: it breathes when
                     // gentle motion is on, and holds still when it is off.
                     var clueNode = Node("Hint focus marker", tileNode.transform);
+                    hintMarkers.Add(clueNode);
                     clueNode.AddComponent<LayoutElement>().ignoreLayout = true;
                     RectTransform clueRect = clueNode.GetComponent<RectTransform>();
                     Fill(clueRect);
@@ -2509,12 +2531,16 @@ namespace Evergrove.UnityClient
                     var glow = clueNode.AddComponent<Image>();
                     glow.sprite = MosseloraArt.Ring(15);
                     glow.type = Image.Type.Sliced;
-                    glow.pixelsPerUnitMultiplier = 1.2f;
+                    glow.pixelsPerUnitMultiplier = 0.9f; // bolder than the step-1 row rings
                     glow.color = new Color(0.89f, 0.63f, 0.18f, 1f);
                     glow.raycastTarget = false;
                     if (gentleMotion) Breathe.Add(glow);
                 }
-                if (puzzle.Kinds[index] == PipeKind.End && world.Round == 0 && !world.CanUndo && !world.Solved)
+                bool hintedHere = world.HintStep > 0 && world.HintTile >= 0
+                    && index / puzzle.Size == world.HintTile / puzzle.Size
+                    && (world.HintStep == 1 || index == world.HintTile);
+                // A hint ring and the teal goal glow never share a tile: the hint wins (I91).
+                if (!hintedHere && puzzle.Kinds[index] == PipeKind.End && world.Round == 0 && !world.CanUndo && !world.Solved)
                 {
                     // Before the first move, the start and the goal glow softly.
                     var goal = Node("Start or goal glow", tileNode.transform);
@@ -2646,11 +2672,13 @@ namespace Evergrove.UnityClient
                     toolHeight, MosseloraTheme.ForestAction, false, null, teach);
                 undoButton.interactable = world.CanUndo;
                 // Hint depth shows as a small 1/2 or 2/2 badge, not words.
-                IconButton(tools.transform, "Hint",
+                Button hintButton = IconButton(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
                     MosseloraArt.IconHint, UseGentleHint, toolHeight, MosseloraTheme.WaterAction, false,
                     null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
+                Transform hintDots = hintButton.transform.Find("Level dots");
+                if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too
                 IconButton(tools.transform, "Restart", GameLocalization.Text("restart"),
                     MosseloraArt.IconRestart, () => Act(() => world.Restart(), "restart"),
                     toolHeight, MosseloraTheme.QuietAction, false, null, teach);
@@ -3138,6 +3166,12 @@ namespace Evergrove.UnityClient
                 goalGlows.Clear();
             }
             if (world.Completed || visibleTiles == null) return;
+            // A move ends the hint; its rings go with it instead of lingering (I91).
+            if (hintMarkers.Count > 0 && world.HintStep == 0)
+            {
+                foreach (GameObject marker in hintMarkers) if (marker != null) marker.SetActive(false);
+                hintMarkers.Clear();
+            }
             Puzzle puzzle = world.CurrentPuzzle;
             if (visibleTiles.Length != puzzle.CellCount) { Rebuild(); return; }
             PipeInsight insight = world.Insight;
