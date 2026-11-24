@@ -2099,6 +2099,8 @@ namespace Evergrove.UnityClient
         // screens. Same controls and behavior as the top-of-screen settings.
         private void SettingsRow(bool offerLanguage)
         {
+            // The settings page is where words belong: each tile is its icon,
+            // its live state and its name, two to a row.
             var panel = Card(content, "Settings panel", MosseloraTheme.SagePanel);
             panel.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(10, 10, 10, 10);
             GameObject row = Row(panel.transform, "Settings row");
@@ -2106,9 +2108,10 @@ namespace Evergrove.UnityClient
                 IconButton(row.transform, "Language settings",
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
-                    MosseloraArt.IconLanguage, () => { languagePicker = true; Rebuild(true); }, 56,
-                    MosseloraTheme.QuietAction);
+                    MosseloraArt.IconLanguage, () => { languagePicker = true; Rebuild(true); }, 78,
+                    MosseloraTheme.QuietAction, false, null, true);
             TextSizeButton(row.transform);
+            row = Row(panel.transform, "Settings row 2");
             BoardSizeButton(row.transform);
             IconButton(row.transform, "Gentle motion setting",
                 GameLocalization.Text("gentle_motion"),
@@ -2119,7 +2122,9 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.SetInt(GentleMotionKey, gentleMotion ? 1 : 0);
                     PlayerPrefs.Save();
                     Rebuild();
-                }, 56, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
+                }, 78, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, true);
+            row = Row(panel.transform, "Settings row 3");
             IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
@@ -2128,7 +2133,8 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.SetInt("evergrove:gentle-audio", soundOn ? 1 : 0);
                     PlayerPrefs.Save();
                     Rebuild();
-                }, 56, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
+                }, 78, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, true);
         }
 
         // Language-neutral label: the tile scale of the current board (EG-112).
@@ -2141,8 +2147,8 @@ namespace Evergrove.UnityClient
                 MosseloraArt.IconBoardSize, () => {
                     BoardSize.Toggle();
                     Rebuild();
-                }, 56, BoardSize.IsLarge ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, false, 2, BoardSize.IsLarge ? 2 : 1);
+                }, 78, BoardSize.IsLarge ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, true, 2, BoardSize.IsLarge ? 2 : 1);
         }
 
         // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.
@@ -2153,8 +2159,8 @@ namespace Evergrove.UnityClient
                 MosseloraArt.IconTextSize, () => {
                     TextScale.Cycle();
                     Rebuild();
-                }, 56, TextScale.Percent > 100 ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, false, 3, TextScale.Percent >= 150 ? 3 : TextScale.Percent >= 125 ? 2 : 1);
+                }, 78, TextScale.Percent > 100 ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, true, 3, TextScale.Percent >= 150 ? 3 : TextScale.Percent >= 125 ? 2 : 1);
         }
 
         private void BuildLanguagePicker()
