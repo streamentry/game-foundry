@@ -493,5 +493,25 @@
     });
   });
 
+  
+  // I39: Garden Journal Modal
+  const journalModal = node("journal-modal");
+  const openJournalBtn = node("open-journal-btn");
+  const journalCloseBtn = node("journal-close-btn");
+  const journalBackdrop = node("journal-backdrop");
+  function toggleJournal(show) {
+    if (!journalModal) return;
+    journalModal.hidden = !show;
+    if (show && model.choice) {
+      node("journal-choice-summary").textContent = CHOICES[model.choice].result;
+    }
+  }
+  if (openJournalBtn) openJournalBtn.addEventListener("click", () => {
+    toggleMenu(false);
+    toggleJournal(true);
+  });
+  if (journalCloseBtn) journalCloseBtn.addEventListener("click", () => toggleJournal(false));
+  if (journalBackdrop) journalBackdrop.addEventListener("click", () => toggleJournal(false));
+
   render();
 })(typeof window === "undefined" ? globalThis : window);
