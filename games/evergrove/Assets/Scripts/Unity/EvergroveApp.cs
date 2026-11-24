@@ -949,7 +949,7 @@ namespace Evergrove.UnityClient
             for (int i = 0; i < waterDrops.Length; i++)
                 waterDrops[i].color = i < reached
                     ? Color.white
-                    : new Color(0.40f, 0.44f, 0.40f, 0.50f); // dry: a clearly visible grey silhouette
+                    : new Color(0.36f, 0.40f, 0.37f, 0.85f); // dry: a solid slate silhouette, >=3:1 on paper (I105)
         }
 
         // A calm daily ritual entry: the village painting full-bleed, the
@@ -2351,9 +2351,12 @@ namespace Evergrove.UnityClient
             string[] entries = LocalizedVillage.Journal(world);
             int[] chosen = world.Choices;
             GameObject spread = null;
+            // At larger text the pages stack one per row, as the choice cards do,
+            // so a memory reads in two lines instead of five (I105).
+            bool onePerRow = TextScale.Percent > 100;
             for (int i = 0; i < entries.Length; i++)
             {
-                if (i % 2 == 0)
+                if (onePerRow || i % 2 == 0)
                 {
                     spread = Row(journal.transform, "Scrapbook spread");
                     var spreadGroup = spread.GetComponent<HorizontalLayoutGroup>();
@@ -2412,7 +2415,7 @@ namespace Evergrove.UnityClient
                     new Color(0f, 0f, 0f, 0f), TextAnchor.UpperCenter);
                 record.GetComponent<LayoutElement>().ignoreLayout = true;
             }
-            if (entries.Length % 2 == 1 && spread != null)
+            if (!onePerRow && entries.Length % 2 == 1 && spread != null)
                 Node("Scrapbook blank", spread.transform); // keeps the last page half width
             if (world.Journal.Length == 0)
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
