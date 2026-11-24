@@ -1360,8 +1360,11 @@ namespace Evergrove.UnityClient
             window.AddComponent<LayoutElement>().ignoreLayout = true;
             var windowRect = window.GetComponent<RectTransform>();
             Fill(windowRect);
-            windowRect.offsetMin = new Vector2(-17f, -46f); // page edge to page edge, a band above and below the bed
-            windowRect.offsetMax = new Vector2(17f, 46f);
+            // Screen edge to screen edge (past the tablet column, I111). It stops at
+            // the bed's top: the creek is drawn after the text above the board, so
+            // reaching upward would cover it. Below, a band melts into the paper.
+            windowRect.offsetMin = new Vector2(-17f - columnInset, -46f);
+            windowRect.offsetMax = new Vector2(17f + columnInset, 0f);
             window.AddComponent<RectMask2D>();
             var art = Node("Creek painting", window.transform);
             Fill(art.GetComponent<RectTransform>());
@@ -1372,6 +1375,24 @@ namespace Evergrove.UnityClient
             var fit = art.AddComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
             fit.aspectRatio = MosseloraArt.Aspect(creek);
+            // Soft top and bottom: the painting melts into the paper instead of
+            // ending in a ruled line (I111).
+            Sprite fade = MosseloraArt.TopFade();
+            for (int edge = 1; edge < 2; edge++) // bottom only; the bed's stones edge the top
+            {
+                var melt = Node(edge == 0 ? "Creek melt top" : "Creek melt bottom", window.transform);
+                var meltRect = melt.GetComponent<RectTransform>();
+                meltRect.anchorMin = new Vector2(0f, edge == 0 ? 1f : 0f);
+                meltRect.anchorMax = new Vector2(1f, edge == 0 ? 1f : 0f);
+                meltRect.pivot = new Vector2(0.5f, 0.5f); // centre pivot, so the flip stays inside the window
+                meltRect.sizeDelta = new Vector2(0f, 44f);
+                meltRect.anchoredPosition = new Vector2(0f, edge == 0 ? -22f : 22f);
+                if (edge == 1) meltRect.localScale = new Vector3(1f, -1f, 1f);
+                var meltImage = melt.AddComponent<Image>();
+                meltImage.sprite = fade;
+                meltImage.color = Paper;
+                meltImage.raycastTarget = false;
+            }
             window.transform.SetAsFirstSibling(); // under the stone bed and the tiles
         }
 
