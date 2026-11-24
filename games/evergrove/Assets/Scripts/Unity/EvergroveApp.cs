@@ -436,17 +436,39 @@ namespace Evergrove.UnityClient
             body.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             scroll.content = content;
             BuildMenuSheet(scrollNode.transform);
-            var fadeNode = Node("Chrome paper fade", scrollNode.transform);
+            // Header band: a solid parchment strip as tall as the chrome, then a
+            // soft fade. It appears once the page scrolls, so scrolled content
+            // never sits under (or beside) the menu and memory buttons.
+            var bandNode = Node("Chrome paper band", scrollNode.transform);
+            var bandRect = bandNode.GetComponent<RectTransform>();
+            bandRect.anchorMin = new Vector2(0f, 1f);
+            bandRect.anchorMax = new Vector2(1f, 1f);
+            bandRect.pivot = new Vector2(0.5f, 1f);
+            bandRect.sizeDelta = new Vector2(0f, 104f);
+            var bandGroup = bandNode.AddComponent<CanvasGroup>();
+            bandGroup.blocksRaycasts = false;
+            bandGroup.alpha = 0f;
+            var solidNode = Node("Band solid", bandNode.transform);
+            var solidRect = solidNode.GetComponent<RectTransform>();
+            solidRect.anchorMin = new Vector2(0f, 1f);
+            solidRect.anchorMax = new Vector2(1f, 1f);
+            solidRect.pivot = new Vector2(0.5f, 1f);
+            solidRect.sizeDelta = new Vector2(0f, 74f);
+            var solidImage = solidNode.AddComponent<Image>();
+            solidImage.color = Paper;
+            solidImage.raycastTarget = false;
+            var fadeNode = Node("Band fade", bandNode.transform);
             var fadeRect = fadeNode.GetComponent<RectTransform>();
             fadeRect.anchorMin = new Vector2(0f, 1f);
             fadeRect.anchorMax = new Vector2(1f, 1f);
             fadeRect.pivot = new Vector2(0.5f, 1f);
-            fadeRect.sizeDelta = new Vector2(0f, 92f);
+            fadeRect.sizeDelta = new Vector2(0f, 30f);
+            fadeRect.anchoredPosition = new Vector2(0f, -74f);
             var fadeImage = fadeNode.AddComponent<Image>();
             fadeImage.sprite = MosseloraArt.TopFade();
-            fadeImage.color = new Color(Paper.r, Paper.g, Paper.b, 0f);
+            fadeImage.color = Paper;
             fadeImage.raycastTarget = false;
-            ScrollFade.Attach(fadeImage, content);
+            ScrollFade.Attach(bandGroup, content);
             var chromeNode = Node("Game chrome", scrollNode.transform);
             chrome = chromeNode.GetComponent<RectTransform>();
             chrome.anchorMin = new Vector2(0f, 1f);

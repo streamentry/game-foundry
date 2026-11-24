@@ -543,9 +543,9 @@ namespace Evergrove.UnityClient
     internal sealed class ScrollFade : MonoBehaviour
     {
         private RectTransform page;
-        private Image band;
+        private CanvasGroup band;
 
-        public static void Attach(Image band, RectTransform page)
+        public static void Attach(CanvasGroup band, RectTransform page)
         {
             var fade = band.gameObject.AddComponent<ScrollFade>();
             fade.band = band;
@@ -556,10 +556,8 @@ namespace Evergrove.UnityClient
         private void LateUpdate()
         {
             if (band == null || page == null) return;
-            float scrolled = Mathf.Clamp01(page.anchoredPosition.y / 36f);
-            Color c = band.color;
-            if (Mathf.Abs(c.a - scrolled) < 0.01f) return;
-            band.color = new Color(c.r, c.g, c.b, scrolled);
+            float scrolled = Mathf.Clamp01(page.anchoredPosition.y / 24f);
+            if (Mathf.Abs(band.alpha - scrolled) > 0.01f) band.alpha = scrolled;
         }
     }
 
