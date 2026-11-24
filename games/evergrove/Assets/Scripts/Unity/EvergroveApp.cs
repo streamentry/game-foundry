@@ -930,8 +930,15 @@ namespace Evergrove.UnityClient
             if (qaInMemoryOnly) return; // the scripted QA tour starts on the board
 #endif
             // A finished garden opens on its festival; otherwise the everyday village.
-            Sprite hero = world.Completed && MosseloraArt.Load(MosseloraArt.EndingFestival) != null
-                ? MosseloraArt.Load(MosseloraArt.EndingFestival) : MosseloraArt.Load(MosseloraArt.HeroVillage);
+            // The hub opens on *your* story: the finished garden's festival, else
+            // the painting of your most recent memory, else the everyday village.
+            int[] story = world.Choices;
+            Sprite hero = null;
+            if (world.Completed) hero = MosseloraArt.Load(MosseloraArt.EndingFestival);
+            else if (world.Mode == PlayMode.Living && story.Length > 0)
+                hero = MosseloraArt.Load(story[story.Length - 1] == 0 ? MosseloraArt.VignetteTree
+                    : story[story.Length - 1] == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
+            if (hero == null) hero = MosseloraArt.Load(MosseloraArt.HeroVillage);
             if (hero == null) return;
             titleScreen = Node("Title screen", host);
             Fill(titleScreen.GetComponent<RectTransform>());
@@ -946,15 +953,17 @@ namespace Evergrove.UnityClient
             window.AddComponent<RectMask2D>();
             var art = Node("Village at the start", window.transform);
             var artRect = art.GetComponent<RectTransform>();
-            artRect.anchorMin = new Vector2(0f, 1f);
-            artRect.anchorMax = new Vector2(1f, 1f);
-            artRect.pivot = new Vector2(0.5f, 1f);
+            artRect.anchorMin = Vector2.zero;
+            artRect.anchorMax = Vector2.one;
+            artRect.pivot = new Vector2(0.5f, 0.6f);
             artRect.offsetMin = artRect.offsetMax = Vector2.zero;
             var artImage = art.AddComponent<Image>();
             artImage.sprite = hero;
             artImage.raycastTarget = false;
+            // Cover the window whatever the painting's shape (portrait village,
+            // landscape memory vignette), so no blank band appears.
             var fitter = art.AddComponent<AspectRatioFitter>();
-            fitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
             fitter.aspectRatio = MosseloraArt.Aspect(hero);
             var melt = Node("Village melt", window.transform);
             var meltRect = melt.GetComponent<RectTransform>();
