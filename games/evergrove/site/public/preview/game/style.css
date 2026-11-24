@@ -778,3 +778,14 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
   transform-origin: 466px 132px;
   animation: canopy-sway 4.5s ease-in-out infinite;
 }
+
+
+/* I90: Swimming Koi Fish */
+.creek--restored #river-koi {
+  display: block !important;
+  animation: koi-swim 6s ease-in-out infinite;
+}
+@keyframes koi-swim {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-12px, 8px) rotate(-8deg); }
+}
