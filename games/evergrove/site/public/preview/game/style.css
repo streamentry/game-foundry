@@ -296,3 +296,17 @@ h1 em { font-style: italic; color: #34775c; }
   25% { transform: rotate(-3deg); }
   75% { transform: rotate(3deg); }
 }
+
+
+/* I13: Japanese Woodblock Ceramic Tile Inset Shading */
+.tile {
+  background: radial-gradient(circle at 45% 30%, #f4f2e6 0%, #eae7d7 100%) !important;
+  border: 1.5px solid #a89f7f !important;
+  box-shadow: 0 4px 10px rgba(60, 56, 38, .08), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -2px 0 rgba(110, 102, 75, .15) !important;
+  transition: transform 180ms cubic-bezier(.2,.8,.3,1.3), box-shadow 180ms ease, background 160ms ease !important;
+}
+.tile--wet {
+  background: radial-gradient(circle at 45% 30%, #e2f4f1 0%, #ceeae5 100%) !important;
+  border-color: #429aa8 !important;
+  box-shadow: 0 4px 12px rgba(23, 108, 131, .16), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -2px 0 rgba(28, 88, 104, .2) !important;
+}
