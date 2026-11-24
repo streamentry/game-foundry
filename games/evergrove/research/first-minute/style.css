@@ -400,3 +400,14 @@ h1 em { font-style: italic; color: #34775c; }
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.12); }
 }
+
+
+/* I22: Destination Garden Bud Saturation Swell */
+.tile-mark--sprout {
+  filter: drop-shadow(0 2px 4px rgba(50, 132, 86, .35)) !important;
+  animation: garden-bloom-anticipate 2s ease-in-out infinite;
+}
+@keyframes garden-bloom-anticipate {
+  0%, 100% { transform: scale(1) rotate(0deg); color: #328456; }
+  50% { transform: scale(1.18) rotate(4deg); color: #44aa72; }
+}
