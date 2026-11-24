@@ -570,3 +570,13 @@ h1 em { font-style: italic; color: #34775c; }
   content: "❧"; position: absolute; top: 16px; right: 20px;
   font-size: 26px; color: #43845e; opacity: .4;
 }
+
+
+/* I38: Villager Cameo Dialogue Styling */
+.memory-panel h2 {
+  display: flex; align-items: center; gap: 10px; font-size: 28px !important;
+}
+.memory-panel p#memory-text {
+  font-size: 16px !important; line-height: 1.7 !important; color: #234d38 !important;
+  font-style: italic;
+}
