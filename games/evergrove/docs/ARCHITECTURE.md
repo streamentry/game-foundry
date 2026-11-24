@@ -32,7 +32,7 @@ flowchart TD
 | `Assets/Scripts/Core/ReactiveWatercourses.cs` | Three deterministic rotated/anchored follow-up variants per later chapter | Rotations preserve base graph; no actual resource/ecosystem dynamics |
 | `Assets/Scripts/Core/WorldModel.cs` | Canonical state machine; actions, choices, schema v4 export/restore | Preserves current variant and older active boards; source of truth |
 | `Assets/Scripts/Core/VillageStory.cs` | Longer authored English story logic, character responses, endings | References real choices; deterministic, not learned |
-| `Assets/Scripts/Core/LocalizedVillage.cs` | Compact 30-language state-dependent game copy | 101-key localization catalog, independent of core rules |
+| `Assets/Scripts/Core/LocalizedVillage.cs` | Compact 30-language state-dependent game copy | 121-key localization catalog, independent of core rules |
 | `Assets/Scripts/Core/GameLocalization.cs` | Language registry, BCP-47 routing/fallback, catalog checks and text formatting | Pure C# and covered by .NET tests; no state mutation |
 | `Assets/Scripts/Core/VillageScenePlan.cs` | Counts and flags derived from WorldModel for both renderers | Art changes cannot independently invent facts |
 | `Assets/Scripts/Core/LocalPlaytest.cs` | In-memory consent-first first-session counters and text report | No analytics SDK, identity, upload, persistent retention record |
@@ -60,7 +60,7 @@ UI composition is **generated in C#** rather than relying on custom prefabs. The
 ## 4. Localization boundary
 
 - **30 selectable languages:** built-in English plus 29 offline `Assets/Resources/Evergrove/Locales/*.json` bundles.
-- **101 translated keys** are validated for every bundle by `tools/verify_evergrove_project.py` and .NET test. These are **draft text catalogs**, not native-reviewed localization certificates.
+- **121 translated keys** are validated for every bundle by `tools/verify_evergrove_project.py` and .NET test. These are **draft text catalogs**, not native-reviewed localization certificates.
 - `LocaleRuntime` reads optional `evergrove:language-choice:v1` from PlayerPrefs. Automatic mode resolves BCP-47/device UI culture; unsupported languages fall back to English.
 - A locale selection must not change `WorldSnapshot` or puzzles. `LocalizedVillage` intentionally uses shorter canonical authored copy in all UI languages, while `VillageStory` holds richer longer English manuscript.
 - `LocaleFonts` uses OS fonts as best effort; legacy uGUI `Text` does **not** guarantee Arabic/Persian/Urdu/Hebrew bidi or Indic complex shaping. Do not turn on unsupported store locales until native-speaker/device QA and correct text rendering.

@@ -57,7 +57,7 @@ The game reads bundled `Assets/Resources/Evergrove/Locales/<locale>.json` using 
 
 ## What is and is not translated
 
-All **101 player-facing compact-copy keys** (water puzzle prompts/feedback, game modes, language switcher, settings, world state, causal choices, NPC dialogue, memories, journal, endings the nine garden-file keys, six screen-reader keys and three character-name keys) have non-empty localizations. To avoid 30 unrelated narrative variants in an early experiment, **all 30 languages use one concise state-dependent script** (`LocalizedVillage.cs`); the richer original *English* prose (`VillageStory.cs`) is kept intact for future editorial expansion. These are editorial first drafts; a native speaker must review them before a store listing claims high-quality translation.
+All **121 player-facing compact-copy keys** (water puzzle prompts/feedback, game modes, language switcher, settings, world state, causal choices, NPC dialogue, memories, journal, endings the nine garden-file keys, six screen-reader keys, three character-name keys, and the painted-UI keys for the menu, close, text and board size, gentle motion, postcard, seasonal neighbour lines, the hub news label and varied repeat memories) have non-empty localizations. To avoid 30 unrelated narrative variants in an early experiment, **all 30 languages use one concise state-dependent script** (`LocalizedVillage.cs`); the richer original *English* prose (`VillageStory.cs`) is kept intact for future editorial expansion. These are editorial first drafts; a native speaker must review them before a store listing claims high-quality translation.
 
 Twelve original **puzzle names** are English-only and are deliberately not shown in non-English sessions; stream number remains localized. Character proper names Mira, Orin and Fen are retained across locales. The local copy-to-clipboard playtest report intentionally stays in English structured key=value format for comparable researcher data; UI consent/explanation is localized.
 
@@ -77,7 +77,7 @@ python3 tools/verify_evergrove_project.py
 dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release
 ```
 
-The static validator checks all 29 catalog files, 101 keys, locale code consistency, interpolation syntax and source-level consumer-locale isolation. Pure C# tests also assert draft locale selection is allowed only by the research policy; they do **not** replace compiled-player verification. .NET tests import every JSON resource, assert no missing keys or incorrect placeholders and verify changing locale cannot alter water puzzle/choice history.
+The static validator checks all 29 catalog files, 121 keys, locale code consistency, interpolation syntax and source-level consumer-locale isolation. Pure C# tests also assert draft locale selection is allowed only by the research policy; they do **not** replace compiled-player verification. .NET tests import every JSON resource, assert no missing keys or incorrect placeholders and verify changing locale cannot alter water puzzle/choice history.
 
 **Before any international launch:** native-speaker review of each locale; screenshot QA of settings, choice cards, long dialogues and endings; real-device glyph coverage; true RTL and Indic text shaping; word breaking for Thai; screen-reader labels; and mobile performance. If the first-phone QA fails, keep that locale disabled in production instead of showing broken text.
 
@@ -87,7 +87,7 @@ The 82nd key, `ending_title`, is the visible heading of the ending card (English
 
 ## New v4 prototype copy (draft, not certified)
 
-The 101 canonical text keys include five staged-help/save-warning phrases: `hint_notice`, `hint_focus`, `hint_more`, `hint_turn`, and `save_warning`. The first-puzzle instructions refer to geometric blue waves for the spring and a green sprout for the garden; they no longer depend on Latin `S/G` glyphs. Every translation remains an unreviewed **draft**. Font shaping, RTL/Indic display, layout, native signoff and device performance are still open.
+The 121 canonical text keys include five staged-help/save-warning phrases: `hint_notice`, `hint_focus`, `hint_more`, `hint_turn`, and `save_warning`. The first-puzzle instructions refer to geometric blue waves for the spring and a green sprout for the garden; they no longer depend on Latin `S/G` glyphs. Every translation remains an unreviewed **draft**. Font shaping, RTL/Indic display, layout, native signoff and device performance are still open.
 
 The nine `garden_*` keys (copy, copied, restore, replace warning, and five plain-language import errors) support the settings garden file. They were added as **machine-drafted** text in all 29 catalogs and English, pending native review. Keys: `garden_copy`, `garden_copied`, `garden_restore`, `garden_replace`, `garden_err_empty`, `garden_err_not_garden`, `garden_err_newer`, `garden_err_damaged`, `garden_err_too_large`.
 
