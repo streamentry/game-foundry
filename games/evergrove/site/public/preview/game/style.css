@@ -648,3 +648,11 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
   outline-offset: 4px !important;
   box-shadow: 0 0 0 6px rgba(40, 160, 110, .25) !important;
 }
+
+
+/* I66: Drifting Blossom Petals */
+@keyframes petal-drift {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  20% { opacity: .7; }
+  100% { transform: translate(-30px, 45px) rotate(180deg); opacity: 0; }
+}
