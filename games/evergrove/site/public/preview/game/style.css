@@ -683,3 +683,9 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.03); }
 }
+
+
+/* I72: Creek Water Surface Reflections */
+.creek-art {
+  filter: drop-shadow(0 4px 16px rgba(45, 80, 65, .08));
+}
