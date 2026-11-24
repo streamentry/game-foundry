@@ -1188,7 +1188,9 @@ namespace Evergrove.UnityClient
             var sheet = Node(name + " sheet", host);
             Fill(sheet.GetComponent<RectTransform>());
             var dim = sheet.AddComponent<Image>();
-            dim.color = new Color(0.08f, 0.14f, 0.11f, 0.42f);
+            // A warm umber veil, like an old photograph, rather than a cool grey
+            // web-modal scrim; the parchment sheet still stands clear of it (I88).
+            dim.color = new Color(0.30f, 0.22f, 0.13f, 0.40f);
             var dimButton = sheet.AddComponent<Button>();
             dimButton.transition = Selectable.Transition.None;
             dimButton.onClick.AddListener(() => close());
@@ -2266,6 +2268,20 @@ namespace Evergrove.UnityClient
                 pageStack.childControlHeight = true;
                 pageStack.childForceExpandWidth = true;
                 pageStack.childForceExpandHeight = false;
+                // Which stream this memory came from, with its season stone: two
+                // bridges on two streams read as two memories, not a repeat (I88).
+                Transform when = CenteredRowIn(page.transform, "Journal stream");
+                when.GetComponent<HorizontalLayoutGroup>().spacing = 5;
+                var stone = Node("Season stone", when);
+                var stoneLayout = stone.AddComponent<LayoutElement>();
+                stoneLayout.minWidth = stoneLayout.preferredWidth = 10;
+                stoneLayout.minHeight = stoneLayout.preferredHeight = 10;
+                var stoneImage = stone.AddComponent<Image>();
+                stoneImage.sprite = MosseloraArt.Rounded(4);
+                stoneImage.color = SeasonStone(i);
+                stoneImage.raycastTarget = false;
+                Label(when, "Journal stream name", GameLocalization.Text("stream", i + 1, PuzzleCatalog.Count),
+                    12, 0, Moss, TextAnchor.MiddleCenter);
                 Sprite icon = i < chosen.Length ? MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]) : null;
                 if (icon != null)
                 {
