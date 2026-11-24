@@ -1138,9 +1138,12 @@ namespace Evergrove.UnityClient
             Transform row = CenteredRow(resetName + " row");
             if (!confirmReset)
             {
+                // On the play page the seedling stays a bare icon (ending); in the
+                // menu it says what it does.
+                bool inMenu = content == menuContent;
                 Width(IconButton(row, resetName, GameLocalization.Text("explore"),
                     MosseloraArt.IconNewGarden, () => { confirmReset = true; Rebuild(); },
-                    58, tone), 96);
+                    inMenu ? 78 : 58, tone, false, null, inMenu), inMenu ? 200 : 96);
                 return;
             }
             Width(IconButton(row, cancelName, GameLocalization.Text("keep"), MosseloraArt.IconCancel,
@@ -2716,12 +2719,14 @@ namespace Evergrove.UnityClient
             var card = Card(content, "Garden file", MosseloraTheme.CardFill);
             GameObject files = Row(card.transform, "Garden file actions");
             IconButton(files.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
-                MosseloraArt.IconCopyFile, CopyGardenFile, 56, MosseloraTheme.ForestAction);
+                MosseloraArt.IconCopyFile, CopyGardenFile, 78, MosseloraTheme.ForestAction,
+                false, null, true);
             if (!WorldStore.RecoveryBlocked)
             {
                 if (!gardenRestoreConfirm)
                     IconButton(files.transform, "Restore garden file", GameLocalization.Text("garden_restore"),
-                        MosseloraArt.IconRestoreFile, ReadGardenFile, 56, MosseloraTheme.WaterAction);
+                        MosseloraArt.IconRestoreFile, ReadGardenFile, 78, MosseloraTheme.WaterAction,
+                        false, null, true);
                 else
                 {
                     Label(card.transform, "Garden replace warning", GameLocalization.Text("garden_replace"),
