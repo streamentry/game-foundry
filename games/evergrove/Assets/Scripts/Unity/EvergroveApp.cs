@@ -1318,9 +1318,24 @@ namespace Evergrove.UnityClient
                 // On the play page the seedling stays a bare icon (ending); in the
                 // menu it says what it does.
                 bool inMenu = content == menuContent;
+                // The finished season's first offer is to share it: a postcard
+                // plaque (teal) beside a quieter "new garden" seedling (I89).
+                bool sharePostcard = !inMenu && world.Completed && world.Mode == PlayMode.Living;
+                if (sharePostcard)
+                {
+                    Button postcard = null;
+                    postcard = IconButton(row, "Copy garden postcard", GameLocalization.Text("postcard"),
+                        MosseloraArt.IconChat, () => {
+                            GUIUtility.systemCopyBuffer = GardenPostcard.Build(world, "");
+                            RuleToast.Show(postcard.GetComponent<RectTransform>(),
+                                GameLocalization.Text("postcard_copied"), font, Ink, MosseloraTheme.CardFill);
+                        }, 58, MosseloraTheme.WaterAction);
+                    Width(postcard, 96);
+                }
                 Width(IconButton(row, resetName, GameLocalization.Text("explore"),
                     MosseloraArt.IconNewGarden, () => { confirmReset = true; Rebuild(); },
-                    inMenu ? 78 : 58, tone, false, null, inMenu), inMenu ? 200 : 96);
+                    inMenu ? 78 : 58, sharePostcard ? MosseloraTheme.QuietAction : tone, false, null, inMenu),
+                    inMenu ? 200 : 96);
                 return;
             }
             Width(IconButton(row, cancelName, GameLocalization.Text("keep"), MosseloraArt.IconCancel,
