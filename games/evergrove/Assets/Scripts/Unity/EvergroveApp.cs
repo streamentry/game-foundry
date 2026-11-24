@@ -910,7 +910,7 @@ namespace Evergrove.UnityClient
             stripRect.anchorMax = new Vector2(1f, 0.52f);
             stripRect.offsetMin = stripRect.offsetMax = Vector2.zero;
             var painting = strip.AddComponent<PaintedVillage>();
-            painting.Build(0f);
+            painting.Build(0f, PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed));
             if (painting.Ready)
             {
                 VillageScenePlan plan = VillageScenePlan.From(world);
@@ -1594,7 +1594,7 @@ namespace Evergrove.UnityClient
                     if (diorama != null) diorama.Hide();
 #endif
                     var painting = illustration.AddComponent<PaintedVillage>();
-                    painting.Build(17f);
+                    painting.Build(17f, PaintedVillage.SeasonFor(scenePlan.LandscapePhase, world.Completed));
                     if (painting.Ready)
                     {
                         int[] grown = world.Choices;

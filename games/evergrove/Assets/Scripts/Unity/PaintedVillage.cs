@@ -47,10 +47,28 @@ namespace Evergrove.UnityClient
         /// <summary>False when the painted masters are not in the build; caller falls back.</summary>
         public bool Ready { get; private set; }
 
-        public void Build(float bleed)
+        /// <summary>
+        /// Seasons arrive through progress, never the clock (vision 4.2): the
+        /// village's landscape phase 0-1 is summer, 2 autumn, 3 winter, and a
+        /// finished garden turns back to summer for the festival.
+        /// </summary>
+        public static int SeasonFor(int landscapePhase, bool completed)
         {
-            Sprite drySprite = MosseloraArt.Load(MosseloraArt.BannerDry);
-            Sprite wetSprite = MosseloraArt.Load(MosseloraArt.BannerFlowing);
+            if (completed) return 0;
+            return landscapePhase >= 3 ? 2 : landscapePhase >= 2 ? 1 : 0;
+        }
+
+        public void Build(float bleed, int season = 0)
+        {
+            string prefix = season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-" : null;
+            Sprite drySprite = prefix != null ? MosseloraArt.Load(prefix + "dry") : null;
+            Sprite wetSprite = prefix != null ? MosseloraArt.Load(prefix + "flowing") : null;
+            if (drySprite == null || wetSprite == null)
+            {
+                // Missing seasonal art falls back to the summer creek.
+                drySprite = MosseloraArt.Load(MosseloraArt.BannerDry);
+                wetSprite = MosseloraArt.Load(MosseloraArt.BannerFlowing);
+            }
             Ready = drySprite != null && wetSprite != null;
             if (!Ready) return;
             // The strip runs edge to edge, past the page margins.

@@ -1,0 +1,6 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). Generate exactly ONE image. This is an EDIT: the attached image is the base image to edit.
+Use case: lighting-weather
+Primary request: change the season to AUTUMN: trees turn warm amber, russet and gold, some falling leaves drift in the air and float on the water, grasses golden, the flowers become asters and late heather, soft low golden-hour light. Keep the stream FLOWING with clear water (in winter: dark clear water with thin ice at the edges).
+Invariants: keep the exact same composition, canvas size, cottage position, tree positions, hills, stone wall, stream path and stones, camera, and the soft cream #F9F2E3 fade at the top. Change only season, foliage colour, weather and light.
+Constraints: no text, no people, no watermark, no border.
+Copy the final PNG to games/evergrove/art/generated/banner-autumn-flowing.png and print the path. Do nothing else.

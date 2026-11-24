@@ -115,6 +115,14 @@ namespace Evergrove.UnityClient
 
             for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
             {
+                // Seasons arrive through progress: capture the village in autumn and winter.
+                if (chapter == 7 || chapter == 10)
+                {
+                    ScrollTo("Living storybook art");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng(chapter == 7 ? "15-autumn-village.png" : "16-winter-village.png");
+                }
                 SolveBoard();
                 for (int f = 0; f < 6; f++) yield return null;
                 Press("Choice " + MainPattern[chapter]);
