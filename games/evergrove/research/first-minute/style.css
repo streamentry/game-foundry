@@ -761,3 +761,9 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
   30% { opacity: .8; }
   100% { transform: translate(45px, 60px); opacity: 0; }
 }
+
+
+/* I88: Weathered Bridge Piers */
+#world-bridge path[stroke="#8D674E"] {
+  filter: drop-shadow(0 3px 6px rgba(70, 45, 30, .3));
+}
