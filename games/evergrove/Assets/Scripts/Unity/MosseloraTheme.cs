@@ -14,6 +14,7 @@ namespace Evergrove.UnityClient
         public const string GlyphHint = "💧";
         public const string GlyphRestart = "↺";
         public const string GlyphMenu = "☰";
+        public const string GlyphClose = "✕";
         public const string GlyphSoundOn = "🔊";
         public const string GlyphSoundOff = "🔇";
         public const string GlyphJournal = "📖";
