@@ -2471,7 +2471,7 @@ namespace Evergrove.UnityClient
             if (painted)
             {
                 var disc = holder.AddComponent<Image>();
-                MosseloraArt.Round(disc, MosseloraTheme.CardFill, 23);
+                MosseloraArt.Round(disc, MosseloraTheme.SagePanel, 23);
                 disc.raycastTarget = false;
             }
             var mark = new GameObject("Glyph", typeof(RectTransform));
@@ -2485,6 +2485,7 @@ namespace Evergrove.UnityClient
             image.sprite = sprite;
             image.preserveAspect = true;
             image.raycastTarget = false;
+            if (!painted) image.color = MosseloraTheme.WaterChannel; // ink-blue marks on parchment
         }
 
         private void CoachBubble(string message)
@@ -2515,10 +2516,14 @@ namespace Evergrove.UnityClient
             }
             var bubble = Node("Coach bubble", row.transform);
             bubble.AddComponent<LayoutElement>().flexibleWidth = 1f;
+            // Mira's note on painted parchment, like the choice cards, rather
+            // than a dark UI panel (I77): part of the garden, not a tooltip.
             var fill = bubble.AddComponent<Image>();
-            MosseloraArt.Round(fill, MosseloraTheme.ForestAction, 18);
+            MosseloraArt.PaperTile(fill, 18);
+            fill.color = MosseloraTheme.CardFill;
             fill.raycastTarget = false;
-            MosseloraArt.Lift(fill, 3f, 0.22f);
+            MosseloraArt.Lift(fill, 3f, 0.18f);
+            MosseloraArt.Edge(bubble.transform, MosseloraTheme.CardEdge, 18);
             var pad = bubble.AddComponent<VerticalLayoutGroup>();
             pad.padding = new RectOffset(16, 16, 10, 10);
             pad.childControlWidth = true;
@@ -2542,7 +2547,7 @@ namespace Evergrove.UnityClient
             CoachGlyph(picture.transform, MosseloraArt.Load(MosseloraArt.IconTap), false);
             // One plain sentence under the pictures: a first-time proxy walkthrough
             // could not tell from pictures alone that a tap turns a pipe (I64).
-            Text words = Label(bubble.transform, "Coach words", message, 15, 0, White, TextAnchor.MiddleCenter);
+            Text words = Label(bubble.transform, "Coach words", message, 16, 0, Ink, TextAnchor.MiddleCenter);
             Emphasize(words);
             var tail = Node("Coach tail", bubble.transform);
             tail.AddComponent<LayoutElement>().ignoreLayout = true;
@@ -2552,7 +2557,7 @@ namespace Evergrove.UnityClient
             tailRect.anchoredPosition = new Vector2(0f, -2f);
             tailRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
             var tailImage = tail.AddComponent<Image>();
-            tailImage.color = MosseloraTheme.ForestAction;
+            tailImage.color = MosseloraTheme.CardFill;
             tailImage.raycastTarget = false;
             tail.transform.SetAsFirstSibling(); // under the bubble body
             coachBubble = row;
