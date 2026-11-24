@@ -108,6 +108,7 @@ namespace Evergrove.UnityClient
         private Image[] waterDrops; // one painted droplet per tile the water can reach
         private Button undoButton;
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
+        private RectTransform solvedBoard;     // the board whose payoff the decision glide keeps whole
         // Set by a rebuilt screen (ending card, journal) so a player who opens it
         // lands on its heading instead of wherever the previous screen was scrolled.
         private RectTransform screenHeading;
@@ -1644,6 +1645,7 @@ namespace Evergrove.UnityClient
             waterDrops = null;
             undoButton = null;
             decisionHeading = null;
+            solvedBoard = null;
             screenHeading = null;
             for (int i = content.childCount - 1; i >= 0; i--)
             {
@@ -2141,6 +2143,7 @@ namespace Evergrove.UnityClient
             }
             // The board sits on the page itself; each tile is its own parchment square.
             var board = Card(content, "The water puzzle", new Color(1f, 1f, 1f, 0f));
+            solvedBoard = board.GetComponent<RectTransform>();
             // The tiles sit in a painted garden bed of mossy stones (Codex art).
             Sprite bed = MosseloraArt.Load(MosseloraArt.BoardBed);
             if (bed != null)
@@ -3015,7 +3018,20 @@ namespace Evergrove.UnityClient
                 content.InverseTransformPoint(worldTop).y;
             // Keep some of the preceding restored-world context visible.
             float context = Mathf.Min(110f, scroll.viewport.rect.height * 0.23f);
-            float target = 1f - Mathf.Clamp01((targetTop - context) / distance);
+            float stopAt = targetTop - context;
+            // Better: the whole finished creek above all three choices, so the
+            // board is never cut in half under the menu button (I74). Only when
+            // both fit on this screen; larger text keeps the heading anchor.
+            int cardsIndex = decisionHeading.GetSiblingIndex() + 1;
+            if (solvedBoard != null && cardsIndex < content.childCount)
+            {
+                float boardTop = DepthInContent(solvedBoard, true) - 10f; // painted bed overhang
+                float cardsBottom = DepthInContent((RectTransform)content.GetChild(cardsIndex), false);
+                float boardFirst = boardTop - ChromeClearance() - 6f;
+                if (cardsBottom - boardFirst <= scroll.viewport.rect.height - 8f)
+                    stopAt = boardFirst;
+            }
+            float target = 1f - Mathf.Clamp01(stopAt / distance);
             int generation = rebuildGeneration;
             // The payoff beat: hold on the finished creek while it blooms and
             // every droplet fills, then glide (not jump) to the decision. A
@@ -3039,6 +3055,25 @@ namespace Evergrove.UnityClient
                 yield return null;
             }
             if (scroll != null) scroll.verticalNormalizedPosition = target;
+        }
+
+        // Distance from the top of the page to a node's top (or bottom) edge.
+        private float DepthInContent(RectTransform node, bool top)
+        {
+            Vector3 edge = node.TransformPoint(new Vector3(node.rect.center.x,
+                top ? node.rect.yMax : node.rect.yMin, 0f));
+            return content.rect.yMax - content.InverseTransformPoint(edge).y;
+        }
+
+        // How far the floating menu button reaches into the scrolling viewport.
+        private float ChromeClearance()
+        {
+            if (chrome == null || chrome.childCount == 0 || scroll.viewport == null) return 0f;
+            var menu = (chrome.Find("Open menu") ?? chrome.GetChild(0)) as RectTransform;
+            if (menu == null) return 0f;
+            Vector3 bottom = menu.TransformPoint(new Vector3(menu.rect.center.x, menu.rect.yMin, 0f));
+            float reach = scroll.viewport.rect.yMax - scroll.viewport.InverseTransformPoint(bottom).y;
+            return Mathf.Clamp(reach, 0f, 160f);
         }
 
         private const float SolveHoldSeconds = 1.25f;
