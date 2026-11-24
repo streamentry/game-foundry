@@ -376,3 +376,16 @@ h1 em { font-style: italic; color: #34775c; }
   0%, 100% { opacity: .2; }
   50% { opacity: .75; }
 }
+
+
+/* I20: Organic Water Spray Leak Glyphs */
+.tile-alert {
+  background: #fdf5eb !important; border: 1.5px solid #dca889 !important;
+  color: #ad5230 !important; font-size: 16px !important; line-height: 19px !important;
+  box-shadow: 0 2px 5px rgba(173, 82, 48, .2) !important;
+  animation: spray-drift 1.8s ease-in-out infinite !important;
+}
+@keyframes spray-drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
