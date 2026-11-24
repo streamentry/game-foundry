@@ -273,7 +273,7 @@
     if (solved && firstSolved === null) firstSolved = performance.now() - origin;
     // The chapter is about restoring the creek, not staring at a solved grid.
     // Scroll only for genuine state transitions, never on initial page load.
-    if (becameSolved) requestAnimationFrame(() => {
+    if (becameSolved) { playSolveFanfare(); } if (becameSolved) requestAnimationFrame(() => {
       if (model.insight.solved && !model.choice) revealWorld();
     });
   }
@@ -395,6 +395,16 @@
   }
   
   // I11: Procedural Water Flow Audio (Bandpass pink-noise synthesis)
+  
+  // I12: Harmonious Solve Chords (C-Major 9th Peaceful Fanfare)
+  function playSolveFanfare() {
+    if (!audioEnabled) return;
+    const notes = [261.63, 329.63, 392.00, 493.88, 523.25, 659.25];
+    notes.forEach((freq, idx) => {
+      setTimeout(() => playStoneChime(freq), idx * 75);
+    });
+  }
+
   function playWaterRipple() {
     if (!audioEnabled) return;
     const ctx = getAudioContext();
