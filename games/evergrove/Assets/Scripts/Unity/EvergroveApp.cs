@@ -94,6 +94,7 @@ namespace Evergrove.UnityClient
         private Text feedbackText;
         private int rebuildGeneration; // lets a pending glide notice any later rebuild
         private bool celebrateSolve;
+        private int settledRound = -1; // the round whose board has already settled in
         private bool[] lastFlowing; // which tiles held water before this move
         private bool celebrateGrowth; // one-shot: the memory screen shows the new landmark growing
         private string lastScreenKey = "";
@@ -2030,6 +2031,12 @@ namespace Evergrove.UnityClient
                 tile.colors = colors;
                 tile.onClick.AddListener(() => TapTile(tappedIndex));
                 if (!world.Solved) PressSquash.Add(tileNode);
+                // A new stream's tiles settle onto the bed one by one (first view only).
+                bool settle = gentleMotion && !world.Solved && settledRound != world.Round;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (qaInMemoryOnly) settle = false; // tour screenshots need settled boards
+#endif
+                if (settle) SettleIn.Add(tileNode, 0.03f + index * 0.035f);
                 else if (celebrateSolve)
                 {
                     // The finished creek blooms outward from the spring, tile by tile.
@@ -2130,6 +2137,7 @@ namespace Evergrove.UnityClient
             }
 
             if (celebrateSolve && gentleMotion) ButterflyFlight.Launch(gardenTile, board.transform);
+            settledRound = world.Round;
             celebrateSolve = false;
             string feedback = world.Solved
                 ? GameLocalization.Text("solved")
