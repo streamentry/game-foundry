@@ -1398,6 +1398,25 @@ namespace Evergrove.UnityClient
             pictureImage.preserveAspect = true;
             pictureImage.raycastTarget = false;
             MosseloraArt.Lift(pictureImage, 2f, 0.18f);
+            // On the hub, a small parchment speech mark on a neighbor with
+            // something new to say: the day's reason to stop by (I80).
+            if (fromTitle && HasNews(villager))
+            {
+                var note = MosseloraArt.Ornament(picture.transform, "Has something new to say",
+                    MosseloraArt.Rounded(14), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f),
+                    new Vector2(28f, 28f), new Vector2(-5f, -5f));
+                if (note != null)
+                {
+                    note.preserveAspect = false;
+                    note.color = MosseloraTheme.CardFill;
+                    MosseloraArt.Lift(note, 1.5f, 0.22f);
+                    var mark = MosseloraArt.Ornament(note.transform, "Speech mark",
+                        MosseloraArt.Load(MosseloraArt.IconChat), new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f), new Vector2(18f, 18f), Vector2.zero);
+                    if (mark != null) mark.color = MosseloraTheme.WaterChannel;
+                    if (gentleMotion) BloomPulse.Add(note.gameObject, 0.9f + 0.25f * villager, 0.18f);
+                }
+            }
             if (speakingWith == villager)
             {
                 var ring = MosseloraArt.Ornament(picture.transform, "Speaking ring", MosseloraArt.Ring(16),
@@ -2781,9 +2800,25 @@ namespace Evergrove.UnityClient
             Rebuild(true);
         }
 
+        // A neighbor "has news" when what they would say now differs from the
+        // last line the player heard from them (I80). Lines change only when the
+        // village does (a landmark, a season), never with the clock.
+        private const string HeardKey = "evergrove:heard-";
+
+        private bool HasNews(int villager)
+        {
+            if (world.Mode != PlayMode.Living) return false;
+            return LocalizedVillage.Speak(world, villager) != PlayerPrefs.GetString(HeardKey + villager, "");
+        }
+
         private void OpenConversation(int villagerIndex)
         {
             speakingWith = villagerIndex;
+            if (world.Mode == PlayMode.Living)
+            {
+                PlayerPrefs.SetString(HeardKey + villagerIndex, LocalizedVillage.Speak(world, villagerIndex));
+                PlayerPrefs.Save();
+            }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Talk(Time.unscaledTime);
 #endif
