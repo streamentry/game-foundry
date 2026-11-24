@@ -567,6 +567,34 @@ namespace Evergrove.UnityClient
             return node;
         }
 
+        
+        // Procedural icon button with accessible text description for ScreenReaderBridge.
+        private Button IconButton(Transform parent, string name, string symbol, string label, Action action,
+                                  int size = 52, Color? tone = null)
+        {
+            Color baseTone = tone ?? MosseloraTheme.QuietAction;
+            var node = Node(name, parent);
+            MinHeight(node, TextScale.Scale(size));
+            var layout = node.GetComponent<LayoutElement>();
+            if (layout != null) layout.minWidth = TextScale.Scale(size);
+            var image = node.AddComponent<Image>();
+            MosseloraArt.Round(image, baseTone, 16);
+            MosseloraArt.Lift(image, 2f, 0.12f);
+            var button = node.AddComponent<Button>();
+            button.targetGraphic = image;
+            button.colors = PressTint();
+            var textNode = Node("Glyph", node.transform);
+            Fill(textNode.GetComponent<RectTransform>());
+            var text = textNode.AddComponent<Text>();
+            StyleText(text, 22);
+            text.text = symbol;
+            text.color = baseTone == MosseloraTheme.QuietAction ? Ink : White;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.raycastTarget = false;
+            button.onClick.AddListener(() => action());
+            return button;
+        }
+
         private Button Button(Transform parent, string name, string caption, Action action,
                               int height = 52, bool primary = false)
         {
@@ -576,6 +604,34 @@ namespace Evergrove.UnityClient
 
         // Toned buttons carry white captions (all tones pass 4.5:1); the quiet
         // parchment tone carries ink and a drawn edge, as in the painted references.
+        
+        // Procedural icon button with accessible text description for ScreenReaderBridge.
+        private Button IconButton(Transform parent, string name, string symbol, string label, Action action,
+                                  int size = 52, Color? tone = null)
+        {
+            Color baseTone = tone ?? MosseloraTheme.QuietAction;
+            var node = Node(name, parent);
+            MinHeight(node, TextScale.Scale(size));
+            var layout = node.GetComponent<LayoutElement>();
+            if (layout != null) layout.minWidth = TextScale.Scale(size);
+            var image = node.AddComponent<Image>();
+            MosseloraArt.Round(image, baseTone, 16);
+            MosseloraArt.Lift(image, 2f, 0.12f);
+            var button = node.AddComponent<Button>();
+            button.targetGraphic = image;
+            button.colors = PressTint();
+            var textNode = Node("Glyph", node.transform);
+            Fill(textNode.GetComponent<RectTransform>());
+            var text = textNode.AddComponent<Text>();
+            StyleText(text, 22);
+            text.text = symbol;
+            text.color = baseTone == MosseloraTheme.QuietAction ? Ink : White;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.raycastTarget = false;
+            button.onClick.AddListener(() => action());
+            return button;
+        }
+
         private Button Button(Transform parent, string name, string caption, Action action,
                               int height, Color tone)
         {
