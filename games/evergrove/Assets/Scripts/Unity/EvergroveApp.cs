@@ -2237,16 +2237,32 @@ namespace Evergrove.UnityClient
                     Emphasize(chooseTitle);
                     decisionHeading = chooseTitle.rectTransform;
                     // Three tall painted cards side by side, like cards on a table.
-                    GameObject choiceRow = Row(content, "Village choices");
-                    var choiceGroup = choiceRow.GetComponent<HorizontalLayoutGroup>();
-                    choiceGroup.childForceExpandHeight = true;
-                    choiceGroup.childAlignment = TextAnchor.UpperCenter;
+                    // With larger text they stack as wide cards so no word breaks.
+                    bool stacked = TextScale.Percent > 100;
+                    GameObject choiceRow;
+                    if (stacked)
+                    {
+                        choiceRow = Node("Village choices", content);
+                        var column = choiceRow.AddComponent<VerticalLayoutGroup>();
+                        column.spacing = 10;
+                        column.childControlWidth = true;
+                        column.childControlHeight = true;
+                        column.childForceExpandWidth = true;
+                        column.childForceExpandHeight = false;
+                    }
+                    else
+                    {
+                        choiceRow = Row(content, "Village choices");
+                        var choiceGroup = choiceRow.GetComponent<HorizontalLayoutGroup>();
+                        choiceGroup.childForceExpandHeight = true;
+                        choiceGroup.childAlignment = TextAnchor.UpperCenter;
+                    }
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
                         VillageChoice choice = (VillageChoice)choiceIndex;
                         // None is visually preselected. A golden default would
                         // bias research toward the first habitat, not player care.
-                        ChoiceCard(choiceRow.transform, choice, () => MakeChoice(choice));
+                        ChoiceCard(choiceRow.transform, choice, () => MakeChoice(choice), stacked);
                     }
                 }
                 // Second thoughts live after the decision, not between the payoff
@@ -2349,10 +2365,10 @@ namespace Evergrove.UnityClient
 
         // Illustrated choice card (painted icon + title + written consequence).
         // One Button per card, so taps, focus and screen-reader text are unchanged.
-        private void ChoiceCard(Transform parent, VillageChoice choice, Action action)
+        private void ChoiceCard(Transform parent, VillageChoice choice, Action action, bool wide = false)
         {
             var node = Node("Choice " + choice, parent);
-            MinHeight(node, TextScale.Scale(190));
+            MinHeight(node, wide ? 96 : TextScale.Scale(190));
             var image = node.AddComponent<Image>();
             MosseloraArt.PaperTile(image, 18);
             image.color = MosseloraTheme.CardFill;
@@ -2363,20 +2379,24 @@ namespace Evergrove.UnityClient
             button.colors = PressTint();
             button.onClick.AddListener(() => action());
             PressSquash.Add(node);
-            var stack = node.AddComponent<VerticalLayoutGroup>();
-            stack.padding = new RectOffset(8, 8, 12, 12);
-            stack.spacing = 6;
-            stack.childAlignment = TextAnchor.UpperCenter;
+            HorizontalOrVerticalLayoutGroup stack = wide
+                ? (HorizontalOrVerticalLayoutGroup)node.AddComponent<HorizontalLayoutGroup>()
+                : node.AddComponent<VerticalLayoutGroup>();
+            stack.padding = wide ? new RectOffset(10, 14, 10, 10) : new RectOffset(8, 8, 12, 12);
+            stack.spacing = wide ? 12 : 6;
+            stack.childAlignment = wide ? TextAnchor.MiddleLeft : TextAnchor.UpperCenter;
             stack.childControlWidth = true;
             stack.childControlHeight = true;
-            stack.childForceExpandWidth = true;
+            stack.childForceExpandWidth = !wide;
             stack.childForceExpandHeight = false;
+            Transform words = node.transform;
             Sprite icon = MosseloraArt.ChoiceIcon(choice);
             if (icon != null)
             {
                 var picture = Node("Choice picture", node.transform);
                 var pictureLayout = picture.AddComponent<LayoutElement>();
                 pictureLayout.minHeight = pictureLayout.preferredHeight = 84;
+                if (wide) pictureLayout.minWidth = pictureLayout.preferredWidth = 92;
                 var pictureImage = picture.AddComponent<Image>();
                 pictureImage.sprite = icon;
                 pictureImage.preserveAspect = true;
@@ -2387,11 +2407,22 @@ namespace Evergrove.UnityClient
                     MosseloraArt.Ornament(picture.transform, "Who will remember", keeper, new Vector2(1f, 0f),
                         new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(4f, -6f));
             }
-            Text title = Label(node.transform, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink,
-                TextAnchor.UpperCenter);
+            if (wide)
+            {
+                var column = Node("Choice words", node.transform);
+                column.AddComponent<LayoutElement>().flexibleWidth = 1;
+                var columnGroup = column.AddComponent<VerticalLayoutGroup>();
+                columnGroup.spacing = 4;
+                columnGroup.childControlWidth = true;
+                columnGroup.childControlHeight = true;
+                columnGroup.childForceExpandWidth = true;
+                columnGroup.childForceExpandHeight = false;
+                words = column.transform;
+            }
+            TextAnchor align = wide ? TextAnchor.MiddleLeft : TextAnchor.UpperCenter;
+            Text title = Label(words, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink, align);
             Emphasize(title);
-            Label(node.transform, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 14, 0, Ink,
-                TextAnchor.UpperCenter);
+            Label(words, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 14, 0, Ink, align);
         }
 
         // Compact settings row below the primary content of puzzle and post-choice
