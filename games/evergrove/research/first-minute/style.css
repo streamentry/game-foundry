@@ -672,3 +672,14 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
 .controls {
   transition: opacity 300ms ease;
 }
+
+
+/* I70: Golden Water Path Breadcrumbs */
+.tile--hint-target {
+  box-shadow: 0 0 0 3px #e0b448, 0 6px 18px rgba(224, 180, 72, .3) !important;
+  animation: hint-target-pulse 1.8s ease-in-out infinite !important;
+}
+@keyframes hint-target-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
