@@ -2201,7 +2201,7 @@ namespace Evergrove.UnityClient
                     null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
                 IconButton(tools.transform, "Restart", GameLocalization.Text("restart"),
                     MosseloraArt.IconRestart, () => Act(() => world.Restart(), "restart"),
-                    toolHeight, MosseloraTheme.EarthAction, false, null, teach);
+                    toolHeight, MosseloraTheme.QuietAction, false, null, teach);
                 if (world.HintStep > 0 && world.HintTile >= 0)
                 {
                     int hintRow = world.HintTile / puzzle.Size + 1;
