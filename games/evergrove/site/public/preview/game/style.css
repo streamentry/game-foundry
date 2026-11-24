@@ -271,3 +271,16 @@ h1 em { font-style: italic; color: #34775c; }
   50% { transform: scale(1.04); }
   100% { transform: scale(1); }
 }
+
+
+/* I08: Gentle Hint Lantern Breathing Glow */
+.action-icon-btn--hint {
+  position: relative; overflow: visible;
+}
+.action-icon-btn--hint:not(:disabled) .hud-svg {
+  animation: lantern-glow 3.5s ease-in-out infinite;
+}
+@keyframes lantern-glow {
+  0%, 100% { filter: drop-shadow(0 0 1px rgba(36, 126, 80, 0)); }
+  50% { filter: drop-shadow(0 0 6px rgba(46, 168, 108, .55)); }
+}
