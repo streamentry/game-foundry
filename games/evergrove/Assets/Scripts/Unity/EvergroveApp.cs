@@ -44,6 +44,7 @@ namespace Evergrove.UnityClient
         private RectTransform menuContent;
         private ScrollRect menuScroll;
         private bool menuOpen;
+        private GameObject titleScreen; // the painted welcome on every launch
         private RectTransform warningViewport;
         private GameObject saveWarningBanner;
         private Text saveWarningCaption;
@@ -451,6 +452,7 @@ namespace Evergrove.UnityClient
             chrome.anchoredPosition = Vector2.zero;
             // The sheet must cover the chrome when open.
             menuSheet.transform.SetAsLastSibling();
+            BuildTitleScreen(canvasNode.transform);
 
             // Save failures are high-severity, not normal scroll content.
             // The old message could be offscreen when a player rotated a tile,
@@ -828,6 +830,103 @@ namespace Evergrove.UnityClient
                 waterDrops[i].color = i < reached
                     ? Color.white
                     : new Color(0.55f, 0.50f, 0.42f, 0.28f); // dry: faded earth silhouette
+        }
+
+        // A calm daily ritual entry: the village painting full-bleed, the
+        // wordmark, the stones walked so far and one big play button. No
+        // streaks, no "you were away" - the garden simply waited.
+        private void BuildTitleScreen(Transform host)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) return; // the scripted QA tour starts on the board
+#endif
+            Sprite hero = MosseloraArt.Load(MosseloraArt.HeroVillage);
+            if (hero == null) return;
+            titleScreen = Node("Title screen", host);
+            Fill(titleScreen.GetComponent<RectTransform>());
+            var paper = titleScreen.AddComponent<Image>();
+            paper.color = Paper;
+            var art = Node("Village at the start", titleScreen.transform);
+            var artRect = art.GetComponent<RectTransform>();
+            artRect.anchorMin = new Vector2(0.5f, 1f);
+            artRect.anchorMax = new Vector2(0.5f, 1f);
+            artRect.pivot = new Vector2(0.5f, 1f);
+            var artImage = art.AddComponent<Image>();
+            artImage.sprite = hero;
+            artImage.raycastTarget = false;
+            var fitter = art.AddComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
+            fitter.aspectRatio = MosseloraArt.Aspect(hero);
+            artRect.anchorMin = new Vector2(0f, 1f);
+            artRect.anchorMax = new Vector2(1f, 1f);
+            artRect.offsetMin = artRect.offsetMax = Vector2.zero;
+            var band = Node("Title paper", titleScreen.transform);
+            var bandRect = band.GetComponent<RectTransform>();
+            bandRect.anchorMin = new Vector2(0f, 0f);
+            bandRect.anchorMax = new Vector2(1f, 0.42f);
+            bandRect.offsetMin = bandRect.offsetMax = Vector2.zero;
+            var bandImage = band.AddComponent<Image>();
+            bandImage.sprite = MosseloraArt.TopFade();
+            bandImage.color = Paper;
+            bandImage.rectTransform.localScale = new Vector3(1f, -1f, 1f); // opaque at the bottom
+            bandImage.raycastTarget = false;
+            var solid = Node("Title paper base", titleScreen.transform);
+            var solidRect = solid.GetComponent<RectTransform>();
+            solidRect.anchorMin = Vector2.zero;
+            solidRect.anchorMax = new Vector2(1f, 0.30f);
+            solidRect.offsetMin = solidRect.offsetMax = Vector2.zero;
+            solid.AddComponent<Image>().color = Paper;
+            var stack = Node("Title stack", titleScreen.transform);
+            var stackRect = stack.GetComponent<RectTransform>();
+            stackRect.anchorMin = new Vector2(0f, 0.04f);
+            stackRect.anchorMax = new Vector2(1f, 0.40f);
+            stackRect.offsetMin = new Vector2(24f, 0f);
+            stackRect.offsetMax = new Vector2(-24f, 0f);
+            var column = stack.AddComponent<VerticalLayoutGroup>();
+            column.childAlignment = TextAnchor.MiddleCenter;
+            column.spacing = 14;
+            column.childControlWidth = true;
+            column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            Sprite mark = MosseloraArt.Load(MosseloraArt.Wordmark);
+            if (mark != null)
+            {
+                var markNode = Node("Mosselora wordmark", stack.transform);
+                Height(markNode, 62f);
+                var markImage = markNode.AddComponent<Image>();
+                markImage.sprite = mark;
+                markImage.preserveAspect = true;
+                markImage.raycastTarget = false;
+            }
+            Text tagline = Label(stack.transform, "Title", GameLocalization.Text("subtitle"), 18, 0, Ink,
+                TextAnchor.MiddleCenter);
+            Emphasize(tagline);
+            Transform play = CenteredRowIn(stack.transform, "Play row");
+            Button start = IconButton(play, "Play", GameLocalization.Text("continue"),
+                MosseloraArt.IconContinue, CloseTitle, 84, MosseloraTheme.WaterAction);
+            Width(start, 168);
+            titleScreen.transform.SetAsLastSibling();
+        }
+
+        private void CloseTitle()
+        {
+            if (titleScreen == null) return;
+            Destroy(titleScreen);
+            titleScreen = null;
+            semanticsDirty = true;
+        }
+
+        private Transform CenteredRowIn(Transform parent, string name)
+        {
+            var row = Node(name, parent);
+            var group = row.AddComponent<HorizontalLayoutGroup>();
+            group.childAlignment = TextAnchor.MiddleCenter;
+            group.childControlWidth = true;
+            group.childControlHeight = true;
+            group.childForceExpandWidth = false;
+            group.childForceExpandHeight = false;
+            return row.transform;
         }
 
         private static void ClearChildren(Transform parent)
