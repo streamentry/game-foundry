@@ -448,3 +448,9 @@ h1 em { font-style: italic; color: #34775c; }
   0%, 100% { stroke-width: 43px; }
   50% { stroke-width: 46px; }
 }
+
+
+/* I26: Parallax Watercolor Hillside Layers */
+.creek-art {
+  background: linear-gradient(180deg, #d8ebe5 0%, #edf4e6 55%, #dfede2 100%);
+}
