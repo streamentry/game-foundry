@@ -383,5 +383,49 @@
     }, true);
   }
 
+  
+  // I10: Ambient Audio Engine (Web Audio API)
+  let audioCtx = null;
+  let audioEnabled = false;
+  function getAudioContext() {
+    if (!audioCtx && typeof AudioContext !== "undefined") {
+      audioCtx = new AudioContext();
+    }
+    return audioCtx;
+  }
+  function playStoneChime(freq = 440) {
+    if (!audioEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  }
+  const soundBtn = node("sound-toggle-btn");
+  if (soundBtn) {
+    soundBtn.addEventListener("click", () => {
+      audioEnabled = !audioEnabled;
+      soundBtn.textContent = audioEnabled ? "🔊 On" : "🔇 Muted";
+      if (audioEnabled) {
+        getAudioContext();
+        playStoneChime(523.25);
+      }
+    });
+  }
+  tileButtons.forEach((b, idx) => {
+    b.addEventListener("click", () => {
+      const pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99];
+      playStoneChime(pentatonic[idx % pentatonic.length]);
+    });
+  });
+
   render();
 })(typeof window === "undefined" ? globalThis : window);
