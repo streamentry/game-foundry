@@ -281,7 +281,7 @@
     });
   }
   node("undo").addEventListener("click", () => {
-    if (model.undo()) { totalUndos++; render(); }
+    if (model.undo()) { playUndoGlide(); totalUndos++; render(); }
   });
   node("hint").addEventListener("click", () => {
     if (model.hint()) { totalHints++; render(); }
@@ -457,6 +457,24 @@
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       try { navigator.vibrate(duration); } catch {}
     }
+  }
+
+  
+  // I85: Undo soft rewind pitch glide
+  function playUndoGlide() {
+    if (!audioEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.setValueAtTime(360, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(240, ctx.currentTime + 0.22);
+    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.24);
   }
 
   function playStoneChime(freq = 440) {
