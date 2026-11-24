@@ -152,6 +152,23 @@ namespace Evergrove.UnityClient
             host.AddComponent<EvergroveApp>();
         }
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void _MosseloraLaunchCoverDone();
+#endif
+
+        // The native parchment launch cover (Plugins/iOS) stays until the first
+        // screen has been drawn, then fades.
+        private IEnumerator ReleaseLaunchCover()
+        {
+            yield return null;
+            yield return new WaitForEndOfFrame();
+            yield return null;
+#if UNITY_IOS && !UNITY_EDITOR
+            _MosseloraLaunchCoverDone();
+#endif
+        }
+
         private static Color Hex(string value)
         {
             ColorUtility.TryParseHtmlString(value, out Color color);
@@ -195,6 +212,7 @@ namespace Evergrove.UnityClient
             sound.volume = 0.13f;
             CreateRoot();
             Rebuild(true);
+            StartCoroutine(ReleaseLaunchCover());
 #if UNITY_IOS || UNITY_ANDROID
             UnityEngine.Accessibility.AssistiveSupport.screenReaderStatusChanged += OnScreenReaderStatusChanged;
 #endif
