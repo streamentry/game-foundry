@@ -107,6 +107,9 @@ namespace Evergrove.UnityClient
         private CanvasGroup pageFade; // one-shot: the rebuild after the solving tap blooms
         private Image[] waterDrops; // one painted droplet per tile the water can reach
         private Button undoButton;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private static readonly bool srLogEveryScreen = DevArgs.Read("-mosseloraSrLog") == "1";
+#endif
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
         private RectTransform solvedBoard;     // the board whose payoff the decision glide keeps whole
         // Set by a rebuilt screen (ending card, journal) so a player who opens it
@@ -283,9 +286,17 @@ namespace Evergrove.UnityClient
             bool logThisScreen = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             logThisScreen = DevQaTour.IsRequested && !semanticsLogged && visibleTiles != null;
+            // -mosseloraSrLog 1: log the screen-reader tree on every refresh, on any
+            // screen (the hub included), to check labels without VoiceOver (I82).
+            if (srLogEveryScreen) { logThisScreen = true; semanticsLogged = false; }
 #endif
             if (!logThisScreen && !ScreenReaderBridge.Active) return;
-            var nodes = ScreenReaderBridge.Collect(canvasRoot != null ? canvasRoot : content, DescribeButton);
+            // While the hub covers the page, only the hub is readable: the board
+            // and its tools beneath it are not reachable by swiping (I82).
+            RectTransform readable = titleScreen != null
+                ? titleScreen.GetComponent<RectTransform>()
+                : canvasRoot != null ? canvasRoot : content;
+            var nodes = ScreenReaderBridge.Collect(readable, DescribeButton);
             ScreenReaderBridge.Publish(nodes);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (logThisScreen)
