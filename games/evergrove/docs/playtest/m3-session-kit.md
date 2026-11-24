@@ -8,11 +8,11 @@
 
 ## 1. Recruitment screener
 
-Recruit adults aged 45 and over. Do not recruit only founder friends, staff or the studio's own circle ([VALIDATION Day 3](../VALIDATION.md)).
+Recruit adults aged 40 and over (40+ until 2026-11-24). Do not recruit only founder friends, staff or the studio's own circle ([VALIDATION Day 3](../VALIDATION.md)).
 
 | Item | Question or rule | Notes |
 | --- | --- | --- |
-| Age band | 45–54 · 55–64 · 65+ | Record the band only, never the birth year. Report each band separately; do not generalize from one band ([AGENTS.md](../../../../AGENTS.md)). |
+| Age band | 40–49 · 50–64 · 65+ | Record the band only, never the birth year. Report each band separately; do not generalize from one band ([AGENTS.md](../../../../AGENTS.md)). |
 | Prior puzzle experience | How often do you play puzzle games on a phone: never / occasionally / weekly or more? | Bands and cut-offs are `TO PREDECLARE`. Record the answer verbatim. |
 | Device | Phone model, OS version, screen size (inches) | Record compact (for example 320×568 to 375×667 logical points) separately from larger screens. Compact devices are the hard case ([12 §4](../specs/12-M1-M2-EXECUTION-CHECKLIST.md)). |
 | Accessibility need | Do you usually enlarge text or use a screen magnifier or reader? | Include people who enlarge text ([07 Day 3](../specs/07-VALIDATION-AND-GTM.md)). Do not record medical details. |
@@ -27,7 +27,7 @@ Recruit adults aged 45 and over. Do not recruit only founder friends, staff or t
 - Professional game developers or UX researchers: `TO PREDECLARE` whether this is an exclusion or a recorded covariate.
 - Any other exclusion: `TO PREDECLARE` before recruiting.
 
-Recruiting from the 45+ segment must be explicit ([VALIDATION Day 3](../VALIDATION.md)). The screener must not reveal the hypothesis about the village ([10](../specs/10-EXPERIMENT-PROTOCOLS.md): never describe the hypothesis before baseline observation).
+Recruiting from the 40+ segment must be explicit ([VALIDATION Day 3](../VALIDATION.md)). The screener must not reveal the hypothesis about the village ([10](../specs/10-EXPERIMENT-PROTOCOLS.md): never describe the hypothesis before baseline observation).
 
 ---
 
@@ -98,7 +98,7 @@ Copy this table per session. Fill in only what was observed. Leave blanks blank;
 | Field | Definition (source) | Value |
 | --- | --- | --- |
 | Participant code | Anonymous, for example `P-01` | |
-| Age band | 45–54 / 55–64 / 65+ | |
+| Age band | 40–49 / 50–64 / 65+ | |
 | Start time (UTC) and device | Model, OS, screen class | |
 | Build | Git SHA and build hash of the candidate build ([10 Preregistration](../specs/10-EXPERIMENT-PROTOCOLS.md)) | |
 | Time to first meaningful input (s) | Seconds from first interactive screen to first valid tile rotation ([07 metric dictionary](../specs/07-VALIDATION-AND-GTM.md)). Leave `not_observed` if none. | |
@@ -152,3 +152,22 @@ Use the rule that was predeclared. The sources disagree. Choose one set below be
 - Which M3 threshold set (section 5) governs.
 - Consent record retention schedule and deletion method.
 - Storage location of private records, outside the public repo.
+
+## 7. Painted-build addendum (design iterations I01–I69, 2026-11-24)
+
+The painted UI made several bets that only real players can settle. Observe these **without prompting** and record them on the sheet, separately for each age band (40–49, 50–64, 65+). Each links to its iteration log in `docs/improvements/`.
+
+| # | Bet | Watch for | Fails if |
+|---|---|---|---|
+| P1 | The hub's icon-only arrow is obviously "play" (I67) | Time from launch to first tap on the arrow | Median > 10 s, or 2+ of 10 tap something else first |
+| P2 | Mira's picture-plus-sentence bubble and the glowing spring/garden teach the board (I57, I64) | First tap on a tile; whether they say a tap *turns* a pipe | Median first tile tap > 15 s, or 3+ of 10 can't explain the goal (spec rule) |
+| P3 | Icon-only Undo / Guide me / Restart are found when needed (I53) | Uses Guide me when stuck? Presses and holds to learn a name? | 3+ of 10 stuck > 60 s without finding Guide me |
+| P4 | Droplets and cream "mouths" show progress and open ends (I27, open mouths) | Can they say what the drops mean after stream 1? | 3+ of 10 can't, unprompted |
+| P5 | Picture-first choice cards are understood (I66) | Do they know a choice changes the village before tapping? | 3+ of 10 say the choice "doesn't matter" |
+| P6 | The memory vignette and landmark grow-in are noticed (I24, I50) | Recall of who remembers what after 10 min (spec ≥70%) | Below the spec threshold |
+| P7 | The menu and the book are found when needed (I03) | Can they change text size when asked, unaided? | 3+ of 10 can't find it in 60 s |
+| P8 | Seasonal stones and the hub's latest memory invite a return (I63, I69) | Day-2 voluntary return (consented follow-up only) | Below the predeclared D1 threshold |
+| P9 | Motion is pleasant, not distracting (I19, I24, I33, I39) | Comments, or turning Gentle motion off | 3+ of 10 turn it off or call it distracting |
+
+**Reversal rule.** Any P-item that fails reverts to the more explicit option already recorded in its iteration log, for example labelled tools (pre-I53) or a coach sentence (I64 kept it). Do not redesign from intuition between sessions.
+
