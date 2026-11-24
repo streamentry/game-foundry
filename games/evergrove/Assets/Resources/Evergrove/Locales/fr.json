@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "A quelque chose de nouveau à dire"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira se repose à l’ombre de vos arbres."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira compte vos arbres le long de la berge."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin traverse vos ponts chaque matin."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin veille à ce que vos passages restent en bon état."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen récolte des graines de vos fleurs sauvages."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen suit les abeilles parmi vos fleurs sauvages."
     }
   ]
 }

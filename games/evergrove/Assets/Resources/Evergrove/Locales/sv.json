@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Har något nytt att säga"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira vilar i skuggan av dina träd."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira räknar dina träd längs stranden."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin går över dina broar varje morgon."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin håller dina övergångar i gott skick."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen samlar frön från dina vildblommor."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen följer bina bland dina vildblommor."
     }
   ]
 }

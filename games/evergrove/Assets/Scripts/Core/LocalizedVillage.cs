@@ -44,13 +44,24 @@ namespace Evergrove.Core
         public static string Memory(WorldModel world)
         {
             int[] choices = world.Choices;
-            if (choices.Length == 0) return T("world_none");
-            switch ((VillageChoice)choices[choices.Length - 1])
-            {
-                case VillageChoice.ShadeTree: return T("memory_tree");
-                case VillageChoice.Bridge: return T("memory_bridge");
-                default: return T("memory_flowers");
-            }
+            return MemoryAt(choices, choices.Length - 1);
+        }
+
+        /// <summary>
+        /// The remembered line for the choice at <paramref name="index"/>. A landmark
+        /// chosen again is remembered in a new way: first, second and third time
+        /// each have their own line, then the three cycle (I90).
+        /// </summary>
+        public static string MemoryAt(int[] choices, int index)
+        {
+            if (choices == null || index < 0 || index >= choices.Length) return T("world_none");
+            int choice = choices[index];
+            int earlier = 0;
+            for (int i = 0; i < index; i++) if (choices[i] == choice) earlier++;
+            string key = choice == (int)VillageChoice.ShadeTree ? "memory_tree"
+                : choice == (int)VillageChoice.Bridge ? "memory_bridge" : "memory_flowers";
+            int turn = earlier % 3;
+            return T(turn == 0 ? key : key + "_" + (turn + 1));
         }
 
         public static string Consequence(WorldModel world)

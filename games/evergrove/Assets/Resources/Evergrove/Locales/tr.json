@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Söyleyecek yeni bir şeyi var"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira, ağaçlarının gölgesinde dinleniyor."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira, kıyıdaki ağaçlarını sayıyor."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin her sabah köprülerinden geçiyor."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin geçitlerini iyi durumda tutuyor."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen, kır çiçeklerinden tohum topluyor."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen, kır çiçeklerinin arasında arıların peşinden gidiyor."
     }
   ]
 }

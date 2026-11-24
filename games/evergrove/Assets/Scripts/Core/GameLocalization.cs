@@ -99,7 +99,9 @@ namespace Evergrove.Core
             "name_mira","name_orin","name_fen",
             "menu","close","text_size","board_size","gentle_motion","postcard","postcard_copied",
             "mira_autumn","mira_winter","orin_autumn","orin_winter","fen_autumn","fen_winter",
-            "has_news"
+            "has_news",
+            "memory_tree_2","memory_tree_3","memory_bridge_2","memory_bridge_3",
+            "memory_flowers_2","memory_flowers_3"
         };
 
         private static readonly string[] English = {
@@ -217,7 +219,13 @@ namespace Evergrove.Core
             "I keep the crossing clear of snow. People still walk it every day.",
             "Your wildflowers are going to seed. The bank will be fuller next spring.",
             "The flower beds sleep under the snow. The seeds are safe in the earth.",
-            "Has something new to say"
+            "Has something new to say",
+            "Mira rests in the shade of your trees.",
+            "Mira counts your trees along the bank.",
+            "Orin crosses your bridges every morning.",
+            "Orin keeps your crossings in good repair.",
+            "Fen gathers seeds from your wildflowers.",
+            "Fen follows the bees along your wildflowers."
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

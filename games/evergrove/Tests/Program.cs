@@ -842,7 +842,7 @@ internal static class Program
                LocaleShippingPolicy.Resolve("ja", true) == "ja" &&
                LocaleShippingPolicy.Resolve("invalid", true) == "en",
             "old research preferences and auto-detected draft locales safely fall back");
-        Expect(GameLocalization.Keys.Count == 115,"authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 121,"authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");
@@ -1261,6 +1261,35 @@ internal static class Program
         Expect(LocalizedVillage.Speak(world, 1) == GameLocalization.Text("orin_after"), "a finished garden returns to summer lines");
     }
 
+    private static void RepeatedMemoryTests()
+    {
+        // A landmark chosen again is remembered in a new way (I90): first, second
+        // and third time differ, then the three lines cycle.
+        WorldModel world = WorldModel.New();
+        for (int i = 0; i < 4; i++) { Solve(world); Expect(world.Choose(VillageChoice.Bridge), "bridge choice"); }
+        int[] choices = world.Choices;
+        string first = LocalizedVillage.MemoryAt(choices, 0);
+        string second = LocalizedVillage.MemoryAt(choices, 1);
+        string third = LocalizedVillage.MemoryAt(choices, 2);
+        Expect(first == GameLocalization.Text("memory_bridge"), "first bridge keeps the original line");
+        Expect(second == GameLocalization.Text("memory_bridge_2"), "second bridge has its own line");
+        Expect(third == GameLocalization.Text("memory_bridge_3"), "third bridge has its own line");
+        Expect(first != second && second != third && first != third, "three distinct bridge memories");
+        Expect(LocalizedVillage.MemoryAt(choices, 3) == first, "the fourth bridge cycles back");
+        Expect(LocalizedVillage.Memory(world) == LocalizedVillage.MemoryAt(choices, 3),
+            "the memory screen and the journal agree on the latest line");
+        WorldModel mixed = WorldModel.New();
+        Solve(mixed); Expect(mixed.Choose(VillageChoice.ShadeTree), "tree choice");
+        Solve(mixed); Expect(mixed.Choose(VillageChoice.Flowers), "flower choice");
+        Solve(mixed); Expect(mixed.Choose(VillageChoice.ShadeTree), "second tree");
+        Expect(LocalizedVillage.MemoryAt(mixed.Choices, 1) == GameLocalization.Text("memory_flowers"),
+            "a different landmark in between starts its own count");
+        Expect(LocalizedVillage.MemoryAt(mixed.Choices, 2) == GameLocalization.Text("memory_tree_2"),
+            "a repeat is counted across other choices");
+        Expect(LocalizedVillage.MemoryAt(mixed.Choices, 9) == GameLocalization.Text("world_none"),
+            "an index past the history is the empty memory");
+    }
+
     private static void GardenPostcardTests()
     {
         WorldModel fresh = WorldModel.New();
@@ -1321,6 +1350,7 @@ internal static class Program
             RtlTextTests();
             GardenPostcardTests();
             SeasonalNeighborTests();
+            RepeatedMemoryTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }

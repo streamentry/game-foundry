@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Ma coś nowego do powiedzenia"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira odpoczywa w cieniu twoich drzew."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira liczy twoje drzewa wzdłuż brzegu."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin każdego ranka przechodzi przez twoje mosty."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin dba o to, by twoje przeprawy były w dobrym stanie."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen zbiera nasiona z twoich polnych kwiatów."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen podąża za pszczołami między twoimi polnymi kwiatami."
     }
   ]
 }

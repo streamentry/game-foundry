@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Ada sesuatu yang baharu untuk diceritakan"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira berehat di bawah teduhan pokok-pokok anda."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira mengira pokok-pokok anda di sepanjang tebing."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin melintasi jambatan anda setiap pagi."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin memastikan laluan jambatan anda sentiasa baik."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen mengumpul biji benih daripada bunga liar anda."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen mengikuti lebah di antara bunga liar anda."
     }
   ]
 }

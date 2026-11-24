@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Có điều mới muốn nói"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira nghỉ ngơi dưới bóng cây của bạn."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira đếm những cây của bạn dọc bờ sông."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin băng qua những cây cầu của bạn mỗi sáng."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin giữ cho những lối qua sông của bạn luôn tốt."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen hái hạt từ những bông hoa dại của bạn."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen theo chân ong giữa những bông hoa dại của bạn."
     }
   ]
 }

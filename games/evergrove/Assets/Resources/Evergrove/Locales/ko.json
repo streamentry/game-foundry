@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "새로 전할 이야기가 있어요"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "미라는 당신의 나무 그늘에서 쉬고 있어요."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "미라는 강가를 따라 당신의 나무를 세고 있어요."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "오린은 매일 아침 당신의 다리를 건너요."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "오린은 당신의 다리들을 늘 좋은 상태로 지켜요."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "펜은 당신의 들꽃에서 씨앗을 거두어요."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "펜은 당신의 들꽃 사이를 날아다니는 벌들을 따라가요."
     }
   ]
 }

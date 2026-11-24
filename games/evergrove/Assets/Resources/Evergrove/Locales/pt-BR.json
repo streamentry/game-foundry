@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Tem algo novo para contar"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira descansa à sombra das suas árvores."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira conta as suas árvores ao longo da margem."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin atravessa suas pontes todas as manhãs."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin mantém suas travessias em bom estado."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen colhe sementes das suas flores silvestres."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen segue as abelhas entre suas flores silvestres."
     }
   ]
 }

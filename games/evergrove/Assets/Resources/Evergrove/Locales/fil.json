@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "May bagong sasabihin"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Nagpapahinga si Mira sa lilim ng iyong mga puno."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Binibilang ni Mira ang iyong mga puno sa tabi ng ilog."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Tumatawid si Orin sa iyong mga tulay tuwing umaga."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Inaalagaan ni Orin nang maayos ang iyong mga tawiran."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Nangangalap si Fen ng binhi mula sa iyong mga ligaw na bulaklak."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Sinusundan ni Fen ang mga bubuyog sa iyong mga ligaw na bulaklak."
     }
   ]
 }

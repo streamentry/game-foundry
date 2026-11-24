@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Tiene algo nuevo que decir"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira descansa a la sombra de tus árboles."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira cuenta tus árboles a lo largo de la orilla."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin cruza tus puentes cada mañana."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin mantiene tus cruces en buen estado."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen recoge semillas de tus flores silvestres."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen sigue a las abejas entre tus flores silvestres."
     }
   ]
 }

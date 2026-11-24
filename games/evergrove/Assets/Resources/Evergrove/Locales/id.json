@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Punya sesuatu yang baru untuk disampaikan"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira beristirahat di bawah teduh pepohonanmu."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira menghitung pepohonanmu di sepanjang tepi sungai."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin menyeberangi jembatanmu setiap pagi."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin merawat jembatan penyeberanganmu dengan baik."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen mengumpulkan biji dari bunga liarmu."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen mengikuti lebah di sepanjang bunga liarmu."
     }
   ]
 }

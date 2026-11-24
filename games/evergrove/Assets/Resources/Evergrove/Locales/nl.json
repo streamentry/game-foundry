@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Heeft iets nieuws te vertellen"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira rust in de schaduw van je bomen."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira telt je bomen langs de oever."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin steekt elke ochtend je bruggen over."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin houdt je overgangen in goede staat."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen verzamelt zaadjes van je wilde bloemen."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen volgt de bijen tussen je wilde bloemen."
     }
   ]
 }

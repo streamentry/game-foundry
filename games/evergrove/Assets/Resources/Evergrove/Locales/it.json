@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "Ha qualcosa di nuovo da dire"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira riposa all'ombra dei tuoi alberi."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira conta i tuoi alberi lungo la riva."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin attraversa i tuoi ponti ogni mattina."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin mantiene in buono stato i tuoi attraversamenti."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen raccoglie semi dai tuoi fiori selvatici."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen segue le api tra i tuoi fiori selvatici."
     }
   ]
 }

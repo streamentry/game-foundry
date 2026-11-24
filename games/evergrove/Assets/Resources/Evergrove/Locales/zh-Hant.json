@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "有新的話要說"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "米拉在你的樹蔭下歇息。"
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "米拉沿著河岸數你種下的樹。"
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "奧林每天清晨都會走過你的橋。"
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "奧林把你的橋樑照顧得很好。"
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "芬從你的野花上收集種子。"
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "芬沿著你的野花追隨蜜蜂。"
     }
   ]
 }

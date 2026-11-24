@@ -460,6 +460,30 @@
     {
       "key": "has_news",
       "value": "新しいお話があります"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "ミラは、あなたの木々の木陰で休んでいます。"
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "ミラは、川辺に並ぶあなたの木を数えています。"
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "オリンは毎朝、あなたの橋を渡ります。"
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "オリンは、あなたの橋や渡し場を良い状態に保っています。"
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "フェンは、あなたの野の花から種を集めています。"
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "フェンは、あなたの野の花のあいだでミツバチを追っています。"
     }
   ]
 }
