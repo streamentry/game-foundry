@@ -44,6 +44,9 @@ namespace Evergrove.UnityClient
         private RectTransform menuContent;
         private ScrollRect menuScroll;
         private bool menuOpen;
+        private GameObject journalSheet; // the memory scrapbook rises as its own sheet
+        private RectTransform journalContent;
+        private ScrollRect journalScroll;
         private GameObject titleScreen; // the painted welcome on every launch
         private GameObject coachBubble;  // stream-1 teaching bubble, gone after the first move
         private RectTransform warningViewport;
@@ -1032,14 +1035,26 @@ namespace Evergrove.UnityClient
         // behind it closes it. Built once; its contents are rebuilt with the page.
         private void BuildMenuSheet(Transform host)
         {
-            menuSheet = Node("Menu sheet", host);
-            Fill(menuSheet.GetComponent<RectTransform>());
-            var dim = menuSheet.AddComponent<Image>();
+            menuSheet = BuildSheet(host, "Menu", () => SetMenu(false), out menuContent, out menuScroll);
+            journalSheet = BuildSheet(host, "Journal", () => {
+                showJournal = false;
+                Rebuild();
+            }, out journalContent, out journalScroll);
+        }
+
+        // A parchment sheet that rises over the dimmed garden; tapping the
+        // garden behind it closes it. Its contents are rebuilt with the page.
+        private GameObject BuildSheet(Transform host, string name, Action close,
+                                      out RectTransform sheetContent, out ScrollRect sheetScroll)
+        {
+            var sheet = Node(name + " sheet", host);
+            Fill(sheet.GetComponent<RectTransform>());
+            var dim = sheet.AddComponent<Image>();
             dim.color = new Color(0.08f, 0.14f, 0.11f, 0.42f);
-            var dimButton = menuSheet.AddComponent<Button>();
+            var dimButton = sheet.AddComponent<Button>();
             dimButton.transition = Selectable.Transition.None;
-            dimButton.onClick.AddListener(() => SetMenu(false));
-            var panel = Node("Menu panel", menuSheet.transform);
+            dimButton.onClick.AddListener(() => close());
+            var panel = Node(name + " panel", sheet.transform);
             var panelRect = panel.GetComponent<RectTransform>();
             panelRect.anchorMin = new Vector2(0f, 0f);
             panelRect.anchorMax = new Vector2(1f, 0.86f);
@@ -1049,23 +1064,23 @@ namespace Evergrove.UnityClient
             MosseloraArt.Round(panelImage, MosseloraTheme.Paper, 26);
             MosseloraArt.Lift(panelImage, 4f, 0.25f);
             MosseloraArt.Edge(panel.transform, MosseloraTheme.CardEdge, 26);
-            menuScroll = panel.AddComponent<ScrollRect>();
-            menuScroll.horizontal = false;
-            menuScroll.movementType = ScrollRect.MovementType.Clamped;
-            menuScroll.scrollSensitivity = 28f;
-            var view = Node("Menu viewport", panel.transform);
+            sheetScroll = panel.AddComponent<ScrollRect>();
+            sheetScroll.horizontal = false;
+            sheetScroll.movementType = ScrollRect.MovementType.Clamped;
+            sheetScroll.scrollSensitivity = 28f;
+            var view = Node(name + " viewport", panel.transform);
             var viewRect = view.GetComponent<RectTransform>();
             Fill(viewRect);
             viewRect.offsetMin = new Vector2(0f, 4f);
             viewRect.offsetMax = new Vector2(0f, -4f);
             view.AddComponent<RectMask2D>();
-            menuScroll.viewport = viewRect;
-            var body = Node("Menu content", view.transform);
-            menuContent = body.GetComponent<RectTransform>();
-            menuContent.anchorMin = new Vector2(0f, 1f);
-            menuContent.anchorMax = new Vector2(1f, 1f);
-            menuContent.pivot = new Vector2(0.5f, 1f);
-            menuContent.sizeDelta = Vector2.zero;
+            sheetScroll.viewport = viewRect;
+            var body = Node(name + " content", view.transform);
+            sheetContent = body.GetComponent<RectTransform>();
+            sheetContent.anchorMin = new Vector2(0f, 1f);
+            sheetContent.anchorMax = new Vector2(1f, 1f);
+            sheetContent.pivot = new Vector2(0.5f, 1f);
+            sheetContent.sizeDelta = Vector2.zero;
             var column = body.AddComponent<VerticalLayoutGroup>();
             column.childAlignment = TextAnchor.UpperCenter;
             column.padding = new RectOffset(16, 16, 14, 28);
@@ -1075,8 +1090,9 @@ namespace Evergrove.UnityClient
             column.childForceExpandWidth = true;
             column.childForceExpandHeight = false;
             body.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            menuScroll.content = menuContent;
-            menuSheet.SetActive(false);
+            sheetScroll.content = sheetContent;
+            sheet.SetActive(false);
+            return sheet;
         }
 
         private void SetMenu(bool open)
@@ -1112,8 +1128,9 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"),
                     MosseloraArt.IconJournal, () => {
                         showJournal = !showJournal;
-                        revealNewScreen = showJournal; // opening the journal lands on its title
+                        if (showJournal) menuOpen = false;
                         Rebuild();
+                        if (showJournal && journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
                     }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                     // The memory count makes the book read as "your collection", not "rules".
                     false, world.Choices.Length.ToString(CultureInfo.InvariantCulture));
@@ -1539,6 +1556,7 @@ namespace Evergrove.UnityClient
                 Destroy(old);
             }
             ClearChildren(menuContent);
+            ClearChildren(journalContent);
             ClearChildren(chrome);
 
             bool living = world.Mode == PlayMode.Living;
@@ -1879,6 +1897,7 @@ namespace Evergrove.UnityClient
             if (screenKey != lastScreenKey && lastScreenKey.Length > 0 && gentleMotion) StartCoroutine(FadeInPage());
             lastScreenKey = screenKey;
             menuSheet.SetActive(menuOpen);
+            journalSheet.SetActive(showJournal && !menuOpen);
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(menuContent);
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
@@ -1906,10 +1925,18 @@ namespace Evergrove.UnityClient
 
         private void MemoryJournal()
         {
-            // The toggle is the book in the floating chrome (BuildChrome).
+            // The toggle is the book in the floating chrome (BuildChrome); the
+            // scrapbook rises as its own sheet instead of lengthening the page.
             if (!showJournal) return;
-            var journal = Card(content, "A living journal", MosseloraTheme.CardFill);
-            screenHeading = journal.GetComponent<RectTransform>();
+            RectTransform pageRoot = content;
+            content = journalContent;
+            Transform top = CenteredRow("Journal top", 8f);
+            var spacer = Node("Journal spacer", top);
+            spacer.AddComponent<LayoutElement>().flexibleWidth = 1;
+            Width(IconButton(top, "Close journal", GameLocalization.Text("close"), MosseloraArt.IconCancel,
+                () => { showJournal = false; Rebuild(); }, 52, MosseloraTheme.QuietAction), 60);
+            content = pageRoot;
+            var journal = Card(journalContent, "A living journal", MosseloraTheme.CardFill);
             Text journalTitle = Label(journal.transform, "Journal title",
                 GameLocalization.Text("journal_title"), 15, 30, Leaf, TextAnchor.MiddleCenter);
             Emphasize(journalTitle);
