@@ -227,3 +227,21 @@ h1 em { font-style: italic; color: #34775c; }
   content: ""; position: absolute; inset: 0; pointer-events: none;
   border-radius: 28px; border: 1px solid rgba(255,255,255,.9);
 }
+
+
+/* I05: Watercolor Stream Flow Meter */
+.water-stat--pill {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, #e3f3ef 0%, #d4ebe6 100%);
+  border: 1px solid #a8d5cc; border-radius: 18px; padding: 8px 14px;
+  box-shadow: 0 3px 10px rgba(32, 105, 96, .1), inset 0 1px 0 #fff;
+}
+.water-stat-icon {
+  font-size: 19px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(23, 108, 131, .25));
+  animation: droplet-float 3s ease-in-out infinite;
+}
+@keyframes droplet-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+.water-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #226456; font-weight: 700; }
