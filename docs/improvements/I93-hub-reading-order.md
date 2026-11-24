@@ -42,3 +42,20 @@ The full logged trees are in `I93-hub-reading-order.md.txt`.
 - The book button's position in the order with memories present was not logged this time; it follows the same rule.
 - Codex is still blocked by credits.
 - No players aged 40+ have tried this (m3-session-kit P1–P9).
+
+
+## Follow-up check (after I93, b72)
+
+The book button's place in the order, with memories present, has been verified. I solved stream 1, chose wildflowers and relaunched with `-mosseloraSrLog 1`. The hub tree has 9 nodes:
+
+1. **Menu**
+2. **Read village memories**
+3. Mira, Orin and Fen, each "has something new to say"
+4. The tagline
+5. "Fen remembers the flowers you grew."
+6. "Rainwater"
+7. Play ("Rainwater · Wildflower sanctuary")
+
+Both corner buttons come first, in their on-screen order.
+
+The Codex `icons-ui-6` change-choice glyph was retried a fifth time and is still out of credits.
