@@ -454,3 +454,15 @@ h1 em { font-style: italic; color: #34775c; }
 .creek-art {
   background: linear-gradient(180deg, #d8ebe5 0%, #edf4e6 55%, #dfede2 100%);
 }
+
+
+/* I27: Animated Cottage Chimney Smoke */
+.smoke-puff { opacity: 0; animation: smoke-drift 3.6s ease-out infinite; }
+.smoke-puff--1 { animation-delay: 0s; }
+.smoke-puff--2 { animation-delay: 1.2s; }
+.smoke-puff--3 { animation-delay: 2.4s; }
+@keyframes smoke-drift {
+  0% { transform: translate(0, 0) scale(.6); opacity: 0; }
+  30% { opacity: .65; }
+  100% { transform: translate(-10px, -24px) scale(1.4); opacity: 0; }
+}
