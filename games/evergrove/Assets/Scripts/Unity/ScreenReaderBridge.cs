@@ -200,7 +200,8 @@ namespace Evergrove.UnityClient
         private static string CaptionOf(Button button)
         {
             Transform caption = button.transform.Find("Caption");
-            var text = caption != null ? caption.GetComponent<Text>() : null;
+            // The caption may sit on a plate (neighbor names), so look one level down too.
+            var text = caption != null ? caption.GetComponentInChildren<Text>() : null;
             string value = text != null ? text.text : button.name;
             // Choice captions carry an outcome line after a newline; speak it as a sentence.
             return string.IsNullOrWhiteSpace(value)

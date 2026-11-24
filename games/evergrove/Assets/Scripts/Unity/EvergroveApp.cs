@@ -752,8 +752,8 @@ namespace Evergrove.UnityClient
                 {
                     var dot = Node(i < pipsOn ? "Level on" : "Level off", dots.transform);
                     var dotLayout = dot.AddComponent<LayoutElement>();
-                    dotLayout.minWidth = dotLayout.preferredWidth = 8;
-                    dotLayout.minHeight = dotLayout.preferredHeight = 8;
+                    dotLayout.minWidth = dotLayout.preferredWidth = 10;
+                    dotLayout.minHeight = dotLayout.preferredHeight = 10;
                     var dotImage = dot.AddComponent<Image>();
                     dotImage.sprite = MosseloraArt.Rounded(4);
                     dotImage.type = Image.Type.Simple;
@@ -877,7 +877,7 @@ namespace Evergrove.UnityClient
             for (int i = 0; i < waterDrops.Length; i++)
                 waterDrops[i].color = i < reached
                     ? Color.white
-                    : new Color(0.55f, 0.50f, 0.42f, 0.28f); // dry: faded earth silhouette
+                    : new Color(0.40f, 0.44f, 0.40f, 0.50f); // dry: a clearly visible grey silhouette
         }
 
         // A calm daily ritual entry: the village painting full-bleed, the
@@ -1330,18 +1330,25 @@ namespace Evergrove.UnityClient
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(medallion + 8f, medallion + 8f), Vector2.zero);
                 if (ring != null) ring.color = Leaf;
             }
-            var caption = Label(node.transform, "Caption", label, onPainting ? 13 : 15, 0,
-                onPainting ? White : Ink, TextAnchor.MiddleCenter);
-            Emphasize(caption);
+            Text caption;
             if (onPainting)
             {
-                // Legible white name over any part of the painting.
-                var shadow = caption.gameObject.AddComponent<Shadow>();
-                shadow.effectColor = new Color(0.05f, 0.12f, 0.08f, 0.85f);
-                shadow.effectDistance = new Vector2(1f, -1.5f);
-                var outline = caption.gameObject.AddComponent<Outline>();
-                outline.effectColor = new Color(0.05f, 0.12f, 0.08f, 0.55f);
+                // A small cream name plate, dark ink: legible over any part of the
+                // painting (white-on-painting measured about 2:1).
+                var plate = Node("Caption", node.transform); // ScreenReaderBridge reads its text
+                var plateImage = plate.AddComponent<Image>();
+                MosseloraArt.Round(plateImage, new Color(1f, 0.973f, 0.918f, 0.94f), 10);
+                plateImage.raycastTarget = false;
+                var plateGroup = plate.AddComponent<HorizontalLayoutGroup>();
+                plateGroup.padding = new RectOffset(8, 8, 1, 2);
+                plateGroup.childControlWidth = true;
+                plateGroup.childControlHeight = true;
+                plateGroup.childForceExpandWidth = false;
+                caption = Label(plate.transform, "Caption text", label, 14, 0, Ink, TextAnchor.MiddleCenter);
             }
+            else
+                caption = Label(node.transform, "Caption", label, 15, 0, Ink, TextAnchor.MiddleCenter);
+            Emphasize(caption);
         }
 
         // Painted page header: generated wordmark with vine corners. The
@@ -1866,7 +1873,7 @@ namespace Evergrove.UnityClient
                     }, 44);
                 Label(content, "No tracking by default",
                     GameLocalization.Text("privacy"),
-                    12, 43, Moss, TextAnchor.MiddleCenter);
+                    15, 43, Ink, TextAnchor.MiddleCenter);
             }
             else
             {
@@ -1886,7 +1893,7 @@ namespace Evergrove.UnityClient
 #endif
             Sprig();
             Text promise = Label(content, "Respectful play", GameLocalization.Text("offline"),
-                13, 36, Ink, TextAnchor.MiddleCenter);
+                15, 36, Ink, TextAnchor.MiddleCenter);
             Emphasize(promise);
             content = page;
             BuildChrome(living);
@@ -1982,7 +1989,7 @@ namespace Evergrove.UnityClient
                         MosseloraArt.Ornament(picture.transform, "Who remembers", face, new Vector2(1f, 0f),
                             new Vector2(1f, 0f), new Vector2(30f, 30f), new Vector2(0f, -4f));
                 }
-                Label(page.transform, "Recorded cause and effect", entries[i], 13, 0, Ink, TextAnchor.UpperCenter);
+                Label(page.transform, "Recorded cause and effect", entries[i], 14, 0, Ink, TextAnchor.UpperCenter);
             }
             if (entries.Length % 2 == 1 && spread != null)
                 Node("Scrapbook blank", spread.transform); // keeps the last page half width
@@ -2383,7 +2390,7 @@ namespace Evergrove.UnityClient
             Text title = Label(node.transform, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink,
                 TextAnchor.UpperCenter);
             Emphasize(title);
-            Label(node.transform, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 13, 0, Moss,
+            Label(node.transform, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 14, 0, Ink,
                 TextAnchor.UpperCenter);
         }
 
