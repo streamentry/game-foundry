@@ -530,3 +530,11 @@ h1 em { font-style: italic; color: #34775c; }
   filter: drop-shadow(0 2px 4px rgba(110, 70, 40, .25));
 }
 .choice-button[data-choice="bridge"]:hover { background: #f9f4ed !important; }
+
+
+/* I34: Handcrafted Wildflower Meadow Tablet */
+.choice-button[data-choice="flowers"] > span {
+  color: #a8547e !important;
+  filter: drop-shadow(0 2px 4px rgba(135, 60, 95, .25));
+}
+.choice-button[data-choice="flowers"]:hover { background: #fbf2f6 !important; }
