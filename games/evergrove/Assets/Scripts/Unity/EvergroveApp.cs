@@ -464,8 +464,9 @@ namespace Evergrove.UnityClient
 
             var backdrop = Node("Warm paper", canvasNode.transform);
             Fill(backdrop.GetComponent<RectTransform>());
-            backdrop.AddComponent<Image>().color = Paper;
-            backdrop.GetComponent<Image>().raycastTarget = false;
+            var backdropImage = backdrop.AddComponent<Image>();
+            MosseloraArt.PagePaper(backdropImage, Paper); // painted paper, not a flat fill (I94)
+            backdropImage.raycastTarget = false;
 
             var scrollNode = Node("Safe scroll area", canvasNode.transform);
             scrollArea = scrollNode.GetComponent<RectTransform>();
@@ -972,7 +973,7 @@ namespace Evergrove.UnityClient
             if (hero == null) return;
             titleScreen = Node("Title screen", host);
             Fill(titleScreen.GetComponent<RectTransform>());
-            titleScreen.AddComponent<Image>().color = Paper;
+            MosseloraArt.PagePaper(titleScreen.AddComponent<Image>(), Paper);
 
             // The village at the top, clipped to the upper half.
             var window = Node("Village window", titleScreen.transform);

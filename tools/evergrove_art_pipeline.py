@@ -242,6 +242,26 @@ def paper_tile(paper: Image.Image, size: int = 192, radius: int = 24,
     return tile
 
 
+def page_grain(paper: Image.Image, size: int = 512, gain: float = 2.6) -> Image.Image:
+    """Seamless near-white watercolor grain for the whole page (I94).
+
+    The Codex paper master is mirrored 2x2 so the tile has no seams, then
+    flattened to near-white so the page's own Paper tint shows through.
+    """
+    from PIL import ImageOps, ImageStat
+    side = min(paper.size)
+    square = paper.convert("L").crop((0, 0, side, side)).resize((size, size), Image.LANCZOS)
+    mirrored = Image.new("L", (size * 2, size * 2))
+    mirrored.paste(square, (0, 0))
+    mirrored.paste(ImageOps.mirror(square), (size, 0))
+    mirrored.paste(ImageOps.flip(square), (0, size))
+    mirrored.paste(ImageOps.flip(ImageOps.mirror(square)), (size, size))
+    tile = mirrored.resize((size, size), Image.LANCZOS)
+    mean = ImageStat.Stat(tile).mean[0]
+    grain = tile.point(lambda v: max(0, min(255, int(252 - (mean - v) * gain))))
+    return Image.merge("RGBA", (grain, grain, grain, Image.new("L", grain.size, 255)))
+
+
 def quadrants(sheet: Image.Image) -> list[Image.Image]:
     w, h = sheet.size
     return [sheet.crop((x, y, x + w // 2, y + h // 2))
@@ -371,6 +391,9 @@ def main() -> None:
     paper = master("paper-grain")
     if paper:
         save(paper_tile(paper), "tile-paper", border=26)
+        save(page_grain(paper), "page-grain")
+        grain_meta = OUT / "page-grain.png.meta"  # tiled Image needs a full-rect mesh
+        grain_meta.write_text(grain_meta.read_text().replace("spriteMeshType: 0", "spriteMeshType: 1"))
 
     neighbors = master("neighbors")
     if neighbors:

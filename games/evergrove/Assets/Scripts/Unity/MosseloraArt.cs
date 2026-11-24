@@ -175,6 +175,23 @@ namespace Evergrove.UnityClient
         /// Rounded tile body on Codex-generated watercolor paper (near-white,
         /// so Image.color still carries the dry/wet/solved/hint state tint).
         /// </summary>
+        public const string PageGrain = "page-grain";
+
+        /// <summary>
+        /// The whole page as painted watercolour paper (I94): the Codex paper
+        /// grain tiled under every screen, tinted with the page colour. Falls
+        /// back to the flat colour if the sprite is missing.
+        /// </summary>
+        public static void PagePaper(Image image, Color paper)
+        {
+            image.color = paper;
+            Sprite grain = Load(PageGrain);
+            if (grain == null) return;
+            image.sprite = grain;
+            image.type = Image.Type.Tiled;
+            image.pixelsPerUnitMultiplier = 1.4f; // ~180 pt repeat on a phone
+        }
+
         public static void PaperTile(Image image, int radius = 12)
         {
             Sprite paper = Load(TilePaper);
