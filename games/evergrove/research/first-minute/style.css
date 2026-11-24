@@ -767,3 +767,14 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
 #world-bridge path[stroke="#8D674E"] {
   filter: drop-shadow(0 3px 6px rgba(70, 45, 30, .3));
 }
+
+
+/* I89: Canopy Breeze Sway */
+@keyframes canopy-sway {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.02) rotate(1.5deg); }
+}
+#world-tree circle {
+  transform-origin: 466px 132px;
+  animation: canopy-sway 4.5s ease-in-out infinite;
+}
