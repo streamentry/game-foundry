@@ -1778,37 +1778,52 @@ namespace Evergrove.UnityClient
             Text journalTitle = Label(journal.transform, "Journal title",
                 GameLocalization.Text("journal_title"), 15, 30, Leaf, TextAnchor.MiddleCenter);
             Emphasize(journalTitle);
-            ChoiceTimeline(journal.transform);
+            // A painted scrapbook: two pages to a row, each with the painting of
+            // the choice, the neighbor who remembers it, and their written line.
             string[] entries = LocalizedVillage.Journal(world);
             int[] chosen = world.Choices;
+            GameObject spread = null;
             for (int i = 0; i < entries.Length; i++)
             {
-                // Each remembered chapter carries the painted icon of its choice.
-                var line = Node("Journal chapter", journal.transform);
-                var lineGroup = line.AddComponent<HorizontalLayoutGroup>();
-                lineGroup.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
-                lineGroup.spacing = 10;
-                lineGroup.childAlignment = TextAnchor.MiddleLeft;
-                lineGroup.childControlWidth = true;
-                lineGroup.childControlHeight = true;
-                lineGroup.childForceExpandWidth = false;
-                lineGroup.childForceExpandHeight = false;
+                if (i % 2 == 0)
+                {
+                    spread = Row(journal.transform, "Scrapbook spread");
+                    var spreadGroup = spread.GetComponent<HorizontalLayoutGroup>();
+                    spreadGroup.childForceExpandHeight = true;
+                    spreadGroup.childAlignment = TextAnchor.UpperCenter;
+                }
+                var page = Node("Journal chapter", spread.transform);
+                var pageImage = page.AddComponent<Image>();
+                MosseloraArt.PaperTile(pageImage, 14);
+                pageImage.color = MosseloraTheme.DryTile;
+                pageImage.raycastTarget = false;
+                MosseloraArt.Lift(pageImage, 2f, 0.12f);
+                var pageStack = page.AddComponent<VerticalLayoutGroup>();
+                pageStack.padding = new RectOffset(8, 8, 10, 10);
+                pageStack.spacing = 4;
+                pageStack.childAlignment = TextAnchor.UpperCenter;
+                pageStack.childControlWidth = true;
+                pageStack.childControlHeight = true;
+                pageStack.childForceExpandWidth = true;
+                pageStack.childForceExpandHeight = false;
                 Sprite icon = i < chosen.Length ? MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]) : null;
                 if (icon != null)
                 {
-                    var picture = Node("Journal picture", line.transform);
-                    var pictureLayout = picture.AddComponent<LayoutElement>();
-                    pictureLayout.preferredWidth = 58;
-                    pictureLayout.minWidth = 58;
-                    pictureLayout.preferredHeight = 52;
+                    var picture = Node("Journal picture", page.transform);
+                    Height(picture, 64f);
                     var pictureImage = picture.AddComponent<Image>();
                     pictureImage.sprite = icon;
                     pictureImage.preserveAspect = true;
                     pictureImage.raycastTarget = false;
+                    Sprite face = MosseloraArt.Portrait(chosen[i]);
+                    if (face != null)
+                        MosseloraArt.Ornament(picture.transform, "Who remembers", face, new Vector2(1f, 0f),
+                            new Vector2(1f, 0f), new Vector2(30f, 30f), new Vector2(0f, -4f));
                 }
-                Text words = Label(line.transform, "Recorded cause and effect", entries[i], 14, 0, Ink);
-                words.gameObject.GetComponent<LayoutElement>().flexibleWidth = 1;
+                Label(page.transform, "Recorded cause and effect", entries[i], 13, 0, Ink, TextAnchor.UpperCenter);
             }
+            if (entries.Length % 2 == 1 && spread != null)
+                Node("Scrapbook blank", spread.transform); // keeps the last page half width
             if (world.Journal.Length == 0)
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
         }
