@@ -1033,9 +1033,17 @@ namespace Evergrove.UnityClient
             // The big button names where the walk continues ("First Bend").
             string nextStop = !world.Completed && GameLocalization.Current == "en"
                 ? world.CurrentPuzzle.Name : GameLocalization.Text("continue");
+            // An icon-only play button; the next stream's name sits above it as
+            // a plain label (and is the button's spoken name).
+            if (!world.Completed && GameLocalization.Current == "en")
+            {
+                Text where = Label(stack.transform, "Next stream", nextStop, 15, 0, Moss, TextAnchor.MiddleCenter);
+                Emphasize(where);
+                stack.transform.GetChild(stack.transform.childCount - 1).SetSiblingIndex(stack.transform.childCount - 2);
+            }
             Button start = IconButton(play, "Play", nextStop,
-                MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction, true);
-            Width(start, 230);
+                MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction);
+            Width(start, 150);
             titleScreen.transform.SetAsLastSibling();
         }
 
@@ -1216,7 +1224,7 @@ namespace Evergrove.UnityClient
             {
                 // On the play page the seedling stays a bare icon (ending); in the
                 // menu it says what it does.
-                bool inMenu = content == menuContent || world.Completed;
+                bool inMenu = content == menuContent;
                 Width(IconButton(row, resetName, GameLocalization.Text("explore"),
                     MosseloraArt.IconNewGarden, () => { confirmReset = true; Rebuild(); },
                     inMenu ? 78 : 58, tone, false, null, inMenu), inMenu ? 200 : 96);
