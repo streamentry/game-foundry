@@ -20,6 +20,7 @@ namespace Evergrove.UnityClient
         public const string Wordmark = "wordmark";
         public const string HeroVillage = "hero-village";
         public const string EndingFestival = "ending-festival";
+        public const string BoardBed = "board-bed";
         public const string ShadeTree = "icon-shade-tree";
         public const string Bridge = "icon-bridge";
         public const string Wildflowers = "icon-wildflowers";

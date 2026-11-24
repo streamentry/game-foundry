@@ -1,0 +1,8 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). Generate exactly ONE image. The attached image is a STYLE reference (soft watercolor storybook).
+Use case: stylized-concept
+Asset type: painted background slab that sits BEHIND a 3x3 grid of puzzle tiles in a calm garden game
+Primary request: a square, top-down watercolor painting of a shallow garden bed: a rounded-corner frame of mossy grey river stones and small ferns around the edge, with a flat, soft, low-contrast damp earth and moss floor inside (the centre 80 percent must be calm and even, because tiles cover it). Gentle warm light, hand-painted, no objects in the centre.
+Composition: square 1024x1024, stones form a continuous rounded-square border about 9 percent thick on every side.
+Background: TRANSPARENT (alpha) outside the rounded stone border.
+Constraints: no text, no watermark, no pipes, no water.
+Copy the final PNG to games/evergrove/art/generated/board-bed.png and print the path. Do nothing else.

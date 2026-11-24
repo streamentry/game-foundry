@@ -1931,6 +1931,21 @@ namespace Evergrove.UnityClient
                     14, 48, Leaf, TextAnchor.MiddleCenter);
             // The board sits on the page itself; each tile is its own parchment square.
             var board = Card(content, "The water puzzle", new Color(1f, 1f, 1f, 0f));
+            // The tiles sit in a painted garden bed of mossy stones (Codex art).
+            Sprite bed = MosseloraArt.Load(MosseloraArt.BoardBed);
+            if (bed != null)
+            {
+                var bedNode = Node("Garden bed", board.transform);
+                bedNode.AddComponent<LayoutElement>().ignoreLayout = true;
+                var bedRect = bedNode.GetComponent<RectTransform>();
+                Fill(bedRect);
+                bedRect.offsetMin = new Vector2(-10f, -10f);
+                bedRect.offsetMax = new Vector2(10f, 10f);
+                var bedImage = bedNode.AddComponent<Image>();
+                bedImage.sprite = bed;
+                bedImage.raycastTarget = false;
+                bedNode.transform.SetAsFirstSibling();
+            }
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
             // story card's horizontal padding and safe-area insets.
