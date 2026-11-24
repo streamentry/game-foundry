@@ -355,6 +355,9 @@
   if (menuBackdrop) menuBackdrop.addEventListener("click", () => toggleMenu(false));
   if (menuRestartBtn) menuRestartBtn.addEventListener("click", () => {
     toggleMenu(false);
+    // I108: choosing Restart in the menu is already deliberate, so it confirms
+    // the two-tap safeguard at once (a single click() only armed it before).
+    restartArmed = true;
     node("restart").click();
   });
   window.addEventListener("keydown", e => {
@@ -373,15 +376,19 @@
         restartArmed = true;
         restartBtn.classList.add("action-icon-btn--armed");
         restartBtn.setAttribute("title", "Tap again to confirm restart");
+        restartBtn.setAttribute("aria-label", "Tap again to restart stream"); // I108: spoken, not only seen
         if (restartTimer) clearTimeout(restartTimer);
         restartTimer = setTimeout(() => {
           restartArmed = false;
           restartBtn.classList.remove("action-icon-btn--armed");
           restartBtn.setAttribute("title", "Restart");
+          restartBtn.setAttribute("aria-label", "Restart stream");
         }, 3000);
       } else {
         restartArmed = false;
         restartBtn.classList.remove("action-icon-btn--armed");
+        restartBtn.setAttribute("title", "Restart");
+        restartBtn.setAttribute("aria-label", "Restart stream");
         if (restartTimer) clearTimeout(restartTimer);
       }
     }, true);

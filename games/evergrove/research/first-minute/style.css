@@ -822,3 +822,19 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
   padding-left: max(18px, env(safe-area-inset-left)) !important;
   padding-right: max(18px, env(safe-area-inset-right)) !important;
 }
+
+/* I108: compact phones keep their 15px gutter (safe-area still respected),
+   and on the narrowest screens the progress pill sits under the chapter
+   title instead of squeezing it into four lines each. This puts the first
+   tile row back above the fold at 320x568 (verify_evergrove_browser_viewports). */
+@media (max-width: 410px) {
+  .app {
+    padding-left: max(15px, env(safe-area-inset-left)) !important;
+    padding-right: max(15px, env(safe-area-inset-right)) !important;
+  }
+}
+@media (max-width: 360px) {
+  #puzzle-panel .section-heading { flex-wrap: wrap; row-gap: 8px; }
+  #puzzle-panel .section-heading > div:first-child { flex: 1 1 100%; }
+  #puzzle-panel .section-heading .water-stat { padding-top: 5px; padding-bottom: 5px; }
+}

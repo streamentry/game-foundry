@@ -1350,6 +1350,52 @@ namespace Evergrove.UnityClient
 
         private const float SheetHeader = 78f; // the plaque art stands a little taller than its 52 pt box
 
+        private void CreekBehindBoard(Transform board)
+        {
+            int season = PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed);
+            string prefix = season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-" : "banner-stream-";
+            Sprite creek = MosseloraArt.Load(prefix + (world.Solved ? "flowing" : "dry"));
+            if (creek == null) return;
+            var window = Node("Creek behind board", board);
+            window.AddComponent<LayoutElement>().ignoreLayout = true;
+            var windowRect = window.GetComponent<RectTransform>();
+            Fill(windowRect);
+            // Screen edge to screen edge (past the tablet column, I111). It stops at
+            // the bed's top: the creek is drawn after the text above the board, so
+            // reaching upward would cover it. Below, a band melts into the paper.
+            windowRect.offsetMin = new Vector2(-17f - columnInset, -46f);
+            windowRect.offsetMax = new Vector2(17f + columnInset, 0f);
+            window.AddComponent<RectMask2D>();
+            var art = Node("Creek painting", window.transform);
+            Fill(art.GetComponent<RectTransform>());
+            var image = art.AddComponent<Image>();
+            image.sprite = creek;
+            image.raycastTarget = false;
+            image.color = new Color(1f, 1f, 1f, 0.55f);
+            var fit = art.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fit.aspectRatio = MosseloraArt.Aspect(creek);
+            // Soft top and bottom: the painting melts into the paper instead of
+            // ending in a ruled line (I111).
+            Sprite fade = MosseloraArt.TopFade();
+            for (int edge = 1; edge < 2; edge++) // bottom only; the bed's stones edge the top
+            {
+                var melt = Node(edge == 0 ? "Creek melt top" : "Creek melt bottom", window.transform);
+                var meltRect = melt.GetComponent<RectTransform>();
+                meltRect.anchorMin = new Vector2(0f, edge == 0 ? 1f : 0f);
+                meltRect.anchorMax = new Vector2(1f, edge == 0 ? 1f : 0f);
+                meltRect.pivot = new Vector2(0.5f, 0.5f); // centre pivot, so the flip stays inside the window
+                meltRect.sizeDelta = new Vector2(0f, 44f);
+                meltRect.anchoredPosition = new Vector2(0f, edge == 0 ? -22f : 22f);
+                if (edge == 1) meltRect.localScale = new Vector3(1f, -1f, 1f);
+                var meltImage = melt.AddComponent<Image>();
+                meltImage.sprite = fade;
+                meltImage.color = Paper;
+                meltImage.raycastTarget = false;
+            }
+            window.transform.SetAsFirstSibling(); // under the stone bed and the tiles
+        }
+
         // A sheet's close button lives in a fixed band above its scrolling
         // pages, so it stays in reach at the end of a long journal or menu (I101).
         // Rebuilt with the page (fresh language), replacing the previous one.
@@ -1381,6 +1427,15 @@ namespace Evergrove.UnityClient
         private void MenuHeader(bool offerLanguage)
         {
             SheetClose(menuContent, "Close menu", () => SetMenu(false));
+            // Shown only when there is a stream in progress to reset (I109).
+            if (!world.Completed && !world.Solved && !showingMemory && world.CanUndo)
+            {
+                Transform row = CenteredRow("Restart stream row");
+                Button restart = IconButton(row, "Restart", GameLocalization.Text("restart"),
+                    MosseloraArt.IconRestart, () => { Act(() => world.Restart(), "restart"); SetMenu(false); },
+                    78, MosseloraTheme.QuietAction, false, null, true);
+                Width(restart, 200);
+            }
             SettingsRow(offerLanguage);
         }
 
@@ -2478,6 +2533,11 @@ namespace Evergrove.UnityClient
                 bedImage.sprite = bed;
                 bedImage.raycastTarget = false;
                 bedNode.transform.SetAsFirstSibling();
+                // The board sits in the landscape (I110): this season's painted creek,
+                // dry until the stream is solved and flowing after, softly behind the
+                // stone bed. Tiles stay opaque parchment, so the puzzle reads the same.
+                // Living world only; the Puzzle-only control keeps a plain page.
+                if (world.Mode == PlayMode.Living) CreekBehindBoard(board.transform);
             }
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
@@ -2792,9 +2852,9 @@ namespace Evergrove.UnityClient
                     null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
                 Transform hintDots = hintButton.transform.Find("Level dots");
                 if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too
-                IconButton(tools.transform, "Restart", GameLocalization.Text("restart"),
-                    MosseloraArt.IconRestart, () => Act(() => world.Restart(), "restart"),
-                    toolHeight, MosseloraTheme.QuietAction, false, null, teach);
+                // Restart stream lives in the menu (I109): it clears the undo history,
+                // is rarely needed, and its arrow sat beside Undo's. The board keeps
+                // only the two tools a player reaches for: Undo and Guide me.
                 if (world.HintStep > 0 && world.HintTile >= 0)
                 {
                     int hintRow = world.HintTile / puzzle.Size + 1;
