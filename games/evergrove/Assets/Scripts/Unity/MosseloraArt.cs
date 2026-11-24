@@ -752,5 +752,15 @@ namespace Evergrove.UnityClient
         }
 
         private void OnDestroy() { if (current == this) current = null; }
+
+        /// <summary>A toast points at something on the page; when the page is rebuilt
+        /// (menu, journal, next screen) that thing is gone, so the toast goes too (I104).</summary>
+        public static void Dismiss()
+        {
+            if (current == null) return;
+            current.gameObject.SetActive(false);
+            Destroy(current.gameObject);
+            current = null;
+        }
     }
 }

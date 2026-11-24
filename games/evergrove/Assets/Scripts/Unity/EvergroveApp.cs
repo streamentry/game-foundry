@@ -1901,6 +1901,7 @@ namespace Evergrove.UnityClient
         private void Rebuild(bool top = false)
         {
             rebuildGeneration++;
+            RuleToast.Dismiss();
             if (content == null) { celebrateSolve = false; return; }
             semanticsDirty = true;
             UpdateSaveWarning();
