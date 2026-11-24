@@ -1750,10 +1750,12 @@ namespace Evergrove.UnityClient
                 // Said once: the solved board already says the water flows, and
                 // the memory card already tells who remembers what.
                 bool solvedBoard = puzzleScreen && world.Solved;
-                if (!firstPuzzle && !memoryScreen && !solvedBoard)
+                // Puzzle pages show only play and the place; the story lines live
+                // on the hub, the memory screen and the ending.
+                if (!firstPuzzle && !memoryScreen && !solvedBoard && !puzzleScreen)
                     Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
                         TextAnchor.MiddleCenter);
-                if (world.Choices.Length > 0 && !memoryScreen)
+                if (world.Choices.Length > 0 && !memoryScreen && !puzzleScreen)
                     KeeperLine(content, "Remembered choice");
             }
             else
