@@ -1053,7 +1053,40 @@ namespace Evergrove.UnityClient
             Button start = IconButton(play, "Play", nextStop,
                 MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction);
             Width(start, 150);
+            HubChrome();
             titleScreen.transform.SetAsLastSibling();
+        }
+
+        // The hub wears the same two wooden buttons as the game, in the same
+        // corners: the menu (left) and, once there are memories, the book (right).
+        // Each steps off the hub straight into what it opens (I83).
+        private void HubChrome()
+        {
+            var bar = Node("Hub chrome", titleScreen.transform);
+            var rect = bar.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            rect.anchorMin = new Vector2(safe.xMin / w, safe.yMax / h);
+            rect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.sizeDelta = new Vector2(0f, 70f);
+            rect.anchoredPosition = Vector2.zero;
+            Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
+                MosseloraArt.IconMenu, () => { CloseTitle(); SetMenu(true); }, 54, MosseloraTheme.QuietAction);
+            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, -6f));
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
+            {
+                Button book = IconButton(bar.transform, "Memories", GameLocalization.Text("journal_show"),
+                    MosseloraArt.IconJournal, () => {
+                        CloseTitle();
+                        menuOpen = false;
+                        showJournal = true;
+                        Rebuild();
+                        if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
+                    }, 54, MosseloraTheme.QuietAction, false,
+                    world.Choices.Length.ToString(CultureInfo.InvariantCulture));
+                PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+            }
         }
 
         // "Rainwater" with the painted landmark your last choice planted in it:
