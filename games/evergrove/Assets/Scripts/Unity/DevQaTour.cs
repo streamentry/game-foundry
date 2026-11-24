@@ -138,7 +138,7 @@ namespace Evergrove.UnityClient
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10-journal.png");
-                    ScrollToBottom();
+                    ScrollJournalToBottom();
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10b-journal-bottom.png");
@@ -155,6 +155,16 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 4; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("11b-ending-bottom.png");
+
+            // The finished season's journal: all twelve memories, scrolled to the end (I99).
+            Press("Memories");
+            for (int f = 0; f < 4; f++) yield return null;
+            ScrollJournalToBottom();
+            for (int f = 0; f < 4; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("11c-ending-journal-bottom.png");
+            Press("Memories");
+            for (int f = 0; f < 4; f++) yield return null;
 
             // Runs B-D: a fresh world per village choice on chapter 1. Each shows
             // the consequence (04-06) and the chapter-2 board it produced (07-09).
@@ -362,6 +372,18 @@ namespace Evergrove.UnityClient
             var pageNode = GameObject.Find("Safe scroll area");
             var scroll = pageNode != null ? pageNode.GetComponent<ScrollRect>() : null;
             if (scroll == null) throw new InvalidOperationException("Scroll view missing");
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
+            scroll.StopMovement();
+            scroll.verticalNormalizedPosition = 0f;
+        }
+
+        // The journal sheet scrolls on its own; the page behind it does not move (I99).
+        private void ScrollJournalToBottom()
+        {
+            var panel = GameObject.Find("Journal panel");
+            var scroll = panel != null ? panel.GetComponent<ScrollRect>() : null;
+            if (scroll == null || scroll.content == null) throw new InvalidOperationException("Journal scroll missing");
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
             scroll.StopMovement();
