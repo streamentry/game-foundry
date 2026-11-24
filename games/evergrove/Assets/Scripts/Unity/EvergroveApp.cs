@@ -2074,8 +2074,13 @@ namespace Evergrove.UnityClient
                 ? GameLocalization.Text("solved")
                 : GameLocalization.Text("progress", insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
             WaterMeter(puzzle.CellCount, world.Solved ? puzzle.CellCount : insight.ConnectedCount);
-            feedbackText = Label(content, "Water feedback", feedback, 17, 34, Ink, TextAnchor.MiddleCenter);
-            Emphasize(feedbackText);
+            // Spoken, not shown: the droplets and the open mouths already show
+            // reach and leaks, and the protected-habitat line explains landmarks.
+            Transform meterRow = waterDrops != null ? content.GetChild(content.childCount - 1) : content;
+            feedbackText = Label(meterRow, "Water feedback", feedback, 17, 0, new Color(0f, 0f, 0f, 0f),
+                TextAnchor.MiddleCenter);
+            feedbackText.GetComponent<LayoutElement>().ignoreLayout = true;
+            Fill(feedbackText.rectTransform);
 
             if (world.Solved)
             {
