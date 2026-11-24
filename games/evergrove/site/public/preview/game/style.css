@@ -611,3 +611,10 @@ body.theme-dusk .tile {
   opacity: .55; transition: opacity 200ms ease;
 }
 .footer:hover { opacity: .9; }
+
+
+/* I45: Organic Paper Texture Canvas Vignette */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999;
+  box-shadow: inset 0 0 80px rgba(45, 60, 48, .07);
+}
