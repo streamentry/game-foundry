@@ -490,3 +490,11 @@ h1 em { font-style: italic; color: #34775c; }
   animation: butterfly-flutter 3.2s ease-in-out infinite;
   transform-origin: center;
 }
+
+
+/* I30: Warm Cottage Hearth Light */
+.creek--restored rect[fill="#A0CDD0"], .creek--restored path[fill="#A0CDD0"] {
+  fill: #fce8a6 !important;
+  filter: drop-shadow(0 0 6px rgba(250, 220, 110, .7));
+  transition: fill 1s ease, filter 1s ease;
+}
