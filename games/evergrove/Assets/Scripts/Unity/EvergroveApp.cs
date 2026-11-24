@@ -2164,7 +2164,24 @@ namespace Evergrove.UnityClient
             rowGroup.childControlHeight = true;
             rowGroup.childForceExpandWidth = true;
             rowGroup.childForceExpandHeight = false;
+            rowGroup.spacing = 8;
+            rowGroup.childForceExpandWidth = false;
+            rowGroup.childAlignment = TextAnchor.LowerCenter;
+            Sprite guide = MosseloraArt.Portrait(0); // Mira welcomes newcomers to the creek
+            if (guide != null)
+            {
+                var face = Node("Coach portrait", row.transform);
+                var faceLayout = face.AddComponent<LayoutElement>();
+                faceLayout.minWidth = faceLayout.preferredWidth = 54;
+                faceLayout.minHeight = faceLayout.preferredHeight = 54;
+                var faceImage = face.AddComponent<Image>();
+                faceImage.sprite = guide;
+                faceImage.preserveAspect = true;
+                faceImage.raycastTarget = false;
+                MosseloraArt.Lift(faceImage, 2f, 0.2f);
+            }
             var bubble = Node("Coach bubble", row.transform);
+            bubble.AddComponent<LayoutElement>().flexibleWidth = 1f;
             var fill = bubble.AddComponent<Image>();
             MosseloraArt.Round(fill, MosseloraTheme.ForestAction, 18);
             fill.raycastTarget = false;
