@@ -26,9 +26,21 @@ Build `nt-pillfix` (source `59920b3`; later commits on `main` up to `9df0bf8` ch
 | Copy the report after two tile taps | **Pass.** "Copied to clipboard." The text begins `EVERGROVE LOCAL PLAYTEST v1`. Nothing leaves the device. | [android-report-copied.png](m3-dryrun-2026-11-24/android-report-copied.png) |
 | What a participant sees by scrolling down | **Blocker B1.** See below. | [android-dev-controls-visible.png](m3-dryrun-2026-11-24/android-dev-controls-visible.png) |
 
-**Blocker B1: the playtest build reveals the hypothesis.** In the development build, the area below the board shows "PLAYTEST MODE · Choose before your first move", "Living world / Puzzle only", "Start matched control (dev)", the 2D/2.5D visual switch, the report controls and "Start return diary". Any participant may scroll on their own. The session kit forbids revealing the hypothesis ([10](../specs/10-EXPERIMENT-PROTOCOLS.md)), and a participant who taps "Puzzle only" leaves the condition under test. **Fix before any session:** a participant view that hides the experiment and developer controls while the report is running, with a facilitator-only way back, for example a long press on a fixed spot. Engineering work, testable on the emulator and Simulator. The founder does not need to decide anything.
+**Blocker B1: the playtest build revealed the hypothesis. Fixed the same day; see below.** In the development build, the area below the board showed "PLAYTEST MODE · Choose before your first move", "Living world / Puzzle only", "Start matched control (dev)", the 2D/2.5D visual switch, the report controls and "Start return diary". Any participant may scroll on their own. The session kit forbids revealing the hypothesis ([10](../specs/10-EXPERIMENT-PROTOCOLS.md)), and a participant who taps "Puzzle only" leaves the condition under test.
 
-**Gap G1: the report clock starts too early.** `first_tap_seconds` counts from the facilitator's tap on "Start an optional private playtest", not from the hand-over. Use a stopwatch started at the hand-over as the primary measure of time to first input. Record the report value as secondary, with the offset noted. A code fix (start the clock at the first touch after the report starts, or on a facilitator "hand over" tap) is optional.
+**Fix: participant view.** Tapping "Start an optional private playtest" now starts the report, hides every research and developer control, and jumps back to the top of the page. Player features stay: language, text size, board size, neighbors, the garden file, the chime and "Restart garden". **Holding the Mosselora logo for 3 seconds** brings the controls back, with the report still running. A tap or a scroll on the logo does nothing. This applies to development builds only; ordinary player builds never contain these controls. Code: `StartParticipantView` in [EvergroveApp.cs](../../Assets/Scripts/Unity/EvergroveApp.cs) and [FacilitatorHold.cs](../../Assets/Scripts/Unity/Dev/FacilitatorHold.cs).
+
+| Check (source `107f05c` plus this change) | Android emulator, API 35 | iOS Simulator |
+| --- | --- | --- |
+| Starting the report jumps to the top | Pass | Pass |
+| Below the board, only player features show | Pass: [android-participant-view-bottom.png](m3-dryrun-2026-11-24/android-participant-view-bottom.png) | Same code path; not captured separately |
+| A short tap on the logo keeps the participant view | Pass | Not tried |
+| A 3.5 s hold on the logo restores the controls; the report keeps running | Pass: [android-after-facilitator-hold.png](m3-dryrun-2026-11-24/android-after-facilitator-hold.png) | Pass: [ios-after-facilitator-hold-copied.png](m3-dryrun-2026-11-24/ios-after-facilitator-hold-copied.png) |
+| The copied report counts the participant's taps | Copy shown; clipboard not readable through adb | Pass: `rotations=2`, `first_tap_seconds=5.7`; text in [ios-report-sample.txt](m3-dryrun-2026-11-24/ios-report-sample.txt) |
+
+Checks run: C# tests (39,931 assertions), `verify_evergrove_project.py` (including the dev-control source guard), the Unity Editor smoke, the Android APK build and the iOS Simulator build. Physical phones: **not run**.
+
+**Gap G1: the report clock starts at the facilitator's tap.** `first_tap_seconds` counts from the tap on "Start an optional private playtest". The view now jumps straight to the board, so the hand-over can follow within a second or two, but the stopwatch started at hand-over stays the primary measure of time to first input. Record the report value as secondary.
 
 **Minor:** a small "Development Build" watermark shows in the bottom-right corner. It matches the "early prototype" framing, so no change is needed for M3.
 
@@ -81,7 +93,7 @@ Report raw counts per band, not percentages. Record the median time to first inp
 
 | Step | Who | Done when | Blocks |
 | --- | --- | --- | --- |
-| 1. Fix B1 (participant view) and optionally G1; rebuild; dry-run again on the emulator and Simulator | Agent | New screenshots show no experiment or developer controls in participant view; report still copies | Step 4 |
+| 1. ~~Fix B1 (participant view); rebuild; dry-run again on the emulator and Simulator~~ **Done 2026-11-24** (section 2) | Agent | New screenshots show no experiment or developer controls in participant view; report still copies | — |
 | 2. Get two phones. Compact iPhone, iOS 15 or later, 375×667-point screen class (for example iPhone SE 2nd or 3rd generation). Compact Android, Android 8.0 (API 26) or later, about 360 dp wide. | Founder (buy or borrow) | Both phones are at the desk | Step 3 |
 | 3. M2 device gate: one source SHA, install on both phones, run [12 §4](../specs/12-M1-M2-EXECUTION-CHECKLIST.md) and repeat the section 2 dry run on each | Agent, once the phones are connected (iPhone needs development signing) | SHA and artifact hashes recorded; zero open S0/S1 | Step 6 |
 | 4. Accept or change section 3; log it | Founder (about 30 minutes) | Dated decision-log entry | Step 5 |
@@ -97,7 +109,7 @@ Steps 1, 2 and 4 can run at the same time. Sessions can be spread over 2 or 3 da
 
 1. Clear the app's storage (Android: Settings → Apps → Mosselora → Storage → Clear storage; iPhone: delete and reinstall the same build). Note the reset on the sheet.
 2. Open the app and confirm Stream 1, "First Bend", is showing. Confirm the text size is at the default and note it.
-3. Scroll down, tap "Start an optional private playtest", and scroll back to the top. (After B1 is fixed, follow the participant-view step instead.)
+3. Scroll down and tap "Start an optional private playtest". The app jumps to the board and hides the research controls. Scroll down once to check that only player settings show.
 4. Fill in the sheet header: code, band, device, build SHA, time.
 
 **During the session**
@@ -108,7 +120,7 @@ Steps 1, 2 and 4 can run at the same time. Sessions can be spread over 2 or 3 da
 
 **After the session**
 
-8. Copy the report and paste it into the private sheet, not into the repository.
+8. Hold the Mosselora logo for 3 seconds, scroll down, tap "Copy my local playtest notes" and paste the text into the private sheet, not into the repository.
 9. Tap "Stop and erase local notes", then clear storage again.
 10. Write up the observation sheet the same day. Update the tracking table.
 

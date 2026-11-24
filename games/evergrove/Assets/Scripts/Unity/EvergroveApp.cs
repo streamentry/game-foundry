@@ -62,6 +62,9 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private LocalPlaytest localPlaytest; // opt-in, in-memory only
         private bool playtestCopied;
+        // M3 participant view: research and developer controls hidden while a
+        // local report runs. Holding the wordmark brings them back.
+        private bool participantView;
         // Opt-in return diary (local dates only). PlayerPrefs, separate from the garden save.
         private const string ReturnDiaryKey = "evergrove:return-diary";
         private ReturnDiary returnDiary = new ReturnDiary();
@@ -645,6 +648,13 @@ namespace Evergrove.UnityClient
                 Text plain = Label(content, "Mosselora wordmark", GameLocalization.Text("title"),
                     15, 26, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(plain);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (participantView)
+                {
+                    plain.raycastTarget = true;
+                    plain.gameObject.AddComponent<FacilitatorHold>().Held = EndParticipantView;
+                }
+#endif
                 return;
             }
             float markHeight = compact ? 52f : 64f;
@@ -663,6 +673,13 @@ namespace Evergrove.UnityClient
                 new Vector2(0f, 1f), new Vector2(vineSize, vineSize), new Vector2(-17f, 15f));
             MosseloraArt.Ornament(header.transform, "Vine right", vine, new Vector2(1f, 1f),
                 new Vector2(0f, 1f), new Vector2(vineSize, vineSize), new Vector2(17f, 15f), true);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (participantView)
+            {
+                markImage.raycastTarget = true;
+                header.AddComponent<FacilitatorHold>().Held = EndParticipantView;
+            }
+#endif
         }
 
         // Centered sage pill, e.g. "STREAM 1 / 12 · First Bend".
@@ -1002,70 +1019,7 @@ namespace Evergrove.UnityClient
             }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // Research-only controls compile only in the Editor or explicitly
-            // opted-in Development Builds, never in ordinary player builds.
-            // A mode comparison requires matched puzzle fixtures before any
-            // research result can be used as evidence of narrative value.
-            if (world.CanSwitchMode)
-            {
-                Label(content, "Comparison hint",
-                    GameLocalization.Text("playtest"), 11, 21, Moss);
-                var modes = Row(content, "Comparison modes");
-                Button(modes.transform, "Living mode", GameLocalization.Text("living"), () => SwitchMode(PlayMode.Living),
-                    52, living);
-                Button(modes.transform, "Puzzle control", GameLocalization.Text("puzzle"), () => SwitchMode(PlayMode.PuzzleOnly),
-                    52, !living);
-            }
-
-            // Matched M4 control: facilitator-only. Its strings are English
-            // literals by design (the 81-key player catalog would need 30
-            // unreviewed translations for dev-only UI). Nothing here compiles
-            // into a player build, and the entry is hidden while an unreadable
-            // save blocks writes so an unreadable save cannot be silently replaced.
-            if (living && world.Choices.Length >= WorldModel.ScheduleLength)
-            {
-                Button(content, "Copy matched schedule", "Copy this Living run's schedule", CopyLivingSchedule, 46);
-                if (matchedScheduleCopied)
-                    Label(content, "Schedule copied", "Copied privately", 12, 43, Moss, TextAnchor.MiddleCenter);
-            }
-            if (!WorldStore.RecoveryBlocked)
-            {
-                Button(content, "Matched control entry",
-                    matchedEntryOpen ? "Close matched control" : "Start matched control (dev)",
-                    () => {
-                        matchedEntryOpen = !matchedEntryOpen;
-                        confirmMatchedReplace = false;
-                        pendingMatchedSchedule = null;
-                        matchedError = "";
-                        Rebuild();
-                    }, 46);
-                if (matchedEntryOpen) BuildMatchedEntry();
-            }
-
-            // Puzzle-only condition must not display or switch into the
-            // changing village art: doing so would confound the experiment.
-            if (living)
-            {
-                // Two comparable art renderers using the same saved decisions.
-                // Keep this manual A/B surface below the gameplay.
-                Button(content, "Diorama visual comparison",
-                    GameLocalization.Text(showMiniature ? "art_3d" : "art_2d"), () => {
-                        showMiniature = !showMiniature;
-                        if (localPlaytest != null) localPlaytest.ChangeVisual(showMiniature, Time.unscaledTime);
-                        PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
-                        PlayerPrefs.Save();
-                        Rebuild();
-                    }, 49);
-                if (showMiniature)
-                    Button(content, "Optional miniature motion",
-                        GameLocalization.Text(animateMiniature ? "motion_on" : "motion_off"), () => {
-                            animateMiniature = !animateMiniature;
-                            PlayerPrefs.SetInt(ReducedMotionKey, animateMiniature ? 1 : 0);
-                            PlayerPrefs.Save();
-                            Rebuild();
-                        }, 45);
-            }
-
+            if (!participantView) BuildResearchControls(living);
 #endif
             BuildGardenFileSection();
             Button(content, "Quiet audio setting",
@@ -1091,72 +1045,7 @@ namespace Evergrove.UnityClient
                     }, 44);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (localPlaytest == null)
-            {
-                Button(content, "Playtest consent", GameLocalization.Text("record"),
-                    () => {
-                        localPlaytest = new LocalPlaytest(world.Mode, showMiniature,
-                            world.Round, Time.unscaledTime);
-                        playtestCopied = false;
-                        Rebuild();
-                    }, 44);
-                Label(content, "No tracking by default",
-                    GameLocalization.Text("privacy"),
-                    12, 43, Moss, TextAnchor.MiddleCenter);
-            }
-            else
-            {
-                Button(content, "Copy playtest", GameLocalization.Text("copy"),
-                    () => {
-                        GUIUtility.systemCopyBuffer = localPlaytest.Report(Time.unscaledTime);
-                        playtestCopied = true;
-                        Rebuild();
-                    }, 48);
-                if (playtestCopied)
-                    Label(content, "Copied privately",
-                        GameLocalization.Text("copied"),
-                        12, 43, Moss, TextAnchor.MiddleCenter);
-                Button(content, "Stop playtest", GameLocalization.Text("clear"),
-                    () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
-            }
-            // Return diary: explicit two-step consent; dates only; copy or delete in one action.
-            Label(content, "Return diary", returnDiary.Consented
-                ? returnDiary.Days.Count + " local dates recorded on this device"
-                : "not recording", 12, 43, Moss, TextAnchor.MiddleCenter);
-            if (!returnDiary.Consented && !returnDiaryAsked)
-            {
-                Button(content, "Return diary consent", "Start return diary",
-                    () => { returnDiaryAsked = true; Rebuild(); }, 44);
-            }
-            else if (!returnDiary.Consented)
-            {
-                Label(content, "Consent",
-                    "Records only the local dates this app is opened on this device. Nothing is uploaded. Delete any time.",
-                    12, 43, Moss, TextAnchor.MiddleCenter);
-                Button(content, "Agree and record dates", "Agree and record dates",
-                    () => {
-                        returnDiary.GrantConsent(DateTime.Now.Date);
-                        SaveReturnDiary();
-                        returnDiaryAsked = false;
-                        Rebuild();
-                    }, 44);
-                Button(content, "Not now", "Not now",
-                    () => { returnDiaryAsked = false; Rebuild(); }, 43);
-            }
-            else
-            {
-                Button(content, "Copy return diary", "Copy return diary",
-                    () => {
-                        GUIUtility.systemCopyBuffer = returnDiary.Export(DateTime.Now.Date);
-                        returnDiaryCopied = true;
-                        Rebuild();
-                    }, 48);
-                if (returnDiaryCopied)
-                    Label(content, "Copied privately", "Copied privately",
-                        12, 43, Moss, TextAnchor.MiddleCenter);
-                Button(content, "Delete return diary", "Delete return diary",
-                    () => { ClearReturnDiary(); Rebuild(); }, 43);
-            }
+            if (!participantView) BuildLocalStudyControls();
 #endif
             Sprig();
             Text promise = Label(content, "Respectful play", GameLocalization.Text("offline"),
@@ -1580,6 +1469,159 @@ namespace Evergrove.UnityClient
             languagePicker = false;
             Rebuild(true);
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // Research-only controls compile only in the Editor or explicitly
+        // opted-in Development Builds, never in ordinary player builds.
+        // Hidden in the M3 participant view so the study does not reveal its hypothesis.
+        private void BuildResearchControls(bool living)
+        {
+            // A mode comparison requires matched puzzle fixtures before any
+            // research result can be used as evidence of narrative value.
+            if (world.CanSwitchMode)
+            {
+                Label(content, "Comparison hint",
+                    GameLocalization.Text("playtest"), 11, 21, Moss);
+                var modes = Row(content, "Comparison modes");
+                Button(modes.transform, "Living mode", GameLocalization.Text("living"), () => SwitchMode(PlayMode.Living),
+                    52, living);
+                Button(modes.transform, "Puzzle control", GameLocalization.Text("puzzle"), () => SwitchMode(PlayMode.PuzzleOnly),
+                    52, !living);
+            }
+
+            // Matched M4 control: facilitator-only. Its strings are English
+            // literals by design (the 81-key player catalog would need 30
+            // unreviewed translations for dev-only UI). Nothing here compiles
+            // into a player build, and the entry is hidden while an unreadable
+            // save blocks writes so an unreadable save cannot be silently replaced.
+            if (living && world.Choices.Length >= WorldModel.ScheduleLength)
+            {
+                Button(content, "Copy matched schedule", "Copy this Living run's schedule", CopyLivingSchedule, 46);
+                if (matchedScheduleCopied)
+                    Label(content, "Schedule copied", "Copied privately", 12, 43, Moss, TextAnchor.MiddleCenter);
+            }
+            if (!WorldStore.RecoveryBlocked)
+            {
+                Button(content, "Matched control entry",
+                    matchedEntryOpen ? "Close matched control" : "Start matched control (dev)",
+                    () => {
+                        matchedEntryOpen = !matchedEntryOpen;
+                        confirmMatchedReplace = false;
+                        pendingMatchedSchedule = null;
+                        matchedError = "";
+                        Rebuild();
+                    }, 46);
+                if (matchedEntryOpen) BuildMatchedEntry();
+            }
+
+            // Puzzle-only condition must not display or switch into the
+            // changing village art: doing so would confound the experiment.
+            if (living)
+            {
+                // Two comparable art renderers using the same saved decisions.
+                // Keep this manual A/B surface below the gameplay.
+                Button(content, "Diorama visual comparison",
+                    GameLocalization.Text(showMiniature ? "art_3d" : "art_2d"), () => {
+                        showMiniature = !showMiniature;
+                        if (localPlaytest != null) localPlaytest.ChangeVisual(showMiniature, Time.unscaledTime);
+                        PlayerPrefs.SetInt("evergrove:visual-miniature", showMiniature ? 1 : 0);
+                        PlayerPrefs.Save();
+                        Rebuild();
+                    }, 49);
+                if (showMiniature)
+                    Button(content, "Optional miniature motion",
+                        GameLocalization.Text(animateMiniature ? "motion_on" : "motion_off"), () => {
+                            animateMiniature = !animateMiniature;
+                            PlayerPrefs.SetInt(ReducedMotionKey, animateMiniature ? 1 : 0);
+                            PlayerPrefs.Save();
+                            Rebuild();
+                        }, 45);
+            }
+        }
+
+        // Local playtest report and return diary (facilitator-only, opt-in).
+        private void BuildLocalStudyControls()
+        {
+            if (localPlaytest == null)
+            {
+                Button(content, "Playtest consent", GameLocalization.Text("record"),
+                    StartParticipantView, 44);
+                Label(content, "No tracking by default",
+                    GameLocalization.Text("privacy"),
+                    12, 43, Moss, TextAnchor.MiddleCenter);
+            }
+            else
+            {
+                Button(content, "Copy playtest", GameLocalization.Text("copy"),
+                    () => {
+                        GUIUtility.systemCopyBuffer = localPlaytest.Report(Time.unscaledTime);
+                        playtestCopied = true;
+                        Rebuild();
+                    }, 48);
+                if (playtestCopied)
+                    Label(content, "Copied privately",
+                        GameLocalization.Text("copied"),
+                        12, 43, Moss, TextAnchor.MiddleCenter);
+                Button(content, "Stop playtest", GameLocalization.Text("clear"),
+                    () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
+            }
+            // Return diary: explicit two-step consent; dates only; copy or delete in one action.
+            Label(content, "Return diary", returnDiary.Consented
+                ? returnDiary.Days.Count + " local dates recorded on this device"
+                : "not recording", 12, 43, Moss, TextAnchor.MiddleCenter);
+            if (!returnDiary.Consented && !returnDiaryAsked)
+            {
+                Button(content, "Return diary consent", "Start return diary",
+                    () => { returnDiaryAsked = true; Rebuild(); }, 44);
+            }
+            else if (!returnDiary.Consented)
+            {
+                Label(content, "Consent",
+                    "Records only the local dates this app is opened on this device. Nothing is uploaded. Delete any time.",
+                    12, 43, Moss, TextAnchor.MiddleCenter);
+                Button(content, "Agree and record dates", "Agree and record dates",
+                    () => {
+                        returnDiary.GrantConsent(DateTime.Now.Date);
+                        SaveReturnDiary();
+                        returnDiaryAsked = false;
+                        Rebuild();
+                    }, 44);
+                Button(content, "Not now", "Not now",
+                    () => { returnDiaryAsked = false; Rebuild(); }, 43);
+            }
+            else
+            {
+                Button(content, "Copy return diary", "Copy return diary",
+                    () => {
+                        GUIUtility.systemCopyBuffer = returnDiary.Export(DateTime.Now.Date);
+                        returnDiaryCopied = true;
+                        Rebuild();
+                    }, 48);
+                if (returnDiaryCopied)
+                    Label(content, "Copied privately", "Copied privately",
+                        12, 43, Moss, TextAnchor.MiddleCenter);
+                Button(content, "Delete return diary", "Delete return diary",
+                    () => { ClearReturnDiary(); Rebuild(); }, 43);
+            }
+        }
+
+        // M3 participant view: starting the local report hides every research
+        // and developer control and returns to the top of the page. Holding the
+        // wordmark for FacilitatorHold.HoldSeconds brings the controls back.
+        private void StartParticipantView()
+        {
+            localPlaytest = new LocalPlaytest(world.Mode, showMiniature, world.Round, Time.unscaledTime);
+            playtestCopied = false;
+            participantView = true;
+            Rebuild(true);
+        }
+
+        private void EndParticipantView()
+        {
+            participantView = false;
+            Rebuild();
+        }
+#endif
 
         private void OpenConversation(int villagerIndex)
         {
