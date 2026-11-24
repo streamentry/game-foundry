@@ -245,3 +245,13 @@ h1 em { font-style: italic; color: #34775c; }
   50% { transform: translateY(-2px); }
 }
 .water-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #226456; font-weight: 700; }
+
+
+/* I06: Pictographic Legend Ribbon */
+.puzzle-guide {
+  background: #f4f7f2; border: 1px solid #dce5da; border-radius: 14px;
+  padding: 8px 14px; display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.02);
+}
+.legend-icon { filter: drop-shadow(0 1px 2px rgba(45, 135, 152, .3)); }
+.guide-tip { font-style: italic; color: #436b58; font-size: 11px; }
