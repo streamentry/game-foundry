@@ -341,3 +341,15 @@ h1 em { font-style: italic; color: #34775c; }
   stroke-dasharray: 20 6;
   animation: water-current 1.4s linear infinite;
 }
+
+
+/* I17: Watercolor Droplet Particle Bursts */
+.particle-splash {
+  position: absolute; pointer-events: none; width: 8px; height: 8px;
+  border-radius: 50%; background: #45b0c0; z-index: 10;
+  animation: particle-burst 450ms ease-out forwards;
+}
+@keyframes particle-burst {
+  0% { transform: translate(0, 0) scale(1); opacity: .9; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}

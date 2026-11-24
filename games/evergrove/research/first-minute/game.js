@@ -197,7 +197,7 @@
       if (!model.rotate(i)) return;
       button.classList.remove("tile--turned");
       void button.offsetWidth;
-      button.classList.add("tile--turned");
+      button.classList.add("tile--turned"); spawnSplash(button);
       if (firstTurn === null) firstTurn = performance.now() - origin;
       totalRotations++;
       render();
@@ -429,6 +429,25 @@
     filter.connect(gain);
     gain.connect(ctx.destination);
     noise.start();
+  }
+
+  
+  // I17: Water splash particle burst
+  function spawnSplash(el) {
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    for (let i = 0; i < 4; i++) {
+      const p = document.createElement("span");
+      p.className = "particle-splash";
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 16 + Math.random() * 20;
+      p.style.setProperty("--dx", (Math.cos(angle) * dist) + "px");
+      p.style.setProperty("--dy", (Math.sin(angle) * dist) + "px");
+      p.style.left = (rect.width / 2) + "px";
+      p.style.top = (rect.height / 2) + "px";
+      el.appendChild(p);
+      setTimeout(() => p.remove(), 480);
+    }
   }
 
   function playStoneChime(freq = 440) {
