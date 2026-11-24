@@ -2303,6 +2303,11 @@ namespace Evergrove.UnityClient
                 pictureImage.sprite = icon;
                 pictureImage.preserveAspect = true;
                 pictureImage.raycastTarget = false;
+                // Who will remember this: the neighbor who cares for it.
+                Sprite keeper = MosseloraArt.Portrait((int)choice);
+                if (keeper != null)
+                    MosseloraArt.Ornament(picture.transform, "Who will remember", keeper, new Vector2(1f, 0f),
+                        new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(4f, -6f));
             }
             Text title = Label(node.transform, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink,
                 TextAnchor.UpperCenter);
