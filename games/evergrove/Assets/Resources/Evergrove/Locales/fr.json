@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menu"
+    },
+    {
+      "key": "close",
+      "value": "Fermer"
+    },
+    {
+      "key": "text_size",
+      "value": "Taille du texte"
+    },
+    {
+      "key": "board_size",
+      "value": "Plateau plus grand"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Animations douces"
+    },
+    {
+      "key": "postcard",
+      "value": "Copier la carte postale du jardin"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Carte postale copiée. Collez-la dans un message pour partager votre jardin."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Votre arbre prend des teintes dorées. Il perdra ses feuilles et reverdira."
+    },
+    {
+      "key": "mira_winter",
+      "value": "La neige repose sur les branches de votre arbre. Il dort, il n'est pas parti."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Les feuilles dérivent maintenant sous le pont. Il tient encore, planche après planche."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Je garde le pont dégagé de neige. Les gens le traversent toujours chaque jour."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Vos fleurs sauvages montent en graines. La berge sera plus fournie au printemps."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Les parterres dorment sous la neige. Les graines sont en sécurité dans la terre."
+    },
+    {
+      "key": "has_news",
+      "value": "A quelque chose de nouveau à dire"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira se repose à l’ombre de vos arbres."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira compte vos arbres le long de la berge."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin traverse vos ponts chaque matin."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin veille à ce que vos passages restent en bon état."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen récolte des graines de vos fleurs sauvages."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen suit les abeilles parmi vos fleurs sauvages."
     }
   ]
 }

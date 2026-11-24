@@ -119,7 +119,7 @@ The [Mosselora Cloudflare Worker backend](backend/README.md) is a separate proto
 
 ## What is still unknown
 
-Editor compilation, screen-reader behavior, device safe areas, iOS/Android signing, app-store title/trademark clearance, 45+ audience suitability, voluntary D1/D7 return, measurable acquisition and monetization remain **unverified**. No authored game can be called “insanely great” without observing whether real people voluntarily return.
+Editor compilation, screen-reader behavior, device safe areas, iOS/Android signing, app-store title/trademark clearance, 40+ audience suitability, voluntary D1/D7 return, measurable acquisition and monetization remain **unverified**. No authored game can be called “insanely great” without observing whether real people voluntarily return.
 
 **Next non-negotiable test:** Build with actual Unity on a real phone; recruit 20–30 relevant adults for unprompted observation. Isolate the story, branch mechanics and 2D/2.5D visual effects in different tests. See [validation](docs/VALIDATION.md) and [QA](docs/BUILD_AND_QA.md).
 

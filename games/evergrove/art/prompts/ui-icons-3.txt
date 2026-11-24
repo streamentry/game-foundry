@@ -1,0 +1,11 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached icon sheet is the EXISTING icon family: match its style exactly (solid black single-colour glyphs, bold rounded strokes about 9% of icon size, rounded caps and joins, flat, friendly). Generate exactly ONE image.
+Use case: logo-brand
+Asset type: four more UI icons for the same family, sliced from a 2x2 grid
+Primary request: 2x2 grid, each icon centred in its own equal square cell, ~62% of the cell, generous margins, no grid lines:
+ top-left: MENU — three short horizontal rounded bars stacked, the middle one slightly shorter, with a tiny leaf sprouting from the right end of the top bar;
+ top-right: SETTINGS — a rounded gear with six soft teeth and a round hole;
+ bottom-left: NEIGHBORS — two friendly head-and-shoulders silhouettes side by side, the right one slightly behind;
+ bottom-right: HOME — a small cottage outline with a pitched roof, a door and a chimney.
+Background: fully TRANSPARENT (alpha). Square 1024x1024.
+Constraints: no text, no letters, no numbers, no watermark.
+Copy the final PNG to games/evergrove/art/generated/icons-ui-3.png and print the path. Do nothing else.

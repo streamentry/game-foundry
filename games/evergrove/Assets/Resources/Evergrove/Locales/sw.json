@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menyu"
+    },
+    {
+      "key": "close",
+      "value": "Funga"
+    },
+    {
+      "key": "text_size",
+      "value": "Ukubwa wa maandishi"
+    },
+    {
+      "key": "board_size",
+      "value": "Ubao mkubwa zaidi"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Mwendo mwepesi"
+    },
+    {
+      "key": "postcard",
+      "value": "Nakili kadi ya bustani"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Kadi imenakiliwa. Ibandike kwenye ujumbe ili kushiriki bustani yako."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Mti wako unageuka dhahabu. Utapoteza majani na kisha utarudi ukiwa wa kijani zaidi."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Theluji imetulia kwenye matawi ya mti wako. Unalala tu, haujaondoka."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Majani sasa yanaelea chini ya daraja. Bado linasimama, ubao baada ya ubao."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Ninaliweka daraja bila theluji. Watu bado wanalivuka kila siku."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Maua yako ya porini yanatoa mbegu. Ukingo wa mto utajaa zaidi msimu ujao wa masika."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Vitanda vya maua vinalala chini ya theluji. Mbegu ziko salama ardhini."
+    },
+    {
+      "key": "has_news",
+      "value": "Ana jambo jipya la kusema"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira anapumzika kwenye kivuli cha miti yako."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira anahesabu miti yako kando ya ukingo wa mto."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin hupita kwenye madaraja yako kila asubuhi."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin anatunza vivuko vyako vikiwa katika hali nzuri."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen hukusanya mbegu kutoka kwenye maua yako ya porini."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen hufuata nyuki kati ya maua yako ya porini."
     }
   ]
 }

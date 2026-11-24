@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Meny"
+    },
+    {
+      "key": "close",
+      "value": "Stäng"
+    },
+    {
+      "key": "text_size",
+      "value": "Textstorlek"
+    },
+    {
+      "key": "board_size",
+      "value": "Större bräde"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Mjuka animationer"
+    },
+    {
+      "key": "postcard",
+      "value": "Kopiera trädgårdspostkortet"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Postkortet kopierades. Klistra in det i ett meddelande för att dela din trädgård."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Ditt träd blir gyllene. Det tappar sina löv och kommer tillbaka grönare."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Snön vilar på grenarna på ditt träd. Det sover, det är inte borta."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Löv driver nu under bron. Den håller fortfarande, planka för planka."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Jag håller bron fri från snö. Folk går fortfarande över den varje dag."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Dina vildblommor sätter frö. Strandkanten blir fylligare nästa vår."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Blomrabatterna sover under snön. Fröna är trygga i jorden."
+    },
+    {
+      "key": "has_news",
+      "value": "Har något nytt att säga"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira vilar i skuggan av dina träd."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira räknar dina träd längs stranden."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin går över dina broar varje morgon."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin håller dina övergångar i gott skick."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen samlar frön från dina vildblommor."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen följer bina bland dina vildblommor."
     }
   ]
 }

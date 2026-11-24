@@ -1,0 +1,7 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING village painting: match its watercolor storybook style, light and the exact character design: Orin, a man about 68 with a short white beard, flat cap, olive waistcoat over a cream shirt. Generate exactly ONE image.
+Use case: illustration-story
+Asset type: small memory vignette shown on a card in a calm village garden game, right after the player chose to help
+Primary request: Orin fitting the last wooden plank onto a small footbridge over the stream, a mallet in hand, a few planks stacked nearby by the restored clear stream, soft morning light, gentle and dignified, a quiet moment of care (not a pose for the camera). Capable adult, natural proportions, not a caricature.
+Composition: landscape 3:2 (e.g. 1536x1024), subject slightly off-centre; the edges fade softly into plain cream #FBF7EC on all four sides like a painted vignette (no hard border).
+Constraints: no text, no logo, no watermark, no frame.
+Copy the final PNG to games/evergrove/art/generated/vignette-bridge.png and print the path. Do nothing else.

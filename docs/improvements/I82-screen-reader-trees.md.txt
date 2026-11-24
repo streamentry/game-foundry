@@ -1,0 +1,66 @@
+```text
+# b57 hub (before): the hidden board leaks into the hub's tree
+MOSSELORA_SR_NODES 28 
+StaticText: MOSSELORA 
+Header: A living garden that remembers. 
+StaticText: First Bend 
+StaticText: STREAM 1 / 12 
+StaticText: Blue waves = spring · green sprout = garden. Tap to connect water. 
+Button: Row 1, column 1: corner pipe, connected to water. [hint: Tap to turn a pipe. Circl
+Button: Row 1, column 2: straight pipe, connected to water. [hint: Tap to turn a pipe. Cir
+Button: Row 1, column 3: water spring, connected to water. [hint: Tap to turn a pipe. Circ
+Button: Row 2, column 1: straight pipe, connected to water. [hint: Tap to turn a pipe. Cir
+Button: Row 2, column 2: garden outlet, dry. [hint: Tap to turn a pipe. Circles mark open 
+Button: Row 2, column 3: corner pipe, dry. [hint: Tap to turn a pipe. Circles mark open en
+Button: Row 3, column 1: corner pipe, dry. [hint: Tap to turn a pipe. Circles mark open en
+Button: Row 3, column 2: straight pipe, dry. [hint: Tap to turn a pipe. Circles mark open 
+Button: Row 3, column 3: corner pipe, dry. [hint: Tap to turn a pipe. Circles mark open en
+StaticText: Water reaches 4/9 tiles · 10 open joins 
+Button: Undo 
+Button: Guide me 
+Button: Restart stream 
+Button: Mira 
+Button: Orin 
+Button: Fen 
+Button: Menu 
+Button: Mira. Has something new to say 
+Button: Orin. Has something new to say 
+Button: Fen. Has something new to say 
+Header: A living garden that remembers. 
+StaticText: First Bend 
+Button: First Bend
+
+# b58 hub (after): only the hub
+MOSSELORA_SR_NODES 6 
+Button: Mira. Has something new to say 
+Button: Orin. Has something new to say 
+Button: Fen. Has something new to say 
+Header: A living garden that remembers. 
+StaticText: First Bend 
+Button: First Bend
+
+# b58 after Play: the board
+MOSSELORA_SR_NODES 22 
+StaticText: MOSSELORA 
+Header: A living garden that remembers. 
+StaticText: First Bend 
+StaticText: STREAM 1 / 12 
+StaticText: Blue waves = spring · green sprout = garden. Tap to connect water. 
+Button: Row 1, column 1: corner pipe, connected to water. [hint: Tap to turn a pipe. Circl
+Button: Row 1, column 2: straight pipe, connected to water. [hint: Tap to turn a pipe. Cir
+Button: Row 1, column 3: water spring, connected to water. [hint: Tap to turn a pipe. Circ
+Button: Row 2, column 1: straight pipe, connected to water. [hint: Tap to turn a pipe. Cir
+Button: Row 2, column 2: garden outlet, dry. [hint: Tap to turn a pipe. Circles mark open 
+Button: Row 2, column 3: corner pipe, dry. [hint: Tap to turn a pipe. Circles mark open en
+Button: Row 3, column 1: corner pipe, dry. [hint: Tap to turn a pipe. Circles mark open en
+Button: Row 3, column 2: straight pipe, dry. [hint: Tap to turn a pipe. Circles mark open 
+Button: Row 3, column 3: corner pipe, dry. [hint: Tap to turn a pipe. Circles mark open en
+StaticText: Water reaches 4/9 tiles · 10 open joins 
+Button: Undo 
+Button: Guide me 
+Button: Restart stream 
+Button: Mira 
+Button: Orin 
+Button: Fen 
+Button: Menu
+```

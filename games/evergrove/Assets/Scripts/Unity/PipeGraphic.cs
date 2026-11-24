@@ -12,14 +12,48 @@ namespace Evergrove.UnityClient
         private bool completed;
         private bool hasWater;
 
-        public void Configure(PipeKind pipeKind, int rotation, bool sourceConnected, bool solved)
+        /// <summary>Set from the gentle-motion setting; false snaps every turn.</summary>
+        public static bool Animate = true;
+        private bool configured;
+        private float spin;            // remaining visual offset in degrees, eases to 0
+        private const float SpinSpeed = 22f;
+
+        private int openPorts; // bit d set: the port facing direction d has no partner
+
+        public void Configure(PipeKind pipeKind, int rotation, bool sourceConnected, bool solved,
+                              int unmatchedPorts = 0)
         {
+            openPorts = unmatchedPorts;
+            // A single quarter turn (tap or undo) swings into place instead of
+            // snapping, so the player sees which way the channel moved. The mesh
+            // is already in its final orientation; only the transform eases.
+            if (configured && Animate && pipeKind == kind && rotation != orientation)
+            {
+                int step = ((rotation - orientation) % 4 + 4) % 4;
+                if (step == 1) spin = 90f;        // clockwise turn: start a quarter back
+                else if (step == 3) spin = -90f;  // undo: counter-clockwise
+                else
+                {
+                    // Restart or larger jumps snap, including mid-swing.
+                    spin = 0f;
+                    rectTransform.localRotation = Quaternion.identity;
+                }
+            }
+            configured = true;
             kind = pipeKind;
             orientation = rotation;
             completed = solved;
             hasWater = sourceConnected || solved;
             raycastTarget = false;
             SetVerticesDirty();
+        }
+
+        private void Update()
+        {
+            if (spin == 0f) return;
+            spin = Mathf.Abs(spin) < 0.5f ? 0f
+                : Mathf.Lerp(spin, 0f, 1f - Mathf.Exp(-SpinSpeed * Time.unscaledDeltaTime));
+            rectTransform.localRotation = Quaternion.Euler(0f, 0f, spin);
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)
@@ -53,6 +87,11 @@ namespace Evergrove.UnityClient
                 Vector2 along = Dir(direction);
                 Vector2 across = new Vector2(along.y, -along.x);
                 AddBar(vh, along, across, 0f, half, stroke, outer);
+                // Painted tube shading: a soft light edge on the upper/left side
+                // of each arm, so pipes read as rounded copper or glazed clay.
+                Vector2 lit = (across.y > 0f || across.x < 0f) ? across : -across;
+                Color32 shine = new Color32(255, 255, 255, 70);
+                AddBar(vh, along, across, 0f, half * 0.92f, stroke * 0.16f, shine, lit * stroke * 0.30f);
                 if (hasWater)
                     AddBar(vh, along, across, 0f, half * 0.90f, flowWidth, inner);
                 else
@@ -60,6 +99,15 @@ namespace Evergrove.UnityClient
                 AddBar(vh, along, across, half - collarLength, half, collarWidth, collar);
                 AddBar(vh, along, across, half - collarLength * 0.62f, half - collarLength * 0.38f,
                     collarWidth, inner);
+                if ((openPorts & (1 << direction)) != 0)
+                {
+                    // An open mouth where water would spill: a cream disc in a
+                    // dark collar, drawn on the pipe end itself ("circles mark
+                    // open ends"), not in a tile corner.
+                    Vector2 mouth = along * (half - collarLength * 0.5f);
+                    AddDisc(vh, stroke * 0.66f, collar, mouth);
+                    AddDisc(vh, stroke * 0.42f, new Color32(255, 246, 226, 255), mouth);
+                }
             }
             // Rounded heart where channels meet: a water-worn stone, not a
             // square plumbing junction. Keep true connectivity as the only
@@ -84,9 +132,15 @@ namespace Evergrove.UnityClient
         private static void AddBar(VertexHelper vh, Vector2 along, Vector2 across,
                                    float from, float to, float width, Color32 shade)
         {
+            AddBar(vh, along, across, from, to, width, shade, Vector2.zero);
+        }
+
+        private static void AddBar(VertexHelper vh, Vector2 along, Vector2 across,
+                                   float from, float to, float width, Color32 shade, Vector2 shift)
+        {
             Vector2 side = across * (width / 2f);
-            Vector2 a = along * from;
-            Vector2 b = along * to;
+            Vector2 a = along * from + shift;
+            Vector2 b = along * to + shift;
             int offset = vh.currentVertCount;
             vh.AddVert(a - side, shade, Vector2.zero);
             vh.AddVert(b - side, shade, Vector2.up);
@@ -113,14 +167,19 @@ namespace Evergrove.UnityClient
 
         private static void AddDisc(VertexHelper vh, float radius, Color32 shade)
         {
-            const int segments = 16;
+            AddDisc(vh, radius, shade, Vector2.zero);
+        }
+
+        private static void AddDisc(VertexHelper vh, float radius, Color32 shade, Vector2 centre)
+        {
+            const int segments = 20;
             int start = vh.currentVertCount;
-            vh.AddVert(Vector3.zero, shade, Vector2.zero);
+            vh.AddVert(centre, shade, Vector2.zero);
             for (int i = 0; i < segments; i++)
             {
                 float angle = 2f * Mathf.PI * i / segments;
-                vh.AddVert(new Vector3(radius * Mathf.Cos(angle),
-                    radius * Mathf.Sin(angle), 0f), shade, Vector2.zero);
+                vh.AddVert(new Vector3(centre.x + radius * Mathf.Cos(angle),
+                    centre.y + radius * Mathf.Sin(angle), 0f), shade, Vector2.zero);
             }
             for (int i = 0; i < segments; i++)
                 vh.AddTriangle(start, start + 1 + i, start + 1 + (i + 1) % segments);

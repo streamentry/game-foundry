@@ -10,17 +10,6 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal static class MosseloraTheme
     {
-        public const string GlyphUndo = "↶";
-        public const string GlyphHint = "💧";
-        public const string GlyphRestart = "↺";
-        public const string GlyphMenu = "☰";
-        public const string GlyphClose = "✕";
-        public const string CameoMira = "🧶";
-        public const string CameoOrin = "🌾";
-        public const string CameoFen = "🌿";
-        public const string GlyphSoundOn = "🔊";
-        public const string GlyphSoundOff = "🔇";
-        public const string GlyphJournal = "📖";
         public static readonly Color Paper = Hex("#F9F2E3");
         public static readonly Color Ink = Hex("#183E34");
         public static readonly Color SecondaryInk = Hex("#49645A");
@@ -66,10 +55,9 @@ namespace Evergrove.UnityClient
         public static Color TileFill(bool solved, bool reached, bool anchored,
                                      int hintStep, int hintTile, int index, int size)
         {
+            // Hints draw honey rings over the tiles (EvergroveApp) and never repaint
+            // them: a hint must not hide where the water already reaches (I91).
             if (anchored) return AnchoredTile;
-            if (!solved && hintStep == 2 && index == hintTile) return HintFocusTile;
-            if (!solved && hintStep == 1 && hintTile >= 0 &&
-                index / size == hintTile / size) return HintRowTile;
             return solved ? SolvedTile : reached ? WetTile : DryTile;
         }
     }

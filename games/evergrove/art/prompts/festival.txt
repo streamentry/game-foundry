@@ -1,0 +1,7 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING village hero painting: match its style, palette, light and characters exactly (soft hand-painted watercolor storybook; the silver-haired woman Mira, the bearded man in a flat cap Orin, the younger woman in a straw hat Fen). Generate exactly ONE image.
+Use case: illustration-story
+Asset type: tall ending illustration for a calm village garden game, the moment the whole creek is restored
+Primary request: golden-hour evening in the same village: the stream runs clear and full under a stone footbridge, paper lanterns are strung between the cottage and an old tree, a long wooden table with simple food, flowers and teacups stands on the grass by the water; Mira, Orin and Fen sit together with a few other villagers of mixed ages (adults 30-75), relaxed and smiling, one raising a cup; fireflies begin to glow; wildflowers and young trees along the bank. Warm, gentle, celebratory but quiet, no crowd, no fireworks.
+Composition: portrait 1024x1536; the BOTTOM 15 percent fades softly into plain cream #F9F2E3.
+Constraints: no text, no logo, no watermark, no border; dignified natural proportions, not cartoon caricatures.
+Copy the final PNG to games/evergrove/art/generated/ending-festival.png and print the path. Do nothing else.

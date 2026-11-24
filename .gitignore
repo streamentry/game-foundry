@@ -68,3 +68,6 @@ docs/research/raw/
 # Claude Code agent worktrees
 /.claude/worktrees/
 /games/evergrove/.utmp/
+
+# Design-iteration screenshots stay local (large binaries); logs in docs/improvements/*.md reference them.
+docs/improvements/*.png

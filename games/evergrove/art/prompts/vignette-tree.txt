@@ -1,0 +1,7 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING village painting: match its watercolor storybook style, light and the exact character design: Mira, a woman about 60 with silver hair in a loose bun, sage-green cardigan. Generate exactly ONE image.
+Use case: illustration-story
+Asset type: small memory vignette shown on a card in a calm village garden game, right after the player chose to help
+Primary request: Mira kneeling on the bank, pressing soil around a young sapling she has just planted, a watering can beside her by the restored clear stream, soft morning light, gentle and dignified, a quiet moment of care (not a pose for the camera). Capable adult, natural proportions, not a caricature.
+Composition: landscape 3:2 (e.g. 1536x1024), subject slightly off-centre; the edges fade softly into plain cream #FBF7EC on all four sides like a painted vignette (no hard border).
+Constraints: no text, no logo, no watermark, no frame.
+Copy the final PNG to games/evergrove/art/generated/vignette-tree.png and print the path. Do nothing else.

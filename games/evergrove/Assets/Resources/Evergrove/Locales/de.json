@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menü"
+    },
+    {
+      "key": "close",
+      "value": "Schließen"
+    },
+    {
+      "key": "text_size",
+      "value": "Textgröße"
+    },
+    {
+      "key": "board_size",
+      "value": "Größeres Spielfeld"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Sanfte Animation"
+    },
+    {
+      "key": "postcard",
+      "value": "Garten-Postkarte kopieren"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Postkarte kopiert. Füge sie in eine Nachricht ein, um deinen Garten zu teilen."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Dein Baum wird golden. Er verliert seine Blätter und kommt grüner zurück."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Schnee liegt auf den Ästen deines Baumes. Er schläft nur, er ist nicht fort."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Jetzt treiben Blätter unter der Brücke. Sie hält noch, Brett für Brett."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Ich halte den Steg frei von Schnee. Die Leute gehen ihn trotzdem jeden Tag."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Deine Wildblumen setzen Samen. Das Ufer wird nächstes Frühjahr voller sein."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Die Blumenbeete schlafen unter dem Schnee. Die Samen sind sicher in der Erde."
+    },
+    {
+      "key": "has_news",
+      "value": "Hat etwas Neues zu sagen"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira ruht im Schatten deiner Bäume."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira zählt deine Bäume entlang des Ufers."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin überquert jeden Morgen deine Brücken."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin hält deine Übergänge in gutem Zustand."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen sammelt Samen von deinen Wildblumen."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen folgt den Bienen zwischen deinen Wildblumen."
     }
   ]
 }

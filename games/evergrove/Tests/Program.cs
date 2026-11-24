@@ -1010,7 +1010,7 @@ internal static class Program
                LocaleShippingPolicy.Resolve("ja", true) == "ja" &&
                LocaleShippingPolicy.Resolve("invalid", true) == "en",
             "old research preferences and auto-detected draft locales safely fall back");
-        Expect(GameLocalization.Keys.Count == 101,"authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 121,"authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");
@@ -1412,6 +1412,89 @@ internal static class Program
             "v4 save without variantSchedule restores as living");
     }
 
+    private static void SeasonalNeighborTests()
+    {
+        WorldModel world = WorldModel.New();
+        Expect(LocalizedVillage.Speak(world, 0) == GameLocalization.Text("mira_new"), "Mira asks before any tree");
+        // Walk to autumn (stream 7) choosing trees only: Mira speaks of her tree's season,
+        // Orin and Fen, with no crossing or flowers yet, still ask.
+        while (world.Round < 6) { Solve(world); Expect(world.Choose(VillageChoice.ShadeTree), "tree choice"); }
+        Expect(VillageScenePlan.From(world).LandscapePhase == 2, "stream 7 is autumn");
+        Expect(LocalizedVillage.Speak(world, 0) == GameLocalization.Text("mira_autumn"), "Mira's autumn line once a tree exists");
+        Expect(LocalizedVillage.Speak(world, 1) == GameLocalization.Text("orin_new"), "no seasonal line without a crossing");
+        while (world.Round < 9) { Solve(world); Expect(world.Choose(VillageChoice.Flowers), "flower choice"); }
+        Expect(LocalizedVillage.Speak(world, 0) == GameLocalization.Text("mira_winter"), "Mira's winter line");
+        Expect(LocalizedVillage.Speak(world, 2) == GameLocalization.Text("fen_winter"), "Fen's winter line once flowers exist");
+        while (!world.Completed) { Solve(world); Expect(world.Choose(VillageChoice.Bridge), "bridge choice"); }
+        Expect(LocalizedVillage.Speak(world, 1) == GameLocalization.Text("orin_after"), "a finished garden returns to summer lines");
+    }
+
+    private static void RepeatedMemoryTests()
+    {
+        // A landmark chosen again is remembered in a new way (I90): first, second
+        // and third time differ, then the three lines cycle.
+        WorldModel world = WorldModel.New();
+        for (int i = 0; i < 4; i++) { Solve(world); Expect(world.Choose(VillageChoice.Bridge), "bridge choice"); }
+        int[] choices = world.Choices;
+        string first = LocalizedVillage.MemoryAt(choices, 0);
+        string second = LocalizedVillage.MemoryAt(choices, 1);
+        string third = LocalizedVillage.MemoryAt(choices, 2);
+        Expect(first == GameLocalization.Text("memory_bridge"), "first bridge keeps the original line");
+        Expect(second == GameLocalization.Text("memory_bridge_2"), "second bridge has its own line");
+        Expect(third == GameLocalization.Text("memory_bridge_3"), "third bridge has its own line");
+        Expect(first != second && second != third && first != third, "three distinct bridge memories");
+        Expect(LocalizedVillage.MemoryAt(choices, 3) == first, "the fourth bridge cycles back");
+        Expect(LocalizedVillage.Memory(world) == LocalizedVillage.MemoryAt(choices, 3),
+            "the memory screen and the journal agree on the latest line");
+        WorldModel mixed = WorldModel.New();
+        Solve(mixed); Expect(mixed.Choose(VillageChoice.ShadeTree), "tree choice");
+        Solve(mixed); Expect(mixed.Choose(VillageChoice.Flowers), "flower choice");
+        Solve(mixed); Expect(mixed.Choose(VillageChoice.ShadeTree), "second tree");
+        Expect(LocalizedVillage.MemoryAt(mixed.Choices, 1) == GameLocalization.Text("memory_flowers"),
+            "a different landmark in between starts its own count");
+        Expect(LocalizedVillage.MemoryAt(mixed.Choices, 2) == GameLocalization.Text("memory_tree_2"),
+            "a repeat is counted across other choices");
+        Expect(LocalizedVillage.MemoryAt(mixed.Choices, 9) == GameLocalization.Text("world_none"),
+            "an index past the history is the empty memory");
+    }
+
+    private static void HubRecallTests()
+    {
+        // The hub recalls the newest memory first, then a different past one on
+        // each later launch, cycling through all of them (I107). Never the clock.
+        Expect(HubRecall.Next(0, 0, -1) == -1, "no memories, nothing to recall");
+        Expect(HubRecall.Next(1, 0, -1) == 0, "the first memory is recalled first");
+        Expect(HubRecall.Next(3, 2, 1) == 2, "a new memory since last launch is recalled first");
+        Expect(HubRecall.Next(3, 3, 2) == 1, "next launch steps back to an earlier memory");
+        Expect(HubRecall.Next(3, 3, 1) == 0, "and again");
+        Expect(HubRecall.Next(3, 3, 0) == 2, "then cycles back to the newest");
+        Expect(HubRecall.Next(1, 1, 0) == 0, "a single memory stays");
+        Expect(HubRecall.Next(4, 4, 9) == 3, "an out-of-range stored index falls back to the newest");
+        int seen = 0, index = HubRecall.Next(5, 0, -1);
+        var visited = new System.Collections.Generic.HashSet<int>();
+        for (int launch = 0; launch < 5; launch++) { visited.Add(index); index = HubRecall.Next(5, 5, index); seen++; }
+        Expect(visited.Count == 5, "five launches visit all five memories");
+    }
+
+    private static void GardenPostcardTests()
+    {
+        WorldModel fresh = WorldModel.New();
+        string empty = GardenPostcard.Build(fresh, "Stream 1 / 12");
+        Expect(empty.StartsWith("Mosselora\n"), "postcard opens with the game name");
+        Expect(empty.Contains("○○○○○○○○○○○○  Stream 1 / 12"),
+            "a fresh garden shows twelve stones ahead");
+        WorldModel walked = WorldModel.New();
+        Solve(walked);
+        Expect(walked.Choose(VillageChoice.Bridge), "postcard world accepts a choice");
+        Solve(walked);
+        Expect(walked.Choose(VillageChoice.ShadeTree), "postcard world accepts a second choice");
+        string card = GardenPostcard.Build(walked, "Stream 3 / 12");
+        Expect(card.Contains("\U0001F309\U0001F333\n"), "choices appear in order as pictures");
+        Expect(card.Contains("●●○"), "two stones walked, the rest ahead");
+        Expect(GardenPostcard.Build(walked, "Stream 3 / 12") == card, "postcard is deterministic");
+        Expect(!card.Contains("http") && !card.Contains("@"), "postcard carries no link or identifier");
+    }
+
     public static int Main(string[] args)
     {
         try
@@ -1452,6 +1535,10 @@ internal static class Program
             LocalizationTests();
             KinsokuLineBreakTests();
             RtlTextTests();
+            GardenPostcardTests();
+            SeasonalNeighborTests();
+            RepeatedMemoryTests();
+            HubRecallTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;

@@ -1,0 +1,11 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached icon sheet is the EXISTING icon family: match its style exactly (solid black single-colour glyphs, bold rounded strokes about 9% of icon size, rounded caps and joins, flat, friendly geometry, no background shapes). Generate exactly ONE image.
+Use case: logo-brand
+Asset type: four additional UI icons for the same family, to be sliced from a 2x2 grid
+Primary request: a 2x2 grid; each icon centred in its own equal square cell, filling ~62% of the cell, generous empty margin, nothing crossing cell borders, no grid lines:
+ top-left: EXCHANGE — two straight horizontal arrows, the upper pointing right and the lower pointing left (clearly not circular);
+ top-right: SOUND ON — a loudspeaker (cone) with two curved sound waves to its right;
+ bottom-left: SOUND OFF — the same loudspeaker with a small bold X to its right instead of waves;
+ bottom-right: ZOOM BOARD — a magnifying glass whose lens contains a small 2x2 grid of rounded squares.
+Background: fully TRANSPARENT (alpha). Square 1024x1024.
+Constraints: no text, no letters, no numbers, no watermark.
+Copy the final PNG to games/evergrove/art/generated/icons-ui-2.png and print the path. Do nothing else.

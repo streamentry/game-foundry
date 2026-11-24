@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "芬"
+    },
+    {
+      "key": "menu",
+      "value": "選單"
+    },
+    {
+      "key": "close",
+      "value": "關閉"
+    },
+    {
+      "key": "text_size",
+      "value": "文字大小"
+    },
+    {
+      "key": "board_size",
+      "value": "放大棋盤"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "柔和動效"
+    },
+    {
+      "key": "postcard",
+      "value": "複製花園明信片"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "明信片已複製。貼到訊息中即可分享你的花園。"
+    },
+    {
+      "key": "mira_autumn",
+      "value": "你的樹正轉為金黃。它會落葉，然後以更翠綠的模樣回來。"
+    },
+    {
+      "key": "mira_winter",
+      "value": "雪落在你的樹枝上。它只是在睡覺，並沒有離開。"
+    },
+    {
+      "key": "orin_autumn",
+      "value": "落葉正漂過小橋下方。它依然穩穩撐著，一塊木板一塊木板。"
+    },
+    {
+      "key": "orin_winter",
+      "value": "我會把小橋上的雪清掃乾淨。每天還是有人從這裡走過。"
+    },
+    {
+      "key": "fen_autumn",
+      "value": "你的野花正在結籽。明年春天，河岸會更加繁茂。"
+    },
+    {
+      "key": "fen_winter",
+      "value": "花圃在雪下沉睡。種子安全地藏在泥土裡。"
+    },
+    {
+      "key": "has_news",
+      "value": "有新的話要說"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "米拉在你的樹蔭下歇息。"
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "米拉沿著河岸數你種下的樹。"
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "奧林每天清晨都會走過你的橋。"
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "奧林把你的橋樑照顧得很好。"
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "芬從你的野花上收集種子。"
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "芬沿著你的野花追隨蜜蜂。"
     }
   ]
 }

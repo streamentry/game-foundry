@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menú"
+    },
+    {
+      "key": "close",
+      "value": "Cerrar"
+    },
+    {
+      "key": "text_size",
+      "value": "Tamaño del texto"
+    },
+    {
+      "key": "board_size",
+      "value": "Tablero más grande"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Movimiento suave"
+    },
+    {
+      "key": "postcard",
+      "value": "Copiar postal del jardín"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Postal copiada. Pégala en un mensaje para compartir tu jardín."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Tu árbol se está volviendo dorado. Perderá sus hojas y volverá más verde."
+    },
+    {
+      "key": "mira_winter",
+      "value": "La nieve descansa sobre las ramas de tu árbol. Está durmiendo, no se ha ido."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Ahora las hojas flotan bajo el puente. Aún aguanta, tabla a tabla."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Mantengo el puente libre de nieve. La gente lo sigue cruzando cada día."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Tus flores silvestres están echando semilla. La orilla estará más llena la próxima primavera."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Los parterres duermen bajo la nieve. Las semillas están a salvo en la tierra."
+    },
+    {
+      "key": "has_news",
+      "value": "Tiene algo nuevo que decir"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira descansa a la sombra de tus árboles."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira cuenta tus árboles a lo largo de la orilla."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin cruza tus puentes cada mañana."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin mantiene tus cruces en buen estado."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen recoge semillas de tus flores silvestres."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen sigue a las abejas entre tus flores silvestres."
     }
   ]
 }

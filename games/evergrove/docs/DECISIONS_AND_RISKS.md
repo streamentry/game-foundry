@@ -36,7 +36,7 @@
 | **Critical** | Branching not meaningful | Users cannot explain why the next board changed; regard it as a rotated duplicate | Test a genuine cost/resource dependency or revert to simpler puzzle |
 | **High** | Confounded experiment | “Living is better” inferred from different board difficulty | Add matched Living control and split narrative vs mechanics vs art tests |
 | **High** | Name collision and rights | Existing similarly named live app; uncertain app-store/trademark rights | Keep working name internal, conduct formal clearance and rename before launch |
-| **High** | Poor usability for 45+ | Tiny/hidden first tile, confusion about fixed tile, scrolling burden | Uncoached 45+ device tests, larger targets and explicit labels |
+| **High** | Poor usability for 40+ | Tiny/hidden first tile, confusion about fixed tile, scrolling burden | Uncoached 40+ device tests, larger targets and explicit labels |
 | **High** | Localization looks broken | RTL/Indic reordered glyphs, clipped buttons | Advanced shaping and native device QA; disable affected storefront languages |
 | **High** | No credible distribution | Only acquaintances try game; no search/channel intent | 10–30 focused outreach and one-market keyword/channel proof |
 | **High** | Costly 2.5D with no benefits | Lower FPS/more heat, players prefer 2D | Keep 2D baseline; remove 2.5D if no evidence of higher value |
@@ -97,4 +97,4 @@ The north star does **not** change: *a small place that remembers honest choices
 
 **Evidence:** browser DOM/unit tests, real headless Chromium viewports and pure C# project assertions can check functional/source contracts after CI. They cannot establish native rendering, genuine delight, player understanding, retention or legal clearance. Brand art from conversation is *not* yet a shipped licensed icon asset.
 
-**Next gate / reversal:** licensed Unity preflight and physical device checks, then 8–12 uncoached players (oversampling 45+). Observe first action, open-join comprehension, restoration, choice consequence and voluntary next chapter. If 3/10 starters misunderstand the goal or miss restoration, prioritize undoing decorative changes. If the mark is risky, revert public branding without touching legacy save identity.
+**Next gate / reversal:** licensed Unity preflight and physical device checks, then 8–12 uncoached players (oversampling 40+). Observe first action, open-join comprehension, restoration, choice consequence and voluntary next chapter. If 3/10 starters misunderstand the goal or miss restoration, prioritize undoing decorative changes. If the mark is risky, revert public branding without touching legacy save identity.

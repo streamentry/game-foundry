@@ -107,14 +107,22 @@ namespace Evergrove.UnityClient
             SavePng("02-chapter1-partially-solved.png");
 
             SolveBoard();
-            for (int f = 0; f < 10; f++) yield return null;
-            ScrollTo("Choose title");
-            for (int f = 0; f < 4; f++) yield return null;
+            // Let the game's own payoff hold and glide place the screen, exactly
+            // as a player sees it; a forced jump here hid I74's whole-board stop (I96).
+            yield return new WaitForSecondsRealtime(2.4f);
             yield return new WaitForEndOfFrame();
             SavePng("03-chapter1-solved-choice.png");
 
             for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
             {
+                // Seasons arrive through progress: capture the village in autumn and winter.
+                if (chapter == 7 || chapter == 10)
+                {
+                    ScrollTo("Living storybook art");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng(chapter == 7 ? "15-autumn-village.png" : "16-winter-village.png");
+                }
                 SolveBoard();
                 for (int f = 0; f < 6; f++) yield return null;
                 Press("Choice " + MainPattern[chapter]);
@@ -130,7 +138,7 @@ namespace Evergrove.UnityClient
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10-journal.png");
-                    ScrollToBottom();
+                    ScrollJournalToBottom();
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10b-journal-bottom.png");
@@ -147,6 +155,16 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 4; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("11b-ending-bottom.png");
+
+            // The finished season's journal: all twelve memories, scrolled to the end (I99).
+            Press("Memories");
+            for (int f = 0; f < 4; f++) yield return null;
+            ScrollJournalToBottom();
+            for (int f = 0; f < 4; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("11c-ending-journal-bottom.png");
+            Press("Memories");
+            for (int f = 0; f < 4; f++) yield return null;
 
             // Runs B-D: a fresh world per village choice on chapter 1. Each shows
             // the consequence (04-06) and the chapter-2 board it produced (07-09).
@@ -258,6 +276,16 @@ namespace Evergrove.UnityClient
         {
             foreach (Button button in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                 if (nameMatches(button.name)) return button;
+            // Settings, files and research tools live in the menu sheet: open it
+            // with the real menu button, then look again.
+            foreach (Button button in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                if (button.name == "Open menu")
+                {
+                    button.onClick.Invoke();
+                    foreach (Button again in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                        if (nameMatches(again.name)) return again;
+                    break;
+                }
             throw new InvalidOperationException("No active button: " + description);
         }
 
@@ -311,13 +339,14 @@ namespace Evergrove.UnityClient
         // Mirrors EvergroveApp.ScrollToDecision so the target sits near the top.
         private void ScrollTo(string targetName)
         {
-            var scroll = FindFirstObjectByType<ScrollRect>();
-            if (scroll == null || scroll.content == null || scroll.viewport == null)
-                throw new InvalidOperationException("Scroll view missing");
             GameObject target = null;
             foreach (Transform t in FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                 if (t.name == targetName) { target = t.gameObject; break; }
             if (target == null) throw new InvalidOperationException("No visible element: " + targetName);
+            // The page and the menu sheet each scroll; use the one holding the target.
+            var scroll = target.GetComponentInParent<ScrollRect>();
+            if (scroll == null || scroll.content == null || scroll.viewport == null)
+                throw new InvalidOperationException("Scroll view missing");
 
             RectTransform content = scroll.content;
             var targetRect = target.GetComponent<RectTransform>();
@@ -340,8 +369,21 @@ namespace Evergrove.UnityClient
         // whatever sits below the fold on long screens.
         private void ScrollToBottom()
         {
-            var scroll = FindFirstObjectByType<ScrollRect>();
+            var pageNode = GameObject.Find("Safe scroll area");
+            var scroll = pageNode != null ? pageNode.GetComponent<ScrollRect>() : null;
             if (scroll == null) throw new InvalidOperationException("Scroll view missing");
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
+            scroll.StopMovement();
+            scroll.verticalNormalizedPosition = 0f;
+        }
+
+        // The journal sheet scrolls on its own; the page behind it does not move (I99).
+        private void ScrollJournalToBottom()
+        {
+            var panel = GameObject.Find("Journal panel");
+            var scroll = panel != null ? panel.GetComponent<ScrollRect>() : null;
+            if (scroll == null || scroll.content == null) throw new InvalidOperationException("Journal scroll missing");
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
             scroll.StopMovement();

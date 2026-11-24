@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menu"
+    },
+    {
+      "key": "close",
+      "value": "Chiudi"
+    },
+    {
+      "key": "text_size",
+      "value": "Dimensione testo"
+    },
+    {
+      "key": "board_size",
+      "value": "Griglia più grande"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Animazioni delicate"
+    },
+    {
+      "key": "postcard",
+      "value": "Copia la cartolina del giardino"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Cartolina copiata. Incollala in un messaggio per condividere il tuo giardino."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Il tuo albero sta diventando dorato. Perderà le foglie e tornerà più verde."
+    },
+    {
+      "key": "mira_winter",
+      "value": "La neve riposa sui rami del tuo albero. Dorme, non se n'è andato."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Le foglie ora scivolano sotto il ponticello. Regge ancora, asse dopo asse."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Tengo il ponticello libero dalla neve. La gente lo attraversa ancora ogni giorno."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "I tuoi fiori di campo stanno producendo semi. La riva sarà più piena la prossima primavera."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Le aiuole dormono sotto la neve. I semi sono al sicuro nella terra."
+    },
+    {
+      "key": "has_news",
+      "value": "Ha qualcosa di nuovo da dire"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira riposa all'ombra dei tuoi alberi."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira conta i tuoi alberi lungo la riva."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin attraversa i tuoi ponti ogni mattina."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin mantiene in buono stato i tuoi attraversamenti."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen raccoglie semi dai tuoi fiori selvatici."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen segue le api tra i tuoi fiori selvatici."
     }
   ]
 }

@@ -1,0 +1,8 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is a STYLE reference (soft watercolor storybook). Generate exactly ONE image.
+Use case: stylized-concept
+Asset type: two-frame sprite of a small butterfly for a gentle celebration animation in a calm garden puzzle game
+Primary request: TWO views of the SAME pale-yellow brimstone butterfly with soft orange dots, painted in delicate watercolor with a thin dark body: LEFT half of the canvas = wings fully open (seen from above); RIGHT half = wings half-closed (narrower, raised, same butterfly, same scale, same position within its half). Each centred in its half with generous empty margin.
+Composition: 2:1 canvas (e.g. 1024x512).
+Background: fully TRANSPARENT (alpha).
+Constraints: no text, no shadow, no watermark, no flowers.
+Copy the final PNG to games/evergrove/art/generated/butterfly.png and print the path. Do nothing else.

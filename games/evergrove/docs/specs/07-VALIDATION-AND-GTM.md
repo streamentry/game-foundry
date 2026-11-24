@@ -67,7 +67,7 @@ If matching cannot be implemented yet, limit the first study to the **identical 
 | --- | --- | --- |
 | 1 | Get Android APK and iPhone build path; fix launch/touch crashes only | Build logs and actual phone screenshots |
 | 2 | Prepare neutral interview script, local consent, metric sheet and current-vs-consequence-first comparison | Prewritten protocol, no hidden analytics |
-| 3 | Recruit representative 45+ and casual puzzle testers, including users who enlarge text | Target 8–12 formative sessions; document convenience bias |
+| 3 | Recruit representative 40+ (bands 40–49, 50–64, 65+) and casual puzzle testers, including users who enlarge text | Target 8–12 formative sessions; document convenience bias |
 | 4 | Observe uncoached first minute, first 3 puzzles, choices, hints, language and save/reopen | Raw times, mis-taps, quotes, critical bugs |
 | 5 | Create two presentation variants: current versus visible consequence-first, keeping puzzle content identical | Controlled stimuli and assignment order |
 | 6 | Counterbalance and test both; ask unprompted "what changed, why, would you return?" | Preference/recall table and failures |

@@ -44,13 +44,24 @@ namespace Evergrove.Core
         public static string Memory(WorldModel world)
         {
             int[] choices = world.Choices;
-            if (choices.Length == 0) return T("world_none");
-            switch ((VillageChoice)choices[choices.Length - 1])
-            {
-                case VillageChoice.ShadeTree: return T("memory_tree");
-                case VillageChoice.Bridge: return T("memory_bridge");
-                default: return T("memory_flowers");
-            }
+            return MemoryAt(choices, choices.Length - 1);
+        }
+
+        /// <summary>
+        /// The remembered line for the choice at <paramref name="index"/>. A landmark
+        /// chosen again is remembered in a new way: first, second and third time
+        /// each have their own line, then the three cycle (I90).
+        /// </summary>
+        public static string MemoryAt(int[] choices, int index)
+        {
+            if (choices == null || index < 0 || index >= choices.Length) return T("world_none");
+            int choice = choices[index];
+            int earlier = 0;
+            for (int i = 0; i < index; i++) if (choices[i] == choice) earlier++;
+            string key = choice == (int)VillageChoice.ShadeTree ? "memory_tree"
+                : choice == (int)VillageChoice.Bridge ? "memory_bridge" : "memory_flowers";
+            int turn = earlier % 3;
+            return T(turn == 0 ? key : key + "_" + (turn + 1));
         }
 
         public static string Consequence(WorldModel world)
@@ -78,13 +89,24 @@ namespace Evergrove.Core
 
         public static string Speak(WorldModel world, int index)
         {
+            // Seasons arrive with progress (VillageScenePlan.LandscapePhase): in
+            // autumn and winter a neighbor speaks of the landmark they keep, but
+            // only once it exists. A finished garden returns to its summer lines.
+            int phase = world.Completed ? 0 : VillageScenePlan.From(world).LandscapePhase;
+            string season = phase >= 3 ? "_winter" : phase >= 2 ? "_autumn" : null;
             switch (index)
             {
-                case 0: return T(world.Count(VillageChoice.ShadeTree) == 0 ? "mira_new" : "mira_after");
-                case 1: return T(world.Count(VillageChoice.Bridge) == 0 ? "orin_new" : "orin_after");
-                case 2: return T(world.Count(VillageChoice.Flowers) == 0 ? "fen_new" : "fen_after");
+                case 0: return Line("mira", world.Count(VillageChoice.ShadeTree), season);
+                case 1: return Line("orin", world.Count(VillageChoice.Bridge), season);
+                case 2: return Line("fen", world.Count(VillageChoice.Flowers), season);
                 default: throw new ArgumentOutOfRangeException(nameof(index));
             }
+        }
+
+        private static string Line(string who, int landmarks, string season)
+        {
+            if (landmarks == 0) return T(who + "_new");
+            return T(season != null ? who + season : who + "_after");
         }
 
         /// <summary>Localized NPC name, shared with the dialogue lines in each catalog.</summary>

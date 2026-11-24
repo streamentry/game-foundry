@@ -48,7 +48,7 @@ Không dùng LLM để tạo ngẫu nhiên “ký ức” không có thật. M�
 2. **So sánh A/B thiếu công bằng.** Từ chương 2, Living World có màn thay đổi còn Puzzle Only dùng màn gốc. Vì vậy không thể nói retention cao hơn là “nhờ NPC/câu chuyện”. Phải thử riêng chuyện, luật puzzle và mỹ thuật.
 3. **“Game số một” là kỳ vọng chứ không phải mục tiêu kỹ thuật đủ rõ.** Chỉ quan sát người thật mới cho biết họ có muốn quay lại hay không.
 4. **Phân phối và tên thương hiệu chưa rõ.** Kiểm tra thị trường/tên gọi trước khi đổ tiền vào UA và tài sản thương hiệu.
-5. **30 ngôn ngữ chưa đồng nghĩa với 30 thị trường sẵn sàng.** RTL, font, bản dịch người bản ngữ và trải nghiệm người 45+ vẫn cần QA.
+5. **30 ngôn ngữ chưa đồng nghĩa với 30 thị trường sẵn sàng.** RTL, font, bản dịch người bản ngữ và trải nghiệm người 40+ vẫn cần QA.
 
 ## 5. Một tuần tới nên làm gì?
 

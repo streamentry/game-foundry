@@ -1,0 +1,12 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). Generate exactly ONE image.
+Use case: logo-brand
+Asset type: a UI icon sheet for a calm mobile puzzle game, to be sliced into 16 separate button icons
+Primary request: a 4x4 grid of 16 icons. Each icon is centred in its own equal square cell with generous empty margin (icon fills ~62% of its cell); nothing crosses cell borders; no grid lines drawn.
+Style: one consistent family — solid BLACK (#000000) single-colour glyphs, bold rounded strokes (stroke about 9% of icon size), rounded caps and joins, soft friendly geometry, flat (no gradient, no shadow, no outline box, no background circle). Simple enough to read at 28 pixels.
+Row 1: (1) undo — a curved arrow bending back to the left; (2) hint — a lightbulb with three short rays; (3) restart — a circular arrow forming almost a full loop with an arrowhead; (4) globe — a round globe with meridian and two latitude lines.
+Row 2: (5) text size — a small capital A next to a large capital A; (6) bigger board — a 3x3 rounded grid with a small plus badge at the top-right; (7) chime on — a bell with two small sound arcs to its right; (8) chime off — the same bell with a diagonal slash.
+Row 3: (9) journal — an open book seen from the front; (10) continue — a bold arrow pointing right; (11) change choice — two curved arrows chasing each other in a circle (swap); (12) copy file — a document page with an arrow leaving it upward-right.
+Row 4: (13) restore file — a document page with an arrow entering it downward; (14) new garden — a seedling with two leaves and a small plus sign; (15) confirm — a bold check mark; (16) cancel — a bold X.
+Background: fully TRANSPARENT (alpha) everywhere except the glyphs. Square 1024x1024 or larger square.
+Constraints: no text labels, no letters except the two A letters in icon 5, no numbers, no watermark.
+Copy the final PNG to games/evergrove/art/generated/icons-ui.png and print the path. Do nothing else.

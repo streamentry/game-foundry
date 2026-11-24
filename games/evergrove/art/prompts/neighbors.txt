@@ -1,0 +1,12 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). Attached images are STYLE references only (soft hand-painted watercolor storybook, warm light). Generate exactly ONE image.
+Use case: illustration-story
+Asset type: three circular character portrait medallions for buttons in a calm village garden game
+Primary request: a horizontal row of three separate round portrait medallions, evenly spaced, each a head-and-shoulders watercolor portrait inside a circle with a thin warm cream rim, friendly calm expression, looking slightly toward the viewer:
+ left: MIRA — a woman about 60, silver hair in a loose bun, warm smile, sage-green cardigan, a small leaf brooch;
+ middle: ORIN — a man about 68, short white beard, flat cap, olive waistcoat over a cream shirt;
+ right: FEN — a woman about 40, light-brown skin, dark curly hair under a straw sun hat, rust-coloured scarf.
+Capable, dignified adults, natural proportions, not cartoon caricatures, no frailty stereotypes. Soft green garden blur inside each circle behind the person.
+Composition: wide 3:1 canvas (e.g. 1536x512), three equal circles, nothing touching or overlapping.
+Background: fully TRANSPARENT (alpha) outside the three circles.
+Constraints: no text, no names, no watermark.
+Copy the final PNG to games/evergrove/art/generated/neighbors.png and print the path. Do nothing else.

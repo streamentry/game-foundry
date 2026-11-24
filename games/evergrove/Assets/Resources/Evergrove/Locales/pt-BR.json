@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menu"
+    },
+    {
+      "key": "close",
+      "value": "Fechar"
+    },
+    {
+      "key": "text_size",
+      "value": "Tamanho do texto"
+    },
+    {
+      "key": "board_size",
+      "value": "Tabuleiro maior"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Animações suaves"
+    },
+    {
+      "key": "postcard",
+      "value": "Copiar cartão postal do jardim"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Cartão postal copiado. Cole-o em uma mensagem para compartilhar seu jardim."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Sua árvore está ficando dourada. Ela vai perder as folhas e voltar mais verde."
+    },
+    {
+      "key": "mira_winter",
+      "value": "A neve repousa sobre os galhos da sua árvore. Ela está dormindo, não foi embora."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Folhas estão passando agora por baixo da ponte. Ela ainda aguenta, tábua por tábua."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Eu mantenho a passarela livre de neve. As pessoas ainda a atravessam todos os dias."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Suas flores silvestres estão soltando sementes. A margem vai ficar mais cheia na próxima primavera."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Os canteiros dormem sob a neve. As sementes estão seguras na terra."
+    },
+    {
+      "key": "has_news",
+      "value": "Tem algo novo para contar"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira descansa à sombra das suas árvores."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira conta as suas árvores ao longo da margem."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin atravessa suas pontes todas as manhãs."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin mantém suas travessias em bom estado."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen colhe sementes das suas flores silvestres."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen segue as abelhas entre suas flores silvestres."
     }
   ]
 }

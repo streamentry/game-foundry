@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "펜"
+    },
+    {
+      "key": "menu",
+      "value": "메뉴"
+    },
+    {
+      "key": "close",
+      "value": "닫기"
+    },
+    {
+      "key": "text_size",
+      "value": "글자 크기"
+    },
+    {
+      "key": "board_size",
+      "value": "보드 크게"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "부드러운 움직임"
+    },
+    {
+      "key": "postcard",
+      "value": "정원 엽서 복사"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "엽서를 복사했습니다. 메시지에 붙여넣어 정원을 공유하세요."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "당신의 나무가 황금빛으로 물들고 있어요. 잎은 지지만 더 푸르게 돌아올 거예요."
+    },
+    {
+      "key": "mira_winter",
+      "value": "나무 가지에 눈이 내려앉았어요. 잠들어 있는 것뿐, 사라진 게 아니에요."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "이제 다리 아래로 낙엽이 떠내려가요. 그래도 널빤지 하나하나가 아직 버티고 있어요."
+    },
+    {
+      "key": "orin_winter",
+      "value": "저는 다리의 눈을 치우고 있어요. 사람들은 지금도 매일 이 다리를 건너요."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "당신의 들꽃이 씨를 맺고 있어요. 내년 봄에는 강가가 더 풍성해질 거예요."
+    },
+    {
+      "key": "fen_winter",
+      "value": "꽃밭은 눈 속에서 잠들어 있어요. 씨앗은 땅속에서 안전해요."
+    },
+    {
+      "key": "has_news",
+      "value": "새로 전할 이야기가 있어요"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "미라는 당신의 나무 그늘에서 쉬고 있어요."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "미라는 강가를 따라 당신의 나무를 세고 있어요."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "오린은 매일 아침 당신의 다리를 건너요."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "오린은 당신의 다리들을 늘 좋은 상태로 지켜요."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "펜은 당신의 들꽃에서 씨앗을 거두어요."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "펜은 당신의 들꽃 사이를 날아다니는 벌들을 따라가요."
     }
   ]
 }

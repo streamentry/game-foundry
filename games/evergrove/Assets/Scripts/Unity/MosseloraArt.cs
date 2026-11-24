@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Evergrove.UnityClient
@@ -18,6 +19,11 @@ namespace Evergrove.UnityClient
         public const string VineCorner = "vine-corner";
         public const string Wordmark = "wordmark";
         public const string HeroVillage = "hero-village";
+        public const string EndingFestival = "ending-festival";
+        public const string BoardBed = "board-bed";
+        public const string VignetteTree = "vignette-tree";
+        public const string VignetteBridge = "vignette-bridge";
+        public const string VignetteFlowers = "vignette-flowers";
         public const string ShadeTree = "icon-shade-tree";
         public const string Bridge = "icon-bridge";
         public const string Wildflowers = "icon-wildflowers";
@@ -26,6 +32,45 @@ namespace Evergrove.UnityClient
         public const string Droplet = "glyph-droplet";
         public const string Sprig = "glyph-sprig";
         public const string SpringWaves = "glyph-waves";
+        // Tintable white UI glyphs (icons-ui.png, sliced 4x4).
+        public const string IconUndo = "ui-undo";
+        public const string IconHint = "ui-hint";
+        public const string IconRestart = "ui-restart";
+        public const string IconLanguage = "ui-language";
+        public const string IconTextSize = "ui-text-size";
+        public const string IconBoardSize = "ui-zoom-board";
+        public const string IconChimeOn = "ui-sound-on";
+        public const string IconChimeOff = "ui-sound-off";
+        public const string IconJournal = "ui-journal";
+        public const string IconContinue = "ui-continue";
+        public const string IconChange = "ui-exchange"; // distinct from the circular Restart
+        public const string IconCopyFile = "ui-copy-file";
+        public const string IconRestoreFile = "ui-restore-file";
+        public const string IconNewGarden = "ui-new-garden";
+        public const string IconConfirm = "ui-confirm";
+        public const string IconCancel = "ui-cancel";
+        public const string IconMenu = "ui-menu";
+        public const string IconSettings = "ui-settings";
+        public const string IconNeighbors = "ui-neighbors";
+        public const string IconHome = "ui-home";
+        public const string IconMotionOn = "ui-motion-on";
+        public const string IconMotionOff = "ui-motion-off";
+        public const string IconPath = "ui-path";
+        public const string IconChat = "ui-chat";
+        public const string IconTap = "ui-tap";
+        public const string IconTurn = "ui-turn";
+        public const string IconRooted = "ui-rooted";
+        public const string IconSun = "ui-sun";
+
+        public static Sprite Portrait(int villager)
+        {
+            switch (villager)
+            {
+                case 0: return Load("portrait-mira");
+                case 1: return Load("portrait-orin");
+                default: return Load("portrait-fen");
+            }
+        }
 
         private static readonly Dictionary<string, Sprite> Loaded = new Dictionary<string, Sprite>();
         private static readonly Dictionary<int, Sprite> RoundedCache = new Dictionary<int, Sprite>();
@@ -75,6 +120,15 @@ namespace Evergrove.UnityClient
             return sprite;
         }
 
+        private static Sprite boldRing;
+
+        /// <summary>A heavier full-circle ring for small markers on busy tiles.</summary>
+        public static Sprite BoldRing()
+        {
+            if (boldRing == null) boldRing = BuildRounded(8, 3.6f);
+            return boldRing;
+        }
+
         // Textures are drawn at 2x so corners stay smooth on retina phones;
         // pixelsPerUnitMultiplier on the Image brings them back to logical size.
         private const int Supersample = 2;
@@ -111,6 +165,93 @@ namespace Evergrove.UnityClient
             float border = r + 1;
             return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f),
                 100f, 0, SpriteMeshType.FullRect, new Vector4(border, border, border, border));
+        }
+
+        public const string TilePaper = "tile-paper";
+        public const string ButterflyOpen = "butterfly-open";
+        public const string ButterflyClosed = "butterfly-closed";
+
+        /// <summary>
+        /// Rounded tile body on Codex-generated watercolor paper (near-white,
+        /// so Image.color still carries the dry/wet/solved/hint state tint).
+        /// </summary>
+        public const string PageGrain = "page-grain";
+
+        /// <summary>
+        /// The whole page as painted watercolour paper (I94): the Codex paper
+        /// grain tiled under every screen, tinted with the page colour. Falls
+        /// back to the flat colour if the sprite is missing.
+        /// </summary>
+        public static void PagePaper(Image image, Color paper)
+        {
+            image.color = paper;
+            Sprite grain = Load(PageGrain);
+            if (grain == null) return;
+            image.sprite = grain;
+            image.type = Image.Type.Tiled;
+            image.pixelsPerUnitMultiplier = 1.4f; // ~180 pt repeat on a phone
+        }
+
+        public static void PaperTile(Image image, int radius = 12)
+        {
+            Sprite paper = Load(TilePaper);
+            if (paper == null) { Round(image, Color.white, radius); return; }
+            image.sprite = paper;
+            image.type = Image.Type.Sliced;
+            image.pixelsPerUnitMultiplier = Supersample; // 24 px corner = 12 pt
+            image.color = Color.white;
+        }
+
+        private static Sprite fade;
+
+        /// <summary>White, opaque at the top, transparent at the bottom; tint for a paper fade.</summary>
+        public static Sprite TopFade()
+        {
+            if (fade != null) return fade;
+            var texture = new Texture2D(4, 64, TextureFormat.RGBA32, false)
+            { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "Mosselora top fade" };
+            var pixels = new Color32[4 * 64];
+            for (int y = 0; y < 64; y++)
+            {
+                float t = y / 63f; // 0 bottom .. 1 top
+                byte a = (byte)Mathf.RoundToInt(255f * Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.05f) / 0.6f)));
+                for (int x = 0; x < 4; x++) pixels[y * 4 + x] = new Color32(255, 255, 255, a);
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            fade = Sprite.Create(texture, new Rect(0, 0, 4, 64), new Vector2(0.5f, 0.5f), 100f);
+            return fade;
+        }
+
+        /// <summary>
+        /// Painted button plaque for the forest, teal and parchment tones
+        /// (9-sliced Codex art). Returns false for other tones or missing art.
+        /// </summary>
+        public static Image Plaque(Image image, Color tone)
+        {
+            string name = tone == MosseloraTheme.ForestAction ? "plaque-forest"
+                : tone == MosseloraTheme.WaterAction ? "plaque-teal"
+                : tone == MosseloraTheme.QuietAction ? "plaque-parchment" : null;
+            Sprite sprite = name != null ? Load(name) : null;
+            if (sprite == null) return null;
+            // The button keeps a transparent rounded body (hit area and layout);
+            // the painted plaque is a child that ignores layout, so its sprite
+            // size never changes the button's designed size.
+            Round(image, new Color(1f, 1f, 1f, 0f), 18);
+            var node = new GameObject("Painted plaque", typeof(RectTransform));
+            node.transform.SetParent(image.transform, false);
+            node.transform.SetAsFirstSibling();
+            node.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = node.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var art = node.AddComponent<Image>();
+            art.sprite = sprite;
+            art.type = Image.Type.Sliced;
+            art.pixelsPerUnitMultiplier = 2.4f;
+            art.raycastTarget = false;
+            return art;
         }
 
         /// <summary>Gives an Image a rounded, sliced, tinted body.</summary>
@@ -207,7 +348,7 @@ namespace Evergrove.UnityClient
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(size, size);
             var image = node.AddComponent<Image>();
-            image.sprite = MosseloraArt.Ring(8); // a full circle when drawn unsliced
+            image.sprite = MosseloraArt.BoldRing(); // a full circle when drawn unsliced
             image.type = Image.Type.Simple;
             image.color = stroke;
             image.raycastTarget = false;
@@ -221,6 +362,405 @@ namespace Evergrove.UnityClient
         private void LateUpdate()
         {
             if (ring != null && source != null) ring.enabled = source.text.Length > 0;
+        }
+    }
+
+    /// <summary>
+    /// Tactile press: the control squashes slightly under the finger and
+    /// springs back, so every tap is felt as well as seen. Scale only; the
+    /// hit area and layout do not move.
+    /// </summary>
+    internal sealed class PressSquash : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        private const float Pressed = 0.94f;
+        private const float Speed = 18f;
+        private float target = 1f;
+        private Selectable selectable;
+
+        public static void Add(GameObject node)
+        {
+            if (node.GetComponent<PressSquash>() == null) node.AddComponent<PressSquash>();
+        }
+
+        private void Awake() { selectable = GetComponent<Selectable>(); }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (selectable == null || selectable.interactable) target = Pressed;
+        }
+
+        public void OnPointerUp(PointerEventData eventData) { target = 1f; }
+        public void OnPointerExit(PointerEventData eventData) { target = 1f; }
+
+        private void Update()
+        {
+            float current = transform.localScale.x;
+            if (Mathf.Abs(current - target) < 0.001f) return;
+            float next = Mathf.Lerp(current, target, 1f - Mathf.Exp(-Speed * Time.unscaledDeltaTime));
+            transform.localScale = new Vector3(next, next, 1f);
+        }
+    }
+
+    /// <summary>
+    /// One gentle swell (about 7%) after a delay, used once when a creek is
+    /// completed. Not looped, not decorative idling: it marks the solve.
+    /// </summary>
+    internal sealed class BloomPulse : MonoBehaviour
+    {
+        private const float Duration = 0.36f;
+        private float delay;
+        private float elapsed;
+        private float amplitude = 0.07f;
+
+        public static void Add(GameObject node, float startDelay, float swell = 0.07f)
+        {
+            var pulse = node.AddComponent<BloomPulse>();
+            pulse.delay = startDelay;
+            pulse.amplitude = swell;
+        }
+
+        private void Update()
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = (elapsed - delay) / Duration;
+            if (t < 0f) return;
+            if (t >= 1f)
+            {
+                transform.localScale = Vector3.one;
+                Destroy(this);
+                return;
+            }
+            float swell = 1f + amplitude * Mathf.Sin(Mathf.PI * t);
+            transform.localScale = new Vector3(swell, swell, 1f);
+        }
+    }
+
+    /// <summary>
+    /// Press-and-hold name tip for icon-only controls: after a short hold the
+    /// control's own (localized) caption appears in a bubble above it. A hold
+    /// that showed the tip never triggers the action on release, so curiosity
+    /// about Restart cannot restart the stream.
+    /// </summary>
+    internal sealed class IconTip : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        private const float HoldSeconds = 0.45f;
+        private Text caption;
+        private Color ink;
+        private Color paper;
+        private PointerEventData press;
+        private float held = -1f;
+        private GameObject bubble;
+
+        public static void Add(GameObject node, Text caption, Color ink, Color paper)
+        {
+            var tip = node.AddComponent<IconTip>();
+            tip.caption = caption;
+            tip.ink = ink;
+            tip.paper = paper;
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            press = eventData;
+            held = 0f;
+        }
+
+        public void OnPointerUp(PointerEventData eventData) { Hide(); }
+        public void OnPointerExit(PointerEventData eventData) { Hide(); }
+        private void OnDisable() { Hide(); }
+
+        private void Update()
+        {
+            if (held < 0f || bubble != null) return;
+            held += Time.unscaledDeltaTime;
+            if (held >= HoldSeconds) Show();
+        }
+
+        private void Show()
+        {
+            if (caption == null || string.IsNullOrWhiteSpace(caption.text)) return;
+            if (press != null) press.eligibleForClick = false; // the hold was a question, not a tap
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            Transform root = canvas.rootCanvas.transform;
+            bubble = new GameObject("Icon name tip", typeof(RectTransform));
+            bubble.transform.SetParent(root, false);
+            var rect = bubble.GetComponent<RectTransform>();
+            rect.pivot = new Vector2(0.5f, 0f);
+            var fill = bubble.AddComponent<Image>();
+            MosseloraArt.Round(fill, ink, 14);
+            fill.raycastTarget = false;
+            MosseloraArt.Lift(fill, 3f, 0.25f);
+            var fit = bubble.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var pad = bubble.AddComponent<HorizontalLayoutGroup>();
+            pad.padding = new RectOffset(14, 14, 8, 8);
+            pad.childControlWidth = true;
+            pad.childControlHeight = true;
+            var words = new GameObject("Tip words", typeof(RectTransform));
+            words.transform.SetParent(bubble.transform, false);
+            var text = words.AddComponent<Text>();
+            text.font = caption.font;
+            text.fontSize = Mathf.Max(16, caption.fontSize);
+            text.fontStyle = FontStyle.Bold;
+            text.color = paper;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.text = caption.text;
+            var self = (RectTransform)transform;
+            Vector3 top = self.TransformPoint(new Vector3(self.rect.center.x, self.rect.yMax, 0f));
+            rect.position = top;
+            rect.anchoredPosition += new Vector2(0f, 10f);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+            // Keep the bubble on screen near the edges.
+            var rootRect = (RectTransform)root;
+            float half = rect.rect.width / 2f;
+            float limit = rootRect.rect.width / 2f - 8f;
+            Vector2 at = rect.anchoredPosition;
+            Vector3 local = rootRect.InverseTransformPoint(rect.position);
+            float shift = Mathf.Clamp(local.x, -limit + half, limit - half) - local.x;
+            rect.anchoredPosition = at + new Vector2(shift, 0f);
+        }
+
+        private void Hide()
+        {
+            held = -1f;
+            if (bubble != null) Destroy(bubble);
+            bubble = null;
+        }
+    }
+
+    /// <summary>
+    /// Solve reward: a painted butterfly lifts off the garden tile, flaps
+    /// between two watercolor frames and drifts up and away over ~2 s while
+    /// the finished creek holds on screen. Plays once; destroys itself.
+    /// </summary>
+    internal sealed class ButterflyFlight : MonoBehaviour
+    {
+        private const float Duration = 2.1f;
+        private const float FlapSeconds = 0.11f;
+        private RectTransform from;
+        private Image image;
+        private Sprite open;
+        private Sprite closed;
+        private Vector2 start;
+        private float elapsed = -1f;
+
+        public static void Launch(RectTransform gardenTile, Transform overlay)
+        {
+            Sprite wingsOpen = MosseloraArt.Load(MosseloraArt.ButterflyOpen);
+            Sprite wingsClosed = MosseloraArt.Load(MosseloraArt.ButterflyClosed);
+            if (gardenTile == null || overlay == null || wingsOpen == null) return;
+            var node = new GameObject("Solve butterfly", typeof(RectTransform));
+            node.transform.SetParent(overlay, false);
+            node.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = node.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(46f, 46f);
+            var flight = node.AddComponent<ButterflyFlight>();
+            flight.from = gardenTile;
+            flight.open = wingsOpen;
+            flight.closed = wingsClosed != null ? wingsClosed : wingsOpen;
+            flight.image = node.AddComponent<Image>();
+            flight.image.sprite = wingsOpen;
+            flight.image.preserveAspect = true;
+            flight.image.raycastTarget = false;
+            flight.image.color = new Color(1f, 1f, 1f, 0f); // appears once layout has placed the tile
+        }
+
+        private void Update()
+        {
+            var rect = (RectTransform)transform;
+            if (elapsed < 0f)
+            {
+                if (from == null) { Destroy(gameObject); return; }
+                // Start on the garden tile's centre, in the overlay's space.
+                Vector3 world = from.TransformPoint(from.rect.center);
+                start = ((RectTransform)rect.parent).InverseTransformPoint(world);
+                elapsed = 0f;
+            }
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / Duration;
+            if (t >= 1f) { Destroy(gameObject); return; }
+            // Up and away in a soft S, drifting toward the open sky.
+            float rise = Mathf.SmoothStep(0f, 1f, t) * 210f;
+            float sway = Mathf.Sin(t * Mathf.PI * 2.2f) * 34f + t * 60f;
+            rect.anchoredPosition = start + new Vector2(sway, rise);
+            rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI * 4f) * 10f);
+            image.sprite = ((int)(elapsed / FlapSeconds) % 2 == 0) ? open : closed;
+            float alpha = t < 0.12f ? t / 0.12f : t > 0.75f ? (1f - t) / 0.25f : 1f;
+            image.color = new Color(1f, 1f, 1f, alpha);
+        }
+    }
+
+    /// <summary>
+    /// Paper band behind the floating chrome that appears only once the page
+    /// has scrolled, so content melts under the buttons instead of colliding.
+    /// </summary>
+    internal sealed class ScrollFade : MonoBehaviour
+    {
+        private RectTransform page;
+        private CanvasGroup band;
+
+        public static void Attach(CanvasGroup band, RectTransform page)
+        {
+            var fade = band.gameObject.AddComponent<ScrollFade>();
+            fade.band = band;
+            fade.page = page;
+            fade.LateUpdate();
+        }
+
+        private void LateUpdate()
+        {
+            if (band == null || page == null) return;
+            float scrolled = Mathf.Clamp01(page.anchoredPosition.y / 24f);
+            if (Mathf.Abs(band.alpha - scrolled) > 0.01f) band.alpha = scrolled;
+        }
+    }
+
+    /// <summary>A slow, gentle alpha breath for a hint glow (only with gentle motion).</summary>
+    internal sealed class Breathe : MonoBehaviour
+    {
+        private Graphic graphic;
+        private Color baseColor;
+
+        public static void Add(Graphic target)
+        {
+            var breathe = target.gameObject.AddComponent<Breathe>();
+            breathe.graphic = target;
+            breathe.baseColor = target.color;
+        }
+
+        private void Update()
+        {
+            if (graphic == null) return;
+            float a = 0.55f + 0.45f * (0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.4f));
+            graphic.color = new Color(baseColor.r, baseColor.g, baseColor.b, baseColor.a * a);
+        }
+    }
+
+    /// <summary>A short side-to-side shake (about 0.35 s): "this one stays".</summary>
+    internal sealed class Nudge : MonoBehaviour
+    {
+        private float elapsed;
+        private Vector3 home;
+
+        private void Start() { home = transform.localPosition; }
+
+        private void Update()
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / 0.35f;
+            if (t >= 1f) { transform.localPosition = home; Destroy(this); return; }
+            float offset = Mathf.Sin(t * Mathf.PI * 6f) * 4f * (1f - t);
+            transform.localPosition = home + new Vector3(offset, 0f, 0f);
+        }
+    }
+
+    /// <summary>A tile fades onto the board after a short staggered delay.</summary>
+    internal sealed class SettleIn : MonoBehaviour
+    {
+        private float delay;
+        private float elapsed;
+        private CanvasGroup group;
+
+        public static void Add(GameObject node, float startDelay)
+        {
+            var settle = node.AddComponent<SettleIn>();
+            settle.delay = startDelay;
+            settle.group = node.AddComponent<CanvasGroup>();
+            settle.group.alpha = 0f;
+        }
+
+        private void Update()
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01((elapsed - delay) / 0.3f);
+            group.alpha = 1f - Mathf.Pow(1f - t, 3f);
+            if (t >= 1f)
+            {
+                Destroy(group);
+                Destroy(this);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A small parchment note above a tapped rooted tile, explaining why it
+    /// stays; fades after about 2.6 s. One at a time.
+    /// </summary>
+    internal sealed class RuleToast : MonoBehaviour
+    {
+        private static RuleToast current;
+        private float elapsed;
+        private CanvasGroup group;
+
+        public static void Show(RectTransform anchor, string message, Font font, Color ink, Color paper)
+        {
+            if (anchor == null) return;
+            if (current != null) Destroy(current.gameObject);
+            Canvas canvas = anchor.GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            var root = (RectTransform)canvas.rootCanvas.transform;
+            var node = new GameObject("Rule toast", typeof(RectTransform));
+            node.transform.SetParent(root, false);
+            var rect = node.GetComponent<RectTransform>();
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = new Vector2(Mathf.Min(300f, root.rect.width - 32f), 0f);
+            var fill = node.AddComponent<Image>();
+            MosseloraArt.Round(fill, paper, 14);
+            fill.raycastTarget = false;
+            MosseloraArt.Lift(fill, 3f, 0.25f);
+            MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 14);
+            var fit = node.AddComponent<ContentSizeFitter>();
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var pad = node.AddComponent<VerticalLayoutGroup>();
+            pad.padding = new RectOffset(14, 14, 10, 10);
+            pad.childControlWidth = true;
+            pad.childControlHeight = true;
+            pad.childForceExpandWidth = true;
+            var words = new GameObject("Toast words", typeof(RectTransform));
+            words.transform.SetParent(node.transform, false);
+            var text = words.AddComponent<Text>();
+            text.font = font;
+            text.fontSize = TextScale.Scale(15);
+            text.color = ink;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.text = message;
+            Vector3 top = anchor.TransformPoint(new Vector3(anchor.rect.center.x, anchor.rect.yMax, 0f));
+            rect.position = top;
+            rect.anchoredPosition += new Vector2(0f, 8f);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+            Vector3 local = root.InverseTransformPoint(rect.position);
+            float half = rect.rect.width / 2f, limit = root.rect.width / 2f - 8f;
+            rect.anchoredPosition += new Vector2(Mathf.Clamp(local.x, -limit + half, limit - half) - local.x, 0f);
+            current = node.AddComponent<RuleToast>();
+            current.group = node.AddComponent<CanvasGroup>();
+            current.group.blocksRaycasts = false;
+        }
+
+        private void Update()
+        {
+            elapsed += Time.unscaledDeltaTime;
+            if (elapsed > 2.6f) group.alpha = Mathf.Clamp01(1f - (elapsed - 2.6f) / 0.4f);
+            if (elapsed > 3.0f) Destroy(gameObject);
+        }
+
+        private void OnDestroy() { if (current == this) current = null; }
+
+        /// <summary>A toast points at something on the page; when the page is rebuilt
+        /// (menu, journal, next screen) that thing is gone, so the toast goes too (I104).</summary>
+        public static void Dismiss()
+        {
+            if (current == null) return;
+            current.gameObject.SetActive(false);
+            Destroy(current.gameObject);
+            current = null;
         }
     }
 }

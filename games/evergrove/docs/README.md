@@ -34,7 +34,7 @@
 | **Implemented in repository** | Unity/C# 12-chapter loop, deterministic branch-sensitive watercourses, 2D and opt-in 2.5D world, 3 authored neighbors, local save, 30 selectable language catalogs | Code exists; not equivalent to a verified native runtime |
 | **Verified in CI** | Pure .NET 8 puzzle/state tests (including 33 ecological variants), static Unity project contracts, optional backend tests; separate Godot games' checks | Logic/test harness passed, not real Unity Editor/device QA |
 | **Unverified on device** | Touch and input on phones, font shaping, accessibility APIs, Unity native exports, frame time, battery, save recovery under force-kill | Must be tested with actual Unity Editor and target devices |
-| **Unverified with players** | Fun, 1–3 minute session fit, 45+ suitability, voluntary return, preference to leading games, distribution/ASO, economics | Hypothesis, not a proven market opportunity |
+| **Unverified with players** | Fun, 1–3 minute session fit, 40+ suitability, voluntary return, preference to leading games, distribution/ASO, economics | Hypothesis, not a proven market opportunity |
 | **Not implemented** | Autonomous simulated ecosystem, runtime learning AI/NPCs, persistent multiplayer, production Cloudflare synchronization, UGC marketplace, paid monetization | Do not pitch as shipped or promise delivery |
 
 The **33 variants** are three oriented presentations of each of chapters 2–12, with one protected pipe. They are **not 33 independently designed levels**. In fact, 90° board rotations preserve the same graph's connectivity; the fixed tile changes interaction, not the underlying network complexity. Details: [Gameplay](GAMEPLAY_AND_WORLD_RULES.md).

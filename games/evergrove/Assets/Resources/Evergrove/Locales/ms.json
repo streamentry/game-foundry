@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menu"
+    },
+    {
+      "key": "close",
+      "value": "Tutup"
+    },
+    {
+      "key": "text_size",
+      "value": "Saiz teks"
+    },
+    {
+      "key": "board_size",
+      "value": "Papan lebih besar"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Gerakan lembut"
+    },
+    {
+      "key": "postcard",
+      "value": "Salin poskad taman"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Poskad disalin. Tampal ke dalam mesej untuk berkongsi taman anda."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Pokok anda mula menjadi keemasan. Daunnya akan gugur dan tumbuh semula lebih hijau."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Salji terletak di dahan pokok anda. Ia sedang tidur, bukan hilang."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Daun-daun kini hanyut di bawah jambatan. Ia masih kukuh, papan demi papan."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Saya pastikan jambatan bebas salji. Orang masih melaluinya setiap hari."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Bunga liar anda sedang mengeluarkan biji. Tebing sungai akan lebih subur musim bunga depan."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Taman bunga tidur di bawah salji. Biji-bijinya selamat di dalam tanah."
+    },
+    {
+      "key": "has_news",
+      "value": "Ada sesuatu yang baharu untuk diceritakan"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira berehat di bawah teduhan pokok-pokok anda."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira mengira pokok-pokok anda di sepanjang tebing."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin melintasi jambatan anda setiap pagi."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin memastikan laluan jambatan anda sentiasa baik."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen mengumpul biji benih daripada bunga liar anda."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen mengikuti lebah di antara bunga liar anda."
     }
   ]
 }

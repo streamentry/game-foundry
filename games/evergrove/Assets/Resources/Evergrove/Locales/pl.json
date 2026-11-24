@@ -404,6 +404,86 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menu"
+    },
+    {
+      "key": "close",
+      "value": "Zamknij"
+    },
+    {
+      "key": "text_size",
+      "value": "Rozmiar tekstu"
+    },
+    {
+      "key": "board_size",
+      "value": "Większa plansza"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Delikatne animacje"
+    },
+    {
+      "key": "postcard",
+      "value": "Kopiuj kartkę z ogrodem"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Kartka skopiowana. Wklej ją do wiadomości, aby udostępnić swój ogród."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Twoje drzewo złoci się. Straci liście i wróci bardziej zielone."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Śnieg leży na gałęziach twojego drzewa. Ono śpi, nie odeszło."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Liście płyną teraz pod kładką. Ona wciąż trzyma, deska po desce."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Odgarniam śnieg z kładki. Ludzie nadal przechodzą po niej każdego dnia."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Twoje polne kwiaty wydają nasiona. Brzeg na wiosnę będzie bardziej obsadzony."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Klomby śpią pod śniegiem. Nasiona są bezpieczne w ziemi."
+    },
+    {
+      "key": "has_news",
+      "value": "Ma coś nowego do powiedzenia"
+    },
+    {
+      "key": "memory_tree_2",
+      "value": "Mira odpoczywa w cieniu twoich drzew."
+    },
+    {
+      "key": "memory_tree_3",
+      "value": "Mira liczy twoje drzewa wzdłuż brzegu."
+    },
+    {
+      "key": "memory_bridge_2",
+      "value": "Orin każdego ranka przechodzi przez twoje mosty."
+    },
+    {
+      "key": "memory_bridge_3",
+      "value": "Orin dba o to, by twoje przeprawy były w dobrym stanie."
+    },
+    {
+      "key": "memory_flowers_2",
+      "value": "Fen zbiera nasiona z twoich polnych kwiatów."
+    },
+    {
+      "key": "memory_flowers_3",
+      "value": "Fen podąża za pszczołami między twoimi polnymi kwiatami."
     }
   ]
 }

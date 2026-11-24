@@ -4,7 +4,7 @@
 
 ## Audience and job to be done
 
-- **Primary validation cohort:** adults 45+ who enjoy calm, readable mobile puzzles, alongside casual puzzle players of other ages. Age is a recruitment hypothesis, **not** a restriction or proof of demand.
+- **Primary validation cohort:** adults 40+ (45+ until 2026-11-24) who enjoy calm, readable mobile puzzles, alongside casual puzzle players of other ages. Age is a recruitment hypothesis, **not** a restriction or proof of demand.
 - **Player job:** enjoy a complete, satisfying 2–5-minute puzzle without pressure; return to a small place that visibly reflects past decisions.
 - **Emotional job:** "I solved this. I chose this. The place changed. They remember."
 - **Commercial job:** a one-sentence, screenshot-demonstrable reason to choose Evergrove over a generic pipe game, with an affordable founder-led distribution channel.

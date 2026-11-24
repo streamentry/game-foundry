@@ -73,12 +73,13 @@ namespace Evergrove.UnityClient
         /// tile internals such as leak markers are not announced twice.
         /// <paramref name="describe"/> may override a button's label and hint.
         /// </summary>
-        public static List<SemanticNode> Collect(RectTransform root, Func<Button, Speech?> describe)
+        public static List<SemanticNode> Collect(RectTransform root, Func<Button, Speech?> describe,
+                                                 Transform skip = null)
         {
             var nodes = new List<SemanticNode>();
             if (root == null) return nodes;
             Camera camera = CameraFor(root);
-            Walk(root, nodes, describe, camera);
+            Walk(root, nodes, describe, camera, skip);
             return nodes;
         }
 
@@ -152,12 +153,13 @@ namespace Evergrove.UnityClient
 #endif
 
         private static void Walk(Transform parent, List<SemanticNode> output,
-                                 Func<Button, Speech?> describe, Camera camera)
+                                 Func<Button, Speech?> describe, Camera camera, Transform skip)
         {
             for (int i = 0; i < parent.childCount; i++)
             {
                 Transform child = parent.GetChild(i);
                 if (!child.gameObject.activeInHierarchy) continue;
+                if (skip != null && child == skip) continue;
                 var button = child.GetComponent<Button>();
                 if (button != null)
                 {
@@ -173,7 +175,7 @@ namespace Evergrove.UnityClient
                     output.Add(new SemanticNode(text.text.Trim(), null, role,
                         AccessibilityState.None, rect, camera, null));
                 }
-                Walk(child, output, describe, camera);
+                Walk(child, output, describe, camera, skip);
             }
         }
 
@@ -200,7 +202,8 @@ namespace Evergrove.UnityClient
         private static string CaptionOf(Button button)
         {
             Transform caption = button.transform.Find("Caption");
-            var text = caption != null ? caption.GetComponent<Text>() : null;
+            // The caption may sit on a plate (neighbor names), so look one level down too.
+            var text = caption != null ? caption.GetComponentInChildren<Text>() : null;
             string value = text != null ? text.text : button.name;
             // Choice captions carry an outcome line after a newline; speak it as a sentence.
             return string.IsNullOrWhiteSpace(value)
