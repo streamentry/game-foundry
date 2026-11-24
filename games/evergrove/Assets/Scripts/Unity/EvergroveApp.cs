@@ -953,7 +953,8 @@ namespace Evergrove.UnityClient
             // The village at the top, clipped to the upper half.
             var window = Node("Village window", titleScreen.transform);
             var windowRect = window.GetComponent<RectTransform>();
-            windowRect.anchorMin = new Vector2(0f, 0.46f);
+            // Reaches down behind the strip's sky so no blank band opens between them (I73).
+            windowRect.anchorMin = new Vector2(0f, 0.41f);
             windowRect.anchorMax = Vector2.one;
             windowRect.offsetMin = windowRect.offsetMax = Vector2.zero;
             window.AddComponent<RectMask2D>();
@@ -974,7 +975,7 @@ namespace Evergrove.UnityClient
             var melt = Node("Village melt", window.transform);
             var meltRect = melt.GetComponent<RectTransform>();
             meltRect.anchorMin = Vector2.zero;
-            meltRect.anchorMax = new Vector2(1f, 0.30f);
+            meltRect.anchorMax = new Vector2(1f, 0.24f);
             meltRect.offsetMin = meltRect.offsetMax = Vector2.zero;
             var meltImage = melt.AddComponent<Image>();
             meltImage.sprite = MosseloraArt.TopFade();
@@ -1036,15 +1037,39 @@ namespace Evergrove.UnityClient
             // An icon-only play button; the next stream's name sits above it as
             // a plain label (and is the button's spoken name).
             if (!world.Completed && GameLocalization.Current == "en")
-            {
-                Text where = Label(stack.transform, "Next stream", nextStop, 15, 0, Moss, TextAnchor.MiddleCenter);
-                Emphasize(where);
-                stack.transform.GetChild(stack.transform.childCount - 1).SetSiblingIndex(stack.transform.childCount - 2);
-            }
+                NextStreamLine(stack.transform, nextStop);
             Button start = IconButton(play, "Play", nextStop,
                 MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction);
             Width(start, 150);
             titleScreen.transform.SetAsLastSibling();
+        }
+
+        // "Rainwater" with the painted landmark your last choice planted in it:
+        // the next stream visibly carries what you grew (I73). Placed above Play.
+        private void NextStreamLine(Transform stack, string nextStop)
+        {
+            int split = nextStop.IndexOf(" · ", System.StringComparison.Ordinal);
+            int[] past = world.Choices;
+            Sprite mark = split > 0 && past.Length > 0
+                ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
+            Transform row = CenteredRowIn(stack, "Next stream row");
+            row.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+            if (mark != null)
+            {
+                var icon = Node("Shaped by your choice", row);
+                var iconLayout = icon.AddComponent<LayoutElement>();
+                iconLayout.minWidth = iconLayout.preferredWidth = 34;
+                iconLayout.minHeight = iconLayout.preferredHeight = 34;
+                var iconImage = icon.AddComponent<Image>();
+                iconImage.sprite = mark;
+                iconImage.preserveAspect = true;
+                iconImage.raycastTarget = false;
+                BloomPulse.Add(icon, 0.6f, 0.05f);
+            }
+            Text where = Label(row, "Next stream", mark != null ? nextStop.Substring(0, split) : nextStop,
+                16, 0, Moss, TextAnchor.MiddleCenter);
+            Emphasize(where);
+            row.SetSiblingIndex(stack.childCount - 2);
         }
 
         private void CloseTitle()
@@ -1649,8 +1674,10 @@ namespace Evergrove.UnityClient
             // screen; the tagline returns on story screens (memory, ending).
             if (!puzzleScreen || world.Round == 0)
             {
+                // Story screens use the hub's size, so the line sits inside the
+                // vine corners instead of running into them (I73).
                 Text subtitle = Label(content, "Title", GameLocalization.Text("subtitle"),
-                    puzzleScreen ? 17 : 24, puzzleScreen ? 28 : 44, Ink, TextAnchor.MiddleCenter);
+                    puzzleScreen ? 17 : 19, puzzleScreen ? 28 : 34, Ink, TextAnchor.MiddleCenter);
                 if (!puzzleScreen) Emphasize(subtitle);
             }
             if (languagePicker)
@@ -1819,7 +1846,7 @@ namespace Evergrove.UnityClient
                 Text story = Label(moment.transform, "Story", LocalizedVillage.Memory(world), 18, 0, Ink,
                     TextAnchor.MiddleCenter);
                 Emphasize(story);
-                Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 15, 0, Moss,
+                Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 16, 0, Ink,
                     TextAnchor.MiddleCenter);
                 Sprite memorySprig = MosseloraArt.Load(MosseloraArt.Sprig);
                 MosseloraArt.Ornament(moment.transform, "Sprig left", memorySprig, new Vector2(0f, 1f),
