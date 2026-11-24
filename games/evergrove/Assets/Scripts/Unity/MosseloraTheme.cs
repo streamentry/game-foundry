@@ -10,6 +10,13 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal static class MosseloraTheme
     {
+        public const string GlyphUndo = "↶";
+        public const string GlyphHint = "💧";
+        public const string GlyphRestart = "↺";
+        public const string GlyphMenu = "☰";
+        public const string GlyphSoundOn = "🔊";
+        public const string GlyphSoundOff = "🔇";
+        public const string GlyphJournal = "📖";
         public static readonly Color Paper = Hex("#F9F2E3");
         public static readonly Color Ink = Hex("#183E34");
         public static readonly Color SecondaryInk = Hex("#49645A");
