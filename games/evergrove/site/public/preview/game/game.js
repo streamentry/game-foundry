@@ -513,5 +513,12 @@
   if (journalCloseBtn) journalCloseBtn.addEventListener("click", () => toggleJournal(false));
   if (journalBackdrop) journalBackdrop.addEventListener("click", () => toggleJournal(false));
 
+  
+  // I43: Circadian Sky Lighting adaptation
+  const hour = new Date().getHours();
+  if (hour >= 20 || hour < 6) {
+    document.body.classList.add("theme-dusk");
+  }
+
   render();
 })(typeof window === "undefined" ? globalThis : window);
