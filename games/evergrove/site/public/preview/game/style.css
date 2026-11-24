@@ -695,3 +695,13 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
 .tile svg circle {
   filter: drop-shadow(0 1px 2px rgba(255,255,255,.8));
 }
+
+
+/* I75: Serene Atmospheric Prologue Fade */
+.app {
+  animation: app-fade-in 700ms cubic-bezier(.16, 1, .3, 1);
+}
+@keyframes app-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
