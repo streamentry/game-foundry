@@ -153,6 +153,44 @@ def knock_out_paper(image: Image.Image, tolerance: int = 26) -> Image.Image:
     return rgba
 
 
+def knock_out_border(image: Image.Image, tolerance: int = 22) -> Image.Image:
+    """Remove only the background connected to the image border.
+
+    For the brand logo: its cream letters and white flowers are close to the
+    white backdrop in colour, so a global knockout would punch holes in them.
+    """
+    from PIL import ImageDraw
+    rgba = image.convert("RGBA")
+    w, h = rgba.size
+    corners = [rgba.getpixel(p)[:3] for p in ((2, 2), (w - 3, 2), (2, h - 3), (w - 3, h - 3))]
+    bg = tuple(sum(c[i] for c in corners) // 4 for i in range(3))
+    rgb = rgba.convert("RGB")
+    dist = Image.new("L", (w, h))
+    src, out = rgb.load(), dist.load()
+    for y in range(h):
+        for x in range(w):
+            r, g, b = src[x, y]
+            out[x, y] = min(255, max(abs(r - bg[0]), abs(g - bg[1]), abs(b - bg[2])))
+    near = dist.point(lambda d: 255 if d <= tolerance * 2 else 0)
+    for x in range(0, w, 4):
+        for y in (0, h - 1):
+            if near.getpixel((x, y)) == 255:
+                ImageDraw.floodfill(near, (x, y), 128)
+    for y in range(0, h, 4):
+        for x in (0, w - 1):
+            if near.getpixel((x, y)) == 255:
+                ImageDraw.floodfill(near, (x, y), 128)
+    alpha = Image.new("L", (w, h), 255)
+    a, n, dd = alpha.load(), near.load(), dist.load()
+    for y in range(h):
+        for x in range(w):
+            if n[x, y] == 128:
+                d = dd[x, y]
+                a[x, y] = 0 if d <= tolerance else int(255 * (d - tolerance) / tolerance)
+    rgba.putalpha(alpha.filter(ImageFilter.GaussianBlur(0.7)))
+    return rgba
+
+
 def trim(image: Image.Image, pad: int = 8) -> Image.Image:
     alpha = image.getchannel("A").point(lambda v: 255 if v > 12 else 0)
     box = alpha.getbbox()
@@ -290,10 +328,13 @@ def main() -> None:
     # exported Xcode project by Assets/Editor/MosseloraLaunchScreen.cs).
     mark = master("wordmark")
     vine = master("vine-corner")
-    if mark and vine:
+    brand_logo = GAME / "brand" / "mosselora-logo.png"
+    if (mark or brand_logo.exists()) and vine:
         sheet = Image.new("RGBA", (1242, 2208), (249, 242, 227, 255))
-        word = fit(trim(knock_out_paper(mark), 4), 760, 300)
-        sheet.alpha_composite(word, ((1242 - word.width) // 2, 1000))
+        # The repo's brand logo, as in game and on the site (I102).
+        word = (fit(trim(knock_out_border(Image.open(brand_logo)), 4), 980, 420)
+                if brand_logo.exists() else fit(trim(knock_out_paper(mark), 4), 760, 300))
+        sheet.alpha_composite(word, ((1242 - word.width) // 2, 1104 - word.height // 2))
         corner = fit(knock_out_paper(vine), 420, 420)
         sheet.alpha_composite(corner, (0, 0))
         sheet.alpha_composite(corner.transpose(Image.FLIP_LEFT_RIGHT), (1242 - corner.width, 0))
@@ -323,9 +364,15 @@ def main() -> None:
             rgba = rgba.crop((0, 0, min(rgba.width, box[2] + 8), min(rgba.height, box[3] + 8)))
         save(fit(rgba, 512, 512), "vine-corner")
 
-    mark = master("wordmark")
-    if mark:
-        save(fit(trim(knock_out_paper(mark), 4), 1024, 256), "wordmark")
+    # The in-game wordmark is the repo's brand logo (games/evergrove/brand/
+    # mosselora-logo.png), the same art as the app icon and the web site.
+    brand_logo = GAME / "brand" / "mosselora-logo.png"
+    if brand_logo.exists():
+        save(fit(trim(knock_out_border(Image.open(brand_logo)), 4), 1024, 400), "wordmark")
+    else:
+        mark = master("wordmark")
+        if mark:
+            save(fit(trim(knock_out_paper(mark), 4), 1024, 256), "wordmark")
 
     icons = master("icons-choices")
     if icons:

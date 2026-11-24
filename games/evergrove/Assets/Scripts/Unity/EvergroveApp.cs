@@ -1041,7 +1041,7 @@ namespace Evergrove.UnityClient
             if (mark != null)
             {
                 var markNode = Node("Mosselora wordmark", stack.transform);
-                Height(markNode, 56f);
+                Height(markNode, 96f); // the repo's painted brand logo (about 2.6:1)
                 var markImage = markNode.AddComponent<Image>();
                 markImage.sprite = mark;
                 markImage.preserveAspect = true;
@@ -1677,7 +1677,9 @@ namespace Evergrove.UnityClient
                 return;
             }
             // Compact enough to sit between the floating menu and book buttons.
-            float markHeight = 46f; // always clears the floating menu and book buttons
+            // The repo's brand logo (about 2.6:1) needs more height than the old
+            // flat wordmark for its letters to read; still inset past the chrome.
+            float markHeight = compact ? 64f : 72f;
             var header = Node("Mosselora wordmark", content);
             Height(header, markHeight + 8f);
             // Inset past the floating menu (left) and book (right) buttons, so the
@@ -2000,7 +2002,7 @@ namespace Evergrove.UnityClient
                     // The memory screen's village yields a little height to the path
                     // marker, so the arrow and the next stream share one screen (I78).
                     ? Mathf.Round(bannerWidth / MosseloraArt.Aspect(bannerArt)
-                        * (memoryScreen ? (TextScale.Percent > 100 ? 0.5f : 0.9f) : 1f))
+                        * (memoryScreen ? (TextScale.Percent > 100 ? 0.5f : 0.68f) : 1f)) // gives the taller brand logo its room (I102)
                     : (firstPuzzle ? 96 : 193));
                 bool renderedMiniature = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -2362,7 +2364,11 @@ namespace Evergrove.UnityClient
                 MosseloraArt.PaperTile(pageImage, 14);
                 pageImage.color = MosseloraTheme.DryTile;
                 pageImage.raycastTarget = false;
-                MosseloraArt.Lift(pageImage, 2f, 0.12f);
+                MosseloraArt.Lift(pageImage, 2.5f, 0.16f);
+                // Pages sit a little askew, like photos pressed into a scrapbook:
+                // a fixed tilt per page (never random), purely visual (I102).
+                float[] tilts = { -1.6f, 1.2f, 0.9f, -1.3f, -0.7f, 1.5f };
+                page.transform.localRotation = Quaternion.Euler(0f, 0f, tilts[i % tilts.Length]);
                 var pageStack = page.AddComponent<VerticalLayoutGroup>();
                 pageStack.padding = new RectOffset(8, 8, 10, 10);
                 pageStack.spacing = 4;
