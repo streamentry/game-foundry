@@ -590,3 +590,16 @@ h1 em { font-style: italic; color: #34775c; }
   box-shadow: 0 4px 16px rgba(35, 95, 65, .25), inset 0 1px 0 rgba(255,255,255,.3) !important;
 }
 .primary-button--sprout:hover { transform: translateY(-1px); filter: brightness(1.05) !important; }
+
+
+/* I42: Twilight & Dusk Palette Mode */
+body.theme-dusk {
+  background: radial-gradient(ellipse 110% 320px at 55% -30px, #263832 0%, transparent 88%), #1b2622;
+  color: #e5ece6;
+}
+body.theme-dusk .puzzle-panel {
+  background: #22302a !important; border-color: #354a40 !important; color: #e5ece6 !important;
+}
+body.theme-dusk .tile {
+  background: #2a3a33 !important; border-color: #435e52 !important; color: #c4d8ce !important;
+}
