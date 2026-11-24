@@ -425,6 +425,17 @@ namespace Evergrove.UnityClient
             body.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             scroll.content = content;
             BuildMenuSheet(scrollNode.transform);
+            var fadeNode = Node("Chrome paper fade", scrollNode.transform);
+            var fadeRect = fadeNode.GetComponent<RectTransform>();
+            fadeRect.anchorMin = new Vector2(0f, 1f);
+            fadeRect.anchorMax = new Vector2(1f, 1f);
+            fadeRect.pivot = new Vector2(0.5f, 1f);
+            fadeRect.sizeDelta = new Vector2(0f, 92f);
+            var fadeImage = fadeNode.AddComponent<Image>();
+            fadeImage.sprite = MosseloraArt.TopFade();
+            fadeImage.color = new Color(Paper.r, Paper.g, Paper.b, 0f);
+            fadeImage.raycastTarget = false;
+            ScrollFade.Attach(fadeImage, content);
             var chromeNode = Node("Game chrome", scrollNode.transform);
             chrome = chromeNode.GetComponent<RectTransform>();
             chrome.anchorMin = new Vector2(0f, 1f);
@@ -1029,7 +1040,8 @@ namespace Evergrove.UnityClient
                 Emphasize(plain);
                 return;
             }
-            float markHeight = compact ? 52f : 64f;
+            // Compact enough to sit between the floating menu and book buttons.
+            float markHeight = compact ? 46f : 58f;
             var header = Node("Mosselora wordmark", content);
             Height(header, markHeight + 8f);
             var markImage = header.AddComponent<Image>();

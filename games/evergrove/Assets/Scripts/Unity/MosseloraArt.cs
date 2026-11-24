@@ -172,6 +172,27 @@ namespace Evergrove.UnityClient
             image.color = Color.white;
         }
 
+        private static Sprite fade;
+
+        /// <summary>White, opaque at the top, transparent at the bottom; tint for a paper fade.</summary>
+        public static Sprite TopFade()
+        {
+            if (fade != null) return fade;
+            var texture = new Texture2D(4, 64, TextureFormat.RGBA32, false)
+            { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "Mosselora top fade" };
+            var pixels = new Color32[4 * 64];
+            for (int y = 0; y < 64; y++)
+            {
+                float t = y / 63f; // 0 bottom .. 1 top
+                byte a = (byte)Mathf.RoundToInt(255f * Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.05f) / 0.6f)));
+                for (int x = 0; x < 4; x++) pixels[y * 4 + x] = new Color32(255, 255, 255, a);
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            fade = Sprite.Create(texture, new Rect(0, 0, 4, 64), new Vector2(0.5f, 0.5f), 100f);
+            return fade;
+        }
+
         /// <summary>Gives an Image a rounded, sliced, tinted body.</summary>
         public static void Round(Image image, Color fill, int radius = 16)
         {
@@ -507,6 +528,33 @@ namespace Evergrove.UnityClient
             image.sprite = ((int)(elapsed / FlapSeconds) % 2 == 0) ? open : closed;
             float alpha = t < 0.12f ? t / 0.12f : t > 0.75f ? (1f - t) / 0.25f : 1f;
             image.color = new Color(1f, 1f, 1f, alpha);
+        }
+    }
+
+    /// <summary>
+    /// Paper band behind the floating chrome that appears only once the page
+    /// has scrolled, so content melts under the buttons instead of colliding.
+    /// </summary>
+    internal sealed class ScrollFade : MonoBehaviour
+    {
+        private RectTransform page;
+        private Image band;
+
+        public static void Attach(Image band, RectTransform page)
+        {
+            var fade = band.gameObject.AddComponent<ScrollFade>();
+            fade.band = band;
+            fade.page = page;
+            fade.LateUpdate();
+        }
+
+        private void LateUpdate()
+        {
+            if (band == null || page == null) return;
+            float scrolled = Mathf.Clamp01(page.anchoredPosition.y / 36f);
+            Color c = band.color;
+            if (Mathf.Abs(c.a - scrolled) < 0.01f) return;
+            band.color = new Color(c.r, c.g, c.b, scrolled);
         }
     }
 }
