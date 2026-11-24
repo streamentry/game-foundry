@@ -1139,6 +1139,54 @@ namespace Evergrove.UnityClient
             return label;
         }
 
+        // Where you are along the creek: twelve stepping stones (passed, here,
+        // ahead) with the stream's name. "Stream n / 12" stays as spoken text.
+        private void StreamStones(Puzzle puzzle)
+        {
+            var row = Node("Chapter", content);
+            var group = row.AddComponent<VerticalLayoutGroup>();
+            group.childAlignment = TextAnchor.MiddleCenter;
+            group.spacing = 4;
+            group.childControlWidth = true;
+            group.childControlHeight = true;
+            group.childForceExpandWidth = true;
+            group.childForceExpandHeight = false;
+            var stones = Node("Stepping stones", row.transform);
+            var stoneRow = stones.AddComponent<HorizontalLayoutGroup>();
+            stoneRow.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
+            stoneRow.childAlignment = TextAnchor.MiddleCenter;
+            stoneRow.spacing = 6;
+            stoneRow.childControlWidth = true;
+            stoneRow.childControlHeight = true;
+            stoneRow.childForceExpandWidth = false;
+            stoneRow.childForceExpandHeight = false;
+            for (int i = 0; i < PuzzleCatalog.Count; i++)
+            {
+                bool here = i == world.Round;
+                bool passed = i < world.Round;
+                var stone = Node(passed ? "Stone passed" : here ? "Stone here" : "Stone ahead", stones.transform);
+                var layout = stone.AddComponent<LayoutElement>();
+                float size = here ? 18f : 11f;
+                layout.minWidth = layout.preferredWidth = size;
+                layout.minHeight = layout.preferredHeight = size;
+                var image = stone.AddComponent<Image>();
+                image.sprite = here ? MosseloraArt.BoldRing() : MosseloraArt.Rounded(4);
+                image.type = Image.Type.Simple;
+                image.color = here ? Leaf : passed ? MosseloraTheme.WaterChannel
+                    : new Color(0.55f, 0.50f, 0.42f, 0.35f);
+                image.raycastTarget = false;
+            }
+            string name = GameLocalization.Current == "en" ? puzzle.Name : "";
+            Text title = Label(row.transform, "Stream name", name.Length > 0 ? name : " ", 14, 0, Moss,
+                TextAnchor.MiddleCenter);
+            Emphasize(title);
+            // Spoken position along the creek, not shown: the stones show it.
+            Text spoken = Label(row.transform, "Stream position",
+                GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count),
+                12, 0, new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+            spoken.GetComponent<LayoutElement>().ignoreLayout = true;
+        }
+
         // Thin leaf sprig between sections; purely decorative.
         private void Sprig(float height = 22f)
         {
@@ -1627,10 +1675,7 @@ namespace Evergrove.UnityClient
         {
             Puzzle puzzle = world.CurrentPuzzle;
             PipeInsight insight = world.Insight;
-            Pill("Chapter",
-                GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count) +
-                (GameLocalization.Current == "en" ? "  ·  " + puzzle.Name : ""),
-                MosseloraTheme.SagePanel);
+            StreamStones(puzzle);
             Label(content, "Prompt", world.Round == 0 ?
                 GameLocalization.Text("first") : LocalizedVillage.Prompt(world), 16, 0, Ink,
                 TextAnchor.MiddleCenter);
