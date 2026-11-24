@@ -1827,12 +1827,17 @@ namespace Evergrove.UnityClient
                         24, 56, Ink, TextAnchor.MiddleCenter);
                     Emphasize(chooseTitle);
                     decisionHeading = chooseTitle.rectTransform;
+                    // Three tall painted cards side by side, like cards on a table.
+                    GameObject choiceRow = Row(content, "Village choices");
+                    var choiceGroup = choiceRow.GetComponent<HorizontalLayoutGroup>();
+                    choiceGroup.childForceExpandHeight = true;
+                    choiceGroup.childAlignment = TextAnchor.UpperCenter;
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
                         VillageChoice choice = (VillageChoice)choiceIndex;
                         // None is visually preselected. A golden default would
                         // bias research toward the first habitat, not player care.
-                        ChoiceCard(choice, () => MakeChoice(choice));
+                        ChoiceCard(choiceRow.transform, choice, () => MakeChoice(choice));
                     }
                 }
                 // Second thoughts live after the decision, not between the payoff
@@ -1883,54 +1888,44 @@ namespace Evergrove.UnityClient
 
         // Illustrated choice card (painted icon + title + written consequence).
         // One Button per card, so taps, focus and screen-reader text are unchanged.
-        private void ChoiceCard(VillageChoice choice, Action action)
+        private void ChoiceCard(Transform parent, VillageChoice choice, Action action)
         {
-            var node = Node("Choice " + choice, content);
-            MinHeight(node, TextScale.Scale(92));
+            var node = Node("Choice " + choice, parent);
+            MinHeight(node, TextScale.Scale(190));
             var image = node.AddComponent<Image>();
-            MosseloraArt.Round(image, MosseloraTheme.CardFill, 18);
-            MosseloraArt.Lift(image, 2f, 0.12f);
+            MosseloraArt.PaperTile(image, 18);
+            image.color = MosseloraTheme.CardFill;
+            MosseloraArt.Lift(image, 3f, 0.16f);
             MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
             var button = node.AddComponent<Button>();
             button.targetGraphic = image;
             button.colors = PressTint();
             button.onClick.AddListener(() => action());
             PressSquash.Add(node);
-            var group = node.AddComponent<HorizontalLayoutGroup>();
-            group.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
-            group.padding = new RectOffset(12, 14, 10, 10);
-            group.spacing = 12;
-            group.childAlignment = TextAnchor.MiddleLeft;
-            group.childControlWidth = true;
-            group.childControlHeight = true;
-            group.childForceExpandWidth = false;
-            group.childForceExpandHeight = false;
+            var stack = node.AddComponent<VerticalLayoutGroup>();
+            stack.padding = new RectOffset(8, 8, 12, 12);
+            stack.spacing = 6;
+            stack.childAlignment = TextAnchor.UpperCenter;
+            stack.childControlWidth = true;
+            stack.childControlHeight = true;
+            stack.childForceExpandWidth = true;
+            stack.childForceExpandHeight = false;
             Sprite icon = MosseloraArt.ChoiceIcon(choice);
             if (icon != null)
             {
                 var picture = Node("Choice picture", node.transform);
                 var pictureLayout = picture.AddComponent<LayoutElement>();
-                pictureLayout.preferredWidth = 84;
-                pictureLayout.minWidth = 84;
-                pictureLayout.preferredHeight = 76;
-                pictureLayout.flexibleWidth = 0;
+                pictureLayout.minHeight = pictureLayout.preferredHeight = 84;
                 var pictureImage = picture.AddComponent<Image>();
                 pictureImage.sprite = icon;
                 pictureImage.preserveAspect = true;
                 pictureImage.raycastTarget = false;
             }
-            var words = Node("Choice words", node.transform);
-            words.AddComponent<LayoutElement>().flexibleWidth = 1;
-            var stack = words.AddComponent<VerticalLayoutGroup>();
-            stack.spacing = 6;
-            stack.childAlignment = TextAnchor.MiddleLeft;
-            stack.childControlWidth = true;
-            stack.childControlHeight = true;
-            stack.childForceExpandWidth = true;
-            stack.childForceExpandHeight = false;
-            Text title = Label(words.transform, "Choice name", LocalizedVillage.Choice(choice), 18, 0, Ink);
+            Text title = Label(node.transform, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink,
+                TextAnchor.UpperCenter);
             Emphasize(title);
-            Label(words.transform, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 15, 0, Moss);
+            Label(node.transform, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 13, 0, Moss,
+                TextAnchor.UpperCenter);
         }
 
         // Compact settings row below the primary content of puzzle and post-choice
