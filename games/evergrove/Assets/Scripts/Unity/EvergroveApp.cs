@@ -93,7 +93,9 @@ namespace Evergrove.UnityClient
         private Text[] visibleLeaks; // punctuation, not hue, denotes unmatched water ports
         private Text feedbackText;
         private int rebuildGeneration; // lets a pending glide notice any later rebuild
-        private bool celebrateSolve; // one-shot: the rebuild after the solving tap blooms
+        private bool celebrateSolve;
+        private string lastScreenKey = "";
+        private CanvasGroup pageFade; // one-shot: the rebuild after the solving tap blooms
         private Image[] waterDrops; // one painted droplet per tile the water can reach
         private Button undoButton;
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
@@ -1067,6 +1069,22 @@ namespace Evergrove.UnityClient
 
         // Start a new garden: a seedling icon first; only the confirm step
         // spells out the erase, beside an always-visible cancel.
+        private IEnumerator FadeInPage()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) yield break; // tour screenshots capture settled screens
+#endif
+            if (pageFade == null) pageFade = content.gameObject.AddComponent<CanvasGroup>();
+            pageFade.alpha = 0f;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.26f)
+            {
+                if (pageFade == null) yield break;
+                pageFade.alpha = Mathf.SmoothStep(0f, 1f, t);
+                yield return null;
+            }
+            if (pageFade != null) pageFade.alpha = 1f;
+        }
+
         private void ResetControls(string resetName, string cancelName, Color tone)
         {
             Transform row = CenteredRow(resetName + " row");
@@ -1743,6 +1761,11 @@ namespace Evergrove.UnityClient
             Emphasize(promise);
             content = page;
             BuildChrome(living);
+            // A different screen (not a tile turn) crossfades in like a turned page.
+            string screenKey = (memoryScreen ? "memory" : world.Completed ? "ending" : "puzzle") + ":" +
+                world.Round + ":" + world.Solved + ":" + showJournal + ":" + speakingWith + ":" + languagePicker;
+            if (screenKey != lastScreenKey && lastScreenKey.Length > 0 && gentleMotion) StartCoroutine(FadeInPage());
+            lastScreenKey = screenKey;
             menuSheet.SetActive(menuOpen);
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(menuContent);
