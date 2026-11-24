@@ -1254,11 +1254,17 @@ namespace Evergrove.UnityClient
             Emphasize(speaker);
             Label(bubble.transform, "What they say",
                 LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft);
-            Transform close = CenteredRowIn(bubble.transform, "Thanks row");
-            close.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleRight;
-            Width(IconButton(close, "Thanks", GameLocalization.Text("thanks"),
-                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 50,
-                MosseloraTheme.ForestAction), 70);
+            var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
+                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
+                MosseloraTheme.ForestAction);
+            // Tucked into the bubble's lower-right corner, outside the text flow.
+            thanks.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
+            var thanksRect = thanks.GetComponent<RectTransform>();
+            thanksRect.anchorMin = thanksRect.anchorMax = new Vector2(1f, 0f);
+            thanksRect.pivot = new Vector2(1f, 0f);
+            thanksRect.sizeDelta = new Vector2(56f, 44f);
+            thanksRect.anchoredPosition = new Vector2(-10f, 10f);
+            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(16, 16, 14, 58);
         }
 
         // Neighbor as a painted portrait medallion with their name beneath.
