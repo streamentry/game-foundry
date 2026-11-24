@@ -710,6 +710,40 @@ namespace Evergrove.UnityClient
             return button;
         }
 
+        // The village's story at a glance: every choice, in order, as its
+        // painted icon (no text, so screen readers hear only the journal lines).
+        private void ChoiceTimeline(Transform parent)
+        {
+            int[] chosen = world.Choices;
+            if (chosen.Length == 0) return;
+            var strip = Node("Choice timeline", parent);
+            var grid = strip.AddComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(50f, 46f);
+            grid.spacing = new Vector2(4f, 6f);
+            grid.childAlignment = TextAnchor.MiddleCenter;
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = Mathf.Min(6, chosen.Length);
+            int rows = (chosen.Length + grid.constraintCount - 1) / grid.constraintCount;
+            Height(strip, rows * 46f + (rows - 1) * 6f);
+            for (int i = 0; i < chosen.Length; i++)
+            {
+                Sprite icon = MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]);
+                var cell = Node("Chapter choice", strip.transform);
+                if (icon != null)
+                {
+                    var picture = Node("Picture", cell.transform);
+                    var pictureRect = picture.GetComponent<RectTransform>();
+                    pictureRect.anchorMin = Vector2.zero;
+                    pictureRect.anchorMax = Vector2.one;
+                    pictureRect.offsetMin = pictureRect.offsetMax = Vector2.zero;
+                    var pictureImage = picture.AddComponent<Image>();
+                    pictureImage.sprite = icon;
+                    pictureImage.preserveAspect = true;
+                    pictureImage.raycastTarget = false;
+                }
+            }
+        }
+
         // Same rule as PipeRules.Inspect leaks: a port with no partner
         // (board edge or a neighbor without the facing port) is open.
         private static int OpenPorts(Puzzle puzzle, int[] rotations, int tile)
@@ -1193,6 +1227,7 @@ namespace Evergrove.UnityClient
                 Text endingTitle = Label(conclusion.transform, "Ending title",
                     GameLocalization.Text("ending_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(endingTitle);
+                if (living) ChoiceTimeline(conclusion.transform);
                 Text finalWords = Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
                     19, 0, Ink, TextAnchor.MiddleCenter);
                 Emphasize(finalWords);
@@ -1377,6 +1412,7 @@ namespace Evergrove.UnityClient
             Text journalTitle = Label(journal.transform, "Journal title",
                 GameLocalization.Text("journal_title"), 15, 30, Leaf, TextAnchor.MiddleCenter);
             Emphasize(journalTitle);
+            ChoiceTimeline(journal.transform);
             string[] entries = LocalizedVillage.Journal(world);
             int[] chosen = world.Choices;
             for (int i = 0; i < entries.Length; i++)
@@ -1665,8 +1701,11 @@ namespace Evergrove.UnityClient
                         14, 65, Moss, TextAnchor.MiddleCenter);
                 }
             }
-            Label(content, "How to play", GameLocalization.Text("how"),
-                14, 0, Moss, TextAnchor.MiddleCenter);
+            // Taught once: after the first stream the board speaks for itself
+            // (screen readers still hear "how" as each tile's hint).
+            if (world.Round == 0)
+                Label(content, "How to play", GameLocalization.Text("how"),
+                    14, 0, Moss, TextAnchor.MiddleCenter);
         }
 
         // Illustrated choice card (painted icon + title + written consequence).
