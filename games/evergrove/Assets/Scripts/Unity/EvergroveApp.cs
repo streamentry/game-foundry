@@ -94,6 +94,7 @@ namespace Evergrove.UnityClient
         private Text feedbackText;
         private int rebuildGeneration; // lets a pending glide notice any later rebuild
         private bool celebrateSolve;
+        private bool celebrateGrowth; // one-shot: the memory screen shows the new landmark growing
         private string lastScreenKey = "";
         private CanvasGroup pageFade; // one-shot: the rebuild after the solving tap blooms
         private Image[] waterDrops; // one painted droplet per tile the water can reach
@@ -1545,6 +1546,10 @@ namespace Evergrove.UnityClient
                     painting.Build(17f);
                     if (painting.Ready)
                     {
+                        int[] grown = world.Choices;
+                        if (celebrateGrowth && memoryScreen && grown.Length > 0)
+                            painting.GrowNewestKind = grown[grown.Length - 1];
+                        celebrateGrowth = false;
                         activePainting = painting;
                         painting.Show(scenePlan.Chapter, scenePlan.TreeCount,
                             scenePlan.CrossingCount, scenePlan.FlowerCount,
@@ -2616,6 +2621,7 @@ namespace Evergrove.UnityClient
             showJournal = false;
             speakingWith = -1;
             PlayChime();
+            celebrateGrowth = gentleMotion;
             Rebuild(true);
         }
 

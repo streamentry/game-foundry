@@ -38,6 +38,12 @@ namespace Evergrove.UnityClient
         private int shownBridges = -1;
         private int shownFlowers = -1;
 
+        /// <summary>
+        /// Set before Show to the kind just chosen (0 tree, 1 crossing, 2 flowers):
+        /// that kind's newest landmark grows up out of the ground once. -1 = none.
+        /// </summary>
+        public int GrowNewestKind = -1;
+
         /// <summary>False when the painted masters are not in the build; caller falls back.</summary>
         public bool Ready { get; private set; }
 
@@ -105,14 +111,19 @@ namespace Evergrove.UnityClient
             shownFlowers = meadows;
             for (int i = landmarks.childCount - 1; i >= 0; i--)
                 Destroy(landmarks.GetChild(i).gameObject);
-            Place(MosseloraArt.Load(MosseloraArt.ShadeTree), TreeSlots, shade, "Planted shade tree");
-            Place(MosseloraArt.Load(MosseloraArt.Wildflowers), FlowerSlots, meadows, "Grown wildflowers");
-            Place(MosseloraArt.Load(MosseloraArt.Bridge), BridgeSlots, crossings, "Restored crossing");
+            Transform tree = Place(MosseloraArt.Load(MosseloraArt.ShadeTree), TreeSlots, shade, "Planted shade tree");
+            Transform flower = Place(MosseloraArt.Load(MosseloraArt.Wildflowers), FlowerSlots, meadows, "Grown wildflowers");
+            Transform bridge = Place(MosseloraArt.Load(MosseloraArt.Bridge), BridgeSlots, crossings, "Restored crossing");
+            Transform newest = GrowNewestKind == 0 ? tree : GrowNewestKind == 1 ? bridge : GrowNewestKind == 2 ? flower : null;
+            if (newest != null) newest.gameObject.AddComponent<GrowIn>();
+            GrowNewestKind = -1;
         }
 
-        private void Place(Sprite sprite, Vector3[] slots, int count, string label)
+        /// <summary>Places this kind's landmarks; returns the newest (last slot) or null.</summary>
+        private Transform Place(Sprite sprite, Vector3[] slots, int count, string label)
         {
-            if (sprite == null) return;
+            Transform last = null;
+            if (sprite == null) return null;
             int shown = Mathf.Min(Mathf.Max(0, count), slots.Length);
             for (int i = 0; i < shown; i++)
             {
@@ -131,7 +142,9 @@ namespace Evergrove.UnityClient
                 image.sprite = sprite;
                 image.preserveAspect = true;
                 image.raycastTarget = false;
+                last = node.transform;
             }
+            return last;
         }
 
         /// <summary>Keeps a landmark proportional to the strip at any phone width.</summary>
@@ -161,6 +174,25 @@ namespace Evergrove.UnityClient
                 lastParent = parent.rect.size;
                 float height = parent.rect.height * share;
                 ((RectTransform)transform).sizeDelta = new Vector2(height * aspect, height);
+            }
+        }
+
+        /// <summary>A landmark rises out of the ground, bottom-pivoted, over 0.9 s.</summary>
+        private sealed class GrowIn : MonoBehaviour
+        {
+            private float elapsed;
+
+            private void Start() { transform.localScale = new Vector3(0.2f, 0f, 1f); }
+
+            private void Update()
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01((elapsed - 0.35f) / 0.9f);
+                // Ease out with a small settle: grows a touch past full, then rests.
+                float k = 1f - Mathf.Pow(1f - t, 3f);
+                float settle = 1f + 0.06f * Mathf.Sin(t * Mathf.PI);
+                transform.localScale = new Vector3(Mathf.Lerp(0.2f, 1f, k) * settle, k * settle, 1f);
+                if (t >= 1f) { transform.localScale = Vector3.one; Destroy(this); }
             }
         }
     }
