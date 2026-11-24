@@ -94,6 +94,7 @@ namespace Evergrove.UnityClient
         private Text feedbackText;
         private int rebuildGeneration; // lets a pending glide notice any later rebuild
         private bool celebrateSolve;
+        private bool[] lastFlowing; // which tiles held water before this move
         private bool celebrateGrowth; // one-shot: the memory screen shows the new landmark growing
         private string lastScreenKey = "";
         private CanvasGroup pageFade; // one-shot: the rebuild after the solving tap blooms
@@ -2117,6 +2118,7 @@ namespace Evergrove.UnityClient
                 ? GameLocalization.Text("solved")
                 : GameLocalization.Text("progress", insight.ConnectedCount, puzzle.CellCount, insight.LeakCount);
             WaterMeter(puzzle.CellCount, world.Solved ? puzzle.CellCount : insight.ConnectedCount);
+            lastFlowing = (bool[])insight.Flowing.Clone();
             // Spoken, not shown: the droplets and the open mouths already show
             // reach and leaks, and the protected-habitat line explains landmarks.
             Transform meterRow = waterDrops != null ? content.GetChild(content.childCount - 1) : content;
@@ -2542,6 +2544,10 @@ namespace Evergrove.UnityClient
             int[] angles = world.Rotations;
             for (int i = 0; i < puzzle.CellCount; i++)
             {
+                // Water just arrived here: the tile gives one small, soft swell.
+                if (gentleMotion && lastFlowing != null && i < lastFlowing.Length &&
+                    insight.Flowing[i] && !lastFlowing[i])
+                    BloomPulse.Add(tileArtwork[i].gameObject, 0.04f); // the pipe, not the pressed tile
                 tileBackgrounds[i].color = MosseloraTheme.TileFill(world.Solved,
                     insight.Flowing[i], puzzle.IsAnchored(i), world.HintStep,
                     world.HintTile, i, puzzle.Size);
@@ -2552,6 +2558,7 @@ namespace Evergrove.UnityClient
                     visibleLeaks[i].text = insight.Leaking[i] ? "○" : "";
             }
             PaintDrops(world.Solved ? puzzle.CellCount : insight.ConnectedCount);
+            lastFlowing = (bool[])insight.Flowing.Clone();
             if (feedbackText != null)
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
                     insight.ConnectedCount, puzzle.CellCount, insight.LeakCount));
