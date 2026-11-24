@@ -295,6 +295,7 @@
   document.querySelectorAll("[data-choice]").forEach(button => {
     button.addEventListener("click", () => {
       if (!model.choose(button.dataset.choice)) return;
+      triggerHaptic(40);
       render();
       // Show what actually changed before asking somebody to read prose.
       revealWorld();
@@ -447,6 +448,14 @@
       p.style.top = (rect.height / 2) + "px";
       el.appendChild(p);
       setTimeout(() => p.remove(), 480);
+    }
+  }
+
+  
+  // I35: Web Haptic Vibration support
+  function triggerHaptic(duration = 25) {
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      try { navigator.vibrate(duration); } catch {}
     }
   }
 

@@ -538,3 +538,10 @@ h1 em { font-style: italic; color: #34775c; }
   filter: drop-shadow(0 2px 4px rgba(135, 60, 95, .25));
 }
 .choice-button[data-choice="flowers"]:hover { background: #fbf2f6 !important; }
+
+
+/* I35: Tactile Choice Tablet Depression */
+.choice-button:active {
+  transform: translateY(2px) scale(.985) !important;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.12) !important;
+}
