@@ -151,6 +151,8 @@ namespace Evergrove.UnityClient
         }
 
         public const string TilePaper = "tile-paper";
+        public const string ButterflyOpen = "butterfly-open";
+        public const string ButterflyClosed = "butterfly-closed";
 
         /// <summary>
         /// Rounded tile body on Codex-generated watercolor paper (near-white,
@@ -438,6 +440,69 @@ namespace Evergrove.UnityClient
             held = -1f;
             if (bubble != null) Destroy(bubble);
             bubble = null;
+        }
+    }
+
+    /// <summary>
+    /// Solve reward: a painted butterfly lifts off the garden tile, flaps
+    /// between two watercolor frames and drifts up and away over ~2 s while
+    /// the finished creek holds on screen. Plays once; destroys itself.
+    /// </summary>
+    internal sealed class ButterflyFlight : MonoBehaviour
+    {
+        private const float Duration = 2.1f;
+        private const float FlapSeconds = 0.11f;
+        private RectTransform from;
+        private Image image;
+        private Sprite open;
+        private Sprite closed;
+        private Vector2 start;
+        private float elapsed = -1f;
+
+        public static void Launch(RectTransform gardenTile, Transform overlay)
+        {
+            Sprite wingsOpen = MosseloraArt.Load(MosseloraArt.ButterflyOpen);
+            Sprite wingsClosed = MosseloraArt.Load(MosseloraArt.ButterflyClosed);
+            if (gardenTile == null || overlay == null || wingsOpen == null) return;
+            var node = new GameObject("Solve butterfly", typeof(RectTransform));
+            node.transform.SetParent(overlay, false);
+            node.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = node.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(46f, 46f);
+            var flight = node.AddComponent<ButterflyFlight>();
+            flight.from = gardenTile;
+            flight.open = wingsOpen;
+            flight.closed = wingsClosed != null ? wingsClosed : wingsOpen;
+            flight.image = node.AddComponent<Image>();
+            flight.image.sprite = wingsOpen;
+            flight.image.preserveAspect = true;
+            flight.image.raycastTarget = false;
+            flight.image.color = new Color(1f, 1f, 1f, 0f); // appears once layout has placed the tile
+        }
+
+        private void Update()
+        {
+            var rect = (RectTransform)transform;
+            if (elapsed < 0f)
+            {
+                if (from == null) { Destroy(gameObject); return; }
+                // Start on the garden tile's centre, in the overlay's space.
+                Vector3 world = from.TransformPoint(from.rect.center);
+                start = ((RectTransform)rect.parent).InverseTransformPoint(world);
+                elapsed = 0f;
+            }
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / Duration;
+            if (t >= 1f) { Destroy(gameObject); return; }
+            // Up and away in a soft S, drifting toward the open sky.
+            float rise = Mathf.SmoothStep(0f, 1f, t) * 210f;
+            float sway = Mathf.Sin(t * Mathf.PI * 2.2f) * 34f + t * 60f;
+            rect.anchoredPosition = start + new Vector2(sway, rise);
+            rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI * 4f) * 10f);
+            image.sprite = ((int)(elapsed / FlapSeconds) % 2 == 0) ? open : closed;
+            float alpha = t < 0.12f ? t / 0.12f : t > 0.75f ? (1f - t) / 0.25f : 1f;
+            image.color = new Color(1f, 1f, 1f, alpha);
         }
     }
 }

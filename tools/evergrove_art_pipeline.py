@@ -304,6 +304,12 @@ def main() -> None:
                               grid(ui2, 2, 2)):
             save(white_glyph(cell), name)
 
+    butterfly = master("butterfly")
+    if butterfly:
+        for name, cell in zip(("butterfly-open", "butterfly-closed"),
+                              grid(knock_out_paper(butterfly), 2, 1)):
+            save(fit(trim(cell, 4), 160, 160), name)
+
     paper = master("paper-grain")
     if paper:
         save(paper_tile(paper), "tile-paper", border=26)

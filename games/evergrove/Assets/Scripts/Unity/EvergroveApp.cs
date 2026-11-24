@@ -1471,6 +1471,7 @@ namespace Evergrove.UnityClient
             tileArtwork = new PipeGraphic[puzzle.CellCount];
             visibleLeaks = new Text[puzzle.CellCount];
             int seenEnds = 0;
+            RectTransform gardenTile = null;
             for (int index = 0; index < puzzle.CellCount; index++)
             {
                 int tappedIndex = index;
@@ -1569,6 +1570,7 @@ namespace Evergrove.UnityClient
                     // Visible endpoint semantics instead of relying only on
                     // screen-reader names or a color difference.
                     bool spring = seenEnds == 1;
+                    if (!spring) gardenTile = tileNode.GetComponent<RectTransform>();
                     var markerNode = Node(spring ? "Water spring waves" : "Garden sprout",
                         tileNode.transform);
                     RectTransform markerRect = markerNode.GetComponent<RectTransform>();
@@ -1590,6 +1592,7 @@ namespace Evergrove.UnityClient
                 }
             }
 
+            if (celebrateSolve) ButterflyFlight.Launch(gardenTile, board.transform);
             celebrateSolve = false;
             string feedback = world.Solved
                 ? GameLocalization.Text("solved")
