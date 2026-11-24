@@ -343,6 +343,11 @@ def main() -> None:
         for name, cell in zip(("ui-motion-on", "ui-motion-off", "ui-path", "ui-chat"), grid(ui4, 2, 2)):
             save(white_glyph(cell), name)
 
+    ui5 = master("icons-ui-5")
+    if ui5:
+        for name, cell in zip(("ui-tap", "ui-turn", "ui-rooted", "ui-sun"), grid(ui5, 2, 2)):
+            save(white_glyph(cell), name)
+
     butterfly = master("butterfly")
     if butterfly:
         for name, cell in zip(("butterfly-open", "butterfly-closed"),

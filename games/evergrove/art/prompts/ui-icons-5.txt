@@ -1,0 +1,11 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached icon sheet is the EXISTING icon family: match its style exactly (solid black single-colour glyphs, bold rounded strokes about 9% of icon size, rounded caps and joins, flat, friendly). Generate exactly ONE image.
+Use case: logo-brand
+Asset type: four more UI icons for the same family, sliced from a 2x2 grid
+Primary request: 2x2 grid, each icon centred in its own equal square cell, ~62% of the cell, generous margins, no grid lines:
+ top-left: TAP — a friendly hand with the index finger pointing down, with two short curved "tap" lines around the fingertip;
+ top-right: TURN — a short curved arrow sweeping clockwise about a quarter circle around a small square;
+ bottom-left: ROOTED — a small padlock whose body is replaced by a leaf, with three short roots hanging below it;
+ bottom-right: SUN — a round sun with eight short rounded rays.
+Background: fully TRANSPARENT (alpha). Square 1024x1024.
+Constraints: no text, no letters, no numbers, no watermark.
+Copy the final PNG to games/evergrove/art/generated/icons-ui-5.png and print the path. Do nothing else.

@@ -2344,6 +2344,34 @@ namespace Evergrove.UnityClient
             // The coach bubble teaches; every tile's spoken hint still carries "how".
         }
 
+        // Painted glyphs sit in cream discs; UI glyphs are drawn white on the bubble.
+        private static void CoachGlyph(Transform parent, Sprite sprite, bool painted)
+        {
+            if (sprite == null) return;
+            var holder = new GameObject(painted ? "Coach disc" : "Coach mark", typeof(RectTransform));
+            holder.transform.SetParent(parent, false);
+            var layout = holder.AddComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = painted ? 46 : 30;
+            layout.minHeight = layout.preferredHeight = painted ? 46 : 30;
+            if (painted)
+            {
+                var disc = holder.AddComponent<Image>();
+                MosseloraArt.Round(disc, MosseloraTheme.CardFill, 23);
+                disc.raycastTarget = false;
+            }
+            var mark = new GameObject("Glyph", typeof(RectTransform));
+            mark.transform.SetParent(holder.transform, false);
+            var rect = mark.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(7f, 7f) * (painted ? 1f : 0f);
+            rect.offsetMax = new Vector2(-7f, -7f) * (painted ? 1f : 0f);
+            var image = mark.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+        }
+
         private void CoachBubble(string message)
         {
             var row = Node("Prompt", content);
@@ -2381,8 +2409,26 @@ namespace Evergrove.UnityClient
             pad.childControlWidth = true;
             pad.childControlHeight = true;
             pad.childForceExpandWidth = true;
-            Text words = Label(bubble.transform, "Coach words", message, 16, 0, White, TextAnchor.MiddleCenter);
-            Emphasize(words);
+            // A picture, not a sentence: spring waves → garden sprout, and a
+            // tapping hand. The sentence stays as spoken text for screen readers.
+            Text words = Label(bubble.transform, "Coach words", message, 16, 0, new Color(1f, 1f, 1f, 0f),
+                TextAnchor.MiddleCenter);
+            words.GetComponent<LayoutElement>().ignoreLayout = true;
+            Fill(words.rectTransform);
+            var picture = Node("Coach picture", bubble.transform);
+            var pictureRow = picture.AddComponent<HorizontalLayoutGroup>();
+            pictureRow.spacing = 10;
+            pictureRow.childAlignment = TextAnchor.MiddleCenter;
+            pictureRow.childControlWidth = true;
+            pictureRow.childControlHeight = true;
+            pictureRow.childForceExpandWidth = false;
+            pictureRow.childForceExpandHeight = false;
+            CoachGlyph(picture.transform, MosseloraArt.Load(MosseloraArt.SpringWaves), true);
+            CoachGlyph(picture.transform, MosseloraArt.Load(MosseloraArt.IconContinue), false);
+            CoachGlyph(picture.transform, MosseloraArt.Load(MosseloraArt.Sprout), true);
+            var gap = Node("Coach gap", picture.transform);
+            gap.AddComponent<LayoutElement>().minWidth = 6;
+            CoachGlyph(picture.transform, MosseloraArt.Load(MosseloraArt.IconTap), false);
             var tail = Node("Coach tail", bubble.transform);
             tail.AddComponent<LayoutElement>().ignoreLayout = true;
             var tailRect = tail.GetComponent<RectTransform>();
