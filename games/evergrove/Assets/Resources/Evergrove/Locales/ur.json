@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "بڑا بورڈ"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "نرم حرکت"
     }
   ]
 }

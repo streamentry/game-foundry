@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "ขยายกระดาน"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "การเคลื่อนไหวนุ่มนวล"
     }
   ]
 }

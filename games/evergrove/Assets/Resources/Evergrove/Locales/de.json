@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Größeres Spielfeld"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Sanfte Animation"
     }
   ]
 }

@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "보드 크게"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "부드러운 움직임"
     }
   ]
 }

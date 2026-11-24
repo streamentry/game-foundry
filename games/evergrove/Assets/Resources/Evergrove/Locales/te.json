@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "పెద్ద బోర్డు"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "మృదువైన కదలిక"
     }
   ]
 }

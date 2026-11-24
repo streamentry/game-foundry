@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Papan lebih besar"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Gerakan lembut"
     }
   ]
 }

@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "盤面を大きく"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "やさしいアニメーション"
     }
   ]
 }

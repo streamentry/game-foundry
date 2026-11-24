@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "பெரிய பலகை"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "மென்மையான அசைவு"
     }
   ]
 }

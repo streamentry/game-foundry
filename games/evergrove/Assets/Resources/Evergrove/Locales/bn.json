@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "বড় বোর্ড"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "মৃদু অ্যানিমেশন"
     }
   ]
 }

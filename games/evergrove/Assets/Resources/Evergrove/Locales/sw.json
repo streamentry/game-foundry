@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Ubao mkubwa zaidi"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Mwendo mwepesi"
     }
   ]
 }

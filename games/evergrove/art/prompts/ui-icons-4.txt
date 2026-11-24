@@ -1,0 +1,11 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached icon sheet is the EXISTING icon family: match its style exactly (solid black single-colour glyphs, bold rounded strokes about 9% of icon size, rounded caps and joins, flat, friendly). Generate exactly ONE image.
+Use case: logo-brand
+Asset type: four more UI icons for the same family, sliced from a 2x2 grid
+Primary request: 2x2 grid, each icon centred in its own equal square cell, ~62% of the cell, generous margins, no grid lines:
+ top-left: MOTION ON — a simple butterfly seen from above with two small curved motion lines behind it;
+ top-right: MOTION OFF — the same butterfly, still, with a bold diagonal slash across it;
+ bottom-left: PATH — three round stepping stones in a gentle diagonal line, the last one slightly larger;
+ bottom-right: CHAT — a rounded speech bubble with a small leaf inside it.
+Background: fully TRANSPARENT (alpha). Square 1024x1024.
+Constraints: no text, no letters, no numbers, no watermark.
+Copy the final PNG to games/evergrove/art/generated/icons-ui-4.png and print the path. Do nothing else.

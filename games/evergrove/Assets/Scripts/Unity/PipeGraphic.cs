@@ -12,6 +12,8 @@ namespace Evergrove.UnityClient
         private bool completed;
         private bool hasWater;
 
+        /// <summary>Set from the gentle-motion setting; false snaps every turn.</summary>
+        public static bool Animate = true;
         private bool configured;
         private float spin;            // remaining visual offset in degrees, eases to 0
         private const float SpinSpeed = 22f;
@@ -25,7 +27,7 @@ namespace Evergrove.UnityClient
             // A single quarter turn (tap or undo) swings into place instead of
             // snapping, so the player sees which way the channel moved. The mesh
             // is already in its final orientation; only the transform eases.
-            if (configured && pipeKind == kind && rotation != orientation)
+            if (configured && Animate && pipeKind == kind && rotation != orientation)
             {
                 int step = ((rotation - orientation) % 4 + 4) % 4;
                 if (step == 1) spin = 90f;        // clockwise turn: start a quarter back

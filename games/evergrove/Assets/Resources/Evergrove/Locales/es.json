@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Tablero más grande"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Movimiento suave"
     }
   ]
 }

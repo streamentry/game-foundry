@@ -56,6 +56,10 @@ namespace Evergrove.UnityClient
         private int speakingWith = -1;
         private bool confirmReset;
         private bool soundOn;
+        // WCAG 2.3.3: motion triggered by play (pipe swing, bloom, butterfly,
+        // glide) can be switched off. Off means snap, still and instant.
+        private const string GentleMotionKey = "evergrove:gentle-motion:v1";
+        private bool gentleMotion = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private bool showMiniature;
         // Decorative motion allowed (true) or reduced (false, the default).
@@ -137,6 +141,8 @@ namespace Evergrove.UnityClient
             // An unreadable save cannot silently be overwritten by fresh progress.
             saveFailed = WorldStore.RecoveryBlocked;
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
+            gentleMotion = PlayerPrefs.GetInt(GentleMotionKey, 1) == 1;
+            PipeGraphic.Animate = gentleMotion;
             // Default to the proven-in-code 2D art; keep the experimental
             // orthographic 3D visual opt-in until real player/device evidence.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -1673,7 +1679,7 @@ namespace Evergrove.UnityClient
                     int steps = spring < 0 ? 0 :
                         Mathf.Abs(index / puzzle.Size - spring / puzzle.Size) +
                         Mathf.Abs(index % puzzle.Size - spring % puzzle.Size);
-                    BloomPulse.Add(tileNode, 0.08f + steps * 0.07f);
+                    if (gentleMotion) BloomPulse.Add(tileNode, 0.08f + steps * 0.07f);
                 }
                 visibleTiles[index] = tile;
                 tileBackgrounds[index] = image;
@@ -1764,7 +1770,7 @@ namespace Evergrove.UnityClient
                 }
             }
 
-            if (celebrateSolve) ButterflyFlight.Launch(gardenTile, board.transform);
+            if (celebrateSolve && gentleMotion) ButterflyFlight.Launch(gardenTile, board.transform);
             celebrateSolve = false;
             string feedback = world.Solved
                 ? GameLocalization.Text("solved")
@@ -1911,6 +1917,16 @@ namespace Evergrove.UnityClient
                     MosseloraTheme.QuietAction);
             TextSizeButton(row.transform);
             BoardSizeButton(row.transform);
+            IconButton(row.transform, "Gentle motion setting",
+                GameLocalization.Text("gentle_motion"),
+                gentleMotion ? MosseloraArt.IconMotionOn : MosseloraArt.IconMotionOff,
+                () => {
+                    gentleMotion = !gentleMotion;
+                    PipeGraphic.Animate = gentleMotion;
+                    PlayerPrefs.SetInt(GentleMotionKey, gentleMotion ? 1 : 0);
+                    PlayerPrefs.Save();
+                    Rebuild();
+                }, 56, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
             IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
@@ -2268,7 +2284,7 @@ namespace Evergrove.UnityClient
             }
             scroll.StopMovement();
             float from = scroll.verticalNormalizedPosition;
-            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / SolveGlideSeconds)
+            for (float t = gentleMotion ? 0f : 1f; t < 1f; t += Time.unscaledDeltaTime / SolveGlideSeconds)
             {
                 if (scroll == null || decisionHeading == null || generation != rebuildGeneration) yield break;
                 scroll.verticalNormalizedPosition = Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t));

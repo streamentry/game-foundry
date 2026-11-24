@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Plateau plus grand"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Animations douces"
     }
   ]
 }

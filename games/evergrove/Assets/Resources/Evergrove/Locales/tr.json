@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Daha büyük tahta"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Yumuşak hareket"
     }
   ]
 }

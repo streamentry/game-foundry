@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "לוח גדול יותר"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "תנועה עדינה"
     }
   ]
 }

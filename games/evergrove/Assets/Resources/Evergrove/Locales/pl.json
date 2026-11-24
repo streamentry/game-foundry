@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Większa plansza"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Delikatne animacje"
     }
   ]
 }

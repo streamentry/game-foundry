@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Griglia più grande"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Animazioni delicate"
     }
   ]
 }

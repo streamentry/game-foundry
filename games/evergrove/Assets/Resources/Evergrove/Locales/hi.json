@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "बड़ा बोर्ड"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "सौम्य गति"
     }
   ]
 }

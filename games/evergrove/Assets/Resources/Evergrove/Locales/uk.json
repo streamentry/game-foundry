@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Більше поле"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "М'які анімації"
     }
   ]
 }

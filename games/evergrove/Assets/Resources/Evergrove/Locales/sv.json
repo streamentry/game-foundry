@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Större bräde"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Mjuka animationer"
     }
   ]
 }

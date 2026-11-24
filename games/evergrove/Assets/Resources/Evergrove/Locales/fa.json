@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "صفحه بزرگ‌تر"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "حرکت ملایم"
     }
   ]
 }

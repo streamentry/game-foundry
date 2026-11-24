@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "放大棋盤"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "柔和動效"
     }
   ]
 }

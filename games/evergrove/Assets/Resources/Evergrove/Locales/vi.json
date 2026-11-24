@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Bảng lớn hơn"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Chuyển động nhẹ nhàng"
     }
   ]
 }

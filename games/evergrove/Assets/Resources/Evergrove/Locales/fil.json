@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "Mas malaking board"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "Banayad na galaw"
     }
   ]
 }

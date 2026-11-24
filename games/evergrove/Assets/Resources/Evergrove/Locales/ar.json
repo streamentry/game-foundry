@@ -420,6 +420,10 @@
     {
       "key": "board_size",
       "value": "لوحة أكبر"
+    },
+    {
+      "key": "gentle_motion",
+      "value": "حركة هادئة"
     }
   ]
 }
