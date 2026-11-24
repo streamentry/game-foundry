@@ -1038,7 +1038,7 @@ namespace Evergrove.UnityClient
             // An icon-only play button; the next stream's name sits above it as
             // a plain label (and is the button's spoken name).
             if (!world.Completed && GameLocalization.Current == "en")
-                NextStreamLine(stack.transform, nextStop);
+                NextStreamLine(stack.transform, nextStop, true);
             Button start = IconButton(play, "Play", nextStop,
                 MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction);
             Width(start, 150);
@@ -1047,7 +1047,7 @@ namespace Evergrove.UnityClient
 
         // "Rainwater" with the painted landmark your last choice planted in it:
         // the next stream visibly carries what you grew (I73). Placed above Play.
-        private void NextStreamLine(Transform stack, string nextStop)
+        private void NextStreamLine(Transform stack, string nextStop, bool abovePlay)
         {
             int split = nextStop.IndexOf(" · ", System.StringComparison.Ordinal);
             int[] past = world.Choices;
@@ -1070,7 +1070,7 @@ namespace Evergrove.UnityClient
             Text where = Label(row, "Next stream", mark != null ? nextStop.Substring(0, split) : nextStop,
                 16, 0, Moss, TextAnchor.MiddleCenter);
             Emphasize(where);
-            row.SetSiblingIndex(stack.childCount - 2);
+            if (abovePlay) row.SetSiblingIndex(stack.childCount - 2);
         }
 
         private void CloseTitle()
@@ -1726,7 +1726,9 @@ namespace Evergrove.UnityClient
                 Sprite bannerArt = MosseloraArt.Load(MosseloraArt.BannerFlowing);
                 float bannerWidth = PageWidth() + 34f;
                 Height(illustration, bannerArt != null
-                    ? Mathf.Round(bannerWidth / MosseloraArt.Aspect(bannerArt) * (memoryScreen ? 1.15f : 1f))
+                    // The memory screen's village yields a little height to the path
+                    // marker, so the arrow and the next stream share one screen (I78).
+                    ? Mathf.Round(bannerWidth / MosseloraArt.Aspect(bannerArt) * (memoryScreen ? 0.9f : 1f))
                     : (firstPuzzle ? 96 : 193));
                 bool renderedMiniature = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -1855,6 +1857,14 @@ namespace Evergrove.UnityClient
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(10f, -8f));
                 MosseloraArt.Ornament(moment.transform, "Sprig right", memorySprig, new Vector2(1f, 1f),
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(-10f, -8f), true);
+                // Where the arrow leads: the stones walked so far and the next
+                // stream, wearing the landmark just planted (as on the hub, I78).
+                if (!world.Completed)
+                {
+                    StreamStones(world.CurrentPuzzle, content, false);
+                    if (GameLocalization.Current == "en")
+                        NextStreamLine(content, world.CurrentPuzzle.Name, false);
+                }
                 Transform next = CenteredRow("Memory actions");
                 Button changeButton = IconButton(next, "Change your choice", GameLocalization.Text("change"),
                     MosseloraArt.IconChange, () => {
