@@ -353,3 +353,14 @@ h1 em { font-style: italic; color: #34775c; }
   0% { transform: translate(0, 0) scale(1); opacity: .9; }
   100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
 }
+
+
+/* I18: 64px Senior-Comfort Touch Targets */
+.tile {
+  min-height: 72px !important;
+  touch-action: manipulation;
+}
+@media (max-width: 440px) {
+  .board { gap: 12px; }
+  .tile { min-height: 80px !important; border-radius: 18px !important; }
+}
