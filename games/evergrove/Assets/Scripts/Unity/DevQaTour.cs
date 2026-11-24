@@ -107,9 +107,9 @@ namespace Evergrove.UnityClient
             SavePng("02-chapter1-partially-solved.png");
 
             SolveBoard();
-            for (int f = 0; f < 10; f++) yield return null;
-            ScrollTo("Choose title");
-            for (int f = 0; f < 4; f++) yield return null;
+            // Let the game's own payoff hold and glide place the screen, exactly
+            // as a player sees it; a forced jump here hid I74's whole-board stop (I96).
+            yield return new WaitForSecondsRealtime(2.4f);
             yield return new WaitForEndOfFrame();
             SavePng("03-chapter1-solved-choice.png");
 
