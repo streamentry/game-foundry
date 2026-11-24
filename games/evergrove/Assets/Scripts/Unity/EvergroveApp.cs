@@ -831,6 +831,28 @@ namespace Evergrove.UnityClient
             }
         }
 
+        // "Orin remembers the bridge you restored." told beside Orin's portrait.
+        private void KeeperLine(Transform parent, string name)
+        {
+            int[] past = world.Choices;
+            Transform memory = CenteredRowIn(parent, name + " row");
+            memory.GetComponent<HorizontalLayoutGroup>().spacing = 8;
+            Sprite who = MosseloraArt.Portrait(past[past.Length - 1]);
+            if (who != null)
+            {
+                var face = Node("Who remembers", memory);
+                var faceLayout = face.AddComponent<LayoutElement>();
+                faceLayout.minWidth = faceLayout.preferredWidth = 34;
+                faceLayout.minHeight = faceLayout.preferredHeight = 34;
+                var faceImage = face.AddComponent<Image>();
+                faceImage.sprite = who;
+                faceImage.preserveAspect = true;
+                faceImage.raycastTarget = false;
+            }
+            Text line = Label(memory, name, LocalizedVillage.Memory(world), 14, 0, Ink, TextAnchor.MiddleLeft);
+            line.GetComponent<LayoutElement>().flexibleWidth = 1f;
+        }
+
         // Same rule as PipeRules.Inspect leaks: a port with no partner
         // (board edge or a neighbor without the facing port) is open.
         private static int OpenPorts(Puzzle puzzle, int[] rotations, int tile)
@@ -969,27 +991,8 @@ namespace Evergrove.UnityClient
             // How far along the creek this garden has walked: resumes, never resets.
             if (!world.Completed) StreamStones(world.CurrentPuzzle, stack.transform, false);
             // What changed last time, told by the neighbor who remembers it.
-            int[] past = world.Choices;
-            if (world.Mode == PlayMode.Living && past.Length > 0)
-            {
-                Transform memory = CenteredRowIn(stack.transform, "Last memory");
-                memory.GetComponent<HorizontalLayoutGroup>().spacing = 8;
-                Sprite who = MosseloraArt.Portrait(past[past.Length - 1]);
-                if (who != null)
-                {
-                    var face = Node("Who remembers", memory);
-                    var faceLayout = face.AddComponent<LayoutElement>();
-                    faceLayout.minWidth = faceLayout.preferredWidth = 34;
-                    faceLayout.minHeight = faceLayout.preferredHeight = 34;
-                    var faceImage = face.AddComponent<Image>();
-                    faceImage.sprite = who;
-                    faceImage.preserveAspect = true;
-                    faceImage.raycastTarget = false;
-                }
-                Text line = Label(memory, "Last memory line", LocalizedVillage.Memory(world), 14, 0, Moss,
-                    TextAnchor.MiddleLeft);
-                line.GetComponent<LayoutElement>().flexibleWidth = 1f;
-            }
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
+                KeeperLine(stack.transform, "Last memory");
             Transform play = CenteredRowIn(stack.transform, "Play row");
             // The big button names where the walk continues ("First Bend").
             string nextStop = !world.Completed && GameLocalization.Current == "en"
@@ -1710,8 +1713,7 @@ namespace Evergrove.UnityClient
                     Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
                         TextAnchor.MiddleCenter);
                 if (world.Choices.Length > 0 && !memoryScreen)
-                    Label(content, "Remembered choice", LocalizedVillage.Memory(world), 13, 38, Moss,
-                        TextAnchor.MiddleCenter);
+                    KeeperLine(content, "Remembered choice");
             }
             else
                 Label(content, "Puzzle condition", GameLocalization.Text("puzzle_desc"),
