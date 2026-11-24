@@ -43,6 +43,7 @@ namespace Evergrove.UnityClient
         private Rect lastSafeArea;
         private Vector2Int lastScreen;
         private bool showingMemory;
+        private bool menuDrawerOpen;
         private bool showJournal;
         private int speakingWith = -1;
         private bool confirmReset;
