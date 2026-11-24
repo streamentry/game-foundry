@@ -1096,7 +1096,7 @@ namespace Evergrove.UnityClient
                 return;
             }
             // Compact enough to sit between the floating menu and book buttons.
-            float markHeight = compact ? 46f : 58f;
+            float markHeight = 46f; // always clears the floating menu and book buttons
             var header = Node("Mosselora wordmark", content);
             Height(header, markHeight + 8f);
             var markImage = header.AddComponent<Image>();
@@ -1257,9 +1257,14 @@ namespace Evergrove.UnityClient
             bool settingsAtTop = languagePicker || (!puzzleScreen && !memoryScreen);
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
             GardenHeader(puzzleScreen);
-            Text subtitle = Label(content, "Title", GameLocalization.Text("subtitle"),
-                puzzleScreen ? 17 : 24, puzzleScreen ? 28 : 44, Ink, TextAnchor.MiddleCenter);
-            if (!puzzleScreen) Emphasize(subtitle);
+            // After the first stream the board, tools and painting share one
+            // screen; the tagline returns on story screens (memory, ending).
+            if (!puzzleScreen || world.Round == 0)
+            {
+                Text subtitle = Label(content, "Title", GameLocalization.Text("subtitle"),
+                    puzzleScreen ? 17 : 24, puzzleScreen ? 28 : 44, Ink, TextAnchor.MiddleCenter);
+                if (!puzzleScreen) Emphasize(subtitle);
+            }
             if (languagePicker)
             {
                 menuOpen = false;
