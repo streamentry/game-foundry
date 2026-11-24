@@ -44,6 +44,10 @@ namespace Evergrove.UnityClient
         public const string IconNewGarden = "ui-new-garden";
         public const string IconConfirm = "ui-confirm";
         public const string IconCancel = "ui-cancel";
+        public const string IconMenu = "ui-menu";
+        public const string IconSettings = "ui-settings";
+        public const string IconNeighbors = "ui-neighbors";
+        public const string IconHome = "ui-home";
 
         public static Sprite Portrait(int villager)
         {

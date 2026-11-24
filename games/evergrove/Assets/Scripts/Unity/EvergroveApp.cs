@@ -35,6 +35,15 @@ namespace Evergrove.UnityClient
         private bool languagePicker;
         private RectTransform content;
         private RectTransform scrollArea;
+        // Smart navigation: play stays on the page; everything else lives in a
+        // menu sheet opened from one leaf button. The chrome (menu + journal
+        // buttons) floats over the page and never scrolls away.
+        private RectTransform canvasRoot;
+        private RectTransform chrome;
+        private GameObject menuSheet;
+        private RectTransform menuContent;
+        private ScrollRect menuScroll;
+        private bool menuOpen;
         private RectTransform warningViewport;
         private GameObject saveWarningBanner;
         private Text saveWarningCaption;
@@ -221,7 +230,7 @@ namespace Evergrove.UnityClient
             logThisScreen = DevQaTour.IsRequested && !semanticsLogged && visibleTiles != null;
 #endif
             if (!logThisScreen && !ScreenReaderBridge.Active) return;
-            var nodes = ScreenReaderBridge.Collect(content, DescribeButton);
+            var nodes = ScreenReaderBridge.Collect(canvasRoot != null ? canvasRoot : content, DescribeButton);
             ScreenReaderBridge.Publish(nodes);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (logThisScreen)
@@ -364,6 +373,7 @@ namespace Evergrove.UnityClient
         private void CreateRoot()
         {
             var canvasNode = Node("Evergrove Canvas", transform);
+            canvasRoot = canvasNode.GetComponent<RectTransform>();
             var canvas = canvasNode.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = canvasNode.AddComponent<CanvasScaler>();
@@ -414,6 +424,16 @@ namespace Evergrove.UnityClient
             column.childForceExpandHeight = false;
             body.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             scroll.content = content;
+            BuildMenuSheet(scrollNode.transform);
+            var chromeNode = Node("Game chrome", scrollNode.transform);
+            chrome = chromeNode.GetComponent<RectTransform>();
+            chrome.anchorMin = new Vector2(0f, 1f);
+            chrome.anchorMax = new Vector2(1f, 1f);
+            chrome.pivot = new Vector2(0.5f, 1f);
+            chrome.sizeDelta = new Vector2(0f, 70f);
+            chrome.anchoredPosition = Vector2.zero;
+            // The sheet must cover the chrome when open.
+            menuSheet.transform.SetAsLastSibling();
 
             // Save failures are high-severity, not normal scroll content.
             // The old message could be offscreen when a player rotated a tile,
@@ -793,6 +813,123 @@ namespace Evergrove.UnityClient
                     : new Color(0.55f, 0.50f, 0.42f, 0.28f); // dry: faded earth silhouette
         }
 
+        private static void ClearChildren(Transform parent)
+        {
+            if (parent == null) return;
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                GameObject old = parent.GetChild(i).gameObject;
+                old.SetActive(false);
+                Destroy(old);
+            }
+        }
+
+        // A parchment sheet that rises over the game; tapping the dimmed garden
+        // behind it closes it. Built once; its contents are rebuilt with the page.
+        private void BuildMenuSheet(Transform host)
+        {
+            menuSheet = Node("Menu sheet", host);
+            Fill(menuSheet.GetComponent<RectTransform>());
+            var dim = menuSheet.AddComponent<Image>();
+            dim.color = new Color(0.08f, 0.14f, 0.11f, 0.42f);
+            var dimButton = menuSheet.AddComponent<Button>();
+            dimButton.transition = Selectable.Transition.None;
+            dimButton.onClick.AddListener(() => SetMenu(false));
+            var panel = Node("Menu panel", menuSheet.transform);
+            var panelRect = panel.GetComponent<RectTransform>();
+            panelRect.anchorMin = new Vector2(0f, 0f);
+            panelRect.anchorMax = new Vector2(1f, 0.86f);
+            panelRect.offsetMin = new Vector2(8f, 0f);
+            panelRect.offsetMax = new Vector2(-8f, 0f);
+            var panelImage = panel.AddComponent<Image>();
+            MosseloraArt.Round(panelImage, MosseloraTheme.Paper, 26);
+            MosseloraArt.Lift(panelImage, 4f, 0.25f);
+            MosseloraArt.Edge(panel.transform, MosseloraTheme.CardEdge, 26);
+            menuScroll = panel.AddComponent<ScrollRect>();
+            menuScroll.horizontal = false;
+            menuScroll.movementType = ScrollRect.MovementType.Clamped;
+            menuScroll.scrollSensitivity = 28f;
+            var view = Node("Menu viewport", panel.transform);
+            var viewRect = view.GetComponent<RectTransform>();
+            Fill(viewRect);
+            viewRect.offsetMin = new Vector2(0f, 4f);
+            viewRect.offsetMax = new Vector2(0f, -4f);
+            view.AddComponent<RectMask2D>();
+            menuScroll.viewport = viewRect;
+            var body = Node("Menu content", view.transform);
+            menuContent = body.GetComponent<RectTransform>();
+            menuContent.anchorMin = new Vector2(0f, 1f);
+            menuContent.anchorMax = new Vector2(1f, 1f);
+            menuContent.pivot = new Vector2(0.5f, 1f);
+            menuContent.sizeDelta = Vector2.zero;
+            var column = body.AddComponent<VerticalLayoutGroup>();
+            column.childAlignment = TextAnchor.UpperCenter;
+            column.padding = new RectOffset(16, 16, 14, 28);
+            column.spacing = 12;
+            column.childControlWidth = true;
+            column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            body.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            menuScroll.content = menuContent;
+            menuSheet.SetActive(false);
+        }
+
+        private void SetMenu(bool open)
+        {
+            menuOpen = open;
+            if (open) speakingWith = -1;
+            Rebuild();
+            if (open && menuScroll != null) menuScroll.verticalNormalizedPosition = 1f;
+        }
+
+        // Top of the sheet: a close button, then every setting as one icon row.
+        private void MenuHeader(bool offerLanguage)
+        {
+            Transform top = CenteredRow("Menu top", 8f);
+            var spacer = Node("Menu spacer", top);
+            spacer.AddComponent<LayoutElement>().flexibleWidth = 1f;
+            Width(IconButton(top, "Close menu", GameLocalization.Text("continue"),
+                MosseloraArt.IconCancel, () => SetMenu(false), 52, MosseloraTheme.QuietAction), 60);
+            SettingsRow(offerLanguage);
+        }
+
+        // Floating game chrome: a leaf menu button (left) and the memory book
+        // with its count (right). Rebuilt with the page so state stays honest.
+        private void BuildChrome(bool living)
+        {
+            if (chrome == null) return;
+            Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("language") + " · Aa",
+                MosseloraArt.IconMenu, () => SetMenu(!menuOpen), 54, MosseloraTheme.QuietAction);
+            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, -6f));
+            if (living && world.Choices.Length > 0)
+            {
+                Button book = IconButton(chrome, "Memories",
+                    GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"),
+                    MosseloraArt.IconJournal, () => {
+                        showJournal = !showJournal;
+                        revealNewScreen = showJournal; // opening the journal lands on its title
+                        Rebuild();
+                    }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                    // The memory count makes the book read as "your collection", not "rules".
+                    false, world.Choices.Length.ToString(CultureInfo.InvariantCulture));
+                PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+            }
+        }
+
+        private static void PlaceChrome(Button control, Vector2 corner, Vector2 offset)
+        {
+            var rect = control.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = corner;
+            rect.pivot = corner;
+            rect.anchoredPosition = offset;
+            var fit = control.gameObject.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var layout = control.GetComponent<LayoutElement>();
+            if (layout != null) layout.minWidth = Mathf.Max(layout.minWidth, 54f);
+        }
+
         // Start a new garden: a seedling icon first; only the confirm step
         // spells out the erase, beside an always-visible cancel.
         private void ResetControls(string resetName, string cancelName, Color tone)
@@ -1035,6 +1172,8 @@ namespace Evergrove.UnityClient
                 old.SetActive(false); // Destroy() is deferred until the frame ends.
                 Destroy(old);
             }
+            ClearChildren(menuContent);
+            ClearChildren(chrome);
 
             bool living = world.Mode == PlayMode.Living;
             // Keep the first playable board in the first visible viewport,
@@ -1054,20 +1193,9 @@ namespace Evergrove.UnityClient
             Text subtitle = Label(content, "Title", GameLocalization.Text("subtitle"),
                 puzzleScreen ? 17 : 24, puzzleScreen ? 28 : 44, Ink, TextAnchor.MiddleCenter);
             if (!puzzleScreen) Emphasize(subtitle);
-            if (settingsAtTop)
-            {
-                Transform topSettings = CenteredRow("Top settings");
-                if (multiLanguage)
-                    Width(IconButton(topSettings, "Language settings",
-                        GameLocalization.Text("language") + ": " +
-                        GameLocalization.NativeName(GameLocalization.Current),
-                        MosseloraArt.IconLanguage,
-                        () => { languagePicker = !languagePicker; Rebuild(true); }, 56,
-                        languagePicker ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction), 72);
-                TextSizeButton(topSettings);
-            }
             if (languagePicker)
             {
+                menuOpen = false;
                 BuildLanguagePicker();
                 celebrateSolve = false; // never carry a bloom into a later board
                 Canvas.ForceUpdateCanvases();
@@ -1217,7 +1345,6 @@ namespace Evergrove.UnityClient
                         Rebuild(true);
                     }, 64, MosseloraTheme.WaterAction);
                 Width(continueButton, 160, 1f);
-                SettingsRow(multiLanguage);
             }
             else if (world.Completed)
             {
@@ -1234,9 +1361,6 @@ namespace Evergrove.UnityClient
                 if (living) MemoryJournal();
                 ResetControls("Reset title", "Cancel reset", MosseloraTheme.WaterAction);
             }
-            if (puzzleScreen && !languagePicker)
-                SettingsRow(multiLanguage);
-
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
 
@@ -1266,6 +1390,10 @@ namespace Evergrove.UnityClient
                 }
             }
 
+            // ---- Menu sheet: settings, files, new garden, research tools, promise.
+            RectTransform page = content;
+            content = menuContent;
+            MenuHeader(multiLanguage);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             // Research-only controls compile only in the Editor or explicitly
             // opted-in Development Builds, never in ordinary player builds.
@@ -1371,7 +1499,11 @@ namespace Evergrove.UnityClient
             Text promise = Label(content, "Respectful play", GameLocalization.Text("offline"),
                 13, 36, Ink, TextAnchor.MiddleCenter);
             Emphasize(promise);
+            content = page;
+            BuildChrome(living);
+            menuSheet.SetActive(menuOpen);
             Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(menuContent);
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
             if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
             else scroll.verticalNormalizedPosition = top ? 1f : previousPosition;
@@ -1397,15 +1529,7 @@ namespace Evergrove.UnityClient
 
         private void MemoryJournal()
         {
-            Width(IconButton(CenteredRow("Memories row"), "Memories",
-                GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"),
-                MosseloraArt.IconJournal, () => {
-                    showJournal = !showJournal;
-                    revealNewScreen = showJournal; // opening the journal lands on its title
-                    Rebuild();
-                }, 58, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                // The memory count makes the book read as "your collection", not "rules".
-                false, world.Choices.Length > 0 ? world.Choices.Length.ToString(CultureInfo.InvariantCulture) : null), 120);
+            // The toggle is the book in the floating chrome (BuildChrome).
             if (!showJournal) return;
             var journal = Card(content, "A living journal", MosseloraTheme.CardFill);
             screenHeading = journal.GetComponent<RectTransform>();

@@ -304,6 +304,11 @@ def main() -> None:
                               grid(ui2, 2, 2)):
             save(white_glyph(cell), name)
 
+    ui3 = master("icons-ui-3")
+    if ui3:
+        for name, cell in zip(("ui-menu", "ui-settings", "ui-neighbors", "ui-home"), grid(ui3, 2, 2)):
+            save(white_glyph(cell), name)
+
     butterfly = master("butterfly")
     if butterfly:
         for name, cell in zip(("butterfly-open", "butterfly-closed"),

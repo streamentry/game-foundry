@@ -258,6 +258,16 @@ namespace Evergrove.UnityClient
         {
             foreach (Button button in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                 if (nameMatches(button.name)) return button;
+            // Settings, files and research tools live in the menu sheet: open it
+            // with the real menu button, then look again.
+            foreach (Button button in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                if (button.name == "Open menu")
+                {
+                    button.onClick.Invoke();
+                    foreach (Button again in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                        if (nameMatches(again.name)) return again;
+                    break;
+                }
             throw new InvalidOperationException("No active button: " + description);
         }
 
@@ -311,13 +321,14 @@ namespace Evergrove.UnityClient
         // Mirrors EvergroveApp.ScrollToDecision so the target sits near the top.
         private void ScrollTo(string targetName)
         {
-            var scroll = FindFirstObjectByType<ScrollRect>();
-            if (scroll == null || scroll.content == null || scroll.viewport == null)
-                throw new InvalidOperationException("Scroll view missing");
             GameObject target = null;
             foreach (Transform t in FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                 if (t.name == targetName) { target = t.gameObject; break; }
             if (target == null) throw new InvalidOperationException("No visible element: " + targetName);
+            // The page and the menu sheet each scroll; use the one holding the target.
+            var scroll = target.GetComponentInParent<ScrollRect>();
+            if (scroll == null || scroll.content == null || scroll.viewport == null)
+                throw new InvalidOperationException("Scroll view missing");
 
             RectTransform content = scroll.content;
             var targetRect = target.GetComponent<RectTransform>();
@@ -340,7 +351,8 @@ namespace Evergrove.UnityClient
         // whatever sits below the fold on long screens.
         private void ScrollToBottom()
         {
-            var scroll = FindFirstObjectByType<ScrollRect>();
+            var pageNode = GameObject.Find("Safe scroll area");
+            var scroll = pageNode != null ? pageNode.GetComponent<ScrollRect>() : null;
             if (scroll == null) throw new InvalidOperationException("Scroll view missing");
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
