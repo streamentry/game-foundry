@@ -2305,8 +2305,10 @@ namespace Evergrove.UnityClient
                 var tools = Row(content, "Gentle controls");
                 // Progressive disclosure: the first stream teaches the three tools
                 // with small captions; afterwards they are pictures only.
-                bool teach = world.Round == 0;
-                int toolHeight = teach ? 72 : 64;
+                // Icon-only in every stream: Mira's coach bubble teaches the board,
+                // and every tool names itself on press-and-hold (and is spoken).
+                bool teach = false;
+                int toolHeight = 64;
                 undoButton = IconButton(tools.transform, "Undo", GameLocalization.Text("undo"),
                     MosseloraArt.IconUndo, () => Act(() => world.Undo(), "undo"),
                     toolHeight, MosseloraTheme.ForestAction, false, null, teach);
