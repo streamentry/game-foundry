@@ -2649,6 +2649,9 @@ namespace Evergrove.UnityClient
                 // entry, no save. The next real action redraws the progress text.
                 string landmark = LocalizedVillage.EnvironmentalRule(world);
                 if (feedbackText != null && landmark.Length > 0) CjkLineBreakFixer.SetText(feedbackText, landmark);
+                // A gentle "this one stays" shake of the rooted pipe: felt, not scolded.
+                if (gentleMotion && tileArtwork != null && index < tileArtwork.Length)
+                    tileArtwork[index].gameObject.AddComponent<Nudge>();
                 semanticsDirty = true;
                 return;
             }
