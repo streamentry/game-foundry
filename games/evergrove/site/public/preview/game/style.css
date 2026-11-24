@@ -640,3 +640,11 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
   .particle-splash { display: none !important; }
   .smoke-puff { animation: none !important; opacity: .5 !important; }
 }
+
+
+/* I64: High-Visibility Botanical Emerald Focus Rings */
+:focus-visible {
+  outline: 3.5px solid #1a6f50 !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 6px rgba(40, 160, 110, .25) !important;
+}
