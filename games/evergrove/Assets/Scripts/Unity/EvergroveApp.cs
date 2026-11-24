@@ -446,6 +446,27 @@ namespace Evergrove.UnityClient
             scrollArea.anchorMax = new Vector2(safe.xMax / Screen.width, safe.yMax / Screen.height);
             scrollArea.offsetMin = Vector2.zero;
             scrollArea.offsetMax = Vector2.zero;
+            FitColumn();
+        }
+
+        // Tablets (I106): scale by height so the page keeps a phone's vertical
+        // room, and keep the page a book-width column in the middle instead of
+        // stretching every painting across a wide screen. Phones are unchanged.
+        private const float TabletAspect = 0.62f;
+        private const float MaxColumn = 480f;
+        private float columnInset;
+
+        private void FitColumn()
+        {
+            if (viewportScaler == null || Screen.height <= 0) return;
+            Rect safe = Screen.safeArea;
+            bool tablet = safe.height > 0f && safe.width / safe.height > TabletAspect;
+            viewportScaler.matchWidthOrHeight = tablet ? 1f : 0.5f;
+            float logicalWidth = safe.width / LiveCanvasScale();
+            columnInset = tablet ? Mathf.Max(0f, Mathf.Floor((logicalWidth - MaxColumn) / 2f)) : 0f;
+            var column = content != null ? content.GetComponent<VerticalLayoutGroup>() : null;
+            if (column != null)
+                column.padding = new RectOffset(17 + (int)columnInset, 17 + (int)columnInset, 15, 36);
         }
 
         private void CreateRoot()
@@ -503,6 +524,7 @@ namespace Evergrove.UnityClient
             column.childForceExpandHeight = false;
             body.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             scroll.content = content;
+            FitColumn();
             BuildMenuSheet(scrollNode.transform);
             // Header band: a solid parchment strip as tall as the chrome, then a
             // soft fade. It appears once the page scrolls, so scrolled content
@@ -1869,8 +1891,8 @@ namespace Evergrove.UnityClient
             // too tall on a cold start), so derive the scale from the scaler's
             // own ScaleWithScreenSize formula, which is valid immediately.
             if (content != null && content.rect.width > 1f && Time.frameCount > 2)
-                return Mathf.Max(225f, content.rect.width - 34f);
-            return Mathf.Max(225f, Screen.safeArea.width / LiveCanvasScale() - 34f);
+                return Mathf.Max(225f, content.rect.width - 34f - 2f * columnInset);
+            return Mathf.Max(225f, Screen.safeArea.width / LiveCanvasScale() - 34f - 2f * columnInset);
         }
 
         private float LiveCanvasScale()
@@ -2471,7 +2493,7 @@ namespace Evergrove.UnityClient
             int gap = puzzle.Size == 3 ? 7 : 5;
             // CanvasScaler.scaleFactor is only the constant-pixel field (always 1
             // here); the live ScaleWithScreenSize factor gives true logical width.
-            float layoutWidth = Screen.safeArea.width / LiveCanvasScale();
+            float layoutWidth = Screen.safeArea.width / LiveCanvasScale() - 2f * columnInset;
             // Standard keeps the EG-007 sizing exactly. Large (EG-112) trims the
             // card's side padding and lifts the tile cap so the board uses the width.
             float available = Mathf.Max(225f, layoutWidth - 34f - 20f - 5f);
