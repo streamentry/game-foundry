@@ -310,3 +310,14 @@ h1 em { font-style: italic; color: #34775c; }
   border-color: #429aa8 !important;
   box-shadow: 0 4px 12px rgba(23, 108, 131, .16), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -2px 0 rgba(28, 88, 104, .2) !important;
 }
+
+
+/* I14: Elastic Tile Rotation Spring */
+@keyframes tile-spring {
+  0% { transform: scale(.93) rotate(-6deg); }
+  60% { transform: scale(1.04) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.tile--turned {
+  animation: tile-spring 260ms cubic-bezier(.2, .9, .3, 1.3);
+}

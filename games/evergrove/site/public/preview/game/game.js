@@ -195,6 +195,9 @@
     button.className = "tile";
     button.addEventListener("click", () => {
       if (!model.rotate(i)) return;
+      button.classList.remove("tile--turned");
+      void button.offsetWidth;
+      button.classList.add("tile--turned");
       if (firstTurn === null) firstTurn = performance.now() - origin;
       totalRotations++;
       render();
