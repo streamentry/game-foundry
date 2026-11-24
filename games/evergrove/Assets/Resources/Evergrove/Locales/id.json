@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Kartu pos disalin. Tempelkan ke pesan untuk membagikan tamanmu."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Pohon Anda mulai menguning. Daunnya akan rontok lalu tumbuh kembali lebih hijau."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Salju menyelimuti dahan pohon Anda. Ia sedang tidur, bukan hilang."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Daun-daun kini hanyut di bawah jembatan. Jembatannya masih kokoh, papan demi papan."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Saya menjaga jembatan tetap bebas salju. Orang-orang tetap melintasinya setiap hari."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Bunga liar Anda mulai berbiji. Tepian sungai akan lebih rimbun musim semi depan."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Kebun bunga tertidur di bawah salju. Bijinya aman di dalam tanah."
     }
   ]
 }

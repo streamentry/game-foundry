@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Ansichtkaart gekopieerd. Plak hem in een bericht om je tuin te delen."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Je boom kleurt goudgeel. Hij verliest zijn bladeren en komt groener terug."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Sneeuw rust op de takken van je boom. Hij slaapt, hij is niet weg."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Blaadjes drijven nu onder de brug door. Hij houdt het nog, plank voor plank."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Ik houd het bruggetje vrij van sneeuw. Mensen steken het nog elke dag over."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Je wilde bloemen zaaien nu uit. De oever wordt volgend voorjaar voller."
+    },
+    {
+      "key": "fen_winter",
+      "value": "De bloembedden slapen onder de sneeuw. De zaden zijn veilig in de aarde."
     }
   ]
 }

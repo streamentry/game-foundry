@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Nakopya ang postcard. I-paste ito sa mensahe para ibahagi ang iyong hardin."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Nagiging ginto ang puno mo. Malalagas ang dahon nito at babalik na mas luntian."
+    },
+    {
+      "key": "mira_winter",
+      "value": "May niyebe sa mga sanga ng puno mo. Natutulog lang ito, hindi nawala."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Lumulutang na ngayon ang mga dahon sa ilalim ng tulay. Matibay pa rin ito, tabla por tabla."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Pinapanatili kong malinis sa niyebe ang tulay. Araw-araw pa rin itong tinatawiran ng mga tao."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Nagbubunga na ang mga ligaw na bulaklak mo. Mas punô ang pampang sa susunod na tagsibol."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Natutulog sa ilalim ng niyebe ang mga kama ng bulaklak. Ligtas ang mga buto sa lupa."
     }
   ]
 }

@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Carte postale copiée. Collez-la dans un message pour partager votre jardin."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Votre arbre prend des teintes dorées. Il perdra ses feuilles et reverdira."
+    },
+    {
+      "key": "mira_winter",
+      "value": "La neige repose sur les branches de votre arbre. Il dort, il n'est pas parti."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Les feuilles dérivent maintenant sous le pont. Il tient encore, planche après planche."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Je garde le pont dégagé de neige. Les gens le traversent toujours chaque jour."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Vos fleurs sauvages montent en graines. La berge sera plus fournie au printemps."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Les parterres dorment sous la neige. Les graines sont en sécurité dans la terre."
     }
   ]
 }

@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Kartpostal kopyalandı. Bahçeni paylaşmak için bir mesaja yapıştır."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Ağacın altına dönüyor. Yapraklarını dökecek, sonra daha yeşil dönecek."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Ağacının dallarına kar yağmış. Uyuyor, yok olmadı."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Yapraklar şimdi köprünün altında süzülüyor. Köprü hâlâ dayanıyor, tahta tahta."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Köprüyü karsız tutuyorum. İnsanlar yine her gün geçiyor."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Kır çiçeklerin tohum veriyor. Gelecek bahar kıyı daha dolu olacak."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Çiçek tarhları karın altında uyuyor. Tohumlar toprakta güvende."
     }
   ]
 }

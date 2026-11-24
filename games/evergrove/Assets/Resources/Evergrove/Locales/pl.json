@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Kartka skopiowana. Wklej ją do wiadomości, aby udostępnić swój ogród."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Twoje drzewo złoci się. Straci liście i wróci bardziej zielone."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Śnieg leży na gałęziach twojego drzewa. Ono śpi, nie odeszło."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Liście płyną teraz pod kładką. Ona wciąż trzyma, deska po desce."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Odgarniam śnieg z kładki. Ludzie nadal przechodzą po niej każdego dnia."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Twoje polne kwiaty wydają nasiona. Brzeg na wiosnę będzie bardziej obsadzony."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Klomby śpią pod śniegiem. Nasiona są bezpieczne w ziemi."
     }
   ]
 }

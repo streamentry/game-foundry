@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Cartão postal copiado. Cole-o em uma mensagem para compartilhar seu jardim."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Sua árvore está ficando dourada. Ela vai perder as folhas e voltar mais verde."
+    },
+    {
+      "key": "mira_winter",
+      "value": "A neve repousa sobre os galhos da sua árvore. Ela está dormindo, não foi embora."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Folhas estão passando agora por baixo da ponte. Ela ainda aguenta, tábua por tábua."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Eu mantenho a passarela livre de neve. As pessoas ainda a atravessam todos os dias."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Suas flores silvestres estão soltando sementes. A margem vai ficar mais cheia na próxima primavera."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Os canteiros dormem sob a neve. As sementes estão seguras na terra."
     }
   ]
 }

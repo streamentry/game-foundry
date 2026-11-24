@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Kadi imenakiliwa. Ibandike kwenye ujumbe ili kushiriki bustani yako."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Mti wako unageuka dhahabu. Utapoteza majani na kisha utarudi ukiwa wa kijani zaidi."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Theluji imetulia kwenye matawi ya mti wako. Unalala tu, haujaondoka."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Majani sasa yanaelea chini ya daraja. Bado linasimama, ubao baada ya ubao."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Ninaliweka daraja bila theluji. Watu bado wanalivuka kila siku."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Maua yako ya porini yanatoa mbegu. Ukingo wa mto utajaa zaidi msimu ujao wa masika."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Vitanda vya maua vinalala chini ya theluji. Mbegu ziko salama ardhini."
     }
   ]
 }

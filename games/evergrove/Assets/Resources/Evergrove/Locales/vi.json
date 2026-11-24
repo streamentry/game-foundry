@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Đã sao chép bưu thiếp. Dán vào tin nhắn để chia sẻ khu vườn của bạn."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Cây của bạn đang ngả vàng. Lá sẽ rụng rồi trở lại xanh hơn."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Tuyết phủ trên cành cây của bạn. Nó đang ngủ, không phải đã mất."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Lá giờ trôi dưới cầu. Cầu vẫn trụ vững, từng tấm ván một."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Tôi giữ cho cầu không có tuyết. Mọi người vẫn đi qua đây mỗi ngày."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Hoa dại của bạn đang kết hạt. Bờ sông sẽ đầy hơn vào mùa xuân tới."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Luống hoa ngủ dưới tuyết. Hạt giống an toàn trong đất."
     }
   ]
 }

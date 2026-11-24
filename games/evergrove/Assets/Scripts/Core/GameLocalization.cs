@@ -97,7 +97,8 @@ namespace Evergrove.Core
             "garden_err_damaged","garden_err_too_large",
             "sr_tile_wet","sr_tile_dry","sr_straight","sr_corner","sr_spring","sr_outlet",
             "name_mira","name_orin","name_fen",
-            "menu","close","text_size","board_size","gentle_motion","postcard","postcard_copied"
+            "menu","close","text_size","board_size","gentle_motion","postcard","postcard_copied",
+            "mira_autumn","mira_winter","orin_autumn","orin_winter","fen_autumn","fen_winter"
         };
 
         private static readonly string[] English = {
@@ -208,7 +209,13 @@ namespace Evergrove.Core
             "Larger board",
             "Gentle motion",
             "Copy garden postcard",
-            "Postcard copied. Paste it into a message to share your garden."
+            "Postcard copied. Paste it into a message to share your garden.",
+            "Your tree is turning gold. It will lose its leaves and come back greener.",
+            "Snow rests on the branches of your tree. It is sleeping, not gone.",
+            "Leaves drift under the crossing now. It still holds, plank by plank.",
+            "I keep the crossing clear of snow. People still walk it every day.",
+            "Your wildflowers are going to seed. The bank will be fuller next spring.",
+            "The flower beds sleep under the snow. The seeds are safe in the earth."
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

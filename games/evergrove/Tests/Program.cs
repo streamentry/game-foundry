@@ -842,7 +842,7 @@ internal static class Program
                LocaleShippingPolicy.Resolve("ja", true) == "ja" &&
                LocaleShippingPolicy.Resolve("invalid", true) == "en",
             "old research preferences and auto-detected draft locales safely fall back");
-        Expect(GameLocalization.Keys.Count == 108,"authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 114,"authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");
@@ -1244,6 +1244,23 @@ internal static class Program
             "v4 save without variantSchedule restores as living");
     }
 
+    private static void SeasonalNeighborTests()
+    {
+        WorldModel world = WorldModel.New();
+        Expect(LocalizedVillage.Speak(world, 0) == GameLocalization.Text("mira_new"), "Mira asks before any tree");
+        // Walk to autumn (stream 7) choosing trees only: Mira speaks of her tree's season,
+        // Orin and Fen, with no crossing or flowers yet, still ask.
+        while (world.Round < 6) { Solve(world); Expect(world.Choose(VillageChoice.ShadeTree), "tree choice"); }
+        Expect(VillageScenePlan.From(world).LandscapePhase == 2, "stream 7 is autumn");
+        Expect(LocalizedVillage.Speak(world, 0) == GameLocalization.Text("mira_autumn"), "Mira's autumn line once a tree exists");
+        Expect(LocalizedVillage.Speak(world, 1) == GameLocalization.Text("orin_new"), "no seasonal line without a crossing");
+        while (world.Round < 9) { Solve(world); Expect(world.Choose(VillageChoice.Flowers), "flower choice"); }
+        Expect(LocalizedVillage.Speak(world, 0) == GameLocalization.Text("mira_winter"), "Mira's winter line");
+        Expect(LocalizedVillage.Speak(world, 2) == GameLocalization.Text("fen_winter"), "Fen's winter line once flowers exist");
+        while (!world.Completed) { Solve(world); Expect(world.Choose(VillageChoice.Bridge), "bridge choice"); }
+        Expect(LocalizedVillage.Speak(world, 1) == GameLocalization.Text("orin_after"), "a finished garden returns to summer lines");
+    }
+
     private static void GardenPostcardTests()
     {
         WorldModel fresh = WorldModel.New();
@@ -1303,6 +1320,7 @@ internal static class Program
             KinsokuLineBreakTests();
             RtlTextTests();
             GardenPostcardTests();
+            SeasonalNeighborTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }

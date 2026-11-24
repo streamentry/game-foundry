@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Poskad disalin. Tampal ke dalam mesej untuk berkongsi taman anda."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Pokok anda mula menjadi keemasan. Daunnya akan gugur dan tumbuh semula lebih hijau."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Salji terletak di dahan pokok anda. Ia sedang tidur, bukan hilang."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Daun-daun kini hanyut di bawah jambatan. Ia masih kukuh, papan demi papan."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Saya pastikan jambatan bebas salji. Orang masih melaluinya setiap hari."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Bunga liar anda sedang mengeluarkan biji. Tebing sungai akan lebih subur musim bunga depan."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Taman bunga tidur di bawah salji. Biji-bijinya selamat di dalam tanah."
     }
   ]
 }

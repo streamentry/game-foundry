@@ -432,6 +432,30 @@
     {
       "key": "postcard_copied",
       "value": "Postkortet kopierades. Klistra in det i ett meddelande för att dela din trädgård."
+    },
+    {
+      "key": "mira_autumn",
+      "value": "Ditt träd blir gyllene. Det tappar sina löv och kommer tillbaka grönare."
+    },
+    {
+      "key": "mira_winter",
+      "value": "Snön vilar på grenarna på ditt träd. Det sover, det är inte borta."
+    },
+    {
+      "key": "orin_autumn",
+      "value": "Löv driver nu under bron. Den håller fortfarande, planka för planka."
+    },
+    {
+      "key": "orin_winter",
+      "value": "Jag håller bron fri från snö. Folk går fortfarande över den varje dag."
+    },
+    {
+      "key": "fen_autumn",
+      "value": "Dina vildblommor sätter frö. Strandkanten blir fylligare nästa vår."
+    },
+    {
+      "key": "fen_winter",
+      "value": "Blomrabatterna sover under snön. Fröna är trygga i jorden."
     }
   ]
 }
