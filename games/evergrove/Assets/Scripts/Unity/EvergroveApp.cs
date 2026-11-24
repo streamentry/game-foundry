@@ -112,6 +112,7 @@ namespace Evergrove.UnityClient
 #endif
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
         private RectTransform solvedBoard;     // the board whose payoff the decision glide keeps whole
+        private int hintTurnedTile = -1;       // the tile the third hint just turned
         private readonly System.Collections.Generic.List<GameObject> hintMarkers =
             new System.Collections.Generic.List<GameObject>(); // cleared when a move ends the hint
         // Set by a rebuilt screen (ending card, journal) so a player who opens it
@@ -2512,10 +2513,15 @@ namespace Evergrove.UnityClient
                     var rowRing = rowNode.AddComponent<Image>();
                     rowRing.sprite = MosseloraArt.Ring(15);
                     rowRing.type = Image.Type.Sliced;
-                    rowRing.pixelsPerUnitMultiplier = 1.6f; // thinner than the step-2 focus ring
-                    rowRing.color = new Color(0.89f, 0.63f, 0.18f, 0.75f);
+                    rowRing.pixelsPerUnitMultiplier = 1.25f; // still thinner than the step-2 ring
+                    rowRing.color = new Color(0.89f, 0.63f, 0.18f, 1f); // a cold-read missed the 75% rings (I92)
                     rowRing.raycastTarget = false;
                     hintMarkers.Add(rowNode);
+                }
+                if (index == hintTurnedTile && tileArtwork != null && index < tileArtwork.Length && tileArtwork[index] != null)
+                {
+                    if (gentleMotion) BloomPulse.Add(tileArtwork[index].gameObject, 0.05f, 0.22f);
+                    hintTurnedTile = -1;
                 }
                 if (world.HintStep == 2 && index == world.HintTile)
                 {
@@ -3238,8 +3244,11 @@ namespace Evergrove.UnityClient
         private void UseGentleHint()
         {
             bool wasSolved = world.Solved;
+            int target = world.HintTile;
             int stage = world.AdvanceGentleHint();
             if (stage == 0) return;
+            // Step 3 turns the tile for you; it swells once so the change is seen (I92).
+            hintTurnedTile = stage == 3 ? target : -1;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Hint(Time.unscaledTime);
 #endif
