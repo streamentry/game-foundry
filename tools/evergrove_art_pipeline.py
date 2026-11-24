@@ -256,7 +256,8 @@ def main() -> None:
             return None
         return Image.open(path)
 
-    for name in ("banner-stream-flowing", "banner-stream-dry"):
+    for name in ("banner-stream-flowing", "banner-stream-dry", "banner-autumn-flowing",
+                 "banner-autumn-dry", "banner-winter-flowing", "banner-winter-dry"):
         image = master(name)
         if image:
             save(fade_top(fit(image.convert("RGBA"), 1536, 1024)), name)
@@ -264,6 +265,25 @@ def main() -> None:
     hero = master("hero-village")
     if hero:
         save(fit(hero.convert("RGBA"), 900, 1350), "hero-village")
+
+    # iOS launch image: parchment, vine corners, wordmark (copied into the
+    # exported Xcode project by Assets/Editor/MosseloraLaunchScreen.cs).
+    mark = master("wordmark")
+    vine = master("vine-corner")
+    if mark and vine:
+        sheet = Image.new("RGBA", (1242, 2208), (249, 242, 227, 255))
+        word = fit(trim(knock_out_paper(mark), 4), 760, 300)
+        sheet.alpha_composite(word, ((1242 - word.width) // 2, 1000))
+        corner = fit(knock_out_paper(vine), 420, 420)
+        sheet.alpha_composite(corner, (0, 0))
+        sheet.alpha_composite(corner.transpose(Image.FLIP_LEFT_RIGHT), (1242 - corner.width, 0))
+        out = GAME / "brand" / "launch-portrait.png"
+        sheet.convert("RGB").save(out, optimize=True)
+        print(out.relative_to(ROOT))
+
+    bed = master("board-bed")
+    if bed:
+        save(fit(knock_out_paper(bed), 768, 768), "board-bed")
 
     festival = master("ending-festival")
     if festival:

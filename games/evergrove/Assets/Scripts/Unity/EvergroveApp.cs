@@ -121,6 +121,23 @@ namespace Evergrove.UnityClient
         private bool matchedScheduleCopied;
 #endif
 
+        // The scene has no camera, so the first frames cleared to black between
+        // the parchment launch screen and the UI. A paper-clearing camera at
+        // the earliest hook keeps every frame the same warm paper.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+        private static void PaperCamera()
+        {
+            if (Camera.main != null) return;
+            var host = new GameObject("Paper camera");
+            DontDestroyOnLoad(host);
+            var camera = host.AddComponent<Camera>();
+            camera.tag = "MainCamera";
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = MosseloraTheme.Paper;
+            camera.cullingMask = 0; // draws nothing but the paper
+            camera.orthographic = true;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
         {
