@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Taman bunga tidur di bawah salji. Biji-bijinya selamat di dalam tanah."
+    },
+    {
+      "key": "has_news",
+      "value": "Ada sesuatu yang baharu untuk diceritakan"
     }
   ]
 }

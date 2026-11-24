@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Le aiuole dormono sotto la neve. I semi sono al sicuro nella terra."
+    },
+    {
+      "key": "has_news",
+      "value": "Ha qualcosa di nuovo da dire"
     }
   ]
 }

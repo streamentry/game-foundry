@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Die Blumenbeete schlafen unter dem Schnee. Die Samen sind sicher in der Erde."
+    },
+    {
+      "key": "has_news",
+      "value": "Hat etwas Neues zu sagen"
     }
   ]
 }

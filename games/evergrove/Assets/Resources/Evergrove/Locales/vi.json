@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Luống hoa ngủ dưới tuyết. Hạt giống an toàn trong đất."
+    },
+    {
+      "key": "has_news",
+      "value": "Có điều mới muốn nói"
     }
   ]
 }

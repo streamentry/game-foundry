@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Blomrabatterna sover under snön. Fröna är trygga i jorden."
+    },
+    {
+      "key": "has_news",
+      "value": "Har något nytt att säga"
     }
   ]
 }

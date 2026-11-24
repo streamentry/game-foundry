@@ -1400,7 +1400,8 @@ namespace Evergrove.UnityClient
             MosseloraArt.Lift(pictureImage, 2f, 0.18f);
             // On the hub, a small parchment speech mark on a neighbor with
             // something new to say: the day's reason to stop by (I80).
-            if (fromTitle && HasNews(villager))
+            bool news = fromTitle && HasNews(villager);
+            if (news)
             {
                 var note = MosseloraArt.Ornament(picture.transform, "Has something new to say",
                     MosseloraArt.Rounded(14), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f),
@@ -1442,6 +1443,27 @@ namespace Evergrove.UnityClient
             else
                 caption = Label(node.transform, "Caption", label, 15, 0, Ink, TextAnchor.MiddleCenter);
             Emphasize(caption);
+            // The speech mark is a picture; screen readers hear it with the name (I81).
+            if (news) SpeakInstead(node.transform, label + ". " + GameLocalization.Text("has_news"));
+        }
+
+        // Keeps what is shown, and gives screen readers a fuller hidden "Caption"
+        // (ScreenReaderBridge reads the child named "Caption").
+        private static void SpeakInstead(Transform control, string spoken)
+        {
+            Transform shown = control.Find("Caption");
+            Text shownText = shown != null ? shown.GetComponentInChildren<Text>() : null;
+            if (shown == null || shownText == null) return;
+            shown.name = "Shown name";
+            var spokenNode = new GameObject("Caption", typeof(RectTransform));
+            spokenNode.transform.SetParent(control, false);
+            spokenNode.AddComponent<LayoutElement>().ignoreLayout = true;
+            var text = spokenNode.AddComponent<Text>();
+            text.font = shownText.font;
+            text.fontSize = shownText.fontSize;
+            text.text = spoken;
+            text.color = new Color(0f, 0f, 0f, 0f);
+            text.raycastTarget = false;
         }
 
         // Painted page header: generated wordmark with vine corners. The

@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Klomby śpią pod śniegiem. Nasiona są bezpieczne w ziemi."
+    },
+    {
+      "key": "has_news",
+      "value": "Ma coś nowego do powiedzenia"
     }
   ]
 }

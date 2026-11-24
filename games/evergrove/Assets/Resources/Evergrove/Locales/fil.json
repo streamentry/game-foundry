@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Natutulog sa ilalim ng niyebe ang mga kama ng bulaklak. Ligtas ang mga buto sa lupa."
+    },
+    {
+      "key": "has_news",
+      "value": "May bagong sasabihin"
     }
   ]
 }

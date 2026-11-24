@@ -98,7 +98,8 @@ namespace Evergrove.Core
             "sr_tile_wet","sr_tile_dry","sr_straight","sr_corner","sr_spring","sr_outlet",
             "name_mira","name_orin","name_fen",
             "menu","close","text_size","board_size","gentle_motion","postcard","postcard_copied",
-            "mira_autumn","mira_winter","orin_autumn","orin_winter","fen_autumn","fen_winter"
+            "mira_autumn","mira_winter","orin_autumn","orin_winter","fen_autumn","fen_winter",
+            "has_news"
         };
 
         private static readonly string[] English = {
@@ -215,7 +216,8 @@ namespace Evergrove.Core
             "Leaves drift under the crossing now. It still holds, plank by plank.",
             "I keep the crossing clear of snow. People still walk it every day.",
             "Your wildflowers are going to seed. The bank will be fuller next spring.",
-            "The flower beds sleep under the snow. The seeds are safe in the earth."
+            "The flower beds sleep under the snow. The seeds are safe in the earth.",
+            "Has something new to say"
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

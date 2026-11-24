@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "De bloembedden slapen onder de sneeuw. De zaden zijn veilig in de aarde."
+    },
+    {
+      "key": "has_news",
+      "value": "Heeft iets nieuws te vertellen"
     }
   ]
 }

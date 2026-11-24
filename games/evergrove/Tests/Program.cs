@@ -842,7 +842,7 @@ internal static class Program
                LocaleShippingPolicy.Resolve("ja", true) == "ja" &&
                LocaleShippingPolicy.Resolve("invalid", true) == "en",
             "old research preferences and auto-detected draft locales safely fall back");
-        Expect(GameLocalization.Keys.Count == 114,"authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 115,"authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");

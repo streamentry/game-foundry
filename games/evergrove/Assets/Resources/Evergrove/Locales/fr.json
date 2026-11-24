@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Les parterres dorment sous la neige. Les graines sont en sécurité dans la terre."
+    },
+    {
+      "key": "has_news",
+      "value": "A quelque chose de nouveau à dire"
     }
   ]
 }

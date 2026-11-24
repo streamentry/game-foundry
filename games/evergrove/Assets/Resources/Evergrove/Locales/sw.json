@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Vitanda vya maua vinalala chini ya theluji. Mbegu ziko salama ardhini."
+    },
+    {
+      "key": "has_news",
+      "value": "Ana jambo jipya la kusema"
     }
   ]
 }

@@ -456,6 +456,10 @@
     {
       "key": "fen_winter",
       "value": "Kebun bunga tertidur di bawah salju. Bijinya aman di dalam tanah."
+    },
+    {
+      "key": "has_news",
+      "value": "Punya sesuatu yang baru untuk disampaikan"
     }
   ]
 }
