@@ -45,6 +45,7 @@ namespace Evergrove.UnityClient
         private ScrollRect menuScroll;
         private bool menuOpen;
         private GameObject titleScreen; // the painted welcome on every launch
+        private GameObject coachBubble;  // stream-1 teaching bubble, gone after the first move
         private RectTransform warningViewport;
         private GameObject saveWarningBanner;
         private Text saveWarningCaption;
@@ -1378,6 +1379,7 @@ namespace Evergrove.UnityClient
             UpdateSaveWarning();
             float previousPosition = scroll.verticalNormalizedPosition;
             visibleTiles = null;
+            coachBubble = null;
             activeIllustration = null;
             activePainting = null;
             tileBackgrounds = null;
@@ -1798,9 +1800,15 @@ namespace Evergrove.UnityClient
             Puzzle puzzle = world.CurrentPuzzle;
             PipeInsight insight = world.Insight;
             StreamStones(puzzle);
-            Label(content, "Prompt", world.Round == 0 ?
-                GameLocalization.Text("first") : LocalizedVillage.Prompt(world), 16, 0, Ink,
-                TextAnchor.MiddleCenter);
+            if (world.Round == 0)
+            {
+                // A speech bubble pointing at the board, like a game's first-run
+                // tip; it leaves after the first move (RefreshBoard).
+                if (!world.Solved && !world.CanUndo) CoachBubble(GameLocalization.Text("first"));
+            }
+            else
+                Label(content, "Prompt", LocalizedVillage.Prompt(world), 16, 0, Ink,
+                    TextAnchor.MiddleCenter);
             // The anchor line sits directly above the board: it explains the framed tile.
             if (puzzle.AnchoredTile >= 0)
                 Label(content, "Protected habitat", LocalizedVillage.EnvironmentalRule(world),
@@ -2046,11 +2054,43 @@ namespace Evergrove.UnityClient
                         14, 65, Moss, TextAnchor.MiddleCenter);
                 }
             }
-            // Taught once: after the first stream the board speaks for itself
-            // (screen readers still hear "how" as each tile's hint).
-            if (world.Round == 0)
-                Label(content, "How to play", GameLocalization.Text("how"),
-                    14, 0, Moss, TextAnchor.MiddleCenter);
+            // The coach bubble teaches; every tile's spoken hint still carries "how".
+        }
+
+        private void CoachBubble(string message)
+        {
+            var row = Node("Prompt", content);
+            var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
+            rowGroup.childAlignment = TextAnchor.MiddleCenter;
+            rowGroup.padding = new RectOffset(10, 10, 0, 12); // room for the tail
+            rowGroup.childControlWidth = true;
+            rowGroup.childControlHeight = true;
+            rowGroup.childForceExpandWidth = true;
+            rowGroup.childForceExpandHeight = false;
+            var bubble = Node("Coach bubble", row.transform);
+            var fill = bubble.AddComponent<Image>();
+            MosseloraArt.Round(fill, MosseloraTheme.ForestAction, 18);
+            fill.raycastTarget = false;
+            MosseloraArt.Lift(fill, 3f, 0.22f);
+            var pad = bubble.AddComponent<VerticalLayoutGroup>();
+            pad.padding = new RectOffset(16, 16, 10, 10);
+            pad.childControlWidth = true;
+            pad.childControlHeight = true;
+            pad.childForceExpandWidth = true;
+            Text words = Label(bubble.transform, "Coach words", message, 16, 0, White, TextAnchor.MiddleCenter);
+            Emphasize(words);
+            var tail = Node("Coach tail", bubble.transform);
+            tail.AddComponent<LayoutElement>().ignoreLayout = true;
+            var tailRect = tail.GetComponent<RectTransform>();
+            tailRect.anchorMin = tailRect.anchorMax = new Vector2(0.5f, 0f);
+            tailRect.sizeDelta = new Vector2(16f, 16f);
+            tailRect.anchoredPosition = new Vector2(0f, -2f);
+            tailRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            var tailImage = tail.AddComponent<Image>();
+            tailImage.color = MosseloraTheme.ForestAction;
+            tailImage.raycastTarget = false;
+            tail.transform.SetAsFirstSibling(); // under the bubble body
+            coachBubble = row;
         }
 
         // Illustrated choice card (painted icon + title + written consequence).
@@ -2334,6 +2374,8 @@ namespace Evergrove.UnityClient
         private void RefreshBoard()
         {
             semanticsDirty = true;
+            // The first move is the lesson learned: the bubble steps aside.
+            if (coachBubble != null && world.CanUndo) { coachBubble.SetActive(false); coachBubble = null; }
             if (world.Completed || visibleTiles == null) return;
             Puzzle puzzle = world.CurrentPuzzle;
             if (visibleTiles.Length != puzzle.CellCount) { Rebuild(); return; }
