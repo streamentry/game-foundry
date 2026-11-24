@@ -175,6 +175,8 @@ APPROVED_GUARDS = {
 DEV_ONLY_TOKENS = [
     r"\bDevQaTour\b", r"\bDevScreenshot\b", r"\bTextSpike\b", r"\bLocalPlaytest\b",
     r"\bReturnDiary\b", r"\bReturnStatus\b",
+    r"\bFacilitatorHold\b", r"\bparticipantView\b",
+    r"\bStartParticipantView\b", r"\bEndParticipantView\b",
     r"\bVillageDiorama\b", r"\bQaReplaceWorld\b", r"\bQaWorld\b", r"\bLogForQa\b",
     r"mosseloraQaTour", r"mosseloraScreenshot", r"mosseloraTextSpike", r"mosseloraTextScale",
     r"matched control", r"Matched control", r"Playtest consent", r"Diorama visual comparison",
