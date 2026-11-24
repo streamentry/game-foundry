@@ -425,3 +425,12 @@ h1 em { font-style: italic; color: #34775c; }
 .puzzle--complete .tile svg {
   filter: drop-shadow(0 0 6px rgba(60, 180, 120, .6)) !important;
 }
+
+
+/* I24: Fluid World Stage Reveal */
+.world {
+  transition: transform 600ms cubic-bezier(.16, 1, .3, 1), box-shadow 600ms ease;
+}
+.puzzle--complete + .world, .creek--restored {
+  box-shadow: 0 16px 48px rgba(35, 80, 65, .15) !important;
+}
