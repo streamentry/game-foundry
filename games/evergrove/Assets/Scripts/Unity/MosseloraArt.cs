@@ -206,6 +206,37 @@ namespace Evergrove.UnityClient
             return fade;
         }
 
+        /// <summary>
+        /// Painted button plaque for the forest, teal and parchment tones
+        /// (9-sliced Codex art). Returns false for other tones or missing art.
+        /// </summary>
+        public static Image Plaque(Image image, Color tone)
+        {
+            string name = tone == MosseloraTheme.ForestAction ? "plaque-forest"
+                : tone == MosseloraTheme.WaterAction ? "plaque-teal"
+                : tone == MosseloraTheme.QuietAction ? "plaque-parchment" : null;
+            Sprite sprite = name != null ? Load(name) : null;
+            if (sprite == null) return null;
+            // The button keeps a transparent rounded body (hit area and layout);
+            // the painted plaque is a child that ignores layout, so its sprite
+            // size never changes the button's designed size.
+            Round(image, new Color(1f, 1f, 1f, 0f), 18);
+            var node = new GameObject("Painted plaque", typeof(RectTransform));
+            node.transform.SetParent(image.transform, false);
+            node.transform.SetAsFirstSibling();
+            node.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = node.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var art = node.AddComponent<Image>();
+            art.sprite = sprite;
+            art.type = Image.Type.Sliced;
+            art.pixelsPerUnitMultiplier = 2.4f;
+            art.raycastTarget = false;
+            return art;
+        }
+
         /// <summary>Gives an Image a rounded, sliced, tinted body.</summary>
         public static void Round(Image image, Color fill, int radius = 16)
         {

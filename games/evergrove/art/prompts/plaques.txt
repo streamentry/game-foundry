@@ -1,0 +1,12 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is a STYLE reference (soft watercolor storybook, warm light). Generate exactly ONE image.
+Use case: stylized-concept
+Asset type: three game UI button plaques, to be sliced and 9-slice stretched as button backgrounds in a calm village garden game
+Primary request: a 3x1 row of three EMPTY rounded-rectangle button plaques, each centred in its own third of the canvas with generous transparent space around it, each about 2:1 wide, with large evenly rounded corners and NO icons or text on them:
+ left: painted DEEP FOREST GREEN enamel (#1F5A43) on a thin warm wood rim, a soft lighter highlight along the top edge, subtle brush texture;
+ middle: painted DEEP TEAL enamel (#1C6F7A) on the same thin wood rim, same highlight;
+ right: warm PARCHMENT cream (#EFE6D2) painted wooden plaque with a thin darker wood rim, subtle grain.
+The flat centre of each plaque must be calm and even (icons will be drawn on top); all shading stays in the rim and top highlight; consistent soft shadow-free edges.
+Composition: wide 3:1 canvas (e.g. 1536x512).
+Background: fully TRANSPARENT (alpha).
+Constraints: no text, no icons, no watermark.
+Copy the final PNG to games/evergrove/art/generated/button-plaques.png and print the path. Do nothing else.

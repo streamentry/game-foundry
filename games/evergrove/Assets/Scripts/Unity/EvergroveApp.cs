@@ -671,11 +671,12 @@ namespace Evergrove.UnityClient
             stack.childForceExpandWidth = true;
             stack.childForceExpandHeight = true;
             var image = node.AddComponent<Image>();
-            MosseloraArt.Round(image, tone, 16); // Primary actions are rare; choices are equal.
-            MosseloraArt.Lift(image, 2f, quiet ? 0.10f : 0.22f);
-            if (quiet) MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 16);
+            Image plaque = MosseloraArt.Plaque(image, tone); // Primary actions are rare; choices are equal.
+            if (plaque == null) MosseloraArt.Round(image, tone, 16);
+            MosseloraArt.Lift(plaque != null ? plaque : image, 2f, quiet ? 0.10f : 0.22f);
+            if (quiet && plaque == null) MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 16);
             var button = node.AddComponent<Button>();
-            button.targetGraphic = image;
+            button.targetGraphic = plaque != null ? plaque : image;
             button.colors = PressTint();
             PressSquash.Add(node);
             var textNode = Node("Caption", node.transform);
@@ -728,11 +729,14 @@ namespace Evergrove.UnityClient
             if (captionBelow) showCaption = true; // before sizing, so the caption's text scale counts
             MinHeight(node, showCaption ? TextScale.Scale(height) : height);
             var image = node.AddComponent<Image>();
-            MosseloraArt.Round(image, tone, 18);
-            MosseloraArt.Lift(image, 2f, quiet ? 0.10f : 0.24f);
-            if (quiet) MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
+            // Painted enamel-and-wood plaque (Codex) for the main tones; the
+            // rounded fill remains the fallback and for other tones.
+            Image plaque = MosseloraArt.Plaque(image, tone);
+            if (plaque == null) MosseloraArt.Round(image, tone, 18);
+            MosseloraArt.Lift(plaque != null ? plaque : image, 2f, quiet ? 0.10f : 0.24f);
+            if (quiet && plaque == null) MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
             var button = node.AddComponent<Button>();
-            button.targetGraphic = image;
+            button.targetGraphic = plaque != null ? plaque : image;
             button.colors = PressTint();
             button.onClick.AddListener(() => action());
             PressSquash.Add(node);

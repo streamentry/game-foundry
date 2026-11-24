@@ -348,6 +348,13 @@ def main() -> None:
         for name, cell in zip(("ui-tap", "ui-turn", "ui-rooted", "ui-sun"), grid(ui5, 2, 2)):
             save(white_glyph(cell), name)
 
+    plaques = master("button-plaques")
+    if plaques:
+        for name, cell in zip(("plaque-forest", "plaque-teal", "plaque-parchment"),
+                              grid(plaques.convert("RGBA"), 3, 1)):
+            part = fit(trim(cell, 2), 300, 150)
+            save(part, name, border=int(part.height * 0.45))
+
     butterfly = master("butterfly")
     if butterfly:
         for name, cell in zip(("butterfly-open", "butterfly-closed"),
