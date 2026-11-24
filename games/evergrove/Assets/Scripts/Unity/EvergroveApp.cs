@@ -1496,8 +1496,7 @@ namespace Evergrove.UnityClient
                     BloomPulse.Add(stone, 0.25f, 0.45f);
                 image.sprite = here ? MosseloraArt.BoldRing() : MosseloraArt.Rounded(4);
                 image.type = Image.Type.Simple;
-                image.color = here ? Leaf : passed ? MosseloraTheme.WaterChannel
-                    : new Color(0.55f, 0.50f, 0.42f, 0.35f);
+                image.color = here ? Leaf : passed ? MosseloraTheme.WaterChannel : SeasonStone(i);
                 image.raycastTarget = false;
             }
             if (!named) return;
@@ -1510,6 +1509,19 @@ namespace Evergrove.UnityClient
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count),
                 12, 0, new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
+        }
+
+        // Stones ahead wear the season they will be walked in (summer sage,
+        // autumn amber, winter frost): the year ahead is visible, never timed.
+        private static Color SeasonStone(int stream)
+        {
+            int phase = stream >= 9 ? 3 : stream >= 6 ? 2 : stream >= 3 ? 1 : 0;
+            switch (PaintedVillage.SeasonFor(phase, false))
+            {
+                case 1: return new Color(0.85f, 0.63f, 0.35f, 0.70f);
+                case 2: return new Color(0.58f, 0.70f, 0.79f, 0.80f);
+                default: return new Color(0.55f, 0.68f, 0.50f, 0.60f);
+            }
         }
 
         // Thin leaf sprig between sections; purely decorative.
