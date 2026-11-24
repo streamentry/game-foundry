@@ -357,5 +357,31 @@
     if (e.key === "Escape" && menuModal && !menuModal.hidden) toggleMenu(false);
   });
 
+  
+  // I09: Restart confirmation safeguard
+  let restartArmed = false;
+  let restartTimer = null;
+  const restartBtn = node("restart");
+  if (restartBtn) {
+    restartBtn.addEventListener("click", e => {
+      if (!restartArmed) {
+        e.stopImmediatePropagation();
+        restartArmed = true;
+        restartBtn.classList.add("action-icon-btn--armed");
+        restartBtn.setAttribute("title", "Tap again to confirm restart");
+        if (restartTimer) clearTimeout(restartTimer);
+        restartTimer = setTimeout(() => {
+          restartArmed = false;
+          restartBtn.classList.remove("action-icon-btn--armed");
+          restartBtn.setAttribute("title", "Restart");
+        }, 3000);
+      } else {
+        restartArmed = false;
+        restartBtn.classList.remove("action-icon-btn--armed");
+        if (restartTimer) clearTimeout(restartTimer);
+      }
+    }, true);
+  }
+
   render();
 })(typeof window === "undefined" ? globalThis : window);

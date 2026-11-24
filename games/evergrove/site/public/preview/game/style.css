@@ -284,3 +284,15 @@ h1 em { font-style: italic; color: #34775c; }
   0%, 100% { filter: drop-shadow(0 0 1px rgba(36, 126, 80, 0)); }
   50% { filter: drop-shadow(0 0 6px rgba(46, 168, 108, .55)); }
 }
+
+
+/* I09: Restart Armed State */
+.action-icon-btn--armed {
+  background: #fbf0ea !important; border-color: #df9d7e !important; color: #a24220 !important;
+  animation: armed-wobble 240ms ease;
+}
+@keyframes armed-wobble {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
