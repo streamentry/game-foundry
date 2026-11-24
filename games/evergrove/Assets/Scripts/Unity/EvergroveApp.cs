@@ -1761,6 +1761,7 @@ namespace Evergrove.UnityClient
             Emphasize(promise);
             content = page;
             BuildChrome(living);
+            UpdateCreekSound();
             // A different screen (not a tile turn) crossfades in like a turned page.
             string screenKey = (memoryScreen ? "memory" : world.Completed ? "ending" : "puzzle") + ":" +
                 world.Round + ":" + world.Solved + ":" + showJournal + ":" + speakingWith + ":" + languagePicker;
@@ -2435,6 +2436,7 @@ namespace Evergrove.UnityClient
         private void RefreshBoard()
         {
             semanticsDirty = true;
+            UpdateCreekSound();
             // The first move is the lesson learned: the bubble steps aside.
             if (coachBubble != null && world.CanUndo) { coachBubble.SetActive(false); coachBubble = null; }
             if (world.Completed || visibleTiles == null) return;
@@ -2527,6 +2529,7 @@ namespace Evergrove.UnityClient
             }
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
+            PlayTock();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
 #endif
@@ -2758,6 +2761,82 @@ namespace Evergrove.UnityClient
             Rebuild(true);
         }
 #endif
+
+        // ---- I21: procedural creek ambience and a wooden pipe "tock" (sound on only).
+        private AudioSource creek;
+        private AudioClip creekLoop;
+        private AudioClip tock;
+
+        private void PlayTock()
+        {
+            if (!soundOn) return;
+            if (tock == null)
+            {
+                const int sampleRate = 22050;
+                const int length = 2400;
+                var samples = new float[length];
+                var noise = new System.Random(7);
+                for (int i = 0; i < length; i++)
+                {
+                    float t = (float)i / sampleRate;
+                    float envelope = Mathf.Exp(-t * 55f);
+                    float body = Mathf.Sin(t * 2f * Mathf.PI * 330f) + 0.4f * Mathf.Sin(t * 2f * Mathf.PI * 495f);
+                    float click = (float)(noise.NextDouble() * 2.0 - 1.0) * Mathf.Exp(-t * 400f);
+                    samples[i] = envelope * 0.16f * body + 0.05f * click;
+                }
+                tock = AudioClip.Create("Mosselora wooden tock", length, 1, sampleRate, false);
+                tock.SetData(samples, 0);
+            }
+            sound.PlayOneShot(tock, 0.8f);
+        }
+
+        // A soft, seamless creek murmur; loudness follows the real water reach.
+        private void UpdateCreekSound()
+        {
+            if (!soundOn || world == null || world.Completed)
+            {
+                if (creek != null) creek.Stop();
+                return;
+            }
+            if (creek == null)
+            {
+                creek = gameObject.AddComponent<AudioSource>();
+                creek.loop = true;
+                creek.playOnAwake = false;
+                creek.volume = 0f;
+            }
+            if (creekLoop == null)
+            {
+                const int sampleRate = 22050;
+                const int length = sampleRate * 4;
+                var samples = new float[length];
+                var noise = new System.Random(11);
+                float brown = 0f, smooth = 0f;
+                for (int i = 0; i < length; i++)
+                {
+                    brown = Mathf.Clamp(brown + (float)(noise.NextDouble() * 2.0 - 1.0) * 0.06f, -1f, 1f);
+                    smooth += (brown - smooth) * 0.08f; // low-pass: water, not hiss
+                    float t = (float)i / length;
+                    float burble = 0.75f + 0.25f * Mathf.Sin(t * 2f * Mathf.PI * 3f) * Mathf.Sin(t * 2f * Mathf.PI * 7f);
+                    samples[i] = smooth * burble;
+                }
+                // Crossfade the tail into the head so the loop has no seam.
+                int fade = sampleRate / 4;
+                for (int i = 0; i < fade; i++)
+                {
+                    float w = (float)i / fade;
+                    samples[i] = samples[i] * w + samples[length - fade + i] * (1f - w);
+                }
+                var looped = new float[length - fade];
+                System.Array.Copy(samples, looped, looped.Length);
+                creekLoop = AudioClip.Create("Mosselora creek", looped.Length, 1, sampleRate, false);
+                creekLoop.SetData(looped, 0);
+            }
+            if (creek.clip != creekLoop) creek.clip = creekLoop;
+            float reach = world.Solved ? 1f : VillageScenePlan.From(world).WaterReachPercent / 100f;
+            creek.volume = reach <= 0f ? 0f : 0.05f + 0.20f * reach;
+            if (!creek.isPlaying) creek.Play();
+        }
 
         private void PlayChime()
         {
