@@ -902,6 +902,8 @@ namespace Evergrove.UnityClient
             Text tagline = Label(stack.transform, "Title", GameLocalization.Text("subtitle"), 18, 0, Ink,
                 TextAnchor.MiddleCenter);
             Emphasize(tagline);
+            // How far along the creek this garden has walked: resumes, never resets.
+            if (!world.Completed) StreamStones(world.CurrentPuzzle, stack.transform, false);
             Transform play = CenteredRowIn(stack.transform, "Play row");
             Button start = IconButton(play, "Play", GameLocalization.Text("continue"),
                 MosseloraArt.IconContinue, CloseTitle, 84, MosseloraTheme.WaterAction);
@@ -1242,7 +1244,12 @@ namespace Evergrove.UnityClient
         // ahead) with the stream's name. "Stream n / 12" stays as spoken text.
         private void StreamStones(Puzzle puzzle)
         {
-            var row = Node("Chapter", content);
+            StreamStones(puzzle, content, true);
+        }
+
+        private void StreamStones(Puzzle puzzle, Transform parent, bool named)
+        {
+            var row = Node(named ? "Chapter" : "Walk so far", parent);
             var group = row.AddComponent<VerticalLayoutGroup>();
             group.childAlignment = TextAnchor.MiddleCenter;
             group.spacing = 4;
@@ -1275,6 +1282,7 @@ namespace Evergrove.UnityClient
                     : new Color(0.55f, 0.50f, 0.42f, 0.35f);
                 image.raycastTarget = false;
             }
+            if (!named) return;
             string name = GameLocalization.Current == "en" ? puzzle.Name : "";
             Text title = Label(row.transform, "Stream name", name.Length > 0 ? name : " ", 14, 0, Moss,
                 TextAnchor.MiddleCenter);
