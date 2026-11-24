@@ -582,4 +582,50 @@ namespace Evergrove.UnityClient
             graphic.color = new Color(baseColor.r, baseColor.g, baseColor.b, baseColor.a * a);
         }
     }
+
+    /// <summary>A short side-to-side shake (about 0.35 s): "this one stays".</summary>
+    internal sealed class Nudge : MonoBehaviour
+    {
+        private float elapsed;
+        private Vector3 home;
+
+        private void Start() { home = transform.localPosition; }
+
+        private void Update()
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / 0.35f;
+            if (t >= 1f) { transform.localPosition = home; Destroy(this); return; }
+            float offset = Mathf.Sin(t * Mathf.PI * 6f) * 4f * (1f - t);
+            transform.localPosition = home + new Vector3(offset, 0f, 0f);
+        }
+    }
+
+    /// <summary>A tile fades onto the board after a short staggered delay.</summary>
+    internal sealed class SettleIn : MonoBehaviour
+    {
+        private float delay;
+        private float elapsed;
+        private CanvasGroup group;
+
+        public static void Add(GameObject node, float startDelay)
+        {
+            var settle = node.AddComponent<SettleIn>();
+            settle.delay = startDelay;
+            settle.group = node.AddComponent<CanvasGroup>();
+            settle.group.alpha = 0f;
+        }
+
+        private void Update()
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01((elapsed - delay) / 0.3f);
+            group.alpha = 1f - Mathf.Pow(1f - t, 3f);
+            if (t >= 1f)
+            {
+                Destroy(group);
+                Destroy(this);
+            }
+        }
+    }
 }

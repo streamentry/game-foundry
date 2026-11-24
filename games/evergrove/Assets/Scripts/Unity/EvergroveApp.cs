@@ -1220,18 +1220,45 @@ namespace Evergrove.UnityClient
             row.transform.SetAsLastSibling();
         }
 
+        // The neighbor speaks from their portrait in a speech bubble; tapping
+        // the check (or the portrait again) ends the conversation.
         private void NeighborConversation()
         {
-            var conversation = Card(content, "A neighbor's memory", MosseloraTheme.CardFill);
-            screenHeading = conversation.GetComponent<RectTransform>();
-            Text speaker = Label(conversation.transform, "Neighbor name",
-                LocalizedVillage.Name(speakingWith), 16, 31, Leaf, TextAnchor.MiddleCenter);
+            var row = Node("A neighbor's memory", content);
+            screenHeading = row.GetComponent<RectTransform>();
+            var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
+            rowGroup.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
+            rowGroup.spacing = 10;
+            rowGroup.childAlignment = TextAnchor.UpperLeft;
+            rowGroup.childControlWidth = true;
+            rowGroup.childControlHeight = true;
+            rowGroup.childForceExpandWidth = false;
+            rowGroup.childForceExpandHeight = false;
+            Sprite face = MosseloraArt.Portrait(speakingWith);
+            if (face != null)
+            {
+                var portrait = Node("Speaker portrait", row.transform);
+                var portraitLayout = portrait.AddComponent<LayoutElement>();
+                portraitLayout.minWidth = portraitLayout.preferredWidth = 64;
+                portraitLayout.minHeight = portraitLayout.preferredHeight = 64;
+                var portraitImage = portrait.AddComponent<Image>();
+                portraitImage.sprite = face;
+                portraitImage.preserveAspect = true;
+                portraitImage.raycastTarget = false;
+                MosseloraArt.Lift(portraitImage, 2f, 0.2f);
+            }
+            var bubble = Card(row.transform, "Speech bubble", MosseloraTheme.CardFill);
+            bubble.AddComponent<LayoutElement>().flexibleWidth = 1f;
+            Text speaker = Label(bubble.transform, "Neighbor name",
+                LocalizedVillage.Name(speakingWith), 15, 0, Leaf, TextAnchor.MiddleLeft);
             Emphasize(speaker);
-            Label(conversation.transform, "What they say",
-                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleCenter);
-            IconButton(conversation.transform, "Thanks", GameLocalization.Text("thanks"),
-                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 54,
-                MosseloraTheme.ForestAction);
+            Label(bubble.transform, "What they say",
+                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft);
+            Transform close = CenteredRowIn(bubble.transform, "Thanks row");
+            close.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleRight;
+            Width(IconButton(close, "Thanks", GameLocalization.Text("thanks"),
+                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 50,
+                MosseloraTheme.ForestAction), 70);
         }
 
         // Neighbor as a painted portrait medallion with their name beneath.
