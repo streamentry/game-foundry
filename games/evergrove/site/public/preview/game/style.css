@@ -522,3 +522,11 @@ h1 em { font-style: italic; color: #34775c; }
   filter: drop-shadow(0 2px 4px rgba(40, 100, 60, .25));
 }
 .choice-button[data-choice="tree"]:hover { background: #f0f7ee !important; }
+
+
+/* I33: Handcrafted Footbridge Tablet */
+.choice-button[data-choice="bridge"] > span {
+  color: #8c5b36 !important;
+  filter: drop-shadow(0 2px 4px rgba(110, 70, 40, .25));
+}
+.choice-button[data-choice="bridge"]:hover { background: #f9f4ed !important; }
