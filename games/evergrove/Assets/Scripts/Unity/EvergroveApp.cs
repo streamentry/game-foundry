@@ -1446,6 +1446,9 @@ namespace Evergrove.UnityClient
                 layout.minWidth = layout.preferredWidth = size;
                 layout.minHeight = layout.preferredHeight = size;
                 var image = stone.AddComponent<Image>();
+                // The stone just passed lights up once on arrival at the next stream.
+                if (named && gentleMotion && settledRound != world.Round && i == world.Round - 1)
+                    BloomPulse.Add(stone, 0.25f, 0.45f);
                 image.sprite = here ? MosseloraArt.BoldRing() : MosseloraArt.Rounded(4);
                 image.type = Image.Type.Simple;
                 image.color = here ? Leaf : passed ? MosseloraTheme.WaterChannel

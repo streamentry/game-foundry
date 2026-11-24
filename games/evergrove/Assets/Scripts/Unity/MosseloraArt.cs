@@ -21,6 +21,9 @@ namespace Evergrove.UnityClient
         public const string HeroVillage = "hero-village";
         public const string EndingFestival = "ending-festival";
         public const string BoardBed = "board-bed";
+        public const string VignetteTree = "vignette-tree";
+        public const string VignetteBridge = "vignette-bridge";
+        public const string VignetteFlowers = "vignette-flowers";
         public const string ShadeTree = "icon-shade-tree";
         public const string Bridge = "icon-bridge";
         public const string Wildflowers = "icon-wildflowers";
@@ -355,10 +358,13 @@ namespace Evergrove.UnityClient
         private const float Duration = 0.36f;
         private float delay;
         private float elapsed;
+        private float amplitude = 0.07f;
 
-        public static void Add(GameObject node, float startDelay)
+        public static void Add(GameObject node, float startDelay, float swell = 0.07f)
         {
-            node.AddComponent<BloomPulse>().delay = startDelay;
+            var pulse = node.AddComponent<BloomPulse>();
+            pulse.delay = startDelay;
+            pulse.amplitude = swell;
         }
 
         private void Update()
@@ -372,7 +378,7 @@ namespace Evergrove.UnityClient
                 Destroy(this);
                 return;
             }
-            float swell = 1f + 0.07f * Mathf.Sin(Mathf.PI * t);
+            float swell = 1f + amplitude * Mathf.Sin(Mathf.PI * t);
             transform.localScale = new Vector3(swell, swell, 1f);
         }
     }
