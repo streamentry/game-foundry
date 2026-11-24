@@ -2164,7 +2164,9 @@ namespace Evergrove.UnityClient
                 if (living) MemoryJournal();
                 ResetControls("Reset title", "Cancel reset", MosseloraTheme.WaterAction);
             }
-            if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
+            // Wherever the book shows (the memory screen included), its pages are
+            // built: the book on the memory screen used to open blank (I98).
+            if (living && !world.Completed && world.Choices.Length > 0)
                 MemoryJournal();
 
             // ---- Menu sheet: settings, files, new garden, research tools, promise.
@@ -2363,14 +2365,14 @@ namespace Evergrove.UnityClient
                 when.GetComponent<HorizontalLayoutGroup>().spacing = 5;
                 var stone = Node("Season stone", when);
                 var stoneLayout = stone.AddComponent<LayoutElement>();
-                stoneLayout.minWidth = stoneLayout.preferredWidth = 10;
-                stoneLayout.minHeight = stoneLayout.preferredHeight = 10;
+                stoneLayout.minWidth = stoneLayout.preferredWidth = 12;
+                stoneLayout.minHeight = stoneLayout.preferredHeight = 12;
                 var stoneImage = stone.AddComponent<Image>();
                 stoneImage.sprite = MosseloraArt.Rounded(4);
                 stoneImage.color = SeasonStone(i);
                 stoneImage.raycastTarget = false;
                 Label(when, "Journal stream name", GameLocalization.Text("stream", i + 1, PuzzleCatalog.Count),
-                    12, 0, Moss, TextAnchor.MiddleCenter);
+                    13, 0, Moss, TextAnchor.MiddleCenter);
                 Sprite icon = i < chosen.Length ? MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]) : null;
                 if (icon != null)
                 {
@@ -2387,7 +2389,8 @@ namespace Evergrove.UnityClient
                 }
                 // One remembered sentence on the page; the full chapter record is spoken.
                 string remembered = i < chosen.Length ? LocalizedVillage.MemoryAt(chosen, i) : entries[i];
-                Label(page.transform, "Remembered line", remembered, 15, 0, Ink, TextAnchor.UpperCenter);
+                // The journal is read, not glanced at: body size, as on the memory card (I98).
+                Label(page.transform, "Remembered line", remembered, 17, 0, Ink, TextAnchor.UpperCenter);
                 Text record = Label(page.transform, "Recorded cause and effect", entries[i], 14, 0,
                     new Color(0f, 0f, 0f, 0f), TextAnchor.UpperCenter);
                 record.GetComponent<LayoutElement>().ignoreLayout = true;
