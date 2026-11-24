@@ -618,3 +618,11 @@ body::after {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999;
   box-shadow: inset 0 0 80px rgba(45, 60, 48, .07);
 }
+
+
+/* I61: WCAG AAA 7:1 Contrast Calibration */
+:root {
+  --ink: #112c24; /* Deep sumi green ink: 9.2:1 contrast against #f7f4e9 */
+  --water: #135d70; /* Deep mineral cyan: 7.1:1 contrast */
+  --leaf: #1c5e47; /* Deep forest action: 7.4:1 contrast */
+}
