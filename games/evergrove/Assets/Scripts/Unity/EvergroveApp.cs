@@ -910,7 +910,9 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (qaInMemoryOnly) return; // the scripted QA tour starts on the board
 #endif
-            Sprite hero = MosseloraArt.Load(MosseloraArt.HeroVillage);
+            // A finished garden opens on its festival; otherwise the everyday village.
+            Sprite hero = world.Completed && MosseloraArt.Load(MosseloraArt.EndingFestival) != null
+                ? MosseloraArt.Load(MosseloraArt.EndingFestival) : MosseloraArt.Load(MosseloraArt.HeroVillage);
             if (hero == null) return;
             titleScreen = Node("Title screen", host);
             Fill(titleScreen.GetComponent<RectTransform>());
