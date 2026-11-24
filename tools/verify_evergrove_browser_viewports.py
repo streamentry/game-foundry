@@ -85,6 +85,13 @@ def run() -> None:
                             "Undo did not retract the water")
 
                     # A genuine restart must remain in copied participant notes.
+                    # Restart has a two-tap safeguard (I09): the first tap arms it
+                    # visibly and audibly, the second confirms (I108).
+                    page.locator("#restart").click()
+                    require("action-icon-btn--armed" in (page.locator("#restart").get_attribute("class") or ""),
+                            "First restart tap did not visibly arm the safeguard")
+                    require(page.locator("#restart").get_attribute("aria-label") == "Tap again to restart stream",
+                            "Armed restart is not announced to screen readers")
                     page.locator("#restart").click()
                     for index, turns in ((4, 1), (5, 1), (6, 2), (8, 2)):
                         for _ in range(turns):
