@@ -1970,20 +1970,21 @@ namespace Evergrove.UnityClient
                 visibleLeaks[index] = leakText;
                 if (world.HintStep == 2 && index == world.HintTile)
                 {
+                    // A soft honey glow around the tile to turn: it breathes when
+                    // gentle motion is on, and holds still when it is off.
                     var clueNode = Node("Hint focus marker", tileNode.transform);
+                    clueNode.AddComponent<LayoutElement>().ignoreLayout = true;
                     RectTransform clueRect = clueNode.GetComponent<RectTransform>();
-                    clueRect.anchorMin = new Vector2(1f, 0f);
-                    clueRect.anchorMax = new Vector2(1f, 0f);
-                    clueRect.pivot = new Vector2(1f, 0f);
-                    clueRect.sizeDelta = new Vector2(23f, 23f) * markerScale;
-                    clueRect.anchoredPosition = new Vector2(-3f, 3f) * markerScale;
-                    var clueLabel = clueNode.AddComponent<Text>();
-                    clueLabel.font = font;
-                    clueLabel.fontSize = Mathf.RoundToInt(17 * markerScale);
-                    clueLabel.alignment = TextAnchor.MiddleCenter;
-                    clueLabel.color = Ink;
-                    clueLabel.raycastTarget = false;
-                    clueLabel.text = "?";
+                    Fill(clueRect);
+                    clueRect.offsetMin = new Vector2(-5f, -5f);
+                    clueRect.offsetMax = new Vector2(5f, 5f);
+                    var glow = clueNode.AddComponent<Image>();
+                    glow.sprite = MosseloraArt.Ring(15);
+                    glow.type = Image.Type.Sliced;
+                    glow.pixelsPerUnitMultiplier = 1.2f;
+                    glow.color = new Color(0.89f, 0.63f, 0.18f, 1f);
+                    glow.raycastTarget = false;
+                    if (gentleMotion) Breathe.Add(glow);
                 }
                 if (puzzle.Kinds[index] == PipeKind.End)
                 {

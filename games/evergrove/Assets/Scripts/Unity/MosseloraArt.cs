@@ -561,4 +561,25 @@ namespace Evergrove.UnityClient
             band.color = new Color(c.r, c.g, c.b, scrolled);
         }
     }
+
+    /// <summary>A slow, gentle alpha breath for a hint glow (only with gentle motion).</summary>
+    internal sealed class Breathe : MonoBehaviour
+    {
+        private Graphic graphic;
+        private Color baseColor;
+
+        public static void Add(Graphic target)
+        {
+            var breathe = target.gameObject.AddComponent<Breathe>();
+            breathe.graphic = target;
+            breathe.baseColor = target.color;
+        }
+
+        private void Update()
+        {
+            if (graphic == null) return;
+            float a = 0.55f + 0.45f * (0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.4f));
+            graphic.color = new Color(baseColor.r, baseColor.g, baseColor.b, baseColor.a * a);
+        }
+    }
 }
