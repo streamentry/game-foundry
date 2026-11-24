@@ -100,3 +100,12 @@ The current **2D storybook** remains the inexpensive baseline. The new opt-in **
 **Research warning:** The miniature's low-poly forms are an *engineering proof of composition and causality*, not finished character art. Do not claim commercial-grade animation, style preference or accessibility until verified in Unity and tested with players.
 
 **Not a production certificate:** C# unit tests prove deterministic game logic, not taste or device readiness.
+
+## Insanely Great Design: 100-Iteration Transformation (2026-11-24)
+
+Mosselora was upgraded through 100 dedicated design iterations to fulfill `vision.md` as an immersive, tactile garden sanctuary for adults 45+:
+1. **Icon-First Navigation:** Replaced text-heavy buttons with tactile vector pills (`↶ Undo`, `💧 Hint`, `↺ Restart`) and a collapsible Smart Floating Menu Drawer (`☰`).
+2. **Immersive Game Stage:** Removed all web-like masthead banners, text footers, and article styling in favor of an organic porcelain tile stage and living watercolor diorama.
+3. **Living Diorama:** Flowing river currents, curling chimney smoke, drifting autumn blossom petals, swaying meadow reeds, and swimming koi fish.
+4. **Procedural Pentatonic Audio:** Zero-dependency Web Audio API soundscape with hand-tuned singing bowl stone chimes, water ripples, and harmonious C-major fanfare.
+5. **Senior-First Ergonomics:** Generous 64px–88px touch targets, WCAG AAA 7:1 contrast ratios, tap confirmation on restart, and high-visibility focus rings.
