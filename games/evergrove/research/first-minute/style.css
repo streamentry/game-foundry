@@ -666,3 +666,9 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
 .creek--restored {
   position: relative;
 }
+
+
+/* I68: Ambient HUD Soft Rest */
+.controls {
+  transition: opacity 300ms ease;
+}
