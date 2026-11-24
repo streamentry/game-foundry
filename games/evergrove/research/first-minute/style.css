@@ -389,3 +389,14 @@ h1 em { font-style: italic; color: #34775c; }
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-2px); }
 }
+
+
+/* I21: Concentric Spring Water Ripples */
+.tile-mark {
+  filter: drop-shadow(0 2px 4px rgba(36, 124, 153, .35));
+  animation: spring-ripple 2.5s ease-in-out infinite;
+}
+@keyframes spring-ripple {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
