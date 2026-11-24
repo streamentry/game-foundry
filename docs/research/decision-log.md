@@ -718,3 +718,11 @@ The user approved the Android emulator. Unity's bundled SDK gained the emulator 
 
 **Still open for M2:** physical Android and iPhone devices, TalkBack/VoiceOver, and Android save interruption.
 
+
+## 2026-11-24 — Primary audience widened from 45+ to 40+
+
+**Decision (founder direction):** the studio's default primary audience is now adults **40 and older**, replacing 45+. `AGENTS.md`, Mosselora's vision, design system, handbook and specs were updated. Recruitment bands are now 40–49, 50–64 and 65+.
+
+**What did not change:** research recorded before this date keeps its original 45+ / 50+ labels and file names, because that is what it measured. The U.S. evidence still covers adults 50+ only; **40–49 demand and fit are `unknown`**, never inferred from the 50+ data. Other games' READMEs still say 45+; updating them is a separate, mechanical follow-up.
+
+**What would change our mind:** first-session results where 40–49 players behave very differently from 50+ (for example, finding the pace too slow or the help too explicit) would argue for a band-specific default rather than one 40+ design.

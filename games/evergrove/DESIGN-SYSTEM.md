@@ -35,7 +35,7 @@ Typography: the device's Avenir Next (iOS) or Roboto (Android) for English when 
 - Neighbors are painted portrait medallions with their name beneath; the current speaker gets a leaf-green ring.
 - Every icon button keeps its localized label as a hidden child Text named "Caption", which ScreenReaderBridge speaks; names used by the QA tour are unchanged.
 - Controls squash to 94% under the finger (PressSquash); a tapped pipe swings 90 degrees into place (about 160 ms) and undo swings back; the painted creek fades toward the measured water reach instead of popping. Restart and multi-step jumps snap.
-- Open risk: icon-only controls have not been tested with adults 45+; watch for hesitation on Guide me, text size and board size in the first-session test.
+- Open risk: icon-only controls have not been tested with adults 40+; watch for hesitation on Guide me, text size and board size in the first-session test.
 
 Type hierarchy (approximate logical px): title **25**, game decisions **15–17**, guidance **13–15**, metadata **11–12**. Use built-in typography for reproducible builds; commission distinctive typography only after verifying packaging and rights.
 

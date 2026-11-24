@@ -197,7 +197,7 @@ A readable offline/save status when necessary, explicit destructive reset confir
 
 **Core questions:** Can players act without instruction? Do they understand why water moves? Do they notice the village change? Do they want to return voluntarily? Does the icon look distinctive at app-store size?
 
-**First study:** 8–12 uncoached people, including players aged 45+, across real target phones when possible. Count *all starters*, abandoned attempts and restarts. Record time to first valid tap, cause/effect explanation in their own words, restoration recognition, choice comprehension, and spontaneous desire to continue. No leading prompts such as “Isn't the garden beautiful?”
+**First study:** 8–12 uncoached people, including players aged 40+ across the 40–49, 50–64 and 65+ bands, across real target phones when possible. Count *all starters*, abandoned attempts and restarts. Record time to first valid tap, cause/effect explanation in their own words, restoration recognition, choice comprehension, and spontaneous desire to continue. No leading prompts such as “Isn't the garden beautiful?”
 
 **Practical decision thresholds (small-sample heuristics, not statistical proof):**
 - With 10 starters, if **3+** cannot infer the goal or **3+** miss restoration, stop expanding visual scope and redesign.

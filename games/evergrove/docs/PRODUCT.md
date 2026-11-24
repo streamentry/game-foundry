@@ -32,7 +32,7 @@ The puzzle → choice → consequence → next puzzle chain should fit **short v
 
 ## 2. Who is this for?
 
-**Initial segment hypothesis:** people who enjoy calm, visually clear logic games and want light emotional continuity without a heavy farming/management burden. Game Foundry's studio-wide 45+ accessibility direction remains relevant; **Evergrove has not been tested with a representative 45+ cohort**, much less proved to dominate the category.
+**Initial segment hypothesis:** people who enjoy calm, visually clear logic games and want light emotional continuity without a heavy farming/management burden. Game Foundry's studio-wide 40+ accessibility direction remains relevant; **Evergrove has not been tested with a representative 40+ cohort**, much less proved to dominate the category.
 
 **Three distinct people must be discovered, not assumed:**
 
