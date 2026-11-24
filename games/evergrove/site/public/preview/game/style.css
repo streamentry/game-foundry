@@ -330,3 +330,14 @@ h1 em { font-style: italic; color: #34775c; }
 .tile--wet svg {
   filter: drop-shadow(0 1px 2px rgba(255,255,255,.95)) drop-shadow(0 0 4px rgba(45, 150, 175, .45)) !important;
 }
+
+
+/* I16: Animated Flowing Current Streaks */
+@keyframes water-current {
+  0% { stroke-dashoffset: 28; }
+  100% { stroke-dashoffset: 0; }
+}
+.tile--wet svg g {
+  stroke-dasharray: 20 6;
+  animation: water-current 1.4s linear infinite;
+}
