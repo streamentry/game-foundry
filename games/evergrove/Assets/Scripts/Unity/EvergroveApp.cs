@@ -1350,6 +1350,31 @@ namespace Evergrove.UnityClient
 
         private const float SheetHeader = 78f; // the plaque art stands a little taller than its 52 pt box
 
+        private void CreekBehindBoard(Transform board)
+        {
+            int season = PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed);
+            string prefix = season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-" : "banner-stream-";
+            Sprite creek = MosseloraArt.Load(prefix + (world.Solved ? "flowing" : "dry"));
+            if (creek == null) return;
+            var window = Node("Creek behind board", board);
+            window.AddComponent<LayoutElement>().ignoreLayout = true;
+            var windowRect = window.GetComponent<RectTransform>();
+            Fill(windowRect);
+            windowRect.offsetMin = new Vector2(-17f, -46f); // page edge to page edge, a band above and below the bed
+            windowRect.offsetMax = new Vector2(17f, 46f);
+            window.AddComponent<RectMask2D>();
+            var art = Node("Creek painting", window.transform);
+            Fill(art.GetComponent<RectTransform>());
+            var image = art.AddComponent<Image>();
+            image.sprite = creek;
+            image.raycastTarget = false;
+            image.color = new Color(1f, 1f, 1f, 0.55f);
+            var fit = art.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fit.aspectRatio = MosseloraArt.Aspect(creek);
+            window.transform.SetAsFirstSibling(); // under the stone bed and the tiles
+        }
+
         // A sheet's close button lives in a fixed band above its scrolling
         // pages, so it stays in reach at the end of a long journal or menu (I101).
         // Rebuilt with the page (fresh language), replacing the previous one.
@@ -2487,6 +2512,11 @@ namespace Evergrove.UnityClient
                 bedImage.sprite = bed;
                 bedImage.raycastTarget = false;
                 bedNode.transform.SetAsFirstSibling();
+                // The board sits in the landscape (I110): this season's painted creek,
+                // dry until the stream is solved and flowing after, softly behind the
+                // stone bed. Tiles stay opaque parchment, so the puzzle reads the same.
+                // Living world only; the Puzzle-only control keeps a plain page.
+                if (world.Mode == PlayMode.Living) CreekBehindBoard(board.transform);
             }
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
