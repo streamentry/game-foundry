@@ -2511,7 +2511,7 @@ namespace Evergrove.UnityClient
         private void ChoiceCard(Transform parent, VillageChoice choice, Action action, bool wide = false)
         {
             var node = Node("Choice " + choice, parent);
-            MinHeight(node, wide ? 96 : TextScale.Scale(190));
+            MinHeight(node, wide ? 96 : TextScale.Scale(150));
             var image = node.AddComponent<Image>();
             MosseloraArt.PaperTile(image, 18);
             image.color = MosseloraTheme.CardFill;
@@ -2565,7 +2565,13 @@ namespace Evergrove.UnityClient
             TextAnchor align = wide ? TextAnchor.MiddleLeft : TextAnchor.UpperCenter;
             Text title = Label(words, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink, align);
             Emphasize(title);
-            Label(words, "Choice consequence", LocalizedVillage.ChoiceOutcome(choice, world), 14, 0, Ink, align);
+            // Picture first: the painting, the keeper and the name say it; the
+            // consequence is spoken (and shown on the memory screen that follows).
+            // A hidden "Caption" gives screen readers the full choice.
+            Text spoken = Label(node.transform, "Caption",
+                LocalizedVillage.Choice(choice) + "\n" + LocalizedVillage.ChoiceOutcome(choice, world),
+                14, 0, new Color(0f, 0f, 0f, 0f), align);
+            spoken.GetComponent<LayoutElement>().ignoreLayout = true;
         }
 
         // Compact settings row below the primary content of puzzle and post-choice
