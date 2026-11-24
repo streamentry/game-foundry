@@ -632,3 +632,11 @@ body::after {
 body.mode-xl-touch .tile { min-height: 88px !important; }
 body.mode-xl-touch .action-icon-btn { min-height: 60px !important; min-width: 60px !important; }
 body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px !important; }
+
+
+/* I63: Butter-Smooth Reduced Motion Transitions */
+@media (prefers-reduced-motion: reduce) {
+  .tile--turned { animation: none !important; }
+  .particle-splash { display: none !important; }
+  .smoke-puff { animation: none !important; opacity: .5 !important; }
+}
