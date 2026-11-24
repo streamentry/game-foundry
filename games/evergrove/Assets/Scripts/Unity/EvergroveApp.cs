@@ -299,7 +299,16 @@ namespace Evergrove.UnityClient
             RectTransform readable = titleScreen != null
                 ? titleScreen.GetComponent<RectTransform>()
                 : canvasRoot != null ? canvasRoot : content;
-            var nodes = ScreenReaderBridge.Collect(readable, DescribeButton);
+            System.Collections.Generic.List<ScreenReaderBridge.SemanticNode> nodes;
+            Transform hubChrome = titleScreen != null ? titleScreen.transform.Find("Hub chrome") : null;
+            // The hub's menu and book are read first, as they appear top-left/right (I93).
+            if (hubChrome != null)
+            {
+                nodes = ScreenReaderBridge.Collect((RectTransform)hubChrome, DescribeButton);
+                nodes.AddRange(ScreenReaderBridge.Collect(readable, DescribeButton, hubChrome));
+            }
+            else
+                nodes = ScreenReaderBridge.Collect(readable, DescribeButton);
             ScreenReaderBridge.Publish(nodes);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (logThisScreen)
