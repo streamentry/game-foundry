@@ -48,6 +48,8 @@ namespace Evergrove.UnityClient
         private RectTransform journalContent;
         private ScrollRect journalScroll;
         private GameObject titleScreen; // the painted welcome on every launch
+        private readonly System.Collections.Generic.List<GameObject> goalGlows =
+            new System.Collections.Generic.List<GameObject>();
         private GameObject coachBubble;  // stream-1 teaching bubble, gone after the first move
         private RectTransform warningViewport;
         private GameObject saveWarningBanner;
@@ -1583,6 +1585,7 @@ namespace Evergrove.UnityClient
             float previousPosition = scroll.verticalNormalizedPosition;
             visibleTiles = null;
             coachBubble = null;
+            goalGlows.Clear();
             activeIllustration = null;
             activePainting = null;
             tileBackgrounds = null;
@@ -2246,6 +2249,24 @@ namespace Evergrove.UnityClient
                     glow.raycastTarget = false;
                     if (gentleMotion) Breathe.Add(glow);
                 }
+                if (puzzle.Kinds[index] == PipeKind.End && world.Round == 0 && !world.CanUndo && !world.Solved)
+                {
+                    // Before the first move, the start and the goal glow softly.
+                    var goal = Node("Start or goal glow", tileNode.transform);
+                    goalGlows.Add(goal);
+                    goal.AddComponent<LayoutElement>().ignoreLayout = true;
+                    var goalRect = goal.GetComponent<RectTransform>();
+                    Fill(goalRect);
+                    goalRect.offsetMin = new Vector2(-4f, -4f);
+                    goalRect.offsetMax = new Vector2(4f, 4f);
+                    var ring = goal.AddComponent<Image>();
+                    ring.sprite = MosseloraArt.Ring(15);
+                    ring.type = Image.Type.Sliced;
+                    ring.pixelsPerUnitMultiplier = 1.2f;
+                    ring.color = MosseloraTheme.WaterChannel;
+                    ring.raycastTarget = false;
+                    if (gentleMotion) Breathe.Add(ring);
+                }
                 if (puzzle.Kinds[index] == PipeKind.End)
                 {
                     // Visible endpoint semantics instead of relying only on
@@ -2449,10 +2470,6 @@ namespace Evergrove.UnityClient
             pad.childForceExpandWidth = true;
             // A picture, not a sentence: spring waves → garden sprout, and a
             // tapping hand. The sentence stays as spoken text for screen readers.
-            Text words = Label(bubble.transform, "Coach words", message, 16, 0, new Color(1f, 1f, 1f, 0f),
-                TextAnchor.MiddleCenter);
-            words.GetComponent<LayoutElement>().ignoreLayout = true;
-            Fill(words.rectTransform);
             var picture = Node("Coach picture", bubble.transform);
             var pictureRow = picture.AddComponent<HorizontalLayoutGroup>();
             pictureRow.spacing = 10;
@@ -2467,6 +2484,10 @@ namespace Evergrove.UnityClient
             var gap = Node("Coach gap", picture.transform);
             gap.AddComponent<LayoutElement>().minWidth = 6;
             CoachGlyph(picture.transform, MosseloraArt.Load(MosseloraArt.IconTap), false);
+            // One plain sentence under the pictures: a first-time proxy walkthrough
+            // could not tell from pictures alone that a tap turns a pipe (I64).
+            Text words = Label(bubble.transform, "Coach words", message, 15, 0, White, TextAnchor.MiddleCenter);
+            Emphasize(words);
             var tail = Node("Coach tail", bubble.transform);
             tail.AddComponent<LayoutElement>().ignoreLayout = true;
             var tailRect = tail.GetComponent<RectTransform>();
@@ -2786,6 +2807,11 @@ namespace Evergrove.UnityClient
             UpdateCreekSound();
             // The first move is the lesson learned: the bubble steps aside.
             if (coachBubble != null && world.CanUndo) { coachBubble.SetActive(false); coachBubble = null; }
+            if (goalGlows.Count > 0 && world.CanUndo)
+            {
+                foreach (GameObject glow in goalGlows) if (glow != null) glow.SetActive(false);
+                goalGlows.Clear();
+            }
             if (world.Completed || visibleTiles == null) return;
             Puzzle puzzle = world.CurrentPuzzle;
             if (visibleTiles.Length != puzzle.CellCount) { Rebuild(); return; }
