@@ -2156,6 +2156,11 @@ namespace Evergrove.UnityClient
                     Fill(landmarkNode.GetComponent<RectTransform>());
                     landmarkNode.AddComponent<LandmarkGraphic>()
                         .Configure(Mathf.Clamp(world.BoardVariant, 1, 3));
+                    // The thing that roots it, painted, over the badge: tree, bridge or flowers.
+                    Sprite holder = MosseloraArt.ChoiceIcon((VillageChoice)(Mathf.Clamp(world.BoardVariant, 1, 3) - 1));
+                    if (holder != null)
+                        MosseloraArt.Ornament(landmarkNode.transform, "Rooted by", holder, new Vector2(0f, 1f),
+                            new Vector2(0f, 1f), new Vector2(0.46f, 0.46f) * tileSize, new Vector2(2f, -2f));
                 }
                 var pipeNode = Node("Visible channel", tileNode.transform);
                 Fill(pipeNode.GetComponent<RectTransform>());
