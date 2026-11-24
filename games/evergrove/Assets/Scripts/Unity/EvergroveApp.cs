@@ -1381,6 +1381,15 @@ namespace Evergrove.UnityClient
         private void MenuHeader(bool offerLanguage)
         {
             SheetClose(menuContent, "Close menu", () => SetMenu(false));
+            // Shown only when there is a stream in progress to reset (I109).
+            if (!world.Completed && !world.Solved && !showingMemory && world.CanUndo)
+            {
+                Transform row = CenteredRow("Restart stream row");
+                Button restart = IconButton(row, "Restart", GameLocalization.Text("restart"),
+                    MosseloraArt.IconRestart, () => { Act(() => world.Restart(), "restart"); SetMenu(false); },
+                    78, MosseloraTheme.QuietAction, false, null, true);
+                Width(restart, 200);
+            }
             SettingsRow(offerLanguage);
         }
 
@@ -2792,9 +2801,9 @@ namespace Evergrove.UnityClient
                     null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
                 Transform hintDots = hintButton.transform.Find("Level dots");
                 if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too
-                IconButton(tools.transform, "Restart", GameLocalization.Text("restart"),
-                    MosseloraArt.IconRestart, () => Act(() => world.Restart(), "restart"),
-                    toolHeight, MosseloraTheme.QuietAction, false, null, teach);
+                // Restart stream lives in the menu (I109): it clears the undo history,
+                // is rarely needed, and its arrow sat beside Undo's. The board keeps
+                // only the two tools a player reaches for: Undo and Guide me.
                 if (world.HintStep > 0 && world.HintTile >= 0)
                 {
                     int hintRow = world.HintTile / puzzle.Size + 1;
