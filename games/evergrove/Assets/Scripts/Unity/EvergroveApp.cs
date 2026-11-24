@@ -1634,7 +1634,11 @@ namespace Evergrove.UnityClient
             }
             else if (world.Completed)
             {
-                Painting("Village memory painting", MosseloraArt.HeroVillage, 460f);
+                // The whole village gathers by the restored creek (falls back to the
+                // everyday village painting if the festival art is missing).
+                Painting("Village memory painting",
+                    MosseloraArt.Load(MosseloraArt.EndingFestival) != null
+                        ? MosseloraArt.EndingFestival : MosseloraArt.HeroVillage, 460f);
                 var conclusion = Card(content, "The ending", MosseloraTheme.CardFill);
                 screenHeading = conclusion.GetComponent<RectTransform>();
                 Text endingTitle = Label(conclusion.transform, "Ending title",

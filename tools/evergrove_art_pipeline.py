@@ -265,6 +265,10 @@ def main() -> None:
     if hero:
         save(fit(hero.convert("RGBA"), 900, 1350), "hero-village")
 
+    festival = master("ending-festival")
+    if festival:
+        save(fit(festival.convert("RGBA"), 900, 1350), "ending-festival")
+
     vine = master("vine-corner")
     if vine:
         # Keep the corner anchored: crop only right/bottom emptiness.
