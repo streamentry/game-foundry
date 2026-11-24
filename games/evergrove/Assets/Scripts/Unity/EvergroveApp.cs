@@ -1354,6 +1354,7 @@ namespace Evergrove.UnityClient
                                 GameLocalization.Text("postcard_copied"), font, Ink, MosseloraTheme.CardFill);
                         }, 58, MosseloraTheme.WaterAction);
                     Width(postcard, 96);
+                    ShowPostcard(postcard);
                 }
                 Width(IconButton(row, resetName, GameLocalization.Text("explore"),
                     MosseloraArt.IconNewGarden, () => { confirmReset = true; Rebuild(); },
@@ -1550,6 +1551,55 @@ namespace Evergrove.UnityClient
             Emphasize(caption);
             // The speech mark is a picture; screen readers hear it with the name (I81).
             if (news) SpeakInstead(node.transform, label + ". " + GameLocalization.Text("has_news"));
+        }
+
+        // The share button shows what it shares: a tiny postcard of the season's
+        // festival painting, with the chat mark tucked in its corner (I97).
+        private static void ShowPostcard(Button button)
+        {
+            Transform iconNode = button.transform.Find("Icon");
+            Image icon = iconNode != null ? iconNode.GetComponent<Image>() : null;
+            Sprite festival = MosseloraArt.Load(MosseloraArt.EndingFestival);
+            if (icon == null || festival == null) return;
+            Sprite chat = icon.sprite;
+            var layout = iconNode.GetComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = 50f;
+            layout.minHeight = layout.preferredHeight = 38f;
+            // Parchment card with a small border, the painting inset in it.
+            icon.sprite = MosseloraArt.Rounded(6);
+            icon.type = Image.Type.Sliced;
+            icon.preserveAspect = false;
+            icon.color = MosseloraTheme.CardFill;
+            MosseloraArt.Lift(icon, 1.5f, 0.3f);
+            var picture = new GameObject("Postcard painting", typeof(RectTransform));
+            picture.transform.SetParent(iconNode, false);
+            var pictureRect = picture.GetComponent<RectTransform>();
+            pictureRect.anchorMin = Vector2.zero;
+            pictureRect.anchorMax = Vector2.one;
+            pictureRect.offsetMin = new Vector2(3f, 3f);
+            pictureRect.offsetMax = new Vector2(-3f, -3f);
+            picture.AddComponent<RectMask2D>();
+            var art = new GameObject("Festival", typeof(RectTransform));
+            art.transform.SetParent(picture.transform, false);
+            var artRect = art.GetComponent<RectTransform>();
+            artRect.anchorMin = Vector2.zero;
+            artRect.anchorMax = Vector2.one;
+            artRect.offsetMin = artRect.offsetMax = Vector2.zero;
+            var artImage = art.AddComponent<Image>();
+            artImage.sprite = festival;
+            artImage.raycastTarget = false;
+            var fit = art.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fit.aspectRatio = MosseloraArt.Aspect(festival);
+            var badge = MosseloraArt.Ornament(iconNode, "Share mark", MosseloraArt.Rounded(12),
+                new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(24f, 24f), new Vector2(-1f, 2f));
+            if (badge == null) return;
+            badge.preserveAspect = false;
+            badge.color = MosseloraTheme.CardFill;
+            MosseloraArt.Lift(badge, 1.5f, 0.25f);
+            var mark = MosseloraArt.Ornament(badge.transform, "Chat mark", chat,
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(15f, 15f), Vector2.zero);
+            if (mark != null) mark.color = MosseloraTheme.WaterChannel;
         }
 
         // "Change your choice" shows what would change: the painted landmark you
