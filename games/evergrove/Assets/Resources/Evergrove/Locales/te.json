@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "ఫెన్"
+    },
+    {
+      "key": "menu",
+      "value": "మెనూ"
+    },
+    {
+      "key": "close",
+      "value": "మూసివేయి"
+    },
+    {
+      "key": "text_size",
+      "value": "అక్షరాల పరిమాణం"
+    },
+    {
+      "key": "board_size",
+      "value": "పెద్ద బోర్డు"
     }
   ]
 }

@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "فن"
+    },
+    {
+      "key": "menu",
+      "value": "منو"
+    },
+    {
+      "key": "close",
+      "value": "بستن"
+    },
+    {
+      "key": "text_size",
+      "value": "اندازه متن"
+    },
+    {
+      "key": "board_size",
+      "value": "صفحه بزرگ‌تر"
     }
   ]
 }

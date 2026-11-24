@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "פן"
+    },
+    {
+      "key": "menu",
+      "value": "תפריט"
+    },
+    {
+      "key": "close",
+      "value": "סגירה"
+    },
+    {
+      "key": "text_size",
+      "value": "גודל טקסט"
+    },
+    {
+      "key": "board_size",
+      "value": "לוח גדול יותר"
     }
   ]
 }

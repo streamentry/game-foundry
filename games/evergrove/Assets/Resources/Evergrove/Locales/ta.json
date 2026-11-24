@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "ஃபென்"
+    },
+    {
+      "key": "menu",
+      "value": "மெனு"
+    },
+    {
+      "key": "close",
+      "value": "மூடு"
+    },
+    {
+      "key": "text_size",
+      "value": "எழுத்து அளவு"
+    },
+    {
+      "key": "board_size",
+      "value": "பெரிய பலகை"
     }
   ]
 }

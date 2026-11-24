@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "펜"
+    },
+    {
+      "key": "menu",
+      "value": "메뉴"
+    },
+    {
+      "key": "close",
+      "value": "닫기"
+    },
+    {
+      "key": "text_size",
+      "value": "글자 크기"
+    },
+    {
+      "key": "board_size",
+      "value": "보드 크게"
     }
   ]
 }

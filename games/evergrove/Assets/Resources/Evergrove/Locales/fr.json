@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menu"
+    },
+    {
+      "key": "close",
+      "value": "Fermer"
+    },
+    {
+      "key": "text_size",
+      "value": "Taille du texte"
+    },
+    {
+      "key": "board_size",
+      "value": "Plateau plus grand"
     }
   ]
 }

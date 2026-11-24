@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menyu"
+    },
+    {
+      "key": "close",
+      "value": "Funga"
+    },
+    {
+      "key": "text_size",
+      "value": "Ukubwa wa maandishi"
+    },
+    {
+      "key": "board_size",
+      "value": "Ubao mkubwa zaidi"
     }
   ]
 }

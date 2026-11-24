@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "Фен"
+    },
+    {
+      "key": "menu",
+      "value": "Меню"
+    },
+    {
+      "key": "close",
+      "value": "Закрыть"
+    },
+    {
+      "key": "text_size",
+      "value": "Размер текста"
+    },
+    {
+      "key": "board_size",
+      "value": "Большое поле"
     }
   ]
 }

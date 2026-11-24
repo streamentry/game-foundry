@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "फ़ेन"
+    },
+    {
+      "key": "menu",
+      "value": "मेनू"
+    },
+    {
+      "key": "close",
+      "value": "बंद करें"
+    },
+    {
+      "key": "text_size",
+      "value": "टेक्स्ट का आकार"
+    },
+    {
+      "key": "board_size",
+      "value": "बड़ा बोर्ड"
     }
   ]
 }

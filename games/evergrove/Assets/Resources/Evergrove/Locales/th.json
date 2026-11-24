@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "เฟน"
+    },
+    {
+      "key": "menu",
+      "value": "เมนู"
+    },
+    {
+      "key": "close",
+      "value": "ปิด"
+    },
+    {
+      "key": "text_size",
+      "value": "ขนาดตัวอักษร"
+    },
+    {
+      "key": "board_size",
+      "value": "ขยายกระดาน"
     }
   ]
 }

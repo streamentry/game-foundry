@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "芬"
+    },
+    {
+      "key": "menu",
+      "value": "選單"
+    },
+    {
+      "key": "close",
+      "value": "關閉"
+    },
+    {
+      "key": "text_size",
+      "value": "文字大小"
+    },
+    {
+      "key": "board_size",
+      "value": "放大棋盤"
     }
   ]
 }

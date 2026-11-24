@@ -900,7 +900,7 @@ namespace Evergrove.UnityClient
             Transform top = CenteredRow("Menu top", 8f);
             var spacer = Node("Menu spacer", top);
             spacer.AddComponent<LayoutElement>().flexibleWidth = 1f;
-            Width(IconButton(top, "Close menu", GameLocalization.Text("continue"),
+            Width(IconButton(top, "Close menu", GameLocalization.Text("close"),
                 MosseloraArt.IconCancel, () => SetMenu(false), 52, MosseloraTheme.QuietAction), 60);
             SettingsRow(offerLanguage);
         }
@@ -910,7 +910,7 @@ namespace Evergrove.UnityClient
         private void BuildChrome(bool living)
         {
             if (chrome == null) return;
-            Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("language") + " · Aa",
+            Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => SetMenu(!menuOpen), 54, MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, -6f));
             if (living && world.Choices.Length > 0)
@@ -1927,7 +1927,8 @@ namespace Evergrove.UnityClient
         // board on a 390-point phone (109 px vs 90 px tile cap); 4x4 is closer to 1.03x.
         private void BoardSizeButton(Transform parent)
         {
-            IconButton(parent, "Board size", BoardSize.IsLarge ? "▦ 1.2×" : "▦ 1×",
+            IconButton(parent, "Board size",
+                GameLocalization.Text("board_size") + (BoardSize.IsLarge ? " 1.2×" : " 1×"),
                 MosseloraArt.IconBoardSize, () => {
                     BoardSize.Toggle();
                     Rebuild();
@@ -1938,7 +1939,8 @@ namespace Evergrove.UnityClient
         // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.
         private void TextSizeButton(Transform parent)
         {
-            IconButton(parent, "Text size", "Aa " + TextScale.Percent + "%",
+            IconButton(parent, "Text size",
+                GameLocalization.Text("text_size") + " " + TextScale.Percent + "%",
                 MosseloraArt.IconTextSize, () => {
                     TextScale.Cycle();
                     Rebuild();

@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menü"
+    },
+    {
+      "key": "close",
+      "value": "Schließen"
+    },
+    {
+      "key": "text_size",
+      "value": "Textgröße"
+    },
+    {
+      "key": "board_size",
+      "value": "Größeres Spielfeld"
     }
   ]
 }

@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menü"
+    },
+    {
+      "key": "close",
+      "value": "Kapat"
+    },
+    {
+      "key": "text_size",
+      "value": "Yazı boyutu"
+    },
+    {
+      "key": "board_size",
+      "value": "Daha büyük tahta"
     }
   ]
 }

@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Meny"
+    },
+    {
+      "key": "close",
+      "value": "Stäng"
+    },
+    {
+      "key": "text_size",
+      "value": "Textstorlek"
+    },
+    {
+      "key": "board_size",
+      "value": "Större bräde"
     }
   ]
 }

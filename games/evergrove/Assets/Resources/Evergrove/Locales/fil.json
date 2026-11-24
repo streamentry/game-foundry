@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menu"
+    },
+    {
+      "key": "close",
+      "value": "Isara"
+    },
+    {
+      "key": "text_size",
+      "value": "Laki ng teksto"
+    },
+    {
+      "key": "board_size",
+      "value": "Mas malaking board"
     }
   ]
 }

@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "フェン"
+    },
+    {
+      "key": "menu",
+      "value": "メニュー"
+    },
+    {
+      "key": "close",
+      "value": "閉じる"
+    },
+    {
+      "key": "text_size",
+      "value": "文字の大きさ"
+    },
+    {
+      "key": "board_size",
+      "value": "盤面を大きく"
     }
   ]
 }

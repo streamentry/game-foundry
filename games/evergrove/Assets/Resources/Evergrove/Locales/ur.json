@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "فین"
+    },
+    {
+      "key": "menu",
+      "value": "مینو"
+    },
+    {
+      "key": "close",
+      "value": "بند کریں"
+    },
+    {
+      "key": "text_size",
+      "value": "متن کا سائز"
+    },
+    {
+      "key": "board_size",
+      "value": "بڑا بورڈ"
     }
   ]
 }

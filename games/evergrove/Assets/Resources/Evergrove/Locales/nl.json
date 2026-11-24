@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "Fen"
+    },
+    {
+      "key": "menu",
+      "value": "Menu"
+    },
+    {
+      "key": "close",
+      "value": "Sluiten"
+    },
+    {
+      "key": "text_size",
+      "value": "Tekstgrootte"
+    },
+    {
+      "key": "board_size",
+      "value": "Groter bord"
     }
   ]
 }

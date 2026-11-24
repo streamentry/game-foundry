@@ -404,6 +404,22 @@
     {
       "key": "name_fen",
       "value": "فين"
+    },
+    {
+      "key": "menu",
+      "value": "القائمة"
+    },
+    {
+      "key": "close",
+      "value": "إغلاق"
+    },
+    {
+      "key": "text_size",
+      "value": "حجم النص"
+    },
+    {
+      "key": "board_size",
+      "value": "لوحة أكبر"
     }
   ]
 }
