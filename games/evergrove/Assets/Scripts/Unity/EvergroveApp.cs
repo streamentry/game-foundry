@@ -1427,6 +1427,8 @@ namespace Evergrove.UnityClient
 
         // Painted page header: generated wordmark with vine corners. The
         // localized title stays as transparent text for screen readers.
+        private const float ChromeInset = 84f; // book button with its count badge + 10 pt margin + air
+
         private void GardenHeader(bool compact)
         {
             Sprite mark = MosseloraArt.Load(MosseloraArt.Wordmark);
@@ -1441,7 +1443,14 @@ namespace Evergrove.UnityClient
             float markHeight = 46f; // always clears the floating menu and book buttons
             var header = Node("Mosselora wordmark", content);
             Height(header, markHeight + 8f);
-            var markImage = header.AddComponent<Image>();
+            // Inset past the floating menu (left) and book (right) buttons, so the
+            // mark scales down instead of touching them (I79).
+            var markNode = Node("Mark", header.transform);
+            var markRect = markNode.GetComponent<RectTransform>();
+            Fill(markRect);
+            markRect.offsetMin = new Vector2(ChromeInset, 0f);
+            markRect.offsetMax = new Vector2(-ChromeInset, 0f);
+            var markImage = markNode.AddComponent<Image>();
             markImage.sprite = mark;
             markImage.preserveAspect = true;
             markImage.raycastTarget = false;
@@ -2424,7 +2433,10 @@ namespace Evergrove.UnityClient
                 }
                 // Second thoughts live after the decision, not between the payoff
                 // line and the choices, where a lone back-arrow read as "go back".
-                Button revisit = IconButton(CenteredRow("Revisit row"), "Revisit water",
+                // Same bottom-left slot as the board's undo, so it never moves (I79).
+                Transform revisitRow = CenteredRow("Revisit row");
+                revisitRow.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
+                Button revisit = IconButton(revisitRow, "Revisit water",
                     GameLocalization.Text("undo_last"), MosseloraArt.IconUndo,
                     () => Act(() => world.Undo(), "undo"), 48, MosseloraTheme.QuietAction);
                 Width(revisit, 84);
@@ -2535,7 +2547,7 @@ namespace Evergrove.UnityClient
             MosseloraArt.Lift(fill, 3f, 0.18f);
             MosseloraArt.Edge(bubble.transform, MosseloraTheme.CardEdge, 18);
             var pad = bubble.AddComponent<VerticalLayoutGroup>();
-            pad.padding = new RectOffset(16, 16, 10, 10);
+            pad.padding = new RectOffset(16, 16, 12, 18); // last line clears the rim (I79)
             pad.childControlWidth = true;
             pad.childControlHeight = true;
             pad.childForceExpandWidth = true;
