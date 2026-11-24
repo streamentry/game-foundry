@@ -87,6 +87,11 @@ namespace Evergrove.UnityClient
                 Vector2 along = Dir(direction);
                 Vector2 across = new Vector2(along.y, -along.x);
                 AddBar(vh, along, across, 0f, half, stroke, outer);
+                // Painted tube shading: a soft light edge on the upper/left side
+                // of each arm, so pipes read as rounded copper or glazed clay.
+                Vector2 lit = (across.y > 0f || across.x < 0f) ? across : -across;
+                Color32 shine = new Color32(255, 255, 255, 70);
+                AddBar(vh, along, across, 0f, half * 0.92f, stroke * 0.16f, shine, lit * stroke * 0.30f);
                 if (hasWater)
                     AddBar(vh, along, across, 0f, half * 0.90f, flowWidth, inner);
                 else
@@ -127,9 +132,15 @@ namespace Evergrove.UnityClient
         private static void AddBar(VertexHelper vh, Vector2 along, Vector2 across,
                                    float from, float to, float width, Color32 shade)
         {
+            AddBar(vh, along, across, from, to, width, shade, Vector2.zero);
+        }
+
+        private static void AddBar(VertexHelper vh, Vector2 along, Vector2 across,
+                                   float from, float to, float width, Color32 shade, Vector2 shift)
+        {
             Vector2 side = across * (width / 2f);
-            Vector2 a = along * from;
-            Vector2 b = along * to;
+            Vector2 a = along * from + shift;
+            Vector2 b = along * to + shift;
             int offset = vh.currentVertCount;
             vh.AddVert(a - side, shade, Vector2.zero);
             vh.AddVert(b - side, shade, Vector2.up);
