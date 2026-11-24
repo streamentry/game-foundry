@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Animations douces"
+    },
+    {
+      "key": "postcard",
+      "value": "Copier la carte postale du jardin"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Carte postale copiée. Collez-la dans un message pour partager votre jardin."
     }
   ]
 }

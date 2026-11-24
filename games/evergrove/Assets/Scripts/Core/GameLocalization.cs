@@ -97,7 +97,7 @@ namespace Evergrove.Core
             "garden_err_damaged","garden_err_too_large",
             "sr_tile_wet","sr_tile_dry","sr_straight","sr_corner","sr_spring","sr_outlet",
             "name_mira","name_orin","name_fen",
-            "menu","close","text_size","board_size","gentle_motion"
+            "menu","close","text_size","board_size","gentle_motion","postcard","postcard_copied"
         };
 
         private static readonly string[] English = {
@@ -206,7 +206,9 @@ namespace Evergrove.Core
             "Close",
             "Text size",
             "Larger board",
-            "Gentle motion"
+            "Gentle motion",
+            "Copy garden postcard",
+            "Postcard copied. Paste it into a message to share your garden."
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

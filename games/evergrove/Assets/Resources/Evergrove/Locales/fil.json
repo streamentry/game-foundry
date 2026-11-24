@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Banayad na galaw"
+    },
+    {
+      "key": "postcard",
+      "value": "Kopyahin ang postcard ng hardin"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Nakopya ang postcard. I-paste ito sa mensahe para ibahagi ang iyong hardin."
     }
   ]
 }

@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Mwendo mwepesi"
+    },
+    {
+      "key": "postcard",
+      "value": "Nakili kadi ya bustani"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Kadi imenakiliwa. Ibandike kwenye ujumbe ili kushiriki bustani yako."
     }
   ]
 }

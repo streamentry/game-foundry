@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Yumuşak hareket"
+    },
+    {
+      "key": "postcard",
+      "value": "Bahçe kartpostalını kopyala"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Kartpostal kopyalandı. Bahçeni paylaşmak için bir mesaja yapıştır."
     }
   ]
 }

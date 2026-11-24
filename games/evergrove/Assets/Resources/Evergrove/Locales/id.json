@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Gerakan lembut"
+    },
+    {
+      "key": "postcard",
+      "value": "Salin kartu pos taman"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Kartu pos disalin. Tempelkan ke pesan untuk membagikan tamanmu."
     }
   ]
 }

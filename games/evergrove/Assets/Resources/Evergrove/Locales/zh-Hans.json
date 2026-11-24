@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "柔和动效"
+    },
+    {
+      "key": "postcard",
+      "value": "复制花园明信片"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "明信片已复制。粘贴到消息中即可分享你的花园。"
     }
   ]
 }

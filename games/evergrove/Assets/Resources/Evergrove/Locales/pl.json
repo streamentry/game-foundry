@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Delikatne animacje"
+    },
+    {
+      "key": "postcard",
+      "value": "Kopiuj kartkę z ogrodem"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Kartka skopiowana. Wklej ją do wiadomości, aby udostępnić swój ogród."
     }
   ]
 }

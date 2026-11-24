@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "부드러운 움직임"
+    },
+    {
+      "key": "postcard",
+      "value": "정원 엽서 복사"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "엽서를 복사했습니다. 메시지에 붙여넣어 정원을 공유하세요."
     }
   ]
 }

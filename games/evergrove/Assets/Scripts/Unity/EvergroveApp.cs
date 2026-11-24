@@ -97,6 +97,7 @@ namespace Evergrove.UnityClient
         private Text feedbackText;
         private int rebuildGeneration; // lets a pending glide notice any later rebuild
         private bool celebrateSolve;
+        private bool postcardCopied;
         private int settledRound = -1; // the round whose board has already settled in
         private bool[] lastFlowing; // which tiles held water before this move
         private bool celebrateGrowth; // one-shot: the memory screen shows the new landmark growing
@@ -1103,6 +1104,7 @@ namespace Evergrove.UnityClient
         private void SetMenu(bool open)
         {
             menuOpen = open;
+            if (!open) postcardCopied = false;
             if (open) speakingWith = -1;
             Rebuild();
             if (open && menuScroll != null) menuScroll.verticalNormalizedPosition = 1f;
@@ -1880,6 +1882,7 @@ namespace Evergrove.UnityClient
             }
 
 #endif
+            BuildPostcard();
             BuildGardenFileSection();
             if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
@@ -2879,6 +2882,24 @@ namespace Evergrove.UnityClient
 
         // Player-owned copy of the garden. Clipboard only; nothing leaves the device.
         // Lives in settings, below the puzzle, and never on the primary path.
+        // Spoiler-free text postcard for a friend (vision 4.4 rung 1). Clipboard only.
+        private void BuildPostcard()
+        {
+            if (world.Mode != PlayMode.Living) return;
+            var card = Card(content, "Garden postcard", MosseloraTheme.CardFill);
+            Transform row = CenteredRowIn(card.transform, "Postcard row");
+            Width(IconButton(row, "Copy garden postcard", GameLocalization.Text("postcard"),
+                MosseloraArt.IconChat, () => {
+                    GUIUtility.systemCopyBuffer = GardenPostcard.Build(world,
+                        world.Completed ? "" : GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count));
+                    postcardCopied = true;
+                    Rebuild();
+                }, 78, MosseloraTheme.WaterAction, false, null, true), 240);
+            if (postcardCopied)
+                Label(card.transform, "Postcard notice", GameLocalization.Text("postcard_copied"), 15, 0, Ink,
+                    TextAnchor.MiddleCenter);
+        }
+
         private void BuildGardenFileSection()
         {
             var card = Card(content, "Garden file", MosseloraTheme.CardFill);

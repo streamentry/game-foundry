@@ -842,7 +842,7 @@ internal static class Program
                LocaleShippingPolicy.Resolve("ja", true) == "ja" &&
                LocaleShippingPolicy.Resolve("invalid", true) == "en",
             "old research preferences and auto-detected draft locales safely fall back");
-        Expect(GameLocalization.Keys.Count == 106,"authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 108,"authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");
@@ -1244,6 +1244,25 @@ internal static class Program
             "v4 save without variantSchedule restores as living");
     }
 
+    private static void GardenPostcardTests()
+    {
+        WorldModel fresh = WorldModel.New();
+        string empty = GardenPostcard.Build(fresh, "Stream 1 / 12");
+        Expect(empty.StartsWith("Mosselora\n"), "postcard opens with the game name");
+        Expect(empty.Contains("○○○○○○○○○○○○  Stream 1 / 12"),
+            "a fresh garden shows twelve stones ahead");
+        WorldModel walked = WorldModel.New();
+        Solve(walked);
+        Expect(walked.Choose(VillageChoice.Bridge), "postcard world accepts a choice");
+        Solve(walked);
+        Expect(walked.Choose(VillageChoice.ShadeTree), "postcard world accepts a second choice");
+        string card = GardenPostcard.Build(walked, "Stream 3 / 12");
+        Expect(card.Contains("\U0001F309\U0001F333\n"), "choices appear in order as pictures");
+        Expect(card.Contains("●●○"), "two stones walked, the rest ahead");
+        Expect(GardenPostcard.Build(walked, "Stream 3 / 12") == card, "postcard is deterministic");
+        Expect(!card.Contains("http") && !card.Contains("@"), "postcard carries no link or identifier");
+    }
+
     public static int Main(string[] args)
     {
         try
@@ -1283,6 +1302,7 @@ internal static class Program
             LocalizationTests();
             KinsokuLineBreakTests();
             RtlTextTests();
+            GardenPostcardTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }

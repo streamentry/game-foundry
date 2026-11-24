@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "やさしいアニメーション"
+    },
+    {
+      "key": "postcard",
+      "value": "庭のはがきをコピー"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "はがきをコピーしました。メッセージに貼り付けて、庭をシェアしましょう。"
     }
   ]
 }

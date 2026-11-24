@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Animazioni delicate"
+    },
+    {
+      "key": "postcard",
+      "value": "Copia la cartolina del giardino"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Cartolina copiata. Incollala in un messaggio per condividere il tuo giardino."
     }
   ]
 }

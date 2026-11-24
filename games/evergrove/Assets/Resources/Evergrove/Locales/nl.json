@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Zachte animaties"
+    },
+    {
+      "key": "postcard",
+      "value": "Tuinpostkaart kopiëren"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Ansichtkaart gekopieerd. Plak hem in een bericht om je tuin te delen."
     }
   ]
 }

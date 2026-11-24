@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Gerakan lembut"
+    },
+    {
+      "key": "postcard",
+      "value": "Salin poskad taman"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Poskad disalin. Tampal ke dalam mesej untuk berkongsi taman anda."
     }
   ]
 }

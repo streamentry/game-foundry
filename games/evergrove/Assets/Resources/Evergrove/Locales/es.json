@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Movimiento suave"
+    },
+    {
+      "key": "postcard",
+      "value": "Copiar postal del jardín"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Postal copiada. Pégala en un mensaje para compartir tu jardín."
     }
   ]
 }

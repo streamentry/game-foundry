@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Chuyển động nhẹ nhàng"
+    },
+    {
+      "key": "postcard",
+      "value": "Sao chép bưu thiếp khu vườn"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Đã sao chép bưu thiếp. Dán vào tin nhắn để chia sẻ khu vườn của bạn."
     }
   ]
 }

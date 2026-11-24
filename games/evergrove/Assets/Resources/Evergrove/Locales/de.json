@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Sanfte Animation"
+    },
+    {
+      "key": "postcard",
+      "value": "Garten-Postkarte kopieren"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Postkarte kopiert. Füge sie in eine Nachricht ein, um deinen Garten zu teilen."
     }
   ]
 }

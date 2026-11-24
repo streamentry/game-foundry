@@ -424,6 +424,14 @@
     {
       "key": "gentle_motion",
       "value": "Mjuka animationer"
+    },
+    {
+      "key": "postcard",
+      "value": "Kopiera trädgårdspostkortet"
+    },
+    {
+      "key": "postcard_copied",
+      "value": "Postkortet kopierades. Klistra in det i ett meddelande för att dela din trädgård."
     }
   ]
 }
