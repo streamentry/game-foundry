@@ -989,8 +989,46 @@ namespace Evergrove.UnityClient
             layout.flexibleWidth = flexible;
         }
 
+        // The villagers stand in their village: portrait medallions along the
+        // bottom of the painted strip, names in white over the art.
+        private void NeighborsOnPainting(Transform painting)
+        {
+            var row = Node("Speak with a neighbor", painting);
+            row.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = row.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = new Vector2(0f, 86f);
+            rect.anchoredPosition = new Vector2(0f, 4f);
+            var group = row.AddComponent<HorizontalLayoutGroup>();
+            group.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
+            group.childAlignment = TextAnchor.LowerCenter;
+            group.spacing = 30f;
+            group.childControlWidth = true;
+            group.childControlHeight = true;
+            group.childForceExpandWidth = false;
+            group.childForceExpandHeight = false;
+            for (int villager = 0; villager < 3; villager++)
+                PortraitButton(row.transform, villager, true);
+            row.transform.SetAsLastSibling();
+        }
+
+        private void NeighborConversation()
+        {
+            var conversation = Card(content, "A neighbor's memory", MosseloraTheme.CardFill);
+            Text speaker = Label(conversation.transform, "Neighbor name",
+                LocalizedVillage.Name(speakingWith), 16, 31, Leaf, TextAnchor.MiddleCenter);
+            Emphasize(speaker);
+            Label(conversation.transform, "What they say",
+                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleCenter);
+            IconButton(conversation.transform, "Thanks", GameLocalization.Text("thanks"),
+                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 54,
+                MosseloraTheme.ForestAction);
+        }
+
         // Neighbor as a painted portrait medallion with their name beneath.
-        private void PortraitButton(Transform parent, int villager)
+        private void PortraitButton(Transform parent, int villager, bool onPainting = false)
         {
             string label = LocalizedVillage.Name(villager);
             Sprite face = MosseloraArt.Portrait(villager);
@@ -1017,8 +1055,9 @@ namespace Evergrove.UnityClient
             PressSquash.Add(node);
             var picture = Node("Portrait", node.transform);
             var pictureLayout = picture.AddComponent<LayoutElement>();
-            pictureLayout.minWidth = pictureLayout.preferredWidth = 76;
-            pictureLayout.minHeight = pictureLayout.preferredHeight = 76;
+            float medallion = onPainting ? 58f : 76f;
+            pictureLayout.minWidth = pictureLayout.preferredWidth = medallion;
+            pictureLayout.minHeight = pictureLayout.preferredHeight = medallion;
             var pictureImage = picture.AddComponent<Image>();
             pictureImage.sprite = face;
             pictureImage.preserveAspect = true;
@@ -1027,11 +1066,21 @@ namespace Evergrove.UnityClient
             if (speakingWith == villager)
             {
                 var ring = MosseloraArt.Ornament(picture.transform, "Speaking ring", MosseloraArt.Ring(16),
-                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(84f, 84f), Vector2.zero);
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(medallion + 8f, medallion + 8f), Vector2.zero);
                 if (ring != null) ring.color = Leaf;
             }
-            var caption = Label(node.transform, "Caption", label, 15, 0, Ink, TextAnchor.MiddleCenter);
+            var caption = Label(node.transform, "Caption", label, onPainting ? 13 : 15, 0,
+                onPainting ? White : Ink, TextAnchor.MiddleCenter);
             Emphasize(caption);
+            if (onPainting)
+            {
+                // Legible white name over any part of the painting.
+                var shadow = caption.gameObject.AddComponent<Shadow>();
+                shadow.effectColor = new Color(0.05f, 0.12f, 0.08f, 0.85f);
+                shadow.effectDistance = new Vector2(1f, -1.5f);
+                var outline = caption.gameObject.AddComponent<Outline>();
+                outline.effectColor = new Color(0.05f, 0.12f, 0.08f, 0.55f);
+            }
         }
 
         // Painted page header: generated wordmark with vine corners. The
@@ -1310,12 +1359,15 @@ namespace Evergrove.UnityClient
                             scenePlan.WaterRestored, scenePlan.WaterReachPercent);
                     }
                 }
+                // After the painting's own layers, so the villagers stand on top of it.
+                if (!showingMemory) NeighborsOnPainting(illustration.transform);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             else if (diorama != null)
                 diorama.Hide();
 #endif
 
+            if (living && !showingMemory && speakingWith >= 0) NeighborConversation();
             if (living)
             {
                 if (!firstPuzzle)
@@ -1381,32 +1433,6 @@ namespace Evergrove.UnityClient
             }
             if (living && !world.Completed && !showingMemory && world.Choices.Length > 0)
                 MemoryJournal();
-
-            // Optional face-to-face NPC interaction. Character dialogue is
-            // genuinely driven by previous world decisions, not generated text.
-            // It stays below the puzzle so onboarding reaches gameplay first.
-            if (living && !showingMemory)
-            {
-                Text neighborsTitle = Label(content, "Neighbors", GameLocalization.Text("neighbors"),
-                    14, 30, Leaf, TextAnchor.MiddleCenter);
-                Emphasize(neighborsTitle);
-                Transform neighbors = CenteredRow("Speak with a neighbor", 26f);
-                PortraitButton(neighbors, 0);
-                PortraitButton(neighbors, 1);
-                PortraitButton(neighbors, 2);
-                if (speakingWith >= 0)
-                {
-                    var conversation = Card(content, "A neighbor's memory", MosseloraTheme.CardFill);
-                    Text speaker = Label(conversation.transform, "Neighbor name",
-                        LocalizedVillage.Name(speakingWith), 16, 31, Leaf, TextAnchor.MiddleCenter);
-                    Emphasize(speaker);
-                    Label(conversation.transform, "What they say",
-                        LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleCenter);
-                    IconButton(conversation.transform, "Thanks", GameLocalization.Text("thanks"),
-                        MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 54,
-                        MosseloraTheme.ForestAction);
-                }
-            }
 
             // ---- Menu sheet: settings, files, new garden, research tools, promise.
             RectTransform page = content;
