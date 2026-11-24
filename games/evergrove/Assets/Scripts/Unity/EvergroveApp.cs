@@ -2656,7 +2656,7 @@ namespace Evergrove.UnityClient
                 }, 78, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, true);
             row = Row(panel.transform, "Settings row 3");
-            IconButton(row.transform, "Quiet audio setting",
+            Button chimeTile = IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
                 () => {
@@ -2666,6 +2666,32 @@ namespace Evergrove.UnityClient
                     Rebuild();
                 }, 78, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, true);
+            // The tile shows its name like its neighbors ("Gentle chime"); the icon
+            // and tone show on/off. The full sentence stays the spoken name (I76).
+            ShowShortName(chimeTile);
+        }
+
+        // Shows the part of a "Name: state (hint)" caption before the colon, and
+        // keeps the whole sentence as the hidden spoken "Caption".
+        private static void ShowShortName(Button tile)
+        {
+            Transform shown = tile.transform.Find("Caption");
+            Text text = shown != null ? shown.GetComponent<Text>() : null;
+            if (text == null) return;
+            string full = text.text;
+            int colon = full.IndexOfAny(new[] { ':', '\uFF1A' });
+            if (colon <= 0) return;
+            shown.name = "Shown name";
+            text.text = full.Substring(0, colon).Trim();
+            var spokenNode = new GameObject("Caption", typeof(RectTransform));
+            spokenNode.transform.SetParent(tile.transform, false);
+            spokenNode.AddComponent<LayoutElement>().ignoreLayout = true;
+            var spoken = spokenNode.AddComponent<Text>();
+            spoken.font = text.font;
+            spoken.fontSize = text.fontSize;
+            spoken.text = full;
+            spoken.color = new Color(0f, 0f, 0f, 0f);
+            spoken.raycastTarget = false;
         }
 
         // Language-neutral label: the tile scale of the current board (EG-112).
