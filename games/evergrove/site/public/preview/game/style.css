@@ -466,3 +466,14 @@ h1 em { font-style: italic; color: #34775c; }
   30% { opacity: .65; }
   100% { transform: translate(-10px, -24px) scale(1.4); opacity: 0; }
 }
+
+
+/* I28: Gentle Meadow Grass Sway */
+@keyframes grass-breeze {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(4deg); }
+}
+.creek-art path[stroke="#477B65"] {
+  transform-origin: bottom center;
+  animation: grass-breeze 4s ease-in-out infinite;
+}
