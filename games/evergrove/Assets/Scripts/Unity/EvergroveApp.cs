@@ -2034,7 +2034,13 @@ namespace Evergrove.UnityClient
                         MosseloraArt.Ornament(picture.transform, "Who remembers", face, new Vector2(1f, 0f),
                             new Vector2(1f, 0f), new Vector2(30f, 30f), new Vector2(0f, -4f));
                 }
-                Label(page.transform, "Recorded cause and effect", entries[i], 14, 0, Ink, TextAnchor.UpperCenter);
+                // One remembered sentence on the page; the full chapter record is spoken.
+                string remembered = i < chosen.Length ? GameLocalization.Text(chosen[i] == 0 ? "memory_tree"
+                    : chosen[i] == 1 ? "memory_bridge" : "memory_flowers") : entries[i];
+                Label(page.transform, "Remembered line", remembered, 15, 0, Ink, TextAnchor.UpperCenter);
+                Text record = Label(page.transform, "Recorded cause and effect", entries[i], 14, 0,
+                    new Color(0f, 0f, 0f, 0f), TextAnchor.UpperCenter);
+                record.GetComponent<LayoutElement>().ignoreLayout = true;
             }
             if (entries.Length % 2 == 1 && spread != null)
                 Node("Scrapbook blank", spread.transform); // keeps the last page half width
