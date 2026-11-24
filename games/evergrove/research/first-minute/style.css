@@ -753,3 +753,11 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
 .memory-footnote {
   border-top: 1px dashed #b5ceb8; padding-top: 10px; color: #476a54 !important;
 }
+
+
+/* I87: Drifting Petals in Current */
+@keyframes river-petal-drift {
+  0% { transform: translate(0, 0); opacity: 0; }
+  30% { opacity: .8; }
+  100% { transform: translate(45px, 60px); opacity: 0; }
+}
