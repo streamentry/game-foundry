@@ -434,3 +434,17 @@ h1 em { font-style: italic; color: #34775c; }
 .puzzle--complete + .world, .creek--restored {
   box-shadow: 0 16px 48px rgba(35, 80, 65, .15) !important;
 }
+
+
+/* I25: Multi-Layered Creek Water Stream */
+#creek-front {
+  filter: drop-shadow(0 2px 8px rgba(30, 110, 125, .4));
+}
+.creek--restored #creek-front {
+  stroke-dasharray: 100 !important;
+  animation: creek-pulse 3s ease-in-out infinite;
+}
+@keyframes creek-pulse {
+  0%, 100% { stroke-width: 43px; }
+  50% { stroke-width: 46px; }
+}
