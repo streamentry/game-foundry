@@ -638,4 +638,71 @@ namespace Evergrove.UnityClient
             }
         }
     }
+
+    /// <summary>
+    /// A small parchment note above a tapped rooted tile, explaining why it
+    /// stays; fades after about 2.6 s. One at a time.
+    /// </summary>
+    internal sealed class RuleToast : MonoBehaviour
+    {
+        private static RuleToast current;
+        private float elapsed;
+        private CanvasGroup group;
+
+        public static void Show(RectTransform anchor, string message, Font font, Color ink, Color paper)
+        {
+            if (anchor == null) return;
+            if (current != null) Destroy(current.gameObject);
+            Canvas canvas = anchor.GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            var root = (RectTransform)canvas.rootCanvas.transform;
+            var node = new GameObject("Rule toast", typeof(RectTransform));
+            node.transform.SetParent(root, false);
+            var rect = node.GetComponent<RectTransform>();
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = new Vector2(Mathf.Min(300f, root.rect.width - 32f), 0f);
+            var fill = node.AddComponent<Image>();
+            MosseloraArt.Round(fill, paper, 14);
+            fill.raycastTarget = false;
+            MosseloraArt.Lift(fill, 3f, 0.25f);
+            MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 14);
+            var fit = node.AddComponent<ContentSizeFitter>();
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var pad = node.AddComponent<VerticalLayoutGroup>();
+            pad.padding = new RectOffset(14, 14, 10, 10);
+            pad.childControlWidth = true;
+            pad.childControlHeight = true;
+            pad.childForceExpandWidth = true;
+            var words = new GameObject("Toast words", typeof(RectTransform));
+            words.transform.SetParent(node.transform, false);
+            var text = words.AddComponent<Text>();
+            text.font = font;
+            text.fontSize = TextScale.Scale(15);
+            text.color = ink;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.text = message;
+            Vector3 top = anchor.TransformPoint(new Vector3(anchor.rect.center.x, anchor.rect.yMax, 0f));
+            rect.position = top;
+            rect.anchoredPosition += new Vector2(0f, 8f);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+            Vector3 local = root.InverseTransformPoint(rect.position);
+            float half = rect.rect.width / 2f, limit = root.rect.width / 2f - 8f;
+            rect.anchoredPosition += new Vector2(Mathf.Clamp(local.x, -limit + half, limit - half) - local.x, 0f);
+            current = node.AddComponent<RuleToast>();
+            current.group = node.AddComponent<CanvasGroup>();
+            current.group.blocksRaycasts = false;
+        }
+
+        private void Update()
+        {
+            elapsed += Time.unscaledDeltaTime;
+            if (elapsed > 2.6f) group.alpha = Mathf.Clamp01(1f - (elapsed - 2.6f) / 0.4f);
+            if (elapsed > 3.0f) Destroy(gameObject);
+        }
+
+        private void OnDestroy() { if (current == this) current = null; }
+    }
 }

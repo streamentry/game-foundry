@@ -2042,9 +2042,14 @@ namespace Evergrove.UnityClient
                 Label(content, "Prompt", LocalizedVillage.Prompt(world), 16, 0, Ink,
                     TextAnchor.MiddleCenter);
             // The anchor line sits directly above the board: it explains the framed tile.
+            // Spoken, not shown: the framed tile carries the painted landmark that
+            // roots it, and tapping it shows the rule in a toast (TapTile).
             if (puzzle.AnchoredTile >= 0)
-                Label(content, "Protected habitat", LocalizedVillage.EnvironmentalRule(world),
-                    14, 48, Leaf, TextAnchor.MiddleCenter);
+            {
+                Text rule = Label(content, "Protected habitat", LocalizedVillage.EnvironmentalRule(world),
+                    14, 0, new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+                rule.GetComponent<LayoutElement>().ignoreLayout = true;
+            }
             // The board sits on the page itself; each tile is its own parchment square.
             var board = Card(content, "The water puzzle", new Color(1f, 1f, 1f, 0f));
             // The tiles sit in a painted garden bed of mossy stones (Codex art).
@@ -2841,6 +2846,9 @@ namespace Evergrove.UnityClient
                 // A gentle "this one stays" shake of the rooted pipe: felt, not scolded.
                 if (gentleMotion && tileArtwork != null && index < tileArtwork.Length)
                     tileArtwork[index].gameObject.AddComponent<Nudge>();
+                if (visibleTiles != null && index < visibleTiles.Length && landmark.Length > 0)
+                    RuleToast.Show(visibleTiles[index].GetComponent<RectTransform>(), landmark, font, Ink,
+                        MosseloraTheme.CardFill);
                 semanticsDirty = true;
                 return;
             }
