@@ -1530,10 +1530,13 @@ namespace Evergrove.UnityClient
             if (living && !showingMemory && speakingWith >= 0) NeighborConversation();
             if (living)
             {
-                if (!firstPuzzle)
+                // Said once: the solved board already says the water flows, and
+                // the memory card already tells who remembers what.
+                bool solvedBoard = puzzleScreen && world.Solved;
+                if (!firstPuzzle && !memoryScreen && !solvedBoard)
                     Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
                         TextAnchor.MiddleCenter);
-                if (world.Choices.Length > 0)
+                if (world.Choices.Length > 0 && !memoryScreen)
                     Label(content, "Remembered choice", LocalizedVillage.Memory(world), 13, 38, Moss,
                         TextAnchor.MiddleCenter);
             }
@@ -1546,6 +1549,18 @@ namespace Evergrove.UnityClient
                 var moment = Card(content, "A remembered moment", MosseloraTheme.CardFill);
                 // Room above the title for the leaf sprigs at any text size.
                 moment.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(14, 14, 34, 16);
+                // The neighbor who will remember this choice, painted, at the top of the card.
+                int[] madeChoices = world.Choices;
+                Sprite rememberer = MosseloraArt.Portrait(madeChoices[madeChoices.Length - 1]);
+                if (rememberer != null)
+                {
+                    var face = Node("Neighbor who remembers", moment.transform);
+                    Height(face, 72f);
+                    var faceImage = face.AddComponent<Image>();
+                    faceImage.sprite = rememberer;
+                    faceImage.preserveAspect = true;
+                    faceImage.raycastTarget = false;
+                }
                 Text momentTitle = Label(moment.transform, "Moment title",
                     GameLocalization.Text("memory_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(momentTitle);
