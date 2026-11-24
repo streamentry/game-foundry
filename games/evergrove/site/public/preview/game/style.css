@@ -477,3 +477,16 @@ h1 em { font-style: italic; color: #34775c; }
   transform-origin: bottom center;
   animation: grass-breeze 4s ease-in-out infinite;
 }
+
+
+/* I29: Fluttering Meadow Butterfly */
+@keyframes butterfly-flutter {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(5px, -6px) scale(1.08); }
+  50% { transform: translate(-3px, -10px) scale(.92); }
+  75% { transform: translate(4px, -4px) scale(1.05); }
+}
+#world-flowers path[fill="#F4CC84"] {
+  animation: butterfly-flutter 3.2s ease-in-out infinite;
+  transform-origin: center;
+}
