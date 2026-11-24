@@ -1235,7 +1235,7 @@ namespace Evergrove.UnityClient
             var viewRect = view.GetComponent<RectTransform>();
             Fill(viewRect);
             viewRect.offsetMin = new Vector2(0f, 4f);
-            viewRect.offsetMax = new Vector2(0f, -4f);
+            viewRect.offsetMax = new Vector2(0f, -SheetHeader); // a fixed band holds the close button (I101)
             view.AddComponent<RectMask2D>();
             sheetScroll.viewport = viewRect;
             var body = Node(name + " content", view.transform);
@@ -1258,6 +1258,26 @@ namespace Evergrove.UnityClient
             return sheet;
         }
 
+        private const float SheetHeader = 78f; // the plaque art stands a little taller than its 52 pt box
+
+        // A sheet's close button lives in a fixed band above its scrolling
+        // pages, so it stays in reach at the end of a long journal or menu (I101).
+        // Rebuilt with the page (fresh language), replacing the previous one.
+        private void SheetClose(RectTransform sheetContent, string name, Action close)
+        {
+            Transform panel = sheetContent != null && sheetContent.parent != null ? sheetContent.parent.parent : null;
+            if (panel == null) return;
+            Transform old = panel.Find(name);
+            if (old != null) { old.gameObject.SetActive(false); Destroy(old.gameObject); }
+            Button button = IconButton(panel, name, GameLocalization.Text("close"), MosseloraArt.IconCancel,
+                () => close(), 52, MosseloraTheme.QuietAction);
+            Width(button, 60);
+            button.GetComponent<LayoutElement>().ignoreLayout = true;
+            PlaceChrome(button, new Vector2(1f, 1f), new Vector2(-12f, -9f));
+            // After the paper grain, before the pages: read first, drawn clear of the pages.
+            button.transform.SetSiblingIndex(Mathf.Min(1, panel.childCount - 1));
+        }
+
         private void SetMenu(bool open)
         {
             menuOpen = open;
@@ -1270,11 +1290,7 @@ namespace Evergrove.UnityClient
         // Top of the sheet: a close button, then every setting as one icon row.
         private void MenuHeader(bool offerLanguage)
         {
-            Transform top = CenteredRow("Menu top", 8f);
-            var spacer = Node("Menu spacer", top);
-            spacer.AddComponent<LayoutElement>().flexibleWidth = 1f;
-            Width(IconButton(top, "Close menu", GameLocalization.Text("close"),
-                MosseloraArt.IconCancel, () => SetMenu(false), 52, MosseloraTheme.QuietAction), 60);
+            SheetClose(menuContent, "Close menu", () => SetMenu(false));
             SettingsRow(offerLanguage);
         }
 
@@ -2321,11 +2337,7 @@ namespace Evergrove.UnityClient
             if (!showJournal) return;
             RectTransform pageRoot = content;
             content = journalContent;
-            Transform top = CenteredRow("Journal top", 8f);
-            var spacer = Node("Journal spacer", top);
-            spacer.AddComponent<LayoutElement>().flexibleWidth = 1;
-            Width(IconButton(top, "Close journal", GameLocalization.Text("close"), MosseloraArt.IconCancel,
-                () => { showJournal = false; Rebuild(); }, 52, MosseloraTheme.QuietAction), 60);
+            SheetClose(journalContent, "Close journal", () => { showJournal = false; Rebuild(); });
             content = pageRoot;
             var journal = Card(journalContent, "A living journal", MosseloraTheme.CardFill);
             Text journalTitle = Label(journal.transform, "Journal title",
