@@ -1642,7 +1642,29 @@ namespace Evergrove.UnityClient
             }
             if (!named) return;
             string name = GameLocalization.Current == "en" ? puzzle.Name : "";
-            Text title = Label(row.transform, "Stream name", name.Length > 0 ? name : " ", 14, 0, Moss,
+            // "Rainwater · Wildflower sanctuary" reads as the stream's name beside
+            // the painted landmark that roots it, as on the hub (I86); the rooted
+            // tile's spoken rule still names the sanctuary.
+            int split = name.IndexOf(" · ", StringComparison.Ordinal);
+            int[] past = world.Choices;
+            Sprite mark = split > 0 && past.Length > 0
+                ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
+            Transform nameRow = row.transform;
+            if (mark != null)
+            {
+                nameRow = CenteredRowIn(row.transform, "Stream name row");
+                nameRow.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+                var icon = Node("Rooted by your choice", nameRow);
+                var iconLayout = icon.AddComponent<LayoutElement>();
+                iconLayout.minWidth = iconLayout.preferredWidth = 26;
+                iconLayout.minHeight = iconLayout.preferredHeight = 26;
+                var iconImage = icon.AddComponent<Image>();
+                iconImage.sprite = mark;
+                iconImage.preserveAspect = true;
+                iconImage.raycastTarget = false;
+            }
+            Text title = Label(nameRow, "Stream name",
+                name.Length == 0 ? " " : mark != null ? name.Substring(0, split) : name, 14, 0, Moss,
                 TextAnchor.MiddleCenter);
             Emphasize(title);
             // Spoken position along the creek, not shown: the stones show it.
