@@ -333,5 +333,29 @@
       node("notes-fallback").select();
     }
   });
+  
+  // I01: Smart Menu Drawer controls
+  const menuModal = node("game-menu-modal");
+  const menuBtn = node("menu-btn");
+  const menuCloseBtn = node("menu-close-btn");
+  const menuBackdrop = node("menu-backdrop");
+  const menuRestartBtn = node("menu-restart-btn");
+  function toggleMenu(show) {
+    if (!menuModal) return;
+    menuModal.hidden = !show;
+    if (show) menuCloseBtn.focus();
+    else menuBtn.focus();
+  }
+  if (menuBtn) menuBtn.addEventListener("click", () => toggleMenu(true));
+  if (menuCloseBtn) menuCloseBtn.addEventListener("click", () => toggleMenu(false));
+  if (menuBackdrop) menuBackdrop.addEventListener("click", () => toggleMenu(false));
+  if (menuRestartBtn) menuRestartBtn.addEventListener("click", () => {
+    toggleMenu(false);
+    node("restart").click();
+  });
+  window.addEventListener("keydown", e => {
+    if (e.key === "Escape" && menuModal && !menuModal.hidden) toggleMenu(false);
+  });
+
   render();
 })(typeof window === "undefined" ? globalThis : window);

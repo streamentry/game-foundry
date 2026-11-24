@@ -156,7 +156,7 @@
   const API = { FIXTURE, CHOICES, DIRECTIONS, orientations, hasPort, neighbor, inspect, Game };
   if (typeof module !== "undefined" && module.exports) module.exports = API;
   if (typeof document === "undefined") return;
-  root.MosseloraPreview = API;
+  root.EvergrovePreview = API;
   const node = id => document.getElementById(id);
   const model = new Game();
   const board = node("board"), tileButtons = [];
@@ -221,7 +221,7 @@
       button.innerHTML = tileIcon(i) +
         (isSource ? '<span class="tile-mark" aria-hidden="true">≋</span>' :
          isGarden ? '<span class="tile-mark tile-mark--sprout" aria-hidden="true">✿</span>' : '') +
-        (insight.leaking[i] ? '<span class="tile-alert" aria-hidden="true">!</span>' : '');
+        (insight.leaking[i] ? '<span class="tile-alert" aria-hidden="true">○</span>' : '');
     });
     node("water-count").textContent = insight.connectedCount + " of 9";
     node("creek-front").style.strokeDashoffset = String(100 * (1 - insight.creekReach));
@@ -333,5 +333,29 @@
       node("notes-fallback").select();
     }
   });
+  
+  // I01: Smart Menu Drawer controls
+  const menuModal = node("game-menu-modal");
+  const menuBtn = node("menu-btn");
+  const menuCloseBtn = node("menu-close-btn");
+  const menuBackdrop = node("menu-backdrop");
+  const menuRestartBtn = node("menu-restart-btn");
+  function toggleMenu(show) {
+    if (!menuModal) return;
+    menuModal.hidden = !show;
+    if (show) menuCloseBtn.focus();
+    else menuBtn.focus();
+  }
+  if (menuBtn) menuBtn.addEventListener("click", () => toggleMenu(true));
+  if (menuCloseBtn) menuCloseBtn.addEventListener("click", () => toggleMenu(false));
+  if (menuBackdrop) menuBackdrop.addEventListener("click", () => toggleMenu(false));
+  if (menuRestartBtn) menuRestartBtn.addEventListener("click", () => {
+    toggleMenu(false);
+    node("restart").click();
+  });
+  window.addEventListener("keydown", e => {
+    if (e.key === "Escape" && menuModal && !menuModal.hidden) toggleMenu(false);
+  });
+
   render();
 })(typeof window === "undefined" ? globalThis : window);

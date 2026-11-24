@@ -147,3 +147,33 @@ h1 em { font-style: italic; color: #34775c; }
 .choice-button { box-shadow: inset 0 -2px 0 rgba(43, 95, 61, .06); }
 .choice-button:focus-visible { outline: 3px solid var(--water); outline-offset: 3px; }
 @media (prefers-contrast: more) { .tile--wet { border-color: #176c83; } .tile--dry { border-color: #544b3d; } .tile-alert { color: #3c2c19; } }
+
+
+/* I01: Smart Menu Drawer & Icon Button Base */
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; min-height: 44px; min-width: 44px;
+  border-radius: 12px; border: 1px solid #d5dfd3; background: #fbf9f1;
+  color: #245842; cursor: pointer; transition: transform 120ms ease, background 160ms ease, box-shadow 160ms ease;
+  box-shadow: 0 2px 6px rgba(33, 64, 46, .06), inset 0 1px 0 rgba(255,255,255,.8);
+}
+.icon-btn:hover { background: #eef6ed; border-color: #9abfa6; transform: translateY(-1px); }
+.icon-btn:active { transform: translateY(1px); box-shadow: inset 0 1px 3px rgba(0,0,0,.1); }
+.icon-svg { width: 22px; height: 22px; display: block; }
+.game-menu-modal { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; }
+.game-menu-modal[hidden] { display: none !important; }
+.menu-backdrop { position: absolute; inset: 0; background: rgba(24, 46, 36, .45); backdrop-filter: blur(4px); }
+.menu-sheet {
+  position: relative; z-index: 2; width: min(90vw, 360px); background: #faf8f0;
+  border-radius: 20px; border: 1px solid #ccd8c9; box-shadow: 0 16px 40px rgba(18, 48, 32, .22);
+  padding: 22px; animation: sheet-enter 220ms cubic-bezier(.16, 1, .3, 1);
+}
+@keyframes sheet-enter { from { transform: scale(.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.menu-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; border-bottom: 1px solid #e2ddd0; padding-bottom: 10px; }
+.menu-title { margin: 0; font-family: Georgia, serif; font-size: 20px; color: #22513c; font-weight: 600; }
+.menu-body { display: grid; gap: 14px; margin-bottom: 18px; }
+.menu-item { display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: #325848; }
+.menu-action-btn { padding: 8px 14px; border-radius: 10px; border: 1px solid #bed2be; background: #edf5eb; color: #1c5039; font-weight: 600; font-size: 13px; }
+.menu-action-btn--warn { border-color: #debca6; background: #fcf1ea; color: #8a4325; }
+.menu-footer { text-align: center; color: #6f8074; font-size: 11px; }
