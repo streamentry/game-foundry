@@ -514,3 +514,11 @@ h1 em { font-style: italic; color: #34775c; }
   border-color: #72ab87 !important;
   box-shadow: 0 8px 22px rgba(45, 95, 65, .15), inset 0 1px 0 #fff !important;
 }
+
+
+/* I32: Handcrafted Shade Tree Tablet */
+.choice-button[data-choice="tree"] > span {
+  color: #3b7e52 !important;
+  filter: drop-shadow(0 2px 4px rgba(40, 100, 60, .25));
+}
+.choice-button[data-choice="tree"]:hover { background: #f0f7ee !important; }
