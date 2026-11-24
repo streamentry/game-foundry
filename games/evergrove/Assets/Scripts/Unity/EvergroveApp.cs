@@ -2247,11 +2247,14 @@ namespace Evergrove.UnityClient
                 {
                     int hintRow = world.HintTile / puzzle.Size + 1;
                     int hintColumn = world.HintTile % puzzle.Size + 1;
-                    Label(content, "Optional progressive clue",
+                    // Spoken, not shown: the honey row tint and the breathing tile
+                    // glow already point at the place to look.
+                    Text clue = Label(content, "Optional progressive clue",
                         world.HintStep == 1 ?
                             GameLocalization.Text("hint_notice", hintRow) :
                             GameLocalization.Text("hint_focus", hintRow, hintColumn),
-                        14, 65, Moss, TextAnchor.MiddleCenter);
+                        14, 0, new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+                    clue.GetComponent<LayoutElement>().ignoreLayout = true;
                 }
             }
             // The coach bubble teaches; every tile's spoken hint still carries "how".
