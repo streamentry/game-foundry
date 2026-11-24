@@ -1290,6 +1290,24 @@ internal static class Program
             "an index past the history is the empty memory");
     }
 
+    private static void HubRecallTests()
+    {
+        // The hub recalls the newest memory first, then a different past one on
+        // each later launch, cycling through all of them (I107). Never the clock.
+        Expect(HubRecall.Next(0, 0, -1) == -1, "no memories, nothing to recall");
+        Expect(HubRecall.Next(1, 0, -1) == 0, "the first memory is recalled first");
+        Expect(HubRecall.Next(3, 2, 1) == 2, "a new memory since last launch is recalled first");
+        Expect(HubRecall.Next(3, 3, 2) == 1, "next launch steps back to an earlier memory");
+        Expect(HubRecall.Next(3, 3, 1) == 0, "and again");
+        Expect(HubRecall.Next(3, 3, 0) == 2, "then cycles back to the newest");
+        Expect(HubRecall.Next(1, 1, 0) == 0, "a single memory stays");
+        Expect(HubRecall.Next(4, 4, 9) == 3, "an out-of-range stored index falls back to the newest");
+        int seen = 0, index = HubRecall.Next(5, 0, -1);
+        var visited = new System.Collections.Generic.HashSet<int>();
+        for (int launch = 0; launch < 5; launch++) { visited.Add(index); index = HubRecall.Next(5, 5, index); seen++; }
+        Expect(visited.Count == 5, "five launches visit all five memories");
+    }
+
     private static void GardenPostcardTests()
     {
         WorldModel fresh = WorldModel.New();
@@ -1351,6 +1369,7 @@ internal static class Program
             GardenPostcardTests();
             SeasonalNeighborTests();
             RepeatedMemoryTests();
+            HubRecallTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }

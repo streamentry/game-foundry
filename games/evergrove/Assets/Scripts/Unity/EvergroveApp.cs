@@ -904,12 +904,13 @@ namespace Evergrove.UnityClient
         }
 
         // "Orin remembers the bridge you restored." told beside Orin's portrait.
-        private void KeeperLine(Transform parent, string name)
+        private void KeeperLine(Transform parent, string name, int recall = -1)
         {
             int[] past = world.Choices;
+            int index = recall >= 0 && recall < past.Length ? recall : past.Length - 1;
             Transform memory = CenteredRowIn(parent, name + " row");
             memory.GetComponent<HorizontalLayoutGroup>().spacing = 8;
-            Sprite who = MosseloraArt.Portrait(past[past.Length - 1]);
+            Sprite who = MosseloraArt.Portrait(past[index]);
             if (who != null)
             {
                 var face = Node("Who remembers", memory);
@@ -921,7 +922,7 @@ namespace Evergrove.UnityClient
                 faceImage.preserveAspect = true;
                 faceImage.raycastTarget = false;
             }
-            Text line = Label(memory, name, LocalizedVillage.Memory(world), 14, 0, Ink, TextAnchor.MiddleLeft);
+            Text line = Label(memory, name, LocalizedVillage.MemoryAt(past, index), 14, 0, Ink, TextAnchor.MiddleLeft);
             line.GetComponent<LayoutElement>().flexibleWidth = 1f;
         }
 
@@ -986,11 +987,13 @@ namespace Evergrove.UnityClient
             // The hub opens on *your* story: the finished garden's festival, else
             // the painting of your most recent memory, else the everyday village.
             int[] story = world.Choices;
+            // Newest memory first; each later launch recalls an earlier one (I107).
+            hubRecall = world.Mode == PlayMode.Living ? PickHubRecall(story.Length) : -1;
             Sprite hero = null;
             if (world.Completed) hero = MosseloraArt.Load(MosseloraArt.EndingFestival);
-            else if (world.Mode == PlayMode.Living && story.Length > 0)
-                hero = MosseloraArt.Load(story[story.Length - 1] == 0 ? MosseloraArt.VignetteTree
-                    : story[story.Length - 1] == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
+            else if (hubRecall >= 0)
+                hero = MosseloraArt.Load(story[hubRecall] == 0 ? MosseloraArt.VignetteTree
+                    : story[hubRecall] == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
             if (hero == null) hero = MosseloraArt.Load(MosseloraArt.HeroVillage);
             if (hero == null) return;
             titleScreen = Node("Title screen", host);
@@ -1076,7 +1079,7 @@ namespace Evergrove.UnityClient
             if (!world.Completed) StreamStones(world.CurrentPuzzle, stack.transform, false);
             // What changed last time, told by the neighbor who remembers it.
             if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
-                KeeperLine(stack.transform, "Last memory");
+                KeeperLine(stack.transform, "Last memory", hubRecall);
             Transform play = CenteredRowIn(stack.transform, "Play row");
             // The big button names where the walk continues ("First Bend").
             string nextStop = !world.Completed && GameLocalization.Current == "en"
@@ -1171,6 +1174,29 @@ namespace Evergrove.UnityClient
                 16, 0, Moss, TextAnchor.MiddleCenter);
             Emphasize(where);
             if (abovePlay) row.SetSiblingIndex(stack.childCount - 2);
+        }
+
+        private int hubRecall = -1;
+        private const string HubRecallKey = "evergrove:hub-recall";
+
+        // Reads "count:index" from the last launch, picks this launch's memory
+        // with Core.HubRecall, and stores it. Local only; no clock involved.
+        private static int PickHubRecall(int memoryCount)
+        {
+            int lastCount = 0, lastIndex = -1;
+            string[] saved = PlayerPrefs.GetString(HubRecallKey, "").Split(':');
+            if (saved.Length == 2)
+            {
+                int.TryParse(saved[0], out lastCount);
+                if (!int.TryParse(saved[1], out lastIndex)) lastIndex = -1;
+            }
+            int index = HubRecall.Next(memoryCount, lastCount, lastIndex);
+            if (index >= 0)
+            {
+                PlayerPrefs.SetString(HubRecallKey, memoryCount + ":" + index);
+                PlayerPrefs.Save();
+            }
+            return index;
         }
 
         private void CloseTitle()
