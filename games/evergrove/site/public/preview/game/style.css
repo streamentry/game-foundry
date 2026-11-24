@@ -411,3 +411,17 @@ h1 em { font-style: italic; color: #34775c; }
   0%, 100% { transform: scale(1) rotate(0deg); color: #328456; }
   50% { transform: scale(1.18) rotate(4deg); color: #44aa72; }
 }
+
+
+/* I23: Crystalline Solved Board Lock */
+.puzzle--complete .board {
+  position: relative;
+}
+.puzzle--complete .tile {
+  background: radial-gradient(circle at 45% 30%, #e8f7ee 0%, #d5efe0 100%) !important;
+  border-color: #55b57d !important;
+  box-shadow: 0 6px 16px rgba(45, 140, 90, .18), inset 0 2px 0 #fff !important;
+}
+.puzzle--complete .tile svg {
+  filter: drop-shadow(0 0 6px rgba(60, 180, 120, .6)) !important;
+}
