@@ -1055,6 +1055,27 @@ namespace Evergrove.UnityClient
             Width(start, 150);
             HubChrome();
             titleScreen.transform.SetAsLastSibling();
+            StartCoroutine(FitHubStack(windowRect, stripRect, stackRect));
+        }
+
+        // The words and Play under the painting take the room they need: at
+        // larger text, or with a memory line and the next stream, the painting
+        // and village strip move up instead of the words overflowing (I85).
+        private IEnumerator FitHubStack(RectTransform window, RectTransform strip, RectTransform stack)
+        {
+            yield return null; // real canvas size, after the first layout pass
+            if (stack == null || canvasRoot == null) yield break;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(stack);
+            float canvasHeight = canvasRoot.rect.height;
+            if (canvasHeight <= 1f) yield break;
+            float needed = LayoutUtility.GetPreferredHeight(stack) + 28f; // air above the wordmark
+            float top = Mathf.Clamp(0.03f + needed / canvasHeight, 0.33f, 0.52f);
+            float shift = top - 0.33f;
+            if (shift <= 0.001f) yield break;
+            stack.anchorMax = new Vector2(1f, top);
+            strip.anchorMin = new Vector2(0f, 0.33f + shift);
+            strip.anchorMax = new Vector2(1f, 0.52f + shift);
+            window.anchorMin = new Vector2(0f, 0.41f + shift);
         }
 
         // The hub wears the same two wooden buttons as the game, in the same
@@ -1824,7 +1845,8 @@ namespace Evergrove.UnityClient
                 Height(illustration, bannerArt != null
                     // The memory screen's village yields a little height to the path
                     // marker, so the arrow and the next stream share one screen (I78).
-                    ? Mathf.Round(bannerWidth / MosseloraArt.Aspect(bannerArt) * (memoryScreen ? 0.9f : 1f))
+                    ? Mathf.Round(bannerWidth / MosseloraArt.Aspect(bannerArt)
+                        * (memoryScreen ? (TextScale.Percent > 100 ? 0.5f : 0.9f) : 1f))
                     : (firstPuzzle ? 96 : 193));
                 bool renderedMiniature = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -1924,7 +1946,10 @@ namespace Evergrove.UnityClient
                 if (vignette != null)
                 {
                     var scene = Node("Memory vignette", moment.transform);
-                    Height(scene, Mathf.Round(Mathf.Min(PageWidth() - 28f, 360f) / MosseloraArt.Aspect(vignette)));
+                    // Larger text keeps its size; the painting yields height so the
+                    // continue arrow stays on the first screen (I85).
+                    Height(scene, Mathf.Round(Mathf.Min(PageWidth() - 28f, 360f) / MosseloraArt.Aspect(vignette)
+                        * (TextScale.Percent > 100 ? 0.78f : 1f)));
                     var sceneImage = scene.AddComponent<Image>();
                     sceneImage.sprite = vignette;
                     sceneImage.preserveAspect = true;
@@ -2640,7 +2665,11 @@ namespace Evergrove.UnityClient
             pad.childForceExpandWidth = true;
             // A picture, not a sentence: spring waves → garden sprout, and a
             // tapping hand. The sentence stays as spoken text for screen readers.
+            // At larger text the sentence alone carries the rule, so the
+            // picture row steps aside and the board's tools stay on screen (I85).
+            bool showPicture = TextScale.Percent <= 100;
             var picture = Node("Coach picture", bubble.transform);
+            picture.SetActive(showPicture);
             var pictureRow = picture.AddComponent<HorizontalLayoutGroup>();
             pictureRow.spacing = 10;
             pictureRow.childAlignment = TextAnchor.MiddleCenter;
