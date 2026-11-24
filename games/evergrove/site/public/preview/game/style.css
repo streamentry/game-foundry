@@ -705,3 +705,10 @@ body.mode-xl-touch .choice-button { min-height: 96px !important; font-size: 16px
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* I76: Pictorial Gesture Help Badge */
+.help-gesture-badge {
+  font-size: 11px; background: #eaf3e9; border: 1px solid #b8d4bf;
+  border-radius: 8px; padding: 4px 8px; color: #21593c; font-weight: 600;
+}
