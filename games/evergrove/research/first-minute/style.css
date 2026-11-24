@@ -603,3 +603,11 @@ body.theme-dusk .puzzle-panel {
 body.theme-dusk .tile {
   background: #2a3a33 !important; border-color: #435e52 !important; color: #c4d8ce !important;
 }
+
+
+/* I44: Studio Sanctuary Crest */
+.footer {
+  border-top: 1px solid #dcdad0 !important;
+  opacity: .55; transition: opacity 200ms ease;
+}
+.footer:hover { opacity: .9; }
