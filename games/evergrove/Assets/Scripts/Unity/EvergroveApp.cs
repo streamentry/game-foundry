@@ -2364,11 +2364,9 @@ namespace Evergrove.UnityClient
                 MosseloraArt.PaperTile(pageImage, 14);
                 pageImage.color = MosseloraTheme.DryTile;
                 pageImage.raycastTarget = false;
-                MosseloraArt.Lift(pageImage, 2.5f, 0.16f);
-                // Pages sit a little askew, like photos pressed into a scrapbook:
-                // a fixed tilt per page (never random), purely visual (I102).
-                float[] tilts = { -1.6f, 1.2f, 0.9f, -1.3f, -0.7f, 1.5f };
-                page.transform.localRotation = Quaternion.Euler(0f, 0f, tilts[i % tilts.Length]);
+                // I102 tilted these pages like a scrapbook; a blind comparison found
+                // no gain (slight lean to the flat grid), so I103 removed it.
+                MosseloraArt.Lift(pageImage, 2f, 0.12f);
                 var pageStack = page.AddComponent<VerticalLayoutGroup>();
                 pageStack.padding = new RectOffset(8, 8, 10, 10);
                 pageStack.spacing = 4;
