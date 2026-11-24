@@ -195,6 +195,9 @@
     button.className = "tile";
     button.addEventListener("click", () => {
       if (!model.rotate(i)) return;
+      button.classList.remove("tile--turned");
+      void button.offsetWidth;
+      button.classList.add("tile--turned"); spawnSplash(button);
       if (firstTurn === null) firstTurn = performance.now() - origin;
       totalRotations++;
       render();
@@ -273,12 +276,12 @@
     if (solved && firstSolved === null) firstSolved = performance.now() - origin;
     // The chapter is about restoring the creek, not staring at a solved grid.
     // Scroll only for genuine state transitions, never on initial page load.
-    if (becameSolved) requestAnimationFrame(() => {
+    if (becameSolved) { playSolveFanfare(); } if (becameSolved) requestAnimationFrame(() => {
       if (model.insight.solved && !model.choice) revealWorld();
     });
   }
   node("undo").addEventListener("click", () => {
-    if (model.undo()) { totalUndos++; render(); }
+    if (model.undo()) { playUndoGlide(); totalUndos++; render(); }
   });
   node("hint").addEventListener("click", () => {
     if (model.hint()) { totalHints++; render(); }
@@ -292,6 +295,7 @@
   document.querySelectorAll("[data-choice]").forEach(button => {
     button.addEventListener("click", () => {
       if (!model.choose(button.dataset.choice)) return;
+      triggerHaptic(40);
       render();
       // Show what actually changed before asking somebody to read prose.
       revealWorld();
@@ -333,5 +337,206 @@
       node("notes-fallback").select();
     }
   });
+  
+  // I01: Smart Menu Drawer controls
+  const menuModal = node("game-menu-modal");
+  const menuBtn = node("menu-btn");
+  const menuCloseBtn = node("menu-close-btn");
+  const menuBackdrop = node("menu-backdrop");
+  const menuRestartBtn = node("menu-restart-btn");
+  function toggleMenu(show) {
+    if (!menuModal) return;
+    menuModal.hidden = !show;
+    if (show) menuCloseBtn.focus();
+    else menuBtn.focus();
+  }
+  if (menuBtn) menuBtn.addEventListener("click", () => toggleMenu(true));
+  if (menuCloseBtn) menuCloseBtn.addEventListener("click", () => toggleMenu(false));
+  if (menuBackdrop) menuBackdrop.addEventListener("click", () => toggleMenu(false));
+  if (menuRestartBtn) menuRestartBtn.addEventListener("click", () => {
+    toggleMenu(false);
+    node("restart").click();
+  });
+  window.addEventListener("keydown", e => {
+    if (e.key === "Escape" && menuModal && !menuModal.hidden) toggleMenu(false);
+  });
+
+  
+  // I09: Restart confirmation safeguard
+  let restartArmed = false;
+  let restartTimer = null;
+  const restartBtn = node("restart");
+  if (restartBtn) {
+    restartBtn.addEventListener("click", e => {
+      if (!restartArmed) {
+        e.stopImmediatePropagation();
+        restartArmed = true;
+        restartBtn.classList.add("action-icon-btn--armed");
+        restartBtn.setAttribute("title", "Tap again to confirm restart");
+        if (restartTimer) clearTimeout(restartTimer);
+        restartTimer = setTimeout(() => {
+          restartArmed = false;
+          restartBtn.classList.remove("action-icon-btn--armed");
+          restartBtn.setAttribute("title", "Restart");
+        }, 3000);
+      } else {
+        restartArmed = false;
+        restartBtn.classList.remove("action-icon-btn--armed");
+        if (restartTimer) clearTimeout(restartTimer);
+      }
+    }, true);
+  }
+
+  
+  // I10: Ambient Audio Engine (Web Audio API)
+  let audioCtx = null;
+  let audioEnabled = false;
+  function getAudioContext() {
+    if (!audioCtx && typeof AudioContext !== "undefined") {
+      audioCtx = new AudioContext();
+    }
+    return audioCtx;
+  }
+  
+  // I11: Procedural Water Flow Audio (Bandpass pink-noise synthesis)
+  
+  // I12: Harmonious Solve Chords (C-Major 9th Peaceful Fanfare)
+  function playSolveFanfare() {
+    if (!audioEnabled) return;
+    const notes = [261.63, 329.63, 392.00, 493.88, 523.25, 659.25];
+    notes.forEach((freq, idx) => {
+      setTimeout(() => playStoneChime(freq), idx * 75);
+    });
+  }
+
+  function playWaterRipple() {
+    if (!audioEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const bufferSize = ctx.sampleRate * 0.35;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(650, ctx.currentTime);
+    filter.Q.setValueAtTime(3.2, ctx.currentTime);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start();
+  }
+
+  
+  // I17: Water splash particle burst
+  function spawnSplash(el) {
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    for (let i = 0; i < 4; i++) {
+      const p = document.createElement("span");
+      p.className = "particle-splash";
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 16 + Math.random() * 20;
+      p.style.setProperty("--dx", (Math.cos(angle) * dist) + "px");
+      p.style.setProperty("--dy", (Math.sin(angle) * dist) + "px");
+      p.style.left = (rect.width / 2) + "px";
+      p.style.top = (rect.height / 2) + "px";
+      el.appendChild(p);
+      setTimeout(() => p.remove(), 480);
+    }
+  }
+
+  
+  // I35: Web Haptic Vibration support
+  function triggerHaptic(duration = 25) {
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      try { navigator.vibrate(duration); } catch {}
+    }
+  }
+
+  
+  // I85: Undo soft rewind pitch glide
+  function playUndoGlide() {
+    if (!audioEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.setValueAtTime(360, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(240, ctx.currentTime + 0.22);
+    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.24);
+  }
+
+  function playStoneChime(freq = 440) {
+    if (!audioEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  }
+  const soundBtn = node("sound-toggle-btn");
+  if (soundBtn) {
+    soundBtn.addEventListener("click", () => {
+      audioEnabled = !audioEnabled;
+      soundBtn.textContent = audioEnabled ? "🔊 On" : "🔇 Muted";
+      if (audioEnabled) {
+        getAudioContext();
+        playStoneChime(523.25);
+      }
+    });
+  }
+  tileButtons.forEach((b, idx) => {
+    b.addEventListener("click", () => {
+      const pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99];
+      playStoneChime(pentatonic[idx % pentatonic.length]);
+    });
+  });
+
+  
+  // I39: Garden Journal Modal
+  const journalModal = node("journal-modal");
+  const openJournalBtn = node("open-journal-btn");
+  const journalCloseBtn = node("journal-close-btn");
+  const journalBackdrop = node("journal-backdrop");
+  function toggleJournal(show) {
+    if (!journalModal) return;
+    journalModal.hidden = !show;
+    if (show && model.choice) {
+      node("journal-choice-summary").textContent = CHOICES[model.choice].result;
+    }
+  }
+  if (openJournalBtn) openJournalBtn.addEventListener("click", () => {
+    toggleMenu(false);
+    toggleJournal(true);
+  });
+  if (journalCloseBtn) journalCloseBtn.addEventListener("click", () => toggleJournal(false));
+  if (journalBackdrop) journalBackdrop.addEventListener("click", () => toggleJournal(false));
+
+  
+  // I43: Circadian Sky Lighting adaptation
+  const hour = new Date().getHours();
+  if (hour >= 20 || hour < 6) {
+    document.body.classList.add("theme-dusk");
+  }
+
   render();
 })(typeof window === "undefined" ? globalThis : window);

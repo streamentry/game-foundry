@@ -27,7 +27,7 @@ npm run deploy:dry
 
 The Unity reference client is `Assets/Scripts/Unity/WorldClient.cs`, disabled by default. Do not attach it to the game or enter the Worker URL until player evidence, account security, privacy disclosures, quotas and the Cloudflare deployment are reviewed.
 
-The target deployment hostname is `https://api.mosselora.com`. `/healthz` is read-only. The world endpoint below is only the older tree-growth experiment; it does not sync puzzle progress, saved choices, chapters or the village state. It must not be described as production cloud save. Deployment and domain attachment have not yet been verified.
+The deployed Worker is `mosselora-world-api` at `https://api.mosselora.com` (Cloudflare version `8be216ba-4032-4ec6-8c6c-4a9281fb1b27`, checked 2026-11-23). `/healthz` returned HTTP 200 with `status: prototype` and `gameplaySync: false`; unauthenticated `GET /api/world` returned HTTP 401 `CAPABILITY_REQUIRED`. The world endpoint below remains a limited tree-growth experiment. It does not sync puzzle progress, saved choices, chapters or village state and must not be described as production cloud save.
 
 ### API
 

@@ -74,3 +74,10 @@ Found on `ja/04-consequence-shade-tree.png`; these likely apply to every non-Eng
 - Evidence: `ja/10-journal-kinsoku-fixed.png`. The water-route note now ends `回転できませ` / `ん。`, and no line starts with `。` or `、`. The previous lone-`。` line is gone. Checked on the iOS Simulator (ja, fresh install); 04 and 11 show no line starting with closing punctuation.
 - Limits: only Label text is covered. Button captions and the dev-only English buttons are not. Verified on the Simulator only, not on a physical device or with a native-speaker review.
 - Simulator language restored to `en` / `en_US` and rebooted.
+
+## Persian (fa) and Urdu (ur), lead check after the RTL fix (2026-11-23)
+
+These tours use the same iOS Simulator development build as the fixed Arabic run (line-by-line bidi, no exception console). Non-native reading:
+- **fa: PASS.** Letters are joined, the text is right to left and right-aligned, ZWNJ is honored (انتخاب‌های, می‌کند), and "MOSSELORA" and "1" are not reversed.
+- **ur: PASS (rendering), font style open.** Letters are joined, including Urdu-specific forms (ے ہ ڑ), and text is right to left. iOS draws it with a Naskh-style system font. Urdu readers usually expect Nastaliq, so a native reviewer must decide whether that is acceptable.
+- No Development Console exceptions appeared on any captured screen. Both locales stay off the shipping allowlist pending native review.

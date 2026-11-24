@@ -1,0 +1,19 @@
+EVERGROVE LOCAL PLAYTEST v1
+CONSENT: facilitator-selected; no automatic upload or persistence
+condition=LivingWorld
+visual=Storybook
+initial_chapter=1
+session_seconds=17.8
+first_tap_seconds=5.7
+first_solve_seconds=not_observed
+rotations=2
+puzzles_solved=0
+hints=0
+undos=0
+puzzle_restarts=0
+village_choices=0
+choice_corrections=0
+npc_conversations_opened=0
+visual_mode_switches=0
+experiment_condition_switches=0
+LIMIT: this report excludes identity, cohort retention and satisfaction

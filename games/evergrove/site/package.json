@@ -9,7 +9,8 @@
     "build": "astro build",
     "test": "node --test ../research/first-minute/game.test.cjs",
     "preview": "wrangler dev",
-    "deploy": "astro build && wrangler deploy"
+    "deploy": "astro build && wrangler deploy",
+    "deploy:preview": "astro build && wrangler deploy --config wrangler.preview.jsonc"
   },
   "devDependencies": {
     "astro": "7.4.13",

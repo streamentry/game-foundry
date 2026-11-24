@@ -607,6 +607,115 @@ internal static class Program
             JsonSerializer.Serialize(PuzzleDiagnostics.All(), CatalogOptions);
     }
 
+    private static DateTime Day(int year, int month, int day)
+    {
+        return new DateTime(year, month, day);
+    }
+
+    private static void ReturnDiaryTests()
+    {
+        // Nothing is recorded before explicit consent.
+        var diary = new ReturnDiary();
+        Expect(!diary.RecordOpen(Day(2026, 11, 24)) && diary.Days.Count == 0 && !diary.Consented,
+            "no diary entry is recorded before consent");
+        Expect(diary.Status(1, Day(2026, 11, 25)) == ReturnStatus.NotConsented,
+            "unconsented diary reports no return status");
+        Expect(diary.Export(Day(2026, 11, 24)).Contains("CONSENT: none; nothing recorded"),
+            "unconsented export says nothing was recorded");
+
+        // Consent starts the diary once; same-day opens are deduplicated.
+        Expect(diary.GrantConsent(Day(2026, 11, 24)) && !diary.GrantConsent(Day(2026, 11, 26)),
+            "consent is granted once");
+        Expect(diary.FirstDay == Day(2026, 11, 24) && diary.Days.Count == 1,
+            "first consented day is the only entry at consent");
+        Expect(!diary.RecordOpen(Day(2026, 11, 24)), "same local date is not duplicated");
+        Expect(diary.RecordOpen(Day(2026, 11, 25)) && !diary.RecordOpen(Day(2026, 11, 25)),
+            "a new local date is kept once");
+        Expect(!diary.RecordOpen(Day(2026, 11, 20)), "dates before the first consented day are ignored");
+        Expect(diary.Days.Count == 2, "dedupe keeps two distinct dates");
+
+        // Cap: 60 entries, the first consented day is never dropped.
+        var capped = new ReturnDiary();
+        DateTime start = Day(2026, 1, 1);
+        capped.GrantConsent(start);
+        for (int offset = 1; offset <= 69; offset++) capped.RecordOpen(start.AddDays(offset));
+        Expect(capped.Days.Count == ReturnDiary.MaxEntries, "diary is capped at 60 entries");
+        Expect(capped.Days[0] == start, "first consented day survives the cap");
+        Expect(capped.Days[1] == start.AddDays(11), "oldest non-first entries are dropped first");
+        Expect(capped.Days[capped.Days.Count - 1] == start.AddDays(69) && capped.Truncated,
+            "cap keeps the newest date and reports truncation");
+
+        // Delete is one action and leaves no residue.
+        var deleted = new ReturnDiary();
+        deleted.GrantConsent(Day(2026, 11, 24));
+        deleted.RecordOpen(Day(2026, 11, 25));
+        deleted.Delete();
+        Expect(!deleted.Consented && deleted.Days.Count == 0 && !deleted.Truncated,
+            "delete clears consent and every recorded date");
+        Expect(!deleted.RecordOpen(Day(2026, 11, 26)), "deleted diary records nothing until new consent");
+        Expect(!ReturnDiary.Parse(deleted.Serialize()).Consented, "deleted state round-trips as unconsented");
+
+        // D1/D7 across month, year and leap-day boundaries.
+        var yearEnd = new ReturnDiary();
+        yearEnd.GrantConsent(Day(2026, 12, 30));
+        yearEnd.RecordOpen(Day(2026, 12, 31));
+        Expect(yearEnd.Status(1, Day(2027, 1, 1)) == ReturnStatus.Returned,
+            "day 1 crosses the year boundary");
+        Expect(yearEnd.Status(7, Day(2027, 1, 5)) == ReturnStatus.NotYetDue,
+            "day 7 is not due before its date");
+        Expect(yearEnd.Status(7, Day(2027, 1, 6)) == ReturnStatus.NotReturned,
+            "day 7 is not returned when no open falls on it");
+        yearEnd.RecordOpen(Day(2027, 1, 6));
+        Expect(yearEnd.Status(7, Day(2027, 1, 6)) == ReturnStatus.Returned
+            && yearEnd.ReturnedWithin(7), "day 7 crosses the year boundary");
+        var leap = new ReturnDiary();
+        leap.GrantConsent(Day(2028, 2, 28));
+        Expect(leap.Status(1, Day(2028, 2, 28)) == ReturnStatus.NotYetDue,
+            "day 1 is not due on the consent day");
+        Expect(leap.Status(1, Day(2028, 2, 29)) == ReturnStatus.NotReturned,
+            "leap day is a real calendar day for day 1");
+        leap.RecordOpen(Day(2028, 2, 29));
+        Expect(leap.Status(1, Day(2028, 2, 29)) == ReturnStatus.Returned,
+            "leap-day open counts as day 1");
+        Expect(leap.Status(7, Day(2028, 3, 5)) == ReturnStatus.NotYetDue
+            && leap.Status(7, Day(2028, 3, 6)) == ReturnStatus.NotReturned,
+            "day 7 crosses a leap February");
+
+        // Stable export format.
+        var sample = new ReturnDiary();
+        sample.GrantConsent(Day(2026, 11, 24));
+        sample.RecordOpen(Day(2026, 11, 25));
+        sample.RecordOpen(Day(2026, 11, 30));
+        string expected =
+            "EVERGROVE RETURN DIARY v1\n" +
+            "CONSENT: opted in on this device; local calendar dates only; no times, identifiers or game content; exported only by the participant's copy action\n" +
+            "first_day=2026-11-24\n" +
+            "opened_days=3\n" +
+            "days=2026-11-24,2026-11-25,2026-11-30\n" +
+            "day1_return=returned\n" +
+            "day7_return=not_returned\n" +
+            "returned_within_7_days=yes\n" +
+            "truncated=no\n" +
+            "LIMIT: local dates only; does not measure identity, cohorts, install source, satisfaction or causality\n";
+        Expect(sample.Export(Day(2026, 12, 2)) == expected, "export format is stable");
+        Expect(sample.Export(Day(2026, 11, 26)).Contains("day7_return=not_yet_due")
+            && sample.Export(Day(2026, 11, 26)).Contains("returned_within_7_days=yes"),
+            "export reports pending day 7 before its date");
+
+        // Storage round-trip, and malformed storage falls back to unconsented.
+        ReturnDiary restored = ReturnDiary.Parse(sample.Serialize());
+        Expect(restored.Consented && restored.Days.Count == 3 && restored.Export(Day(2026, 12, 2)) == expected,
+            "serialized diary restores exactly");
+        Expect(!ReturnDiary.Parse("v1;first=2026-11-24;days=2026-11-25;truncated=0").Consented,
+            "stored days must start with the first consented day");
+        Expect(!ReturnDiary.Parse("v1;first=2026-11-24;days=2026-11-24,2026-11-24;truncated=0").Consented,
+            "stored days must be strictly ascending");
+        Expect(!ReturnDiary.Parse("v1;first=2026-13-01;days=2026-13-01;truncated=0").Consented,
+            "invalid stored dates are rejected");
+        Expect(!ReturnDiary.Parse("garbage").Consented && !ReturnDiary.Parse(null).Consented,
+            "garbage storage is unconsented");
+    }
+
     private static void PrivatePlaytestReport()
     {
         var notes = new LocalPlaytest(PlayMode.Living, false, 0, 10.0);
@@ -693,6 +802,65 @@ internal static class Program
         char[] chars = value.ToCharArray();
         Array.Reverse(chars);
         return new string(chars);
+    }
+
+    private static void IndicVisualOrderTests()
+    {
+        // ো = U+09C7 + U+09BE: pre-base part moves before the consonant, post-base stays.
+        Expect(IndicVisualOrder.Visual("bn", "\u09B9\u09B2\u09CB") == "\u09B9\u09C7\u09B2\u09BE",
+            "holo (হলো) becomes visual order হেলা");
+        // ি (pre-base) goes before the consonant.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09BF") == "\u09BF\u0995", "i-kar precedes consonant");
+        // ে and ৈ go before the consonant.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09C7") == "\u09C7\u0995", "e-kar precedes consonant");
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09C8") == "\u09C8\u0995", "ai-kar precedes consonant");
+        // ৌ = U+09C7 + U+09D7: pre-base part first, length mark after.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09CC") == "\u09C7\u0995\u09D7", "au-kar split and reordered");
+        // Post-base signs and independent text stay in logical order.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09BE") == "\u0995\u09BE", "aa-kar untouched");
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09C1") == "\u0995\u09C1", "u-kar untouched");
+        // Conjunct cluster with virama: pre-base sign precedes the whole cluster.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09CD\u09B7\u09BF") == "\u09BF\u0995\u09CD\u09B7",
+            "i-kar precedes the virama conjunct cluster");
+        Expect(IndicVisualOrder.Visual("bn", "\u09B8\u09CD\u09A5\u09C7") == "\u09C7\u09B8\u09CD\u09A5",
+            "e-kar precedes a virama conjunct");
+        // Latin, digits and punctuation are untouched; Bengali word inside a Latin line is reordered only locally.
+        Expect(IndicVisualOrder.Visual("bn", "MOSSELORA 12/3 (dev)") == "MOSSELORA 12/3 (dev)",
+            "Latin and digits untouched");
+        Expect(IndicVisualOrder.Visual("bn", "Level \u09B9\u09B2\u09CB 2") == "Level \u09B9\u09C7\u09B2\u09BE 2",
+            "Bengali run reordered inside mixed text");
+        // A sign with no consonant before it keeps its position.
+        Expect(IndicVisualOrder.Visual("bn", "\u09BF") == "\u09BF", "orphan sign kept");
+        Expect(IndicVisualOrder.Visual("bn", " \u09C7\u0995") == " \u09C7\u0995", "sign after space kept");
+        // Multi-line: reordered line by line, line breaks preserved.
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09BF\n\u09B9\u09B2\u09CB") ==
+               "\u09BF\u0995\n\u09B9\u09C7\u09B2\u09BE", "multi-line text ordered per line");
+        Expect(IndicVisualOrder.Visual("bn", "\u0995\u09BF\r\n\u09B9\u09B2\u09CB") ==
+               "\u09BF\u0995\r\n\u09B9\u09C7\u09B2\u09BE", "CRLF text keeps its line breaks");
+        // Other locales are never changed.
+        Expect(IndicVisualOrder.Visual("hi", "\u0995\u09BF") == "\u0995\u09BF", "other locales untouched");
+        Expect(IndicVisualOrder.Visual("bn", "") == "" && IndicVisualOrder.Visual("bn", null) == "",
+            "empty and null input pass through");
+
+        // Every shipped Bengali catalog string: no throw, and only ো/ৌ change length.
+        string file = Path.Combine(FindLocaleDirectory(), "bn.json");
+        using (JsonDocument document = JsonDocument.Parse(File.ReadAllText(file)))
+        {
+            int checkedCount = 0;
+            foreach (JsonElement entry in document.RootElement.GetProperty("entries").EnumerateArray())
+            {
+                string logical = entry.GetProperty("value").GetString() ?? "";
+                string visual = null;
+                bool threw = false;
+                try { visual = IndicVisualOrder.Visual("bn", logical); } catch (Exception) { threw = true; }
+                Expect(!threw && visual != null, "bn catalog string does not throw: " + logical);
+                int twoPart = 0;
+                foreach (char c in logical) if (c == '\u09CB' || c == '\u09CC') twoPart++;
+                Expect(visual.Length == logical.Length + twoPart, "bn catalog string keeps its characters: " + logical);
+                checkedCount++;
+            }
+            Expect(checkedCount > 0, "bn catalog has entries to check");
+        }
     }
 
     private static void RtlTextTests()
@@ -1363,6 +1531,7 @@ internal static class Program
             LocalizedCharacterNamesInMemories();
             PuzzleDiagnosticsTests();
             PrivatePlaytestReport();
+            ReturnDiaryTests();
             LocalizationTests();
             KinsokuLineBreakTests();
             RtlTextTests();
@@ -1370,6 +1539,7 @@ internal static class Program
             SeasonalNeighborTests();
             RepeatedMemoryTests();
             HubRecallTests();
+            IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
         }

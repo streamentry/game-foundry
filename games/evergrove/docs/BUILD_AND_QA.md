@@ -1,6 +1,6 @@
 # Evergrove — build, quality gates, reproducibility and release runbook
 
-**Status:** the pure C# suite passes 38,864 assertions; a recorded Unity 6000.3.0f1 Editor smoke passed on the earlier 81-key source; the 88-key source (including the EG-113 first-pass screen-reader hierarchy) passed the Unity 6000.3.0f1 batch compile and editor smoke with no compile errors; no device or VoiceOver/TalkBack run has been recorded. Twenty-nine macOS Development-player QA screenshots from earlier source are archived (3 standalone frames, a 13-state core-loop tour, and a 13-state 150% text-size tour at 375x667). The anchored-tile tap state shows its explanation without a move or save. These are desktop visual evidence, not phone, OS text-size or touch-input verification. No Android/iOS export, signed build, device launch or store artifact is verified. This runbook does **not** claim store readiness.
+**Status (2026-11-24):** the pure C# suite passes **39,931 assertions** on .NET SDK 8.0.428; the Python verifier validates **101 keys × 29 offline locale catalogs**. Current `HEAD` is `47ad558274a37c2fd78840be6e4247c5bbecf027`; Unity code last changed at `9be7c2d` with a research-only return diary guarded from release builds. The signed AAB (`1.0.0`, code 1, min SDK 25) and build-1 iOS exports predate current code; do not upload them. The old AAB did launch on an Android 16/API 36 AVD and passed first-loop/airplane-mode checks, but no controlled packet capture exists. A separate unsigned development APK after the engine-link fix rendered on Android 15/API 35, but it predates later source work. The installed Unity CLI cannot register the SSD Editor because its code signature is modified; no build from current `HEAD` exists. The Android upload key remains outside the repository. No store upload or submission has happened. Prior screenshots and clips are archived under `docs/qa/*release-candidate-2026-11-23/`; recapture them from current builds. No physical-phone or 45+ human test, or completed VoiceOver/TalkBack review is verified. This runbook does **not** claim store readiness.
 
 ## 1. Toolchain and entrypoints
 
@@ -28,7 +28,7 @@ These commands validate domain logic, 12 source puzzles + 33 branch presentation
 `EvergroveBuild.Build()` reads `EVERGROVE_BUILD_CHANNEL`:
 
 - `development` (default): `BuildOptions.Development`, research controls enabled, log `EVERGROVE_BUILD_SUCCEEDED <output>`.
-- `release-candidate`: no Development flag, product `Mosselora`, id `com.streamentry.evergrove`, version from `EVERGROVE_BUNDLE_VERSION` (default `0.1.0`), research locale catalogs staged out during the build. Log `EVERGROVE_BUILD_SUCCEEDED release-candidate <output>`. It never signs or uploads.
+- `release-candidate`: no Development flag, product `Mosselora`, id `com.streamentry.evergrove`, version from `EVERGROVE_BUNDLE_VERSION` (default `0.1.0`), research locale catalogs staged out during the build. Android emits `Mosselora.aab` with `buildAppBundle=true` and `EVERGROVE_ANDROID_BUNDLE_VERSION_CODE` (default `1`); iOS emits an Xcode project for device SDK by default or Simulator when `EVERGROVE_IOS_SDK=simulator`, with `CFBundleVersion` from `EVERGROVE_IOS_BUILD_NUMBER` (default `1`). Unity does not configure the Play upload key, iOS signing, or store upload. A locally generated AAB carries Unity's Android Debug signature until the old signing metadata is removed and the protected upload key signs it. Log `EVERGROVE_BUILD_SUCCEEDED release-candidate <output>`.
 
 Headless macOS release candidate (licensed Unity required):
 
@@ -41,6 +41,20 @@ EVERGROVE_BUILD_CHANNEL=release-candidate EVERGROVE_OUTPUT_ROOT=/abs/private/out
 
 The source guard `python3 tools/verify_evergrove_project.py` fails on any dev-only identifier outside an approved research guard. See [release-candidate audit](qa/release-candidate-audit-2026-11-23.md).
 
+Android Play AAB candidate:
+
+```bash
+EVERGROVE_BUILD_CHANNEL=release-candidate \
+EVERGROVE_BUNDLE_VERSION=1.0.0 \
+EVERGROVE_ANDROID_BUNDLE_VERSION_CODE=1 \
+EVERGROVE_OUTPUT_ROOT=/abs/private/out \
+  "$UNITY_BIN" -batchmode -nographics -projectPath "$PWD/games/evergrove" \
+  -buildTarget Android -executeMethod Evergrove.UnityClient.Editor.EvergroveBuild.Build \
+  -logFile /abs/private/out/android-rc.log -quit
+```
+
+The generated AAB is **not upload-ready** until the Android Debug signature has been replaced with the Play upload key and verified with `jarsigner` and `bundletool`. Keep the JKS and password out of the repository and chat.
+
 ### One-command local licensed preflight
 
 From the repository root of a **clean committed checkout** with Unity 6000.3.0f1 and relevant platform modules installed:
@@ -51,7 +65,7 @@ bash tools/evergrove_unity_local_preflight.sh Android
 bash tools/evergrove_unity_local_preflight.sh iOS
 ```
 
-The tool accepts `UNITY_BIN=/path/to/Unity` when Unity Hub installs to another path. It records logs, requested version, exact source commit and per-file hashes in ignored `.evergrove-evidence/<SOURCE_SHA>/`; it deliberately does **not** install a license, sign, distribute or inspect a physical phone. The first Unity import may create untracked `.meta`, `Packages/packages-lock.json` and `ProjectSettings/*.asset` files. These are recorded as **provisional generated inputs** rather than silently ignored or treated as source-tracked; review/commit legitimate generated metadata and repeat the probe before calling its Git SHA a complete reproducible build input. Unknown untracked scripts and changes to tracked inputs are still blocked. Synthetic fake-Editor unit tests cover wrapper fail-closed behavior but are **not Unity execution**. **Every attempt is isolated:** artifacts, logs and generated-input hashes live under `.evergrove-evidence/<SOURCE_SHA>/<MODE>/run-*/`. The command sets a unique absolute `EVERGROVE_OUTPUT_ROOT`; `EvergroveBuild.Build()` writes only that attempt's output under `run-*/output/<platform>/`. GameCI leaves the variable unset and still exports under `build/<platform>/`. Before accepting a local result, confirm that the Unity success log contains the **exact** new output path, not merely a generic `EVERGROVE_BUILD_SUCCEEDED` marker, and verify the per-file hashes. The wrapper's synthetic/fake-Editor tests include a previous-APK reuse attack and wrong-path success log. This is a source/tooling guard, **not** a real Unity or phone pass. A successful batch import is not proof that game interactions render correctly. Follow [M1/M2 execution criteria](specs/12-M1-M2-EXECUTION-CHECKLIST.md) and retain sensitive logs privately.
+The tool accepts `UNITY_BIN=/path/to/Unity` when Unity Hub installs to another path. It records logs, requested version, exact source commit and per-file hashes in ignored `.evergrove-evidence/<SOURCE_SHA>/`; it deliberately does **not** install a license, sign or upload. `EVERGROVE_BUILD_CHANNEL=release-candidate` selects the AAB path for Android and the nondevelopment Xcode project for iOS. If Unity rewrites the tracked `ProjectSettings.asset`, the wrapper captures the exact effective build-input hash and file, then restores only that expected generated setting change. Other tracked input changes still block provenance and are left untouched. It also records permitted untracked Unity-generated `.meta` files and package locks as provisional inputs. Unknown untracked scripts and unexplained tracked changes block the probe. Synthetic fake-Editor tests cover stale artifact reuse, wrong output paths and captured/restored settings; they are **not Unity execution**. Every attempt is isolated under `.evergrove-evidence/<SOURCE_SHA>/<MODE>/run-*/`. GameCI leaves `EVERGROVE_OUTPUT_ROOT` unset and still exports under `build/<platform>/`. Before accepting a local result, check the exact success-log output path and file hashes. A successful import/build is not proof of physical-device behavior or player validation. Follow [M1/M2 execution criteria](specs/12-M1-M2-EXECUTION-CHECKLIST.md) and retain signing material privately.
 
 ### Unity Editor manual smoke
 

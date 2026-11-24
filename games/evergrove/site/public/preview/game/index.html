@@ -5,27 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#F7F4E9">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="Play the first stream of Mosselora. A small offline research prototype about a village shaped by your choices.">
-  <title>Mosselora: the first stream</title>
+  <meta name="description" content="Play the first stream of Mosselora. A tiny offline research prototype about a place that remembers your choices.">
+  <title>Mosselora — a living garden</title>
   <link rel="stylesheet" href="style.css">
   <script src="game.js" defer></script>
 </head>
 <body>
 <main class="app">
   <header class="masthead">
-    <div class="brand"><span class="brand-symbol" aria-hidden="true">✳</span><span>MOSSELORA</span></div>
-    <span class="research-tag">FIRST STREAM · RESEARCH</span>
+    <div class="brand"><span class="brand-sigil" aria-hidden="true">M</span><span>MOSSELORA</span></div>
+    <div class="header-actions"><span class="research-tag">FIRST STREAM · RESEARCH</span><button type="button" id="menu-btn" class="icon-btn icon-btn--menu" aria-label="Open menu" aria-haspopup="dialog"><svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>      <!-- River Koi -->
+      <g id="river-koi" class="koi-fish" hidden>
+        <path d="M320 220 Q328 216 335 222 Q328 228 320 220Z" fill="#e86b3a"/>
+        <path d="M333 222 L340 218 L339 226Z" fill="#f49d70"/>
+      </g>
+    </svg></button></div>
   </header>
-  <h1>A little world that <em>remembers.</em></h1>
-  <p class="lede">The water has almost reached the garden. Help it find the way.</p>
+  <h1>A garden that <em>remembers.</em></h1>
+  <p class="lede">The water is almost home. Help it find the garden.</p>
 
 
 
   <section id="puzzle-panel" class="puzzle-panel" aria-labelledby="puzzle-title">
     <div class="section-heading">
       <div><p class="eyebrow">CHAPTER 01 · FIRST BEND</p><h2 id="puzzle-title" tabindex="-1">Bring the stream home</h2></div>
-      <div class="water-stat"><span id="water-count">4 of 9</span><small>tiles reached</small></div>
+      <div class="water-stat water-stat--pill" aria-label="Stream progress">
+        <div class="water-stat-icon" aria-hidden="true">💧</div>
+        <div>
+          <span id="water-count">4 of 9</span>
+          <small class="water-stat-label">stream reached</small>
+        </div>
+      </div>
     </div>
     <p class="puzzle-guide"><span class="legend-icon" aria-hidden="true">≋</span> Spring
       <span aria-hidden="true" class="legend-arrow">→</span>
@@ -33,12 +43,36 @@
       <span class="guide-tip">Tap a pipe to turn it.</span></p>
     <div id="board" class="board" role="group" aria-label="3 by 3 water-pipe puzzle"></div>
     <p id="hint-detail" class="hint-detail" role="status" aria-live="polite"></p>
-    <div class="controls">
-      <button type="button" id="undo" class="utility-button">↶ Undo</button>
-      <button type="button" id="hint" class="utility-button utility-button--hint">A gentle hint</button>
-      <button type="button" id="restart" class="utility-button">Start over</button>
+    <div class="controls" role="toolbar" aria-label="Game actions">
+      <button type="button" id="undo" class="action-icon-btn action-icon-btn--undo" aria-label="Undo last move" title="Undo">
+        <svg viewBox="0 0 24 24" class="hud-svg" aria-hidden="true"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.2 3.16-1.98 5.12-1.98 3.73 0 6.84 2.55 7.73 6h2.08c-.96-4.57-5-8-9.81-8z" fill="currentColor"/>      <!-- River Koi -->
+      <g id="river-koi" class="koi-fish" hidden>
+        <path d="M320 220 Q328 216 335 222 Q328 228 320 220Z" fill="#e86b3a"/>
+        <path d="M333 222 L340 218 L339 226Z" fill="#f49d70"/>
+      </g>
+    </svg>
+        <span class="action-btn-text">Undo</span>
+      </button>
+      <button type="button" id="hint" class="action-icon-btn action-icon-btn--hint" aria-label="A gentle hint" title="Hint">
+        <svg viewBox="0 0 24 24" class="hud-svg" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z" fill="currentColor"/>      <!-- River Koi -->
+      <g id="river-koi" class="koi-fish" hidden>
+        <path d="M320 220 Q328 216 335 222 Q328 228 320 220Z" fill="#e86b3a"/>
+        <path d="M333 222 L340 218 L339 226Z" fill="#f49d70"/>
+      </g>
+    </svg>
+        <span class="action-btn-text">Hint</span>
+      </button>
+      <button type="button" id="restart" class="action-icon-btn action-icon-btn--restart" aria-label="Restart stream" title="Restart">
+        <svg viewBox="0 0 24 24" class="hud-svg" aria-hidden="true"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z" fill="currentColor"/>      <!-- River Koi -->
+      <g id="river-koi" class="koi-fish" hidden>
+        <path d="M320 220 Q328 216 335 222 Q328 228 320 220Z" fill="#e86b3a"/>
+        <path d="M333 222 L340 218 L339 226Z" fill="#f49d70"/>
+      </g>
+    </svg>
+        <span class="action-btn-text">Restart</span>
+      </button>
     </div>
-    <p class="note">No timer. No penalty. The water follows the connections you make.</p>
+    <p class="note">Open circles mark loose ends. No timer. No penalty.</p>
   </section>
 
   <section id="world" class="world" tabindex="-1" aria-label="A cottage beside a partly dry creek, waiting for the water to arrive">
@@ -65,11 +99,23 @@
       <path id="creek-front" d="M303 134 C276 163 335 178 317 202 S296 244 343 282"
             pathLength="100" fill="none" stroke="url(#water-gradient)" stroke-width="43"
             stroke-linecap="round" stroke-dasharray="100" stroke-dashoffset="100"/>
+            <!-- Chimney Smoke -->
+      <g id="chimney-smoke">
+        <circle cx="140" cy="95" r="4" fill="#e8eee6" class="smoke-puff smoke-puff--1"/>
+        <circle cx="144" cy="85" r="6" fill="#e8eee6" class="smoke-puff smoke-puff--2"/>
+        <circle cx="138" cy="73" r="8" fill="#e8eee6" class="smoke-puff smoke-puff--3"/>
+      </g>
       <path d="M52 169 L140 106 L229 169Z" fill="#9B765E"/>
       <path d="M70 166H211V249H70Z" fill="#F5E4C9"/>
       <path d="M123 192H155V249H123Z" fill="#A37D62"/>
       <path d="M89 189H113V215H89Z" fill="#A0CDD0"/>
       <path d="M177 189H201V215H177Z" fill="#A0CDD0"/>
+            <!-- Cobblestone Steps -->
+      <g id="cobblestones">
+        <ellipse cx="140" cy="254" rx="8" ry="4" fill="#c4b89d"/>
+        <ellipse cx="158" cy="259" rx="10" ry="5" fill="#b8ab8e"/>
+        <ellipse cx="180" cy="265" rx="12" ry="6" fill="#aba084"/>
+      </g>
       <path d="M70 249H211" fill="none" stroke="#BBAE90" stroke-width="5"/>
       <path d="M26 243 Q46 212 61 243" stroke="#477B65" stroke-width="7" fill="none" stroke-linecap="round"/>
       <path d="M213 244 Q235 222 249 241" stroke="#477B65" stroke-width="6" fill="none" stroke-linecap="round"/>
@@ -98,6 +144,11 @@
         <path d="M503 113q-21 -17 -19 2q-2 11 19 6q23 17 21 -2q2 -10 -21 -6Z" fill="#F4CC84"/>
         <path d="M503 113q-9 -5 0 13" stroke="#5E6D5B" stroke-width="3" fill="none"/>
       </g>
+          <!-- River Koi -->
+      <g id="river-koi" class="koi-fish" hidden>
+        <path d="M320 220 Q328 216 335 222 Q328 228 320 220Z" fill="#e86b3a"/>
+        <path d="M333 222 L340 218 L339 226Z" fill="#f49d70"/>
+      </g>
     </svg>
     <div class="world-caption"><span id="world-status" class="eyebrow">A PLACE WAITING FOR WATER</span>
       <p id="message" role="status" aria-live="polite">Turn the channels to guide water from the spring to the garden.</p>
@@ -120,8 +171,8 @@
     <h2 id="memory-title" tabindex="-1"></h2>
     <p id="memory-text"></p>
     <p class="memory-footnote">One complete moment. In the Unity game, later streams inherit this decision. This browser slice stops here so we can study whether the moment feels meaningful.</p>
-    <button type="button" id="replay" class="primary-button">Play the stream again</button>
-    <button type="button" id="copy-notes" class="text-button">Copy local session notes (optional)</button>
+    <button type="button" id="replay" class="primary-button primary-button--sprout"><span class="btn-icon" aria-hidden="true">🌱</span> Tend the stream again</button>
+    <button type="button" id="copy-notes" class="text-button text-button--scroll"><span aria-hidden="true">📜</span> Copy local session notes (optional)</button>
     <textarea id="notes-fallback" hidden readonly aria-label="Copyable local session notes"></textarea>
   </section>
 
@@ -129,6 +180,58 @@
     <span>MOSSELORA · AN ORIGINAL RESEARCH SLICE</span>
     <span>Offline · No accounts · No tracking · One authored puzzle</span>
   </footer>
+
+  <div id="game-menu-modal" class="game-menu-modal" hidden aria-modal="true" role="dialog" aria-label="Game Menu">
+    <div class="menu-backdrop" id="menu-backdrop"></div>
+    <div class="menu-sheet">
+      <div class="menu-header">
+        <h3 class="menu-title">🌿 Mosselora</h3>
+        <button type="button" id="menu-close-btn" class="icon-btn icon-btn--close" aria-label="Close menu">✕</button>
+      </div>
+      <div class="menu-body">
+        <div class="menu-item">
+          <span class="menu-item-label">Sound Atmosphere</span>
+          <button type="button" id="sound-toggle-btn" class="menu-action-btn" aria-label="Toggle ambient audio">🔊 On</button>
+        </div>
+        <div class="menu-item">
+          <span class="menu-item-label">Garden Journal</span>
+          <button type="button" id="open-journal-btn" class="menu-action-btn">📖 View</button>
+        </div>
+                <div class="menu-item menu-item--help">
+          <span class="menu-item-label">Gentle Guidance</span>
+          <span class="help-gesture-badge">👆 Tap to turn · ≋ Stream flows</span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-item-label">Start Stream Over</span>
+          <button type="button" id="menu-restart-btn" class="menu-action-btn menu-action-btn--warn">↺ Restart</button>
+        </div>
+      </div>
+      <div class="menu-footer">
+        <small>Mosselora · Offline & Private Garden</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Journal Modal -->
+  <div id="journal-modal" class="game-menu-modal" hidden aria-modal="true" role="dialog" aria-label="Garden Chronicle">
+    <div class="menu-backdrop" id="journal-backdrop"></div>
+    <div class="menu-sheet journal-sheet">
+      <div class="menu-header">
+        <h3 class="menu-title">📖 Garden Chronicle</h3>
+        <button type="button" id="journal-close-btn" class="icon-btn icon-btn--close" aria-label="Close journal">✕</button>
+      </div>
+      <div class="menu-body" id="journal-entries">
+        <p class="journal-entry-intro">A quiet record of the streams restored and choices made.</p>
+        <div class="journal-card" id="journal-current-card">
+          <strong>Chapter 01: First Bend</strong>
+          <p id="journal-choice-summary">The stream has begun to flow through the dry riverbed.</p>
+        </div>
+      </div>
+      <div class="menu-footer">
+        <small>Preserved offline in your local garden.</small>
+      </div>
+    </div>
+  </div>
 </main>
 </body>
 </html>

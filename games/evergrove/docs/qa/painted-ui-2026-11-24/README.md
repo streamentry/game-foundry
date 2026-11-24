@@ -107,3 +107,7 @@ Evidence: `icons-v2-b10-150pct.png` (b10 tour at 150% text; all 17 screens produ
 ### Open mouths on pipe ends (b14)
 
 A final Haiku art-director review scored b13 at 5-7 out of 10: cohesion 7, icon clarity 7, board readability 7, button-text avoidance 6, delight 5 (from stills only). Its highest-impact fix was the open-end marker: a small ring in the tile corner that had to be matched to a pipe by eye. Each unmatched port is now drawn as a cream mouth in a dark collar on the pipe end itself, as in the reference design. The rule is the same as `PipeRules.Inspect` (a board edge, or a neighbor without the facing port). The count matches the sentence: stream 1 shows exactly 10 mouths for "10 open joins". The hidden "○" stays as the semantic source. `b14-open-mouths.png`.
+
+## Native-resolution simulator capture
+
+`15-high-resolution-live-simulator.png` was captured on 2026-11-24 from the already-running iPhone 17 Pro / iOS 26.5 Simulator. It is 1206 × 2622 pixels. The installed app is `com.streamentry.evergrove.playtest`, version `0.1.0` / build `0`; the screenshot visibly includes the development-only “Start matched control (dev)” button. Keep it as QA evidence and do not upload it as store media.

@@ -7,6 +7,8 @@
 
 Results are captured in [results-template.md](results-template.md).
 
+**Start here for M3:** [m3-run-plan.md](m3-run-plan.md) orders the steps, gives a recommended default for every open decision, and records the facilitator dry run of 2026-11-24, including blocker B1 (the development build showed the experiment controls to participants), now fixed with a participant view.
+
 **Nothing in this folder counts as evidence until real sessions are run.** No participants, sessions, outcomes, dates or decisions are recorded here. Every value the source docs do not declare is marked `TO PREDECLARE`, and must be fixed in writing before the first participant is recruited.
 
 ## Order of use
