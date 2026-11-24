@@ -1729,10 +1729,23 @@ namespace Evergrove.UnityClient
                 var moment = Card(content, "A remembered moment", MosseloraTheme.CardFill);
                 // Room above the title for the leaf sprigs at any text size.
                 moment.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(14, 14, 34, 16);
-                // The neighbor who will remember this choice, painted, at the top of the card.
+                // The moment itself, painted: the neighbor doing what you chose
+                // (Codex vignette), then one remembered sentence and what changed.
                 int[] madeChoices = world.Choices;
-                Sprite rememberer = MosseloraArt.Portrait(madeChoices[madeChoices.Length - 1]);
-                if (rememberer != null)
+                int keeper = madeChoices[madeChoices.Length - 1];
+                Sprite vignette = MosseloraArt.Load(keeper == 0 ? MosseloraArt.VignetteTree
+                    : keeper == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
+                Sprite rememberer = MosseloraArt.Portrait(keeper);
+                if (vignette != null)
+                {
+                    var scene = Node("Memory vignette", moment.transform);
+                    Height(scene, Mathf.Round(Mathf.Min(PageWidth() - 28f, 360f) / MosseloraArt.Aspect(vignette)));
+                    var sceneImage = scene.AddComponent<Image>();
+                    sceneImage.sprite = vignette;
+                    sceneImage.preserveAspect = true;
+                    sceneImage.raycastTarget = false;
+                }
+                else if (rememberer != null)
                 {
                     var face = Node("Neighbor who remembers", moment.transform);
                     Height(face, 72f);
@@ -1744,7 +1757,11 @@ namespace Evergrove.UnityClient
                 Text momentTitle = Label(moment.transform, "Moment title",
                     GameLocalization.Text("memory_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(momentTitle);
-                Label(moment.transform, "Story", LocalizedVillage.MemoryEvent(world), 17, 0, Ink,
+                // The chapter header lives in the scrapbook; here, the memory and its effect.
+                Text story = Label(moment.transform, "Story", LocalizedVillage.Memory(world), 18, 0, Ink,
+                    TextAnchor.MiddleCenter);
+                Emphasize(story);
+                Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 15, 0, Moss,
                     TextAnchor.MiddleCenter);
                 Sprite memorySprig = MosseloraArt.Load(MosseloraArt.Sprig);
                 MosseloraArt.Ornament(moment.transform, "Sprig left", memorySprig, new Vector2(0f, 1f),

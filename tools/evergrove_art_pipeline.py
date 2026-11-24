@@ -281,6 +281,11 @@ def main() -> None:
         sheet.convert("RGB").save(out, optimize=True)
         print(out.relative_to(ROOT))
 
+    for kind in ("tree", "bridge", "flowers"):
+        vignette = master("vignette-" + kind)
+        if vignette:
+            save(fit(vignette.convert("RGBA"), 720, 480), "vignette-" + kind)
+
     bed = master("board-bed")
     if bed:
         save(fit(knock_out_paper(bed), 768, 768), "board-bed")
