@@ -1449,7 +1449,7 @@ namespace Evergrove.UnityClient
             {
                 var note = MosseloraArt.Ornament(picture.transform, "Has something new to say",
                     MosseloraArt.Rounded(14), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f),
-                    new Vector2(28f, 28f), new Vector2(-5f, -5f));
+                    new Vector2(32f, 32f), new Vector2(-5f, -5f));
                 if (note != null)
                 {
                     note.preserveAspect = false;
@@ -1457,7 +1457,7 @@ namespace Evergrove.UnityClient
                     MosseloraArt.Lift(note, 1.5f, 0.22f);
                     var mark = MosseloraArt.Ornament(note.transform, "Speech mark",
                         MosseloraArt.Load(MosseloraArt.IconChat), new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f), new Vector2(18f, 18f), Vector2.zero);
+                        new Vector2(0.5f, 0.5f), new Vector2(21f, 21f), Vector2.zero);
                     if (mark != null) mark.color = MosseloraTheme.WaterChannel;
                     if (gentleMotion) BloomPulse.Add(note.gameObject, 0.9f + 0.25f * villager, 0.18f);
                 }
@@ -1596,7 +1596,7 @@ namespace Evergrove.UnityClient
             var stoneRow = stones.AddComponent<HorizontalLayoutGroup>();
             stoneRow.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
             stoneRow.childAlignment = TextAnchor.MiddleCenter;
-            stoneRow.spacing = 6;
+            stoneRow.spacing = 7;
             stoneRow.childControlWidth = true;
             stoneRow.childControlHeight = true;
             stoneRow.childForceExpandWidth = false;
@@ -1607,7 +1607,7 @@ namespace Evergrove.UnityClient
                 bool passed = i < world.Round;
                 var stone = Node(passed ? "Stone passed" : here ? "Stone here" : "Stone ahead", stones.transform);
                 var layout = stone.AddComponent<LayoutElement>();
-                float size = here ? 18f : 11f;
+                float size = here ? 22f : 14f; // was 18 / 11: legible at arm's length (I84)
                 layout.minWidth = layout.preferredWidth = size;
                 layout.minHeight = layout.preferredHeight = size;
                 var image = stone.AddComponent<Image>();
@@ -1638,9 +1638,11 @@ namespace Evergrove.UnityClient
             int phase = stream >= 9 ? 3 : stream >= 6 ? 2 : stream >= 3 ? 1 : 0;
             switch (PaintedVillage.SeasonFor(phase, false))
             {
-                case 1: return new Color(0.85f, 0.63f, 0.35f, 0.70f);
-                case 2: return new Color(0.58f, 0.70f, 0.79f, 0.80f);
-                default: return new Color(0.55f, 0.68f, 0.50f, 0.60f);
+                // Opaque season tones, each at least 3:1 against the paper
+                // (WCAG 1.4.11); the old translucent stones measured about 1.6:1 (I84).
+                case 1: return new Color(0.72f, 0.47f, 0.20f, 1f);   // autumn 3.3:1
+                case 2: return new Color(0.36f, 0.52f, 0.66f, 1f);   // winter 3.5:1
+                default: return new Color(0.40f, 0.55f, 0.35f, 1f);  // summer 3.4:1
             }
         }
 

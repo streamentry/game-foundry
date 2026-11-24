@@ -1,0 +1,12 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached icon sheet is the EXISTING icon family: match its style exactly (solid black single-colour glyphs, bold rounded strokes about 9% of icon size, rounded caps and joins, flat, friendly). Generate exactly ONE image.
+Use case: logo-brand
+Asset type: four alternative UI icons for one meaning, sliced from a 2x2 grid
+Meaning of all four: "choose again / change what I planted" in a cozy garden game (it is NOT shuffle, NOT refresh, NOT undo).
+Primary request: 2x2 grid, each icon centred in its own equal square cell, ~62% of the cell, generous margins, no grid lines:
+ top-left: a small two-leaf sprout with a curved arrow sweeping counter-clockwise half way around it;
+ top-right: a pencil whose tip touches a single leaf;
+ bottom-left: two small upright cards, the front one tilted, with a short curved arrow from the back card to the front card;
+ bottom-right: a seed in a small mound of soil with a curved arrow arching back over it.
+Background: fully TRANSPARENT (alpha). Square 1024x1024.
+Constraints: no text, no letters, no numbers, no watermark.
+Copy the final PNG to games/evergrove/art/generated/icons-ui-6.png and print the path. Do nothing else.

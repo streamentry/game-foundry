@@ -348,6 +348,13 @@ def main() -> None:
         for name, cell in zip(("ui-tap", "ui-turn", "ui-rooted", "ui-sun"), grid(ui5, 2, 2)):
             save(white_glyph(cell), name)
 
+    ui6 = master("icons-ui-6")
+    if ui6:
+        # Four candidates for "choose again"; a cold-read picks one for IconChange (I84).
+        for name, cell in zip(("ui-choose-sprout", "ui-choose-pencil", "ui-choose-cards", "ui-choose-seed"),
+                              grid(ui6, 2, 2)):
+            save(white_glyph(cell), name)
+
     plaques = master("button-plaques")
     if plaques:
         for name, cell in zip(("plaque-forest", "plaque-teal", "plaque-parchment"),
