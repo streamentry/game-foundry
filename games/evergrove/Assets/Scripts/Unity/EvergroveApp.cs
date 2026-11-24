@@ -1512,6 +1512,31 @@ namespace Evergrove.UnityClient
             if (news) SpeakInstead(node.transform, label + ". " + GameLocalization.Text("has_news"));
         }
 
+        // "Change your choice" shows what would change: the painted landmark you
+        // just chose, with a small turn-back mark at its corner (I87). Two opposed
+        // arrows read as "shuffle" in three AI reviews.
+        private static void ShowChoiceToChange(Button button, VillageChoice chosen)
+        {
+            Transform iconNode = button.transform.Find("Icon");
+            Image icon = iconNode != null ? iconNode.GetComponent<Image>() : null;
+            Sprite painted = MosseloraArt.ChoiceIcon(chosen);
+            if (icon == null || painted == null) return;
+            icon.sprite = painted;
+            icon.color = Color.white; // painted art, not a tinted glyph
+            var layout = iconNode.GetComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = 46f;
+            layout.minHeight = layout.preferredHeight = 46f;
+            var badge = MosseloraArt.Ornament(iconNode, "Turn back", MosseloraArt.Rounded(12),
+                new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(24f, 24f), new Vector2(-2f, 4f));
+            if (badge == null) return;
+            badge.preserveAspect = false;
+            badge.color = MosseloraTheme.CardFill;
+            MosseloraArt.Lift(badge, 1.5f, 0.25f);
+            var mark = MosseloraArt.Ornament(badge.transform, "Undo mark", MosseloraArt.Load(MosseloraArt.IconUndo),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(15f, 15f), Vector2.zero);
+            if (mark != null) mark.color = MosseloraTheme.WaterChannel;
+        }
+
         // Keeps what is shown, and gives screen readers a fuller hidden "Caption"
         // (ScreenReaderBridge reads the child named "Caption").
         private static void SpeakInstead(Transform control, string spoken)
@@ -2020,6 +2045,7 @@ namespace Evergrove.UnityClient
                     Rebuild(false);
                 }, 64, MosseloraTheme.QuietAction);
                 Width(changeButton, 76);
+                ShowChoiceToChange(changeButton, (VillageChoice)world.Choices[world.Choices.Length - 1]);
                 Button continueButton = IconButton(next, "Continue", GameLocalization.Text("continue"),
                     MosseloraArt.IconContinue, () => {
                         showingMemory = false;
