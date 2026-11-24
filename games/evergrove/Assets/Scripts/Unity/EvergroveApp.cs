@@ -946,10 +946,35 @@ namespace Evergrove.UnityClient
             Emphasize(tagline);
             // How far along the creek this garden has walked: resumes, never resets.
             if (!world.Completed) StreamStones(world.CurrentPuzzle, stack.transform, false);
+            // What changed last time, told by the neighbor who remembers it.
+            int[] past = world.Choices;
+            if (world.Mode == PlayMode.Living && past.Length > 0)
+            {
+                Transform memory = CenteredRowIn(stack.transform, "Last memory");
+                memory.GetComponent<HorizontalLayoutGroup>().spacing = 8;
+                Sprite who = MosseloraArt.Portrait(past[past.Length - 1]);
+                if (who != null)
+                {
+                    var face = Node("Who remembers", memory);
+                    var faceLayout = face.AddComponent<LayoutElement>();
+                    faceLayout.minWidth = faceLayout.preferredWidth = 34;
+                    faceLayout.minHeight = faceLayout.preferredHeight = 34;
+                    var faceImage = face.AddComponent<Image>();
+                    faceImage.sprite = who;
+                    faceImage.preserveAspect = true;
+                    faceImage.raycastTarget = false;
+                }
+                Text line = Label(memory, "Last memory line", LocalizedVillage.Memory(world), 14, 0, Moss,
+                    TextAnchor.MiddleLeft);
+                line.GetComponent<LayoutElement>().flexibleWidth = 1f;
+            }
             Transform play = CenteredRowIn(stack.transform, "Play row");
-            Button start = IconButton(play, "Play", GameLocalization.Text("continue"),
-                MosseloraArt.IconContinue, CloseTitle, 80, MosseloraTheme.WaterAction);
-            Width(start, 168);
+            // The big button names where the walk continues ("First Bend").
+            string nextStop = !world.Completed && GameLocalization.Current == "en"
+                ? world.CurrentPuzzle.Name : GameLocalization.Text("continue");
+            Button start = IconButton(play, "Play", nextStop,
+                MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction, true);
+            Width(start, 230);
             titleScreen.transform.SetAsLastSibling();
         }
 
