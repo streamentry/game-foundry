@@ -1216,6 +1216,16 @@ namespace Evergrove.UnityClient
             var panelImage = panel.AddComponent<Image>();
             MosseloraArt.Round(panelImage, MosseloraTheme.Paper, 26);
             MosseloraArt.Lift(panelImage, 4f, 0.25f);
+            // The sheet is the same painted paper as the page, clipped to its
+            // rounded corners by the panel's own shape (I95).
+            var grain = Node(name + " paper", panel.transform);
+            grain.AddComponent<LayoutElement>().ignoreLayout = true;
+            Fill(grain.GetComponent<RectTransform>());
+            var grainImage = grain.AddComponent<Image>();
+            MosseloraArt.PagePaper(grainImage, MosseloraTheme.Paper);
+            grainImage.raycastTarget = false;
+            grain.transform.SetAsFirstSibling();
+            panel.AddComponent<Mask>().showMaskGraphic = true;
             MosseloraArt.Edge(panel.transform, MosseloraTheme.CardEdge, 26);
             sheetScroll = panel.AddComponent<ScrollRect>();
             sheetScroll.horizontal = false;
