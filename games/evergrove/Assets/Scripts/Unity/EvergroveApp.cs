@@ -2428,7 +2428,7 @@ namespace Evergrove.UnityClient
             {
                 var moment = Card(content, "A remembered moment", MosseloraTheme.CardFill);
                 // Room above the title for the leaf sprigs at any text size.
-                moment.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(14, 14, 34, 16);
+                moment.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(14, 14, landscape ? 26 : 34, 16);
                 // The moment itself, painted: the neighbor doing what you chose
                 // (Codex vignette), then one remembered sentence and what changed.
                 int[] madeChoices = world.Choices;
@@ -2449,7 +2449,9 @@ namespace Evergrove.UnityClient
                     sceneImage.preserveAspect = true;
                     sceneImage.raycastTarget = false;
                 }
-                else if (rememberer != null)
+                // Sideways the left painting already shows who remembers, and the
+                // face would push the continue arrow off a 402 pt screen (I115).
+                else if (rememberer != null && !landscape)
                 {
                     var face = Node("Neighbor who remembers", moment.transform);
                     Height(face, 72f);
@@ -2477,7 +2479,7 @@ namespace Evergrove.UnityClient
                 if (!world.Completed)
                 {
                     StreamStones(world.CurrentPuzzle, content, false);
-                    if (GameLocalization.Current == "en")
+                    if (GameLocalization.Current == "en" && !landscape)
                         NextStreamLine(content, world.CurrentPuzzle.Name, false);
                 }
                 Transform next = CenteredRow("Memory actions");
