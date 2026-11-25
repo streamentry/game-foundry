@@ -1694,8 +1694,8 @@ namespace Evergrove.UnityClient
 
         // Sideways, Undo and Hint stand in a rail right of the board, so the
         // board gets the height a tool row would take below it (I116).
-        private const float ToolRailWidth = 84f;
-        private const float ToolRailGap = 12f;
+        private const float ToolRailWidth = BoardFit.RailWidth;
+        private const float ToolRailGap = BoardFit.RailGap;
 
         private static void PlaceChrome(Button control, Vector2 corner, Vector2 offset)
         {
@@ -2821,26 +2821,12 @@ namespace Evergrove.UnityClient
             // Standard keeps the EG-007 sizing exactly. Large (EG-112) trims the
             // card's side padding and lifts the tile cap so the board uses the width.
             float available = Mathf.Max(225f, layoutWidth - 34f - 20f - 5f);
-            int standardTile = Mathf.Clamp(
-                Mathf.FloorToInt((available - (puzzle.Size - 1) * gap) / puzzle.Size),
-                48, puzzle.Size == 3 ? 90 : 67);
-            if (landscape)
-            {
-                // Sideways the screen is short: size tiles so stones, board, drops and
-                // tools fit the height, never below a 44-point touch target (I114).
-                float logicalHeight = Screen.safeArea.height / LiveCanvasScale();
-                // Stones, board rim, drops, spacing and margins: about 136 pt; the tools
-                // stand in a rail beside the board while it is unsolved (I116).
-                float below = world.Solved ? 212f : 136f;
-                int byHeight = Mathf.FloorToInt((logicalHeight - below) / puzzle.Size) - gap;
-                if (!world.Solved)
-                {
-                    float railSpace = ToolRailWidth + ToolRailGap;
-                    int byWidth = Mathf.FloorToInt((available - railSpace - (puzzle.Size - 1) * gap) / puzzle.Size);
-                    byHeight = Mathf.Min(byHeight, byWidth);
-                }
-                standardTile = Mathf.Clamp(byHeight, 44, puzzle.Size == 3 ? 90 : 67);
-            }
+            // Pure and tested (BoardFit, I118): portrait by width; sideways by the
+            // height left over, with the tool rail beside an unsolved board (I114-I116).
+            int standardTile = landscape
+                ? BoardFit.Landscape(Screen.safeArea.height / LiveCanvasScale(), available,
+                    puzzle.Size, gap, world.Solved)
+                : BoardFit.Portrait(available, puzzle.Size, gap);
             int tileSize = standardTile;
             if (BoardSize.IsLarge)
             {
