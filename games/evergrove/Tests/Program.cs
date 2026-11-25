@@ -1458,6 +1458,66 @@ internal static class Program
             "an index past the history is the empty memory");
     }
 
+    // I171: 50 trees, 50 flowers, 100 things to build or mend.
+    private static void GardenCatalogTests()
+    {
+        Expect(GardenCatalog.CountOf(VillageChoice.ShadeTree) == GardenCatalog.TreeCount, "50 trees");
+        Expect(GardenCatalog.CountOf(VillageChoice.Flowers) == GardenCatalog.FlowerCount, "50 flowers");
+        Expect(GardenCatalog.CountOf(VillageChoice.Bridge) == GardenCatalog.BuildCount, "100 things to build");
+        Expect(GardenCatalog.Total == 200, "200 garden items in all");
+        var names = new HashSet<string>();
+        var arts = new HashSet<string>();
+        foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Bridge, VillageChoice.Flowers })
+        {
+            int count = GardenCatalog.CountOf(family);
+            int[] order = GardenCatalog.Order(family);
+            Expect(order.Length == count, "order covers the family");
+            var seen = new HashSet<int>(order);
+            Expect(seen.Count == count, "order is a permutation");
+            for (int i = 0; i < count; i++)
+            {
+                GardenItem item = GardenCatalog.Get(family, i);
+                Expect(item.Family == family && item.Index == i, "item knows its place");
+                Expect(names.Add(item.Name), "item names are unique: " + item.Name);
+                Expect(arts.Add(item.Art), "item art keys are unique: " + item.Art);
+                Expect(item.Card.Length > 4 && item.Memory.StartsWith("the ") && item.Memory.Contains(item.Name),
+                    "item has a card title and a memory phrase: " + item.Name);
+                Expect(!item.Card.Contains("  ") && !item.Card.EndsWith(" "), "card title is tidy: " + item.Card);
+            }
+            // Deterministic: the same garden and chapter always give the same item.
+            Expect(GardenCatalog.For(3, 5, family).Index == GardenCatalog.For(3, 5, family).Index, "deterministic");
+            // No repeats inside a garden; consecutive gardens differ; full coverage.
+            var covered = new HashSet<int>();
+            int gardensToCover = (count + GardenCatalog.ChaptersPerGarden - 1) / GardenCatalog.ChaptersPerGarden;
+            for (int garden = 0; garden < 40; garden++)
+            {
+                var inGarden = new HashSet<int>();
+                for (int chapter = 0; chapter < GardenCatalog.ChaptersPerGarden; chapter++)
+                {
+                    int index = GardenCatalog.For(garden, chapter, family).Index;
+                    Expect(inGarden.Add(index), "no repeat inside garden " + garden);
+                    if (garden < gardensToCover) covered.Add(index);
+                }
+                if (garden > 0 && count >= 2 * GardenCatalog.ChaptersPerGarden)
+                {
+                    var previous = new HashSet<int>();
+                    for (int chapter = 0; chapter < GardenCatalog.ChaptersPerGarden; chapter++)
+                        previous.Add(GardenCatalog.For(garden - 1, chapter, family).Index);
+                    previous.IntersectWith(inGarden);
+                    Expect(previous.Count == 0 || (garden * GardenCatalog.ChaptersPerGarden) % count < GardenCatalog.ChaptersPerGarden,
+                        "consecutive gardens differ (except where the catalogue wraps)");
+                }
+            }
+            Expect(covered.Count == count, "every item appears within " + gardensToCover + " gardens");
+        }
+        Expect(GardenCatalog.Get(VillageChoice.ShadeTree, 0).Card == "Plant an apple tree", "a/an for trees");
+        Expect(GardenCatalog.Get(VillageChoice.Bridge, 3).Card == "Mend the mill wheel", "build verbs");
+        Expect(GardenCatalog.Get(VillageChoice.Flowers, 2).Memory == "the poppies you grew", "flower memory phrase");
+        bool threw = false;
+        try { GardenCatalog.For(0, 12, VillageChoice.Bridge); } catch (ArgumentOutOfRangeException) { threw = true; }
+        Expect(threw, "chapter 13 is out of range");
+    }
+
     private static void BoardFitTests()
     {
         // Portrait keeps the EG-007 sizing: a 402 pt iPhone column gives the 3x3 cap.
@@ -1606,6 +1666,7 @@ internal static class Program
             RepeatedMemoryTests();
             HubRecallTests();
             BoardFitTests();
+            GardenCatalogTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
