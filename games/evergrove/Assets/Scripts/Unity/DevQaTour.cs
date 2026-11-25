@@ -151,6 +151,13 @@ namespace Evergrove.UnityClient
                     SavePng("10c-journal-page.png");
                     Press("Back to the book");
                     for (int f = 0; f < 4; f++) yield return null;
+                    // The almanac tab (I174), then back to the pages.
+                    Press("Almanac");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("10d-almanac.png");
+                    Press("Our pages");
+                    for (int f = 0; f < 4; f++) yield return null;
                     Press("Memories"); // close it before the rest of the run
                     for (int f = 0; f < 4; f++) yield return null;
                 }

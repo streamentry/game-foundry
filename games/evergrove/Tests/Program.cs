@@ -1518,6 +1518,85 @@ internal static class Program
         Expect(threw, "chapter 13 is out of range");
     }
 
+    // E2 / I174: the almanac remembers every item ever made, across gardens.
+    private static void AlmanacTests()
+    {
+        Almanac empty = Almanac.Parse(null);
+        Expect(empty.Count == 0 && empty.Serialize() == "", "empty almanac");
+        Almanac junk = Almanac.Parse("tree-07, ,banana,tree-50,build-99,flower-xx,tree-7,build-03,build-03");
+        Expect(junk.Count == 3, "junk and out-of-range keys are ignored, duplicates merged");
+        Expect(junk.Serialize() == "build-03,build-99,tree-07", "stable sorted text");
+        Expect(Almanac.Parse(junk.Serialize()).Serialize() == junk.Serialize(), "round trip");
+        var almanac = new Almanac();
+        GardenItem quince = GardenCatalog.Get(VillageChoice.ShadeTree, 4);
+        Expect(almanac.Add(quince), "a new item is new");
+        Expect(!almanac.Add(quince), "the same item twice is not new");
+        Expect(almanac.Has(quince) && almanac.CountOf(VillageChoice.ShadeTree) == 1 && almanac.CountOf(VillageChoice.Bridge) == 0,
+            "family counts");
+        Expect(!almanac.Add(null), "null is not added");
+        // A full catalogue round-trips and counts 200.
+        var full = new Almanac();
+        foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Bridge, VillageChoice.Flowers })
+            for (int i = 0; i < GardenCatalog.CountOf(family); i++) full.Add(GardenCatalog.Get(family, i));
+        Expect(full.Count == GardenCatalog.Total, "every item can be found");
+        Expect(Almanac.Parse(full.Serialize()).Count == GardenCatalog.Total, "full almanac round trip");
+        Expect(Almanac.IsItemKey("flower-49") && !Almanac.IsItemKey("flower-50") && !Almanac.IsItemKey("build-100"), "key ranges");
+    }
+
+    // E3 / I175: the open garden map's grid, free land and default layout.
+    private static void GardenMapTests()
+    {
+        string mask =
+            "...~......" +
+            "...~....##" +
+            "....~...##" +
+            "....~....." +
+            ".....~...." +
+            ".....~...." +
+            "....~....." +
+            "...~......";
+        var map = new GardenMap(10, 8, mask);
+        Expect(map.CellCount == 80 && map.IsLand(0) && !map.IsLand(3) && !map.IsLand(18), "mask parsed");
+        Expect(map.At(3) == GardenMap.Water && map.At(18) == GardenMap.Built, "water and built cells");
+        Expect(!map.IsLand(-1) && !map.IsLand(80), "outside is not land");
+        Expect(map.DistanceToWater(2) == 1 && map.DistanceToWater(3) == 0, "distance to water");
+        bool threw = false;
+        try { new GardenMap(10, 8, "..."); } catch (ArgumentException) { threw = true; }
+        Expect(threw, "a mask of the wrong size is refused");
+        // Twelve choices of every family fit, on land, never stacked, deterministic.
+        int[] choices = { 0, 1, 2, 1, 0, 2, 2, 1, 0, 1, 2, 0 };
+        int[] layout = map.Layout(choices, null);
+        Expect(layout.Length == 12, "one cell per choice");
+        var used = new HashSet<int>();
+        for (int i = 0; i < layout.Length; i++)
+        {
+            Expect(map.IsLand(layout[i]), "item " + i + " stands on land");
+            Expect(used.Add(layout[i]), "no two items share a cell");
+        }
+        int[] again = map.Layout(choices, null);
+        for (int i = 0; i < layout.Length; i++) Expect(again[i] == layout[i], "layout is deterministic");
+        // Builds sit closer to the creek than trees on average.
+        int buildWater = 0, treeWater = 0, builds = 0, trees = 0;
+        for (int i = 0; i < choices.Length; i++)
+        {
+            if (choices[i] == 1) { buildWater += map.DistanceToWater(layout[i]); builds++; }
+            if (choices[i] == 0) { treeWater += map.DistanceToWater(layout[i]); trees++; }
+        }
+        Expect(buildWater * trees < treeWater * builds, "builds by the water, trees further out");
+        // A player's own valid spot is kept; an invalid or taken one falls back.
+        int[] placed = { 79, 3, 79 };
+        int[] kept = map.Layout(new[] { 0, 1, 2 }, placed);
+        Expect(kept[0] == 79, "a valid placement is kept");
+        Expect(map.IsLand(kept[1]) && kept[1] != 3, "water placement falls back to land");
+        Expect(kept[2] != 79 && map.IsLand(kept[2]), "a taken cell falls back");
+        Expect(map.CanPlace(kept, 0) == (Array.IndexOf(kept, 0) < 0), "can place on free land");
+        Expect(!map.CanPlace(kept, 79) && map.CanPlace(kept, 79, 0), "moving an item may keep its own cell");
+        // A full map reports -1 rather than stacking.
+        var tiny = new GardenMap(2, 1, "..");
+        int[] crowded = tiny.Layout(new[] { 0, 1, 2 }, null);
+        Expect(crowded[0] >= 0 && crowded[1] >= 0 && crowded[2] == -1, "no free cell gives -1");
+    }
+
     private static void BoardFitTests()
     {
         // Portrait keeps the EG-007 sizing: a 402 pt iPhone column gives the 3x3 cap.
@@ -1667,6 +1746,8 @@ internal static class Program
             HubRecallTests();
             BoardFitTests();
             GardenCatalogTests();
+            AlmanacTests();
+            GardenMapTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
