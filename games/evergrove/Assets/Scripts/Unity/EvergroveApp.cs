@@ -3705,6 +3705,9 @@ namespace Evergrove.UnityClient
                 if (keeper != null)
                     MosseloraArt.Ornament(picture.transform, "Who will remember", keeper, new Vector2(1f, 0f),
                         new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(4f, -6f));
+                // And what it leaves in the next stream: the same framed tile the
+                // player will meet on the next board, in miniature (I134).
+                NextStreamTile(picture.transform, choice);
             }
             if (wide)
             {
@@ -3728,6 +3731,36 @@ namespace Evergrove.UnityClient
                 LocalizedVillage.Choice(choice) + "\n" + LocalizedVillage.ChoiceOutcome(choice, world),
                 14, 0, new Color(0f, 0f, 0f, 0f), align);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
+        }
+
+        // A miniature of the protected landmark tile this choice roots in the next
+        // stream: bark frame, a dry channel and the choice's painting in its corner.
+        private void NextStreamTile(Transform picture, VillageChoice choice)
+        {
+            if (world.Round + 1 >= PuzzleCatalog.Count) return; // no next stream to change
+            var tile = Node("Leaves in the next stream", picture);
+            tile.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = tile.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.sizeDelta = new Vector2(38f, 38f);
+            rect.anchoredPosition = new Vector2(-2f, 6f);
+            var body = tile.AddComponent<Image>();
+            MosseloraArt.Round(body, MosseloraTheme.AnchoredTile, 7);
+            body.raycastTarget = false;
+            MosseloraArt.Lift(body, 1.5f, 0.22f);
+            var frame = Node("Landmark frame", tile.transform);
+            Fill(frame.GetComponent<RectTransform>());
+            frame.AddComponent<LandmarkGraphic>().Configure((int)choice + 1);
+            var channel = Node("Channel", tile.transform);
+            Fill(channel.GetComponent<RectTransform>());
+            var pipe = channel.AddComponent<PipeGraphic>();
+            pipe.Configure(PipeKind.Straight, 1, false, false, 0); // dry, as the player will first see it
+            pipe.raycastTarget = false;
+            Sprite holder = MosseloraArt.ChoiceIcon(choice);
+            if (holder != null)
+                MosseloraArt.Ornament(tile.transform, "Rooted by", holder, new Vector2(0f, 1f),
+                    new Vector2(0f, 1f), new Vector2(18f, 18f), new Vector2(1f, -1f));
         }
 
         // Compact settings row below the primary content of puzzle and post-choice
