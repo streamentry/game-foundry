@@ -3419,10 +3419,11 @@ namespace Evergrove.UnityClient
                 // Same bottom-left slot as the board's undo, so it never moves (I79).
                 Transform revisitRow = CenteredRow("Revisit row");
                 revisitRow.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
+                // A round token like the board's own Undo (I132).
                 Button revisit = IconButton(revisitRow, "Revisit water",
                     GameLocalization.Text("undo_last"), MosseloraArt.IconUndo,
-                    () => Act(() => world.Undo(), "undo"), 48, MosseloraTheme.QuietAction);
-                Width(revisit, 84);
+                    () => Act(() => world.Undo(), "undo"), 64, MosseloraTheme.QuietAction,
+                    false, null, false, 0, 0, true);
                 revisit.interactable = world.CanUndo;
             }
             else
