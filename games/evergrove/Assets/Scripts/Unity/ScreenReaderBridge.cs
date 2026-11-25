@@ -160,6 +160,9 @@ namespace Evergrove.UnityClient
                 Transform child = parent.GetChild(i);
                 if (!child.gameObject.activeInHierarchy) continue;
                 if (skip != null && child == skip) continue;
+                // Faded out in place (a spent tip keeps its space, I131): not read.
+                var group = child.GetComponent<CanvasGroup>();
+                if (group != null && group.alpha < 0.01f && !group.blocksRaycasts) continue;
                 var button = child.GetComponent<Button>();
                 if (button != null)
                 {

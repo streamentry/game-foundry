@@ -1858,6 +1858,22 @@ namespace Evergrove.UnityClient
             if (pageFade != null) pageFade.alpha = 1f;
         }
 
+        private IEnumerator FadeAway(GameObject node)
+        {
+            var fade = node.GetComponent<CanvasGroup>();
+            if (fade == null) fade = node.AddComponent<CanvasGroup>();
+            fade.blocksRaycasts = false;
+            fade.interactable = false;
+            float from = fade.alpha;
+            for (float t = 0f; gentleMotion && t < 1f; t += Time.unscaledDeltaTime / 0.35f)
+            {
+                if (fade == null) yield break;
+                fade.alpha = Mathf.Lerp(from, 0f, Mathf.SmoothStep(0f, 1f, t));
+                yield return null;
+            }
+            if (fade != null) fade.alpha = 0f;
+        }
+
         // The neighbor's card rises a few points and fades in, like a word said.
         private IEnumerator RiseIn(RectTransform card)
         {
@@ -4150,7 +4166,9 @@ namespace Evergrove.UnityClient
             semanticsDirty = true;
             UpdateCreekSound();
             // The first move is the lesson learned: the bubble steps aside.
-            if (coachBubble != null && world.CanUndo) { coachBubble.SetActive(false); coachBubble = null; }
+            // It fades where it stands and keeps its space, so the board never jumps
+            // under the player's finger on their very first move (I131).
+            if (coachBubble != null && world.CanUndo) { StartCoroutine(FadeAway(coachBubble)); coachBubble = null; }
             if (goalGlows.Count > 0 && world.CanUndo)
             {
                 foreach (GameObject glow in goalGlows) if (glow != null) glow.SetActive(false);
