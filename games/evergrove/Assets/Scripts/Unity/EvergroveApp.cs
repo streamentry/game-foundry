@@ -3938,17 +3938,10 @@ namespace Evergrove.UnityClient
                         ChoiceCard(cards, choice, () => SettleChoice(cards, choice), stacked);
                     }
                 }
-                // Second thoughts live after the decision, not between the payoff
-                // line and the choices, where a lone back-arrow read as "go back".
-                // Same bottom-left slot as the board's undo, so it never moves (I79).
-                Transform revisitRow = CenteredRow("Revisit row");
-                revisitRow.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
-                // A round token like the board's own Undo (I132).
-                Button revisit = IconButton(revisitRow, "Revisit water",
-                    GameLocalization.Text("undo_last"), MosseloraArt.IconUndo,
-                    () => Act(() => world.Undo(), "undo"), 64, MosseloraTheme.QuietAction,
-                    false, null, false, 0, 0, true);
-                revisit.interactable = world.CanUndo;
+                // No "revisit the water" token here any more (I169): once the stream
+                // runs, the only decision is what to grow. A cold read took the round
+                // undo arrow for "cancel the choice", and second thoughts about the
+                // choice itself already live on the memory card ("change my choice").
             }
             else
             {
