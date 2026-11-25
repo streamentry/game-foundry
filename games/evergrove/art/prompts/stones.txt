@@ -1,0 +1,13 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING garden-bed art of this game: match its hand-painted watercolour storybook style exactly (soft mossy stones, warm natural light, gentle outlines, no hard vector edges). Generate exactly ONE image.
+Use case: game UI sprite sheet
+Asset type: five small painted stepping stones for a progress path across a creek, sliced from a single row of five equal square cells
+Primary request: 1 row x 5 columns, each stone centred in its own square cell, the stone filling ~80% of the cell, seen from slightly above, flat-bottomed oval river stones, all the same size and shape family:
+ cell 1: a summer stone, grey with fresh green moss on top;
+ cell 2: an autumn stone, grey-brown with a single small amber leaf resting on it;
+ cell 3: a winter stone, blue-grey with a light dusting of frost on top;
+ cell 4: a WET walked stone, darker slate with a glossy sheen and small blue-teal water ripples around its base;
+ cell 5: the "you are here" stone, warm sunlit grey with a tiny two-leaf green sprout growing from its top centre.
+Each stone must read clearly at 18 pixels wide: strong simple silhouette, clear value contrast against a cream paper background, no fine detail that disappears when small.
+Background: fully TRANSPARENT (alpha) around every stone. Wide image, 1536x320 or similar 5:1 ratio.
+Constraints: no text, no letters, no numbers, no watermark, no shadows extending outside the cell.
+Copy the final PNG to games/evergrove/art/generated/stones.png and print the path. Do nothing else.
