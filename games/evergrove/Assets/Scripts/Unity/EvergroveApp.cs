@@ -67,7 +67,9 @@ namespace Evergrove.UnityClient
         // The neighbor's speech floats over the page (I127), so talking never
         // scrolls the board away or pushes the header off screen.
         private GameObject neighborLayer;
-        private GameObject pinnedActions; // the memory card's actions, held at the screen's foot (I164)
+        private GameObject pinnedActions;
+        private Image creekWater; // the flowing creek over the dry one, as full as the board (I167)
+        private float creekShown; // the memory card's actions, held at the screen's foot (I164)
         private int neighborShown = -1;
         private bool confirmReset;
         private bool soundOn;
@@ -1856,6 +1858,23 @@ namespace Evergrove.UnityClient
             var fit = art.AddComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
             fit.aspectRatio = MosseloraArt.Aspect(creek);
+            // The creek fills as the board does (I167): the flowing painting lies
+            // over the dry one, as opaque as the share of tiles the water reaches.
+            creekWater = null;
+            Sprite flowing = world.Solved ? null : MosseloraArt.Load(prefix + "flowing");
+            if (flowing != null)
+            {
+                var water = Node("Creek water", window.transform);
+                Fill(water.GetComponent<RectTransform>());
+                creekWater = water.AddComponent<Image>();
+                creekWater.sprite = flowing;
+                creekWater.raycastTarget = false;
+                var waterFit = water.AddComponent<AspectRatioFitter>();
+                waterFit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                waterFit.aspectRatio = MosseloraArt.Aspect(flowing);
+                creekShown = CreekShare();
+                creekWater.color = new Color(1f, 1f, 1f, 0.55f * creekShown);
+            }
             // Soft top and bottom: the painting melts into the paper instead of
             // ending in a ruled line (I111).
             Sprite fade = MosseloraArt.TopFade();
@@ -1875,6 +1894,30 @@ namespace Evergrove.UnityClient
                 meltImage.raycastTarget = false;
             }
             window.transform.SetAsFirstSibling(); // under the stone bed and the tiles
+        }
+
+        private float CreekShare()
+        {
+            Puzzle puzzle = world.CurrentPuzzle;
+            return puzzle.CellCount > 0 ? (float)world.Insight.ConnectedCount / puzzle.CellCount : 0f;
+        }
+
+        // Eases the creek's water toward the board's share (gentle motion), or sets it.
+        private IEnumerator FillCreek(Image water, float target)
+        {
+            float from = creekShown;
+            creekShown = target;
+            bool animate = gentleMotion;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) animate = false;
+#endif
+            for (float t = 0f; animate && t < 1f; t += Time.unscaledDeltaTime / 0.8f)
+            {
+                if (water == null || water != creekWater) yield break;
+                water.color = new Color(1f, 1f, 1f, 0.55f * Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t)));
+                yield return null;
+            }
+            if (water != null) water.color = new Color(1f, 1f, 1f, 0.55f * target);
         }
 
         // A sheet's close button lives in a fixed band above its scrolling
@@ -4771,6 +4814,11 @@ namespace Evergrove.UnityClient
                 if (delay > 0f) StartCoroutine(WetLater(i, delay));
             }
             PaintDropsWithFlights(puzzle, insight, arrive);
+            if (creekWater != null && !world.Solved)
+            {
+                float share = CreekShare();
+                if (!Mathf.Approximately(share, creekShown)) StartCoroutine(FillCreek(creekWater, share));
+            }
             lastFlowing = (bool[])insight.Flowing.Clone();
             if (feedbackText != null)
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
