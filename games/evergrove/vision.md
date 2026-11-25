@@ -56,8 +56,8 @@ The player count counts only if the first two goals are kept.
 
 1. **Cooperative only.** No head-to-head scores, rankings, timers or "who solved it faster". Everyone helps the same garden.
 2. **Any hand can help.** Large tiles, undo and no penalty for wrong taps, so a six-year-old or a shaky hand can't break anything. Big-board mode and undo already exist.
-3. **One device is enough.** Side-by-side play on one phone or tablet comes first. It needs no account, no server and no data about children.
-4. **No strangers and no chat.** Connection stays within people who already know each other. Anything that links devices goes through the §4.4 rungs and their identity, safety and moderation decisions.
+3. **Offline alone is always complete.** Anyone can play the whole game alone and offline, with no account. Side-by-side play on one device also needs no account.
+4. **Families far apart can opt in to connect (founder direction, 2026-11-25).** Family members who live apart can play together through a backend and a **simple, optional sign-up**. Signing up is only for connecting; it never gates the solo game. Connection is family-only by invitation: no strangers, no public profiles, no open chat.
 5. **No obligation.** No "your grandchild is waiting", no guilt when someone stops playing, no reciprocity pressure. Absence is never punished ([product spec](docs/specs/01-PRODUCT-AND-EXPERIENCE.md)).
 6. **Respect every age.** Copy and art speak to adults as adults and to children without baby talk. Nothing should signal "senior" or "kiddie".
 
@@ -69,7 +69,19 @@ The player count counts only if the first two goals are kept.
 | **Take-turns hand-off** | A gentle "Your turn, Nana" moment between boards; each player's name is kept locally | Paper prototype in the family session, then a build test | Groups ignore it or find the hand-off awkward |
 | **"Who chose this?" in the garden** | The village and journal remember which family member made each choice | Same groups: recall a choice and who made it a week later | No group mentions it unprompted |
 | **Garden postcard to family** (EG-203) | Send a picture of today's garden to someone who isn't in the room | Share-card funnel: sent → opened → replied or played | Postcards are sent but not opened, or never sent |
-| **Puzzle a grandchild can send** (friend codes, §4.4 rung 2) | Play apart, across distance | Only after the first three pass | Codes go unplayed |
+| **Puzzle a grandchild can send** (friend codes, §4.4 rung 2) | Play apart, across distance, still with no account | Only after the first three pass | Codes go unplayed |
+| **Family circle (backend + simple sign-up)** | Family members far apart join one private circle by invitation, tend a shared garden in turns, and see who chose what | Before building: a fake-door or concierge test (families trade puzzle codes by message for two weeks) to see whether they keep playing apart | Most families stop within a week, or sign-up loses most people before they connect |
+
+### Family circle: requirements before any backend is built
+
+The current backend is a demo with a bearer token and is "not a production identity system" ([backend README](backend/README.md)). A family circle needs, at minimum:
+
+- **Simple sign-up for adults only:** email link or Sign in with Apple / Google, display name only. If any third-party sign-in is offered on iOS, Apple's login-service rule applies.
+- **Children join through a family adult**, as a profile the adult manages, with no child email, password or contact data. Collecting anything from a child under 13 triggers COPPA verifiable parental consent; the design goal is to collect nothing.
+- **In-app account deletion** (an Apple requirement for apps with sign-up), data export, and a privacy policy and Data safety form that match the real data flows.
+- **Invite-only circles** with a small size limit, adult-controlled removal, and no discovery of strangers. Any free-text message needs its own safety decision; preset reactions come first.
+- **Asynchronous, turn-based play first.** Real-time play adds cost and pressure; it isn't needed for gentle play.
+- **A cost model and an outage rule:** if the server is down, the solo game and each player's local garden still work.
 
 ### What we must not claim
 
@@ -240,7 +252,8 @@ These need a new decision record before any work starts:
 
 | Vision element | Current rule | Source |
 | --- | --- | --- |
-| Family co-play features (take-turns hand-off, named family choices, family postcards) | Not in the backlog. Same-device play needs no backend, but "multiplayer" is not authorized and children are not a declared store audience | [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md), [store metadata](../../store/metadata/evergrove/en-US.json) |
+| Family co-play features (take-turns hand-off, named family choices, family postcards) | Not in the backlog. Same-device play needs no backend, but "multiplayer" is not authorized and children are not a declared store audience |
+| Family circle with backend and optional sign-up | Backend, accounts and multiplayer not authorized; store listings declare no account and no data collection | [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md), [backend](backend/README.md), [store metadata](../../store/metadata/evergrove/en-US.json) | [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md), [store metadata](../../store/metadata/evergrove/en-US.json) |
 | The Commons / gifting between players | Trading, social economy and UGC marketplace on the reject list; backend and multiplayer not authorized | [02 backlog](docs/specs/02-FEATURE-BACKLOG.md), [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md) |
 | Optional cloud sync | Not to be added "merely to make the world appear alive"; backend is a detached demo | [04 world spec](docs/specs/04-WORLD-AND-NARRATIVE.md), [backend](backend/README.md) |
 | Generative AI phrasing | Runtime LLM not authorized | [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md) |
