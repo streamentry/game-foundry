@@ -4,7 +4,7 @@ This is a handoff of account-owner actions, not a completed legal review. No dec
 
 ## Apple App Store Connect
 
-Last recorded version state: app `6838015597`, version 1.0, build 2 attached, automatic release after review selected. Build 2 predates current source and was not submitted. The resumed Browser tab list shows an App Store Connect login URL with `authResult=FAILED`; `requestUserTakeover()` was invoked and no account response was entered.
+The first resumed Browser check showed an App Store Connect login URL with `authResult=FAILED`; `requestUserTakeover()` was invoked and no account response was entered. A later authenticated Browser session read the current version and availability state below. Build 2 predates current source and remains unsubmitted.
 
 Latest Browser readback confirms the Apple record is still `Prepare for Submission`, build 2 remains attached, automatic release is selected, and App Privacy / Privacy Policy URL remain unset. App Availability is now United States only, effective on app release. China Mainland is excluded; App Compliance still shows two China-specific items as missing. Apple also identifies the developer as a trader in its DSA section. This handoff does not change or complete any of those legal declarations.
 
