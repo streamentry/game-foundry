@@ -3581,9 +3581,34 @@ namespace Evergrove.UnityClient
             {
                 LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)meter);
                 float wanted = LayoutUtility.GetPreferredWidth((RectTransform)meter);
-                // A 4x4 board's sixteen drops shrink a little (to 70% at most) to fit.
+                // A big board's drops stack in two rows at full size between the
+                // tokens, instead of one shrunken row (I139: 16 drops were ~11pt).
+                if (wanted > room && waterDrops.Length > 9 && waterDrops[0].sprite != null)
+                {
+                    int columns = Mathf.CeilToInt(waterDrops.Length / 2f);
+                    float dropHeight = 22f;
+                    float dropWidth = Mathf.Round(dropHeight * MosseloraArt.Aspect(waterDrops[0].sprite));
+                    float gapX = 4f, gapY = 4f;
+                    float gridWidth = columns * dropWidth + (columns - 1) * gapX;
+                    if (gridWidth <= room)
+                    {
+                        DestroyImmediate(meter.GetComponent<HorizontalLayoutGroup>());
+                        var stack = meter.gameObject.AddComponent<GridLayoutGroup>();
+                        stack.cellSize = new Vector2(dropWidth, dropHeight);
+                        stack.spacing = new Vector2(gapX, gapY);
+                        stack.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                        stack.constraintCount = columns;
+                        stack.childAlignment = TextAnchor.MiddleCenter;
+                        var stackLayout = meter.GetComponent<LayoutElement>();
+                        if (stackLayout == null) stackLayout = meter.gameObject.AddComponent<LayoutElement>();
+                        stackLayout.minWidth = stackLayout.preferredWidth = gridWidth;
+                        stackLayout.minHeight = stackLayout.preferredHeight = 2f * dropHeight + gapY;
+                        wanted = gridWidth;
+                    }
+                }
+                // Otherwise a 4x4 board's sixteen drops shrink a little (to 70% at most) to fit.
                 float shrink = wanted > room ? room / wanted : 1f;
-                if (shrink >= 0.7f && shrink < 1f)
+                if (shrink >= 0.7f && shrink < 1f && meter.GetComponent<HorizontalLayoutGroup>() != null)
                 {
                     foreach (Image drop in waterDrops)
                     {
