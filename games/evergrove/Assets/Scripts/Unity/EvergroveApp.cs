@@ -17,7 +17,7 @@ namespace Evergrove.UnityClient
     /// UI is generated from code so no proprietary assets or prefab machinery
     /// are required for the playable research slice.
     /// </summary>
-    public sealed class EvergroveApp : MonoBehaviour
+    public sealed partial class EvergroveApp : MonoBehaviour
     {
         private static readonly Color Paper = MosseloraTheme.Paper;
         private static readonly Color Ink = MosseloraTheme.Ink;
@@ -126,6 +126,7 @@ namespace Evergrove.UnityClient
         private static readonly bool srLogEveryScreen = DevArgs.Read("-mosseloraSrLog") == "1";
 #endif
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
+        private RectTransform decisionCards;
         private RectTransform solvedBoard;     // the board whose payoff the decision glide keeps whole
         private int hintTurnedTile = -1;       // the tile the third hint just turned
         private readonly System.Collections.Generic.List<GameObject> hintMarkers =
@@ -2912,6 +2913,8 @@ namespace Evergrove.UnityClient
         private void Rebuild(bool top = false)
         {
             rebuildGeneration++;
+            RefreshChoicePreview();
+            choicePreviewPanel = null;
             RuleToast.Dismiss();
             if (content == null) { celebrateSolve = false; return; }
             semanticsDirty = true;
@@ -2930,6 +2933,7 @@ namespace Evergrove.UnityClient
             waterDrops = null;
             undoButton = null;
             decisionHeading = null;
+            decisionCards = null;
             solvedBoard = null;
             screenHeading = null;
             if (neighborLayer != null)
@@ -3261,8 +3265,12 @@ namespace Evergrove.UnityClient
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
             if (menuOpen) FitSheetToPages(menuSheet, menuContent);
             else if (showJournal) FitSheetToPages(journalSheet, journalContent);
-            if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
+            if (revealChoicePreview && choicePreviewPanel != null) RevealChoicePreview();
+            else if (revealChoices && decisionHeading != null) RevealChoices();
+            else if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
             else scroll.verticalNormalizedPosition = top ? 1f : previousPosition;
+            revealChoicePreview = false;
+            revealChoices = false;
             revealNewScreen = false;
         }
 
@@ -3755,6 +3763,8 @@ namespace Evergrove.UnityClient
                         24, 56, Ink, TextAnchor.MiddleCenter);
                     Emphasize(chooseTitle);
                     decisionHeading = chooseTitle.rectTransform;
+                    Label(content, "Choice preview help", GameLocalization.Text("preview_help"),
+                        16, 0, Ink, TextAnchor.MiddleCenter);
                     // Three tall painted cards side by side, like cards on a table.
                     // With larger text they stack as wide cards so no word breaks.
                     bool stacked = TextScale.Percent > 100;
@@ -3776,14 +3786,16 @@ namespace Evergrove.UnityClient
                         choiceGroup.childForceExpandHeight = true;
                         choiceGroup.childAlignment = TextAnchor.UpperCenter;
                     }
+                    decisionCards = choiceRow.GetComponent<RectTransform>();
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
                         VillageChoice choice = (VillageChoice)choiceIndex;
                         // None is visually preselected. A golden default would
                         // bias research toward the first habitat, not player care.
                         Transform cards = choiceRow.transform;
-                        ChoiceCard(cards, choice, () => SettleChoice(cards, choice), stacked);
+                        ChoiceCard(cards, choice, () => PreviewChoice(choice), stacked);
                     }
+                    BuildChoicePreview(choiceRow.transform);
                 }
                 // Second thoughts live after the decision, not between the payoff
                 // line and the choices, where a lone back-arrow read as "go back".
@@ -4080,9 +4092,10 @@ namespace Evergrove.UnityClient
             MinHeight(node, wide ? 96 : TextScale.Scale(150));
             var image = node.AddComponent<Image>();
             MosseloraArt.PaperTile(image, 18);
-            image.color = MosseloraTheme.CardFill;
+            bool selected = choicePreview != null && choicePreview.Choice == choice;
+            image.color = selected ? MosseloraTheme.LeafSoft : MosseloraTheme.CardFill;
             MosseloraArt.Lift(image, 3f, 0.16f);
-            MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
+            MosseloraArt.Edge(node.transform, selected ? MosseloraTheme.LeafAction : MosseloraTheme.CardEdge, 18);
             var button = node.AddComponent<Button>();
             button.targetGraphic = image;
             button.colors = PressTint();
@@ -4134,20 +4147,30 @@ namespace Evergrove.UnityClient
             TextAnchor align = wide ? TextAnchor.MiddleLeft : TextAnchor.UpperCenter;
             Text title = Label(words, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink, align);
             Emphasize(title);
-            // Picture first: the painting, the keeper and the name say it; the
-            // consequence is spoken (and shown on the memory screen that follows).
-            // A hidden "Caption" gives screen readers the full choice.
+            // The selected card has a shape cue as well as a tint. The full
+            // consequence is visible in the preview below before any commit.
+            if (selected)
+                Label(words, "Selected choice marker", "\u2713", 18, 22, Ink, align);
+            VillageChoicePreview candidate;
+            string outcome = VillageChoicePreview.TryCreate(world, choice, out candidate)
+                ? LocalizedVillage.Consequence(candidate.WorldAfter)
+                : LocalizedVillage.ChoiceOutcome(choice, world);
             Text spoken = Label(node.transform, "Caption",
-                LocalizedVillage.Choice(choice) + "\n" + LocalizedVillage.ChoiceOutcome(choice, world),
+                GameLocalization.Text("preview_title") + ": " + LocalizedVillage.Choice(choice) + "\n" + outcome,
                 14, 0, new Color(0f, 0f, 0f, 0f), align);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
         }
 
         // A miniature of the protected landmark tile this choice roots in the next
-        // stream: bark frame, a dry channel and the choice's painting in its corner.
+        // stream: bark frame, its actual channel and the choice's painting in its corner.
         private void NextStreamTile(Transform picture, VillageChoice choice)
         {
-            if (world.Round + 1 >= PuzzleCatalog.Count) return; // no next stream to change
+            VillageChoicePreview preview;
+            if (!VillageChoicePreview.TryCreate(world, choice, out preview) || preview.NextPuzzle == null)
+                return; // the final choice has no next stream
+            Puzzle next = preview.NextPuzzle;
+            int anchor = next.AnchoredTile;
+            if (anchor < 0) return;
             var tile = Node("Leaves in the next stream", picture);
             tile.AddComponent<LayoutElement>().ignoreLayout = true;
             var rect = tile.GetComponent<RectTransform>();
@@ -4165,7 +4188,8 @@ namespace Evergrove.UnityClient
             var channel = Node("Channel", tile.transform);
             Fill(channel.GetComponent<RectTransform>());
             var pipe = channel.AddComponent<PipeGraphic>();
-            pipe.Configure(PipeKind.Straight, 1, false, false, 0); // dry, as the player will first see it
+            pipe.Configure(next.Kinds[anchor], next.Initial[anchor],
+                preview.WorldAfter.Insight.Flowing[anchor], false, OpenPorts(next, next.Initial, anchor));
             pipe.raycastTarget = false;
             Sprite holder = MosseloraArt.ChoiceIcon(choice);
             if (holder != null)
@@ -4820,11 +4844,10 @@ namespace Evergrove.UnityClient
             // Better: the whole finished creek above all three choices, so the
             // board is never cut in half under the menu button (I74). Only when
             // both fit on this screen; larger text keeps the heading anchor.
-            int cardsIndex = decisionHeading.GetSiblingIndex() + 1;
-            if (solvedBoard != null && cardsIndex < content.childCount)
+            if (solvedBoard != null && decisionCards != null)
             {
                 float boardTop = DepthInContent(solvedBoard, true) - 10f; // painted bed overhang
-                float cardsBottom = DepthInContent((RectTransform)content.GetChild(cardsIndex), false);
+                float cardsBottom = DepthInContent(decisionCards, false);
                 float boardFirst = boardTop - ChromeClearance() - 6f;
                 if (cardsBottom - boardFirst <= scroll.viewport.rect.height - 8f)
                     stopAt = boardFirst;
@@ -4923,6 +4946,7 @@ namespace Evergrove.UnityClient
         private void MakeChoice(VillageChoice choice)
         {
             if (!world.Choose(choice)) return;
+            ClearChoicePreview();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Choose(Time.unscaledTime);
 #endif

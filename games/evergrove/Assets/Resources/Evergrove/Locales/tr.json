@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen, kır çiçeklerinin arasında arıların peşinden gidiyor."
+    },
+    {
+      "key": "preview_title",
+      "value": "Seçmeden önce"
+    },
+    {
+      "key": "preview_help",
+      "value": "Karşılaştırmak için bir karta dokun. Bahçen yalnızca onayladığında değişir."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Bu değişikliği uygula"
     }
   ]
 }

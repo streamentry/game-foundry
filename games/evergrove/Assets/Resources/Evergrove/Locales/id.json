@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen mengikuti lebah di sepanjang bunga liarmu."
+    },
+    {
+      "key": "preview_title",
+      "value": "Sebelum memilih"
+    },
+    {
+      "key": "preview_help",
+      "value": "Ketuk kartu untuk membandingkan. Kebunmu hanya berubah setelah kamu mengonfirmasi."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Terapkan perubahan ini"
     }
   ]
 }

@@ -195,10 +195,15 @@ namespace Evergrove.UnityClient
             }
             var rect = button.GetComponent<RectTransform>();
             return new SemanticNode(label, hint, AccessibilityRole.Button,
-                button.interactable ? AccessibilityState.None : AccessibilityState.Disabled,
+                button.isActiveAndEnabled && button.IsInteractable()
+                    ? AccessibilityState.None : AccessibilityState.Disabled,
                 rect, camera, () => {
                     // Same listener path as a pointer tap, so rules and saves are shared.
-                    if (button != null && button.interactable) button.onClick.Invoke();
+                    // A published node can outlive its page until the next hierarchy
+                    // refresh. Reject hidden/deferred-destroyed controls and respect
+                    // CanvasGroup interaction locks, including a settling choice.
+                    if (button != null && button.isActiveAndEnabled && button.IsInteractable())
+                        button.onClick.Invoke();
                 });
         }
 
@@ -222,6 +227,8 @@ namespace Evergrove.UnityClient
                 case "Title":
                 case "Chapter":
                 case "Choose title":
+                case "Choice preview heading":
+                case "Next stream preview heading":
                 case "Ending title":
                 case "Moment title":
                 case "Journal title":

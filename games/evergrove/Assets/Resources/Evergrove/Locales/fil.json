@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "Sinusundan ni Fen ang mga bubuyog sa iyong mga ligaw na bulaklak."
+    },
+    {
+      "key": "preview_title",
+      "value": "Bago pumili"
+    },
+    {
+      "key": "preview_help",
+      "value": "I-tap ang card para maghambing. Magbabago lang ang hardin kapag kinumpirma mo."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Gawin ang pagbabagong ito"
     }
   ]
 }

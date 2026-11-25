@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "芬沿著你的野花追隨蜜蜂。"
+    },
+    {
+      "key": "preview_title",
+      "value": "選擇之前"
+    },
+    {
+      "key": "preview_help",
+      "value": "輕點卡片進行比較。確認後，花園才會改變。"
+    },
+    {
+      "key": "preview_apply",
+      "value": "確認這個改變"
     }
   ]
 }

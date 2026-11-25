@@ -123,7 +123,7 @@ localization_source = (game / "Assets" / "Scripts" / "Core" / "GameLocalization.
 ids_block = re.search(r"private static readonly string\[\] Ids = \{([\s\S]*?)\};", localization_source)
 assert ids_block, "canonical translation IDs not found"
 keys = re.findall(r'"([^"]+)"', ids_block.group(1))
-assert len(keys) == 121 and len(keys) == len(set(keys)), "canonical locale key set drifted"
+assert len(keys) == 124 and len(keys) == len(set(keys)), "canonical locale key set drifted"
 bundle_dir = game / "Assets" / "Resources" / "Evergrove" / "Locales"
 supported = {
     "zh-Hans", "zh-Hant", "es", "pt-BR", "fr", "de", "ja", "ko", "ar",

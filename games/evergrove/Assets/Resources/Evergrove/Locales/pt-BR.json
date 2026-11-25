@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen segue as abelhas entre suas flores silvestres."
+    },
+    {
+      "key": "preview_title",
+      "value": "Antes de escolher"
+    },
+    {
+      "key": "preview_help",
+      "value": "Toque em uma carta para comparar. Seu jardim só muda quando você confirma."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Fazer esta mudança"
     }
   ]
 }
