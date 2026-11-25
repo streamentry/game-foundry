@@ -1862,6 +1862,7 @@ namespace Evergrove.UnityClient
             int[] layout = map.Layout(world.Choices, world.Placements);
             if (!map.CanPlace(layout, cell, target)) return; // water, the cottage, or taken: it stays in hand
             if (!world.PlaceAt(target, cell)) return;
+            PlayerPrefs.SetInt(PlacedOnceKey, 1);
             SaveWorld();
             mapInHand = -1;
             PlayTock();
@@ -1898,7 +1899,60 @@ namespace Evergrove.UnityClient
                 OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
                 animate ? GreenedShare(1) : -1f,
                 memoryScreen ? null : (land, point) => NeighborsOnMap(land, point, map, false));
+            int held = ItemInHand();
+            if (held >= 0 && PlayerPrefs.GetInt(PlacedOnceKey, 0) == 0) PlaceTip(window.transform, held);
             return true;
+        }
+
+        // Until a player has put something down once, the map says how (I182): a
+        // cold read pressed the arrow and never found that the birch could move.
+        private const string PlacedOnceKey = "evergrove:placed-once";
+
+        private void PlaceTip(Transform window, int held)
+        {
+            GardenItem item = ItemAt(held, world.Choices[held]);
+            var tip = Node("How to place", window);
+            tip.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = tip.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.offsetMin = new Vector2(12f, 10f);
+            rect.offsetMax = new Vector2(-12f, 10f);
+            var body = tip.AddComponent<Image>();
+            MosseloraArt.Round(body, MosseloraTheme.CardFill, 16);
+            body.raycastTarget = false;
+            MosseloraArt.Lift(body, 3f, 0.25f);
+            var row = tip.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(10, 14, 8, 8);
+            row.spacing = 8;
+            row.childAlignment = TextAnchor.MiddleLeft;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+            tip.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            Sprite art = MosseloraArt.Load(item.Art);
+            foreach (Sprite glyph in new[] { art, MosseloraArt.Load(MosseloraArt.IconTap) })
+            {
+                if (glyph == null) continue;
+                var icon = Node("Tip picture", tip.transform);
+                var iconLayout = icon.AddComponent<LayoutElement>();
+                iconLayout.minWidth = iconLayout.preferredWidth = 38;
+                iconLayout.minHeight = iconLayout.preferredHeight = 38;
+                var iconImage = icon.AddComponent<Image>();
+                iconImage.sprite = glyph;
+                iconImage.preserveAspect = true;
+                iconImage.raycastTarget = false;
+                if (glyph != art) iconImage.color = MosseloraTheme.WaterChannel;
+            }
+            string verb = item.Family == VillageChoice.ShadeTree ? "plant" : item.Family == VillageChoice.Flowers ? "grow" : "build";
+            string words = GameLocalization.Current == "en"
+                ? "Tap the grass to " + verb + " your " + item.Name + " there." : "";
+            if (words.Length == 0) return; // other languages: the pictures alone
+            Text line = Label(tip.transform, "Tip words", words, 16, 0, Ink, TextAnchor.MiddleLeft);
+            Emphasize(line);
+            line.GetComponent<LayoutElement>().flexibleWidth = 1f;
         }
 
         private void CloseTitle()
