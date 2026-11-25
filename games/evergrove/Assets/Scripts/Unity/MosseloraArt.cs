@@ -21,6 +21,12 @@ namespace Evergrove.UnityClient
         public const string HeroVillage = "hero-village";
         public const string EndingFestival = "ending-festival";
         public const string BoardBed = "board-bed";
+        // Painted stepping stones for the stream path (Codex, I119/I120).
+        public const string StoneSummer = "stone-summer";
+        public const string StoneAutumn = "stone-autumn";
+        public const string StoneWinter = "stone-winter";
+        public const string StoneWalked = "stone-wet";
+        public const string StoneHere = "stone-here";
         public const string VignetteTree = "vignette-tree";
         public const string VignetteBridge = "vignette-bridge";
         public const string VignetteFlowers = "vignette-flowers";
@@ -119,6 +125,20 @@ namespace Evergrove.UnityClient
             RingCache[radius] = sprite;
             return sprite;
         }
+
+        private static Sprite markerRing;
+
+        /// <summary>
+        /// A 3 pt outline that stays 3 pt at any size (9-sliced; use Image.Type.Sliced
+        /// with pixelsPerUnitMultiplier = 2): rings the stone you stand on (I120).
+        /// </summary>
+        public static Sprite MarkerRing()
+        {
+            if (markerRing == null) markerRing = BuildRounded(18, 3f);
+            return markerRing;
+        }
+
+        public const float MarkerRingScale = Supersample;
 
         private static Sprite boldRing;
 

@@ -2142,8 +2142,10 @@ namespace Evergrove.UnityClient
             var stones = Node("Stepping stones", row.transform);
             var stoneRow = stones.AddComponent<HorizontalLayoutGroup>();
             stoneRow.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
-            stoneRow.childAlignment = TextAnchor.MiddleCenter;
-            stoneRow.spacing = 7;
+            // Painted stones sit on one waterline, like a path across the creek (I120).
+            bool paintedPath = MosseloraArt.Load(MosseloraArt.StoneHere) != null;
+            stoneRow.childAlignment = paintedPath ? TextAnchor.LowerCenter : TextAnchor.MiddleCenter;
+            stoneRow.spacing = paintedPath ? 4 : 7;
             stoneRow.childControlWidth = true;
             stoneRow.childControlHeight = true;
             stoneRow.childForceExpandWidth = false;
@@ -2154,17 +2156,78 @@ namespace Evergrove.UnityClient
                 bool passed = i < world.Round;
                 var stone = Node(passed ? "Stone passed" : here ? "Stone here" : "Stone ahead", stones.transform);
                 var layout = stone.AddComponent<LayoutElement>();
-                float size = here ? 22f : 14f; // was 18 / 11: legible at arm's length (I84)
-                layout.minWidth = layout.preferredWidth = size;
-                layout.minHeight = layout.preferredHeight = size;
-                var image = stone.AddComponent<Image>();
                 // The stone just passed lights up once on arrival at the next stream.
                 if (named && gentleMotion && settledRound != world.Round && i == world.Round - 1)
                     BloomPulse.Add(stone, 0.25f, 0.45f);
+                // Painted river stones across the creek (Codex, I120): the ones ahead wear
+                // their season, the one you stand on grows a sprout, and the water you
+                // have already brought runs under every walked stone up to yours.
+                Sprite painted = PathStone(i, here, passed);
+                if (painted != null)
+                {
+                    float width = here ? 34f : 22f;
+                    layout.minWidth = layout.preferredWidth = width;
+                    layout.minHeight = layout.preferredHeight = Mathf.Round(width / MosseloraArt.Aspect(painted));
+                    // A cold-read could not tell walked stones from ahead by the stones
+                    // alone; a thin stream under every walked stone, reaching half way
+                    // under yours, says "the water got this far" in the game's language.
+                    if (passed || (here && i > 0))
+                    {
+                        var water = Node("Water so far", stone.transform);
+                        var waterRect = water.GetComponent<RectTransform>();
+                        bool rtl = stoneRow.reverseArrangement;
+                        float reachStart = rtl ? (here ? 0.5f : 0f) : 0f;
+                        float reachEnd = rtl ? 1f : (here ? 0.5f : 1f);
+                        waterRect.anchorMin = new Vector2(reachStart, 0f);
+                        waterRect.anchorMax = new Vector2(reachEnd, 0f);
+                        waterRect.pivot = new Vector2(0.5f, 0f);
+                        // Overlap the neighbours so the stream has no seams between stones.
+                        float before = rtl && !here ? stoneRow.spacing + 3f : 3f;
+                        float after = !rtl && !here ? stoneRow.spacing + 3f : 3f;
+                        waterRect.offsetMin = new Vector2(-before, -3f);
+                        waterRect.offsetMax = new Vector2(after, 3f);
+                        var waterImage = water.AddComponent<Image>();
+                        waterImage.sprite = MosseloraArt.Rounded(3);
+                        // Opaque, so the overlaps between stones leave no darker seams.
+                        waterImage.color = Color.Lerp(Paper, MosseloraTheme.WaterChannel, 0.8f);
+                        waterImage.raycastTarget = false;
+                    }
+                    if (here)
+                    {
+                        // The old leaf-green ring, now around your stone: one high-contrast
+                        // mark the eye finds at once, which the sprout alone did not match.
+                        var ring = Node("You are here", stone.transform);
+                        var ringRect = ring.GetComponent<RectTransform>();
+                        ringRect.anchorMin = ringRect.anchorMax = new Vector2(0.5f, 0.5f);
+                        ringRect.sizeDelta = new Vector2(width + 10f, layout.preferredHeight + 10f);
+                        ringRect.anchoredPosition = Vector2.zero;
+                        var ringImage = ring.AddComponent<Image>();
+                        ringImage.sprite = MosseloraArt.MarkerRing();
+                        ringImage.type = Image.Type.Sliced;
+                        ringImage.pixelsPerUnitMultiplier = MosseloraArt.MarkerRingScale;
+                        ringImage.color = Leaf;
+                        ringImage.raycastTarget = false;
+                    }
+                    var art = Node("Stone art", stone.transform);
+                    Fill(art.GetComponent<RectTransform>());
+                    var artImage = art.AddComponent<Image>();
+                    artImage.sprite = painted;
+                    artImage.preserveAspect = true;
+                    artImage.raycastTarget = false;
+                    // Pale frost, moss and the sunlit "here" stone are deepened a little so
+                    // every stone keeps at least 3:1 against the paper, as the old dots did
+                    // (WCAG 1.4.11, I84): summer 3.9, autumn 4.1, winter 3.4, here 3.2.
+                    artImage.color = passed ? Color.white : new Color(0.84f, 0.84f, 0.84f, 1f);
+                    continue;
+                }
+                var image = stone.AddComponent<Image>();
+                image.raycastTarget = false;
+                float size = here ? 22f : 14f; // was 18 / 11: legible at arm's length (I84)
+                layout.minWidth = layout.preferredWidth = size;
+                layout.minHeight = layout.preferredHeight = size;
                 image.sprite = here ? MosseloraArt.BoldRing() : MosseloraArt.Rounded(4);
                 image.type = Image.Type.Simple;
                 image.color = here ? Leaf : passed ? MosseloraTheme.WaterChannel : SeasonStone(i);
-                image.raycastTarget = false;
             }
             if (!named) return;
             string name = GameLocalization.Current == "en" ? puzzle.Name : "";
@@ -2198,6 +2261,19 @@ namespace Evergrove.UnityClient
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count),
                 12, 0, new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
+        }
+
+        private static Sprite PathStone(int stream, bool here, bool passed)
+        {
+            if (here) return MosseloraArt.Load(MosseloraArt.StoneHere);
+            if (passed) return MosseloraArt.Load(MosseloraArt.StoneWalked);
+            int phase = stream >= 9 ? 3 : stream >= 6 ? 2 : stream >= 3 ? 1 : 0;
+            switch (PaintedVillage.SeasonFor(phase, false))
+            {
+                case 1: return MosseloraArt.Load(MosseloraArt.StoneAutumn);
+                case 2: return MosseloraArt.Load(MosseloraArt.StoneWinter);
+                default: return MosseloraArt.Load(MosseloraArt.StoneSummer);
+            }
         }
 
         // Stones ahead wear the season they will be walked in (summer sage,
