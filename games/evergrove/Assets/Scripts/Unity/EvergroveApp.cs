@@ -253,22 +253,44 @@ namespace Evergrove.UnityClient
         // Rounded bold display face for English headings and actions, as in the
         // painted references. iOS ships Arial Rounded MT Bold (a single upright
         // face); elsewhere headings fall back to the runtime face in bold. Never bundled.
-        // A book serif already on the device (iOS ships Charter and Georgia).
-        // Never bundled; without one the story keeps the runtime face.
+        // A book serif already on the device: iOS ships Charter and Georgia, Android
+        // ships Noto Serif (I125). Never bundled; without one the story keeps the runtime face.
+        private static readonly string[] BookFaces = { "Charter", "Georgia", "Noto Serif", "NotoSerif" };
+
         private static Font BookFont()
         {
             try
             {
                 string[] installed = Font.GetOSInstalledFontNames();
-                foreach (string wanted in new[] { "Charter", "Georgia" })
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log("Mosselora OS serif candidates: " + string.Join(", ",
+                    Array.FindAll(installed, n => n.IndexOf("serif", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.StartsWith("Charter", StringComparison.OrdinalIgnoreCase)
+                        || n.StartsWith("Georgia", StringComparison.OrdinalIgnoreCase))));
+#endif
+                foreach (string wanted in BookFaces)
+                {
+                    // The plain family first ("Charter"), so a heavier cut is never picked.
                     foreach (string name in installed)
-                        if (name.StartsWith(wanted, StringComparison.OrdinalIgnoreCase))
+                        if (string.Equals(name, wanted, StringComparison.OrdinalIgnoreCase))
                         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                             Debug.Log("Mosselora book face: " + name);
 #endif
-                            return Font.CreateDynamicFontFromOSFont(wanted, 18);
+                            return Font.CreateDynamicFontFromOSFont(name, 18);
                         }
+                    foreach (string name in installed)
+                        if (name.StartsWith(wanted, StringComparison.OrdinalIgnoreCase)
+                            && name.IndexOf("Sans", StringComparison.OrdinalIgnoreCase) < 0
+                            && name.IndexOf("Italic", StringComparison.OrdinalIgnoreCase) < 0
+                            && name.IndexOf("Bold", StringComparison.OrdinalIgnoreCase) < 0)
+                        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                            Debug.Log("Mosselora book face: " + name);
+#endif
+                            return Font.CreateDynamicFontFromOSFont(name, 18);
+                        }
+                }
             }
             catch (Exception exception)
             {
