@@ -38,8 +38,15 @@ namespace Evergrove.Core
             return Clamp(byWidth, 48, MaxTile(size));
         }
 
-        /// <summary>Sideways: the height decides, and the rail's width when unsolved.</summary>
-        public static int Landscape(float logicalHeight, float available, int size, int gap, bool solved)
+        /// <summary>A sideways tablet has room for bigger tiles than a phone (I122).</summary>
+        public const int TabletCap = 120;
+
+        /// <summary>
+        /// Sideways: the height decides, and the rail's width when unsolved.
+        /// <paramref name="cap"/> overrides the phone cap (0 keeps it), e.g. TabletCap on an iPad.
+        /// </summary>
+        public static int Landscape(float logicalHeight, float available, int size, int gap, bool solved,
+            int cap = 0)
         {
             float below = solved ? BelowSolved : BelowUnsolved;
             int byHeight = (int)Math.Floor((logicalHeight - below) / size) - gap;
@@ -48,7 +55,7 @@ namespace Evergrove.Core
                 int byWidth = (int)Math.Floor((available - RailWidth - RailGap - (size - 1) * gap) / size);
                 byHeight = Math.Min(byHeight, byWidth);
             }
-            return Clamp(byHeight, MinTouch, MaxTile(size));
+            return Clamp(byHeight, MinTouch, cap > 0 ? cap : MaxTile(size));
         }
 
         private static int Clamp(int value, int low, int high)

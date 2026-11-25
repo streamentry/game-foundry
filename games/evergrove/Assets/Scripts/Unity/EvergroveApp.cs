@@ -522,6 +522,9 @@ namespace Evergrove.UnityClient
         // Landscape (I114): turning the phone opens the garden full height on the
         // left and keeps play in a book-width column on the right.
         private bool landscape, lastLandscape;
+        // A sideways tablet: a wider play column and bigger tiles than a phone (I122).
+        private bool landscapeTablet;
+        private const float TabletLandscapeColumn = 560f;
         private RectTransform chromeBand;
         private GameObject landscapeGarden;
 
@@ -536,12 +539,14 @@ namespace Evergrove.UnityClient
             // A sideways phone keeps a phone's sizes: it scales to a 414-point-tall
             // reference instead of shrinking the portrait page to fit its height.
             bool landscapePhone = landscape && aspect >= 1.6f;
+            landscapeTablet = landscape && !landscapePhone;
             viewportScaler.referenceResolution = landscapePhone ? new Vector2(896, 414) : new Vector2(414, 896);
             viewportScaler.matchWidthOrHeight = tablet || landscape ? 1f : 0.5f;
             float logicalWidth = safe.width / LiveCanvasScale();
             if (landscape)
             {
-                float width = Mathf.Clamp(Mathf.Floor(logicalWidth * 0.5f), 380f, MaxColumn);
+                float width = Mathf.Clamp(Mathf.Floor(logicalWidth * 0.5f), 380f,
+                    landscapeTablet ? TabletLandscapeColumn : MaxColumn);
                 columnLeft = Mathf.Max(0f, Mathf.Floor(logicalWidth - width));
                 columnRight = 0f;
             }
@@ -2907,7 +2912,7 @@ namespace Evergrove.UnityClient
             // height left over, with the tool rail beside an unsolved board (I114-I116).
             int standardTile = landscape
                 ? BoardFit.Landscape(Screen.safeArea.height / LiveCanvasScale(), available,
-                    puzzle.Size, gap, world.Solved)
+                    puzzle.Size, gap, world.Solved, landscapeTablet ? BoardFit.TabletCap : 0)
                 : BoardFit.Portrait(available, puzzle.Size, gap);
             int tileSize = standardTile;
             if (BoardSize.IsLarge)

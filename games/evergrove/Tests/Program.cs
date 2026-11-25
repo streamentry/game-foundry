@@ -1474,6 +1474,23 @@ internal static class Program
         Expect(solved == 53, "sideways solved 3x3 tiles are 53 pt without the rail");
         Expect(unsolved > solved, "the tool rail buys the unsolved board height");
 
+        // A sideways iPad (896 pt logical height, 560 pt column) gets bigger tiles
+        // than the phone cap allows, up to the tablet cap (I122).
+        int tabletTile = BoardFit.Landscape(896f, 560f - 59f, 3, 7, false, BoardFit.TabletCap);
+        Expect(tabletTile == BoardFit.TabletCap, "a sideways iPad grows 3x3 tiles to the 120 pt tablet cap");
+        Expect(BoardFit.Landscape(896f, 501f, 3, 7, false) == 90, "without the tablet cap the phone cap holds");
+        Expect(BoardFit.Landscape(896f, 501f, 4, 5, false, BoardFit.TabletCap) <= BoardFit.TabletCap,
+            "the tablet cap bounds 4x4 tiles too");
+        for (float height = 600f; height <= 1100f; height += 25f)
+            for (float width = 380f; width <= 640f; width += 20f)
+            {
+                int capped = BoardFit.Landscape(height, width, 3, 7, false, BoardFit.TabletCap);
+                Expect(capped >= BoardFit.MinTouch && capped <= BoardFit.TabletCap, "tablet tiles stay within bounds");
+                if (capped > BoardFit.MinTouch)
+                    Expect(BoardFit.Span(capped, 3, 7) + BoardFit.RailWidth + BoardFit.RailGap <= width + 0.5f,
+                        "the rail still fits beside a tablet board");
+            }
+
         // Properties across phone heights and column widths, sizes 3 to 5.
         for (int size = 3; size <= 5; size++)
         {
