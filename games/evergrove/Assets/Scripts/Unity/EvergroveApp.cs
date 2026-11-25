@@ -2149,6 +2149,10 @@ namespace Evergrove.UnityClient
             bar.pivot = new Vector2(0.5f, 0f);
             bar.sizeDelta = new Vector2(0f, barHeight + 26f);
             bar.anchoredPosition = Vector2.zero;
+            // Only over the page's column: sideways, the garden painting on the left
+            // stays uncovered (I170: the fade had blanked its lower half).
+            bar.offsetMin = new Vector2(columnLeft, bar.offsetMin.y);
+            bar.offsetMax = new Vector2(-columnRight, bar.offsetMax.y);
             var fade = Node("Paper fade", pinnedActions.transform);
             var fadeRect = fade.GetComponent<RectTransform>();
             Fill(fadeRect);
@@ -2177,8 +2181,8 @@ namespace Evergrove.UnityClient
             rect.anchorMin = new Vector2(0f, 0f);
             rect.anchorMax = new Vector2(1f, 0f);
             rect.pivot = new Vector2(0.5f, 0f);
-            rect.sizeDelta = new Vector2(-34f - columnLeft - columnRight, rowHeight);
-            rect.anchoredPosition = new Vector2((columnLeft - columnRight) / 2f, 14f);
+            rect.sizeDelta = new Vector2(-34f, rowHeight);
+            rect.anchoredPosition = new Vector2(0f, 14f);
             keep.transform.SetSiblingIndex(Mathf.Min(index, content.childCount - 1));
         }
 

@@ -118,7 +118,9 @@ namespace Evergrove.UnityClient
                 // Seasons arrive through progress: capture the village in autumn and winter.
                 if (chapter == 7 || chapter == 10)
                 {
-                    ScrollTo("Living storybook art");
+                    // Sideways the village lives on the left of the screen, not in the
+                    // page: capture the screen as it is, so the landscape run completes (I170).
+                    if (Screen.width <= Screen.height) ScrollTo("Living storybook art");
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng(chapter == 7 ? "15-autumn-village.png" : "16-winter-village.png");
