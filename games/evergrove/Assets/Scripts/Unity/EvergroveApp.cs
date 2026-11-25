@@ -1991,6 +1991,25 @@ namespace Evergrove.UnityClient
             if (glyph == null) return;
             glyph.color = MosseloraTheme.WaterChannel;
             if (gentleMotion) glyph.gameObject.AddComponent<QuarterTurns>();
+            // A painted finger rests on the tile and presses it in time with the
+            // arrow's turn: the board's own "how to play", without words (I147).
+            Sprite tap = MosseloraArt.Load(MosseloraArt.IconTap);
+            if (tap == null) return;
+            var hand = Node("Shows a tap here", tile);
+            goalGlows.Add(hand);
+            hand.AddComponent<LayoutElement>().ignoreLayout = true;
+            var handRect = hand.GetComponent<RectTransform>();
+            handRect.anchorMin = handRect.anchorMax = new Vector2(0.5f, 0.5f);
+            handRect.pivot = new Vector2(0.35f, 0.9f); // the fingertip
+            float handSize = Mathf.Round(tileSize * 0.46f);
+            handRect.sizeDelta = new Vector2(handSize, handSize);
+            handRect.anchoredPosition = new Vector2(tileSize * 0.06f, tileSize * 0.02f);
+            var handImage = hand.AddComponent<Image>();
+            handImage.sprite = tap;
+            handImage.preserveAspect = true;
+            handImage.raycastTarget = false;
+            handImage.color = new Color(Ink.r, Ink.g, Ink.b, 0.82f);
+            if (gentleMotion) hand.AddComponent<GhostPress>();
         }
 
         // The neighbor's card rises a few points and fades in, like a word said.
@@ -5032,6 +5051,34 @@ namespace Evergrove.UnityClient
             float angle = from - 90f * UnityEngine.Mathf.SmoothStep(0f, 1f, t);
             transform.localRotation = UnityEngine.Quaternion.Euler(0f, 0f, angle);
             if (t >= 1f) { clock = 0f; from = angle % 360f; }
+        }
+    }
+}
+
+namespace Evergrove.UnityClient
+{
+    // Presses a little (down and smaller) just before each quarter turn of the
+    // arrow beside it, on the same 1.45s beat as QuarterTurns (I147).
+    internal sealed class GhostPress : UnityEngine.MonoBehaviour
+    {
+        private float clock;
+        private UnityEngine.Vector2 rest;
+        private UnityEngine.RectTransform rect;
+
+        private void Start()
+        {
+            rect = (UnityEngine.RectTransform)transform;
+            rest = rect.anchoredPosition;
+        }
+
+        private void Update()
+        {
+            clock = (clock + UnityEngine.Time.unscaledDeltaTime) % 1.45f;
+            // 0.85–1.25s: down, then up as the arrow swings.
+            float press = clock < 0.85f || clock > 1.25f ? 0f
+                : UnityEngine.Mathf.Sin((clock - 0.85f) / 0.4f * UnityEngine.Mathf.PI);
+            rect.anchoredPosition = rest + new UnityEngine.Vector2(0f, -5f * press);
+            transform.localScale = UnityEngine.Vector3.one * (1f - 0.12f * press);
         }
     }
 }
