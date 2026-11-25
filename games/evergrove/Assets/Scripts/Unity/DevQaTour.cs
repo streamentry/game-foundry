@@ -181,6 +181,13 @@ namespace Evergrove.UnityClient
             SavePng("11c-ending-journal-bottom.png");
             Press("Memories");
             for (int f = 0; f < 4; f++) yield return null;
+            // The home screen's garden map with the whole year's twelve things (I176).
+            app.QaShowHub(true);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17-hub-map.png");
+            app.QaShowHub(false);
+            for (int f = 0; f < 4; f++) yield return null;
 
             // Runs B-D: a fresh world per village choice on chapter 1. Each shows
             // the consequence (04-06) and the chapter-2 board it produced (07-09).

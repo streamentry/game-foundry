@@ -1465,7 +1465,7 @@ namespace Evergrove.UnityClient
         private void BuildTitleScreen(Transform host)
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (qaInMemoryOnly) return; // the scripted QA tour starts on the board
+            if (qaInMemoryOnly && !qaShowHub) return; // the scripted QA tour starts on the board
 #endif
             // A finished garden opens on its festival; otherwise the everyday village.
             // The hub opens on *your* story: the finished garden's festival, else
@@ -1503,7 +1503,11 @@ namespace Evergrove.UnityClient
             if (qaInMemoryOnly) lively = false;
 #endif
             if (lively) window.AddComponent<HubButterflies>();
+            // The living garden opens on its own map (E3, I176): everything you made
+            // standing where it grew. Otherwise, the painting as before.
+            bool mapShown = world.Mode == PlayMode.Living && GardenMapOnHub(windowRect);
             var art = Node("Village at the start", window.transform);
+            art.SetActive(!mapShown);
             var artRect = art.GetComponent<RectTransform>();
             artRect.anchorMin = Vector2.zero;
             artRect.anchorMax = Vector2.one;
@@ -1730,6 +1734,39 @@ namespace Evergrove.UnityClient
                 PlayerPrefs.Save();
             }
             return index;
+        }
+
+        // ---- E3 (I176): the open garden map.
+        private GardenMap gardenMap;
+
+        private GardenMap LoadGardenMap()
+        {
+            if (gardenMap != null) return gardenMap;
+            var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
+            if (mask == null) return null;
+            try { gardenMap = new GardenMap(10, 15, mask.text.Trim()); }
+            catch (ArgumentException error) { Debug.LogWarning("Garden map mask unreadable: " + error.Message); }
+            return gardenMap;
+        }
+
+        private bool GardenMapOnHub(RectTransform window)
+        {
+            Sprite plot = MosseloraArt.Load("garden-map");
+            GardenMap map = LoadGardenMap();
+            if (plot == null || map == null) return false;
+            int[] made = world.Choices;
+            int[] cells = map.Layout(made, null);
+            var items = new System.Collections.Generic.List<GardenMapView.Placed>();
+            for (int i = 0; i < made.Length; i++)
+                items.Add(new GardenMapView.Placed
+                {
+                    Art = ItemArt(i, made[i]),
+                    Cell = cells[i],
+                    Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
+                    Newest = i == made.Length - 1
+                });
+            GardenMapView.Build(window, plot, map, items);
+            return true;
         }
 
         private void CloseTitle()
@@ -5462,6 +5499,19 @@ namespace Evergrove.UnityClient
         // Dev-only seam for DevQaTour. Replaces the in-memory world and redraws
         // through the normal Rebuild path; refuses any world that is not in-memory.
         internal WorldModel QaWorld { get { return world; } }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private bool qaShowHub;
+
+        // The tour normally skips the hub; this opens it once for a screenshot.
+        internal void QaShowHub(bool show)
+        {
+            if (!show) { CloseTitle(); return; }
+            qaShowHub = true;
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            qaShowHub = false;
+        }
+#endif
         internal void QaReplaceWorld(WorldModel next)
         {
             if (!qaInMemoryOnly || next == null) return;

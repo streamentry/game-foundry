@@ -478,6 +478,47 @@ def main() -> None:
         for offset, cell in enumerate(grid(art.convert("RGBA"), 5, 5)):
             save(fit(trim(cell, 4), 192, 192), f"{prefix}-{start + offset:02d}")
 
+    garden = master("garden-map")
+    if garden:
+        # The open garden map (E3, I176): the painting itself, and a 10x15 mask
+        # read from it. Mostly-teal cells are the creek; tan cells in the right
+        # columns are the footpath; the top-right corner is the cottage.
+        plot = garden.convert("RGB")
+        save(plot.convert("RGBA"), "garden-map")
+        width, height = plot.size
+        columns, rows = 10, 15
+        pixels = plot.load()
+        lines = []
+        for row in range(rows):
+            line = ""
+            for column in range(columns):
+                x0, x1 = int(column * width / columns), int((column + 1) * width / columns)
+                y0, y1 = int(row * height / rows), int((row + 1) * height / rows)
+                total = water = tan = 0
+                for y in range(y0, y1, 3):
+                    for x in range(x0, x1, 3):
+                        red, green, blue = pixels[x, y]
+                        total += 1
+                        if blue > 130 and blue > red + 20:
+                            water += 1
+                        if red > 185 and 80 < blue < 160 and green < red:
+                            tan += 1
+                if water / total > 0.10:
+                    line += "~"
+                elif (row <= 1 and column >= 7) or (tan / total > 0.06 and column >= 8):
+                    line += "#"
+                else:
+                    line += "."
+            lines.append(line)
+        mask_path = OUT.parent / "garden-map-mask.txt"
+        mask_path.write_text("\n".join(lines) + "\n")
+        meta = mask_path.with_suffix(".txt.meta")
+        if not meta.exists():
+            meta.write_text("fileFormatVersion: 2\nguid: " + guid_for("garden-map-mask") +
+                            "\nTextScriptImporter:\n  externalObjects: {}\n  userData: \n"
+                            "  assetBundleName: \n  assetBundleVariant: \n")
+        print(mask_path.relative_to(ROOT), "\n" + "\n".join(lines))
+
     sign = master("stream-sign")
     if sign:
         # A painted plank for the stream's name (I162): faint speckles cleared,
