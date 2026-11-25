@@ -3079,8 +3079,10 @@ namespace Evergrove.UnityClient
                 return;
             }
             if (world.Choices.Length == seen) return;
+            // On the book's inner (top-left) corner: at the outer corner it sat half
+            // off the screen's edge and a cold read took it for a glitch (I145).
             var note = MosseloraArt.Ornament(book.transform, "Has a new memory", MosseloraArt.Rounded(12),
-                new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(24f, 24f), new Vector2(-4f, -4f));
+                new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), new Vector2(26f, 26f), new Vector2(4f, -4f));
             if (note == null) return;
             note.preserveAspect = false;
             note.color = MosseloraTheme.CardFill;
