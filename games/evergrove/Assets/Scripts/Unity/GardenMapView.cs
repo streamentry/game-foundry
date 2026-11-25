@@ -27,7 +27,8 @@ namespace Evergrove.UnityClient
 
         private static float HeightInCells(VillageChoice family)
         {
-            return family == VillageChoice.ShadeTree ? 1.7f : family == VillageChoice.Flowers ? 1.05f : 1.35f;
+            // Large enough to read at arm's length (I179: was 1.7 / 1.35 / 1.05).
+            return family == VillageChoice.ShadeTree ? 2.3f : family == VillageChoice.Flowers ? 1.45f : 1.85f;
         }
 
         public static GardenMapView Build(RectTransform window, Sprite plot, GardenMap map,
@@ -173,7 +174,29 @@ namespace Evergrove.UnityClient
                     button.transition = Selectable.Transition.None;
                     button.onClick.AddListener(() => onItem(index));
                 }
-                if (held) node.AddComponent<Bob>();
+                if (held)
+                {
+                    node.AddComponent<Bob>();
+                    // A small pressing finger beside it: "tap the land to put it down" (I179).
+                    Sprite tap = MosseloraArt.Load(MosseloraArt.IconTap);
+                    if (tap != null)
+                    {
+                        var hint = new GameObject("Tap land to place", typeof(RectTransform));
+                        hint.transform.SetParent(land, false);
+                        var hintRect = (RectTransform)hint.transform;
+                        hintRect.anchorMin = hintRect.anchorMax = new Vector2(0f, 1f);
+                        float size = Mathf.Max(30f, cellW * 0.7f);
+                        hintRect.sizeDelta = new Vector2(size, size);
+                        hintRect.anchoredPosition = at + new Vector2(cellW * 0.9f, cellH * 0.9f);
+                        var hintImage = hint.AddComponent<Image>();
+                        hintImage.sprite = tap;
+                        hintImage.preserveAspect = true;
+                        hintImage.color = new Color(0.12f, 0.27f, 0.22f, 0.9f);
+                        hintImage.raycastTarget = false;
+                        hint.AddComponent<GhostPress>();
+                        nodes.Add(hintRect);
+                    }
+                }
                 else if (growNewest && item.Newest) node.AddComponent<GrowUp>();
                 nodes.Add(rect);
                 if (held || (inHand < 0 && item.Newest)) { focus = at; focused = true; }

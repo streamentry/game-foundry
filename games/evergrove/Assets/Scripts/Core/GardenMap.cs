@@ -94,7 +94,9 @@ namespace Evergrove.Core
             switch (family)
             {
                 case VillageChoice.ShadeTree:
-                    return -edge * 6 + Math.Min(water, 4) * 3 - fromBand * 4;
+                    // One step in from the edge, never on it: a tree in the very
+                    // corner is half off the view (I179).
+                    return -Math.Abs(edge - 1) * 6 + Math.Min(water, 4) * 3 - fromBand * 4;
                 case VillageChoice.Flowers:
                     return -Math.Abs(water - 2) * 6 + Math.Min(edge, 3) * 2 - fromBand * 4;
                 default:
