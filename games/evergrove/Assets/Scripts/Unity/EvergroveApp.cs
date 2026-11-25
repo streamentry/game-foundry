@@ -3956,7 +3956,10 @@ namespace Evergrove.UnityClient
             // tapping hand. The sentence stays as spoken text for screen readers.
             // At larger text the sentence alone carries the rule, so the
             // picture row steps aside and the board's tools stay on screen (I85).
-            bool showPicture = TextScale.Percent <= 100;
+            // Since I151 the pictures are the tip at every size; at larger text the
+            // sentence returns under them (it was hidden everywhere, leaving an
+            // empty bubble at 125-150%; I163).
+            bool showPicture = true;
             var picture = Node("Coach picture", bubble.transform);
             picture.SetActive(showPicture);
             var pictureRow = picture.AddComponent<HorizontalLayoutGroup>();
@@ -3976,11 +3979,15 @@ namespace Evergrove.UnityClient
             // could not tell from pictures alone that a tap turns a pipe (I64).
             Text words = Label(bubble.transform, "Coach words", message, 16, 0, Ink, TextAnchor.MiddleCenter);
             Emphasize(words);
-            // Pictures only (I151): the board now demonstrates the turn (I138 arrow,
-            // I147 finger), and a blind A/B read understood the goal and the turn
-            // as well without the sentence. The sentence stays spoken (screen readers).
-            words.color = new Color(0f, 0f, 0f, 0f);
-            words.GetComponent<LayoutElement>().ignoreLayout = true;
+            // Pictures only at standard text (I151): the board now demonstrates the
+            // turn (I138 arrow, I147 finger), and a blind A/B read understood the
+            // goal and the turn as well without the sentence. A player who has
+            // asked for larger text also gets the sentence (I163). Always spoken.
+            if (TextScale.Percent <= 100)
+            {
+                words.color = new Color(0f, 0f, 0f, 0f);
+                words.GetComponent<LayoutElement>().ignoreLayout = true;
+            }
             var tail = Node("Coach tail", bubble.transform);
             tail.AddComponent<LayoutElement>().ignoreLayout = true;
             var tailRect = tail.GetComponent<RectTransform>();
