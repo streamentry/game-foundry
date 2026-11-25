@@ -2161,6 +2161,24 @@ namespace Evergrove.UnityClient
             stoneRow.childControlHeight = true;
             stoneRow.childForceExpandWidth = false;
             stoneRow.childForceExpandHeight = false;
+            // The path starts at the spring (I123): water already runs from it to your
+            // stone, so even on the first stream "the water reaches here, not beyond"
+            // shows before any stone has been walked.
+            Sprite spring = paintedPath ? MosseloraArt.Load(MosseloraArt.SpringWaves) : null;
+            if (spring != null)
+            {
+                var source = Node("Spring", stones.transform);
+                var sourceLayout = source.AddComponent<LayoutElement>();
+                sourceLayout.minWidth = sourceLayout.preferredWidth = 20f;
+                sourceLayout.minHeight = sourceLayout.preferredHeight = 20f;
+                PathWater(source.transform, stoneRow, true, false);
+                var sourceArt = Node("Spring art", source.transform);
+                Fill(sourceArt.GetComponent<RectTransform>());
+                var sourceImage = sourceArt.AddComponent<Image>();
+                sourceImage.sprite = spring;
+                sourceImage.preserveAspect = true;
+                sourceImage.raycastTarget = false;
+            }
             for (int i = 0; i < PuzzleCatalog.Count; i++)
             {
                 bool here = i == world.Round;
@@ -2182,27 +2200,8 @@ namespace Evergrove.UnityClient
                     // A cold-read could not tell walked stones from ahead by the stones
                     // alone; a thin stream under every walked stone, reaching half way
                     // under yours, says "the water got this far" in the game's language.
-                    if (passed || (here && i > 0))
-                    {
-                        var water = Node("Water so far", stone.transform);
-                        var waterRect = water.GetComponent<RectTransform>();
-                        bool rtl = stoneRow.reverseArrangement;
-                        float reachStart = rtl ? (here ? 0.5f : 0f) : 0f;
-                        float reachEnd = rtl ? 1f : (here ? 0.5f : 1f);
-                        waterRect.anchorMin = new Vector2(reachStart, 0f);
-                        waterRect.anchorMax = new Vector2(reachEnd, 0f);
-                        waterRect.pivot = new Vector2(0.5f, 0f);
-                        // Overlap the neighbours so the stream has no seams between stones.
-                        float before = rtl && !here ? stoneRow.spacing + 3f : 3f;
-                        float after = !rtl && !here ? stoneRow.spacing + 3f : 3f;
-                        waterRect.offsetMin = new Vector2(-before, -3f);
-                        waterRect.offsetMax = new Vector2(after, 3f);
-                        var waterImage = water.AddComponent<Image>();
-                        waterImage.sprite = MosseloraArt.Rounded(3);
-                        // Opaque, so the overlaps between stones leave no darker seams.
-                        waterImage.color = Color.Lerp(Paper, MosseloraTheme.WaterChannel, 0.8f);
-                        waterImage.raycastTarget = false;
-                    }
+                    if (passed || (here && (i > 0 || spring != null)))
+                        PathWater(stone.transform, stoneRow, !here, here);
                     if (here)
                     {
                         // The old leaf-green ring, now around your stone: one high-contrast
@@ -2272,6 +2271,30 @@ namespace Evergrove.UnityClient
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count),
                 12, 0, new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
+        }
+
+        // The thin stream under the path: full width under walked stones and the
+        // spring, half way under your stone, overlapping neighbours so it has no seams.
+        private void PathWater(Transform holder, HorizontalLayoutGroup row, bool flowsOn, bool endsHere)
+        {
+            var water = Node("Water so far", holder);
+            water.transform.SetAsFirstSibling(); // under the stone
+            var waterRect = water.GetComponent<RectTransform>();
+            bool rtl = row.reverseArrangement;
+            float reachStart = rtl && endsHere ? 0.5f : 0f;
+            float reachEnd = !rtl && endsHere ? 0.5f : 1f;
+            waterRect.anchorMin = new Vector2(reachStart, 0f);
+            waterRect.anchorMax = new Vector2(reachEnd, 0f);
+            waterRect.pivot = new Vector2(0.5f, 0f);
+            float before = rtl && flowsOn ? row.spacing + 3f : 3f;
+            float after = !rtl && flowsOn ? row.spacing + 3f : 3f;
+            waterRect.offsetMin = new Vector2(-before, -3f);
+            waterRect.offsetMax = new Vector2(after, 3f);
+            var waterImage = water.AddComponent<Image>();
+            waterImage.sprite = MosseloraArt.Rounded(3);
+            // Opaque, so the overlaps between stones leave no darker seams.
+            waterImage.color = Color.Lerp(Paper, MosseloraTheme.WaterChannel, 0.8f);
+            waterImage.raycastTarget = false;
         }
 
         private static Sprite PathStone(int stream, bool here, bool passed)
