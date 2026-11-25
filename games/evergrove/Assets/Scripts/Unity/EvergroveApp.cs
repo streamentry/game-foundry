@@ -1914,14 +1914,20 @@ namespace Evergrove.UnityClient
                             GUIUtility.systemCopyBuffer = GardenPostcard.Build(world, "");
                             RuleToast.Show(postcard.GetComponent<RectTransform>(),
                                 GameLocalization.Text("postcard_copied"), font, Ink, MosseloraTheme.CardFill);
-                        }, 58, MosseloraTheme.WaterAction);
-                    Width(postcard, 96);
+                        }, 96, MosseloraTheme.WaterAction, false, null, true);
+                    Width(postcard, 150);
                     ShowPostcard(postcard);
+                    EndingCaption(postcard);
                 }
-                Width(IconButton(row, resetName, GameLocalization.Text("explore"),
+                // The ending's two offers are rare and lasting (share the season,
+                // or start another garden), so here they say what they do under
+                // the picture; a cold read could not tell them apart (I136).
+                Button explore = IconButton(row, resetName, GameLocalization.Text("explore"),
                     MosseloraArt.IconNewGarden, () => { confirmReset = true; Rebuild(); },
-                    inMenu ? 78 : 58, sharePostcard ? MosseloraTheme.QuietAction : tone, false, null, inMenu),
-                    inMenu ? 200 : 96);
+                    inMenu ? 78 : sharePostcard ? 96 : 58, sharePostcard ? MosseloraTheme.QuietAction : tone,
+                    false, null, inMenu || sharePostcard);
+                Width(explore, inMenu ? 200 : sharePostcard ? 150 : 96);
+                if (sharePostcard) EndingCaption(explore);
                 return;
             }
             Width(IconButton(row, cancelName, GameLocalization.Text("keep"), MosseloraArt.IconCancel,
@@ -2140,6 +2146,18 @@ namespace Evergrove.UnityClient
 
         // The share button shows what it shares: a tiny postcard of the season's
         // festival painting, with the chat mark tucked in its corner (I97).
+        // Readable captions under the ending's two pictures: 15pt, clear of the
+        // postcard's corner badge (I136).
+        private void EndingCaption(Button button)
+        {
+            var group = button.GetComponent<VerticalLayoutGroup>();
+            if (group != null) { group.spacing = 9; group.padding = new RectOffset(8, 8, 9, 9); }
+            Transform caption = button.transform.Find("Caption");
+            Text text = caption != null ? caption.GetComponent<Text>() : null;
+            if (text != null) StyleText(text, 15);
+            MinHeight(button.gameObject, TextScale.Scale(104));
+        }
+
         private static void ShowPostcard(Button button)
         {
             Transform iconNode = button.transform.Find("Icon");
