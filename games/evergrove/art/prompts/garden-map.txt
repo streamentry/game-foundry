@@ -1,0 +1,7 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING village painting of this game: match its hand-painted watercolour storybook palette, warm light and soft edges exactly. Generate exactly ONE image.
+Use case: the main open garden map of a calm village garden game (players will place trees, flowers and small buildings on it)
+Asset type: one large TOP-DOWN (bird's-eye, straight down) painted garden plot map
+Primary request: a straight top-down view of a gentle green valley garden plot, portrait orientation. A single clear blue creek enters at the top edge slightly left of centre and winds in two soft S-curves down to the bottom edge slightly right of centre, about one tenth of the map wide, with a few mossy stones along its banks. A small thatched stone cottage seen from above sits in the top-right corner. A narrow pale earth footpath runs from the cottage down the right side of the map. EVERYTHING ELSE is open, empty, calm land for the player to fill: soft grass with gentle meadow patches, a few bare soil patches, tiny clover and daisy texture, no trees, no flowers beds, no buildings, no fences other than the cottage. Even lighting, no strong shadows, no perspective, no horizon, no sky.
+Composition: 1024x1536 portrait canvas, the land fills the whole canvas edge to edge.
+Constraints: no text, no letters, no labels, no grid lines, no UI, no watermark, no people, no animals.
+Copy the final PNG to games/evergrove/art/generated/garden-map.png and print the path. Do nothing else.
