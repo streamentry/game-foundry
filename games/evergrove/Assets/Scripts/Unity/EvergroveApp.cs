@@ -1971,6 +1971,36 @@ namespace Evergrove.UnityClient
             if (fade != null) fade.alpha = 0f;
         }
 
+        // Undo appears only once there is something to undo: before the first
+        // move its place stays empty (no layout shift), then it fades in (I155).
+        private void ShowUndo(bool available, bool animate)
+        {
+            if (undoButton == null) return;
+            var group = undoButton.GetComponent<CanvasGroup>();
+            if (group == null) group = undoButton.gameObject.AddComponent<CanvasGroup>();
+            group.blocksRaycasts = available;
+            float target = available ? 1f : 0f;
+            if (Mathf.Approximately(group.alpha, target)) return;
+            bool motion = animate && gentleMotion;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) motion = false;
+#endif
+            if (!motion) { group.alpha = target; return; }
+            StartCoroutine(FadeGroup(group, target, 0.25f));
+        }
+
+        private static IEnumerator FadeGroup(CanvasGroup group, float target, float seconds)
+        {
+            float from = group.alpha;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / seconds)
+            {
+                if (group == null) yield break;
+                group.alpha = Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t));
+                yield return null;
+            }
+            if (group != null) group.alpha = target;
+        }
+
         // A cream disc with the turning arrow at a tile's top-right corner. It
         // turns a quarter at a time, as the tile will, and leaves with the goal
         // glows on the first move.
@@ -3635,6 +3665,7 @@ namespace Evergrove.UnityClient
                     MosseloraArt.IconUndo, () => Act(() => world.Undo(), "undo"),
                     toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
                 undoButton.interactable = world.CanUndo;
+                ShowUndo(world.CanUndo, false);
                 // Hint depth shows as a small 1/2 or 2/2 badge, not words.
                 Button hintButton = IconButton(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
@@ -4501,7 +4532,11 @@ namespace Evergrove.UnityClient
             if (feedbackText != null)
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
                     insight.ConnectedCount, puzzle.CellCount, insight.LeakCount));
-            if (undoButton != null) undoButton.interactable = world.CanUndo;
+            if (undoButton != null)
+            {
+                undoButton.interactable = world.CanUndo;
+                ShowUndo(world.CanUndo, true);
+            }
             if (activeIllustration != null || activePainting != null)
             {
                 // The world responds to meaningful changes in reachable water
