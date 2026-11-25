@@ -211,7 +211,7 @@ namespace Evergrove.Core
             "Text size",
             "Larger board",
             "Gentle motion",
-            "Copy garden postcard",
+            "Send a garden postcard",
             "Postcard copied. Paste it into a message to share your garden.",
             "Your tree is turning gold. It will lose its leaves and come back greener.",
             "Snow rests on the branches of your tree. It is sleeping, not gone.",

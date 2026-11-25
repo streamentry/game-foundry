@@ -2049,7 +2049,10 @@ namespace Evergrove.UnityClient
                     Button postcard = null;
                     postcard = IconButton(row, "Copy garden postcard", GameLocalization.Text("postcard"),
                         MosseloraArt.IconChat, () => {
-                            GUIUtility.systemCopyBuffer = GardenPostcard.Build(world, "");
+                            // The phone's own share sheet first (I149); the clipboard if none.
+                            string text = GardenPostcard.Build(world, "");
+                            if (NativeShare.Text(text, GameLocalization.Text("postcard"))) return;
+                            GUIUtility.systemCopyBuffer = text;
                             RuleToast.Show(postcard.GetComponent<RectTransform>(),
                                 GameLocalization.Text("postcard_copied"), font, Ink, MosseloraTheme.CardFill);
                         }, 96, MosseloraTheme.WaterAction, false, null, true);
@@ -4743,8 +4746,10 @@ namespace Evergrove.UnityClient
             Transform row = CenteredRowIn(card.transform, "Postcard row");
             Width(IconButton(row, "Copy garden postcard", GameLocalization.Text("postcard"),
                 MosseloraArt.IconChat, () => {
-                    GUIUtility.systemCopyBuffer = GardenPostcard.Build(world,
+                    string text = GardenPostcard.Build(world,
                         world.Completed ? "" : GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count));
+                    if (NativeShare.Text(text, GameLocalization.Text("postcard"))) return; // share sheet (I149)
+                    GUIUtility.systemCopyBuffer = text;
                     postcardCopied = true;
                     Rebuild();
                 }, 78, MosseloraTheme.WaterAction, false, null, true), 240);
