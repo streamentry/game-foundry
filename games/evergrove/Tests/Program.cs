@@ -1458,6 +1458,72 @@ internal static class Program
             "an index past the history is the empty memory");
     }
 
+    private static void BoardFitTests()
+    {
+        // Portrait keeps the EG-007 sizing: a 402 pt iPhone column gives the 3x3 cap.
+        Expect(BoardFit.Portrait(343f, 3, 7) == 90, "portrait 3x3 on a 402 pt phone hits the 90 pt cap");
+        Expect(BoardFit.Portrait(200f, 3, 7) == 62, "a narrow column shrinks portrait tiles");
+        Expect(BoardFit.Portrait(120f, 3, 7) == 48, "portrait tiles never fall below 48 pt");
+        Expect(BoardFit.Portrait(343f, 4, 5) == 67, "portrait 4x4 hits its 67 pt cap");
+
+        // Sideways on an iPhone 16 Pro class phone (about 392 pt tall, 361 pt column):
+        // the tool rail frees height, so the unsolved board is bigger than the solved one (I116).
+        int unsolved = BoardFit.Landscape(392f, 361f, 3, 7, false);
+        int solved = BoardFit.Landscape(392f, 361f, 3, 7, true);
+        Expect(unsolved == 78, "sideways unsolved 3x3 tiles are 78 pt on a 392 pt screen");
+        Expect(solved == 53, "sideways solved 3x3 tiles are 53 pt without the rail");
+        Expect(unsolved > solved, "the tool rail buys the unsolved board height");
+
+        // A sideways iPad (896 pt logical height, 560 pt column) gets bigger tiles
+        // than the phone cap allows, up to the tablet cap (I122).
+        int tabletTile = BoardFit.Landscape(896f, 560f - 59f, 3, 7, false, BoardFit.TabletCap);
+        Expect(tabletTile == BoardFit.TabletCap, "a sideways iPad grows 3x3 tiles to the 120 pt tablet cap");
+        Expect(BoardFit.Landscape(896f, 501f, 3, 7, false) == 90, "without the tablet cap the phone cap holds");
+        Expect(BoardFit.Landscape(896f, 501f, 4, 5, false, BoardFit.TabletCap) <= BoardFit.TabletCap,
+            "the tablet cap bounds 4x4 tiles too");
+        for (float height = 600f; height <= 1100f; height += 25f)
+            for (float width = 380f; width <= 640f; width += 20f)
+            {
+                int capped = BoardFit.Landscape(height, width, 3, 7, false, BoardFit.TabletCap);
+                Expect(capped >= BoardFit.MinTouch && capped <= BoardFit.TabletCap, "tablet tiles stay within bounds");
+                if (capped > BoardFit.MinTouch)
+                    Expect(BoardFit.Span(capped, 3, 7) + BoardFit.RailWidth + BoardFit.RailGap <= width + 0.5f,
+                        "the rail still fits beside a tablet board");
+            }
+
+        // Properties across phone heights and column widths, sizes 3 to 5.
+        for (int size = 3; size <= 5; size++)
+        {
+            int gap = size == 3 ? 7 : 5;
+            int previous = 0;
+            for (float height = 300f; height <= 460f; height += 4f)
+            {
+                for (float width = 260f; width <= 480f; width += 20f)
+                {
+                    foreach (bool done in new[] { false, true })
+                    {
+                        int tile = BoardFit.Landscape(height, width, size, gap, done);
+                        Expect(tile >= BoardFit.MinTouch, "sideways tiles keep a 44 pt touch target");
+                        Expect(tile <= BoardFit.MaxTile(size), "sideways tiles respect the size cap");
+                        int span = BoardFit.Span(tile, size, gap);
+                        float below = done ? BoardFit.BelowSolved : BoardFit.BelowUnsolved;
+                        // Whenever the minimum does not bind, the board and its chrome fit the height.
+                        if (tile > BoardFit.MinTouch)
+                            Expect(span + gap + below <= height + 0.5f,
+                                "sideways board and chrome fit the screen height");
+                        // Unsolved, the rail always has its room beside the board.
+                        if (!done && tile > BoardFit.MinTouch)
+                            Expect(span + BoardFit.RailWidth + BoardFit.RailGap <= width + 0.5f,
+                                "the tool rail fits beside the board");
+                    }
+                }
+                int tallest = BoardFit.Landscape(height, 480f, size, gap, false);
+                Expect(tallest >= previous, "a taller screen never shrinks the tiles");
+                previous = tallest;
+            }
+        }
+    }
+
     private static void HubRecallTests()
     {
         // The hub recalls the newest memory first, then a different past one on
@@ -1539,6 +1605,7 @@ internal static class Program
             SeasonalNeighborTests();
             RepeatedMemoryTests();
             HubRecallTests();
+            BoardFitTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;

@@ -154,7 +154,7 @@ Use the rule that was predeclared. The sources disagree. Choose one set below be
 - Consent record retention schedule and deletion method.
 - Storage location of private records, outside the public repo.
 
-## 7. Painted-build addendum (design iterations I01–I69, 2026-11-24)
+## 7. Painted-build addendum (design iterations I01–I125, updated 2026-11-25)
 
 The painted UI made several bets that only real players can settle. Observe these **without prompting** and record them on the sheet, separately for each age band (40–49, 50–64, 65+). Each links to its iteration log in `docs/improvements/`.
 
@@ -169,6 +169,9 @@ The painted UI made several bets that only real players can settle. Observe thes
 | P7 | The menu and the book are found when needed (I03) | Can they change text size when asked, unaided? | 3+ of 10 can't find it in 60 s |
 | P8 | Seasonal stones and the hub's latest memory invite a return (I63, I69) | Day-2 voluntary return (consented follow-up only) | Below the predeclared D1 threshold |
 | P9 | Motion is pleasant, not distracting (I19, I24, I33, I39) | Comments, or turning Gentle motion off | 3+ of 10 turn it off or call it distracting |
+| P10 | The painted stone path shows progress (I120, I123, I124): water under the walked stones, a ring and sprout on yours | After stream 2, ask "where are you in the season, and how far is left?" | 3+ of 10 can't say which stones are done, or which one is theirs |
+| P11 | The story reads comfortably in the book serif (I117, I125); labels stay in the rounded sans | Squinting, leaning in, or comments while reading the memory card and journal; whether they raise text size | 3+ of 10 struggle to read story lines that they read easily as labels |
+| P12 | Sideways play is wanted and works (I114–I116, I122) | Do they rotate the phone unprompted? If they do, can they find the menu and book on the painting, and Undo/Hint beside the board? | Of those who rotate, 2+ get lost; record the rotation rate either way (it decides whether landscape earns its upkeep) |
 
-**Reversal rule.** Any P-item that fails reverts to the more explicit option already recorded in its iteration log, for example labelled tools (pre-I53) or a coach sentence (I64 kept it). Do not redesign from intuition between sessions.
+**Reversal rule.** Any P-item that fails reverts to the more explicit option already recorded in its iteration log, for example labelled tools (pre-I53) or a coach sentence (I64 kept it). Do not redesign from intuition between sessions. Fallbacks for the newer bets: **P10** shows the spoken position ("Stream 3 of 12") as visible text under the path, or reverts to the pre-I120 dots; **P11** sets story lines back in the rounded sans (pre-I117); **P12** locks the app to portrait (pre-I114) if rotation is rare and confusing, or keeps it if rare but harmless.
 

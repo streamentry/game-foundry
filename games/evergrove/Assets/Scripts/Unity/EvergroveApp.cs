@@ -32,6 +32,7 @@ namespace Evergrove.UnityClient
         private Font font;
         private Font baseFont;
         private Font displayFont; // optional rounded heading face (iOS)
+        private Font bookFont;    // optional book serif for the story's own voice (iOS, I117)
         private bool languagePicker;
         private RectTransform content;
         private RectTransform scrollArea;
@@ -220,7 +221,14 @@ namespace Evergrove.UnityClient
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
             displayFont = RoundedDisplayFont();
+            bookFont = BookFont();
             LocaleRuntime.Initialize();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Dev-only: hold the app sideways so landscape can be toured on any
+            // simulator from the shell (SIMCTL_CHILD_mosseloraOrientation=landscape).
+            if (DevArgs.Read("-mosseloraOrientation") == "landscape")
+                Screen.orientation = ScreenOrientation.LandscapeLeft;
+#endif
             TextScale.Initialize();
             BoardSize.Initialize();
             font =LocaleFonts.Choose(LocaleRuntime.Current, baseFont);
@@ -245,6 +253,52 @@ namespace Evergrove.UnityClient
         // Rounded bold display face for English headings and actions, as in the
         // painted references. iOS ships Arial Rounded MT Bold (a single upright
         // face); elsewhere headings fall back to the runtime face in bold. Never bundled.
+        // A book serif already on the device: iOS ships Charter and Georgia, Android
+        // ships Noto Serif (I125). Never bundled; without one the story keeps the runtime face.
+        private static readonly string[] BookFaces = { "Charter", "Georgia", "Noto Serif", "NotoSerif" };
+
+        private static Font BookFont()
+        {
+            try
+            {
+                string[] installed = Font.GetOSInstalledFontNames();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log("Mosselora OS serif candidates: " + string.Join(", ",
+                    Array.FindAll(installed, n => n.IndexOf("serif", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.StartsWith("Charter", StringComparison.OrdinalIgnoreCase)
+                        || n.StartsWith("Georgia", StringComparison.OrdinalIgnoreCase))));
+#endif
+                foreach (string wanted in BookFaces)
+                {
+                    // The plain family first ("Charter"), so a heavier cut is never picked.
+                    foreach (string name in installed)
+                        if (string.Equals(name, wanted, StringComparison.OrdinalIgnoreCase))
+                        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                            Debug.Log("Mosselora book face: " + name);
+#endif
+                            return Font.CreateDynamicFontFromOSFont(name, 18);
+                        }
+                    foreach (string name in installed)
+                        if (name.StartsWith(wanted, StringComparison.OrdinalIgnoreCase)
+                            && name.IndexOf("Sans", StringComparison.OrdinalIgnoreCase) < 0
+                            && name.IndexOf("Italic", StringComparison.OrdinalIgnoreCase) < 0
+                            && name.IndexOf("Bold", StringComparison.OrdinalIgnoreCase) < 0)
+                        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                            Debug.Log("Mosselora book face: " + name);
+#endif
+                            return Font.CreateDynamicFontFromOSFont(name, 18);
+                        }
+                }
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning("Mosselora book font lookup unavailable: " + exception.GetType().Name);
+            }
+            return null;
+        }
+
         private static Font RoundedDisplayFont()
         {
             try
@@ -261,6 +315,21 @@ namespace Evergrove.UnityClient
         }
 
         // Headings and action captions: rounded display face in English, bold elsewhere.
+        // The story's own voice (memories, what neighbours say, the ending) is set
+        // like a book; labels and instructions keep the rounded sans (I117).
+        // Upright roman throughout: bold serif ran wide and orphaned a word, and a
+        // thin italic aside lost contrast on the paper for older eyes (I117).
+        private void Narrate(Text text, bool lead = false)
+        {
+            if (bookFont != null && font == baseFont && GameLocalization.Current == "en")
+            {
+                text.font = bookFont;
+                text.fontStyle = FontStyle.Normal;
+            }
+            else if (lead)
+                Emphasize(text);
+        }
+
         private void Emphasize(Text text)
         {
             if (displayFont != null && font == baseFont && GameLocalization.Current == "en")
@@ -289,6 +358,11 @@ namespace Evergrove.UnityClient
                 lastScreen = size;
                 lastSafeArea = safe;
                 FitSafeArea();
+                if (landscape != lastLandscape)
+                {
+                    lastLandscape = landscape;
+                    OnOrientationChanged();
+                }
             }
         }
 
@@ -466,19 +540,166 @@ namespace Evergrove.UnityClient
         // stretching every painting across a wide screen. Phones are unchanged.
         private const float TabletAspect = 0.62f;
         private const float MaxColumn = 480f;
-        private float columnInset;
+        private float columnLeft, columnRight;
+        // Landscape (I114): turning the phone opens the garden full height on the
+        // left and keeps play in a book-width column on the right.
+        private bool landscape, lastLandscape;
+        // A sideways tablet: a wider play column and bigger tiles than a phone (I122).
+        private bool landscapeTablet;
+        private const float TabletLandscapeColumn = 560f;
+        private RectTransform chromeBand;
+        private GameObject landscapeGarden;
 
         private void FitColumn()
         {
             if (viewportScaler == null || Screen.height <= 0) return;
             Rect safe = Screen.safeArea;
-            bool tablet = safe.height > 0f && safe.width / safe.height > TabletAspect;
-            viewportScaler.matchWidthOrHeight = tablet ? 1f : 0.5f;
+            if (safe.width <= 0f || safe.height <= 0f) return;
+            float aspect = safe.width / safe.height;
+            landscape = aspect > 1f;
+            bool tablet = !landscape && aspect > TabletAspect;
+            // A sideways phone keeps a phone's sizes: it scales to a 414-point-tall
+            // reference instead of shrinking the portrait page to fit its height.
+            bool landscapePhone = landscape && aspect >= 1.6f;
+            landscapeTablet = landscape && !landscapePhone;
+            viewportScaler.referenceResolution = landscapePhone ? new Vector2(896, 414) : new Vector2(414, 896);
+            viewportScaler.matchWidthOrHeight = tablet || landscape ? 1f : 0.5f;
             float logicalWidth = safe.width / LiveCanvasScale();
-            columnInset = tablet ? Mathf.Max(0f, Mathf.Floor((logicalWidth - MaxColumn) / 2f)) : 0f;
+            if (landscape)
+            {
+                float width = Mathf.Clamp(Mathf.Floor(logicalWidth * 0.5f), 380f,
+                    landscapeTablet ? TabletLandscapeColumn : MaxColumn);
+                columnLeft = Mathf.Max(0f, Mathf.Floor(logicalWidth - width));
+                columnRight = 0f;
+            }
+            else
+                columnLeft = columnRight = tablet ? Mathf.Max(0f, Mathf.Floor((logicalWidth - MaxColumn) / 2f)) : 0f;
             var column = content != null ? content.GetComponent<VerticalLayoutGroup>() : null;
+            // Sideways the menu and book sit on the painting (I116), so the play
+            // column starts at the top: no inset spent on chrome it doesn't carry.
             if (column != null)
-                column.padding = new RectOffset(17 + (int)columnInset, 17 + (int)columnInset, 15, 36);
+                column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight, 15, 36);
+            if (chromeBand != null)
+            {
+                chromeBand.offsetMin = new Vector2(columnLeft, -104f);
+                chromeBand.offsetMax = Vector2.zero;
+                chromeBand.gameObject.SetActive(!landscape);
+            }
+            FitSheet(menuSheet, "Menu panel");
+            FitSheet(journalSheet, "Journal panel");
+        }
+
+        // Sheets stay a readable width when the phone is sideways (I114).
+        private void FitSheet(GameObject sheet, string panelName)
+        {
+            Transform panel = sheet != null ? sheet.transform.Find(panelName) : null;
+            if (panel == null) return;
+            var rect = (RectTransform)panel;
+            if (landscape)
+            {
+                rect.anchorMin = new Vector2(0.5f, 0f);
+                rect.anchorMax = new Vector2(0.5f, 0.92f);
+                rect.offsetMin = new Vector2(-260f, 0f);
+                rect.offsetMax = new Vector2(260f, 0f);
+            }
+            else
+            {
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = new Vector2(1f, 0.86f);
+                rect.offsetMin = new Vector2(8f, 0f);
+                rect.offsetMax = new Vector2(-8f, 0f);
+            }
+        }
+
+        // The phone turned: rebuild the hub (if open) and the page for the new shape.
+        private void OnOrientationChanged()
+        {
+            if (titleScreen != null)
+            {
+                Transform host = titleScreen.transform.parent;
+                titleScreen.SetActive(false);
+                Destroy(titleScreen);
+                titleScreen = null;
+                BuildTitleScreen(host);
+            }
+            Rebuild();
+        }
+
+        // Landscape only: the season's garden, full height, left of the play column.
+        private void LandscapeGarden(bool living)
+        {
+            if (landscapeGarden != null)
+            {
+                landscapeGarden.SetActive(false);
+                Destroy(landscapeGarden);
+                landscapeGarden = null;
+            }
+            if (!landscape || canvasRoot == null) return;
+            Rect safe = Screen.safeArea;
+            float split = (safe.xMin + columnLeft * LiveCanvasScale()) / Mathf.Max(1, Screen.width);
+            landscapeGarden = Node("Landscape garden", canvasRoot);
+            landscapeGarden.transform.SetSiblingIndex(1); // above the paper, under the page
+            var rect = landscapeGarden.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = new Vector2(split, 1f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            int[] story = world.Choices;
+            Sprite hero = world.Completed ? MosseloraArt.Load(MosseloraArt.EndingFestival) : null;
+            if (hero == null && living && story.Length > 0)
+            {
+                int last = story[story.Length - 1];
+                hero = MosseloraArt.Load(last == 0 ? MosseloraArt.VignetteTree
+                    : last == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
+            }
+            if (hero == null) hero = MosseloraArt.Load(MosseloraArt.HeroVillage);
+            GardenScene(landscapeGarden.transform, hero, living, false, Vector2.one, new Vector2(1f, 0.36f));
+        }
+
+        // Painting above, your village strip (real water, landmarks, neighbours) below,
+        // melting into the paper at the bottom and on the right edge.
+        private void GardenScene(Transform parent, Sprite hero, bool living, bool fromTitle,
+                                 Vector2 windowMax, Vector2 stripMax)
+        {
+            var window = Node("Village window", parent);
+            var windowRect = window.GetComponent<RectTransform>();
+            windowRect.anchorMin = Vector2.zero;
+            windowRect.anchorMax = windowMax;
+            windowRect.offsetMin = windowRect.offsetMax = Vector2.zero;
+            window.AddComponent<RectMask2D>();
+            if (hero != null)
+            {
+                var art = Node("Garden painting", window.transform);
+                Fill(art.GetComponent<RectTransform>());
+                var image = art.AddComponent<Image>();
+                image.sprite = hero;
+                image.raycastTarget = false;
+                var fit = art.AddComponent<AspectRatioFitter>();
+                fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fit.aspectRatio = MosseloraArt.Aspect(hero);
+            }
+            var side = Node("Garden melt right", window.transform);
+            var sideRect = side.GetComponent<RectTransform>();
+            sideRect.anchorMin = new Vector2(1f, 0f);
+            sideRect.anchorMax = new Vector2(1f, 1f);
+            sideRect.pivot = new Vector2(1f, 0.5f);
+            sideRect.sizeDelta = new Vector2(56f, 0f);
+            var sideImage = side.AddComponent<Image>();
+            sideImage.sprite = MosseloraArt.SideFade();
+            sideImage.color = Paper;
+            sideImage.raycastTarget = false;
+            if (!living) return;
+            var strip = Node("Your village", parent);
+            var stripRect = strip.GetComponent<RectTransform>();
+            stripRect.anchorMin = Vector2.zero;
+            stripRect.anchorMax = stripMax;
+            stripRect.offsetMin = stripRect.offsetMax = Vector2.zero;
+            var painting = strip.AddComponent<PaintedVillage>();
+            VillageScenePlan plan = VillageScenePlan.From(world);
+            painting.Build(0f, PaintedVillage.SeasonFor(plan.LandscapePhase, world.Completed));
+            if (painting.Ready)
+                painting.Show(plan.Chapter, plan.TreeCount, plan.CrossingCount, plan.FlowerCount,
+                    plan.WaterRestored, plan.WaterReachPercent);
+            NeighborsOnPainting(strip.transform, fromTitle);
         }
 
         private void CreateRoot()
@@ -571,6 +792,7 @@ namespace Evergrove.UnityClient
             fadeImage.color = Paper;
             fadeImage.raycastTarget = false;
             ScrollFade.Attach(bandGroup, content);
+            chromeBand = bandRect;
             var chromeNode = Node("Game chrome", scrollNode.transform);
             chrome = chromeNode.GetComponent<RectTransform>();
             chrome.anchorMin = new Vector2(0f, 1f);
@@ -965,6 +1187,7 @@ namespace Evergrove.UnityClient
                 faceImage.raycastTarget = false;
             }
             Text line = Label(memory, name, LocalizedVillage.MemoryAt(past, index), 14, 0, Ink, TextAnchor.MiddleLeft);
+            Narrate(line);
             line.GetComponent<LayoutElement>().flexibleWidth = 1f;
         }
 
@@ -1030,7 +1253,11 @@ namespace Evergrove.UnityClient
             // the painting of your most recent memory, else the everyday village.
             int[] story = world.Choices;
             // Newest memory first; each later launch recalls an earlier one (I107).
-            hubRecall = world.Mode == PlayMode.Living ? PickHubRecall(story.Length) : -1;
+            if (!hubRecallPicked)
+            {
+                hubRecall = world.Mode == PlayMode.Living ? PickHubRecall(story.Length) : -1;
+                hubRecallPicked = true;
+            }
             Sprite hero = null;
             if (world.Completed) hero = MosseloraArt.Load(MosseloraArt.EndingFestival);
             else if (hubRecall >= 0)
@@ -1135,7 +1362,30 @@ namespace Evergrove.UnityClient
             Width(start, 150);
             HubChrome();
             titleScreen.transform.SetAsLastSibling();
-            StartCoroutine(FitHubStack(windowRect, stripRect, stackRect));
+            if (landscape)
+            {
+                // Sideways (I114): the painting and village fill the left, the
+                // wordmark and Play stand in the right-hand column.
+                const float split = 0.56f;
+                windowRect.anchorMin = Vector2.zero;
+                windowRect.anchorMax = new Vector2(split, 1f);
+                stripRect.anchorMin = Vector2.zero;
+                stripRect.anchorMax = new Vector2(split, 0.36f);
+                stackRect.anchorMin = new Vector2(split, 0.04f);
+                stackRect.anchorMax = new Vector2(1f, 0.96f);
+                var side = Node("Village melt right", window.transform);
+                var sideRect = side.GetComponent<RectTransform>();
+                sideRect.anchorMin = new Vector2(1f, 0f);
+                sideRect.anchorMax = new Vector2(1f, 1f);
+                sideRect.pivot = new Vector2(1f, 0.5f);
+                sideRect.sizeDelta = new Vector2(56f, 0f);
+                var sideImage = side.AddComponent<Image>();
+                sideImage.sprite = MosseloraArt.SideFade();
+                sideImage.color = Paper;
+                sideImage.raycastTarget = false;
+            }
+            else
+                StartCoroutine(FitHubStack(windowRect, stripRect, stackRect));
         }
 
         // The words and Play under the painting take the room they need: at
@@ -1174,7 +1424,7 @@ namespace Evergrove.UnityClient
             rect.anchoredPosition = Vector2.zero;
             Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => { CloseTitle(); SetMenu(true); }, 54, MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, -6f));
+            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
             if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
             {
                 Button book = IconButton(bar.transform, "Memories", GameLocalization.Text("journal_show"),
@@ -1184,9 +1434,9 @@ namespace Evergrove.UnityClient
                         showJournal = true;
                         Rebuild();
                         if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
-                    }, 54, MosseloraTheme.QuietAction, false,
-                    world.Choices.Length.ToString(CultureInfo.InvariantCulture));
-                PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+                    }, 54, MosseloraTheme.QuietAction);
+                PlaceBook(book);
+                MarkUnreadMemory(book);
             }
         }
 
@@ -1219,6 +1469,7 @@ namespace Evergrove.UnityClient
         }
 
         private int hubRecall = -1;
+        private bool hubRecallPicked; // a rotation rebuilds the hub; it must not advance the recall
         private const string HubRecallKey = "evergrove:hub-recall";
 
         // Reads "count:index" from the last launch, picks this launch's memory
@@ -1363,8 +1614,8 @@ namespace Evergrove.UnityClient
             // Screen edge to screen edge (past the tablet column, I111). It stops at
             // the bed's top: the creek is drawn after the text above the board, so
             // reaching upward would cover it. Below, a band melts into the paper.
-            windowRect.offsetMin = new Vector2(-17f - columnInset, -46f);
-            windowRect.offsetMax = new Vector2(17f + columnInset, 0f);
+            windowRect.offsetMin = new Vector2(-17f - columnLeft, -46f);
+            windowRect.offsetMax = new Vector2(17f + columnRight, 0f);
             window.AddComponent<RectMask2D>();
             var art = Node("Creek painting", window.transform);
             Fill(art.GetComponent<RectTransform>());
@@ -1446,7 +1697,7 @@ namespace Evergrove.UnityClient
             if (chrome == null) return;
             Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => SetMenu(!menuOpen), 54, MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, -6f));
+            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
             if (living && world.Choices.Length > 0)
             {
                 Button book = IconButton(chrome, "Memories",
@@ -1456,12 +1707,28 @@ namespace Evergrove.UnityClient
                         if (showJournal) menuOpen = false;
                         Rebuild();
                         if (showJournal && journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
-                    }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                    // The memory count makes the book read as "your collection", not "rules".
-                    false, world.Choices.Length.ToString(CultureInfo.InvariantCulture));
-                PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+                    }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
+                PlaceBook(book);
+                if (!showJournal) MarkUnreadMemory(book);
             }
         }
+
+        // Top right in portrait; sideways it joins the menu on the painting, so
+        // the play column carries no chrome (I116).
+        private void PlaceBook(Button book)
+        {
+            if (landscape) PlaceChrome(book, new Vector2(0f, 1f), new Vector2(86f, ChromeTop));
+            else PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+        }
+
+        // Sideways there is no top safe inset, so the chrome sits a little lower
+        // and the book's new-memory mark is not clipped by the screen edge (I116).
+        private float ChromeTop { get { return landscape ? -12f : -6f; } }
+
+        // Sideways, Undo and Hint stand in a rail right of the board, so the
+        // board gets the height a tool row would take below it (I116).
+        private const float ToolRailWidth = BoardFit.RailWidth;
+        private const float ToolRailGap = BoardFit.RailGap;
 
         private static void PlaceChrome(Button control, Vector2 corner, Vector2 offset)
         {
@@ -1610,8 +1877,8 @@ namespace Evergrove.UnityClient
             Text speaker = Label(bubble.transform, "Neighbor name",
                 LocalizedVillage.Name(speakingWith), 15, 0, Leaf, TextAnchor.MiddleLeft);
             Emphasize(speaker);
-            Label(bubble.transform, "What they say",
-                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft);
+            Narrate(Label(bubble.transform, "What they say",
+                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
                 MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
                 MosseloraTheme.ForestAction);
@@ -1908,29 +2175,91 @@ namespace Evergrove.UnityClient
             var stones = Node("Stepping stones", row.transform);
             var stoneRow = stones.AddComponent<HorizontalLayoutGroup>();
             stoneRow.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
-            stoneRow.childAlignment = TextAnchor.MiddleCenter;
-            stoneRow.spacing = 7;
+            // Painted stones sit on one waterline, like a path across the creek (I120).
+            bool paintedPath = MosseloraArt.Load(MosseloraArt.StoneHere) != null;
+            stoneRow.childAlignment = paintedPath ? TextAnchor.LowerCenter : TextAnchor.MiddleCenter;
+            stoneRow.spacing = paintedPath ? 4 : 7;
             stoneRow.childControlWidth = true;
             stoneRow.childControlHeight = true;
             stoneRow.childForceExpandWidth = false;
             stoneRow.childForceExpandHeight = false;
+            // The path starts at the spring (I123): water already runs from it to your
+            // stone, so even on the first stream "the water reaches here, not beyond"
+            // shows before any stone has been walked.
+            Sprite spring = paintedPath ? MosseloraArt.Load(MosseloraArt.SpringWaves) : null;
+            if (spring != null)
+            {
+                var source = Node("Spring", stones.transform);
+                var sourceLayout = source.AddComponent<LayoutElement>();
+                sourceLayout.minWidth = sourceLayout.preferredWidth = 20f;
+                sourceLayout.minHeight = sourceLayout.preferredHeight = 20f;
+                PathWater(source.transform, stoneRow, true, false);
+                var sourceArt = Node("Spring art", source.transform);
+                Fill(sourceArt.GetComponent<RectTransform>());
+                var sourceImage = sourceArt.AddComponent<Image>();
+                sourceImage.sprite = spring;
+                sourceImage.preserveAspect = true;
+                sourceImage.raycastTarget = false;
+            }
             for (int i = 0; i < PuzzleCatalog.Count; i++)
             {
                 bool here = i == world.Round;
                 bool passed = i < world.Round;
                 var stone = Node(passed ? "Stone passed" : here ? "Stone here" : "Stone ahead", stones.transform);
                 var layout = stone.AddComponent<LayoutElement>();
-                float size = here ? 22f : 14f; // was 18 / 11: legible at arm's length (I84)
-                layout.minWidth = layout.preferredWidth = size;
-                layout.minHeight = layout.preferredHeight = size;
-                var image = stone.AddComponent<Image>();
                 // The stone just passed lights up once on arrival at the next stream.
                 if (named && gentleMotion && settledRound != world.Round && i == world.Round - 1)
                     BloomPulse.Add(stone, 0.25f, 0.45f);
+                // Painted river stones across the creek (Codex, I120): the ones ahead wear
+                // their season, the one you stand on grows a sprout, and the water you
+                // have already brought runs under every walked stone up to yours.
+                Sprite painted = PathStone(i, here, passed);
+                if (painted != null)
+                {
+                    float width = here ? 34f : 22f;
+                    layout.minWidth = layout.preferredWidth = width;
+                    layout.minHeight = layout.preferredHeight = Mathf.Round(width / MosseloraArt.Aspect(painted));
+                    // A cold-read could not tell walked stones from ahead by the stones
+                    // alone; a thin stream under every walked stone, reaching half way
+                    // under yours, says "the water got this far" in the game's language.
+                    if (passed || (here && (i > 0 || spring != null)))
+                        PathWater(stone.transform, stoneRow, !here, here);
+                    if (here)
+                    {
+                        // The old leaf-green ring, now around your stone: one high-contrast
+                        // mark the eye finds at once, which the sprout alone did not match.
+                        var ring = Node("You are here", stone.transform);
+                        var ringRect = ring.GetComponent<RectTransform>();
+                        ringRect.anchorMin = ringRect.anchorMax = new Vector2(0.5f, 0.5f);
+                        ringRect.sizeDelta = new Vector2(width + 10f, layout.preferredHeight + 10f);
+                        ringRect.anchoredPosition = Vector2.zero;
+                        var ringImage = ring.AddComponent<Image>();
+                        ringImage.sprite = MosseloraArt.MarkerRing();
+                        ringImage.type = Image.Type.Sliced;
+                        ringImage.pixelsPerUnitMultiplier = MosseloraArt.MarkerRingScale;
+                        ringImage.color = Leaf;
+                        ringImage.raycastTarget = false;
+                    }
+                    var art = Node("Stone art", stone.transform);
+                    Fill(art.GetComponent<RectTransform>());
+                    var artImage = art.AddComponent<Image>();
+                    artImage.sprite = painted;
+                    artImage.preserveAspect = true;
+                    artImage.raycastTarget = false;
+                    // Pale frost, moss and the sunlit "here" stone are deepened a little so
+                    // every stone keeps at least 3:1 against the paper, as the old dots did
+                    // (WCAG 1.4.11, I84): summer 3.9, autumn 4.1, winter 3.4, here 3.2.
+                    artImage.color = passed ? Color.white : new Color(0.84f, 0.84f, 0.84f, 1f);
+                    continue;
+                }
+                var image = stone.AddComponent<Image>();
+                image.raycastTarget = false;
+                float size = here ? 22f : 14f; // was 18 / 11: legible at arm's length (I84)
+                layout.minWidth = layout.preferredWidth = size;
+                layout.minHeight = layout.preferredHeight = size;
                 image.sprite = here ? MosseloraArt.BoldRing() : MosseloraArt.Rounded(4);
                 image.type = Image.Type.Simple;
                 image.color = here ? Leaf : passed ? MosseloraTheme.WaterChannel : SeasonStone(i);
-                image.raycastTarget = false;
             }
             if (!named) return;
             string name = GameLocalization.Current == "en" ? puzzle.Name : "";
@@ -1964,6 +2293,44 @@ namespace Evergrove.UnityClient
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count),
                 12, 0, new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
+        }
+
+        // The thin stream under the path: full width under walked stones and the
+        // spring, half way under your stone, overlapping neighbours so it has no seams.
+        private void PathWater(Transform holder, HorizontalLayoutGroup row, bool flowsOn, bool endsHere)
+        {
+            var water = Node("Water so far", holder);
+            water.transform.SetAsFirstSibling(); // under the stone
+            var waterRect = water.GetComponent<RectTransform>();
+            bool rtl = row.reverseArrangement;
+            float reachStart = rtl && endsHere ? 0.5f : 0f;
+            float reachEnd = !rtl && endsHere ? 0.5f : 1f;
+            waterRect.anchorMin = new Vector2(reachStart, 0f);
+            waterRect.anchorMax = new Vector2(reachEnd, 0f);
+            waterRect.pivot = new Vector2(0.5f, 0f);
+            float before = rtl && flowsOn ? row.spacing + 3f : 3f;
+            float after = !rtl && flowsOn ? row.spacing + 3f : 3f;
+            // 9 pt: a 6 pt stroke was "easy to miss at phone size" in a cold-read (I124).
+            waterRect.offsetMin = new Vector2(-before, -4f);
+            waterRect.offsetMax = new Vector2(after, 5f);
+            var waterImage = water.AddComponent<Image>();
+            waterImage.sprite = MosseloraArt.Rounded(3);
+            // Opaque, so the overlaps between stones leave no darker seams.
+            waterImage.color = Color.Lerp(Paper, MosseloraTheme.WaterChannel, 0.8f);
+            waterImage.raycastTarget = false;
+        }
+
+        private static Sprite PathStone(int stream, bool here, bool passed)
+        {
+            if (here) return MosseloraArt.Load(MosseloraArt.StoneHere);
+            if (passed) return MosseloraArt.Load(MosseloraArt.StoneWalked);
+            int phase = stream >= 9 ? 3 : stream >= 6 ? 2 : stream >= 3 ? 1 : 0;
+            switch (PaintedVillage.SeasonFor(phase, false))
+            {
+                case 1: return MosseloraArt.Load(MosseloraArt.StoneAutumn);
+                case 2: return MosseloraArt.Load(MosseloraArt.StoneWinter);
+                default: return MosseloraArt.Load(MosseloraArt.StoneSummer);
+            }
         }
 
         // Stones ahead wear the season they will be walked in (summer sage,
@@ -2028,8 +2395,8 @@ namespace Evergrove.UnityClient
             // too tall on a cold start), so derive the scale from the scaler's
             // own ScaleWithScreenSize formula, which is valid immediately.
             if (content != null && content.rect.width > 1f && Time.frameCount > 2)
-                return Mathf.Max(225f, content.rect.width - 34f - 2f * columnInset);
-            return Mathf.Max(225f, Screen.safeArea.width / LiveCanvasScale() - 34f - 2f * columnInset);
+                return Mathf.Max(225f, content.rect.width - 34f - columnLeft - columnRight);
+            return Mathf.Max(225f, Screen.safeArea.width / LiveCanvasScale() - 34f - columnLeft - columnRight);
         }
 
         private float LiveCanvasScale()
@@ -2091,6 +2458,7 @@ namespace Evergrove.UnityClient
             ClearChildren(chrome);
 
             bool living = world.Mode == PlayMode.Living;
+            LandscapeGarden(living);
             // Keep the first playable board in the first visible viewport,
             // rather than putting language/settings and a giant hero above it.
             bool firstPuzzle = world.Round == 0 && !world.Solved && !showingMemory;
@@ -2104,10 +2472,11 @@ namespace Evergrove.UnityClient
             // Only the ending keeps its settings at the top.
             bool settingsAtTop = languagePicker || (!puzzleScreen && !memoryScreen);
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
-            GardenHeader(puzzleScreen);
+            // Sideways play keeps the height for the board; the wordmark is on the hub.
+            if (!(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
             // After the first stream the board, tools and painting share one
             // screen; the tagline returns on story screens (memory, ending).
-            if (!puzzleScreen || world.Round == 0)
+            if ((!puzzleScreen || world.Round == 0) && !(landscape && (puzzleScreen || memoryScreen)))
             {
                 // Story screens use the hub's size, so the line sits inside the
                 // vine corners instead of running into them (I73).
@@ -2147,7 +2516,8 @@ namespace Evergrove.UnityClient
             if (puzzleScreen)
                 BuildPuzzle();
 
-            if (living)
+            // Sideways, the village lives full height on the left (LandscapeGarden).
+            if (living && !landscape)
             {
                 VillageScenePlan scenePlan = VillageScenePlan.From(world);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -2238,8 +2608,8 @@ namespace Evergrove.UnityClient
                 // Puzzle pages show only play and the place; the story lines live
                 // on the hub, the memory screen and the ending.
                 if (!firstPuzzle && !memoryScreen && !solvedBoard && !puzzleScreen)
-                    Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
-                        TextAnchor.MiddleCenter);
+                    Narrate(Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
+                        TextAnchor.MiddleCenter));
                 if (world.Choices.Length > 0 && !memoryScreen && !puzzleScreen)
                     KeeperLine(content, "Remembered choice");
             }
@@ -2251,7 +2621,7 @@ namespace Evergrove.UnityClient
             {
                 var moment = Card(content, "A remembered moment", MosseloraTheme.CardFill);
                 // Room above the title for the leaf sprigs at any text size.
-                moment.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(14, 14, 34, 16);
+                moment.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(14, 14, landscape ? 26 : 34, 16);
                 // The moment itself, painted: the neighbor doing what you chose
                 // (Codex vignette), then one remembered sentence and what changed.
                 int[] madeChoices = world.Choices;
@@ -2259,7 +2629,8 @@ namespace Evergrove.UnityClient
                 Sprite vignette = MosseloraArt.Load(keeper == 0 ? MosseloraArt.VignetteTree
                     : keeper == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
                 Sprite rememberer = MosseloraArt.Portrait(keeper);
-                if (vignette != null)
+                // Sideways, the same painting already fills the left side (I114).
+                if (vignette != null && !landscape)
                 {
                     var scene = Node("Memory vignette", moment.transform);
                     // Larger text keeps its size; the painting yields height so the
@@ -2271,7 +2642,9 @@ namespace Evergrove.UnityClient
                     sceneImage.preserveAspect = true;
                     sceneImage.raycastTarget = false;
                 }
-                else if (rememberer != null)
+                // Sideways the left painting already shows who remembers, and the
+                // face would push the continue arrow off a 402 pt screen (I115).
+                else if (rememberer != null && !landscape)
                 {
                     var face = Node("Neighbor who remembers", moment.transform);
                     Height(face, 72f);
@@ -2286,9 +2659,9 @@ namespace Evergrove.UnityClient
                 // The chapter header lives in the scrapbook; here, the memory and its effect.
                 Text story = Label(moment.transform, "Story", LocalizedVillage.Memory(world), 18, 0, Ink,
                     TextAnchor.MiddleCenter);
-                Emphasize(story);
-                Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 16, 0, Ink,
-                    TextAnchor.MiddleCenter);
+                Narrate(story, true);
+                Narrate(Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 17, 0, Ink,
+                    TextAnchor.MiddleCenter));
                 Sprite memorySprig = MosseloraArt.Load(MosseloraArt.Sprig);
                 MosseloraArt.Ornament(moment.transform, "Sprig left", memorySprig, new Vector2(0f, 1f),
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(10f, -8f));
@@ -2299,7 +2672,7 @@ namespace Evergrove.UnityClient
                 if (!world.Completed)
                 {
                     StreamStones(world.CurrentPuzzle, content, false);
-                    if (GameLocalization.Current == "en")
+                    if (GameLocalization.Current == "en" && !landscape)
                         NextStreamLine(content, world.CurrentPuzzle.Name, false);
                 }
                 Transform next = CenteredRow("Memory actions");
@@ -2338,7 +2711,7 @@ namespace Evergrove.UnityClient
                 if (living) ChoiceTimeline(conclusion.transform);
                 Text finalWords = Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
                     19, 0, Ink, TextAnchor.MiddleCenter);
-                Emphasize(finalWords);
+                Narrate(finalWords, true);
                 if (living) MemoryJournal();
                 ResetControls("Reset title", "Cancel reset", MosseloraTheme.WaterAction);
             }
@@ -2402,11 +2775,41 @@ namespace Evergrove.UnityClient
             scroll.verticalNormalizedPosition = 1f - Mathf.Clamp01((targetTop - RevealMarginPx) / distance);
         }
 
+        // The book wears the same parchment mark as a neighbour with news (I80)
+        // while it holds a memory the player has not opened yet. It replaces the
+        // bare count, which a review found meaningless on the button (I112).
+        private const string JournalSeenKey = "evergrove:journal-seen";
+
+        private void MarkUnreadMemory(Button book)
+        {
+            int seen = PlayerPrefs.GetInt(JournalSeenKey, 0);
+            if (seen > world.Choices.Length)
+            {
+                // Read in another garden (restored or new): this garden's memories so far count as seen.
+                PlayerPrefs.SetInt(JournalSeenKey, world.Choices.Length);
+                PlayerPrefs.Save();
+                return;
+            }
+            if (world.Choices.Length == seen) return;
+            var note = MosseloraArt.Ornament(book.transform, "Has a new memory", MosseloraArt.Rounded(12),
+                new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(24f, 24f), new Vector2(-4f, -4f));
+            if (note == null) return;
+            note.preserveAspect = false;
+            note.color = MosseloraTheme.CardFill;
+            MosseloraArt.Lift(note, 1.5f, 0.22f);
+            MosseloraArt.Ornament(note.transform, "Sprig mark", MosseloraArt.Load(MosseloraArt.Sprout),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(17f, 17f), Vector2.zero);
+            if (gentleMotion) BloomPulse.Add(note.gameObject, 0.7f, 0.18f);
+        }
+
         private void MemoryJournal()
         {
             // The toggle is the book in the floating chrome (BuildChrome); the
             // scrapbook rises as its own sheet instead of lengthening the page.
             if (!showJournal) return;
+            // Opening the book reads every memory so far: its new-memory mark clears (I112).
+            PlayerPrefs.SetInt(JournalSeenKey, world.Choices.Length);
+            PlayerPrefs.Save();
             RectTransform pageRoot = content;
             content = journalContent;
             SheetClose(journalContent, "Close journal", () => { showJournal = false; Rebuild(); });
@@ -2479,7 +2882,7 @@ namespace Evergrove.UnityClient
                 // One remembered sentence on the page; the full chapter record is spoken.
                 string remembered = i < chosen.Length ? LocalizedVillage.MemoryAt(chosen, i) : entries[i];
                 // The journal is read, not glanced at: body size, as on the memory card (I98).
-                Label(page.transform, "Remembered line", remembered, 17, 0, Ink, TextAnchor.UpperCenter);
+                Narrate(Label(page.transform, "Remembered line", remembered, 17, 0, Ink, TextAnchor.UpperCenter));
                 Text record = Label(page.transform, "Recorded cause and effect", entries[i], 14, 0,
                     new Color(0f, 0f, 0f, 0f), TextAnchor.UpperCenter);
                 record.GetComponent<LayoutElement>().ignoreLayout = true;
@@ -2521,6 +2924,7 @@ namespace Evergrove.UnityClient
             solvedBoard = board.GetComponent<RectTransform>();
             // The tiles sit in a painted garden bed of mossy stones (Codex art).
             Sprite bed = MosseloraArt.Load(MosseloraArt.BoardBed);
+            RectTransform bedFrame = null;
             if (bed != null)
             {
                 var bedNode = Node("Garden bed", board.transform);
@@ -2529,6 +2933,7 @@ namespace Evergrove.UnityClient
                 Fill(bedRect);
                 bedRect.offsetMin = new Vector2(-10f, -10f);
                 bedRect.offsetMax = new Vector2(10f, 10f);
+                bedFrame = bedRect;
                 var bedImage = bedNode.AddComponent<Image>();
                 bedImage.sprite = bed;
                 bedImage.raycastTarget = false;
@@ -2537,7 +2942,7 @@ namespace Evergrove.UnityClient
                 // dry until the stream is solved and flowing after, softly behind the
                 // stone bed. Tiles stay opaque parchment, so the puzzle reads the same.
                 // Living world only; the Puzzle-only control keeps a plain page.
-                if (world.Mode == PlayMode.Living) CreekBehindBoard(board.transform);
+                if (world.Mode == PlayMode.Living && !landscape) CreekBehindBoard(board.transform);
             }
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
@@ -2545,13 +2950,16 @@ namespace Evergrove.UnityClient
             int gap = puzzle.Size == 3 ? 7 : 5;
             // CanvasScaler.scaleFactor is only the constant-pixel field (always 1
             // here); the live ScaleWithScreenSize factor gives true logical width.
-            float layoutWidth = Screen.safeArea.width / LiveCanvasScale() - 2f * columnInset;
+            float layoutWidth = Screen.safeArea.width / LiveCanvasScale() - columnLeft - columnRight;
             // Standard keeps the EG-007 sizing exactly. Large (EG-112) trims the
             // card's side padding and lifts the tile cap so the board uses the width.
             float available = Mathf.Max(225f, layoutWidth - 34f - 20f - 5f);
-            int standardTile = Mathf.Clamp(
-                Mathf.FloorToInt((available - (puzzle.Size - 1) * gap) / puzzle.Size),
-                48, puzzle.Size == 3 ? 90 : 67);
+            // Pure and tested (BoardFit, I118): portrait by width; sideways by the
+            // height left over, with the tool rail beside an unsolved board (I114-I116).
+            int standardTile = landscape
+                ? BoardFit.Landscape(Screen.safeArea.height / LiveCanvasScale(), available,
+                    puzzle.Size, gap, world.Solved, landscapeTablet ? BoardFit.TabletCap : 0)
+                : BoardFit.Portrait(available, puzzle.Size, gap);
             int tileSize = standardTile;
             if (BoardSize.IsLarge)
             {
@@ -2562,10 +2970,28 @@ namespace Evergrove.UnityClient
                     Mathf.FloorToInt((largeAvailable - (puzzle.Size - 1) * gap) / puzzle.Size),
                     48, LargeTileCap);
             }
+            // Sideways the screen height is the limit for every board size (I116).
+            if (landscape) tileSize = Mathf.Min(tileSize, standardTile);
             // Markers, badges and endpoint icons scale with the tile; Standard is 1.
             float markerScale = tileSize / (float)standardTile;
             int span = (tileSize + gap) * puzzle.Size - gap;
             Height(gridNode, span + 1);
+            // Sideways the stone bed hugs the tiles, not the whole column (I116);
+            // while unsolved the board steps left to make room for the tool rail.
+            float railShift = landscape && !world.Solved ? ToolRailWidth + ToolRailGap : 0f;
+            if (railShift > 0f)
+            {
+                var boardLayout = board.GetComponent<VerticalLayoutGroup>();
+                boardLayout.padding = new RectOffset(boardLayout.padding.left,
+                    boardLayout.padding.right + (int)railShift, boardLayout.padding.top, boardLayout.padding.bottom);
+            }
+            if (landscape && bedFrame != null)
+            {
+                bedFrame.anchorMin = new Vector2(0.5f, 0f);
+                bedFrame.anchorMax = new Vector2(0.5f, 1f);
+                bedFrame.sizeDelta = new Vector2(span + 48f, 20f);
+                bedFrame.anchoredPosition = new Vector2(-railShift / 2f, 0f);
+            }
             var grid = gridNode.AddComponent<GridLayoutGroup>();
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = puzzle.Size;
@@ -2852,6 +3278,7 @@ namespace Evergrove.UnityClient
                     null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
                 Transform hintDots = hintButton.transform.Find("Level dots");
                 if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too
+                if (landscape && solvedBoard != null) DockToolRail(tools, toolHeight);
                 // Restart stream lives in the menu (I109): it clears the undo history,
                 // is rarely needed, and its arrow sat beside Undo's. The board keeps
                 // only the two tools a player reaches for: Undo and Guide me.
@@ -2901,9 +3328,46 @@ namespace Evergrove.UnityClient
             if (!painted) image.color = MosseloraTheme.WaterChannel; // ink-blue marks on parchment
         }
 
+        // Undo above Hint, standing right of the board (landscape, unsolved).
+        private void DockToolRail(GameObject tools, int toolHeight)
+        {
+            var across = tools.GetComponent<HorizontalLayoutGroup>();
+            if (across != null) DestroyImmediate(across);
+            var down = tools.AddComponent<VerticalLayoutGroup>();
+            down.spacing = ToolRailGap;
+            down.childAlignment = TextAnchor.MiddleCenter;
+            down.childControlWidth = true;
+            down.childControlHeight = true;
+            down.childForceExpandWidth = true;
+            down.childForceExpandHeight = false;
+            tools.transform.SetParent(solvedBoard, false);
+            var place = tools.GetComponent<LayoutElement>();
+            if (place == null) place = tools.AddComponent<LayoutElement>();
+            place.ignoreLayout = true;
+            var rect = tools.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
+            rect.pivot = new Vector2(1f, 0.5f);
+            rect.sizeDelta = new Vector2(ToolRailWidth, toolHeight * 2f + ToolRailGap);
+            rect.anchoredPosition = Vector2.zero;
+        }
+
         private void CoachBubble(string message)
         {
-            var row = Node("Prompt", content);
+            // Sideways Mira speaks from the painting, pointing right at the board, so
+            // the whole board and its tools fit the short screen on first play (I116).
+            bool beside = landscape && landscapeGarden != null;
+            var row = Node("Prompt", beside ? landscapeGarden.transform : content);
+            if (beside)
+            {
+                var rowRect = row.GetComponent<RectTransform>();
+                rowRect.anchorMin = new Vector2(0f, 0.36f);
+                rowRect.anchorMax = new Vector2(1f, 0.36f);
+                rowRect.pivot = new Vector2(0.5f, 0f);
+                // Clear of the camera cutout when it sits on the painting's side.
+                rowRect.offsetMin = new Vector2(16f + Screen.safeArea.xMin / LiveCanvasScale(), 8f);
+                rowRect.offsetMax = new Vector2(-30f, 8f);
+                row.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            }
             var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
             rowGroup.childAlignment = TextAnchor.MiddleCenter;
             rowGroup.padding = new RectOffset(10, 10, 0, 12); // room for the tail
@@ -2969,9 +3433,9 @@ namespace Evergrove.UnityClient
             var tail = Node("Coach tail", bubble.transform);
             tail.AddComponent<LayoutElement>().ignoreLayout = true;
             var tailRect = tail.GetComponent<RectTransform>();
-            tailRect.anchorMin = tailRect.anchorMax = new Vector2(0.5f, 0f);
+            tailRect.anchorMin = tailRect.anchorMax = beside ? new Vector2(1f, 0.5f) : new Vector2(0.5f, 0f);
             tailRect.sizeDelta = new Vector2(16f, 16f);
-            tailRect.anchoredPosition = new Vector2(0f, -2f);
+            tailRect.anchoredPosition = beside ? new Vector2(2f, 0f) : new Vector2(0f, -2f);
             tailRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
             var tailImage = tail.AddComponent<Image>();
             tailImage.color = MosseloraTheme.CardFill;
