@@ -1527,13 +1527,23 @@ namespace Evergrove.UnityClient
             // The big button names where the walk continues ("First Bend").
             string nextStop = !world.Completed && GameLocalization.Current == "en"
                 ? world.CurrentPuzzle.Name : GameLocalization.Text("continue");
-            // An icon-only play button; the next stream's name sits above it as
-            // a plain label (and is the button's spoken name).
-            if (!world.Completed && GameLocalization.Current == "en")
-                NextStreamLine(stack.transform, nextStop, true);
-            Button start = IconButton(play, "Play", nextStop,
-                MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction);
-            Width(start, 150);
+            // The play button carries the next stream's name beside its arrow, as
+            // casual games show "Level 23" on Play: a returning player could not
+            // tell what the bare arrow would start (I156). Words only where a
+            // name is known; otherwise the arrow alone.
+            bool named = !world.Completed && GameLocalization.Current == "en";
+            int cut = nextStop.IndexOf(" · ", System.StringComparison.Ordinal);
+            string place = cut > 0 ? nextStop.Substring(0, cut) : nextStop;
+            Button start = IconButton(play, "Play", named ? place : nextStop,
+                MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction, named);
+            if (named)
+            {
+                Transform caption = start.transform.Find("Caption");
+                Text placeText = caption != null ? caption.GetComponent<Text>() : null;
+                if (placeText != null) { StyleText(placeText, 20); Emphasize(placeText); }
+                Width(start, 250);
+            }
+            else Width(start, 150);
             HubChrome();
             titleScreen.transform.SetAsLastSibling();
             if (landscape)
