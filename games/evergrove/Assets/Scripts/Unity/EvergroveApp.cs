@@ -2852,9 +2852,10 @@ namespace Evergrove.UnityClient
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
             // Sideways play keeps the height for the board; the wordmark is on the hub.
             if (!(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
-            // After the first stream the board, tools and painting share one
-            // screen; the tagline returns on story screens (memory, ending).
-            if ((!puzzleScreen || world.Round == 0) && !(landscape && (puzzleScreen || memoryScreen)))
+            // Boards (the first one too, I160) open on the path, the stream name and
+            // the board; the tagline lives on the hub and the story screens
+            // (memory, ending), where it is part of the story, not a header.
+            if (!puzzleScreen && !(landscape && memoryScreen))
             {
                 // Story screens use the hub's size, so the line sits inside the
                 // vine corners instead of running into them (I73).
