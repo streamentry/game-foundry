@@ -1165,22 +1165,39 @@ namespace Evergrove.UnityClient
             if (chosen.Length == 0) return;
             var strip = Node("Choice timeline", parent);
             var grid = strip.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(50f, 46f);
+            // Each choice stands on the painted stone of the stream it was made in,
+            // in its season, so the summary reads as the path walked through the
+            // year, not an inventory tally (I161).
+            const float cellHeight = 64f;
+            grid.cellSize = new Vector2(50f, cellHeight);
             grid.spacing = new Vector2(4f, 6f);
             grid.childAlignment = TextAnchor.MiddleCenter;
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = Mathf.Min(6, chosen.Length);
             int rows = (chosen.Length + grid.constraintCount - 1) / grid.constraintCount;
-            Height(strip, rows * 46f + (rows - 1) * 6f);
+            Height(strip, rows * cellHeight + (rows - 1) * 6f);
             for (int i = 0; i < chosen.Length; i++)
             {
                 Sprite icon = MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]);
                 var cell = Node("Chapter choice", strip.transform);
+                Sprite stone = PathStone(i, false, false);
+                if (stone != null)
+                {
+                    var step = Node("Stone", cell.transform);
+                    var stepRect = step.GetComponent<RectTransform>();
+                    stepRect.anchorMin = new Vector2(0.08f, 0f);
+                    stepRect.anchorMax = new Vector2(0.92f, 0.36f);
+                    stepRect.offsetMin = stepRect.offsetMax = Vector2.zero;
+                    var stepImage = step.AddComponent<Image>();
+                    stepImage.sprite = stone;
+                    stepImage.preserveAspect = true;
+                    stepImage.raycastTarget = false;
+                }
                 if (icon != null)
                 {
                     var picture = Node("Picture", cell.transform);
                     var pictureRect = picture.GetComponent<RectTransform>();
-                    pictureRect.anchorMin = Vector2.zero;
+                    pictureRect.anchorMin = new Vector2(0f, stone != null ? 0.2f : 0f);
                     pictureRect.anchorMax = Vector2.one;
                     pictureRect.offsetMin = pictureRect.offsetMax = Vector2.zero;
                     var pictureImage = picture.AddComponent<Image>();
