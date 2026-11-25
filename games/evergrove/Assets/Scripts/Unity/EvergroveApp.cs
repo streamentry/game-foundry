@@ -1603,6 +1603,19 @@ namespace Evergrove.UnityClient
             return sheet;
         }
 
+        // A sheet is as tall as what it holds, up to 86% of the screen, so two
+        // memories don't sit in a tall empty page like a web modal (I128).
+        private static void FitSheetToPages(GameObject sheet, RectTransform pages)
+        {
+            if (sheet == null || pages == null) return;
+            var panel = pages.parent != null ? pages.parent.parent as RectTransform : null;
+            var sheetRect = sheet.GetComponent<RectTransform>();
+            float height = sheetRect.rect.height;
+            if (panel == null || height <= 1f) return;
+            float wanted = pages.rect.height + SheetHeader + 4f + 10f;
+            panel.anchorMax = new Vector2(1f, Mathf.Clamp(wanted / height, 0.34f, 0.86f));
+        }
+
         private const float SheetHeader = 78f; // the plaque art stands a little taller than its 52 pt box
 
         private void CreekBehindBoard(Transform board)
@@ -2807,7 +2820,10 @@ namespace Evergrove.UnityClient
             journalSheet.SetActive(showJournal && !menuOpen);
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(menuContent);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(journalContent);
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            if (menuOpen) FitSheetToPages(menuSheet, menuContent);
+            else if (showJournal) FitSheetToPages(journalSheet, journalContent);
             if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
             else scroll.verticalNormalizedPosition = top ? 1f : previousPosition;
             revealNewScreen = false;
@@ -2869,7 +2885,8 @@ namespace Evergrove.UnityClient
             content = journalContent;
             SheetClose(journalContent, "Close journal", () => { showJournal = false; Rebuild(); });
             content = pageRoot;
-            var journal = Card(journalContent, "A living journal", MosseloraTheme.CardFill);
+            // The pages lie on the sheet's own paper: no card inside the sheet (I128).
+            var journal = Card(journalContent, "A living journal", new Color(0f, 0f, 0f, 0f));
             Text journalTitle = Label(journal.transform, "Journal title",
                 GameLocalization.Text("journal_title"), 15, 30, Leaf, TextAnchor.MiddleCenter);
             Emphasize(journalTitle);
