@@ -62,6 +62,10 @@ namespace Evergrove.UnityClient
         private bool showingMemory;
         private bool showJournal;
         private int speakingWith = -1;
+        // The neighbor's speech floats over the page (I127), so talking never
+        // scrolls the board away or pushes the header off screen.
+        private GameObject neighborLayer;
+        private int neighborShown = -1;
         private bool confirmReset;
         private bool soundOn;
         // WCAG 2.3.3: motion triggered by play (pipe swing, bloom, butterfly,
@@ -1761,6 +1765,27 @@ namespace Evergrove.UnityClient
             if (pageFade != null) pageFade.alpha = 1f;
         }
 
+        // The neighbor's card rises a few points and fades in, like a word said.
+        private IEnumerator RiseIn(RectTransform card)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) yield break;
+#endif
+            var fade = card.gameObject.AddComponent<CanvasGroup>();
+            Vector2 rest = card.anchoredPosition;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.22f)
+            {
+                if (card == null) yield break;
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                fade.alpha = k;
+                card.anchoredPosition = rest + new Vector2(0f, -12f * (1f - k));
+                yield return null;
+            }
+            if (card == null) yield break;
+            fade.alpha = 1f;
+            card.anchoredPosition = rest;
+        }
+
         private void ResetControls(string resetName, string cancelName, Color tone)
         {
             Transform row = CenteredRow(resetName + " row");
@@ -1849,11 +1874,34 @@ namespace Evergrove.UnityClient
         // the check (or the portrait again) ends the conversation.
         private void NeighborConversation()
         {
-            var row = Node("A neighbor's memory", content);
-            screenHeading = row.GetComponent<RectTransform>();
+            // A layer over the page, under the menu and the chrome buttons.
+            neighborLayer = Node("Neighbor speaking", scrollArea);
+            neighborLayer.transform.SetSiblingIndex(1);
+            Fill(neighborLayer.GetComponent<RectTransform>());
+            var veil = neighborLayer.AddComponent<Image>();
+            veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.10f);
+            // A tap anywhere else ends the conversation, as the check does.
+            neighborLayer.AddComponent<TapCatcher>().Tapped = () => { speakingWith = -1; Rebuild(); };
+            var row = Node("A neighbor's memory", neighborLayer.transform);
+            var rowRect = row.GetComponent<RectTransform>();
+            rowRect.anchorMin = new Vector2(0f, 0f);
+            rowRect.anchorMax = new Vector2(1f, 0f);
+            rowRect.pivot = new Vector2(0.5f, 0f);
+            rowRect.sizeDelta = new Vector2(-34f - columnLeft - columnRight, 0f);
+            rowRect.anchoredPosition = new Vector2((columnLeft - columnRight) / 2f, 14f);
+            row.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            if (gentleMotion && neighborShown != speakingWith) StartCoroutine(RiseIn(rowRect));
+            neighborShown = speakingWith;
+            // One paper card holds the portrait and the words, so nothing on the
+            // page shows through beside the face (I127).
+            var rowImage = row.AddComponent<Image>();
+            MosseloraArt.Round(rowImage, MosseloraTheme.CardFill, 22);
+            MosseloraArt.Edge(row.transform, MosseloraTheme.CardEdge, 22);
+            MosseloraArt.Lift(rowImage, 4f, 0.22f);
             var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
+            rowGroup.padding = new RectOffset(12, 6, 12, 6);
             rowGroup.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
-            rowGroup.spacing = 10;
+            rowGroup.spacing = 6;
             rowGroup.childAlignment = TextAnchor.UpperLeft;
             rowGroup.childControlWidth = true;
             rowGroup.childControlHeight = true;
@@ -1872,7 +1920,7 @@ namespace Evergrove.UnityClient
                 portraitImage.raycastTarget = false;
                 MosseloraArt.Lift(portraitImage, 2f, 0.2f);
             }
-            var bubble = Card(row.transform, "Speech bubble", MosseloraTheme.CardFill);
+            var bubble = Card(row.transform, "Speech bubble", new Color(0f, 0f, 0f, 0f));
             bubble.AddComponent<LayoutElement>().flexibleWidth = 1f;
             Text speaker = Label(bubble.transform, "Neighbor name",
                 LocalizedVillage.Name(speakingWith), 15, 0, Leaf, TextAnchor.MiddleLeft);
@@ -1889,7 +1937,7 @@ namespace Evergrove.UnityClient
             thanksRect.pivot = new Vector2(1f, 0f);
             thanksRect.sizeDelta = new Vector2(56f, 44f);
             thanksRect.anchoredPosition = new Vector2(-10f, 10f);
-            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(16, 16, 14, 58);
+            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(6, 10, 2, 56);
         }
 
         // Neighbor as a painted portrait medallion with their name beneath.
@@ -2447,6 +2495,12 @@ namespace Evergrove.UnityClient
             decisionHeading = null;
             solvedBoard = null;
             screenHeading = null;
+            if (neighborLayer != null)
+            {
+                neighborLayer.SetActive(false);
+                Destroy(neighborLayer);
+                neighborLayer = null;
+            }
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 GameObject old = content.GetChild(i).gameObject;
@@ -2600,6 +2654,7 @@ namespace Evergrove.UnityClient
 #endif
 
             if (living && !showingMemory && speakingWith >= 0) NeighborConversation();
+            else neighborShown = -1;
             if (living)
             {
                 // Said once: the solved board already says the water flows, and
@@ -2745,7 +2800,7 @@ namespace Evergrove.UnityClient
             UpdateCreekSound();
             // A different screen (not a tile turn) crossfades in like a turned page.
             string screenKey = (memoryScreen ? "memory" : world.Completed ? "ending" : "puzzle") + ":" +
-                world.Round + ":" + world.Solved + ":" + showJournal + ":" + speakingWith + ":" + languagePicker;
+                world.Round + ":" + world.Solved + ":" + showJournal + ":" + languagePicker;
             if (screenKey != lastScreenKey && lastScreenKey.Length > 0 && gentleMotion) StartCoroutine(FadeInPage());
             lastScreenKey = screenKey;
             menuSheet.SetActive(menuOpen);
@@ -3815,8 +3870,7 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Talk(Time.unscaledTime);
 #endif
-            revealNewScreen = true; // land on the neighbor's card, wherever it sits
-            Rebuild();
+            Rebuild(); // the card floats over the page; the scroll stays put (I127)
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -4474,5 +4528,15 @@ namespace Evergrove.UnityClient
             }
             sound.PlayOneShot(chime);
         }
+    }
+}
+
+namespace Evergrove.UnityClient
+{
+    // A plain tap target that is not a Button, so screen readers don't list it (I127).
+    internal sealed class TapCatcher : UnityEngine.MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
+    {
+        public System.Action Tapped;
+        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData eventData) => Tapped?.Invoke();
     }
 }
