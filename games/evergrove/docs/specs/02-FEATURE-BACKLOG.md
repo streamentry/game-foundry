@@ -22,7 +22,7 @@
 | [EG-010](#eg-010--native-certified-launch-locale-subset) | Native-certified launch locale subset | P0 | Proposed | Release quality | 4/4/5/3 | 26.7 | M5 | Localization Lead | LOC-001, LOC-002, LOC-003, LOC-004 |
 | [EG-011](#eg-011--non-color-connectivity-and-contrast) | Non-color connectivity and contrast | P0 | Implemented-Unverified | Release quality | 5/4/5/2 | 50.0 | M3 | UX & Accessibility QA | A11Y-002 |
 | [EG-012](#eg-012--subtle-audio-feedback-and-ambience) | Subtle audio feedback and ambience | P0 | Implemented-Unverified | Polish | 4/3/3/3 | 12.0 | M6 | Unity/Release Engineer | UX-001 |
-| [EG-013](#eg-013--optional-haptic-response) | Optional haptic response | P0 | Proposed | Polish | 3/2/3/1 | 18.0 | M6 | Unity/Release Engineer | UX-001 |
+| [EG-013](#eg-013--optional-haptic-response) | Optional haptic response | P0 | Implemented-Unverified | Polish | 3/2/3/1 | 18.0 | M6 | Unity/Release Engineer | UX-001 |
 | [EG-101](#eg-101--causal-journal) | Causal journal | P1 | Implemented-Unverified | Differentiation | 5/4/3/2 | 30.0 | M4 | Gameplay Engineer | WLD-003, VAL-002 |
 | [EG-102](#eg-102--three-depth-authored-consequences) | Three-depth authored consequences | P1 | Proposed | Differentiation | 5/5/3/4 | 18.8 | M4 | Product Owner | WLD-001, WLD-004, VAL-002 |
 | [EG-103](#eg-103--bounded-npc-memory-tokens) | Bounded NPC memory tokens | P1 | Proposed | Differentiation | 4/4/3/3 | 16.0 | M4 | Gameplay Engineer | WLD-002, VAL-002 |
@@ -196,9 +196,9 @@
 
 ### EG-013 — Optional haptic response
 
-**State:** Proposed. **Type:** Polish. **Risk:** Battery/annoyance; defer if costly. **Evidence:** P1,H1. **R/I/C/E:** 3/2/3/1; **illustrative score:** 18.0.
+**State:** Implemented-Unverified (I140, 2026-11-25: light tick per valid turn, success pulse on a finished stream; follows the gentle-motion setting and the OS haptics setting; no device feel test yet). **Type:** Polish. **Risk:** Battery/annoyance; defer if costly. **Evidence:** P1,H1. **R/I/C/E:** 3/2/3/1; **illustrative score:** 18.0.
 
-**Execution:** `Proposed`; **M6**; owner role **Unity/Release Engineer**; verification **`UX-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-013/verification.md` (**NOT COLLECTED**); **rollback/stop:** Haptics reduce accessibility or have no measurable touch benefit.
+**Execution:** `Implemented-Unverified`; **M6**; owner role **Unity/Release Engineer**; verification **`UX-001`**; expected evidence `games/evergrove/docs/evidence/<SOURCE_SHA>/EG-013/verification.md` (**NOT COLLECTED**); **rollback/stop:** Haptics reduce accessibility or have no measurable touch benefit.
 
 - **Player problem:** Touch rotation can feel imprecise.
 - **Player-visible behavior:** Light tick per valid rotation and distinct completion pulse; easy toggle and OS respect.

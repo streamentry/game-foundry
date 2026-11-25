@@ -265,7 +265,7 @@
       "title": "Optional haptic response",
       "owner_role": "Unity/Release Engineer",
       "decision_gate": "M6",
-      "status": "Proposed",
+      "status": "Implemented-Unverified",
       "blocked": false,
       "dependency_ids": [
         "EG-001",
