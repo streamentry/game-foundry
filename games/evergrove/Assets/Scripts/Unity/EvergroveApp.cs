@@ -1754,7 +1754,8 @@ namespace Evergrove.UnityClient
             Sprite plot = MosseloraArt.Load("garden-map");
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
-            GardenMapView.Build(window, plot, map, MapItems(map), 1.5f, OnMapLand, OnMapItem, mapInHand);
+            GardenMapView.Build(window, plot, map, MapItems(map), 1.5f, OnMapLand, OnMapItem, mapInHand,
+                false, GreenedShare(0));
             return true;
         }
 
@@ -1776,6 +1777,16 @@ namespace Evergrove.UnityClient
                     Newest = i == made.Length - 1
                 });
             return items;
+        }
+
+        // How much of the valley the restored water has greened (I180): the
+        // cottage's top rows from the start, then a twelfth per stream restored.
+        // `back` counts that many streams fewer (the edge before a choice).
+        private float GreenedShare(int back)
+        {
+            if (world.Completed) return 1f;
+            int restored = Mathf.Max(0, world.Choices.Length - back);
+            return Mathf.Clamp01(0.14f + 0.86f * restored / (float)GardenCatalog.ChaptersPerGarden);
         }
 
         // Right after a choice the new thing is in your hand until you put it down.
@@ -1834,8 +1845,10 @@ namespace Evergrove.UnityClient
             window.AddComponent<RectMask2D>();
             bool grow = celebrateGrowth && memoryScreen;
             celebrateGrowth = false;
+            bool animate = grow && gentleMotion;
             GardenMapView.Build(window.GetComponent<RectTransform>(), plot, map, MapItems(map), 1.25f,
-                OnMapLand, OnMapItem, ItemInHand(), grow && gentleMotion);
+                OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
+                animate ? GreenedShare(1) : -1f);
             return true;
         }
 

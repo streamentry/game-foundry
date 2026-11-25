@@ -34,7 +34,8 @@ namespace Evergrove.UnityClient
         public static GardenMapView Build(RectTransform window, Sprite plot, GardenMap map,
                                           IList<Placed> items, float widthScale = 1.5f,
                                           Action<int> onLand = null, Action<int> onItem = null,
-                                          int inHand = -1, bool growNewest = false)
+                                          int inHand = -1, bool growNewest = false,
+                                          float greened = 1f, float greenedBefore = -1f)
         {
             var host = new GameObject("Garden map", typeof(RectTransform));
             host.transform.SetParent(window, false);
@@ -65,6 +66,7 @@ namespace Evergrove.UnityClient
             landRect.pivot = new Vector2(0.5f, 0.5f);
             scroll.content = landRect;
             var ground = land.AddComponent<Image>();
+            view.ground = ground;
             ground.sprite = plot;
             ground.raycastTarget = onLand != null;
             if (onLand != null) land.AddComponent<MapTap>().Tapped = local => view.TapLand(local);
@@ -80,6 +82,9 @@ namespace Evergrove.UnityClient
             view.onItem = onItem;
             view.inHand = inHand;
             view.growNewest = growNewest;
+            view.greened = Mathf.Clamp01(greened);
+            view.greenedFrom = greenedBefore < 0f ? view.greened : Mathf.Clamp01(greenedBefore);
+            view.BuildDryLand();
             view.Layout();
             return view;
         }
@@ -96,7 +101,54 @@ namespace Evergrove.UnityClient
         private int inHand = -1;
         private bool growNewest;
         private Vector2 lastWindow;
+        private float greened = 1f, greenedFrom = 1f;
+        private RectTransform dry;
+        private float dryClock;
         private readonly List<RectTransform> nodes = new List<RectTransform>();
+
+        // Water shapes the land (E5, I180): the valley below the restored water is
+        // dry straw. Each stream restored greens the next stretch down the map;
+        // after a choice the dry edge draws back while you watch.
+        private void BuildDryLand()
+        {
+            if (greened >= 0.999f && greenedFrom >= 0.999f) return;
+            var node = new GameObject("Dry land", typeof(RectTransform));
+            node.transform.SetParent(land, false);
+            dry = (RectTransform)node.transform;
+            dry.anchorMin = new Vector2(0f, 0f);
+            dry.anchorMax = new Vector2(1f, 1f - greenedFrom);
+            dry.offsetMin = dry.offsetMax = Vector2.zero;
+            var wash = node.AddComponent<Image>();
+            wash.color = new Color(0.84f, 0.74f, 0.50f, 0.58f);
+            wash.raycastTarget = false;
+            // A soft edge where the green meets the dry ground.
+            var edge = new GameObject("Dry edge", typeof(RectTransform));
+            edge.transform.SetParent(node.transform, false);
+            var edgeRect = (RectTransform)edge.transform;
+            edgeRect.anchorMin = new Vector2(0f, 1f);
+            edgeRect.anchorMax = new Vector2(1f, 1f);
+            edgeRect.pivot = new Vector2(0.5f, 0f);
+            edgeRect.sizeDelta = new Vector2(0f, 60f);
+            edgeRect.localScale = new Vector3(1f, -1f, 1f);
+            var edgeImage = edge.AddComponent<Image>();
+            edgeImage.sprite = MosseloraArt.TopFade();
+            edgeImage.color = wash.color;
+            edgeImage.raycastTarget = false;
+            edgeRect.anchoredPosition = new Vector2(0f, 60f);
+            node.transform.SetSiblingIndex(0); // under every item on the map
+        }
+
+        private Image ground;
+
+        private void Update()
+        {
+            if (dry == null || Mathf.Approximately(greenedFrom, greened)) return;
+            dryClock += Time.unscaledDeltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((dryClock - 0.4f) / 1.4f));
+            float at = Mathf.Lerp(greenedFrom, greened, t);
+            dry.anchorMax = new Vector2(1f, 1f - at);
+            if (t >= 1f) greenedFrom = greened;
+        }
 
         private void LateUpdate()
         {
