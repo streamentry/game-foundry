@@ -3484,7 +3484,8 @@ namespace Evergrove.UnityClient
                         VillageChoice choice = (VillageChoice)choiceIndex;
                         // None is visually preselected. A golden default would
                         // bias research toward the first habitat, not player care.
-                        ChoiceCard(choiceRow.transform, choice, () => MakeChoice(choice), stacked);
+                        Transform cards = choiceRow.transform;
+                        ChoiceCard(cards, choice, () => SettleChoice(cards, choice), stacked);
                     }
                 }
                 // Second thoughts live after the decision, not between the payoff
@@ -4527,6 +4528,49 @@ namespace Evergrove.UnityClient
 
         private const float SolveHoldSeconds = 1.25f;
         private const float SolveGlideSeconds = 0.6f;
+
+        // The chosen card lifts and the others step back for a quarter second,
+        // so a choice is seen to be taken before the memory page arrives (I142).
+        private bool settlingChoice;
+
+        private void SettleChoice(Transform cards, VillageChoice choice)
+        {
+            if (settlingChoice) return;
+            bool animate = gentleMotion && cards != null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) animate = false; // the tour chooses instantly
+#endif
+            if (!animate) { MakeChoice(choice); return; }
+            StartCoroutine(LiftChosen(cards, choice));
+        }
+
+        private IEnumerator LiftChosen(Transform cards, VillageChoice choice)
+        {
+            settlingChoice = true;
+            int generation = rebuildGeneration;
+            Transform chosen = cards.Find("Choice " + choice);
+            var groups = new System.Collections.Generic.List<CanvasGroup>();
+            for (int i = 0; i < cards.childCount; i++)
+            {
+                Transform card = cards.GetChild(i);
+                var group = card.GetComponent<CanvasGroup>();
+                if (group == null) group = card.gameObject.AddComponent<CanvasGroup>();
+                group.interactable = false;
+                if (card != chosen) groups.Add(group);
+            }
+            var squash = chosen != null ? chosen.GetComponent<PressSquash>() : null;
+            if (squash != null) Destroy(squash); // the lift owns the scale now
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.24f)
+            {
+                if (generation != rebuildGeneration) { settlingChoice = false; yield break; }
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                if (chosen != null) chosen.localScale = Vector3.one * Mathf.Lerp(0.94f, 1.07f, k);
+                foreach (CanvasGroup group in groups) if (group != null) group.alpha = Mathf.Lerp(1f, 0.35f, k);
+                yield return null;
+            }
+            settlingChoice = false;
+            if (generation == rebuildGeneration) MakeChoice(choice);
+        }
 
         private void MakeChoice(VillageChoice choice)
         {
