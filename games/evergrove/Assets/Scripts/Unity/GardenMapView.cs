@@ -35,7 +35,8 @@ namespace Evergrove.UnityClient
                                           IList<Placed> items, float widthScale = 1.5f,
                                           Action<int> onLand = null, Action<int> onItem = null,
                                           int inHand = -1, bool growNewest = false,
-                                          float greened = 1f, float greenedBefore = -1f)
+                                          float greened = 1f, float greenedBefore = -1f,
+                                          Func<RectTransform, Func<int, Vector2>, List<RectTransform>> decorate = null)
         {
             var host = new GameObject("Garden map", typeof(RectTransform));
             host.transform.SetParent(window, false);
@@ -84,6 +85,7 @@ namespace Evergrove.UnityClient
             view.growNewest = growNewest;
             view.greened = Mathf.Clamp01(greened);
             view.greenedFrom = greenedBefore < 0f ? view.greened : Mathf.Clamp01(greenedBefore);
+            view.decorate = decorate;
             view.BuildDryLand();
             view.Layout();
             return view;
@@ -102,6 +104,7 @@ namespace Evergrove.UnityClient
         private bool growNewest;
         private Vector2 lastWindow;
         private float greened = 1f, greenedFrom = 1f;
+        private Func<RectTransform, Func<int, Vector2>, List<RectTransform>> decorate;
         private RectTransform dry;
         private float dryClock;
         private readonly List<RectTransform> nodes = new List<RectTransform>();
@@ -252,6 +255,13 @@ namespace Evergrove.UnityClient
                 else if (growNewest && item.Newest) node.AddComponent<GrowUp>();
                 nodes.Add(rect);
                 if (held || (inHand < 0 && item.Newest)) { focus = at; focused = true; }
+            }
+            // Others standing on the map (neighbours, I181), laid out with it.
+            if (decorate != null)
+            {
+                List<RectTransform> extra = decorate(land, cell =>
+                    new Vector2((cell % map.Columns + 0.5f) * cellW, -(cell / map.Columns + 0.78f) * cellH));
+                if (extra != null) nodes.AddRange(extra);
             }
             Vector2 view = window.rect.size;
             float spanX = Mathf.Max(1f, width - view.x), spanY = Mathf.Max(1f, height - view.y);

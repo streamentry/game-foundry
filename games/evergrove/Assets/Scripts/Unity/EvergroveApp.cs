@@ -1524,7 +1524,7 @@ namespace Evergrove.UnityClient
             var melt = Node("Village melt", window.transform);
             var meltRect = melt.GetComponent<RectTransform>();
             meltRect.anchorMin = Vector2.zero;
-            meltRect.anchorMax = new Vector2(1f, 0.24f);
+            meltRect.anchorMax = new Vector2(1f, mapShown ? 0.08f : 0.24f); // the map runs nearly to the wordmark (I181)
             meltRect.offsetMin = meltRect.offsetMax = Vector2.zero;
             var meltImage = melt.AddComponent<Image>();
             meltImage.sprite = MosseloraArt.TopFade();
@@ -1538,6 +1538,10 @@ namespace Evergrove.UnityClient
             stripRect.anchorMin = new Vector2(0f, 0.33f);
             stripRect.anchorMax = new Vector2(1f, 0.52f);
             stripRect.offsetMin = stripRect.offsetMax = Vector2.zero;
+            // With the map, the neighbours stand in the garden itself and the map
+            // takes the strip's place (I181).
+            strip.SetActive(!mapShown);
+            if (mapShown) windowRect.anchorMin = new Vector2(0f, 0.33f);
             var painting = strip.AddComponent<PaintedVillage>();
             painting.Build(0f, PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed));
             if (painting.Ready)
@@ -1625,13 +1629,14 @@ namespace Evergrove.UnityClient
                 sideImage.raycastTarget = false;
             }
             else
-                StartCoroutine(FitHubStack(windowRect, stripRect, stackRect));
+                StartCoroutine(FitHubStack(windowRect, stripRect, stackRect, mapShown ? 0.33f : 0.41f));
         }
 
         // The words and Play under the painting take the room they need: at
         // larger text, or with a memory line and the next stream, the painting
         // and village strip move up instead of the words overflowing (I85).
-        private IEnumerator FitHubStack(RectTransform window, RectTransform strip, RectTransform stack)
+        private IEnumerator FitHubStack(RectTransform window, RectTransform strip, RectTransform stack,
+                                        float windowBase)
         {
             yield return null; // real canvas size, after the first layout pass
             if (stack == null || canvasRoot == null) yield break;
@@ -1645,7 +1650,8 @@ namespace Evergrove.UnityClient
             stack.anchorMax = new Vector2(1f, top);
             strip.anchorMin = new Vector2(0f, 0.33f + shift);
             strip.anchorMax = new Vector2(1f, 0.52f + shift);
-            window.anchorMin = new Vector2(0f, 0.41f + shift);
+            // The map reaches down to the words (I181); the painting kept its old base.
+            window.anchorMin = new Vector2(0f, windowBase + shift);
         }
 
         // The hub wears the same two wooden buttons as the game, in the same
@@ -1755,7 +1761,7 @@ namespace Evergrove.UnityClient
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
             GardenMapView.Build(window, plot, map, MapItems(map), 1.5f, OnMapLand, OnMapItem, mapInHand,
-                false, GreenedShare(0));
+                false, GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true));
             return true;
         }
 
@@ -1777,6 +1783,48 @@ namespace Evergrove.UnityClient
                     Newest = i == made.Length - 1
                 });
             return items;
+        }
+
+        // Mira, Orin and Fen stand in the garden (I181): each beside the newest thing
+        // of their family (trees, builds, flowers), or by the cottage before that.
+        private System.Collections.Generic.List<RectTransform> NeighborsOnMap(RectTransform land,
+            Func<int, Vector2> point, GardenMap map, bool fromTitle)
+        {
+            var placed = new System.Collections.Generic.List<RectTransform>();
+            if (world.Mode != PlayMode.Living) return placed;
+            int[] made = world.Choices;
+            int[] cells = map.Layout(made, world.Placements);
+            // Before they have a thing of their own, each waits in a different
+            // part of the valley (land cells in the mask), never in a huddle.
+            // Row 2 col 5 (Mira), row 3 col 6 (Orin), row 6 col 7 (Fen): clear of the
+            // corner buttons and of each other, on land.
+            int[] byCottage = { 25, 36, 67 };
+            Vector2 step = point(1) - point(0);
+            for (int villager = 0; villager < 3; villager++)
+            {
+                int cell = -1;
+                for (int i = made.Length - 1; i >= 0 && cell < 0; i--)
+                    if (made[i] == villager) cell = cells[i];
+                Vector2 at = cell >= 0
+                    ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns - 2 ? 0.95f : -0.95f), 0f)
+                    : point(Mathf.Min(byCottage[villager], map.CellCount - 1));
+                var holder = Node("Neighbour on the map", land);
+                var rect = holder.GetComponent<RectTransform>();
+                rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+                rect.pivot = new Vector2(0.5f, 0f);
+                rect.anchoredPosition = at;
+                // A fixed footprint (no nested size fitters) keeps face and name centred.
+                rect.sizeDelta = new Vector2(TextScale.Scale(96), 62f + TextScale.Scale(30));
+                var stack = holder.AddComponent<VerticalLayoutGroup>();
+                stack.childAlignment = TextAnchor.LowerCenter;
+                stack.childControlWidth = true;
+                stack.childControlHeight = true;
+                stack.childForceExpandWidth = true;
+                stack.childForceExpandHeight = true;
+                PortraitButton(holder.transform, villager, true, fromTitle);
+                placed.Add(rect);
+            }
+            return placed;
         }
 
         // How much of the valley the restored water has greened (I180): the
@@ -1848,7 +1896,8 @@ namespace Evergrove.UnityClient
             bool animate = grow && gentleMotion;
             GardenMapView.Build(window.GetComponent<RectTransform>(), plot, map, MapItems(map), 1.25f,
                 OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
-                animate ? GreenedShare(1) : -1f);
+                animate ? GreenedShare(1) : -1f,
+                memoryScreen ? null : (land, point) => NeighborsOnMap(land, point, map, false));
             return true;
         }
 
@@ -3330,7 +3379,7 @@ namespace Evergrove.UnityClient
                     }
                 }
                 // After the painting's own layers, so the villagers stand on top of it.
-                if (!showingMemory) NeighborsOnPainting(illustration.transform);
+                if (!showingMemory && !mapped) NeighborsOnPainting(illustration.transform);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             else if (diorama != null)
