@@ -1865,13 +1865,42 @@ namespace Evergrove.UnityClient
             fade.blocksRaycasts = false;
             fade.interactable = false;
             float from = fade.alpha;
-            for (float t = 0f; gentleMotion && t < 1f; t += Time.unscaledDeltaTime / 0.35f)
+            bool animate = gentleMotion;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) animate = false; // tour screenshots capture settled screens
+#endif
+            for (float t = 0f; animate && t < 1f; t += Time.unscaledDeltaTime / 0.35f)
             {
                 if (fade == null) yield break;
                 fade.alpha = Mathf.Lerp(from, 0f, Mathf.SmoothStep(0f, 1f, t));
                 yield return null;
             }
             if (fade != null) fade.alpha = 0f;
+        }
+
+        // A cream disc with the turning arrow at a tile's top-right corner. It
+        // turns a quarter at a time, as the tile will, and leaves with the goal
+        // glows on the first move.
+        private void TurnMark(Transform tile, float tileSize)
+        {
+            float size = Mathf.Round(Mathf.Clamp(tileSize * 0.42f, 30f, 44f));
+            var mark = Node("Tap turns this tile", tile);
+            goalGlows.Add(mark);
+            mark.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = mark.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(size, size);
+            rect.anchoredPosition = new Vector2(-size * 0.3f, -size * 0.3f);
+            var disc = mark.AddComponent<Image>();
+            MosseloraArt.Round(disc, MosseloraTheme.CardFill, Mathf.RoundToInt(size / 2f));
+            disc.raycastTarget = false;
+            MosseloraArt.Lift(disc, 1.5f, 0.25f);
+            var glyph = MosseloraArt.Ornament(mark.transform, "Turning arrow", MosseloraArt.Load(MosseloraArt.IconTurn),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(size * 0.66f, size * 0.66f), Vector2.zero);
+            if (glyph == null) return;
+            glyph.color = MosseloraTheme.WaterChannel;
+            if (gentleMotion) glyph.gameObject.AddComponent<QuarterTurns>();
         }
 
         // The neighbor's card rises a few points and fades in, like a word said.
@@ -3203,6 +3232,10 @@ namespace Evergrove.UnityClient
             visibleLeaks = new Text[puzzle.CellCount];
             int seenEnds = 0;
             RectTransform gardenTile = null;
+            // Before the very first move, one tile that needs turning wears a small
+            // turning-arrow mark: "tap turns a tile", shown rather than told (I138).
+            int firstTurn = world.Round == 0 && !world.CanUndo && !world.Solved
+                ? HintPlanner.SelectTarget(puzzle, rotations) : -1;
             for (int index = 0; index < puzzle.CellCount; index++)
             {
                 int tappedIndex = index;
@@ -3354,6 +3387,7 @@ namespace Evergrove.UnityClient
                     ring.raycastTarget = false;
                     if (gentleMotion) Breathe.Add(ring);
                 }
+                if (index == firstTurn) TurnMark(tileNode.transform, tileSize);
                 if (puzzle.Kinds[index] == PipeKind.End)
                 {
                     // Visible endpoint semantics instead of relying only on
@@ -4766,5 +4800,26 @@ namespace Evergrove.UnityClient
     {
         public System.Action Tapped;
         public void OnPointerClick(UnityEngine.EventSystems.PointerEventData eventData) => Tapped?.Invoke();
+    }
+}
+
+namespace Evergrove.UnityClient
+{
+    // Turns a mark a quarter at a time, with a pause between: the board's own verb (I138).
+    internal sealed class QuarterTurns : UnityEngine.MonoBehaviour
+    {
+        private float clock;
+        private float from;
+
+        private void Update()
+        {
+            clock += UnityEngine.Time.unscaledDeltaTime;
+            const float pause = 1.1f, swing = 0.35f;
+            if (clock < pause) return;
+            float t = UnityEngine.Mathf.Clamp01((clock - pause) / swing);
+            float angle = from - 90f * UnityEngine.Mathf.SmoothStep(0f, 1f, t);
+            transform.localRotation = UnityEngine.Quaternion.Euler(0f, 0f, angle);
+            if (t >= 1f) { clock = 0f; from = angle % 360f; }
+        }
     }
 }
