@@ -37,6 +37,11 @@ namespace Evergrove.Core
         // Length is a multiple of the board's cell count, at most 10 entries.
         // `previous` mirrors the newest entry for older binaries.
         public int[] history = Array.Empty<int>();
+        // Optional, additive (E4, I177; absent in older JSON). Which garden of the
+        // catalogue this is (0, 1, 2…), and where each choice's item stands on the
+        // garden map: placements[i] is a map cell for choice i, -1 = not placed.
+        public int garden;
+        public int[] placements = Array.Empty<int>();
     }
 
     /// <summary>
@@ -83,6 +88,33 @@ namespace Evergrove.Core
                 return Completed ? new PipeInsight(0, 0, 0, Array.Empty<bool>()) :
                     PipeRules.Inspect(CurrentPuzzle, state.rotations);
             }
+        }
+
+        public const int MaxGarden = 1000000;
+        public const int MaxMapCell = 10000;
+
+        public int Garden { get { return state.garden; } }
+        public int[] Placements { get { return (int[])state.placements.Clone(); } }
+
+        /// <summary>A new garden of the given catalogue number (living mode only uses it).</summary>
+        public static WorldModel New(PlayMode mode, int garden)
+        {
+            WorldModel world = New(mode);
+            world.state.garden = Math.Max(0, Math.Min(MaxGarden, garden));
+            return world;
+        }
+
+        /// <summary>Puts choice <paramref name="index"/>'s item on a map cell (the map checks the land).</summary>
+        public bool PlaceAt(int index, int cell)
+        {
+            if (Mode != PlayMode.Living || index < 0 || index >= state.choices.Length ||
+                cell < -1 || cell >= MaxMapCell) return false;
+            int[] next = new int[state.choices.Length];
+            for (int i = 0; i < next.Length; i++)
+                next[i] = i < state.placements.Length ? state.placements[i] : -1;
+            next[index] = cell;
+            state.placements = next;
+            return true;
         }
 
         public static WorldModel New(PlayMode mode = PlayMode.Living)
@@ -175,7 +207,8 @@ namespace Evergrove.Core
                 hintStep = 0, hintTile = -1,
                 rotations = (int[])PuzzleCatalog.Get(0).Initial.Clone(),
                 previous = Array.Empty<int>(), choices = Array.Empty<int>(),
-                variantSchedule = (int[])schedule.Clone(), history = Array.Empty<int>()
+                variantSchedule = (int[])schedule.Clone(), history = Array.Empty<int>(),
+                garden = 0, placements = Array.Empty<int>()
             });
         }
 
@@ -188,7 +221,8 @@ namespace Evergrove.Core
                 boardVariant = state.boardVariant, lastSolvedVariant = state.lastSolvedVariant,
                 hintStep = state.hintStep, hintTile = state.hintTile,
                 variantSchedule = (int[])state.variantSchedule.Clone(),
-                history = (int[])state.history.Clone()
+                history = (int[])state.history.Clone(),
+                garden = state.garden, placements = (int[])state.placements.Clone()
             };
         }
 
@@ -220,6 +254,13 @@ namespace Evergrove.Core
                 return false;
             foreach (int choice in source.choices)
                 if (choice < 0 || choice > 2) return false;
+            int[] placements = source.placements ?? Array.Empty<int>();
+            if (source.garden < 0 || source.garden > MaxGarden ||
+                placements.Length > source.choices.Length ||
+                (source.mode != "living" && (placements.Length != 0 || source.garden != 0)))
+                return false;
+            foreach (int cell in placements)
+                if (cell < -1 || cell >= MaxMapCell) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -278,7 +319,8 @@ namespace Evergrove.Core
                 choices = (int[])source.choices.Clone(), hintsUsed = source.hintsUsed,
                 boardVariant = variant, lastSolvedVariant = lastVariant,
                 hintStep = hintStep, hintTile = hintTile,
-                variantSchedule = (int[])schedule.Clone(), history = history
+                variantSchedule = (int[])schedule.Clone(), history = history,
+                garden = source.garden, placements = (int[])placements.Clone()
             });
             return true;
         }
@@ -471,6 +513,11 @@ namespace Evergrove.Core
             Array.Copy(state.choices, next, state.choices.Length);
             next[next.Length - 1] = (int)choice;
             state.choices = next;
+            // The new item is not placed yet; earlier placements stay as they are.
+            int[] placed = new int[next.Length];
+            for (int i = 0; i < placed.Length; i++)
+                placed[i] = i < state.placements.Length ? state.placements[i] : -1;
+            state.placements = placed;
             Advance();
             return true;
         }
@@ -488,6 +535,12 @@ namespace Evergrove.Core
             int[] trimmed = new int[state.choices.Length - 1];
             Array.Copy(state.choices, trimmed, trimmed.Length);
             state.choices = trimmed;
+            if (state.placements.Length > trimmed.Length)
+            {
+                int[] kept = new int[trimmed.Length];
+                Array.Copy(state.placements, kept, kept.Length);
+                state.placements = kept;
+            }
             state.round = previousChapter;
             state.boardVariant = state.lastSolvedVariant;
             state.rotations = (int[])CurrentPuzzle.Solution.Clone();

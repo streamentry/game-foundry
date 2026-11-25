@@ -1597,6 +1597,70 @@ internal static class Program
         Expect(crowded[0] >= 0 && crowded[1] >= 0 && crowded[2] == -1, "no free cell gives -1");
     }
 
+    // E4 / I177: the garden number and where things stand live in the save and the garden file.
+    private static void PlacementSaveTests()
+    {
+        WorldModel world = WorldModel.New(PlayMode.Living, 3);
+        Expect(world.Garden == 3 && world.Placements.Length == 0, "a new garden knows its number");
+        Expect(!world.PlaceAt(0, 5), "nothing to place before the first choice");
+        SolveCurrent(world);
+        Expect(world.Choose(VillageChoice.Bridge), "first choice");
+        Expect(world.Placements.Length == 1 && world.Placements[0] == -1, "a new item starts unplaced");
+        Expect(world.PlaceAt(0, 42) && world.Placements[0] == 42, "an item is placed");
+        Expect(!world.PlaceAt(0, WorldModel.MaxMapCell) && !world.PlaceAt(0, -2) && !world.PlaceAt(1, 3),
+            "out-of-range cells and items are refused");
+        SolveCurrent(world);
+        Expect(world.Choose(VillageChoice.Flowers), "second choice");
+        Expect(world.Placements.Length == 2 && world.Placements[0] == 42 && world.Placements[1] == -1,
+            "earlier placements stay; the new item waits");
+        Expect(world.ReconsiderLatestChoice() && world.Placements.Length == 1 && world.Placements[0] == 42,
+            "reconsidering trims only the newest placement");
+        // Save round trip keeps both.
+        WorldModel restored;
+        Expect(WorldModel.TryRestore(world.Export(), out restored), "placed garden restores");
+        Expect(restored.Garden == 3 && restored.Placements.Length == 1 && restored.Placements[0] == 42,
+            "garden and placements survive a save");
+        // Older saves (no fields) restore as garden 0, nothing placed.
+        WorldSnapshot old = world.Export();
+        old.garden = 0;
+        old.placements = null;
+        Expect(WorldModel.TryRestore(old, out restored) && restored.Garden == 0 && restored.Placements.Length == 0,
+            "a save from before the map restores");
+        WorldSnapshot bad = world.Export();
+        bad.placements = new[] { 1, 2, 3 };
+        Expect(!WorldModel.TryRestore(bad, out restored), "more placements than choices is refused");
+        bad = world.Export();
+        bad.garden = -1;
+        Expect(!WorldModel.TryRestore(bad, out restored), "a negative garden is refused");
+        // The garden file carries them, and older files without them still import.
+        string file = GardenTransfer.Export(world, "2026-11-25T00:00:00Z");
+        Expect(file.Contains("\"garden\":3") && file.Contains("\"placements\":[42]"), "garden file carries the map");
+        WorldModel imported;
+        GardenImportError error;
+        Expect(GardenTransfer.TryImport(file, out imported, out error) && imported.Placements[0] == 42 && imported.Garden == 3,
+            "garden file round trip keeps the map");
+        WorldModel plain = WorldModel.New();
+        string plainFile = GardenTransfer.Export(plain, "2026-11-25T00:00:00Z");
+        string inner = plainFile.Substring(plainFile.IndexOf("{\"version\"", StringComparison.Ordinal));
+        inner = inner.Substring(0, inner.IndexOf('}') + 1);
+        string preMap = UndoHistoryTests.RemoveMapKeys(inner);
+        Expect(preMap != inner && !preMap.Contains("placements"), "pre-map snapshot text built");
+        string preMapFile = plainFile.Replace(inner, preMap)
+            .Replace(GardenTransfer.Sha256Hex(inner), GardenTransfer.Sha256Hex(preMap));
+        Expect(GardenTransfer.TryImport(preMapFile, out imported, out error) && error == GardenImportError.None,
+            "a garden file from before the map still imports");
+        string tampered = file.Replace("\"placements\":[42]", "\"placements\":[43]");
+        Expect(!GardenTransfer.TryImport(tampered, out imported, out error), "an edited placement fails its checksum");
+    }
+
+    private static void SolveCurrent(WorldModel world)
+    {
+        Puzzle puzzle = world.CurrentPuzzle;
+        for (int i = 0; i < puzzle.CellCount; i++)
+            for (int turn = 0; turn < 4 && world.Rotations[i] != puzzle.Solution[i]; turn++)
+                if (!world.Rotate(i)) break;
+    }
+
     private static void BoardFitTests()
     {
         // Portrait keeps the EG-007 sizing: a 402 pt iPhone column gives the 3x3 cap.
@@ -1748,6 +1812,7 @@ internal static class Program
             GardenCatalogTests();
             AlmanacTests();
             GardenMapTests();
+            PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
