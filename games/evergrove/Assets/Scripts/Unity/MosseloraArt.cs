@@ -36,6 +36,7 @@ namespace Evergrove.UnityClient
         public const string Foundation = "icon-foundation";
         public const string Sprout = "glyph-sprout";
         public const string Droplet = "glyph-droplet";
+        public const string DropletEmpty = "glyph-droplet-empty"; // hollow outline (I146)
         public const string Sprig = "glyph-sprig";
         public const string SpringWaves = "glyph-waves";
         // Tintable white UI glyphs (icons-ui.png, sliced 4x4).

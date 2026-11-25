@@ -1283,7 +1283,7 @@ namespace Evergrove.UnityClient
                 order++;
             }
             // Drops not tied to a newly wet tile (a solve fills the rest) fill at once.
-            for (; slot < reached && slot < waterDrops.Length; slot++) waterDrops[slot].color = Color.white;
+            for (; slot < reached && slot < waterDrops.Length; slot++) SetDrop(waterDrops[slot], true);
         }
 
         private IEnumerator FlyDrop(RectTransform from, int slot, float startDelay)
@@ -1320,7 +1320,7 @@ namespace Evergrove.UnityClient
             int now = world.Solved ? puzzle.CellCount : world.Insight.ConnectedCount;
             if (slot < now)
             {
-                drops[slot].color = Color.white;
+                SetDrop(drops[slot], true);
                 BloomPulse.Add(drops[slot].gameObject, 0f, 0.22f);
             }
         }
@@ -1392,10 +1392,26 @@ namespace Evergrove.UnityClient
         private void PaintDrops(int reached)
         {
             if (waterDrops == null) return;
-            for (int i = 0; i < waterDrops.Length; i++)
-                waterDrops[i].color = i < reached
-                    ? Color.white
-                    : new Color(0.36f, 0.40f, 0.37f, 0.85f); // dry: a solid slate silhouette, >=3:1 on paper (I105)
+            for (int i = 0; i < waterDrops.Length; i++) SetDrop(waterDrops[i], i < reached);
+        }
+
+        // A filled drop is the painted droplet; an empty one is its slate outline
+        // with a faint fill, so the row reads "still to fill", never "lives
+        // left" (I146). The outline keeps I105's >=3:1 contrast on paper.
+        private static Sprite dropFull, dropEmpty;
+
+        private static void SetDrop(Image drop, bool wet)
+        {
+            if (dropFull == null) dropFull = MosseloraArt.Load(MosseloraArt.Droplet);
+            if (dropEmpty == null) dropEmpty = MosseloraArt.Load(MosseloraArt.DropletEmpty);
+            if (wet || dropEmpty == null)
+            {
+                if (dropFull != null) drop.sprite = dropFull;
+                drop.color = wet ? Color.white : new Color(0.36f, 0.40f, 0.37f, 0.85f);
+                return;
+            }
+            drop.sprite = dropEmpty;
+            drop.color = new Color(0.30f, 0.35f, 0.33f, 1f);
         }
 
         // A calm daily ritual entry: the village painting full-bleed, the

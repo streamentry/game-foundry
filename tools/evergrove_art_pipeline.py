@@ -221,6 +221,17 @@ def fade_top(image: Image.Image, share: float = 0.42) -> Image.Image:
     return rgba
 
 
+def hollow(image: Image.Image) -> Image.Image:
+    """White outline of a glyph with a faint fill, for tinting in Unity (I146)."""
+    alpha = image.getchannel("A")
+    inner = alpha.filter(ImageFilter.MinFilter(15))
+    ring = ImageChops.subtract(alpha, inner)
+    faint = inner.point(lambda value: int(value * 0.14))
+    out = Image.new("RGBA", image.size, (255, 255, 255, 0))
+    out.putalpha(ImageChops.lighter(ring, faint))
+    return out
+
+
 def save(image: Image.Image, name: str, border: int = 0) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     target = OUT / (name + ".png")
@@ -385,7 +396,10 @@ def main() -> None:
         names = ("glyph-sprout", "glyph-droplet", "glyph-sprig", "glyph-waves")
         for name, part in zip(names, quadrants(knock_out_paper(small))):
             limit = (384, 128) if name == "glyph-sprig" else (160, 160)
-            save(fit(trim(part, 4), *limit), name)
+            glyph = fit(trim(part, 4), *limit)
+            save(glyph, name)
+            if name == "glyph-droplet":
+                save(hollow(glyph), "glyph-droplet-empty")  # I146: an empty drop looks empty
 
     ui = master("icons-ui")
     if ui:
