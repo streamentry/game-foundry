@@ -4,6 +4,8 @@
 >
 > **What the 100-million figure is:** a north-star target the founder chose. No research in this repository supports it, and the repo's own audit warns against mixing "the largest imaginable global outcome" with the best outcome a small studio can actually reach ([portfolio audit](../../docs/research/portfolio-ranking-audit-and-protocol-2026-11-22.md)).
 >
+> **Revised 2026-11-25:** the founder added a third goal. Mosselora should be a game grandparents, parents and children can play **together, gently**, and it should help older players feel less alone by connecting them with family (§1a). Like the other goals, this is a direction to test, not a proven effect.
+>
 > **Precedence:** code and passing tests describe what exists. The [handbook](docs/README.md) and [specs](docs/specs/README.md) govern what we test next, including the sequential [M0–M6 gates](docs/specs/09-EXECUTION-CONTROL.md). Where this file conflicts with a spec rule or a gate, **the spec wins** until a new decision record changes it. §9 lists every place where this vision currently goes beyond the specs.
 
 ---
@@ -27,14 +29,73 @@
 
 ## 1. The north star
 
-**Mosselora becomes the garden a hundred million people choose to tend, and one that some of them hand to their children.**
+**Mosselora becomes the garden a hundred million people choose to tend, and one that grandparents, parents and children tend together.**
 
 | Goal | What it means | What it does **not** mean |
 | --- | --- | --- |
 | **A century masterpiece** | A game still worth playing, still openable and still respectful decades from now; learned in seconds, enjoyed for years | Prestige graphics, a feature list that dates fast, or a promise that one engine lasts 100 years |
+| **Generations play together** | A grandparent, a parent and a child can sit with one device (or play apart and share the result) and enjoy the same garden gently. Older players get a reason to reach out to family, and family a reason to reach back | A kids' game, a competitive party game, a social network, or a claim that the game cures loneliness |
 | **100 million players** | 100 million unique people who **chose to play** over Mosselora's lifetime, across platforms and languages | Paid installs bought for chart rank, inflated downloads, or growth from compulsion loops |
 
-The second goal counts only if the first is kept.
+The player count counts only if the first two goals are kept.
+
+---
+
+## 1a. Family play: connection, not only entertainment
+
+**Founder direction (2026-11-25):** Mosselora should not only entertain. It should help older players feel less alone by giving families something gentle to do and talk about together. The primary player is still the adult 40+ ([AGENTS.md](../../AGENTS.md)); parents and children join as co-players.
+
+### Why the game might fit (hypothesis, unverified)
+
+- The rule fits in one sentence and needs no reading, so a child and a grandparent can both follow it.
+- There is no timer, score or loss. Nobody can play "badly" in front of family.
+- Each puzzle ends in a **choice** (shade trees, a footbridge or wildflowers). That is a natural moment to ask someone else: *"Which one should we pick?"*
+- The garden remembers the choice, so the next visit has something to recall together: *"That's the bridge you picked."*
+
+### Design rules for family play
+
+1. **Cooperative only.** No head-to-head scores, rankings, timers or "who solved it faster". Everyone helps the same garden.
+2. **Any hand can help.** Large tiles, undo and no penalty for wrong taps, so a six-year-old or a shaky hand can't break anything. Big-board mode and undo already exist.
+3. **Offline alone is always complete.** Anyone can play the whole game alone and offline, with no account. Side-by-side play on one device also needs no account.
+4. **Families far apart can opt in to connect (founder direction, 2026-11-25).** Family members who live apart can play together through a backend and a **simple, optional sign-up**. Signing up is only for connecting; it never gates the solo game. Connection is family-only by invitation: no strangers, no public profiles, no open chat.
+5. **No obligation.** No "your grandchild is waiting", no guilt when someone stops playing, no reciprocity pressure. Absence is never punished ([product spec](docs/specs/01-PRODUCT-AND-EXPERIENCE.md)).
+6. **Respect every age.** Copy and art speak to adults as adults and to children without baby talk. Nothing should signal "senior" or "kiddie".
+
+### Candidate features, cheapest test first (none built, none authorized)
+
+| Idea | What it adds | Smallest test | Kill if |
+| --- | --- | --- | --- |
+| **Play the current build together** | Nothing new: observe whether families already share it | [Family co-play session](docs/playtest/family-coplay-session.md) with 5 family groups on one device | Fewer than 3 of 5 groups both take part without being prompted, or the child is bored within 5 minutes |
+| **Take-turns hand-off** | A gentle "Your turn, Nana" moment between boards; each player's name is kept locally | Paper prototype in the family session, then a build test | Groups ignore it or find the hand-off awkward |
+| **"Who chose this?" in the garden** | The village and journal remember which family member made each choice | Same groups: recall a choice and who made it a week later | No group mentions it unprompted |
+| **Garden postcard to family** (EG-203) | Send a picture of today's garden to someone who isn't in the room | Share-card funnel: sent → opened → replied or played | Postcards are sent but not opened, or never sent |
+| **Puzzle a grandchild can send** (friend codes, §4.4 rung 2) | Play apart, across distance, still with no account | Only after the first three pass | Codes go unplayed |
+| **Family circle (backend + simple sign-up)** | Family members far apart join one private circle by invitation, tend a shared garden in turns, and see who chose what | Before building: a fake-door or concierge test (families trade puzzle codes by message for two weeks) to see whether they keep playing apart | Most families stop within a week, or sign-up loses most people before they connect |
+
+### Family circle: requirements before any backend is built
+
+The current backend is a demo with a bearer token and is "not a production identity system" ([backend README](backend/README.md)). A family circle needs, at minimum:
+
+- **Simple sign-up for adults only:** email link or Sign in with Apple / Google, display name only. If any third-party sign-in is offered on iOS, Apple's login-service rule applies.
+- **Children join through a family adult**, as a profile the adult manages, with no child email, password or contact data. Collecting anything from a child under 13 triggers COPPA verifiable parental consent; the design goal is to collect nothing.
+- **In-app account deletion** (an Apple requirement for apps with sign-up), data export, and a privacy policy and Data safety form that match the real data flows.
+- **Invite-only circles** with a small size limit, adult-controlled removal, and no discovery of strangers. Any free-text message needs its own safety decision; preset reactions come first.
+- **Asynchronous, turn-based play first.** Real-time play adds cost and pressure; it isn't needed for gentle play.
+- **A cost model and an outage rule:** if the server is down, the solo game and each player's local garden still work.
+
+### What we must not claim
+
+- **Never say Mosselora reduces loneliness, improves wellbeing or helps memory** in store copy, the site or press without appropriate evidence ([AGENTS.md](../../AGENTS.md)). We may say what the game *lets people do* ("play together on one device"), but only once it exists.
+- Family sessions can record what people **say and do** (who played, whether they talked, whether they want to play together again). They are not a loneliness measure. A validated loneliness instrument would need its own ethics and consent review.
+
+### Strongest counter-evidence
+
+- **79% of U.S. gamers 50+ usually play alone** (self-reported, [45+ screen](../../docs/research/45plus-market-screen-2026-11-21.md)). Family play may be a minority use, so the solo game must stay complete and excellent on its own.
+- Children and grandparents may want very different pace and difficulty. A calm pipe puzzle may bore a child or rush a grandparent.
+- Shared-device play is hard to measure without analytics, which the specs ban.
+- **Designing for children changes store compliance.** Google Play's target audience is saved as "18 and over". If children are an intended audience, the [Families policy](https://support.google.com/googleplay/android-developer/answer/9893335) and Apple's age rating and Kids rules apply, and the account owner must decide how to declare it before submission. Mosselora already has no ads, accounts or data collection, which makes this easier but not automatic.
+
+---
 
 ---
 
@@ -93,16 +154,17 @@ The water puzzle stays the heart of the game, and every layer must change *where
 
 ### 4.4 Sharing first, Commons maybe
 
-This is where the original "global player network" idea lives. **The specs currently reject trading, social economies and creator marketplaces** ([backlog reject list](docs/specs/02-FEATURE-BACKLOG.md)), and backend and multiplayer are not authorized. Evidence also cuts against social play as core: **79% of US gamers 50+ usually play alone** ([45+ screen](../../docs/research/45plus-market-screen-2026-11-21.md)). So social play builds up in rungs, and it may stop at any rung:
+This is where the original "global player network" idea lives, and since 2026-11-25 the family-play goal (§1a). **The specs currently reject trading, social economies and creator marketplaces** ([backlog reject list](docs/specs/02-FEATURE-BACKLOG.md)), and backend and multiplayer are not authorized. Evidence also cuts against social play as core: **79% of US gamers 50+ usually play alone** ([45+ screen](../../docs/research/45plus-market-screen-2026-11-21.md)). So social play builds up in rungs, and it may stop at any rung. **Family comes before friends, and friends before strangers.**
 
-1. **No-server sharing (Sprout).** A garden postcard or share card (EG-203). Measure the [referral funnel](../../docs/research/global-45plus-top-three-games-2026-11-21.md): sent → opened → completed → returned. Without this measurement, word-of-mouth growth is a guess.
-2. **Local pass-and-play and friend-to-friend puzzle codes**, with no accounts.
+0. **Side-by-side family play on one device (Seed).** Observe families playing the current build together ([family co-play session](docs/playtest/family-coplay-session.md)), then test a gentle take-turns hand-off. No network, no accounts, no data about children.
+1. **No-server sharing (Sprout).** A garden postcard or share card (EG-203), first aimed at family members who aren't in the room. Measure the [referral funnel](../../docs/research/global-45plus-top-three-games-2026-11-21.md): sent → opened → completed → returned. Without this measurement, word-of-mouth growth is a guess.
+2. **Local pass-and-play and family-to-family puzzle codes**, with no accounts.
 3. **The Commons**, only after a separate identity, security and moderation decision, a cost model, and proof from rungs 1–2 that people actually play what friends send. It means downstream gifts between known friends: seeds and cuttings, never currency and never markets.
    - **A gift must never change whether someone else's puzzle can be solved.**
    - **No artificial obligation to reciprocate** (the [franchise benchmarks](../../docs/ideas/global-franchise-benchmarks-2026-2036.md) flag reciprocity loops as manipulation risk).
    - Strangers come last, if ever.
 
-The [four-genre outlook](../../docs/ideas/four-genre-outlook-2026-2036.md) warns that evergreen solo loops and persistent social worlds "require different business models… Do **not** assume they belong in one game." **Mosselora is an evergreen solo game first.** The Commons is optional, and it is the first layer to drop if it raises cost or lowers retention.
+The [four-genre outlook](../../docs/ideas/four-genre-outlook-2026-2036.md) warns that evergreen solo loops and persistent social worlds "require different business models… Do **not** assume they belong in one game." **Mosselora is an evergreen game for one player or one family around one device first.** The solo game must stay complete on its own. The Commons is optional, and it is the first layer to drop if it raises cost or lowers retention.
 
 ### 4.5 Optional cloud sync
 
@@ -171,7 +233,9 @@ Pricing is set to free in App Store Connect, but the business model isn't valida
 - **Our own forecasts are pessimistic about this kind of outcome.** The studio's ten-year thesis reports "extremely low" confidence that any named title becomes a top global game. The franchise benchmarks say mass audiences come from "distribution, capital, creative ecosystems and network effects" a small studio can't copy. Every benchmark figure in the repo is flagged unverified. **We have no verified data on how any game reached 100M players.**
 - **The depth problem.** Today's variants don't add structural difficulty. Without real system depth, decades of play are unlikely.
 - **The strongest opposing case is written in the specs:** "a beautifully finished, ordinary offline water puzzle is better" ([evidence & decisions](docs/specs/08-EVIDENCE-AND-DECISIONS.md)).
-- **Audience mismatch for social layers.** Most 50+ players play alone, so the Commons may never matter.
+- **Audience mismatch for social layers.** Most 50+ players play alone, so the Commons may never matter, and family play may stay a minority use.
+- **The family goal can't be proven by the game alone.** We can observe families playing together; we can't claim the game reduces loneliness without a proper study.
+- **Children raise the compliance bar.** Declaring children as an audience brings Families-policy and age-rating obligations (§1a).
 - **Portfolio cost.** Mosselora moved ahead of the recorded search-led sequence on founder preference. Every hour here is an hour not spent finishing the Kakuro learning loop.
 - **Focus risk.** A big vision can pull effort away from the next real test.
 
@@ -188,6 +252,8 @@ These need a new decision record before any work starts:
 
 | Vision element | Current rule | Source |
 | --- | --- | --- |
+| Family co-play features (take-turns hand-off, named family choices, family postcards) | Not in the backlog. Same-device play needs no backend, but "multiplayer" is not authorized and children are not a declared store audience |
+| Family circle with backend and optional sign-up | Backend, accounts and multiplayer not authorized; store listings declare no account and no data collection | [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md), [backend](backend/README.md), [store metadata](../../store/metadata/evergrove/en-US.json) | [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md), [store metadata](../../store/metadata/evergrove/en-US.json) |
 | The Commons / gifting between players | Trading, social economy and UGC marketplace on the reject list; backend and multiplayer not authorized | [02 backlog](docs/specs/02-FEATURE-BACKLOG.md), [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md) |
 | Optional cloud sync | Not to be added "merely to make the world appear alive"; backend is a detached demo | [04 world spec](docs/specs/04-WORLD-AND-NARRATIVE.md), [backend](backend/README.md) |
 | Generative AI phrasing | Runtime LLM not authorized | [08 evidence](docs/specs/08-EVIDENCE-AND-DECISIONS.md) |
