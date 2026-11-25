@@ -223,6 +223,12 @@ namespace Evergrove.UnityClient
             displayFont = RoundedDisplayFont();
             bookFont = BookFont();
             LocaleRuntime.Initialize();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Dev-only: hold the app sideways so landscape can be toured on any
+            // simulator from the shell (SIMCTL_CHILD_mosseloraOrientation=landscape).
+            if (DevArgs.Read("-mosseloraOrientation") == "landscape")
+                Screen.orientation = ScreenOrientation.LandscapeLeft;
+#endif
             TextScale.Initialize();
             BoardSize.Initialize();
             font =LocaleFonts.Choose(LocaleRuntime.Current, baseFont);
