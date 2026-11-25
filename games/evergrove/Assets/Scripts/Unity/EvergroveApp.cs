@@ -1659,6 +1659,8 @@ namespace Evergrove.UnityClient
                 ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
             Transform row = CenteredRowIn(stack, "Next stream row");
             row.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+            Transform outer = row;
+            row = PaintedSign(row) ?? row; // the same plank as on the board (I165)
             if (mark != null)
             {
                 var icon = Node("Shaped by your choice", row);
@@ -1671,10 +1673,12 @@ namespace Evergrove.UnityClient
                 iconImage.raycastTarget = false;
                 BloomPulse.Add(icon, 0.6f, 0.05f);
             }
+            bool onSign = row != outer;
             Text where = Label(row, "Next stream", mark != null ? nextStop.Substring(0, split) : nextStop,
-                16, 0, Moss, TextAnchor.MiddleCenter);
+                16, 0, onSign ? Ink : Moss, TextAnchor.MiddleCenter);
             Emphasize(where);
-            if (abovePlay) row.SetSiblingIndex(stack.childCount - 2);
+            if (onSign) OneLine(where);
+            if (abovePlay) outer.SetSiblingIndex(stack.childCount - 2);
         }
 
         private int hubRecall = -1;
@@ -2132,6 +2136,41 @@ namespace Evergrove.UnityClient
             rect.sizeDelta = new Vector2(-34f - columnLeft - columnRight, rowHeight);
             rect.anchoredPosition = new Vector2((columnLeft - columnRight) / 2f, 14f);
             keep.transform.SetSiblingIndex(Mathf.Min(index, content.childCount - 1));
+        }
+
+        // A slim painted wooden plank (I162) holding a row of icon + name, or null
+        // when the art is missing. Its height is set, not taken from the sprite.
+        private Transform PaintedSign(Transform parent)
+        {
+            Sprite plank = MosseloraArt.Load(MosseloraArt.StreamSign);
+            if (plank == null) return null;
+            var sign = Node("Stream sign", parent);
+            var signImage = sign.AddComponent<Image>();
+            signImage.sprite = plank;
+            signImage.type = Image.Type.Sliced;
+            signImage.pixelsPerUnitMultiplier = 2.6f;
+            signImage.raycastTarget = false;
+            var signRow = sign.AddComponent<HorizontalLayoutGroup>();
+            signRow.padding = new RectOffset(24, 24, 7, 8);
+            signRow.spacing = 6;
+            signRow.childAlignment = TextAnchor.MiddleCenter;
+            signRow.childControlWidth = true;
+            signRow.childControlHeight = true;
+            signRow.childForceExpandWidth = false;
+            signRow.childForceExpandHeight = false;
+            var signSize = sign.AddComponent<LayoutElement>();
+            signSize.layoutPriority = 2;
+            signSize.minHeight = signSize.preferredHeight = TextScale.Scale(36);
+            signSize.flexibleHeight = 0f;
+            return sign.transform;
+        }
+
+        // One line on a sign; the sign grows to fit the name.
+        private static void OneLine(Text text)
+        {
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            var size = text.GetComponent<LayoutElement>();
+            size.minWidth = size.preferredWidth = Mathf.Ceil(text.preferredWidth) + 2f;
         }
 
         // The neighbor's card rises a few points and fades in, like a word said.
@@ -2713,30 +2752,9 @@ namespace Evergrove.UnityClient
             // part of the scenery rather than a caption (I162).
             Transform nameRow = CenteredRowIn(row.transform, "Stream name row");
             nameRow.GetComponent<HorizontalLayoutGroup>().spacing = 6;
-            Sprite plank = MosseloraArt.Load(MosseloraArt.StreamSign);
-            if (plank != null)
-            {
-                var sign = Node("Stream sign", nameRow);
-                var signImage = sign.AddComponent<Image>();
-                signImage.sprite = plank;
-                signImage.type = Image.Type.Sliced;
-                signImage.pixelsPerUnitMultiplier = 2.6f;
-                signImage.raycastTarget = false;
-                var signRow = sign.AddComponent<HorizontalLayoutGroup>();
-                signRow.padding = new RectOffset(24, 24, 7, 8);
-                signRow.spacing = 6;
-                signRow.childAlignment = TextAnchor.MiddleCenter;
-                signRow.childControlWidth = true;
-                signRow.childControlHeight = true;
-                signRow.childForceExpandWidth = false;
-                signRow.childForceExpandHeight = false;
-                // A slim plank: its height is set, not taken from the sprite.
-                var signSize = sign.AddComponent<LayoutElement>();
-                signSize.layoutPriority = 2;
-                signSize.minHeight = signSize.preferredHeight = TextScale.Scale(36);
-                signSize.flexibleHeight = 0f;
-                nameRow = sign.transform;
-            }
+            Transform sign = PaintedSign(nameRow);
+            bool plank = sign != null;
+            if (plank) nameRow = sign;
             if (mark != null)
             {
                 var icon = Node("Rooted by your choice", nameRow);
@@ -2750,16 +2768,10 @@ namespace Evergrove.UnityClient
             }
             Text title = Label(nameRow, "Stream name",
                 name.Length == 0 ? " " : mark != null ? name.Substring(0, split) : name, 16, 0,
-                plank != null ? Ink : Moss, // was 14 (I137); ink on the painted wood (I162)
+                plank ? Ink : Moss, // was 14 (I137); ink on the painted wood (I162)
                 TextAnchor.MiddleCenter);
             Emphasize(title);
-            if (plank != null)
-            {
-                // One line on the sign; the sign grows to fit the name.
-                title.horizontalOverflow = HorizontalWrapMode.Overflow;
-                var titleSize = title.GetComponent<LayoutElement>();
-                titleSize.minWidth = titleSize.preferredWidth = Mathf.Ceil(title.preferredWidth) + 2f;
-            }
+            if (plank) OneLine(title);
             // Spoken position along the creek, not shown: the stones show it.
             Text spoken = Label(row.transform, "Stream position",
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count),
