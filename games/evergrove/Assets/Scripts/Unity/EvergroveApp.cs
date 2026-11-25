@@ -1451,6 +1451,13 @@ namespace Evergrove.UnityClient
             windowRect.anchorMax = Vector2.one;
             windowRect.offsetMin = windowRect.offsetMax = Vector2.zero;
             window.AddComponent<RectMask2D>();
+            // Now and then a butterfly drifts across the village: the garden is
+            // alive when you come back to it (I157). Decoration only, gentle motion only.
+            bool lively = gentleMotion;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) lively = false;
+#endif
+            if (lively) window.AddComponent<HubButterflies>();
             var art = Node("Village at the start", window.transform);
             var artRect = art.GetComponent<RectTransform>();
             artRect.anchorMin = Vector2.zero;
