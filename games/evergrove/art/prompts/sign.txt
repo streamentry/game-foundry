@@ -1,0 +1,8 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING button plaque art of this game: match its hand-painted watercolour storybook style, warm honey wood and soft light exactly. Generate exactly ONE image.
+Use case: game UI sprite (will be 9-slice stretched horizontally)
+Asset type: one EMPTY wooden name sign for a stream in a calm village garden game
+Primary request: a single horizontal weathered wooden plank sign, about 4:1 wide, gently rounded ends, warm honey-brown wood with soft grain, two tiny iron nails near the ends, a small sprig of green ivy curling over the top-left corner. The flat middle of the plank must be calm and even, light enough for dark text to be written on it later. NO text, NO letters.
+Composition: the sign centred on a 1536x512 canvas with generous transparent space around it; no post, no ground.
+Background: fully TRANSPARENT (alpha).
+Constraints: no text, no letters, no numbers, no watermark, no drop shadow outside the sign.
+Copy the final PNG to games/evergrove/art/generated/stream-sign.png and print the path. Do nothing else.

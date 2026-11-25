@@ -221,6 +221,17 @@ def fade_top(image: Image.Image, share: float = 0.42) -> Image.Image:
     return rgba
 
 
+def hollow(image: Image.Image) -> Image.Image:
+    """White outline of a glyph with a faint fill, for tinting in Unity (I146)."""
+    alpha = image.getchannel("A")
+    inner = alpha.filter(ImageFilter.MinFilter(15))
+    ring = ImageChops.subtract(alpha, inner)
+    faint = inner.point(lambda value: int(value * 0.14))
+    out = Image.new("RGBA", image.size, (255, 255, 255, 0))
+    out.putalpha(ImageChops.lighter(ring, faint))
+    return out
+
+
 def save(image: Image.Image, name: str, border: int = 0) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     target = OUT / (name + ".png")
@@ -385,7 +396,10 @@ def main() -> None:
         names = ("glyph-sprout", "glyph-droplet", "glyph-sprig", "glyph-waves")
         for name, part in zip(names, quadrants(knock_out_paper(small))):
             limit = (384, 128) if name == "glyph-sprig" else (160, 160)
-            save(fit(trim(part, 4), *limit), name)
+            glyph = fit(trim(part, 4), *limit)
+            save(glyph, name)
+            if name == "glyph-droplet":
+                save(hollow(glyph), "glyph-droplet-empty")  # I146: an empty drop looks empty
 
     ui = master("icons-ui")
     if ui:
@@ -436,6 +450,22 @@ def main() -> None:
                               grid(plaques.convert("RGBA"), 3, 1)):
             part = fit(trim(cell, 2), 300, 150)
             save(part, name, border=int(part.height * 0.45))
+
+    sign = master("stream-sign")
+    if sign:
+        # A painted plank for the stream's name (I162): faint speckles cleared,
+        # trimmed, and 9-sliced so only the plain middle stretches.
+        plank = sign.convert("RGBA")
+        plank.putalpha(plank.getchannel("A").point(lambda value: 0 if value < 60 else value))
+        part = fit(trim(plank, 2), 480, 160)
+        save(part, "stream-sign", border=int(part.height * 0.5))
+
+    medallions = master("medallions")
+    if medallions:
+        # Round tokens for the board's Undo and Hint (I129).
+        for name, cell in zip(("medallion-forest", "medallion-teal", "medallion-parchment"),
+                              grid(medallions.convert("RGBA"), 3, 1)):
+            save(fit(trim(cell, 2), 192, 192), name)
 
     butterfly = master("butterfly")
     if butterfly:

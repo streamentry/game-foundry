@@ -60,19 +60,21 @@ namespace Evergrove.UnityClient
         {
             vh.Clear();
             // Dry pipes are warm/earthen. Only genuinely spring-connected
-            // pipes receive teal water, and completion uses deeper green.
+            // pipes receive teal water. A finished stream is the brightest state,
+            // never a duller one: clearer teal and a sunlit stripe (I132).
             // Non-color cue (WCAG 1.4.1): connected channels carry a solid,
             // wider water stripe along each arm; dry channels carry a
             // segmented, broken stripe. Same arm geometry and hit area.
-            Color32 outer = completed ? new Color32(30, 110, 90, 255) :
+            Color32 outer = completed ? new Color32(22, 132, 146, 255) :
                 hasWater ? (Color32)MosseloraTheme.WaterChannel :
                 (Color32)MosseloraTheme.DryChannel;
-            Color32 collar = completed ? new Color32(20, 81, 63, 255) :
+            Color32 collar = completed ? new Color32(16, 96, 108, 255) :
                 hasWater ? new Color32(16, 86, 98, 255) :
                 new Color32(122, 67, 40, 255);
             Color32 inner = hasWater ?
                 new Color32(205, 239, 240, 255) :
                 new Color32(236, 197, 162, 255);
+            if (completed) inner = new Color32(232, 251, 250, 255); // sunlit stripe (I132)
             Rect area = rectTransform.rect;
             float half = Mathf.Min(area.width, area.height) * 0.47f;
             float stroke = Mathf.Max(14f, half * 0.40f);

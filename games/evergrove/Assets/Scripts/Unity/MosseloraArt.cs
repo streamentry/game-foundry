@@ -27,6 +27,7 @@ namespace Evergrove.UnityClient
         public const string StoneWinter = "stone-winter";
         public const string StoneWalked = "stone-wet";
         public const string StoneHere = "stone-here";
+        public const string StreamSign = "stream-sign"; // painted plank for the stream name (I162)
         public const string VignetteTree = "vignette-tree";
         public const string VignetteBridge = "vignette-bridge";
         public const string VignetteFlowers = "vignette-flowers";
@@ -36,6 +37,7 @@ namespace Evergrove.UnityClient
         public const string Foundation = "icon-foundation";
         public const string Sprout = "glyph-sprout";
         public const string Droplet = "glyph-droplet";
+        public const string DropletEmpty = "glyph-droplet-empty"; // hollow outline (I146)
         public const string Sprig = "glyph-sprig";
         public const string SpringWaves = "glyph-waves";
         // Tintable white UI glyphs (icons-ui.png, sliced 4x4).
@@ -291,6 +293,30 @@ namespace Evergrove.UnityClient
             art.sprite = sprite;
             art.type = Image.Type.Sliced;
             art.pixelsPerUnitMultiplier = 2.4f;
+            art.raycastTarget = false;
+            return art;
+        }
+
+        /// <summary>A painted round token (Codex) behind a round button, or null (I129).</summary>
+        public static Image Medallion(Image image, Color tone)
+        {
+            string name = tone == MosseloraTheme.ForestAction ? "medallion-forest"
+                : tone == MosseloraTheme.WaterAction ? "medallion-teal"
+                : tone == MosseloraTheme.QuietAction ? "medallion-parchment" : null;
+            Sprite sprite = name != null ? Load(name) : null;
+            if (sprite == null) return null;
+            Round(image, new Color(1f, 1f, 1f, 0f), 32);
+            var node = new GameObject("Painted medallion", typeof(RectTransform));
+            node.transform.SetParent(image.transform, false);
+            node.transform.SetAsFirstSibling();
+            node.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = node.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var art = node.AddComponent<Image>();
+            art.sprite = sprite;
+            art.preserveAspect = true;
             art.raycastTarget = false;
             return art;
         }
@@ -633,6 +659,70 @@ namespace Evergrove.UnityClient
             image.sprite = ((int)(elapsed / FlapSeconds) % 2 == 0) ? open : closed;
             float alpha = t < 0.12f ? t / 0.12f : t > 0.75f ? (1f - t) / 0.25f : 1f;
             image.color = new Color(1f, 1f, 1f, alpha);
+        }
+    }
+
+    /// <summary>
+    /// The hub painting's visitor (I157): every 8–13 s a painted butterfly drifts
+    /// up and across the village window over ~4.5 s, flapping, then fades. No
+    /// game state, no clock: it only runs while the hub is open with gentle motion.
+    /// </summary>
+    internal sealed class HubButterflies : MonoBehaviour
+    {
+        private const float Duration = 4.5f;
+        private float wait = 2.5f;
+        private RectTransform flier;
+        private Image image;
+        private Sprite open, closed;
+        private Vector2 start;
+        private float elapsed;
+
+        private void Awake()
+        {
+            open = MosseloraArt.Load(MosseloraArt.ButterflyOpen);
+            closed = MosseloraArt.Load(MosseloraArt.ButterflyClosed);
+            if (closed == null) closed = open;
+        }
+
+        private void Update()
+        {
+            if (open == null) return;
+            if (flier == null)
+            {
+                wait -= Time.unscaledDeltaTime;
+                if (wait > 0f) return;
+                wait = Random.Range(8f, 13f);
+                Launch();
+                return;
+            }
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / Duration;
+            if (t >= 1f) { Destroy(flier.gameObject); flier = null; return; }
+            float drift = Mathf.SmoothStep(0f, 1f, t);
+            float sway = Mathf.Sin(t * Mathf.PI * 3f) * 18f;
+            flier.anchoredPosition = start + new Vector2(drift * 230f, drift * 140f + sway);
+            flier.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI * 6f) * 8f);
+            image.sprite = ((int)(elapsed / 0.13f) % 2 == 0) ? open : closed;
+            float alpha = t < 0.15f ? t / 0.15f : t > 0.8f ? (1f - t) / 0.2f : 1f;
+            image.color = new Color(1f, 1f, 1f, alpha * 0.95f);
+        }
+
+        private void Launch()
+        {
+            var host = (RectTransform)transform;
+            var node = new GameObject("Hub butterfly", typeof(RectTransform));
+            node.transform.SetParent(host, false);
+            flier = node.GetComponent<RectTransform>();
+            flier.anchorMin = flier.anchorMax = Vector2.zero;
+            flier.sizeDelta = new Vector2(38f, 38f);
+            start = new Vector2(host.rect.width * Random.Range(0.1f, 0.45f), host.rect.height * Random.Range(0.25f, 0.5f));
+            flier.anchoredPosition = start;
+            image = node.AddComponent<Image>();
+            image.sprite = open;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            image.color = new Color(1f, 1f, 1f, 0f);
+            elapsed = 0f;
         }
     }
 

@@ -154,17 +154,17 @@ Use the rule that was predeclared. The sources disagree. Choose one set below be
 - Consent record retention schedule and deletion method.
 - Storage location of private records, outside the public repo.
 
-## 7. Painted-build addendum (design iterations I01–I125, updated 2026-11-25)
+## 7. Painted-build addendum (design iterations I01–I152, updated 2026-11-25)
 
 The painted UI made several bets that only real players can settle. Observe these **without prompting** and record them on the sheet, separately for each age band (40–49, 50–64, 65+). Each links to its iteration log in `docs/improvements/`.
 
 | # | Bet | Watch for | Fails if |
 |---|---|---|---|
 | P1 | The hub's icon-only arrow is obviously "play" (I67) | Time from launch to first tap on the arrow | Median > 10 s, or 2+ of 10 tap something else first |
-| P2 | Mira's picture-plus-sentence bubble and the glowing spring/garden teach the board (I57, I64) | First tap on a tile; whether they say a tap *turns* a pipe | Median first tile tap > 15 s, or 3+ of 10 can't explain the goal (spec rule) |
+| P2 | Mira's **picture-only** bubble (I151: sentence now spoken only), the glowing spring/garden on every board (I148), the turning-arrow disc (I138) and the pressing finger (I147) teach the board | First tap on a tile; whether they say a tap *turns* a pipe | Median first tile tap > 15 s, or 3+ of 10 can't explain the goal (spec rule) |
 | P3 | Icon-only Undo / Guide me / Restart are found when needed (I53) | Uses Guide me when stuck? Presses and holds to learn a name? | 3+ of 10 stuck > 60 s without finding Guide me |
-| P4 | Droplets and cream "mouths" show progress and open ends (I27, open mouths) | Can they say what the drops mean after stream 1? | 3+ of 10 can't, unprompted |
-| P5 | Picture-first choice cards are understood (I66) | Do they know a choice changes the village before tapping? | 3+ of 10 say the choice "doesn't matter" |
+| P4 | Droplets and cream "mouths" show progress and open ends (I27, open mouths); empty drops are hollow (I146) and water flies tile → drop (I130) | Can they say what the drops mean after stream 1? Do they call them "lives" or "moves left"? | 3+ of 10 can't, unprompted, or 2+ read them as lives or moves |
+| P5 | Picture-first choice cards are understood (I66), including the mini framed tile it leaves on the next board (I134) | Before choosing, ask: "What do you expect to change on the next board?" | 3+ of 10 say the choice "doesn't matter", or none connects the mini tile with the framed tile on the next board |
 | P6 | The memory vignette and landmark grow-in are noticed (I24, I50) | Recall of who remembers what after 10 min (spec ≥70%) | Below the spec threshold |
 | P7 | The menu and the book are found when needed (I03) | Can they change text size when asked, unaided? | 3+ of 10 can't find it in 60 s |
 | P8 | Seasonal stones and the hub's latest memory invite a return (I63, I69) | Day-2 voluntary return (consented follow-up only) | Below the predeclared D1 threshold |
@@ -172,6 +172,9 @@ The painted UI made several bets that only real players can settle. Observe thes
 | P10 | The painted stone path shows progress (I120, I123, I124): water under the walked stones, a ring and sprout on yours | After stream 2, ask "where are you in the season, and how far is left?" | 3+ of 10 can't say which stones are done, or which one is theirs |
 | P11 | The story reads comfortably in the book serif (I117, I125); labels stay in the rounded sans | Squinting, leaning in, or comments while reading the memory card and journal; whether they raise text size | 3+ of 10 struggle to read story lines that they read easily as labels |
 | P12 | Sideways play is wanted and works (I114–I116, I122) | Do they rotate the phone unprompted? If they do, can they find the menu and book on the painting, and Undo/Hint beside the board? | Of those who rotate, 2+ get lost; record the rotation rate either way (it decides whether landscape earns its upkeep) |
+| P13 | Touch feedback (I140) helps and doesn't tire: a light tick per turn and a pulse on a finish, on real phones only | Comments, turning Gentle motion off, or the OS haptics switch | 2+ of 10 call it annoying, or none notices it |
+| P14 | The running water (I144) and the brighter finished stream (I132) feel like a payoff | Reaction at the first solve (smile, comment); do they watch the water run? | 3+ of 10 miss that the board is finished before the choices appear |
+| P15 | "Send a garden postcard" opens the phone's share sheet (I149) and is understood | Ask at the end: "Would you show this to someone? How?" Watch them use the postcard | 3+ of 10 can't tell what the postcard does, or expect a photo rather than text |
 
-**Reversal rule.** Any P-item that fails reverts to the more explicit option already recorded in its iteration log, for example labelled tools (pre-I53) or a coach sentence (I64 kept it). Do not redesign from intuition between sessions. Fallbacks for the newer bets: **P10** shows the spoken position ("Stream 3 of 12") as visible text under the path, or reverts to the pre-I120 dots; **P11** sets story lines back in the rounded sans (pre-I117); **P12** locks the app to portrait (pre-I114) if rotation is rare and confusing, or keeps it if rare but harmless.
+**Reversal rule.** Any P-item that fails reverts to the more explicit option already recorded in its iteration log, for example labelled tools (pre-I53) or a coach sentence (I64 kept it). Do not redesign from intuition between sessions. Fallbacks for the newer bets: **P10** shows the spoken position ("Stream 3 of 12") as visible text under the path, or reverts to the pre-I120 dots; **P11** sets story lines back in the rounded sans (pre-I117); **P12** locks the app to portrait (pre-I114) if rotation is rare and confusing, or keeps it if rare but harmless; **P2** restores the coach sentence (pre-I151) first; **P4** adds a visible "4 of 9 watered" line under the drops; **P13** turns haptics off by default; **P15** falls back to copy-to-clipboard wording (pre-I149).
 

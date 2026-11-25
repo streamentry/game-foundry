@@ -52,6 +52,7 @@ namespace Evergrove.UnityClient
         private readonly System.Collections.Generic.List<GameObject> goalGlows =
             new System.Collections.Generic.List<GameObject>();
         private GameObject coachBubble;  // stream-1 teaching bubble, gone after the first move
+        private float spentTipHeight;    // its space, kept for the rest of the first board (I141)
         private RectTransform warningViewport;
         private GameObject saveWarningBanner;
         private Text saveWarningCaption;
@@ -62,6 +63,11 @@ namespace Evergrove.UnityClient
         private bool showingMemory;
         private bool showJournal;
         private int speakingWith = -1;
+        // The neighbor's speech floats over the page (I127), so talking never
+        // scrolls the board away or pushes the header off screen.
+        private GameObject neighborLayer;
+        private GameObject pinnedActions; // the memory card's actions, held at the screen's foot (I164)
+        private int neighborShown = -1;
         private bool confirmReset;
         private bool soundOn;
         // WCAG 2.3.3: motion triggered by play (pipe swing, bloom, butterfly,
@@ -1030,7 +1036,8 @@ namespace Evergrove.UnityClient
         private Button IconButton(Transform parent, string name, string caption, string icon,
                                   Action action, int height, Color tone,
                                   bool showCaption = false, string badge = null,
-                                  bool captionBelow = false, int pips = 0, int pipsOn = 0)
+                                  bool captionBelow = false, int pips = 0, int pipsOn = 0,
+                                  bool round = false)
         {
             Sprite glyph = MosseloraArt.Load(icon);
             if (glyph == null) return Button(parent, name, caption, action, height, tone);
@@ -1042,8 +1049,16 @@ namespace Evergrove.UnityClient
             var image = node.AddComponent<Image>();
             // Painted enamel-and-wood plaque (Codex) for the main tones; the
             // rounded fill remains the fallback and for other tones.
-            Image plaque = MosseloraArt.Plaque(image, tone);
-            if (plaque == null) MosseloraArt.Round(image, tone, 18);
+            Image plaque = round ? MosseloraArt.Medallion(image, tone) : MosseloraArt.Plaque(image, tone);
+            if (plaque == null) MosseloraArt.Round(image, tone, round ? height / 2 : 18);
+            if (round)
+            {
+                // A round token as wide as it is tall (I129).
+                var roundLayout = node.GetComponent<LayoutElement>();
+                if (roundLayout == null) roundLayout = node.AddComponent<LayoutElement>();
+                roundLayout.minWidth = roundLayout.preferredWidth = height;
+                roundLayout.flexibleWidth = 0f;
+            }
             MosseloraArt.Lift(plaque != null ? plaque : image, 2f, quiet ? 0.10f : 0.24f);
             if (quiet && plaque == null) MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
             var button = node.AddComponent<Button>();
@@ -1063,7 +1078,7 @@ namespace Evergrove.UnityClient
             group.childControlHeight = true;
             group.childForceExpandWidth = false;
             group.childForceExpandHeight = false;
-            float iconSize = Mathf.Round(height * (captionBelow ? 0.40f : showCaption ? 0.42f : 0.52f));
+            float iconSize = Mathf.Round(height * (captionBelow ? 0.40f : showCaption ? 0.42f : round ? 0.44f : 0.52f));
             var iconNode = Node("Icon", node.transform);
             var iconLayout = iconNode.AddComponent<LayoutElement>();
             iconLayout.minWidth = iconLayout.preferredWidth = iconSize;
@@ -1077,6 +1092,16 @@ namespace Evergrove.UnityClient
             {
                 // Level shown as filled dots, not words or numbers.
                 var dots = Node("Level dots", node.transform);
+                if (round)
+                {
+                    // On a token the level sits under the glyph, inside the disc.
+                    dots.AddComponent<LayoutElement>().ignoreLayout = true;
+                    var dotsRect = dots.GetComponent<RectTransform>();
+                    dotsRect.anchorMin = dotsRect.anchorMax = new Vector2(0.5f, 0f);
+                    dotsRect.pivot = new Vector2(0.5f, 0f);
+                    dotsRect.sizeDelta = new Vector2(height * 0.5f, 10f);
+                    dotsRect.anchoredPosition = new Vector2(0f, height * 0.13f);
+                }
                 var dotRow = dots.AddComponent<HorizontalLayoutGroup>();
                 dotRow.spacing = 4;
                 dotRow.childAlignment = TextAnchor.MiddleCenter;
@@ -1141,22 +1166,39 @@ namespace Evergrove.UnityClient
             if (chosen.Length == 0) return;
             var strip = Node("Choice timeline", parent);
             var grid = strip.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(50f, 46f);
+            // Each choice stands on the painted stone of the stream it was made in,
+            // in its season, so the summary reads as the path walked through the
+            // year, not an inventory tally (I161).
+            const float cellHeight = 64f;
+            grid.cellSize = new Vector2(50f, cellHeight);
             grid.spacing = new Vector2(4f, 6f);
             grid.childAlignment = TextAnchor.MiddleCenter;
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = Mathf.Min(6, chosen.Length);
             int rows = (chosen.Length + grid.constraintCount - 1) / grid.constraintCount;
-            Height(strip, rows * 46f + (rows - 1) * 6f);
+            Height(strip, rows * cellHeight + (rows - 1) * 6f);
             for (int i = 0; i < chosen.Length; i++)
             {
                 Sprite icon = MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]);
                 var cell = Node("Chapter choice", strip.transform);
+                Sprite stone = PathStone(i, false, false);
+                if (stone != null)
+                {
+                    var step = Node("Stone", cell.transform);
+                    var stepRect = step.GetComponent<RectTransform>();
+                    stepRect.anchorMin = new Vector2(0.08f, 0f);
+                    stepRect.anchorMax = new Vector2(0.92f, 0.36f);
+                    stepRect.offsetMin = stepRect.offsetMax = Vector2.zero;
+                    var stepImage = step.AddComponent<Image>();
+                    stepImage.sprite = stone;
+                    stepImage.preserveAspect = true;
+                    stepImage.raycastTarget = false;
+                }
                 if (icon != null)
                 {
                     var picture = Node("Picture", cell.transform);
                     var pictureRect = picture.GetComponent<RectTransform>();
-                    pictureRect.anchorMin = Vector2.zero;
+                    pictureRect.anchorMin = new Vector2(0f, stone != null ? 0.2f : 0f);
                     pictureRect.anchorMax = Vector2.one;
                     pictureRect.offsetMin = pictureRect.offsetMax = Vector2.zero;
                     var pictureImage = picture.AddComponent<Image>();
@@ -1231,13 +1273,163 @@ namespace Evergrove.UnityClient
             PaintDrops(reached);
         }
 
+        // Water that newly reaches a tile flies down into its drop, so the meter
+        // explains itself without a word: each drop is a tile with water (I130).
+        private void PaintDropsWithFlights(Puzzle puzzle, PipeInsight insight, float[] arrive = null)
+        {
+            int reached = world.Solved ? puzzle.CellCount : insight.ConnectedCount;
+            int before = 0;
+            if (lastFlowing != null) foreach (bool wet in lastFlowing) if (wet) before++;
+            bool fly = gentleMotion && waterDrops != null && canvasRoot != null && tileArtwork != null &&
+                lastFlowing != null && lastFlowing.Length == puzzle.CellCount && reached > before;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) fly = false; // tour screenshots capture settled screens
+#endif
+            if (!fly) { PaintDrops(reached); return; }
+            PaintDrops(before);
+            int slot = before, order = 0;
+            var fresh = new System.Collections.Generic.List<int>();
+            for (int i = 0; i < puzzle.CellCount; i++)
+                if (insight.Flowing[i] && !lastFlowing[i]) fresh.Add(i);
+            // Nearest the spring first, leaving as each tile fills (I144).
+            if (arrive != null) fresh.Sort((a, b) => arrive[a].CompareTo(arrive[b]));
+            foreach (int i in fresh)
+            {
+                if (slot >= reached || slot >= waterDrops.Length) break;
+                float wait = arrive != null ? arrive[i] : order * 0.07f;
+                StartCoroutine(FlyDrop(tileArtwork[i].rectTransform, slot++, wait));
+                order++;
+            }
+            // Drops not tied to a newly wet tile (a solve fills the rest) fill at once.
+            for (; slot < reached && slot < waterDrops.Length; slot++) SetDrop(waterDrops[slot], true);
+        }
+
+        private IEnumerator FlyDrop(RectTransform from, int slot, float startDelay)
+        {
+            Image[] drops = waterDrops;
+            Sprite sprite = MosseloraArt.Load(MosseloraArt.Droplet);
+            if (sprite == null || from == null || drops == null || slot >= drops.Length) yield break;
+            for (float wait = startDelay; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
+            if (drops != waterDrops || from == null || drops[slot] == null) yield break;
+            var node = Node("Flying drop", canvasRoot);
+            var rect = node.GetComponent<RectTransform>();
+            rect.sizeDelta = drops[slot].rectTransform.rect.size * 1.3f;
+            var image = node.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            Vector3 start = from.TransformPoint(from.rect.center);
+            float lift = 36f * canvasRoot.lossyScale.y;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.5f)
+            {
+                if (drops != waterDrops || drops[slot] == null) { Destroy(node); yield break; }
+                RectTransform target = drops[slot].rectTransform;
+                Vector3 end = target.TransformPoint(target.rect.center);
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                Vector3 at = Vector3.Lerp(start, end, k);
+                at.y += Mathf.Sin(k * Mathf.PI) * lift; // a small arc, like a drop flicked off a leaf
+                rect.position = at;
+                rect.localScale = Vector3.one * Mathf.Lerp(1.15f, 0.8f, k);
+                yield return null;
+            }
+            Destroy(node);
+            if (drops != waterDrops || drops[slot] == null) yield break;
+            Puzzle puzzle = world.CurrentPuzzle;
+            int now = world.Solved ? puzzle.CellCount : world.Insight.ConnectedCount;
+            if (slot < now)
+            {
+                SetDrop(drops[slot], true);
+                BloomPulse.Add(drops[slot].gameObject, 0f, 0.22f);
+            }
+        }
+
+        // Seconds after the move at which each newly wet tile fills: its step
+        // count along connected pipes from the spring, relative to the nearest
+        // newly wet tile, 0.07s a step. Null when there is nothing to stagger.
+        private float[] WaterArrival(Puzzle puzzle, int[] angles, PipeInsight insight)
+        {
+            bool animate = gentleMotion && lastFlowing != null && lastFlowing.Length == puzzle.CellCount;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) animate = false; // tour screenshots capture settled screens
+#endif
+            if (!animate) return null;
+            int spring = Array.IndexOf(puzzle.Kinds, PipeKind.End);
+            if (spring < 0 || !insight.Flowing[spring]) return null;
+            int[] steps = new int[puzzle.CellCount];
+            for (int i = 0; i < steps.Length; i++) steps[i] = -1;
+            var queue = new System.Collections.Generic.Queue<int>();
+            steps[spring] = 0;
+            queue.Enqueue(spring);
+            while (queue.Count > 0)
+            {
+                int tile = queue.Dequeue();
+                for (int d = 0; d < 4; d++)
+                {
+                    if (!PipeRules.HasPort(puzzle.Kinds[tile], angles[tile], d)) continue;
+                    int next = PipeRules.Neighbor(tile, d, puzzle.Size);
+                    if (next < 0 || steps[next] >= 0 || !insight.Flowing[next]) continue;
+                    if (!PipeRules.HasPort(puzzle.Kinds[next], angles[next], (d + 2) % 4)) continue;
+                    steps[next] = steps[tile] + 1;
+                    queue.Enqueue(next);
+                }
+            }
+            int nearest = int.MaxValue;
+            for (int i = 0; i < steps.Length; i++)
+                if (steps[i] >= 0 && !lastFlowing[i]) nearest = Mathf.Min(nearest, steps[i]);
+            if (nearest == int.MaxValue) return null;
+            var arrive = new float[puzzle.CellCount];
+            for (int i = 0; i < steps.Length; i++)
+                arrive[i] = steps[i] >= 0 && !lastFlowing[i] ? (steps[i] - nearest) * 0.07f : 0f;
+            return arrive;
+        }
+
+        // Fills one tile once the running water reaches it, from the board's
+        // state at that moment (another move may have come in between).
+        private IEnumerator WetLater(int tile, float delay)
+        {
+            int generation = rebuildGeneration;
+            PipeGraphic[] artwork = tileArtwork;
+            for (float wait = delay; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
+            if (generation != rebuildGeneration || artwork != tileArtwork || tileArtwork == null ||
+                tile >= tileArtwork.Length || world.Completed) yield break;
+            Puzzle puzzle = world.CurrentPuzzle;
+            if (tile >= puzzle.CellCount) yield break;
+            PaintRefreshedTile(puzzle, world.Insight, world.Rotations, tile, false);
+        }
+
+        // The one in-place visual rule for a tile (refresh and the running water).
+        private void PaintRefreshedTile(Puzzle puzzle, PipeInsight insight, int[] angles, int i, bool held)
+        {
+            tileBackgrounds[i].color = MosseloraTheme.TileFill(world.Solved,
+                !held && insight.Flowing[i], puzzle.IsAnchored(i), world.HintStep,
+                world.HintTile, i, puzzle.Size);
+            tileArtwork[i].Configure(puzzle.Kinds[i], angles[i],
+                held ? false : insight.Flowing[i], world.Solved, OpenPorts(puzzle, angles, i));
+        }
+
         private void PaintDrops(int reached)
         {
             if (waterDrops == null) return;
-            for (int i = 0; i < waterDrops.Length; i++)
-                waterDrops[i].color = i < reached
-                    ? Color.white
-                    : new Color(0.36f, 0.40f, 0.37f, 0.85f); // dry: a solid slate silhouette, >=3:1 on paper (I105)
+            for (int i = 0; i < waterDrops.Length; i++) SetDrop(waterDrops[i], i < reached);
+        }
+
+        // A filled drop is the painted droplet; an empty one is its slate outline
+        // with a faint fill, so the row reads "still to fill", never "lives
+        // left" (I146). The outline keeps I105's >=3:1 contrast on paper.
+        private static Sprite dropFull, dropEmpty;
+
+        private static void SetDrop(Image drop, bool wet)
+        {
+            if (dropFull == null) dropFull = MosseloraArt.Load(MosseloraArt.Droplet);
+            if (dropEmpty == null) dropEmpty = MosseloraArt.Load(MosseloraArt.DropletEmpty);
+            if (wet || dropEmpty == null)
+            {
+                if (dropFull != null) drop.sprite = dropFull;
+                drop.color = wet ? Color.white : new Color(0.36f, 0.40f, 0.37f, 0.85f);
+                return;
+            }
+            drop.sprite = dropEmpty;
+            drop.color = new Color(0.30f, 0.35f, 0.33f, 1f);
         }
 
         // A calm daily ritual entry: the village painting full-bleed, the
@@ -1277,6 +1469,13 @@ namespace Evergrove.UnityClient
             windowRect.anchorMax = Vector2.one;
             windowRect.offsetMin = windowRect.offsetMax = Vector2.zero;
             window.AddComponent<RectMask2D>();
+            // Now and then a butterfly drifts across the village: the garden is
+            // alive when you come back to it (I157). Decoration only, gentle motion only.
+            bool lively = gentleMotion;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) lively = false;
+#endif
+            if (lively) window.AddComponent<HubButterflies>();
             var art = Node("Village at the start", window.transform);
             var artRect = art.GetComponent<RectTransform>();
             artRect.anchorMin = Vector2.zero;
@@ -1353,13 +1552,23 @@ namespace Evergrove.UnityClient
             // The big button names where the walk continues ("First Bend").
             string nextStop = !world.Completed && GameLocalization.Current == "en"
                 ? world.CurrentPuzzle.Name : GameLocalization.Text("continue");
-            // An icon-only play button; the next stream's name sits above it as
-            // a plain label (and is the button's spoken name).
-            if (!world.Completed && GameLocalization.Current == "en")
-                NextStreamLine(stack.transform, nextStop, true);
-            Button start = IconButton(play, "Play", nextStop,
-                MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction);
-            Width(start, 150);
+            // The play button carries the next stream's name beside its arrow, as
+            // casual games show "Level 23" on Play: a returning player could not
+            // tell what the bare arrow would start (I156). Words only where a
+            // name is known; otherwise the arrow alone.
+            bool named = !world.Completed && GameLocalization.Current == "en";
+            int cut = nextStop.IndexOf(" · ", System.StringComparison.Ordinal);
+            string place = cut > 0 ? nextStop.Substring(0, cut) : nextStop;
+            Button start = IconButton(play, "Play", named ? place : nextStop,
+                MosseloraArt.IconContinue, CloseTitle, 72, MosseloraTheme.WaterAction, named);
+            if (named)
+            {
+                Transform caption = start.transform.Find("Caption");
+                Text placeText = caption != null ? caption.GetComponent<Text>() : null;
+                if (placeText != null) { StyleText(placeText, 20); Emphasize(placeText); }
+                Width(start, 250);
+            }
+            else Width(start, 150);
             HubChrome();
             titleScreen.transform.SetAsLastSibling();
             if (landscape)
@@ -1450,6 +1659,8 @@ namespace Evergrove.UnityClient
                 ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
             Transform row = CenteredRowIn(stack, "Next stream row");
             row.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+            Transform outer = row;
+            row = PaintedSign(row) ?? row; // the same plank as on the board (I165)
             if (mark != null)
             {
                 var icon = Node("Shaped by your choice", row);
@@ -1462,10 +1673,12 @@ namespace Evergrove.UnityClient
                 iconImage.raycastTarget = false;
                 BloomPulse.Add(icon, 0.6f, 0.05f);
             }
+            bool onSign = row != outer;
             Text where = Label(row, "Next stream", mark != null ? nextStop.Substring(0, split) : nextStop,
-                16, 0, Moss, TextAnchor.MiddleCenter);
+                16, 0, onSign ? Ink : Moss, TextAnchor.MiddleCenter);
             Emphasize(where);
-            if (abovePlay) row.SetSiblingIndex(stack.childCount - 2);
+            if (onSign) OneLine(where);
+            if (abovePlay) outer.SetSiblingIndex(stack.childCount - 2);
         }
 
         private int hubRecall = -1;
@@ -1597,6 +1810,22 @@ namespace Evergrove.UnityClient
             sheetScroll.content = sheetContent;
             sheet.SetActive(false);
             return sheet;
+        }
+
+        // A sheet is as tall as what it holds, up to 86% of the screen, so two
+        // memories don't sit in a tall empty page like a web modal (I128).
+        private static void FitSheetToPages(GameObject sheet, RectTransform pages)
+        {
+            if (sheet == null || pages == null) return;
+            var panel = pages.parent != null ? pages.parent.parent as RectTransform : null;
+            var sheetRect = sheet.GetComponent<RectTransform>();
+            float height = sheetRect.rect.height;
+            if (panel == null || height <= 1f) return;
+            float wanted = pages.rect.height + SheetHeader + 4f + 10f;
+            // Height only: keep the x anchor FitSheet chose (centred when sideways).
+            // I128 wrote x = 1 here, which pushed the landscape sheet off screen (I150).
+            float cap = panel.anchorMin.x > 0.25f ? 0.92f : 0.86f;
+            panel.anchorMax = new Vector2(panel.anchorMax.x, Mathf.Clamp(wanted / height, 0.34f, cap));
         }
 
         private const float SheetHeader = 78f; // the plaque art stands a little taller than its 52 pt box
@@ -1761,6 +1990,210 @@ namespace Evergrove.UnityClient
             if (pageFade != null) pageFade.alpha = 1f;
         }
 
+        private IEnumerator FadeAway(GameObject node)
+        {
+            var fade = node.GetComponent<CanvasGroup>();
+            if (fade == null) fade = node.AddComponent<CanvasGroup>();
+            fade.blocksRaycasts = false;
+            fade.interactable = false;
+            float from = fade.alpha;
+            bool animate = gentleMotion;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) animate = false; // tour screenshots capture settled screens
+#endif
+            for (float t = 0f; animate && t < 1f; t += Time.unscaledDeltaTime / 0.35f)
+            {
+                if (fade == null) yield break;
+                fade.alpha = Mathf.Lerp(from, 0f, Mathf.SmoothStep(0f, 1f, t));
+                yield return null;
+            }
+            if (fade != null) fade.alpha = 0f;
+        }
+
+        // Undo appears only once there is something to undo: before the first
+        // move its place stays empty (no layout shift), then it fades in (I155).
+        private void ShowUndo(bool available, bool animate)
+        {
+            if (undoButton == null) return;
+            var group = undoButton.GetComponent<CanvasGroup>();
+            if (group == null) group = undoButton.gameObject.AddComponent<CanvasGroup>();
+            group.blocksRaycasts = available;
+            float target = available ? 1f : 0f;
+            if (Mathf.Approximately(group.alpha, target)) return;
+            bool motion = animate && gentleMotion;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) motion = false;
+#endif
+            if (!motion) { group.alpha = target; return; }
+            StartCoroutine(FadeGroup(group, target, 0.25f));
+        }
+
+        private static IEnumerator FadeGroup(CanvasGroup group, float target, float seconds)
+        {
+            float from = group.alpha;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / seconds)
+            {
+                if (group == null) yield break;
+                group.alpha = Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t));
+                yield return null;
+            }
+            if (group != null) group.alpha = target;
+        }
+
+        // A cream disc with the turning arrow at a tile's top-right corner. It
+        // turns a quarter at a time, as the tile will, and leaves with the goal
+        // glows on the first move.
+        private void TurnMark(Transform tile, float tileSize)
+        {
+            float size = Mathf.Round(Mathf.Clamp(tileSize * 0.42f, 30f, 44f));
+            var mark = Node("Tap turns this tile", tile);
+            goalGlows.Add(mark);
+            mark.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = mark.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(size, size);
+            rect.anchoredPosition = new Vector2(-size * 0.3f, -size * 0.3f);
+            var disc = mark.AddComponent<Image>();
+            MosseloraArt.Round(disc, MosseloraTheme.CardFill, Mathf.RoundToInt(size / 2f));
+            disc.raycastTarget = false;
+            MosseloraArt.Lift(disc, 1.5f, 0.25f);
+            var glyph = MosseloraArt.Ornament(mark.transform, "Turning arrow", MosseloraArt.Load(MosseloraArt.IconTurn),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(size * 0.66f, size * 0.66f), Vector2.zero);
+            if (glyph == null) return;
+            glyph.color = MosseloraTheme.WaterChannel;
+            if (gentleMotion) glyph.gameObject.AddComponent<QuarterTurns>();
+            // A painted finger rests on the tile and presses it in time with the
+            // arrow's turn: the board's own "how to play", without words (I147).
+            Sprite tap = MosseloraArt.Load(MosseloraArt.IconTap);
+            if (tap == null) return;
+            var hand = Node("Shows a tap here", tile);
+            goalGlows.Add(hand);
+            hand.AddComponent<LayoutElement>().ignoreLayout = true;
+            var handRect = hand.GetComponent<RectTransform>();
+            // The whole hand sits in the tile's lower-right quarter, which a channel
+            // never crosses (arms run along the centre lines): it presses the tile
+            // without hiding the pipe (I159), and stays inside the tile, under no
+            // neighbour.
+            handRect.anchorMin = handRect.anchorMax = new Vector2(0.74f, 0.36f);
+            handRect.pivot = new Vector2(0.35f, 0.9f); // the fingertip
+            float handSize = Mathf.Round(tileSize * 0.36f);
+            handRect.sizeDelta = new Vector2(handSize, handSize);
+            handRect.anchoredPosition = Vector2.zero;
+            var handImage = hand.AddComponent<Image>();
+            handImage.sprite = tap;
+            handImage.preserveAspect = true;
+            handImage.raycastTarget = false;
+            handImage.color = new Color(Ink.r, Ink.g, Ink.b, 0.82f);
+            if (gentleMotion) hand.AddComponent<GhostPress>();
+        }
+
+        // Holds a row of primary actions at the foot of the screen over a soft paper
+        // fade, so "continue" is always in reach at any text size; the page keeps
+        // an empty space of the same height so its end can scroll clear (I164).
+        private void PinToFoot(Transform row)
+        {
+            if (row == null || scrollArea == null) return;
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)row);
+            float rowHeight = Mathf.Max(64f, LayoutUtility.GetPreferredHeight((RectTransform)row));
+            float barHeight = rowHeight + 30f;
+            pinnedActions = Node("Pinned actions", scrollArea);
+            pinnedActions.transform.SetSiblingIndex(1); // above the page, under menus and chrome
+            var bar = pinnedActions.GetComponent<RectTransform>();
+            bar.anchorMin = new Vector2(0f, 0f);
+            bar.anchorMax = new Vector2(1f, 0f);
+            bar.pivot = new Vector2(0.5f, 0f);
+            bar.sizeDelta = new Vector2(0f, barHeight + 26f);
+            bar.anchoredPosition = Vector2.zero;
+            var fade = Node("Paper fade", pinnedActions.transform);
+            var fadeRect = fade.GetComponent<RectTransform>();
+            Fill(fadeRect);
+            fadeRect.localScale = new Vector3(1f, -1f, 1f); // TopFade, flipped: solid at the foot
+            var fadeImage = fade.AddComponent<Image>();
+            fadeImage.sprite = MosseloraArt.TopFade();
+            fadeImage.color = Paper;
+            fadeImage.raycastTarget = false;
+            var solid = Node("Paper", pinnedActions.transform);
+            var solidRect = solid.GetComponent<RectTransform>();
+            solidRect.anchorMin = Vector2.zero;
+            solidRect.anchorMax = new Vector2(1f, 0f);
+            solidRect.pivot = new Vector2(0.5f, 0f);
+            solidRect.sizeDelta = new Vector2(0f, barHeight * 0.62f);
+            var solidImage = solid.AddComponent<Image>();
+            solidImage.color = Paper;
+            solidImage.raycastTarget = false;
+            var keep = Node("Space for the pinned actions", content);
+            MinHeight(keep, barHeight);
+            int index = row.GetSiblingIndex();
+            row.SetParent(pinnedActions.transform, false);
+            var layout = row.GetComponent<LayoutElement>();
+            if (layout == null) layout = row.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+            var rect = (RectTransform)row;
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = new Vector2(-34f - columnLeft - columnRight, rowHeight);
+            rect.anchoredPosition = new Vector2((columnLeft - columnRight) / 2f, 14f);
+            keep.transform.SetSiblingIndex(Mathf.Min(index, content.childCount - 1));
+        }
+
+        // A slim painted wooden plank (I162) holding a row of icon + name, or null
+        // when the art is missing. Its height is set, not taken from the sprite.
+        private Transform PaintedSign(Transform parent)
+        {
+            Sprite plank = MosseloraArt.Load(MosseloraArt.StreamSign);
+            if (plank == null) return null;
+            var sign = Node("Stream sign", parent);
+            var signImage = sign.AddComponent<Image>();
+            signImage.sprite = plank;
+            signImage.type = Image.Type.Sliced;
+            signImage.pixelsPerUnitMultiplier = 2.6f;
+            signImage.raycastTarget = false;
+            var signRow = sign.AddComponent<HorizontalLayoutGroup>();
+            signRow.padding = new RectOffset(24, 24, 7, 8);
+            signRow.spacing = 6;
+            signRow.childAlignment = TextAnchor.MiddleCenter;
+            signRow.childControlWidth = true;
+            signRow.childControlHeight = true;
+            signRow.childForceExpandWidth = false;
+            signRow.childForceExpandHeight = false;
+            var signSize = sign.AddComponent<LayoutElement>();
+            signSize.layoutPriority = 2;
+            signSize.minHeight = signSize.preferredHeight = TextScale.Scale(36);
+            signSize.flexibleHeight = 0f;
+            return sign.transform;
+        }
+
+        // One line on a sign; the sign grows to fit the name.
+        private static void OneLine(Text text)
+        {
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            var size = text.GetComponent<LayoutElement>();
+            size.minWidth = size.preferredWidth = Mathf.Ceil(text.preferredWidth) + 2f;
+        }
+
+        // The neighbor's card rises a few points and fades in, like a word said.
+        private IEnumerator RiseIn(RectTransform card)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) yield break;
+#endif
+            var fade = card.gameObject.AddComponent<CanvasGroup>();
+            Vector2 rest = card.anchoredPosition;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.22f)
+            {
+                if (card == null) yield break;
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                fade.alpha = k;
+                card.anchoredPosition = rest + new Vector2(0f, -12f * (1f - k));
+                yield return null;
+            }
+            if (card == null) yield break;
+            fade.alpha = 1f;
+            card.anchoredPosition = rest;
+        }
+
         private void ResetControls(string resetName, string cancelName, Color tone)
         {
             Transform row = CenteredRow(resetName + " row");
@@ -1777,17 +2210,26 @@ namespace Evergrove.UnityClient
                     Button postcard = null;
                     postcard = IconButton(row, "Copy garden postcard", GameLocalization.Text("postcard"),
                         MosseloraArt.IconChat, () => {
-                            GUIUtility.systemCopyBuffer = GardenPostcard.Build(world, "");
+                            // The phone's own share sheet first (I149); the clipboard if none.
+                            string text = GardenPostcard.Build(world, "");
+                            if (NativeShare.Text(text, GameLocalization.Text("postcard"))) return;
+                            GUIUtility.systemCopyBuffer = text;
                             RuleToast.Show(postcard.GetComponent<RectTransform>(),
                                 GameLocalization.Text("postcard_copied"), font, Ink, MosseloraTheme.CardFill);
-                        }, 58, MosseloraTheme.WaterAction);
-                    Width(postcard, 96);
+                        }, 96, MosseloraTheme.WaterAction, false, null, true);
+                    Width(postcard, 150);
                     ShowPostcard(postcard);
+                    EndingCaption(postcard);
                 }
-                Width(IconButton(row, resetName, GameLocalization.Text("explore"),
+                // The ending's two offers are rare and lasting (share the season,
+                // or start another garden), so here they say what they do under
+                // the picture; a cold read could not tell them apart (I136).
+                Button explore = IconButton(row, resetName, GameLocalization.Text("explore"),
                     MosseloraArt.IconNewGarden, () => { confirmReset = true; Rebuild(); },
-                    inMenu ? 78 : 58, sharePostcard ? MosseloraTheme.QuietAction : tone, false, null, inMenu),
-                    inMenu ? 200 : 96);
+                    inMenu ? 78 : sharePostcard ? 96 : 58, sharePostcard ? MosseloraTheme.QuietAction : tone,
+                    false, null, inMenu || sharePostcard);
+                Width(explore, inMenu ? 200 : sharePostcard ? 150 : 96);
+                if (sharePostcard) EndingCaption(explore);
                 return;
             }
             Width(IconButton(row, cancelName, GameLocalization.Text("keep"), MosseloraArt.IconCancel,
@@ -1849,11 +2291,34 @@ namespace Evergrove.UnityClient
         // the check (or the portrait again) ends the conversation.
         private void NeighborConversation()
         {
-            var row = Node("A neighbor's memory", content);
-            screenHeading = row.GetComponent<RectTransform>();
+            // A layer over the page, under the menu and the chrome buttons.
+            neighborLayer = Node("Neighbor speaking", scrollArea);
+            neighborLayer.transform.SetSiblingIndex(1);
+            Fill(neighborLayer.GetComponent<RectTransform>());
+            var veil = neighborLayer.AddComponent<Image>();
+            veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.10f);
+            // A tap anywhere else ends the conversation, as the check does.
+            neighborLayer.AddComponent<TapCatcher>().Tapped = () => { speakingWith = -1; Rebuild(); };
+            var row = Node("A neighbor's memory", neighborLayer.transform);
+            var rowRect = row.GetComponent<RectTransform>();
+            rowRect.anchorMin = new Vector2(0f, 0f);
+            rowRect.anchorMax = new Vector2(1f, 0f);
+            rowRect.pivot = new Vector2(0.5f, 0f);
+            rowRect.sizeDelta = new Vector2(-34f - columnLeft - columnRight, 0f);
+            rowRect.anchoredPosition = new Vector2((columnLeft - columnRight) / 2f, 14f);
+            row.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            if (gentleMotion && neighborShown != speakingWith) StartCoroutine(RiseIn(rowRect));
+            neighborShown = speakingWith;
+            // One paper card holds the portrait and the words, so nothing on the
+            // page shows through beside the face (I127).
+            var rowImage = row.AddComponent<Image>();
+            MosseloraArt.Round(rowImage, MosseloraTheme.CardFill, 22);
+            MosseloraArt.Edge(row.transform, MosseloraTheme.CardEdge, 22);
+            MosseloraArt.Lift(rowImage, 4f, 0.22f);
             var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
+            rowGroup.padding = new RectOffset(12, 6, 12, 6);
             rowGroup.reverseArrangement = GameLocalization.IsRtl(GameLocalization.Current);
-            rowGroup.spacing = 10;
+            rowGroup.spacing = 6;
             rowGroup.childAlignment = TextAnchor.UpperLeft;
             rowGroup.childControlWidth = true;
             rowGroup.childControlHeight = true;
@@ -1872,7 +2337,7 @@ namespace Evergrove.UnityClient
                 portraitImage.raycastTarget = false;
                 MosseloraArt.Lift(portraitImage, 2f, 0.2f);
             }
-            var bubble = Card(row.transform, "Speech bubble", MosseloraTheme.CardFill);
+            var bubble = Card(row.transform, "Speech bubble", new Color(0f, 0f, 0f, 0f));
             bubble.AddComponent<LayoutElement>().flexibleWidth = 1f;
             Text speaker = Label(bubble.transform, "Neighbor name",
                 LocalizedVillage.Name(speakingWith), 15, 0, Leaf, TextAnchor.MiddleLeft);
@@ -1889,7 +2354,7 @@ namespace Evergrove.UnityClient
             thanksRect.pivot = new Vector2(1f, 0f);
             thanksRect.sizeDelta = new Vector2(56f, 44f);
             thanksRect.anchoredPosition = new Vector2(-10f, 10f);
-            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(16, 16, 14, 58);
+            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(6, 10, 2, 56);
         }
 
         // Neighbor as a painted portrait medallion with their name beneath.
@@ -1968,11 +2433,12 @@ namespace Evergrove.UnityClient
                 MosseloraArt.Round(plateImage, new Color(1f, 0.973f, 0.918f, 0.94f), 10);
                 plateImage.raycastTarget = false;
                 var plateGroup = plate.AddComponent<HorizontalLayoutGroup>();
-                plateGroup.padding = new RectOffset(8, 8, 1, 2);
+                plateGroup.padding = new RectOffset(10, 10, 2, 3);
                 plateGroup.childControlWidth = true;
                 plateGroup.childControlHeight = true;
                 plateGroup.childForceExpandWidth = false;
-                caption = Label(plate.transform, "Caption text", label, 14, 0, Ink, TextAnchor.MiddleCenter);
+                // 16pt: a cold read found the names too small to read at arm's length (I137).
+                caption = Label(plate.transform, "Caption text", label, 16, 0, Ink, TextAnchor.MiddleCenter);
             }
             else
                 caption = Label(node.transform, "Caption", label, 15, 0, Ink, TextAnchor.MiddleCenter);
@@ -1983,6 +2449,18 @@ namespace Evergrove.UnityClient
 
         // The share button shows what it shares: a tiny postcard of the season's
         // festival painting, with the chat mark tucked in its corner (I97).
+        // Readable captions under the ending's two pictures: 15pt, clear of the
+        // postcard's corner badge (I136).
+        private void EndingCaption(Button button)
+        {
+            var group = button.GetComponent<VerticalLayoutGroup>();
+            if (group != null) { group.spacing = 9; group.padding = new RectOffset(8, 8, 9, 9); }
+            Transform caption = button.transform.Find("Caption");
+            Text text = caption != null ? caption.GetComponent<Text>() : null;
+            if (text != null) StyleText(text, 15);
+            MinHeight(button.gameObject, TextScale.Scale(104));
+        }
+
         private static void ShowPostcard(Button button)
         {
             Transform iconNode = button.transform.Find("Icon");
@@ -2270,11 +2748,15 @@ namespace Evergrove.UnityClient
             int[] past = world.Choices;
             Sprite mark = split > 0 && past.Length > 0
                 ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
-            Transform nameRow = row.transform;
+            // The stream's name is painted on a small wooden sign by the path,
+            // part of the scenery rather than a caption (I162).
+            Transform nameRow = CenteredRowIn(row.transform, "Stream name row");
+            nameRow.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+            Transform sign = PaintedSign(nameRow);
+            bool plank = sign != null;
+            if (plank) nameRow = sign;
             if (mark != null)
             {
-                nameRow = CenteredRowIn(row.transform, "Stream name row");
-                nameRow.GetComponent<HorizontalLayoutGroup>().spacing = 6;
                 var icon = Node("Rooted by your choice", nameRow);
                 var iconLayout = icon.AddComponent<LayoutElement>();
                 iconLayout.minWidth = iconLayout.preferredWidth = 26;
@@ -2285,9 +2767,11 @@ namespace Evergrove.UnityClient
                 iconImage.raycastTarget = false;
             }
             Text title = Label(nameRow, "Stream name",
-                name.Length == 0 ? " " : mark != null ? name.Substring(0, split) : name, 14, 0, Moss,
+                name.Length == 0 ? " " : mark != null ? name.Substring(0, split) : name, 16, 0,
+                plank ? Ink : Moss, // was 14 (I137); ink on the painted wood (I162)
                 TextAnchor.MiddleCenter);
             Emphasize(title);
+            if (plank) OneLine(title);
             // Spoken position along the creek, not shown: the stones show it.
             Text spoken = Label(row.transform, "Stream position",
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count),
@@ -2363,10 +2847,10 @@ namespace Evergrove.UnityClient
         }
 
         // Full-bleed painting with its own aspect; crops nothing.
-        private void Painting(string name, string art, float maxHeight)
+        private GameObject Painting(string name, string art, float maxHeight)
         {
             Sprite sprite = MosseloraArt.Load(art);
-            if (sprite == null) return;
+            if (sprite == null) return null;
             float width = PageWidth() + 34f;
             float height = Mathf.Min(maxHeight, width / MosseloraArt.Aspect(sprite));
             var node = Node(name, content);
@@ -2383,6 +2867,7 @@ namespace Evergrove.UnityClient
             var image = frame.AddComponent<Image>();
             image.sprite = sprite;
             image.raycastTarget = false;
+            return node;
         }
 
         // Logical width inside the page margins, from the real safe area.
@@ -2447,6 +2932,18 @@ namespace Evergrove.UnityClient
             decisionHeading = null;
             solvedBoard = null;
             screenHeading = null;
+            if (neighborLayer != null)
+            {
+                neighborLayer.SetActive(false);
+                Destroy(neighborLayer);
+                neighborLayer = null;
+            }
+            if (pinnedActions != null)
+            {
+                pinnedActions.SetActive(false);
+                Destroy(pinnedActions);
+                pinnedActions = null;
+            }
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 GameObject old = content.GetChild(i).gameObject;
@@ -2474,9 +2971,10 @@ namespace Evergrove.UnityClient
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
             // Sideways play keeps the height for the board; the wordmark is on the hub.
             if (!(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
-            // After the first stream the board, tools and painting share one
-            // screen; the tagline returns on story screens (memory, ending).
-            if ((!puzzleScreen || world.Round == 0) && !(landscape && (puzzleScreen || memoryScreen)))
+            // Boards (the first one too, I160) open on the path, the stream name and
+            // the board; the tagline lives on the hub and the story screens
+            // (memory, ending), where it is part of the story, not a header.
+            if (!puzzleScreen && !(landscape && memoryScreen))
             {
                 // Story screens use the hub's size, so the line sits inside the
                 // vine corners instead of running into them (I73).
@@ -2600,6 +3098,7 @@ namespace Evergrove.UnityClient
 #endif
 
             if (living && !showingMemory && speakingWith >= 0) NeighborConversation();
+            else neighborShown = -1;
             if (living)
             {
                 // Said once: the solved board already says the water flows, and
@@ -2654,7 +3153,7 @@ namespace Evergrove.UnityClient
                     faceImage.raycastTarget = false;
                 }
                 Text momentTitle = Label(moment.transform, "Moment title",
-                    GameLocalization.Text("memory_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
+                    GameLocalization.Text("memory_title"), 18, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(momentTitle);
                 // The chapter header lives in the scrapbook; here, the memory and its effect.
                 Text story = Label(moment.transform, "Story", LocalizedVillage.Memory(world), 18, 0, Ink,
@@ -2685,8 +3184,7 @@ namespace Evergrove.UnityClient
                     SaveWorld();
                     showingMemory = false;
                     Rebuild(false);
-                }, 64, MosseloraTheme.QuietAction);
-                Width(changeButton, 76);
+                }, 76, MosseloraTheme.QuietAction, false, null, false, 0, 0, true); // a round token (I133)
                 ShowChoiceToChange(changeButton, (VillageChoice)world.Choices[world.Choices.Length - 1]);
                 Button continueButton = IconButton(next, "Continue", GameLocalization.Text("continue"),
                     MosseloraArt.IconContinue, () => {
@@ -2695,18 +3193,25 @@ namespace Evergrove.UnityClient
                         Rebuild(true);
                     }, 64, MosseloraTheme.WaterAction);
                 Width(continueButton, 160, 1f);
+                PinToFoot(next);
             }
             else if (world.Completed)
             {
                 // The whole village gathers by the restored creek (falls back to the
                 // everyday village painting if the festival art is missing).
-                Painting("Village memory painting",
+                GameObject festival = Painting("Village memory painting",
                     MosseloraArt.Load(MosseloraArt.EndingFestival) != null
                         ? MosseloraArt.EndingFestival : MosseloraArt.HeroVillage, 460f);
+                // The festival evening has its visitors too (I158), as the hub does.
+                bool lively = gentleMotion && festival != null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (qaInMemoryOnly) lively = false;
+#endif
+                if (lively) festival.AddComponent<HubButterflies>();
                 var conclusion = Card(content, "The ending", MosseloraTheme.CardFill);
                 screenHeading = conclusion.GetComponent<RectTransform>();
                 Text endingTitle = Label(conclusion.transform, "Ending title",
-                    GameLocalization.Text("ending_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
+                    GameLocalization.Text("ending_title"), 18, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(endingTitle);
                 if (living) ChoiceTimeline(conclusion.transform);
                 Text finalWords = Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
@@ -2745,14 +3250,17 @@ namespace Evergrove.UnityClient
             UpdateCreekSound();
             // A different screen (not a tile turn) crossfades in like a turned page.
             string screenKey = (memoryScreen ? "memory" : world.Completed ? "ending" : "puzzle") + ":" +
-                world.Round + ":" + world.Solved + ":" + showJournal + ":" + speakingWith + ":" + languagePicker;
+                world.Round + ":" + world.Solved + ":" + showJournal + ":" + languagePicker;
             if (screenKey != lastScreenKey && lastScreenKey.Length > 0 && gentleMotion) StartCoroutine(FadeInPage());
             lastScreenKey = screenKey;
             menuSheet.SetActive(menuOpen);
             journalSheet.SetActive(showJournal && !menuOpen);
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(menuContent);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(journalContent);
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            if (menuOpen) FitSheetToPages(menuSheet, menuContent);
+            else if (showJournal) FitSheetToPages(journalSheet, journalContent);
             if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
             else scroll.verticalNormalizedPosition = top ? 1f : previousPosition;
             revealNewScreen = false;
@@ -2791,8 +3299,10 @@ namespace Evergrove.UnityClient
                 return;
             }
             if (world.Choices.Length == seen) return;
+            // On the book's inner (top-left) corner: at the outer corner it sat half
+            // off the screen's edge and a cold read took it for a glitch (I145).
             var note = MosseloraArt.Ornament(book.transform, "Has a new memory", MosseloraArt.Rounded(12),
-                new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(24f, 24f), new Vector2(-4f, -4f));
+                new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), new Vector2(26f, 26f), new Vector2(4f, -4f));
             if (note == null) return;
             note.preserveAspect = false;
             note.color = MosseloraTheme.CardFill;
@@ -2814,9 +3324,10 @@ namespace Evergrove.UnityClient
             content = journalContent;
             SheetClose(journalContent, "Close journal", () => { showJournal = false; Rebuild(); });
             content = pageRoot;
-            var journal = Card(journalContent, "A living journal", MosseloraTheme.CardFill);
+            // The pages lie on the sheet's own paper: no card inside the sheet (I128).
+            var journal = Card(journalContent, "A living journal", new Color(0f, 0f, 0f, 0f));
             Text journalTitle = Label(journal.transform, "Journal title",
-                GameLocalization.Text("journal_title"), 15, 30, Leaf, TextAnchor.MiddleCenter);
+                GameLocalization.Text("journal_title"), 18, 30, Leaf, TextAnchor.MiddleCenter);
             Emphasize(journalTitle);
             // A painted scrapbook: two pages to a row, each with the painting of
             // the choice, the neighbor who remembers it, and their written line.
@@ -2855,16 +3366,27 @@ namespace Evergrove.UnityClient
                 // bridges on two streams read as two memories, not a repeat (I88).
                 Transform when = CenteredRowIn(page.transform, "Journal stream");
                 when.GetComponent<HorizontalLayoutGroup>().spacing = 5;
+                // The painted stepping stone of that stream and its number, not a
+                // small "STREAM 3 / 12" caption that read like a record (I135).
                 var stone = Node("Season stone", when);
                 var stoneLayout = stone.AddComponent<LayoutElement>();
-                stoneLayout.minWidth = stoneLayout.preferredWidth = 12;
-                stoneLayout.minHeight = stoneLayout.preferredHeight = 12;
                 var stoneImage = stone.AddComponent<Image>();
-                stoneImage.sprite = MosseloraArt.Rounded(4);
-                stoneImage.color = SeasonStone(i);
+                Sprite pathStone = PathStone(i, false, false);
+                float stoneHeight = pathStone != null ? 22f : 12f;
+                stoneLayout.minHeight = stoneLayout.preferredHeight = stoneHeight;
+                stoneLayout.minWidth = stoneLayout.preferredWidth =
+                    pathStone != null ? Mathf.Round(stoneHeight * MosseloraArt.Aspect(pathStone)) : 12f;
+                if (pathStone != null) { stoneImage.sprite = pathStone; stoneImage.preserveAspect = true; }
+                else { stoneImage.sprite = MosseloraArt.Rounded(4); stoneImage.color = SeasonStone(i); }
                 stoneImage.raycastTarget = false;
-                Label(when, "Journal stream name", GameLocalization.Text("stream", i + 1, PuzzleCatalog.Count),
-                    13, 0, Moss, TextAnchor.MiddleCenter);
+                Text number = Label(when, "Journal stream number",
+                    (i + 1).ToString(CultureInfo.InvariantCulture), 17, 0, Moss, TextAnchor.MiddleCenter);
+                Emphasize(number);
+                // The full "Stream 3 of 12" is spoken, not shown.
+                Text streamName = Label(when, "Journal stream name",
+                    GameLocalization.Text("stream", i + 1, PuzzleCatalog.Count), 13, 0,
+                    new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+                streamName.GetComponent<LayoutElement>().ignoreLayout = true;
                 Sprite icon = i < chosen.Length ? MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]) : null;
                 if (icon != null)
                 {
@@ -2906,10 +3428,19 @@ namespace Evergrove.UnityClient
                 // A speech bubble pointing at the board, like a game's first-run
                 // tip; it leaves after the first move (RefreshBoard).
                 if (!world.Solved && !world.CanUndo) CoachBubble(GameLocalization.Text("first"));
+                else if (spentTipHeight > 0f && !landscape)
+                {
+                    // Any later rebuild of the first board (the solve, the menu, text
+                    // size) keeps the spent tip's space, so the board never jumps; the
+                    // solve's own glide is then the only movement (I141).
+                    var space = Node("Spent tip space", content);
+                    MinHeight(space, spentTipHeight);
+                }
             }
-            else
-                Label(content, "Prompt", LocalizedVillage.Prompt(world), 16, 0, Ink,
-                    TextAnchor.MiddleCenter);
+            else spentTipHeight = 0f;
+            // Later boards open on play and the place alone: the generic line that
+            // stood over every board ("A little water can change a place.") said
+            // nothing about this board, so it is gone (I133).
             // The anchor line sits directly above the board: it explains the framed tile.
             // Spoken, not shown: the framed tile carries the painted landmark that
             // roots it, and tapping it shows the rule in a toast (TapTile).
@@ -3006,6 +3537,10 @@ namespace Evergrove.UnityClient
             visibleLeaks = new Text[puzzle.CellCount];
             int seenEnds = 0;
             RectTransform gardenTile = null;
+            // Before the very first move, one tile that needs turning wears a small
+            // turning-arrow mark: "tap turns a tile", shown rather than told (I138).
+            int firstTurn = world.Round == 0 && !world.CanUndo && !world.Solved
+                ? HintPlanner.SelectTarget(puzzle, rotations) : -1;
             for (int index = 0; index < puzzle.CellCount; index++)
             {
                 int tappedIndex = index;
@@ -3139,7 +3674,9 @@ namespace Evergrove.UnityClient
                     && index / puzzle.Size == world.HintTile / puzzle.Size
                     && (world.HintStep == 1 || index == world.HintTile);
                 // A hint ring and the teal goal glow never share a tile: the hint wins (I91).
-                if (!hintedHere && puzzle.Kinds[index] == PipeKind.End && world.Round == 0 && !world.CanUndo && !world.Solved)
+                // Every board, not only the first: a cold read of a later board could
+                // not tell what finishing it meant (I148). Gone after the first move.
+                if (!hintedHere && puzzle.Kinds[index] == PipeKind.End && !world.CanUndo && !world.Solved)
                 {
                     // Before the first move, the start and the goal glow softly.
                     var goal = Node("Start or goal glow", tileNode.transform);
@@ -3157,6 +3694,7 @@ namespace Evergrove.UnityClient
                     ring.raycastTarget = false;
                     if (gentleMotion) Breathe.Add(ring);
                 }
+                if (index == firstTurn) TurnMark(tileNode.transform, tileSize);
                 if (puzzle.Kinds[index] == PipeKind.End)
                 {
                     // Visible endpoint semantics instead of relying only on
@@ -3243,7 +3781,8 @@ namespace Evergrove.UnityClient
                         VillageChoice choice = (VillageChoice)choiceIndex;
                         // None is visually preselected. A golden default would
                         // bias research toward the first habitat, not player care.
-                        ChoiceCard(choiceRow.transform, choice, () => MakeChoice(choice), stacked);
+                        Transform cards = choiceRow.transform;
+                        ChoiceCard(cards, choice, () => SettleChoice(cards, choice), stacked);
                     }
                 }
                 // Second thoughts live after the decision, not between the payoff
@@ -3251,10 +3790,11 @@ namespace Evergrove.UnityClient
                 // Same bottom-left slot as the board's undo, so it never moves (I79).
                 Transform revisitRow = CenteredRow("Revisit row");
                 revisitRow.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
+                // A round token like the board's own Undo (I132).
                 Button revisit = IconButton(revisitRow, "Revisit water",
                     GameLocalization.Text("undo_last"), MosseloraArt.IconUndo,
-                    () => Act(() => world.Undo(), "undo"), 48, MosseloraTheme.QuietAction);
-                Width(revisit, 84);
+                    () => Act(() => world.Undo(), "undo"), 64, MosseloraTheme.QuietAction,
+                    false, null, false, 0, 0, true);
                 revisit.interactable = world.CanUndo;
             }
             else
@@ -3265,17 +3805,23 @@ namespace Evergrove.UnityClient
                 // Icon-only in every stream: Mira's coach bubble teaches the board,
                 // and every tool names itself on press-and-hold (and is spoken).
                 bool teach = false;
-                int toolHeight = 64;
+                // Upright, the tools are two round tokens flanking the water drops,
+                // not two wide slabs under them (I129). Sideways they stand in a rail.
+                // A cold read preferred the tokens but asked for them bigger: 76pt upright.
+                bool roundTools = true;
+                int toolHeight = landscape ? 72 : 76;
                 undoButton = IconButton(tools.transform, "Undo", GameLocalization.Text("undo"),
                     MosseloraArt.IconUndo, () => Act(() => world.Undo(), "undo"),
-                    toolHeight, MosseloraTheme.ForestAction, false, null, teach);
+                    toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
                 undoButton.interactable = world.CanUndo;
+                ShowUndo(world.CanUndo, false);
                 // Hint depth shows as a small 1/2 or 2/2 badge, not words.
                 Button hintButton = IconButton(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
                     MosseloraArt.IconHint, UseGentleHint, toolHeight, MosseloraTheme.WaterAction, false,
-                    null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
+                    null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep, roundTools);
+                if (!landscape) FlankDrops(tools, toolHeight);
                 Transform hintDots = hintButton.transform.Find("Level dots");
                 if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too
                 if (landscape && solvedBoard != null) DockToolRail(tools, toolHeight);
@@ -3326,6 +3872,76 @@ namespace Evergrove.UnityClient
             image.preserveAspect = true;
             image.raycastTarget = false;
             if (!painted) image.color = MosseloraTheme.WaterChannel; // ink-blue marks on parchment
+        }
+
+        // Undo | water drops | Hint on one line under the board (I129). When a big
+        // board's drops are too wide to sit between the tokens, they keep their own
+        // line above, and the tokens stand at either end.
+        private void FlankDrops(GameObject tools, int toolHeight)
+        {
+            var across = tools.GetComponent<HorizontalLayoutGroup>();
+            across.childForceExpandWidth = false;
+            across.childAlignment = TextAnchor.MiddleCenter;
+            across.spacing = 10;
+            MinHeight(tools, toolHeight);
+            Transform meter = waterDrops != null && waterDrops.Length > 0 ? waterDrops[0].transform.parent : null;
+            float room = PageWidth() - 2f * toolHeight - 2f * across.spacing - 8f;
+            if (meter != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)meter);
+                float wanted = LayoutUtility.GetPreferredWidth((RectTransform)meter);
+                // A big board's drops stack in two rows at full size between the
+                // tokens, instead of one shrunken row (I139: 16 drops were ~11pt).
+                if (wanted > room && waterDrops.Length > 9 && waterDrops[0].sprite != null)
+                {
+                    int columns = Mathf.CeilToInt(waterDrops.Length / 2f);
+                    float dropHeight = 22f;
+                    float dropWidth = Mathf.Round(dropHeight * MosseloraArt.Aspect(waterDrops[0].sprite));
+                    float gapX = 4f, gapY = 4f;
+                    float gridWidth = columns * dropWidth + (columns - 1) * gapX;
+                    if (gridWidth <= room)
+                    {
+                        DestroyImmediate(meter.GetComponent<HorizontalLayoutGroup>());
+                        var stack = meter.gameObject.AddComponent<GridLayoutGroup>();
+                        stack.cellSize = new Vector2(dropWidth, dropHeight);
+                        stack.spacing = new Vector2(gapX, gapY);
+                        stack.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                        stack.constraintCount = columns;
+                        stack.childAlignment = TextAnchor.MiddleCenter;
+                        var stackLayout = meter.GetComponent<LayoutElement>();
+                        if (stackLayout == null) stackLayout = meter.gameObject.AddComponent<LayoutElement>();
+                        stackLayout.minWidth = stackLayout.preferredWidth = gridWidth;
+                        stackLayout.minHeight = stackLayout.preferredHeight = 2f * dropHeight + gapY;
+                        wanted = gridWidth;
+                    }
+                }
+                // Otherwise a 4x4 board's sixteen drops shrink a little (to 70% at most) to fit.
+                float shrink = wanted > room ? room / wanted : 1f;
+                if (shrink >= 0.7f && shrink < 1f && meter.GetComponent<HorizontalLayoutGroup>() != null)
+                {
+                    foreach (Image drop in waterDrops)
+                    {
+                        var dropLayout = drop.GetComponent<LayoutElement>();
+                        dropLayout.minWidth = dropLayout.preferredWidth = Mathf.Floor(dropLayout.preferredWidth * shrink);
+                        dropLayout.minHeight = dropLayout.preferredHeight = Mathf.Floor(dropLayout.preferredHeight * shrink);
+                    }
+                    var meterGroup = meter.GetComponent<HorizontalLayoutGroup>();
+                    meterGroup.spacing = Mathf.Floor(meterGroup.spacing * shrink);
+                    wanted *= shrink;
+                }
+                if (wanted <= room)
+                {
+                    meter.SetParent(tools.transform, false);
+                    meter.SetSiblingIndex(1);
+                    var meterLayout = meter.GetComponent<LayoutElement>();
+                    if (meterLayout == null) meterLayout = meter.gameObject.AddComponent<LayoutElement>();
+                    meterLayout.flexibleWidth = 1f;
+                    return;
+                }
+            }
+            var gap = Node("Between the tools", tools.transform);
+            gap.AddComponent<LayoutElement>().flexibleWidth = 1f;
+            gap.transform.SetSiblingIndex(1);
         }
 
         // Undo above Hint, standing right of the board (landscape, unsolved).
@@ -3410,7 +4026,10 @@ namespace Evergrove.UnityClient
             // tapping hand. The sentence stays as spoken text for screen readers.
             // At larger text the sentence alone carries the rule, so the
             // picture row steps aside and the board's tools stay on screen (I85).
-            bool showPicture = TextScale.Percent <= 100;
+            // Since I151 the pictures are the tip at every size; at larger text the
+            // sentence returns under them (it was hidden everywhere, leaving an
+            // empty bubble at 125-150%; I163).
+            bool showPicture = true;
             var picture = Node("Coach picture", bubble.transform);
             picture.SetActive(showPicture);
             var pictureRow = picture.AddComponent<HorizontalLayoutGroup>();
@@ -3430,6 +4049,15 @@ namespace Evergrove.UnityClient
             // could not tell from pictures alone that a tap turns a pipe (I64).
             Text words = Label(bubble.transform, "Coach words", message, 16, 0, Ink, TextAnchor.MiddleCenter);
             Emphasize(words);
+            // Pictures only at standard text (I151): the board now demonstrates the
+            // turn (I138 arrow, I147 finger), and a blind A/B read understood the
+            // goal and the turn as well without the sentence. A player who has
+            // asked for larger text also gets the sentence (I163). Always spoken.
+            if (TextScale.Percent <= 100)
+            {
+                words.color = new Color(0f, 0f, 0f, 0f);
+                words.GetComponent<LayoutElement>().ignoreLayout = true;
+            }
             var tail = Node("Coach tail", bubble.transform);
             tail.AddComponent<LayoutElement>().ignoreLayout = true;
             var tailRect = tail.GetComponent<RectTransform>();
@@ -3487,6 +4115,9 @@ namespace Evergrove.UnityClient
                 if (keeper != null)
                     MosseloraArt.Ornament(picture.transform, "Who will remember", keeper, new Vector2(1f, 0f),
                         new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(4f, -6f));
+                // And what it leaves in the next stream: the same framed tile the
+                // player will meet on the next board, in miniature (I134).
+                NextStreamTile(picture.transform, choice);
             }
             if (wide)
             {
@@ -3510,6 +4141,36 @@ namespace Evergrove.UnityClient
                 LocalizedVillage.Choice(choice) + "\n" + LocalizedVillage.ChoiceOutcome(choice, world),
                 14, 0, new Color(0f, 0f, 0f, 0f), align);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
+        }
+
+        // A miniature of the protected landmark tile this choice roots in the next
+        // stream: bark frame, a dry channel and the choice's painting in its corner.
+        private void NextStreamTile(Transform picture, VillageChoice choice)
+        {
+            if (world.Round + 1 >= PuzzleCatalog.Count) return; // no next stream to change
+            var tile = Node("Leaves in the next stream", picture);
+            tile.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = tile.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.sizeDelta = new Vector2(38f, 38f);
+            rect.anchoredPosition = new Vector2(-2f, 6f);
+            var body = tile.AddComponent<Image>();
+            MosseloraArt.Round(body, MosseloraTheme.AnchoredTile, 7);
+            body.raycastTarget = false;
+            MosseloraArt.Lift(body, 1.5f, 0.22f);
+            var frame = Node("Landmark frame", tile.transform);
+            Fill(frame.GetComponent<RectTransform>());
+            frame.AddComponent<LandmarkGraphic>().Configure((int)choice + 1);
+            var channel = Node("Channel", tile.transform);
+            Fill(channel.GetComponent<RectTransform>());
+            var pipe = channel.AddComponent<PipeGraphic>();
+            pipe.Configure(PipeKind.Straight, 1, false, false, 0); // dry, as the player will first see it
+            pipe.raycastTarget = false;
+            Sprite holder = MosseloraArt.ChoiceIcon(choice);
+            if (holder != null)
+                MosseloraArt.Ornament(tile.transform, "Rooted by", holder, new Vector2(0f, 1f),
+                    new Vector2(0f, 1f), new Vector2(18f, 18f), new Vector2(1f, -1f));
         }
 
         // Compact settings row below the primary content of puzzle and post-choice
@@ -3555,6 +4216,35 @@ namespace Evergrove.UnityClient
             // The tile shows its name like its neighbors ("Gentle chime"); the icon
             // and tone show on/off. The full sentence stays the spoken name (I76).
             ShowShortName(chimeTile);
+            // An even grid: every tile half the panel wide, the odd one out centred
+            // at the same width, instead of widths set by each caption (I143).
+            foreach (Transform settingsRow in panel.transform) EvenTiles(settingsRow);
+        }
+
+        private static void EvenTiles(Transform row)
+        {
+            var group = row.GetComponent<HorizontalLayoutGroup>();
+            if (group == null) return;
+            group.childForceExpandWidth = false; // force-expand would give each spacer a full share
+            int tiles = row.childCount;
+            for (int i = 0; i < tiles; i++)
+            {
+                var layout = row.GetChild(i).GetComponent<LayoutElement>();
+                if (layout == null) layout = row.GetChild(i).gameObject.AddComponent<LayoutElement>();
+                if (layout.ignoreLayout) continue;
+                layout.minWidth = 0f;
+                layout.preferredWidth = 0f;
+                layout.flexibleWidth = 1f;
+            }
+            if (tiles != 1) return;
+            // A lone tile: quarter-width spacers either side keep it half wide.
+            for (int side = 0; side < 2; side++)
+            {
+                var spacer = new GameObject("Even grid spacer", typeof(RectTransform));
+                spacer.transform.SetParent(row, false);
+                spacer.AddComponent<LayoutElement>().flexibleWidth = 0.5f;
+                if (side == 0) spacer.transform.SetAsFirstSibling();
+            }
         }
 
         // Shows the part of a "Name: state (hint)" caption before the colon, and
@@ -3815,8 +4505,7 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Talk(Time.unscaledTime);
 #endif
-            revealNewScreen = true; // land on the neighbor's card, wherever it sits
-            Rebuild();
+            Rebuild(); // the card floats over the page; the scroll stays put (I127)
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -3949,7 +4638,15 @@ namespace Evergrove.UnityClient
             semanticsDirty = true;
             UpdateCreekSound();
             // The first move is the lesson learned: the bubble steps aside.
-            if (coachBubble != null && world.CanUndo) { coachBubble.SetActive(false); coachBubble = null; }
+            // It fades where it stands and keeps its space, so the board never jumps
+            // under the player's finger on their very first move (I131).
+            if (coachBubble != null && world.CanUndo)
+            {
+                if (coachBubble.transform.parent == content)
+                    spentTipHeight = ((RectTransform)coachBubble.transform).rect.height;
+                StartCoroutine(FadeAway(coachBubble));
+                coachBubble = null;
+            }
             if (goalGlows.Count > 0 && world.CanUndo)
             {
                 foreach (GameObject glow in goalGlows) if (glow != null) glow.SetActive(false);
@@ -3966,27 +4663,36 @@ namespace Evergrove.UnityClient
             if (visibleTiles.Length != puzzle.CellCount) { Rebuild(); return; }
             PipeInsight insight = world.Insight;
             int[] angles = world.Rotations;
+            // Newly wet tiles fill in order along the water's path from the spring,
+            // one short beat apart, so the player watches the water run (I144).
+            float[] arrive = WaterArrival(puzzle, angles, insight);
             for (int i = 0; i < puzzle.CellCount; i++)
             {
+                bool newlyWet = lastFlowing != null && i < lastFlowing.Length &&
+                    insight.Flowing[i] && !lastFlowing[i];
+                float delay = arrive != null && newlyWet ? arrive[i] : 0f;
                 // Water just arrived here: the tile gives one small, soft swell.
-                if (gentleMotion && lastFlowing != null && i < lastFlowing.Length &&
-                    insight.Flowing[i] && !lastFlowing[i])
-                    BloomPulse.Add(tileArtwork[i].gameObject, 0.04f); // the pipe, not the pressed tile
-                tileBackgrounds[i].color = MosseloraTheme.TileFill(world.Solved,
-                    insight.Flowing[i], puzzle.IsAnchored(i), world.HintStep,
-                    world.HintTile, i, puzzle.Size);
+                if (gentleMotion && newlyWet)
+                    BloomPulse.Add(tileArtwork[i].gameObject, 0.04f + delay); // the pipe, not the pressed tile
                 visibleTiles[i].interactable = !world.Solved;
-                tileArtwork[i].Configure(puzzle.Kinds[i], angles[i],
-                    insight.Flowing[i], world.Solved, OpenPorts(puzzle, angles, i));
+                // Open ports are geometry, not water: always current.
                 if (visibleLeaks != null && visibleLeaks[i] != null)
                     visibleLeaks[i].text = insight.Leaking[i] ? "○" : "";
+                // A tile the running water hasn't reached yet stays dry for now;
+                // WetLater repaints it from the live insight when it arrives (I144).
+                PaintRefreshedTile(puzzle, insight, angles, i, delay > 0f);
+                if (delay > 0f) StartCoroutine(WetLater(i, delay));
             }
-            PaintDrops(world.Solved ? puzzle.CellCount : insight.ConnectedCount);
+            PaintDropsWithFlights(puzzle, insight, arrive);
             lastFlowing = (bool[])insight.Flowing.Clone();
             if (feedbackText != null)
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
                     insight.ConnectedCount, puzzle.CellCount, insight.LeakCount));
-            if (undoButton != null) undoButton.interactable = world.CanUndo;
+            if (undoButton != null)
+            {
+                undoButton.interactable = world.CanUndo;
+                ShowUndo(world.CanUndo, true);
+            }
             if (activeIllustration != null || activePainting != null)
             {
                 // The world responds to meaningful changes in reachable water
@@ -4018,6 +4724,7 @@ namespace Evergrove.UnityClient
                     if (localPlaytest != null) localPlaytest.Solve(Time.unscaledTime);
 #endif
                     PlayChime();
+                    if (gentleMotion) Haptics.Success();
                     StartCoroutine(ScrollToDecision());
                 }
             }
@@ -4066,6 +4773,7 @@ namespace Evergrove.UnityClient
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
             PlayTock();
+            if (gentleMotion) Haptics.Tick(); // felt with the turn (I140)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
 #endif
@@ -4169,6 +4877,49 @@ namespace Evergrove.UnityClient
         private const float SolveHoldSeconds = 1.25f;
         private const float SolveGlideSeconds = 0.6f;
 
+        // The chosen card lifts and the others step back for a quarter second,
+        // so a choice is seen to be taken before the memory page arrives (I142).
+        private bool settlingChoice;
+
+        private void SettleChoice(Transform cards, VillageChoice choice)
+        {
+            if (settlingChoice) return;
+            bool animate = gentleMotion && cards != null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) animate = false; // the tour chooses instantly
+#endif
+            if (!animate) { MakeChoice(choice); return; }
+            StartCoroutine(LiftChosen(cards, choice));
+        }
+
+        private IEnumerator LiftChosen(Transform cards, VillageChoice choice)
+        {
+            settlingChoice = true;
+            int generation = rebuildGeneration;
+            Transform chosen = cards.Find("Choice " + choice);
+            var groups = new System.Collections.Generic.List<CanvasGroup>();
+            for (int i = 0; i < cards.childCount; i++)
+            {
+                Transform card = cards.GetChild(i);
+                var group = card.GetComponent<CanvasGroup>();
+                if (group == null) group = card.gameObject.AddComponent<CanvasGroup>();
+                group.interactable = false;
+                if (card != chosen) groups.Add(group);
+            }
+            var squash = chosen != null ? chosen.GetComponent<PressSquash>() : null;
+            if (squash != null) Destroy(squash); // the lift owns the scale now
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.24f)
+            {
+                if (generation != rebuildGeneration) { settlingChoice = false; yield break; }
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                if (chosen != null) chosen.localScale = Vector3.one * Mathf.Lerp(0.94f, 1.07f, k);
+                foreach (CanvasGroup group in groups) if (group != null) group.alpha = Mathf.Lerp(1f, 0.35f, k);
+                yield return null;
+            }
+            settlingChoice = false;
+            if (generation == rebuildGeneration) MakeChoice(choice);
+        }
+
         private void MakeChoice(VillageChoice choice)
         {
             if (!world.Choose(choice)) return;
@@ -4194,8 +4945,10 @@ namespace Evergrove.UnityClient
             Transform row = CenteredRowIn(card.transform, "Postcard row");
             Width(IconButton(row, "Copy garden postcard", GameLocalization.Text("postcard"),
                 MosseloraArt.IconChat, () => {
-                    GUIUtility.systemCopyBuffer = GardenPostcard.Build(world,
+                    string text = GardenPostcard.Build(world,
                         world.Completed ? "" : GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count));
+                    if (NativeShare.Text(text, GameLocalization.Text("postcard"))) return; // share sheet (I149)
+                    GUIUtility.systemCopyBuffer = text;
                     postcardCopied = true;
                     Rebuild();
                 }, 78, MosseloraTheme.WaterAction, false, null, true), 240);
@@ -4473,6 +5226,65 @@ namespace Evergrove.UnityClient
                 chime.SetData(samples, 0);
             }
             sound.PlayOneShot(chime);
+        }
+    }
+}
+
+namespace Evergrove.UnityClient
+{
+    // A plain tap target that is not a Button, so screen readers don't list it (I127).
+    internal sealed class TapCatcher : UnityEngine.MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
+    {
+        public System.Action Tapped;
+        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData eventData) => Tapped?.Invoke();
+    }
+}
+
+namespace Evergrove.UnityClient
+{
+    // Turns a mark a quarter at a time, with a pause between: the board's own verb (I138).
+    internal sealed class QuarterTurns : UnityEngine.MonoBehaviour
+    {
+        private float clock;
+        private float from;
+
+        private void Update()
+        {
+            clock += UnityEngine.Time.unscaledDeltaTime;
+            const float pause = 1.1f, swing = 0.35f;
+            if (clock < pause) return;
+            float t = UnityEngine.Mathf.Clamp01((clock - pause) / swing);
+            float angle = from - 90f * UnityEngine.Mathf.SmoothStep(0f, 1f, t);
+            transform.localRotation = UnityEngine.Quaternion.Euler(0f, 0f, angle);
+            if (t >= 1f) { clock = 0f; from = angle % 360f; }
+        }
+    }
+}
+
+namespace Evergrove.UnityClient
+{
+    // Presses a little (down and smaller) just before each quarter turn of the
+    // arrow beside it, on the same 1.45s beat as QuarterTurns (I147).
+    internal sealed class GhostPress : UnityEngine.MonoBehaviour
+    {
+        private float clock;
+        private UnityEngine.Vector2 rest;
+        private UnityEngine.RectTransform rect;
+
+        private void Start()
+        {
+            rect = (UnityEngine.RectTransform)transform;
+            rest = rect.anchoredPosition;
+        }
+
+        private void Update()
+        {
+            clock = (clock + UnityEngine.Time.unscaledDeltaTime) % 1.45f;
+            // 0.85–1.25s: down, then up as the arrow swings.
+            float press = clock < 0.85f || clock > 1.25f ? 0f
+                : UnityEngine.Mathf.Sin((clock - 0.85f) / 0.4f * UnityEngine.Mathf.PI);
+            rect.anchoredPosition = rest + new UnityEngine.Vector2(0f, -5f * press);
+            transform.localScale = UnityEngine.Vector3.one * (1f - 0.12f * press);
         }
     }
 }

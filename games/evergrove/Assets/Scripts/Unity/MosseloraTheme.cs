@@ -25,7 +25,7 @@ namespace Evergrove.UnityClient
         public static readonly Color WaterChannel = Hex("#18717F");
         public static readonly Color DryTile = Hex("#F4ECDA");
         public static readonly Color WetTile = Hex("#E1F0EC");
-        public static readonly Color SolvedTile = Hex("#E0EDD9");
+        public static readonly Color SolvedTile = Hex("#E4F5EF"); // sunlit water, brighter than wet (I132)
         public static readonly Color TileEdge = Hex("#D5C6A4");
         public static readonly Color CardFill = Hex("#FBF7EC");
         public static readonly Color CardEdge = Hex("#D9CCAB");
