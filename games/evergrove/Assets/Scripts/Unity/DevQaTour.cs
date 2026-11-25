@@ -142,6 +142,13 @@ namespace Evergrove.UnityClient
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10b-journal-bottom.png");
+                    // A page opens to its memory (I166), then back to the book.
+                    Press("Journal chapter");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("10c-journal-page.png");
+                    Press("Back to the book");
+                    for (int f = 0; f < 4; f++) yield return null;
                     Press("Memories"); // close it before the rest of the run
                     for (int f = 0; f < 4; f++) yield return null;
                 }

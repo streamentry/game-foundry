@@ -62,6 +62,7 @@ namespace Evergrove.UnityClient
         private Vector2Int lastScreen;
         private bool showingMemory;
         private bool showJournal;
+        private int journalOpenPage = -1; // a page opened full size in the book (I166)
         private int speakingWith = -1;
         // The neighbor's speech floats over the page (I127), so talking never
         // scrolls the board away or pushes the header off screen.
@@ -3322,8 +3323,15 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
             RectTransform pageRoot = content;
             content = journalContent;
-            SheetClose(journalContent, "Close journal", () => { showJournal = false; Rebuild(); });
+            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; Rebuild(); });
             content = pageRoot;
+            string[] allEntries = LocalizedVillage.Journal(world);
+            if (journalOpenPage >= 0 && journalOpenPage < allEntries.Length && journalOpenPage < world.Choices.Length)
+            {
+                JournalPageOpen(journalOpenPage, allEntries[journalOpenPage]);
+                return;
+            }
+            journalOpenPage = -1;
             // The pages lie on the sheet's own paper: no card inside the sheet (I128).
             var journal = Card(journalContent, "A living journal", new Color(0f, 0f, 0f, 0f));
             Text journalTitle = Label(journal.transform, "Journal title",
@@ -3351,6 +3359,17 @@ namespace Evergrove.UnityClient
                 MosseloraArt.PaperTile(pageImage, 14);
                 pageImage.color = MosseloraTheme.DryTile;
                 pageImage.raycastTarget = false;
+                if (i < chosen.Length)
+                {
+                    // A page opens to its memory, full size (I166).
+                    int pageIndex = i;
+                    pageImage.raycastTarget = true;
+                    var pageButton = page.AddComponent<Button>();
+                    pageButton.targetGraphic = pageImage;
+                    pageButton.colors = PressTint();
+                    pageButton.onClick.AddListener(() => { journalOpenPage = pageIndex; Rebuild(); });
+                    PressSquash.Add(page);
+                }
                 // I102 tilted these pages like a scrapbook; a blind comparison found
                 // no gain (slight lean to the flat grid), so I103 removed it.
                 MosseloraArt.Lift(pageImage, 2f, 0.12f);
@@ -3413,6 +3432,74 @@ namespace Evergrove.UnityClient
                 Node("Scrapbook blank", spread.transform); // keeps the last page half width
             if (world.Journal.Length == 0)
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
+        }
+
+        // One memory, opened from the book: its painting, who remembers it, the
+        // remembered line and the full cause-and-effect record. A tap anywhere on
+        // the page (or the back token) returns to the book (I166).
+        private void JournalPageOpen(int index, string record)
+        {
+            int[] chosen = world.Choices;
+            var choice = (VillageChoice)chosen[index];
+            var open = Card(journalContent, "Open memory", new Color(0f, 0f, 0f, 0f));
+            var back = open.AddComponent<Button>();
+            var hit = open.GetComponent<Image>();
+            hit.raycastTarget = true;
+            back.targetGraphic = hit;
+            back.transition = Selectable.Transition.None;
+            back.onClick.AddListener(() => { journalOpenPage = -1; Rebuild(); });
+            Transform when = CenteredRowIn(open.transform, "Open memory stream");
+            when.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+            Sprite stone = PathStone(index, false, false);
+            if (stone != null)
+            {
+                var stoneNode = Node("Season stone", when);
+                var stoneLayout = stoneNode.AddComponent<LayoutElement>();
+                stoneLayout.minHeight = stoneLayout.preferredHeight = 26f;
+                stoneLayout.minWidth = stoneLayout.preferredWidth = Mathf.Round(26f * MosseloraArt.Aspect(stone));
+                var stoneImage = stoneNode.AddComponent<Image>();
+                stoneImage.sprite = stone;
+                stoneImage.preserveAspect = true;
+                stoneImage.raycastTarget = false;
+            }
+            Text number = Label(when, "Open memory number", (index + 1).ToString(CultureInfo.InvariantCulture),
+                20, 0, Moss, TextAnchor.MiddleCenter);
+            Emphasize(number);
+            Text spokenStream = Label(when, "Open memory stream name",
+                GameLocalization.Text("stream", index + 1, PuzzleCatalog.Count), 13, 0,
+                new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+            spokenStream.GetComponent<LayoutElement>().ignoreLayout = true;
+            Sprite vignette = MosseloraArt.Load(choice == VillageChoice.ShadeTree ? MosseloraArt.VignetteTree
+                : choice == VillageChoice.Bridge ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
+            if (vignette == null) vignette = MosseloraArt.ChoiceIcon(choice);
+            if (vignette != null)
+            {
+                var picture = Node("Open memory painting", open.transform);
+                float width = Mathf.Min(PageWidth() - 24f, 420f);
+                Height(picture, Mathf.Round(width / MosseloraArt.Aspect(vignette)));
+                var pictureImage = picture.AddComponent<Image>();
+                pictureImage.sprite = vignette;
+                pictureImage.preserveAspect = true;
+                pictureImage.raycastTarget = false;
+                Sprite face = MosseloraArt.Portrait(chosen[index]);
+                if (face != null)
+                    MosseloraArt.Ornament(picture.transform, "Who remembers", face, new Vector2(1f, 0f),
+                        new Vector2(1f, 0f), new Vector2(54f, 54f), new Vector2(-8f, 6f));
+            }
+            Narrate(Label(open.transform, "Remembered line", LocalizedVillage.MemoryAt(chosen, index), 20, 0,
+                Ink, TextAnchor.MiddleCenter), true);
+            // Shown: only what changed ("The crossing connects both banks."). The
+            // full record, with its "Chapter 1 · Orin · …" heading, stays spoken.
+            int lineBreak = record.LastIndexOf('\n');
+            string consequence = lineBreak >= 0 ? record.Substring(lineBreak + 1) : record;
+            Narrate(Label(open.transform, "What changed", consequence, 17, 0, Ink, TextAnchor.MiddleCenter));
+            Text fullRecord = Label(open.transform, "Recorded cause and effect", record, 14, 0,
+                new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+            fullRecord.GetComponent<LayoutElement>().ignoreLayout = true;
+            Transform backRow = CenteredRowIn(open.transform, "Back to the book row");
+            IconButton(backRow, "Back to the book", GameLocalization.Text("journal_title"),
+                MosseloraArt.IconUndo, () => { journalOpenPage = -1; Rebuild(); }, 64,
+                MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
         }
 
         // Upper bound for Large tiles so a tablet-width board stays reachable.
