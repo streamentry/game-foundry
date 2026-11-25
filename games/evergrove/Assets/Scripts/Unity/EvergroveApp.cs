@@ -76,6 +76,10 @@ namespace Evergrove.UnityClient
         // Which garden this is (0, 1, 2…): picks the catalogue's items (I172).
         private const string GardenNumberKey = "evergrove:garden-number";
         private int gardenNumber;
+        // E2 (I174): every tree, flower and build ever made, across gardens.
+        private const string AlmanacKey = "evergrove:almanac";
+        private Almanac almanac = new Almanac();
+        private bool almanacTab;
         // WCAG 2.3.3: motion triggered by play (pipe swing, bloom, butterfly,
         // glide) can be switched off. Off means snap, still and instant.
         private const string GentleMotionKey = "evergrove:gentle-motion:v1";
@@ -217,6 +221,12 @@ namespace Evergrove.UnityClient
             saveFailed = WorldStore.RecoveryBlocked;
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
             gardenNumber = Mathf.Max(0, PlayerPrefs.GetInt(GardenNumberKey, 0));
+            almanac = Almanac.Parse(PlayerPrefs.GetString(AlmanacKey, ""));
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // The QA tour plays garden 0 in memory: it never reads the player's almanac.
+            if (qaInMemoryOnly) { gardenNumber = 0; almanac = new Almanac(); }
+#endif
+            RecordInAlmanac();
             PaintedVillage.ItemSprite = (family, nth) =>
             {
                 // The nth tree (or build, or flowers) in the village is the one
@@ -3429,8 +3439,14 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
             RectTransform pageRoot = content;
             content = journalContent;
-            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; Rebuild(); });
+            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; almanacTab = false; Rebuild(); });
             content = pageRoot;
+            JournalTabs();
+            if (almanacTab)
+            {
+                AlmanacPage();
+                return;
+            }
             string[] allEntries = LocalizedVillage.Journal(world);
             if (journalOpenPage >= 0 && journalOpenPage < allEntries.Length && journalOpenPage < world.Choices.Length)
             {
@@ -3539,6 +3555,105 @@ namespace Evergrove.UnityClient
                 Node("Scrapbook blank", spread.transform); // keeps the last page half width
             if (world.Journal.Length == 0)
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
+        }
+
+        // Every living-garden choice so far, saved to the device-wide almanac.
+        private void RecordInAlmanac()
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            int[] made = world.Choices;
+            bool changed = false;
+            for (int i = 0; i < made.Length && i < GardenCatalog.ChaptersPerGarden; i++)
+                changed |= almanac.Add(ItemAt(i, made[i]));
+            if (!changed) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) return; // the tour never writes the player's almanac
+#endif
+            PlayerPrefs.SetString(AlmanacKey, almanac.Serialize());
+            PlayerPrefs.Save();
+        }
+
+        // Two round tabs at the top of the book: your pages, and the almanac (I174).
+        private void JournalTabs()
+        {
+            if (world.Mode != PlayMode.Living) { almanacTab = false; return; }
+            Transform tabs = CenteredRowIn(journalContent, "Book tabs");
+            tabs.GetComponent<HorizontalLayoutGroup>().spacing = 18;
+            IconButton(tabs, "Our pages", GameLocalization.Text("journal_title"), MosseloraArt.IconJournal,
+                () => { almanacTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                almanacTab ? MosseloraTheme.QuietAction : MosseloraTheme.ForestAction, false, null, false, 0, 0, true);
+            Button almanacButton = IconButton(tabs, "Almanac", "Almanac", MosseloraArt.IconJournal,
+                () => { almanacTab = true; journalOpenPage = -1; Rebuild(); }, 56,
+                almanacTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            // The almanac's mark is a painted sapling, not a second book.
+            Transform glyph = almanacButton.transform.Find("Icon");
+            Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+            Sprite sapling = MosseloraArt.Load(GardenCatalog.Get(VillageChoice.ShadeTree, 0).Art);
+            if (glyphImage != null && sapling != null)
+            {
+                glyphImage.sprite = sapling;
+                glyphImage.color = Color.white;
+                var glyphSize = glyph.GetComponent<LayoutElement>();
+                glyphSize.minWidth = glyphSize.preferredWidth = 38f;
+                glyphSize.minHeight = glyphSize.preferredHeight = 38f;
+            }
+        }
+
+        // All 200 garden items: made ones painted, the rest as faint silhouettes.
+        // Counts per neighbour, no rewards, no pressure (E2, I174).
+        private void AlmanacPage()
+        {
+            var page = Card(journalContent, "The almanac", new Color(0f, 0f, 0f, 0f));
+            foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Flowers, VillageChoice.Bridge })
+            {
+                Transform head = CenteredRowIn(page.transform, "Almanac family");
+                head.GetComponent<HorizontalLayoutGroup>().spacing = 8;
+                Sprite face = MosseloraArt.Portrait((int)family);
+                if (face != null)
+                {
+                    var faceNode = Node("Keeper", head);
+                    var faceLayout = faceNode.AddComponent<LayoutElement>();
+                    faceLayout.minWidth = faceLayout.preferredWidth = 40;
+                    faceLayout.minHeight = faceLayout.preferredHeight = 40;
+                    var faceImage = faceNode.AddComponent<Image>();
+                    faceImage.sprite = face;
+                    faceImage.preserveAspect = true;
+                    faceImage.raycastTarget = false;
+                }
+                int count = GardenCatalog.CountOf(family);
+                Text tally = Label(head, "Found", almanac.CountOf(family) + " / " + count, 18, 0, Moss,
+                    TextAnchor.MiddleLeft);
+                Emphasize(tally);
+                var grid = Node("Almanac grid", page.transform);
+                var layout = grid.AddComponent<GridLayoutGroup>();
+                float cell = Mathf.Floor(Mathf.Min(52f, (PageWidth() - 40f) / 7f - 4f));
+                layout.cellSize = new Vector2(cell, cell);
+                layout.spacing = new Vector2(4f, 4f);
+                layout.childAlignment = TextAnchor.UpperCenter;
+                layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                layout.constraintCount = 7;
+                int rows = (count + 6) / 7;
+                Height(grid, rows * cell + (rows - 1) * 4f);
+                for (int i = 0; i < count; i++)
+                {
+                    GardenItem item = GardenCatalog.Get(family, i);
+                    Sprite art = MosseloraArt.Load(item.Art);
+                    var slot = Node(item.Name, grid.transform);
+                    var image = slot.AddComponent<Image>();
+                    image.sprite = art;
+                    image.preserveAspect = true;
+                    bool found = almanac.Has(item);
+                    // Not yet made: a soft pencil silhouette of the same painting.
+                    image.color = found ? Color.white : new Color(0.33f, 0.30f, 0.25f, 0.16f);
+                    image.raycastTarget = found;
+                    if (!found) continue;
+                    var name = slot.AddComponent<Button>();
+                    name.transition = Selectable.Transition.None;
+                    string label = item.Name;
+                    name.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
+                        char.ToUpperInvariant(label[0]) + label.Substring(1), font, Ink, MosseloraTheme.CardFill));
+                }
+            }
         }
 
         // A folded top-right corner: the page can be turned (I168). A square turned
@@ -5144,6 +5259,7 @@ namespace Evergrove.UnityClient
             if (localPlaytest != null) localPlaytest.Choose(Time.unscaledTime);
 #endif
             SaveWorld();
+            RecordInAlmanac();
             showingMemory = true;
             showJournal = false;
             speakingWith = -1;
@@ -5288,8 +5404,15 @@ namespace Evergrove.UnityClient
             world = WorldModel.New();
             // A new garden meets the next twelve trees, flowers and builds (I172).
             gardenNumber++;
-            PlayerPrefs.SetInt(GardenNumberKey, gardenNumber);
-            PlayerPrefs.Save();
+            bool persist = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            persist = !qaInMemoryOnly;
+#endif
+            if (persist)
+            {
+                PlayerPrefs.SetInt(GardenNumberKey, gardenNumber);
+                PlayerPrefs.Save();
+            }
             saveFailed = false;
             confirmReset = false;
             showJournal = false;
