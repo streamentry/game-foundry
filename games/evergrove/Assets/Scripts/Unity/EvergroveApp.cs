@@ -2730,10 +2730,10 @@ namespace Evergrove.UnityClient
         }
 
         // Full-bleed painting with its own aspect; crops nothing.
-        private void Painting(string name, string art, float maxHeight)
+        private GameObject Painting(string name, string art, float maxHeight)
         {
             Sprite sprite = MosseloraArt.Load(art);
-            if (sprite == null) return;
+            if (sprite == null) return null;
             float width = PageWidth() + 34f;
             float height = Mathf.Min(maxHeight, width / MosseloraArt.Aspect(sprite));
             var node = Node(name, content);
@@ -2750,6 +2750,7 @@ namespace Evergrove.UnityClient
             var image = frame.AddComponent<Image>();
             image.sprite = sprite;
             image.raycastTarget = false;
+            return node;
         }
 
         // Logical width inside the page margins, from the real safe area.
@@ -3073,9 +3074,15 @@ namespace Evergrove.UnityClient
             {
                 // The whole village gathers by the restored creek (falls back to the
                 // everyday village painting if the festival art is missing).
-                Painting("Village memory painting",
+                GameObject festival = Painting("Village memory painting",
                     MosseloraArt.Load(MosseloraArt.EndingFestival) != null
                         ? MosseloraArt.EndingFestival : MosseloraArt.HeroVillage, 460f);
+                // The festival evening has its visitors too (I158), as the hub does.
+                bool lively = gentleMotion && festival != null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (qaInMemoryOnly) lively = false;
+#endif
+                if (lively) festival.AddComponent<HubButterflies>();
                 var conclusion = Card(content, "The ending", MosseloraTheme.CardFill);
                 screenHeading = conclusion.GetComponent<RectTransform>();
                 Text endingTitle = Label(conclusion.transform, "Ending title",
