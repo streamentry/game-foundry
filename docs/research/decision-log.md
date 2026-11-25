@@ -791,3 +791,22 @@ Device checks found no attached Android device (`adb devices -l` returned an emp
 The Browser runtime initialized but `browsers.list()` returned no browser and `getDefault()` returned “No browser is available.” Codex only queued the App Store Connect and Play Console URLs; no signed-in page content or controls were available in this session. Last known store state remains: Apple build 2 uploaded/processed and attached to the draft, automatic release selected, no submission; Google listing assets/screenshots saved, Managed publishing off, no AAB upload or submission. These states were not re-read in this session.
 
 Latest-source release remains blocked by M1/M2/M3/M5/M6 evidence and owner actions: a clean licensed current-source Unity build; physical iPhone and Android QA; the required uncoached adult-40+ study; current binary privacy and network review; store name/rights and account-owner declarations; and reviewed translations (25 mapped locale drafts exist, zero native reviews). Keep the English listing as the only eligible listing locale until native reviewers sign off. Do not submit build 2 as if it matched `8c9e543`.
+
+## 2026-11-25 — Mosselora family goal: generations play together
+
+**Decision (founder direction):** Mosselora should be a game grandparents, parents and children can play together gently. A key goal is to help older players feel less alone by connecting them with family, not only to entertain them. The adult 40+ stays the primary player; children and parents are co-players. Recorded in [vision §1a](../../games/evergrove/vision.md#1a-family-play-connection-not-only-entertainment), the [product brief](../../games/evergrove/docs/PRODUCT.md), both AGENTS.md files, and a new [family co-play session](../../games/evergrove/docs/playtest/family-coplay-session.md) protocol.
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Founder direction. No observation of families playing Mosselora exists. AARP's self-reported data says 79% of U.S. gamers 50+ usually play alone, which cuts against co-play as common use |
+| Owner | Founder |
+| Delete | No feature is added. The first test uses the current build on one device |
+| User value | Families get a calm, failure-free thing to do and talk about together; the choice after each puzzle is a natural "which one should we pick?" moment |
+| Audience fit | Unknown. Age bands to observe: adult 40–49 / 50–64 / 65+ with child 6–8 / 9–12 |
+| Falsification | 5 family groups play the current build on one device without instruction. Fewer than 2 of 5 playing together at all drops co-play as a near-term feature |
+| Stop | Children disengage within 5 minutes in 3+ groups, or adults take over in most groups: redesign before building co-play |
+| Evidence | Anonymized counts in the playtest results template |
+
+**Rules added:** cooperative only (no scores between players, no timers), one device first, no chat or strangers, no guilt or obligation, no data about children. **No claim** that Mosselora reduces loneliness, improves wellbeing or helps memory without evidence; store copy describes only what the game lets people do.
+
+**Open owner decision:** Google Play's target audience is saved as "18 and over". If a build is designed for children to play, the account owner must decide the Families-policy and Apple age-rating declarations before submission. Current store copy makes no family or loneliness claim and was left unchanged. The M3 solo study and the release blockers above are unchanged.

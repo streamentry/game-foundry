@@ -5,6 +5,8 @@
 - **M3 — core comprehension:** 8–12 uncoached adults, first minute and first chapters. See [m3-session-kit.md](m3-session-kit.md). Gate definition: [09 — Execution control](../specs/09-EXECUTION-CONTROL.md#milestone-gates-and-feature-freeze); test `VAL-001` and `PUZ-006` in [verification-matrix.json](../specs/verification-matrix.json).
 - **M4 — matched value comparison:** 20–30 participants, Living World vs Puzzle Only on identical boards. See [m4-preregistration-draft.md](m4-preregistration-draft.md). Protocol: [10 — Experiment protocols](../specs/10-EXPERIMENT-PROTOCOLS.md); test `VAL-002`.
 
+- **Family co-play (founder goal, 2026-11-25):** 5 family groups, an adult 40+ and a child on one device, no instructions. See [family-coplay-session.md](family-coplay-session.md). Runs alongside M3, not in place of it.
+
 Results are captured in [results-template.md](results-template.md).
 
 **Start here for M3:** [m3-run-plan.md](m3-run-plan.md) orders the steps, gives a recommended default for every open decision, and records the facilitator dry run of 2026-11-24, including blocker B1 (the development build showed the experiment controls to participants), now fixed with a participant view.
