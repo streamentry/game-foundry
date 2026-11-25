@@ -1257,7 +1257,7 @@ namespace Evergrove.UnityClient
 
         // Water that newly reaches a tile flies down into its drop, so the meter
         // explains itself without a word: each drop is a tile with water (I130).
-        private void PaintDropsWithFlights(Puzzle puzzle, PipeInsight insight)
+        private void PaintDropsWithFlights(Puzzle puzzle, PipeInsight insight, float[] arrive = null)
         {
             int reached = world.Solved ? puzzle.CellCount : insight.ConnectedCount;
             int before = 0;
@@ -1270,19 +1270,28 @@ namespace Evergrove.UnityClient
             if (!fly) { PaintDrops(reached); return; }
             PaintDrops(before);
             int slot = before, order = 0;
-            for (int i = 0; i < puzzle.CellCount && slot < reached && slot < waterDrops.Length; i++)
-                if (insight.Flowing[i] && !lastFlowing[i])
-                    StartCoroutine(FlyDrop(tileArtwork[i].rectTransform, slot++, order++));
+            var fresh = new System.Collections.Generic.List<int>();
+            for (int i = 0; i < puzzle.CellCount; i++)
+                if (insight.Flowing[i] && !lastFlowing[i]) fresh.Add(i);
+            // Nearest the spring first, leaving as each tile fills (I144).
+            if (arrive != null) fresh.Sort((a, b) => arrive[a].CompareTo(arrive[b]));
+            foreach (int i in fresh)
+            {
+                if (slot >= reached || slot >= waterDrops.Length) break;
+                float wait = arrive != null ? arrive[i] : order * 0.07f;
+                StartCoroutine(FlyDrop(tileArtwork[i].rectTransform, slot++, wait));
+                order++;
+            }
             // Drops not tied to a newly wet tile (a solve fills the rest) fill at once.
             for (; slot < reached && slot < waterDrops.Length; slot++) waterDrops[slot].color = Color.white;
         }
 
-        private IEnumerator FlyDrop(RectTransform from, int slot, int order)
+        private IEnumerator FlyDrop(RectTransform from, int slot, float startDelay)
         {
             Image[] drops = waterDrops;
             Sprite sprite = MosseloraArt.Load(MosseloraArt.Droplet);
             if (sprite == null || from == null || drops == null || slot >= drops.Length) yield break;
-            for (float wait = order * 0.07f; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
+            for (float wait = startDelay; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
             if (drops != waterDrops || from == null || drops[slot] == null) yield break;
             var node = Node("Flying drop", canvasRoot);
             var rect = node.GetComponent<RectTransform>();
@@ -1314,6 +1323,70 @@ namespace Evergrove.UnityClient
                 drops[slot].color = Color.white;
                 BloomPulse.Add(drops[slot].gameObject, 0f, 0.22f);
             }
+        }
+
+        // Seconds after the move at which each newly wet tile fills: its step
+        // count along connected pipes from the spring, relative to the nearest
+        // newly wet tile, 0.07s a step. Null when there is nothing to stagger.
+        private float[] WaterArrival(Puzzle puzzle, int[] angles, PipeInsight insight)
+        {
+            bool animate = gentleMotion && lastFlowing != null && lastFlowing.Length == puzzle.CellCount;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) animate = false; // tour screenshots capture settled screens
+#endif
+            if (!animate) return null;
+            int spring = Array.IndexOf(puzzle.Kinds, PipeKind.End);
+            if (spring < 0 || !insight.Flowing[spring]) return null;
+            int[] steps = new int[puzzle.CellCount];
+            for (int i = 0; i < steps.Length; i++) steps[i] = -1;
+            var queue = new System.Collections.Generic.Queue<int>();
+            steps[spring] = 0;
+            queue.Enqueue(spring);
+            while (queue.Count > 0)
+            {
+                int tile = queue.Dequeue();
+                for (int d = 0; d < 4; d++)
+                {
+                    if (!PipeRules.HasPort(puzzle.Kinds[tile], angles[tile], d)) continue;
+                    int next = PipeRules.Neighbor(tile, d, puzzle.Size);
+                    if (next < 0 || steps[next] >= 0 || !insight.Flowing[next]) continue;
+                    if (!PipeRules.HasPort(puzzle.Kinds[next], angles[next], (d + 2) % 4)) continue;
+                    steps[next] = steps[tile] + 1;
+                    queue.Enqueue(next);
+                }
+            }
+            int nearest = int.MaxValue;
+            for (int i = 0; i < steps.Length; i++)
+                if (steps[i] >= 0 && !lastFlowing[i]) nearest = Mathf.Min(nearest, steps[i]);
+            if (nearest == int.MaxValue) return null;
+            var arrive = new float[puzzle.CellCount];
+            for (int i = 0; i < steps.Length; i++)
+                arrive[i] = steps[i] >= 0 && !lastFlowing[i] ? (steps[i] - nearest) * 0.07f : 0f;
+            return arrive;
+        }
+
+        // Fills one tile once the running water reaches it, from the board's
+        // state at that moment (another move may have come in between).
+        private IEnumerator WetLater(int tile, float delay)
+        {
+            int generation = rebuildGeneration;
+            PipeGraphic[] artwork = tileArtwork;
+            for (float wait = delay; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
+            if (generation != rebuildGeneration || artwork != tileArtwork || tileArtwork == null ||
+                tile >= tileArtwork.Length || world.Completed) yield break;
+            Puzzle puzzle = world.CurrentPuzzle;
+            if (tile >= puzzle.CellCount) yield break;
+            PaintRefreshedTile(puzzle, world.Insight, world.Rotations, tile, false);
+        }
+
+        // The one in-place visual rule for a tile (refresh and the running water).
+        private void PaintRefreshedTile(Puzzle puzzle, PipeInsight insight, int[] angles, int i, bool held)
+        {
+            tileBackgrounds[i].color = MosseloraTheme.TileFill(world.Solved,
+                !held && insight.Flowing[i], puzzle.IsAnchored(i), world.HintStep,
+                world.HintTile, i, puzzle.Size);
+            tileArtwork[i].Configure(puzzle.Kinds[i], angles[i],
+                held ? false : insight.Flowing[i], world.Solved, OpenPorts(puzzle, angles, i));
         }
 
         private void PaintDrops(int reached)
@@ -4353,22 +4426,27 @@ namespace Evergrove.UnityClient
             if (visibleTiles.Length != puzzle.CellCount) { Rebuild(); return; }
             PipeInsight insight = world.Insight;
             int[] angles = world.Rotations;
+            // Newly wet tiles fill in order along the water's path from the spring,
+            // one short beat apart, so the player watches the water run (I144).
+            float[] arrive = WaterArrival(puzzle, angles, insight);
             for (int i = 0; i < puzzle.CellCount; i++)
             {
+                bool newlyWet = lastFlowing != null && i < lastFlowing.Length &&
+                    insight.Flowing[i] && !lastFlowing[i];
+                float delay = arrive != null && newlyWet ? arrive[i] : 0f;
                 // Water just arrived here: the tile gives one small, soft swell.
-                if (gentleMotion && lastFlowing != null && i < lastFlowing.Length &&
-                    insight.Flowing[i] && !lastFlowing[i])
-                    BloomPulse.Add(tileArtwork[i].gameObject, 0.04f); // the pipe, not the pressed tile
-                tileBackgrounds[i].color = MosseloraTheme.TileFill(world.Solved,
-                    insight.Flowing[i], puzzle.IsAnchored(i), world.HintStep,
-                    world.HintTile, i, puzzle.Size);
+                if (gentleMotion && newlyWet)
+                    BloomPulse.Add(tileArtwork[i].gameObject, 0.04f + delay); // the pipe, not the pressed tile
                 visibleTiles[i].interactable = !world.Solved;
-                tileArtwork[i].Configure(puzzle.Kinds[i], angles[i],
-                    insight.Flowing[i], world.Solved, OpenPorts(puzzle, angles, i));
+                // Open ports are geometry, not water: always current.
                 if (visibleLeaks != null && visibleLeaks[i] != null)
                     visibleLeaks[i].text = insight.Leaking[i] ? "○" : "";
+                // A tile the running water hasn't reached yet stays dry for now;
+                // WetLater repaints it from the live insight when it arrives (I144).
+                PaintRefreshedTile(puzzle, insight, angles, i, delay > 0f);
+                if (delay > 0f) StartCoroutine(WetLater(i, delay));
             }
-            PaintDropsWithFlights(puzzle, insight);
+            PaintDropsWithFlights(puzzle, insight, arrive);
             lastFlowing = (bool[])insight.Flowing.Clone();
             if (feedbackText != null)
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
