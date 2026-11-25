@@ -2049,11 +2049,15 @@ namespace Evergrove.UnityClient
             goalGlows.Add(hand);
             hand.AddComponent<LayoutElement>().ignoreLayout = true;
             var handRect = hand.GetComponent<RectTransform>();
-            handRect.anchorMin = handRect.anchorMax = new Vector2(0.5f, 0.5f);
+            // The whole hand sits in the tile's lower-right quarter, which a channel
+            // never crosses (arms run along the centre lines): it presses the tile
+            // without hiding the pipe (I159), and stays inside the tile, under no
+            // neighbour.
+            handRect.anchorMin = handRect.anchorMax = new Vector2(0.74f, 0.36f);
             handRect.pivot = new Vector2(0.35f, 0.9f); // the fingertip
-            float handSize = Mathf.Round(tileSize * 0.46f);
+            float handSize = Mathf.Round(tileSize * 0.36f);
             handRect.sizeDelta = new Vector2(handSize, handSize);
-            handRect.anchoredPosition = new Vector2(tileSize * 0.06f, tileSize * 0.02f);
+            handRect.anchoredPosition = Vector2.zero;
             var handImage = hand.AddComponent<Image>();
             handImage.sprite = tap;
             handImage.preserveAspect = true;
