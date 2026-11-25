@@ -422,6 +422,14 @@ def main() -> None:
                               grid(ui6, 2, 2)):
             save(white_glyph(cell), name)
 
+    stones = master("stones")
+    if stones:
+        # Painted stepping stones for the stream path (I119): ahead in each season,
+        # walked (wet), and "you are here" with a sprout. Not yet wired into the UI.
+        for name, cell in zip(("stone-summer", "stone-autumn", "stone-winter", "stone-wet", "stone-here"),
+                              grid(stones.convert("RGBA"), 5, 1)):
+            save(fit(trim(cell, 4), 96, 96), name)
+
     plaques = master("button-plaques")
     if plaques:
         for name, cell in zip(("plaque-forest", "plaque-teal", "plaque-parchment"),
