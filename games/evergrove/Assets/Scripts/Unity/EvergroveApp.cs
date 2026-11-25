@@ -1754,18 +1754,88 @@ namespace Evergrove.UnityClient
             Sprite plot = MosseloraArt.Load("garden-map");
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
+            GardenMapView.Build(window, plot, map, MapItems(map), 1.5f, OnMapLand, OnMapItem, mapInHand);
+            return true;
+        }
+
+        // ---- E4 (I178): place what you made. Tap a thing to pick it up, tap land to put it down.
+        private int mapInHand = -1;
+
+        private System.Collections.Generic.List<GardenMapView.Placed> MapItems(GardenMap map)
+        {
             int[] made = world.Choices;
-            int[] cells = map.Layout(made, null);
+            int[] cells = map.Layout(made, world.Placements);
             var items = new System.Collections.Generic.List<GardenMapView.Placed>();
             for (int i = 0; i < made.Length; i++)
                 items.Add(new GardenMapView.Placed
                 {
                     Art = ItemArt(i, made[i]),
                     Cell = cells[i],
+                    Index = i,
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
                     Newest = i == made.Length - 1
                 });
-            GardenMapView.Build(window, plot, map, items);
+            return items;
+        }
+
+        // Right after a choice the new thing is in your hand until you put it down.
+        private int ItemInHand()
+        {
+            if (mapInHand >= 0) return mapInHand;
+            int[] placed = world.Placements;
+            int newest = world.Choices.Length - 1;
+            bool justMade = showingMemory && newest >= 0 && (newest >= placed.Length || placed[newest] < 0);
+            return justMade ? newest : -1;
+        }
+
+        private void OnMapItem(int index)
+        {
+            mapInHand = ItemInHand() == index ? -2 : index; // -2: put nothing in hand
+            RefreshMaps();
+            if (mapInHand == -2) mapInHand = -1;
+        }
+
+        private void OnMapLand(int cell)
+        {
+            int target = ItemInHand();
+            GardenMap map = LoadGardenMap();
+            if (target < 0 || map == null) return;
+            int[] layout = map.Layout(world.Choices, world.Placements);
+            if (!map.CanPlace(layout, cell, target)) return; // water, the cottage, or taken: it stays in hand
+            if (!world.PlaceAt(target, cell)) return;
+            SaveWorld();
+            mapInHand = -1;
+            PlayTock();
+            if (gentleMotion) Haptics.Tick();
+            RefreshMaps();
+        }
+
+        // Redraw whichever map is showing, keeping the page where it is.
+        private void RefreshMaps()
+        {
+            if (titleScreen != null && canvasRoot != null)
+            {
+                Transform host = titleScreen.transform.parent;
+                CloseTitle();
+                BuildTitleScreen(host);
+            }
+            else Rebuild();
+        }
+
+        // The page's garden window (memory card, boards): the same map as the hub.
+        private bool PageGardenMap(GameObject window, bool memoryScreen)
+        {
+            Sprite plot = MosseloraArt.Load("garden-map");
+            GardenMap map = LoadGardenMap();
+            if (plot == null || map == null) return false;
+            var size = window.GetComponent<LayoutElement>();
+            if (size == null) size = window.AddComponent<LayoutElement>();
+            size.minHeight = size.preferredHeight = TextScale.Percent > 100 ? 230f : 260f;
+            window.AddComponent<RectMask2D>();
+            bool grow = celebrateGrowth && memoryScreen;
+            celebrateGrowth = false;
+            GardenMapView.Build(window.GetComponent<RectTransform>(), plot, map, MapItems(map), 1.25f,
+                OnMapLand, OnMapItem, ItemInHand(), grow && gentleMotion);
             return true;
         }
 
@@ -2251,7 +2321,9 @@ namespace Evergrove.UnityClient
         private GardenItem ItemAt(int chapter, int family)
         {
             int safe = Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1);
-            return GardenCatalog.For(gardenNumber, safe, (VillageChoice)Mathf.Clamp(family, 0, 2));
+            // The save knows its garden (I177/I178); a restored file keeps its items.
+            int garden = world != null ? world.Garden : gardenNumber;
+            return GardenCatalog.For(garden, safe, (VillageChoice)Mathf.Clamp(family, 0, 2));
         }
 
         // The painted item, or the family's own art while an item's art is missing.
@@ -3213,7 +3285,10 @@ namespace Evergrove.UnityClient
                     }
                 }
 #endif
-                if (!renderedMiniature)
+                // The garden map replaces the fixed village strip (I178): swipe it, and
+                // tap to put what you made where you want it.
+                bool mapped = !renderedMiniature && PageGardenMap(illustration, memoryScreen);
+                if (!renderedMiniature && !mapped)
                 {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     if (diorama != null) diorama.Hide();
@@ -5438,9 +5513,11 @@ namespace Evergrove.UnityClient
                 Rebuild();
                 return;
             }
-            world = WorldModel.New();
-            // A new garden meets the next twelve trees, flowers and builds (I172).
-            gardenNumber++;
+            // A new garden meets the next twelve trees, flowers and builds (I172),
+            // and remembers which garden it is in its own save (I178).
+            gardenNumber = Mathf.Max(gardenNumber, world != null ? world.Garden : 0) + 1;
+            world = WorldModel.New(PlayMode.Living, gardenNumber);
+            mapInHand = -1;
             bool persist = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             persist = !qaInMemoryOnly;
