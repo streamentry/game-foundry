@@ -3489,7 +3489,9 @@ namespace Evergrove.UnityClient
                     && index / puzzle.Size == world.HintTile / puzzle.Size
                     && (world.HintStep == 1 || index == world.HintTile);
                 // A hint ring and the teal goal glow never share a tile: the hint wins (I91).
-                if (!hintedHere && puzzle.Kinds[index] == PipeKind.End && world.Round == 0 && !world.CanUndo && !world.Solved)
+                // Every board, not only the first: a cold read of a later board could
+                // not tell what finishing it meant (I148). Gone after the first move.
+                if (!hintedHere && puzzle.Kinds[index] == PipeKind.End && !world.CanUndo && !world.Solved)
                 {
                     // Before the first move, the start and the goal glow softly.
                     var goal = Node("Start or goal glow", tileNode.transform);
