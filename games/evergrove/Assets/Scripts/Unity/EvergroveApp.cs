@@ -1783,7 +1783,10 @@ namespace Evergrove.UnityClient
             float height = sheetRect.rect.height;
             if (panel == null || height <= 1f) return;
             float wanted = pages.rect.height + SheetHeader + 4f + 10f;
-            panel.anchorMax = new Vector2(1f, Mathf.Clamp(wanted / height, 0.34f, 0.86f));
+            // Height only: keep the x anchor FitSheet chose (centred when sideways).
+            // I128 wrote x = 1 here, which pushed the landscape sheet off screen (I150).
+            float cap = panel.anchorMin.x > 0.25f ? 0.92f : 0.86f;
+            panel.anchorMax = new Vector2(panel.anchorMax.x, Mathf.Clamp(wanted / height, 0.34f, cap));
         }
 
         private const float SheetHeader = 78f; // the plaque art stands a little taller than its 52 pt box
