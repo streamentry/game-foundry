@@ -2981,7 +2981,7 @@ namespace Evergrove.UnityClient
                     faceImage.raycastTarget = false;
                 }
                 Text momentTitle = Label(moment.transform, "Moment title",
-                    GameLocalization.Text("memory_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
+                    GameLocalization.Text("memory_title"), 18, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(momentTitle);
                 // The chapter header lives in the scrapbook; here, the memory and its effect.
                 Text story = Label(moment.transform, "Story", LocalizedVillage.Memory(world), 18, 0, Ink,
@@ -3032,7 +3032,7 @@ namespace Evergrove.UnityClient
                 var conclusion = Card(content, "The ending", MosseloraTheme.CardFill);
                 screenHeading = conclusion.GetComponent<RectTransform>();
                 Text endingTitle = Label(conclusion.transform, "Ending title",
-                    GameLocalization.Text("ending_title"), 15, 31, Leaf, TextAnchor.MiddleCenter);
+                    GameLocalization.Text("ending_title"), 18, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(endingTitle);
                 if (living) ChoiceTimeline(conclusion.transform);
                 Text finalWords = Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
@@ -3148,7 +3148,7 @@ namespace Evergrove.UnityClient
             // The pages lie on the sheet's own paper: no card inside the sheet (I128).
             var journal = Card(journalContent, "A living journal", new Color(0f, 0f, 0f, 0f));
             Text journalTitle = Label(journal.transform, "Journal title",
-                GameLocalization.Text("journal_title"), 15, 30, Leaf, TextAnchor.MiddleCenter);
+                GameLocalization.Text("journal_title"), 18, 30, Leaf, TextAnchor.MiddleCenter);
             Emphasize(journalTitle);
             // A painted scrapbook: two pages to a row, each with the painting of
             // the choice, the neighbor who remembers it, and their written line.
