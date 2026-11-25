@@ -2131,11 +2131,12 @@ namespace Evergrove.UnityClient
                 MosseloraArt.Round(plateImage, new Color(1f, 0.973f, 0.918f, 0.94f), 10);
                 plateImage.raycastTarget = false;
                 var plateGroup = plate.AddComponent<HorizontalLayoutGroup>();
-                plateGroup.padding = new RectOffset(8, 8, 1, 2);
+                plateGroup.padding = new RectOffset(10, 10, 2, 3);
                 plateGroup.childControlWidth = true;
                 plateGroup.childControlHeight = true;
                 plateGroup.childForceExpandWidth = false;
-                caption = Label(plate.transform, "Caption text", label, 14, 0, Ink, TextAnchor.MiddleCenter);
+                // 16pt: a cold read found the names too small to read at arm's length (I137).
+                caption = Label(plate.transform, "Caption text", label, 16, 0, Ink, TextAnchor.MiddleCenter);
             }
             else
                 caption = Label(node.transform, "Caption", label, 15, 0, Ink, TextAnchor.MiddleCenter);
@@ -2460,7 +2461,7 @@ namespace Evergrove.UnityClient
                 iconImage.raycastTarget = false;
             }
             Text title = Label(nameRow, "Stream name",
-                name.Length == 0 ? " " : mark != null ? name.Substring(0, split) : name, 14, 0, Moss,
+                name.Length == 0 ? " " : mark != null ? name.Substring(0, split) : name, 16, 0, Moss, // was 14 (I137)
                 TextAnchor.MiddleCenter);
             Emphasize(title);
             // Spoken position along the creek, not shown: the stones show it.
