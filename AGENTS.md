@@ -21,7 +21,7 @@ Build **distinctive, accessible, mobile-first games for adults aged 40 and older
 
 ## Naming: Mosselora = Evergrove
 
-**Mosselora** is the public product name (app, store listing, web site at mosselora.com). **Evergrove** is its *internal codename* and remains in paths (`games/evergrove/`), code namespaces, bundle IDs, docs and the decision log. Do not rename internal identifiers. Use "Mosselora" in anything a player or store reviewer sees. Brand masters live in `games/evergrove/brand/` (`mosselora-logo.png`, `mosselora-app-icon-1024.png`); the site and Unity project use copies of them.
+**Mosselora** is the public product name (app, store listing, web site at mosselora.com). **Evergrove** is its *internal codename* and remains in paths (`games/evergrove/`), code namespaces, bundle IDs, docs and the decision log. Do not rename internal identifiers. Use "Mosselora" in anything a player or store reviewer sees. Brand masters live in `games/evergrove/brand/` (`mosselora-logo.png`, `mosselora-app-icon-1024.png`); the site and Unity project use copies of them. Its end-game direction and taste charter: `games/evergrove/docs/specs/proposals/endgame-village-2026-11-25.md`.
 
 ## Source of truth
 
