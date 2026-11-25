@@ -66,6 +66,7 @@ namespace Evergrove.UnityClient
         // The neighbor's speech floats over the page (I127), so talking never
         // scrolls the board away or pushes the header off screen.
         private GameObject neighborLayer;
+        private GameObject pinnedActions; // the memory card's actions, held at the screen's foot (I164)
         private int neighborShown = -1;
         private bool confirmReset;
         private bool soundOn;
@@ -2083,6 +2084,56 @@ namespace Evergrove.UnityClient
             if (gentleMotion) hand.AddComponent<GhostPress>();
         }
 
+        // Holds a row of primary actions at the foot of the screen over a soft paper
+        // fade, so "continue" is always in reach at any text size; the page keeps
+        // an empty space of the same height so its end can scroll clear (I164).
+        private void PinToFoot(Transform row)
+        {
+            if (row == null || scrollArea == null) return;
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)row);
+            float rowHeight = Mathf.Max(64f, LayoutUtility.GetPreferredHeight((RectTransform)row));
+            float barHeight = rowHeight + 30f;
+            pinnedActions = Node("Pinned actions", scrollArea);
+            pinnedActions.transform.SetSiblingIndex(1); // above the page, under menus and chrome
+            var bar = pinnedActions.GetComponent<RectTransform>();
+            bar.anchorMin = new Vector2(0f, 0f);
+            bar.anchorMax = new Vector2(1f, 0f);
+            bar.pivot = new Vector2(0.5f, 0f);
+            bar.sizeDelta = new Vector2(0f, barHeight + 26f);
+            bar.anchoredPosition = Vector2.zero;
+            var fade = Node("Paper fade", pinnedActions.transform);
+            var fadeRect = fade.GetComponent<RectTransform>();
+            Fill(fadeRect);
+            fadeRect.localScale = new Vector3(1f, -1f, 1f); // TopFade, flipped: solid at the foot
+            var fadeImage = fade.AddComponent<Image>();
+            fadeImage.sprite = MosseloraArt.TopFade();
+            fadeImage.color = Paper;
+            fadeImage.raycastTarget = false;
+            var solid = Node("Paper", pinnedActions.transform);
+            var solidRect = solid.GetComponent<RectTransform>();
+            solidRect.anchorMin = Vector2.zero;
+            solidRect.anchorMax = new Vector2(1f, 0f);
+            solidRect.pivot = new Vector2(0.5f, 0f);
+            solidRect.sizeDelta = new Vector2(0f, barHeight * 0.62f);
+            var solidImage = solid.AddComponent<Image>();
+            solidImage.color = Paper;
+            solidImage.raycastTarget = false;
+            var keep = Node("Space for the pinned actions", content);
+            MinHeight(keep, barHeight);
+            int index = row.GetSiblingIndex();
+            row.SetParent(pinnedActions.transform, false);
+            var layout = row.GetComponent<LayoutElement>();
+            if (layout == null) layout = row.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+            var rect = (RectTransform)row;
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = new Vector2(-34f - columnLeft - columnRight, rowHeight);
+            rect.anchoredPosition = new Vector2((columnLeft - columnRight) / 2f, 14f);
+            keep.transform.SetSiblingIndex(Mathf.Min(index, content.childCount - 1));
+        }
+
         // The neighbor's card rises a few points and fades in, like a word said.
         private IEnumerator RiseIn(RectTransform card)
         {
@@ -2875,6 +2926,12 @@ namespace Evergrove.UnityClient
                 Destroy(neighborLayer);
                 neighborLayer = null;
             }
+            if (pinnedActions != null)
+            {
+                pinnedActions.SetActive(false);
+                Destroy(pinnedActions);
+                pinnedActions = null;
+            }
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 GameObject old = content.GetChild(i).gameObject;
@@ -3124,6 +3181,7 @@ namespace Evergrove.UnityClient
                         Rebuild(true);
                     }, 64, MosseloraTheme.WaterAction);
                 Width(continueButton, 160, 1f);
+                PinToFoot(next);
             }
             else if (world.Completed)
             {
