@@ -1184,9 +1184,9 @@ namespace Evergrove.UnityClient
                         showJournal = true;
                         Rebuild();
                         if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
-                    }, 54, MosseloraTheme.QuietAction, false,
-                    world.Choices.Length.ToString(CultureInfo.InvariantCulture));
+                    }, 54, MosseloraTheme.QuietAction);
                 PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+                MarkUnreadMemory(book);
             }
         }
 
@@ -1456,10 +1456,9 @@ namespace Evergrove.UnityClient
                         if (showJournal) menuOpen = false;
                         Rebuild();
                         if (showJournal && journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
-                    }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                    // The memory count makes the book read as "your collection", not "rules".
-                    false, world.Choices.Length.ToString(CultureInfo.InvariantCulture));
+                    }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
                 PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+                if (!showJournal) MarkUnreadMemory(book);
             }
         }
 
@@ -2402,11 +2401,41 @@ namespace Evergrove.UnityClient
             scroll.verticalNormalizedPosition = 1f - Mathf.Clamp01((targetTop - RevealMarginPx) / distance);
         }
 
+        // The book wears the same parchment mark as a neighbour with news (I80)
+        // while it holds a memory the player has not opened yet. It replaces the
+        // bare count, which a review found meaningless on the button (I112).
+        private const string JournalSeenKey = "evergrove:journal-seen";
+
+        private void MarkUnreadMemory(Button book)
+        {
+            int seen = PlayerPrefs.GetInt(JournalSeenKey, 0);
+            if (seen > world.Choices.Length)
+            {
+                // Read in another garden (restored or new): this garden's memories so far count as seen.
+                PlayerPrefs.SetInt(JournalSeenKey, world.Choices.Length);
+                PlayerPrefs.Save();
+                return;
+            }
+            if (world.Choices.Length == seen) return;
+            var note = MosseloraArt.Ornament(book.transform, "Has a new memory", MosseloraArt.Rounded(12),
+                new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(24f, 24f), new Vector2(-4f, -4f));
+            if (note == null) return;
+            note.preserveAspect = false;
+            note.color = MosseloraTheme.CardFill;
+            MosseloraArt.Lift(note, 1.5f, 0.22f);
+            MosseloraArt.Ornament(note.transform, "Sprig mark", MosseloraArt.Load(MosseloraArt.Sprout),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(17f, 17f), Vector2.zero);
+            if (gentleMotion) BloomPulse.Add(note.gameObject, 0.7f, 0.18f);
+        }
+
         private void MemoryJournal()
         {
             // The toggle is the book in the floating chrome (BuildChrome); the
             // scrapbook rises as its own sheet instead of lengthening the page.
             if (!showJournal) return;
+            // Opening the book reads every memory so far: its new-memory mark clears (I112).
+            PlayerPrefs.SetInt(JournalSeenKey, world.Choices.Length);
+            PlayerPrefs.Save();
             RectTransform pageRoot = content;
             content = journalContent;
             SheetClose(journalContent, "Close journal", () => { showJournal = false; Rebuild(); });
