@@ -8,7 +8,7 @@
 
 ## 0. The one sentence
 
-**Restore the water, and a living village grows where you choose, among neighbours who remember what you made.**
+**Restore the water, and a living village grows where you choose, among neighbours and animals who remember what you made, a garden that grandparents, parents and grandchildren tend together.**
 
 The water puzzle stays the heart of the game. Everything else in the village is something the puzzle earned.
 
@@ -64,10 +64,29 @@ Rotate tiles until one leak-free stream runs from spring to garden. A choice roo
 - More villagers can arrive as the village grows (a baker when you rebuild the bread oven, a beekeeper with the hives). Each one is authored, with 3–5 memories.
 - No affection meters, no needs, no guilt.
 
+### 3.4b Animals who come to live there
+- **Animals arrive because of what you made**, never at random: a bug hotel brings beetles and ladybirds, the hedgehog house brings a hedgehog, the lily pond brings frogs and a heron, beehives and lavender bring bees, nesting boxes bring blue tits, the duck house brings ducks, an orchard brings a fox at dusk, the barn brings an owl.
+- They live on the map: the hedgehog snuffles under your hedge, the ducks paddle the creek you restored. Tap one and it reacts (a hop, a quack, a purr). No feeding chores, no needs, and nothing ever leaves because you were away.
+- Each animal is a found entry in the almanac, with where it came from ("came for your lily pond").
+- Target: about 40 animals, each tied to one or more catalogue items, so building is also an invitation.
+
+### 3.4c A village that grows its people
+- The cast grows from three to about **12 neighbours**, each arriving with something you built: the baker with the bread oven, a beekeeper with the hives, a boatwright with the boathouse, a schoolteacher with the school bell, a potter with the kiln, two children who claim the tree house.
+- Every newcomer is authored (a portrait, a voice, 3–5 true memories) and lives where they arrived. Small honest moments between them: the baker brings bread to the potter. No relationship meters.
+
 ### 3.5 Seasons, chapters and generations
 - A garden is 12 streams across a year of progress (not the calendar).
 - A finished garden becomes a **page in the village book** (its map, its memories, its festival painting). A new garden starts downstream and inherits one landmark (EG-109).
 - The **valley view** shows your gardens side by side along the creek: the long-term home screen.
+
+### 3.5b Played across generations (the family garden)
+Mosselora is a game **grandparents, parents and grandchildren can play together, gently**. This is what "generations" means here, as well as gardens handed down the valley.
+- **One phone, passed hand to hand.** Sitting together, anyone can take a turn: a child turns tiles, a grandparent chooses what to grow. No accounts, no logins. The board is readable without reading.
+- **Family gardeners.** Each person can pick a painted gardener badge (no names required). What each of them planted or built is remembered as theirs: "Grandma planted the plum tree; Leo built the tree house." The book shows who made what.
+- **Kid-safe by design, not by a separate mode:** no ads, no purchases, no links out, no chat, no text needed to play. Large targets, gentle motion, nothing scary.
+- **A valley that passes down.** Each family member can start their own garden downstream of the others, so the family's valley grows side by side. A postcard of the family valley can be shared to relatives through the share sheet.
+- **Together, not competing.** No scores between family members, no leaderboards. Grandparents who play daily can leave a small gift in the garden (a planted seed, a note on the signpost) for a grandchild's next visit on the same device.
+- **Primary audience stays adults 40+:** they are the daily players, and the family is who they play with. Child-directed store categories and privacy rules (COPPA, GDPR-K) need review before any "for kids" claim (§9).
 
 ### 3.6 The almanac
 - A painted collection book of all 200 items: found ones in colour, with where and when you made them; unfound ones as soft pencil silhouettes.
@@ -99,6 +118,8 @@ Economies, currencies, shops, energy, timers, streaks, crafting chains, worker m
 | **E5: Water shapes the land** | Creek extends per stream; greening; water-loving items | The rule explained by the picture alone in a cold read |
 | **E6: Neighbours walk** | Villagers path between your things; true remarks | Lines traceable to save state (test); not repetitive over 12 streams |
 | **E7: Generations and valley** | Finished garden kept as a page; downstream new garden inherits a landmark | Save and file migration tests; ≥30% of replays materially different (EG-109) |
+| **E6b: Animals and newcomers** | Animals drawn by items; neighbours arriving with buildings | Each line and each arrival traceable to save state (tests); animals readable and charming at 80 px |
+| **E7b: Family garden** | Gardener badges, "who made what", pass-and-play turns | A grandparent and child play 10 min together unaided (session probe); no reading needed for the child's turns |
 | **E8: Sound and touch pass** | Per-family sounds, creek ambience scaling | Sound-off parity; no annoyance in M3 |
 | **E9: Polish to release** | Every screen passes the taste review (§1) | Real-device QA, accessibility review, store assets |
 
@@ -136,3 +157,4 @@ Each phase gets its own iteration logs (`docs/improvements/I*`), tests in `Tests
 - Nothing here overrides store policy, privacy, offline play or the release gates (M5/M6).
 - The M3 first-session usability gate and the M4 comparison stay as planned. The village grows in parallel, and their results can cut it back.
 - Names, memories and catalogue text are English-only until translated and natively reviewed.
+- Any claim that the game is for children (store "Kids" category, child-directed marketing) needs a privacy and store-policy review first (COPPA, GDPR-K, Apple Kids Category, Google Families). The design stays kid-safe either way.

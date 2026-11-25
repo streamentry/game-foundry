@@ -451,6 +451,33 @@ def main() -> None:
             part = fit(trim(cell, 2), 300, 150)
             save(part, name, border=int(part.height * 0.45))
 
+    # The garden catalogue (I172/I173): 8 Codex sheets of 25 painted items each,
+    # sliced in grid order into tree-NN, flower-NN and build-NN.
+    for prefix, sheets in (("tree", ("trees-a", "trees-b")),
+                           ("flower", ("flowers-a", "flowers-b")),
+                           ("build", ("builds-a", "builds-b", "builds-c", "builds-d"))):
+        index = 0
+        for sheet_name in sheets:
+            sheet = master("catalog-" + sheet_name)
+            if not sheet:
+                index += 25
+                continue
+            for cell in grid(sheet.convert("RGBA"), 5, 5):
+                save(fit(trim(cell, 4), 192, 192), f"{prefix}-{index:02d}")
+                index += 1
+
+    # The garden catalogue (I173): 8 Codex sheets of 25 painted items, 5x5,
+    # in GardenCatalog order -> tree-00..49, flower-00..49, build-00..99.
+    for sheet, prefix, start in (("catalog-trees-a", "tree", 0), ("catalog-trees-b", "tree", 25),
+                                 ("catalog-flowers-a", "flower", 0), ("catalog-flowers-b", "flower", 25),
+                                 ("catalog-builds-a", "build", 0), ("catalog-builds-b", "build", 25),
+                                 ("catalog-builds-c", "build", 50), ("catalog-builds-d", "build", 75)):
+        art = master(sheet)
+        if not art:
+            continue
+        for offset, cell in enumerate(grid(art.convert("RGBA"), 5, 5)):
+            save(fit(trim(cell, 4), 192, 192), f"{prefix}-{start + offset:02d}")
+
     sign = master("stream-sign")
     if sign:
         # A painted plank for the stream's name (I162): faint speckles cleared,

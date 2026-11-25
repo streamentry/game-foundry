@@ -73,6 +73,9 @@ namespace Evergrove.UnityClient
         private int neighborShown = -1;
         private bool confirmReset;
         private bool soundOn;
+        // Which garden this is (0, 1, 2…): picks the catalogue's items (I172).
+        private const string GardenNumberKey = "evergrove:garden-number";
+        private int gardenNumber;
         // WCAG 2.3.3: motion triggered by play (pipe swing, bloom, butterfly,
         // glide) can be switched off. Off means snap, still and instant.
         private const string GentleMotionKey = "evergrove:gentle-motion:v1";
@@ -213,6 +216,17 @@ namespace Evergrove.UnityClient
             // An unreadable save cannot silently be overwritten by fresh progress.
             saveFailed = WorldStore.RecoveryBlocked;
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
+            gardenNumber = Mathf.Max(0, PlayerPrefs.GetInt(GardenNumberKey, 0));
+            PaintedVillage.ItemSprite = (family, nth) =>
+            {
+                // The nth tree (or build, or flowers) in the village is the one
+                // chosen at that family's nth choice.
+                if (world == null) return null;
+                int[] made = world.Choices;
+                for (int i = 0, seen = 0; i < made.Length; i++)
+                    if (made[i] == family && seen++ == nth) return ItemArt(i, family, false);
+                return null;
+            };
             gentleMotion = PlayerPrefs.GetInt(GentleMotionKey, 1) == 1;
             PipeGraphic.Animate = gentleMotion;
             // Default to the proven-in-code 2D art; keep the experimental
@@ -1182,7 +1196,7 @@ namespace Evergrove.UnityClient
             Height(strip, rows * cellHeight + (rows - 1) * 6f);
             for (int i = 0; i < chosen.Length; i++)
             {
-                Sprite icon = MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]);
+                Sprite icon = ItemArt(i, chosen[i]);
                 var cell = Node("Chapter choice", strip.transform);
                 Sprite stone = PathStone(i, false, false);
                 if (stone != null)
@@ -1231,7 +1245,7 @@ namespace Evergrove.UnityClient
                 faceImage.preserveAspect = true;
                 faceImage.raycastTarget = false;
             }
-            Text line = Label(memory, name, LocalizedVillage.MemoryAt(past, index), 14, 0, Ink, TextAnchor.MiddleLeft);
+            Text line = Label(memory, name, Remembered(past, index), 14, 0, Ink, TextAnchor.MiddleLeft);
             Narrate(line);
             line.GetComponent<LayoutElement>().flexibleWidth = 1f;
         }
@@ -1659,7 +1673,7 @@ namespace Evergrove.UnityClient
             int split = nextStop.IndexOf(" · ", System.StringComparison.Ordinal);
             int[] past = world.Choices;
             Sprite mark = split > 0 && past.Length > 0
-                ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
+                ? ItemArt(past.Length - 1, past[past.Length - 1]) : null;
             Transform row = CenteredRowIn(stack, "Next stream row");
             row.GetComponent<HorizontalLayoutGroup>().spacing = 6;
             Transform outer = row;
@@ -2186,6 +2200,50 @@ namespace Evergrove.UnityClient
             keep.transform.SetSiblingIndex(Mathf.Min(index, content.childCount - 1));
         }
 
+        // ---- I172: the garden catalogue (Core/GardenCatalog) at every choice.
+        private GardenItem ItemAt(int chapter, int family)
+        {
+            int safe = Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1);
+            return GardenCatalog.For(gardenNumber, safe, (VillageChoice)Mathf.Clamp(family, 0, 2));
+        }
+
+        // The painted item, or the family's own art while an item's art is missing.
+        private Sprite ItemArt(int chapter, int family, bool fallback = true)
+        {
+            Sprite art = MosseloraArt.Load(ItemAt(chapter, family).Art);
+            return art != null || !fallback ? art : MosseloraArt.ChoiceIcon((VillageChoice)Mathf.Clamp(family, 0, 2));
+        }
+
+        // "Mira remembers the quince tree you planted." English names the item; other
+        // languages keep their reviewed family lines until the catalogue is translated.
+        private string Remembered(int[] choices, int index)
+        {
+            if (GameLocalization.Current != "en" || choices == null || index < 0 || index >= choices.Length)
+                return LocalizedVillage.MemoryAt(choices, index);
+            return LocalizedVillage.Name(choices[index]) + " remembers " + ItemAt(index, choices[index]).Memory + ".";
+        }
+
+        // The chosen item's painted icon on a cream disc, at a painting's lower-left.
+        private void ItemBadge(Transform painting, int chapter, int family)
+        {
+            Sprite art = ItemArt(chapter, family, false);
+            if (art == null) return;
+            var disc = MosseloraArt.Ornament(painting, "What was made", MosseloraArt.Rounded(30),
+                new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(70f, 70f), new Vector2(8f, 6f));
+            if (disc == null) return;
+            disc.preserveAspect = false;
+            disc.color = MosseloraTheme.CardFill;
+            MosseloraArt.Lift(disc, 2f, 0.25f);
+            MosseloraArt.Ornament(disc.transform, "Item", art, new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f), new Vector2(58f, 58f), Vector2.zero);
+        }
+
+        private string ChoiceTitle(VillageChoice choice)
+        {
+            return GameLocalization.Current == "en"
+                ? ItemAt(world.Round, (int)choice).Card : LocalizedVillage.Choice(choice);
+        }
+
         // A slim painted wooden plank (I162) holding a row of icon + name, or null
         // when the art is missing. Its height is set, not taken from the sprite.
         private Transform PaintedSign(Transform parent)
@@ -2559,11 +2617,10 @@ namespace Evergrove.UnityClient
         // "Change your choice" shows what would change: the painted landmark you
         // just chose, with a small turn-back mark at its corner (I87). Two opposed
         // arrows read as "shuffle" in three AI reviews.
-        private static void ShowChoiceToChange(Button button, VillageChoice chosen)
+        private static void ShowChoiceToChange(Button button, Sprite painted)
         {
             Transform iconNode = button.transform.Find("Icon");
             Image icon = iconNode != null ? iconNode.GetComponent<Image>() : null;
-            Sprite painted = MosseloraArt.ChoiceIcon(chosen);
             if (icon == null || painted == null) return;
             icon.sprite = painted;
             icon.color = Color.white; // painted art, not a tinted glyph
@@ -2795,7 +2852,7 @@ namespace Evergrove.UnityClient
             int split = name.IndexOf(" · ", StringComparison.Ordinal);
             int[] past = world.Choices;
             Sprite mark = split > 0 && past.Length > 0
-                ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
+                ? ItemArt(past.Length - 1, past[past.Length - 1]) : null;
             // The stream's name is painted on a small wooden sign by the path,
             // part of the scenery rather than a caption (I162).
             Transform nameRow = CenteredRowIn(row.transform, "Stream name row");
@@ -3188,6 +3245,8 @@ namespace Evergrove.UnityClient
                     sceneImage.sprite = vignette;
                     sceneImage.preserveAspect = true;
                     sceneImage.raycastTarget = false;
+                    // What exactly was grown or built, painted in the corner (I172).
+                    ItemBadge(scene.transform, world.Choices.Length - 1, keeper);
                 }
                 // Sideways the left painting already shows who remembers, and the
                 // face would push the continue arrow off a 402 pt screen (I115).
@@ -3204,7 +3263,7 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text("memory_title"), 18, 31, Leaf, TextAnchor.MiddleCenter);
                 Emphasize(momentTitle);
                 // The chapter header lives in the scrapbook; here, the memory and its effect.
-                Text story = Label(moment.transform, "Story", LocalizedVillage.Memory(world), 18, 0, Ink,
+                Text story = Label(moment.transform, "Story", Remembered(world.Choices, world.Choices.Length - 1), 18, 0, Ink,
                     TextAnchor.MiddleCenter);
                 Narrate(story, true);
                 Narrate(Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 17, 0, Ink,
@@ -3233,7 +3292,7 @@ namespace Evergrove.UnityClient
                     showingMemory = false;
                     Rebuild(false);
                 }, 76, MosseloraTheme.QuietAction, false, null, false, 0, 0, true); // a round token (I133)
-                ShowChoiceToChange(changeButton, (VillageChoice)world.Choices[world.Choices.Length - 1]);
+                ShowChoiceToChange(changeButton, ItemArt(world.Choices.Length - 1, world.Choices[world.Choices.Length - 1]));
                 Button continueButton = IconButton(next, "Continue", GameLocalization.Text("continue"),
                     MosseloraArt.IconContinue, () => {
                         showingMemory = false;
@@ -3454,7 +3513,7 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text("stream", i + 1, PuzzleCatalog.Count), 13, 0,
                     new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
                 streamName.GetComponent<LayoutElement>().ignoreLayout = true;
-                Sprite icon = i < chosen.Length ? MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]) : null;
+                Sprite icon = i < chosen.Length ? ItemArt(i, chosen[i]) : null;
                 if (icon != null)
                 {
                     var picture = Node("Journal picture", page.transform);
@@ -3469,7 +3528,7 @@ namespace Evergrove.UnityClient
                             new Vector2(1f, 0f), new Vector2(30f, 30f), new Vector2(0f, -4f));
                 }
                 // One remembered sentence on the page; the full chapter record is spoken.
-                string remembered = i < chosen.Length ? LocalizedVillage.MemoryAt(chosen, i) : entries[i];
+                string remembered = i < chosen.Length ? Remembered(chosen, i) : entries[i];
                 // The journal is read, not glanced at: body size, as on the memory card (I98).
                 Narrate(Label(page.transform, "Remembered line", remembered, 17, 0, Ink, TextAnchor.UpperCenter));
                 Text record = Label(page.transform, "Recorded cause and effect", entries[i], 14, 0,
@@ -3555,8 +3614,9 @@ namespace Evergrove.UnityClient
                 if (face != null)
                     MosseloraArt.Ornament(picture.transform, "Who remembers", face, new Vector2(1f, 0f),
                         new Vector2(1f, 0f), new Vector2(54f, 54f), new Vector2(-8f, 6f));
+                ItemBadge(picture.transform, index, chosen[index]);
             }
-            Narrate(Label(open.transform, "Remembered line", LocalizedVillage.MemoryAt(chosen, index), 20, 0,
+            Narrate(Label(open.transform, "Remembered line", Remembered(chosen, index), 20, 0,
                 Ink, TextAnchor.MiddleCenter), true);
             // Shown: only what changed ("The crossing connects both banks."). The
             // full record, with its "Chapter 1 · Orin · …" heading, stays spoken.
@@ -3752,7 +3812,9 @@ namespace Evergrove.UnityClient
                     landmarkNode.AddComponent<LandmarkGraphic>()
                         .Configure(Mathf.Clamp(world.BoardVariant, 1, 3));
                     // The thing that roots it, painted, over the badge: tree, bridge or flowers.
-                    Sprite holder = MosseloraArt.ChoiceIcon((VillageChoice)(Mathf.Clamp(world.BoardVariant, 1, 3) - 1));
+                    int rootedFamily = Mathf.Clamp(world.BoardVariant, 1, 3) - 1;
+                    Sprite holder = world.Round > 0 ? ItemArt(world.Round - 1, rootedFamily)
+                        : MosseloraArt.ChoiceIcon((VillageChoice)rootedFamily);
                     if (holder != null)
                         MosseloraArt.Ornament(landmarkNode.transform, "Rooted by", holder, new Vector2(0f, 1f),
                             new Vector2(0f, 1f), new Vector2(0.46f, 0.46f) * tileSize, new Vector2(2f, -2f));
@@ -4249,7 +4311,7 @@ namespace Evergrove.UnityClient
             stack.childForceExpandWidth = !wide;
             stack.childForceExpandHeight = false;
             Transform words = node.transform;
-            Sprite icon = MosseloraArt.ChoiceIcon(choice);
+            Sprite icon = ItemArt(world.Round, (int)choice);
             if (icon != null)
             {
                 var picture = Node("Choice picture", node.transform);
@@ -4282,13 +4344,13 @@ namespace Evergrove.UnityClient
                 words = column.transform;
             }
             TextAnchor align = wide ? TextAnchor.MiddleLeft : TextAnchor.UpperCenter;
-            Text title = Label(words, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink, align);
+            Text title = Label(words, "Choice name", ChoiceTitle(choice), 16, 0, Ink, align);
             Emphasize(title);
             // Picture first: the painting, the keeper and the name say it; the
             // consequence is spoken (and shown on the memory screen that follows).
             // A hidden "Caption" gives screen readers the full choice.
             Text spoken = Label(node.transform, "Caption",
-                LocalizedVillage.Choice(choice) + "\n" + LocalizedVillage.ChoiceOutcome(choice, world),
+                ChoiceTitle(choice) + "\n" + LocalizedVillage.ChoiceOutcome(choice, world),
                 14, 0, new Color(0f, 0f, 0f, 0f), align);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
         }
@@ -4317,7 +4379,7 @@ namespace Evergrove.UnityClient
             var pipe = channel.AddComponent<PipeGraphic>();
             pipe.Configure(PipeKind.Straight, 1, false, false, 0); // dry, as the player will first see it
             pipe.raycastTarget = false;
-            Sprite holder = MosseloraArt.ChoiceIcon(choice);
+            Sprite holder = ItemArt(world.Round, (int)choice);
             if (holder != null)
                 MosseloraArt.Ornament(tile.transform, "Rooted by", holder, new Vector2(0f, 1f),
                     new Vector2(0f, 1f), new Vector2(18f, 18f), new Vector2(1f, -1f));
@@ -5224,6 +5286,10 @@ namespace Evergrove.UnityClient
                 return;
             }
             world = WorldModel.New();
+            // A new garden meets the next twelve trees, flowers and builds (I172).
+            gardenNumber++;
+            PlayerPrefs.SetInt(GardenNumberKey, gardenNumber);
+            PlayerPrefs.Save();
             saveFailed = false;
             confirmReset = false;
             showJournal = false;
