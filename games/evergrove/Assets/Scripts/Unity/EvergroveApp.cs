@@ -3906,6 +3906,35 @@ namespace Evergrove.UnityClient
             // The tile shows its name like its neighbors ("Gentle chime"); the icon
             // and tone show on/off. The full sentence stays the spoken name (I76).
             ShowShortName(chimeTile);
+            // An even grid: every tile half the panel wide, the odd one out centred
+            // at the same width, instead of widths set by each caption (I143).
+            foreach (Transform settingsRow in panel.transform) EvenTiles(settingsRow);
+        }
+
+        private static void EvenTiles(Transform row)
+        {
+            var group = row.GetComponent<HorizontalLayoutGroup>();
+            if (group == null) return;
+            group.childForceExpandWidth = false; // force-expand would give each spacer a full share
+            int tiles = row.childCount;
+            for (int i = 0; i < tiles; i++)
+            {
+                var layout = row.GetChild(i).GetComponent<LayoutElement>();
+                if (layout == null) layout = row.GetChild(i).gameObject.AddComponent<LayoutElement>();
+                if (layout.ignoreLayout) continue;
+                layout.minWidth = 0f;
+                layout.preferredWidth = 0f;
+                layout.flexibleWidth = 1f;
+            }
+            if (tiles != 1) return;
+            // A lone tile: quarter-width spacers either side keep it half wide.
+            for (int side = 0; side < 2; side++)
+            {
+                var spacer = new GameObject("Even grid spacer", typeof(RectTransform));
+                spacer.transform.SetParent(row, false);
+                spacer.AddComponent<LayoutElement>().flexibleWidth = 0.5f;
+                if (side == 0) spacer.transform.SetAsFirstSibling();
+            }
         }
 
         // Shows the part of a "Name: state (hint)" caption before the colon, and
