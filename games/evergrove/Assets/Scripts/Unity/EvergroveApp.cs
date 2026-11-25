@@ -3866,6 +3866,11 @@ namespace Evergrove.UnityClient
             // could not tell from pictures alone that a tap turns a pipe (I64).
             Text words = Label(bubble.transform, "Coach words", message, 16, 0, Ink, TextAnchor.MiddleCenter);
             Emphasize(words);
+            // Pictures only (I151): the board now demonstrates the turn (I138 arrow,
+            // I147 finger), and a blind A/B read understood the goal and the turn
+            // as well without the sentence. The sentence stays spoken (screen readers).
+            words.color = new Color(0f, 0f, 0f, 0f);
+            words.GetComponent<LayoutElement>().ignoreLayout = true;
             var tail = Node("Coach tail", bubble.transform);
             tail.AddComponent<LayoutElement>().ignoreLayout = true;
             var tailRect = tail.GetComponent<RectTransform>();
