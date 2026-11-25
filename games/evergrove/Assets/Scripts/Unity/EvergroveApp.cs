@@ -32,6 +32,7 @@ namespace Evergrove.UnityClient
         private Font font;
         private Font baseFont;
         private Font displayFont; // optional rounded heading face (iOS)
+        private Font bookFont;    // optional book serif for the story's own voice (iOS, I117)
         private bool languagePicker;
         private RectTransform content;
         private RectTransform scrollArea;
@@ -220,6 +221,7 @@ namespace Evergrove.UnityClient
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
             displayFont = RoundedDisplayFont();
+            bookFont = BookFont();
             LocaleRuntime.Initialize();
             TextScale.Initialize();
             BoardSize.Initialize();
@@ -245,6 +247,30 @@ namespace Evergrove.UnityClient
         // Rounded bold display face for English headings and actions, as in the
         // painted references. iOS ships Arial Rounded MT Bold (a single upright
         // face); elsewhere headings fall back to the runtime face in bold. Never bundled.
+        // A book serif already on the device (iOS ships Charter and Georgia).
+        // Never bundled; without one the story keeps the runtime face.
+        private static Font BookFont()
+        {
+            try
+            {
+                string[] installed = Font.GetOSInstalledFontNames();
+                foreach (string wanted in new[] { "Charter", "Georgia" })
+                    foreach (string name in installed)
+                        if (name.StartsWith(wanted, StringComparison.OrdinalIgnoreCase))
+                        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                            Debug.Log("Mosselora book face: " + name);
+#endif
+                            return Font.CreateDynamicFontFromOSFont(wanted, 18);
+                        }
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning("Mosselora book font lookup unavailable: " + exception.GetType().Name);
+            }
+            return null;
+        }
+
         private static Font RoundedDisplayFont()
         {
             try
@@ -261,6 +287,21 @@ namespace Evergrove.UnityClient
         }
 
         // Headings and action captions: rounded display face in English, bold elsewhere.
+        // The story's own voice (memories, what neighbours say, the ending) is set
+        // like a book; labels and instructions keep the rounded sans (I117).
+        // Upright roman throughout: bold serif ran wide and orphaned a word, and a
+        // thin italic aside lost contrast on the paper for older eyes (I117).
+        private void Narrate(Text text, bool lead = false)
+        {
+            if (bookFont != null && font == baseFont && GameLocalization.Current == "en")
+            {
+                text.font = bookFont;
+                text.fontStyle = FontStyle.Normal;
+            }
+            else if (lead)
+                Emphasize(text);
+        }
+
         private void Emphasize(Text text)
         {
             if (displayFont != null && font == baseFont && GameLocalization.Current == "en")
@@ -1113,6 +1154,7 @@ namespace Evergrove.UnityClient
                 faceImage.raycastTarget = false;
             }
             Text line = Label(memory, name, LocalizedVillage.MemoryAt(past, index), 14, 0, Ink, TextAnchor.MiddleLeft);
+            Narrate(line);
             line.GetComponent<LayoutElement>().flexibleWidth = 1f;
         }
 
@@ -1802,8 +1844,8 @@ namespace Evergrove.UnityClient
             Text speaker = Label(bubble.transform, "Neighbor name",
                 LocalizedVillage.Name(speakingWith), 15, 0, Leaf, TextAnchor.MiddleLeft);
             Emphasize(speaker);
-            Label(bubble.transform, "What they say",
-                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft);
+            Narrate(Label(bubble.transform, "What they say",
+                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
                 MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
                 MosseloraTheme.ForestAction);
@@ -2433,8 +2475,8 @@ namespace Evergrove.UnityClient
                 // Puzzle pages show only play and the place; the story lines live
                 // on the hub, the memory screen and the ending.
                 if (!firstPuzzle && !memoryScreen && !solvedBoard && !puzzleScreen)
-                    Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
-                        TextAnchor.MiddleCenter);
+                    Narrate(Label(content, "World consequence", LocalizedVillage.Consequence(world), 16, 52, Ink,
+                        TextAnchor.MiddleCenter));
                 if (world.Choices.Length > 0 && !memoryScreen && !puzzleScreen)
                     KeeperLine(content, "Remembered choice");
             }
@@ -2484,9 +2526,9 @@ namespace Evergrove.UnityClient
                 // The chapter header lives in the scrapbook; here, the memory and its effect.
                 Text story = Label(moment.transform, "Story", LocalizedVillage.Memory(world), 18, 0, Ink,
                     TextAnchor.MiddleCenter);
-                Emphasize(story);
-                Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 16, 0, Ink,
-                    TextAnchor.MiddleCenter);
+                Narrate(story, true);
+                Narrate(Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 17, 0, Ink,
+                    TextAnchor.MiddleCenter));
                 Sprite memorySprig = MosseloraArt.Load(MosseloraArt.Sprig);
                 MosseloraArt.Ornament(moment.transform, "Sprig left", memorySprig, new Vector2(0f, 1f),
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(10f, -8f));
@@ -2536,7 +2578,7 @@ namespace Evergrove.UnityClient
                 if (living) ChoiceTimeline(conclusion.transform);
                 Text finalWords = Label(conclusion.transform, "Final words", LocalizedVillage.Ending(world),
                     19, 0, Ink, TextAnchor.MiddleCenter);
-                Emphasize(finalWords);
+                Narrate(finalWords, true);
                 if (living) MemoryJournal();
                 ResetControls("Reset title", "Cancel reset", MosseloraTheme.WaterAction);
             }
@@ -2707,7 +2749,7 @@ namespace Evergrove.UnityClient
                 // One remembered sentence on the page; the full chapter record is spoken.
                 string remembered = i < chosen.Length ? LocalizedVillage.MemoryAt(chosen, i) : entries[i];
                 // The journal is read, not glanced at: body size, as on the memory card (I98).
-                Label(page.transform, "Remembered line", remembered, 17, 0, Ink, TextAnchor.UpperCenter);
+                Narrate(Label(page.transform, "Remembered line", remembered, 17, 0, Ink, TextAnchor.UpperCenter));
                 Text record = Label(page.transform, "Recorded cause and effect", entries[i], 14, 0,
                     new Color(0f, 0f, 0f, 0f), TextAnchor.UpperCenter);
                 record.GetComponent<LayoutElement>().ignoreLayout = true;
