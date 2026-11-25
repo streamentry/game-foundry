@@ -747,3 +747,21 @@ Current `HEAD` and `origin/main` are `47ad558274a37c2fd78840be6e4247c5bbecf027`;
 Fetched and fast-forward checked main at `1e4caa2445adc8eff9aa4ebec5725448534b4a63`. The existing Unity 6000.3.0f1 Editor bundle is on the external SSD and still fails macOS signature verification. Its Android and iOS modules sit beside the app bundle. The Unity CLI repair log identifies exhausted space on the download volume, and the partial Hub package fails verification. A separate download of the official arm64 Editor package is in progress. Verify its package signature and checksum before using it. The latest .NET suite passed 39,931 assertions. Xcode reports zero valid signing identities.
 
 Live checks returned HTTP 200 at the Astro site apex and API health endpoint. The API still reports prototype status with gameplay sync disabled. No signed build or store submission was produced by this recovery attempt.
+
+## 2026-11-25 — Mosselora: build toward the end-game village now
+
+**Decision (founder):** build Mosselora toward its end-game version, a calm village the player grows and shapes, now rather than after M4. Taste is the top priority, and the goal is to release a finished, polished game. Full design: [`games/evergrove/docs/specs/proposals/endgame-village-2026-11-25.md`](../../games/evergrove/docs/specs/proposals/endgame-village-2026-11-25.md).
+
+**What changes:** a 200-item garden catalogue (50 trees, 50 flowers, 100 things to build or mend; I171), then an almanac, a pannable garden map where the player places what they earn, neighbours who walk among the player's things, and generations of gardens down a valley. The water puzzle stays the core verb.
+
+**What we know:** the core loop, save system and painted UI exist, verified on simulators and an emulator. No adults 40+ have played any version. No physical-device test has been run.
+
+**Unknown:** whether players value the village over a pure puzzle (M4), whether placement is easy for players over 40 (M3 probe), and the device performance of a tile map.
+
+**Why:** founder direction. Three fixed choices (tree, bridge, flowers) and a fixed painting were judged too thin for daily play, and an open, shapeable garden is the end-game the vision describes.
+
+**Opposing case:** the specs hold village expansion until M4 proves the living world beats a puzzle-only control on identical boards. Building the village first risks large effort on a layer players may not value, and puzzle dilution.
+
+**Stop condition:** if M4 shows players prefer Puzzle Only, or M3 shows placement confuses players over 40, cut the village back to what players use.
+
+**Next observable action:** E1, the catalogue live with painted icons (I172–I173), verified on simulator tours.
