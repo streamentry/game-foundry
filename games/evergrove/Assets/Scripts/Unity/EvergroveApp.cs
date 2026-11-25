@@ -2288,8 +2288,9 @@ namespace Evergrove.UnityClient
             waterRect.pivot = new Vector2(0.5f, 0f);
             float before = rtl && flowsOn ? row.spacing + 3f : 3f;
             float after = !rtl && flowsOn ? row.spacing + 3f : 3f;
-            waterRect.offsetMin = new Vector2(-before, -3f);
-            waterRect.offsetMax = new Vector2(after, 3f);
+            // 9 pt: a 6 pt stroke was "easy to miss at phone size" in a cold-read (I124).
+            waterRect.offsetMin = new Vector2(-before, -4f);
+            waterRect.offsetMax = new Vector2(after, 5f);
             var waterImage = water.AddComponent<Image>();
             waterImage.sprite = MosseloraArt.Rounded(3);
             // Opaque, so the overlaps between stones leave no darker seams.
