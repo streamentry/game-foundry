@@ -4359,6 +4359,7 @@ namespace Evergrove.UnityClient
                     if (localPlaytest != null) localPlaytest.Solve(Time.unscaledTime);
 #endif
                     PlayChime();
+                    if (gentleMotion) Haptics.Success();
                     StartCoroutine(ScrollToDecision());
                 }
             }
@@ -4407,6 +4408,7 @@ namespace Evergrove.UnityClient
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
             PlayTock();
+            if (gentleMotion) Haptics.Tick(); // felt with the turn (I140)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
 #endif
