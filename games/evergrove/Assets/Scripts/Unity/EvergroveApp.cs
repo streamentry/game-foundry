@@ -289,6 +289,11 @@ namespace Evergrove.UnityClient
                 lastScreen = size;
                 lastSafeArea = safe;
                 FitSafeArea();
+                if (landscape != lastLandscape)
+                {
+                    lastLandscape = landscape;
+                    OnOrientationChanged();
+                }
             }
         }
 
@@ -466,19 +471,160 @@ namespace Evergrove.UnityClient
         // stretching every painting across a wide screen. Phones are unchanged.
         private const float TabletAspect = 0.62f;
         private const float MaxColumn = 480f;
-        private float columnInset;
+        private float columnLeft, columnRight;
+        // Landscape (I114): turning the phone opens the garden full height on the
+        // left and keeps play in a book-width column on the right.
+        private bool landscape, lastLandscape;
+        private RectTransform chromeBand;
+        private GameObject landscapeGarden;
 
         private void FitColumn()
         {
             if (viewportScaler == null || Screen.height <= 0) return;
             Rect safe = Screen.safeArea;
-            bool tablet = safe.height > 0f && safe.width / safe.height > TabletAspect;
-            viewportScaler.matchWidthOrHeight = tablet ? 1f : 0.5f;
+            if (safe.width <= 0f || safe.height <= 0f) return;
+            float aspect = safe.width / safe.height;
+            landscape = aspect > 1f;
+            bool tablet = !landscape && aspect > TabletAspect;
+            // A sideways phone keeps a phone's sizes: it scales to a 414-point-tall
+            // reference instead of shrinking the portrait page to fit its height.
+            bool landscapePhone = landscape && aspect >= 1.6f;
+            viewportScaler.referenceResolution = landscapePhone ? new Vector2(896, 414) : new Vector2(414, 896);
+            viewportScaler.matchWidthOrHeight = tablet || landscape ? 1f : 0.5f;
             float logicalWidth = safe.width / LiveCanvasScale();
-            columnInset = tablet ? Mathf.Max(0f, Mathf.Floor((logicalWidth - MaxColumn) / 2f)) : 0f;
+            if (landscape)
+            {
+                float width = Mathf.Clamp(Mathf.Floor(logicalWidth * 0.5f), 380f, MaxColumn);
+                columnLeft = Mathf.Max(0f, Mathf.Floor(logicalWidth - width));
+                columnRight = 0f;
+            }
+            else
+                columnLeft = columnRight = tablet ? Mathf.Max(0f, Mathf.Floor((logicalWidth - MaxColumn) / 2f)) : 0f;
             var column = content != null ? content.GetComponent<VerticalLayoutGroup>() : null;
             if (column != null)
-                column.padding = new RectOffset(17 + (int)columnInset, 17 + (int)columnInset, 15, 36);
+                // Sideways the column starts below the floating chrome, so the book never
+            // sits on the page's first card (I114).
+            column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight, landscape ? 82 : 15, 36);
+            if (chromeBand != null)
+            {
+                chromeBand.offsetMin = new Vector2(columnLeft, -104f);
+                chromeBand.offsetMax = Vector2.zero;
+            }
+            FitSheet(menuSheet, "Menu panel");
+            FitSheet(journalSheet, "Journal panel");
+        }
+
+        // Sheets stay a readable width when the phone is sideways (I114).
+        private void FitSheet(GameObject sheet, string panelName)
+        {
+            Transform panel = sheet != null ? sheet.transform.Find(panelName) : null;
+            if (panel == null) return;
+            var rect = (RectTransform)panel;
+            if (landscape)
+            {
+                rect.anchorMin = new Vector2(0.5f, 0f);
+                rect.anchorMax = new Vector2(0.5f, 0.92f);
+                rect.offsetMin = new Vector2(-260f, 0f);
+                rect.offsetMax = new Vector2(260f, 0f);
+            }
+            else
+            {
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = new Vector2(1f, 0.86f);
+                rect.offsetMin = new Vector2(8f, 0f);
+                rect.offsetMax = new Vector2(-8f, 0f);
+            }
+        }
+
+        // The phone turned: rebuild the hub (if open) and the page for the new shape.
+        private void OnOrientationChanged()
+        {
+            if (titleScreen != null)
+            {
+                Transform host = titleScreen.transform.parent;
+                titleScreen.SetActive(false);
+                Destroy(titleScreen);
+                titleScreen = null;
+                BuildTitleScreen(host);
+            }
+            Rebuild();
+        }
+
+        // Landscape only: the season's garden, full height, left of the play column.
+        private void LandscapeGarden(bool living)
+        {
+            if (landscapeGarden != null)
+            {
+                landscapeGarden.SetActive(false);
+                Destroy(landscapeGarden);
+                landscapeGarden = null;
+            }
+            if (!landscape || canvasRoot == null) return;
+            Rect safe = Screen.safeArea;
+            float split = (safe.xMin + columnLeft * LiveCanvasScale()) / Mathf.Max(1, Screen.width);
+            landscapeGarden = Node("Landscape garden", canvasRoot);
+            landscapeGarden.transform.SetSiblingIndex(1); // above the paper, under the page
+            var rect = landscapeGarden.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = new Vector2(split, 1f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            int[] story = world.Choices;
+            Sprite hero = world.Completed ? MosseloraArt.Load(MosseloraArt.EndingFestival) : null;
+            if (hero == null && living && story.Length > 0)
+            {
+                int last = story[story.Length - 1];
+                hero = MosseloraArt.Load(last == 0 ? MosseloraArt.VignetteTree
+                    : last == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
+            }
+            if (hero == null) hero = MosseloraArt.Load(MosseloraArt.HeroVillage);
+            GardenScene(landscapeGarden.transform, hero, living, false, Vector2.one, new Vector2(1f, 0.36f));
+        }
+
+        // Painting above, your village strip (real water, landmarks, neighbours) below,
+        // melting into the paper at the bottom and on the right edge.
+        private void GardenScene(Transform parent, Sprite hero, bool living, bool fromTitle,
+                                 Vector2 windowMax, Vector2 stripMax)
+        {
+            var window = Node("Village window", parent);
+            var windowRect = window.GetComponent<RectTransform>();
+            windowRect.anchorMin = Vector2.zero;
+            windowRect.anchorMax = windowMax;
+            windowRect.offsetMin = windowRect.offsetMax = Vector2.zero;
+            window.AddComponent<RectMask2D>();
+            if (hero != null)
+            {
+                var art = Node("Garden painting", window.transform);
+                Fill(art.GetComponent<RectTransform>());
+                var image = art.AddComponent<Image>();
+                image.sprite = hero;
+                image.raycastTarget = false;
+                var fit = art.AddComponent<AspectRatioFitter>();
+                fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fit.aspectRatio = MosseloraArt.Aspect(hero);
+            }
+            var side = Node("Garden melt right", window.transform);
+            var sideRect = side.GetComponent<RectTransform>();
+            sideRect.anchorMin = new Vector2(1f, 0f);
+            sideRect.anchorMax = new Vector2(1f, 1f);
+            sideRect.pivot = new Vector2(1f, 0.5f);
+            sideRect.sizeDelta = new Vector2(56f, 0f);
+            var sideImage = side.AddComponent<Image>();
+            sideImage.sprite = MosseloraArt.SideFade();
+            sideImage.color = Paper;
+            sideImage.raycastTarget = false;
+            if (!living) return;
+            var strip = Node("Your village", parent);
+            var stripRect = strip.GetComponent<RectTransform>();
+            stripRect.anchorMin = Vector2.zero;
+            stripRect.anchorMax = stripMax;
+            stripRect.offsetMin = stripRect.offsetMax = Vector2.zero;
+            var painting = strip.AddComponent<PaintedVillage>();
+            VillageScenePlan plan = VillageScenePlan.From(world);
+            painting.Build(0f, PaintedVillage.SeasonFor(plan.LandscapePhase, world.Completed));
+            if (painting.Ready)
+                painting.Show(plan.Chapter, plan.TreeCount, plan.CrossingCount, plan.FlowerCount,
+                    plan.WaterRestored, plan.WaterReachPercent);
+            NeighborsOnPainting(strip.transform, fromTitle);
         }
 
         private void CreateRoot()
@@ -571,6 +717,7 @@ namespace Evergrove.UnityClient
             fadeImage.color = Paper;
             fadeImage.raycastTarget = false;
             ScrollFade.Attach(bandGroup, content);
+            chromeBand = bandRect;
             var chromeNode = Node("Game chrome", scrollNode.transform);
             chrome = chromeNode.GetComponent<RectTransform>();
             chrome.anchorMin = new Vector2(0f, 1f);
@@ -1030,7 +1177,11 @@ namespace Evergrove.UnityClient
             // the painting of your most recent memory, else the everyday village.
             int[] story = world.Choices;
             // Newest memory first; each later launch recalls an earlier one (I107).
-            hubRecall = world.Mode == PlayMode.Living ? PickHubRecall(story.Length) : -1;
+            if (!hubRecallPicked)
+            {
+                hubRecall = world.Mode == PlayMode.Living ? PickHubRecall(story.Length) : -1;
+                hubRecallPicked = true;
+            }
             Sprite hero = null;
             if (world.Completed) hero = MosseloraArt.Load(MosseloraArt.EndingFestival);
             else if (hubRecall >= 0)
@@ -1135,7 +1286,30 @@ namespace Evergrove.UnityClient
             Width(start, 150);
             HubChrome();
             titleScreen.transform.SetAsLastSibling();
-            StartCoroutine(FitHubStack(windowRect, stripRect, stackRect));
+            if (landscape)
+            {
+                // Sideways (I114): the painting and village fill the left, the
+                // wordmark and Play stand in the right-hand column.
+                const float split = 0.56f;
+                windowRect.anchorMin = Vector2.zero;
+                windowRect.anchorMax = new Vector2(split, 1f);
+                stripRect.anchorMin = Vector2.zero;
+                stripRect.anchorMax = new Vector2(split, 0.36f);
+                stackRect.anchorMin = new Vector2(split, 0.04f);
+                stackRect.anchorMax = new Vector2(1f, 0.96f);
+                var side = Node("Village melt right", window.transform);
+                var sideRect = side.GetComponent<RectTransform>();
+                sideRect.anchorMin = new Vector2(1f, 0f);
+                sideRect.anchorMax = new Vector2(1f, 1f);
+                sideRect.pivot = new Vector2(1f, 0.5f);
+                sideRect.sizeDelta = new Vector2(56f, 0f);
+                var sideImage = side.AddComponent<Image>();
+                sideImage.sprite = MosseloraArt.SideFade();
+                sideImage.color = Paper;
+                sideImage.raycastTarget = false;
+            }
+            else
+                StartCoroutine(FitHubStack(windowRect, stripRect, stackRect));
         }
 
         // The words and Play under the painting take the room they need: at
@@ -1219,6 +1393,7 @@ namespace Evergrove.UnityClient
         }
 
         private int hubRecall = -1;
+        private bool hubRecallPicked; // a rotation rebuilds the hub; it must not advance the recall
         private const string HubRecallKey = "evergrove:hub-recall";
 
         // Reads "count:index" from the last launch, picks this launch's memory
@@ -1363,8 +1538,8 @@ namespace Evergrove.UnityClient
             // Screen edge to screen edge (past the tablet column, I111). It stops at
             // the bed's top: the creek is drawn after the text above the board, so
             // reaching upward would cover it. Below, a band melts into the paper.
-            windowRect.offsetMin = new Vector2(-17f - columnInset, -46f);
-            windowRect.offsetMax = new Vector2(17f + columnInset, 0f);
+            windowRect.offsetMin = new Vector2(-17f - columnLeft, -46f);
+            windowRect.offsetMax = new Vector2(17f + columnRight, 0f);
             window.AddComponent<RectMask2D>();
             var art = Node("Creek painting", window.transform);
             Fill(art.GetComponent<RectTransform>());
@@ -2027,8 +2202,8 @@ namespace Evergrove.UnityClient
             // too tall on a cold start), so derive the scale from the scaler's
             // own ScaleWithScreenSize formula, which is valid immediately.
             if (content != null && content.rect.width > 1f && Time.frameCount > 2)
-                return Mathf.Max(225f, content.rect.width - 34f - 2f * columnInset);
-            return Mathf.Max(225f, Screen.safeArea.width / LiveCanvasScale() - 34f - 2f * columnInset);
+                return Mathf.Max(225f, content.rect.width - 34f - columnLeft - columnRight);
+            return Mathf.Max(225f, Screen.safeArea.width / LiveCanvasScale() - 34f - columnLeft - columnRight);
         }
 
         private float LiveCanvasScale()
@@ -2090,6 +2265,7 @@ namespace Evergrove.UnityClient
             ClearChildren(chrome);
 
             bool living = world.Mode == PlayMode.Living;
+            LandscapeGarden(living);
             // Keep the first playable board in the first visible viewport,
             // rather than putting language/settings and a giant hero above it.
             bool firstPuzzle = world.Round == 0 && !world.Solved && !showingMemory;
@@ -2103,10 +2279,11 @@ namespace Evergrove.UnityClient
             // Only the ending keeps its settings at the top.
             bool settingsAtTop = languagePicker || (!puzzleScreen && !memoryScreen);
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
-            GardenHeader(puzzleScreen);
+            // Sideways play keeps the height for the board; the wordmark is on the hub.
+            if (!(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
             // After the first stream the board, tools and painting share one
             // screen; the tagline returns on story screens (memory, ending).
-            if (!puzzleScreen || world.Round == 0)
+            if ((!puzzleScreen || world.Round == 0) && !(landscape && (puzzleScreen || memoryScreen)))
             {
                 // Story screens use the hub's size, so the line sits inside the
                 // vine corners instead of running into them (I73).
@@ -2146,7 +2323,8 @@ namespace Evergrove.UnityClient
             if (puzzleScreen)
                 BuildPuzzle();
 
-            if (living)
+            // Sideways, the village lives full height on the left (LandscapeGarden).
+            if (living && !landscape)
             {
                 VillageScenePlan scenePlan = VillageScenePlan.From(world);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -2258,7 +2436,8 @@ namespace Evergrove.UnityClient
                 Sprite vignette = MosseloraArt.Load(keeper == 0 ? MosseloraArt.VignetteTree
                     : keeper == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
                 Sprite rememberer = MosseloraArt.Portrait(keeper);
-                if (vignette != null)
+                // Sideways, the same painting already fills the left side (I114).
+                if (vignette != null && !landscape)
                 {
                     var scene = Node("Memory vignette", moment.transform);
                     // Larger text keeps its size; the painting yields height so the
@@ -2566,7 +2745,7 @@ namespace Evergrove.UnityClient
                 // dry until the stream is solved and flowing after, softly behind the
                 // stone bed. Tiles stay opaque parchment, so the puzzle reads the same.
                 // Living world only; the Puzzle-only control keeps a plain page.
-                if (world.Mode == PlayMode.Living) CreekBehindBoard(board.transform);
+                if (world.Mode == PlayMode.Living && !landscape) CreekBehindBoard(board.transform);
             }
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
@@ -2574,13 +2753,21 @@ namespace Evergrove.UnityClient
             int gap = puzzle.Size == 3 ? 7 : 5;
             // CanvasScaler.scaleFactor is only the constant-pixel field (always 1
             // here); the live ScaleWithScreenSize factor gives true logical width.
-            float layoutWidth = Screen.safeArea.width / LiveCanvasScale() - 2f * columnInset;
+            float layoutWidth = Screen.safeArea.width / LiveCanvasScale() - columnLeft - columnRight;
             // Standard keeps the EG-007 sizing exactly. Large (EG-112) trims the
             // card's side padding and lifts the tile cap so the board uses the width.
             float available = Mathf.Max(225f, layoutWidth - 34f - 20f - 5f);
             int standardTile = Mathf.Clamp(
                 Mathf.FloorToInt((available - (puzzle.Size - 1) * gap) / puzzle.Size),
                 48, puzzle.Size == 3 ? 90 : 67);
+            if (landscape)
+            {
+                // Sideways the screen is short: size tiles so stones, board, drops and
+                // tools fit the height, never below a 44-point touch target (I114).
+                float logicalHeight = Screen.safeArea.height / LiveCanvasScale();
+                int byHeight = Mathf.FloorToInt((logicalHeight - 190f) / puzzle.Size) - gap;
+                standardTile = Mathf.Clamp(Mathf.Min(standardTile, byHeight), 44, standardTile);
+            }
             int tileSize = standardTile;
             if (BoardSize.IsLarge)
             {

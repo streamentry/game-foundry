@@ -223,6 +223,27 @@ namespace Evergrove.UnityClient
             return fade;
         }
 
+        private static Sprite sideFade;
+
+        /// <summary>White, opaque at the right edge, transparent at the left; tint for a paper melt.</summary>
+        public static Sprite SideFade()
+        {
+            if (sideFade != null) return sideFade;
+            var texture = new Texture2D(64, 4, TextureFormat.RGBA32, false)
+            { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "Mosselora side fade" };
+            var pixels = new Color32[64 * 4];
+            for (int x = 0; x < 64; x++)
+            {
+                float t = x / 63f; // 0 left .. 1 right
+                byte a = (byte)Mathf.RoundToInt(255f * Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.05f) / 0.6f)));
+                for (int y = 0; y < 4; y++) pixels[y * 64 + x] = new Color32(255, 255, 255, a);
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            sideFade = Sprite.Create(texture, new Rect(0, 0, 64, 4), new Vector2(0.5f, 0.5f), 100f);
+            return sideFade;
+        }
+
         /// <summary>
         /// Painted button plaque for the forest, teal and parchment tones
         /// (9-sliced Codex art). Returns false for other tones or missing art.
