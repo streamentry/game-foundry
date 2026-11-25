@@ -1254,6 +1254,67 @@ namespace Evergrove.UnityClient
             PaintDrops(reached);
         }
 
+        // Water that newly reaches a tile flies down into its drop, so the meter
+        // explains itself without a word: each drop is a tile with water (I130).
+        private void PaintDropsWithFlights(Puzzle puzzle, PipeInsight insight)
+        {
+            int reached = world.Solved ? puzzle.CellCount : insight.ConnectedCount;
+            int before = 0;
+            if (lastFlowing != null) foreach (bool wet in lastFlowing) if (wet) before++;
+            bool fly = gentleMotion && waterDrops != null && canvasRoot != null && tileArtwork != null &&
+                lastFlowing != null && lastFlowing.Length == puzzle.CellCount && reached > before;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) fly = false; // tour screenshots capture settled screens
+#endif
+            if (!fly) { PaintDrops(reached); return; }
+            PaintDrops(before);
+            int slot = before, order = 0;
+            for (int i = 0; i < puzzle.CellCount && slot < reached && slot < waterDrops.Length; i++)
+                if (insight.Flowing[i] && !lastFlowing[i])
+                    StartCoroutine(FlyDrop(tileArtwork[i].rectTransform, slot++, order++));
+            // Drops not tied to a newly wet tile (a solve fills the rest) fill at once.
+            for (; slot < reached && slot < waterDrops.Length; slot++) waterDrops[slot].color = Color.white;
+        }
+
+        private IEnumerator FlyDrop(RectTransform from, int slot, int order)
+        {
+            Image[] drops = waterDrops;
+            Sprite sprite = MosseloraArt.Load(MosseloraArt.Droplet);
+            if (sprite == null || from == null || drops == null || slot >= drops.Length) yield break;
+            for (float wait = order * 0.07f; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
+            if (drops != waterDrops || from == null || drops[slot] == null) yield break;
+            var node = Node("Flying drop", canvasRoot);
+            var rect = node.GetComponent<RectTransform>();
+            rect.sizeDelta = drops[slot].rectTransform.rect.size * 1.3f;
+            var image = node.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            Vector3 start = from.TransformPoint(from.rect.center);
+            float lift = 36f * canvasRoot.lossyScale.y;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.5f)
+            {
+                if (drops != waterDrops || drops[slot] == null) { Destroy(node); yield break; }
+                RectTransform target = drops[slot].rectTransform;
+                Vector3 end = target.TransformPoint(target.rect.center);
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                Vector3 at = Vector3.Lerp(start, end, k);
+                at.y += Mathf.Sin(k * Mathf.PI) * lift; // a small arc, like a drop flicked off a leaf
+                rect.position = at;
+                rect.localScale = Vector3.one * Mathf.Lerp(1.15f, 0.8f, k);
+                yield return null;
+            }
+            Destroy(node);
+            if (drops != waterDrops || drops[slot] == null) yield break;
+            Puzzle puzzle = world.CurrentPuzzle;
+            int now = world.Solved ? puzzle.CellCount : world.Insight.ConnectedCount;
+            if (slot < now)
+            {
+                drops[slot].color = Color.white;
+                BloomPulse.Add(drops[slot].gameObject, 0f, 0.22f);
+            }
+        }
+
         private void PaintDrops(int reached)
         {
             if (waterDrops == null) return;
@@ -4121,7 +4182,7 @@ namespace Evergrove.UnityClient
                 if (visibleLeaks != null && visibleLeaks[i] != null)
                     visibleLeaks[i].text = insight.Leaking[i] ? "○" : "";
             }
-            PaintDrops(world.Solved ? puzzle.CellCount : insight.ConnectedCount);
+            PaintDropsWithFlights(puzzle, insight);
             lastFlowing = (bool[])insight.Flowing.Clone();
             if (feedbackText != null)
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
