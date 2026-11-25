@@ -2849,8 +2849,7 @@ namespace Evergrove.UnityClient
                     SaveWorld();
                     showingMemory = false;
                     Rebuild(false);
-                }, 64, MosseloraTheme.QuietAction);
-                Width(changeButton, 76);
+                }, 76, MosseloraTheme.QuietAction, false, null, false, 0, 0, true); // a round token (I133)
                 ShowChoiceToChange(changeButton, (VillageChoice)world.Choices[world.Choices.Length - 1]);
                 Button continueButton = IconButton(next, "Continue", GameLocalization.Text("continue"),
                     MosseloraArt.IconContinue, () => {
@@ -3075,9 +3074,9 @@ namespace Evergrove.UnityClient
                 // tip; it leaves after the first move (RefreshBoard).
                 if (!world.Solved && !world.CanUndo) CoachBubble(GameLocalization.Text("first"));
             }
-            else
-                Label(content, "Prompt", LocalizedVillage.Prompt(world), 16, 0, Ink,
-                    TextAnchor.MiddleCenter);
+            // Later boards open on play and the place alone: the generic line that
+            // stood over every board ("A little water can change a place.") said
+            // nothing about this board, so it is gone (I133).
             // The anchor line sits directly above the board: it explains the framed tile.
             // Spoken, not shown: the framed tile carries the painted landmark that
             // roots it, and tapping it shows the rule in a toast (TapTile).
