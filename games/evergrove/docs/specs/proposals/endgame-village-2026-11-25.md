@@ -70,6 +70,13 @@ Rotate tiles until one leak-free stream runs from spring to garden. A choice roo
 - Each animal is a found entry in the almanac, with where it came from ("came for your lily pond").
 - Target: about 40 animals, each tied to one or more catalogue items, so building is also an invitation.
 
+### 3.4b2 A garden pet
+- **A companion that lives in your garden**: a dog, a cat, a rabbit, a goat or a duckling. The first one comes with the cottage. Others arrive the way animals do: the goat with the goat shed, a cat that adopts the bread oven.
+- **It keeps you company, it doesn't need you.** It follows you around the map, sits by the creek while you solve a board, wags or purrs when water runs, and naps under the tree you planted. When you come back, it is simply happy you're here. It is **never** hungry, sick, sad or lonely, and never asks for anything. No feeding timers, no care meters, no guilt.
+- **Gentle play:** tap to pet it, toss a ball, or let it carry a stick across the bridge you built. The grandchild's favourite turn.
+- **One for each family gardener (§3.5b)** if they like: a name chosen by the family, remembered in the book ("Biscuit found the frog pond first").
+- **Never sold:** no paid breeds, outfits or accessories. Pets come from what you build and grow.
+
 ### 3.4c A village that grows its people
 - The cast grows from three to about **12 neighbours**, each arriving with something you built: the baker with the bread oven, a beekeeper with the hives, a boatwright with the boathouse, a schoolteacher with the school bell, a potter with the kiln, two children who claim the tree house.
 - Every newcomer is authored (a portrait, a voice, 3–5 true memories) and lives where they arrived. Small honest moments between them: the baker brings bread to the potter. No relationship meters.
@@ -119,6 +126,7 @@ Economies, currencies, shops, energy, timers, streaks, crafting chains, worker m
 | **E6: Neighbours walk** | Villagers path between your things; true remarks | Lines traceable to save state (test); not repetitive over 12 streams |
 | **E7: Generations and valley** | Finished garden kept as a page; downstream new garden inherits a landmark | Save and file migration tests; ≥30% of replays materially different (EG-109) |
 | **E6b: Animals and newcomers** | Animals drawn by items; neighbours arriving with buildings | Each line and each arrival traceable to save state (tests); animals readable and charming at 80 px |
+| **E6c: Garden pet** | One companion on the map, reacting to play; more arrive with buildings | Charming, never needy (no state that decays); reads clearly at 80 px; a child plays with it unprompted |
 | **E7b: Family garden** | Gardener badges, "who made what", pass-and-play turns | A grandparent and child play 10 min together unaided (session probe); no reading needed for the child's turns |
 | **E8: Sound and touch pass** | Per-family sounds, creek ambience scaling | Sound-off parity; no annoyance in M3 |
 | **E9: Polish to release** | Every screen passes the taste review (§1) | Real-device QA, accessibility review, store assets |
