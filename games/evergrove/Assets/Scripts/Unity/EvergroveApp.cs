@@ -52,6 +52,7 @@ namespace Evergrove.UnityClient
         private readonly System.Collections.Generic.List<GameObject> goalGlows =
             new System.Collections.Generic.List<GameObject>();
         private GameObject coachBubble;  // stream-1 teaching bubble, gone after the first move
+        private float spentTipHeight;    // its space, kept for the rest of the first board (I141)
         private RectTransform warningViewport;
         private GameObject saveWarningBanner;
         private Text saveWarningCaption;
@@ -3132,7 +3133,16 @@ namespace Evergrove.UnityClient
                 // A speech bubble pointing at the board, like a game's first-run
                 // tip; it leaves after the first move (RefreshBoard).
                 if (!world.Solved && !world.CanUndo) CoachBubble(GameLocalization.Text("first"));
+                else if (spentTipHeight > 0f && !landscape)
+                {
+                    // Any later rebuild of the first board (the solve, the menu, text
+                    // size) keeps the spent tip's space, so the board never jumps; the
+                    // solve's own glide is then the only movement (I141).
+                    var space = Node("Spent tip space", content);
+                    MinHeight(space, spentTipHeight);
+                }
             }
+            else spentTipHeight = 0f;
             // Later boards open on play and the place alone: the generic line that
             // stood over every board ("A little water can change a place.") said
             // nothing about this board, so it is gone (I133).
@@ -4290,7 +4300,13 @@ namespace Evergrove.UnityClient
             // The first move is the lesson learned: the bubble steps aside.
             // It fades where it stands and keeps its space, so the board never jumps
             // under the player's finger on their very first move (I131).
-            if (coachBubble != null && world.CanUndo) { StartCoroutine(FadeAway(coachBubble)); coachBubble = null; }
+            if (coachBubble != null && world.CanUndo)
+            {
+                if (coachBubble.transform.parent == content)
+                    spentTipHeight = ((RectTransform)coachBubble.transform).rect.height;
+                StartCoroutine(FadeAway(coachBubble));
+                coachBubble = null;
+            }
             if (goalGlows.Count > 0 && world.CanUndo)
             {
                 foreach (GameObject glow in goalGlows) if (glow != null) glow.SetActive(false);
