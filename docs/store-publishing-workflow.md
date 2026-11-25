@@ -121,7 +121,9 @@ Track these fields in the release log before calling a game published:
 
 The release ledger distinguishes upload, submission, approval, automatic/standard release setting, and verified public availability. Every current row remains unuploaded, unsubmitted, unapproved, and unpublished. A green local test, emulator capture, or unsigned build is not a release.
 
-## Mosselora candidate status (internal codename Evergrove) — 2026-11-23
+## Mosselora candidate status (internal codename Evergrove) — historical baseline, rechecked 2026-11-25
+
+> The bullets below preserve the 2026-11-23 baseline. The latest-source build, device and store checkpoint is in [Mosselora release evidence](../games/evergrove/docs/qa/mosselora-release-candidate-2026-11-23.md) and the [decision log](research/decision-log.md). Current `main` is `8c9e543`; iOS build 2 was processed from older source `84c0592`, and the retained Android AAB is signed by `Android Debug`. Neither is a current-source release candidate.
 
 - Earlier release-candidate evidence predates current `HEAD` / `origin/main` `47ad558274a37c2fd78840be6e4247c5bbecf027`. Unity code last changed at `9be7c2d`, which adds a research-only on-device return diary behind Editor/Development guards. Current source also includes Android engine linking/minimum-SDK, screen-reader support, painted UI, CJK line breaking, RTL shaping, Bengali ordering and locale assets. The old AAB and captures are not current release candidates. A clean-archive build attempt from `44495c2` stopped before Unity startup: the CLI reports no registered Editor and rejects `/Volumes/SSD/Unity/editors/6000.3.0f1/Unity.app` as invalid; macOS `codesign --verify --deep --strict` reports a modified bundle signature. The CLI offers a signature/bundle-ID validation bypass, which has not been authorized. No build from current code exists. Local publishing changes remain preserved and unpushed.
 - The current .NET 8 suite passes **39,931 assertions**. `tools/verify_evergrove_project.py` passes with **101 keys × 29 offline catalogs**, including the research-only diary guard. These are not store or human-playtest evidence.
