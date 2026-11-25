@@ -3022,16 +3022,27 @@ namespace Evergrove.UnityClient
                 // bridges on two streams read as two memories, not a repeat (I88).
                 Transform when = CenteredRowIn(page.transform, "Journal stream");
                 when.GetComponent<HorizontalLayoutGroup>().spacing = 5;
+                // The painted stepping stone of that stream and its number, not a
+                // small "STREAM 3 / 12" caption that read like a record (I135).
                 var stone = Node("Season stone", when);
                 var stoneLayout = stone.AddComponent<LayoutElement>();
-                stoneLayout.minWidth = stoneLayout.preferredWidth = 12;
-                stoneLayout.minHeight = stoneLayout.preferredHeight = 12;
                 var stoneImage = stone.AddComponent<Image>();
-                stoneImage.sprite = MosseloraArt.Rounded(4);
-                stoneImage.color = SeasonStone(i);
+                Sprite pathStone = PathStone(i, false, false);
+                float stoneHeight = pathStone != null ? 22f : 12f;
+                stoneLayout.minHeight = stoneLayout.preferredHeight = stoneHeight;
+                stoneLayout.minWidth = stoneLayout.preferredWidth =
+                    pathStone != null ? Mathf.Round(stoneHeight * MosseloraArt.Aspect(pathStone)) : 12f;
+                if (pathStone != null) { stoneImage.sprite = pathStone; stoneImage.preserveAspect = true; }
+                else { stoneImage.sprite = MosseloraArt.Rounded(4); stoneImage.color = SeasonStone(i); }
                 stoneImage.raycastTarget = false;
-                Label(when, "Journal stream name", GameLocalization.Text("stream", i + 1, PuzzleCatalog.Count),
-                    13, 0, Moss, TextAnchor.MiddleCenter);
+                Text number = Label(when, "Journal stream number",
+                    (i + 1).ToString(CultureInfo.InvariantCulture), 17, 0, Moss, TextAnchor.MiddleCenter);
+                Emphasize(number);
+                // The full "Stream 3 of 12" is spoken, not shown.
+                Text streamName = Label(when, "Journal stream name",
+                    GameLocalization.Text("stream", i + 1, PuzzleCatalog.Count), 13, 0,
+                    new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+                streamName.GetComponent<LayoutElement>().ignoreLayout = true;
                 Sprite icon = i < chosen.Length ? MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]) : null;
                 if (icon != null)
                 {
