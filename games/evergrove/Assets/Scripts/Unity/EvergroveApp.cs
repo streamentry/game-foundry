@@ -3412,6 +3412,7 @@ namespace Evergrove.UnityClient
                     pageButton.colors = PressTint();
                     pageButton.onClick.AddListener(() => { journalOpenPage = pageIndex; Rebuild(); });
                     PressSquash.Add(page);
+                    DogEar(page.transform);
                 }
                 // I102 tilted these pages like a scrapbook; a blind comparison found
                 // no gain (slight lean to the flat grid), so I103 removed it.
@@ -3475,6 +3476,28 @@ namespace Evergrove.UnityClient
                 Node("Scrapbook blank", spread.transform); // keeps the last page half width
             if (world.Journal.Length == 0)
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
+        }
+
+        // A folded top-right corner: the page can be turned (I168). A square turned
+        // 45 degrees on the corner, clipped by the page, reads as a dog-ear.
+        private static void DogEar(Transform page)
+        {
+            if (page.GetComponent<RectMask2D>() == null) page.gameObject.AddComponent<RectMask2D>();
+            var fold = new GameObject("Page corner", typeof(RectTransform));
+            fold.transform.SetParent(page, false);
+            fold.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = fold.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(26f, 26f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            var image = fold.AddComponent<Image>();
+            image.sprite = MosseloraArt.Rounded(3);
+            image.type = Image.Type.Sliced;
+            image.color = MosseloraTheme.CardEdge;
+            image.raycastTarget = false;
+            MosseloraArt.Lift(image, 1.5f, 0.18f);
         }
 
         // One memory, opened from the book: its painting, who remembers it, the
