@@ -71,9 +71,10 @@ namespace Evergrove.UnityClient
             Color32 collar = completed ? new Color32(16, 96, 108, 255) :
                 hasWater ? new Color32(16, 86, 98, 255) :
                 new Color32(122, 67, 40, 255);
-            Color32 inner = completed ? new Color32(232, 251, 250, 255) : hasWater ?
+            Color32 inner = hasWater ?
                 new Color32(205, 239, 240, 255) :
                 new Color32(236, 197, 162, 255);
+            if (completed) inner = new Color32(232, 251, 250, 255); // sunlit stripe (I132)
             Rect area = rectTransform.rect;
             float half = Mathf.Min(area.width, area.height) * 0.47f;
             float stroke = Mathf.Max(14f, half * 0.40f);

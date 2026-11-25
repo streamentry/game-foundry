@@ -22,6 +22,6 @@ Under the choices, the "revisit the water" control was the old square parchment 
 ## Result (b135, iPhone 17 simulator, scripted tour)
 
 - `03-chapter1-solved-choice`, b134 compared with b135: the finished board's pipes are now a clear teal with a pale stripe on sunlit water tiles, lighter than the half-done board (`02`), not darker. The revisit control is a round parchment token beside the choices. Local sheet: `docs/improvements/I132-success-shines.jpg` (gitignored).
-- `verify_evergrove_project.py` passes. The scripted tour captures all 20 screens.
+- The scripted tour captures all 20 screens. `verify_evergrove_project.py` **failed on the first commit**: it checks for the literal line `Color32 inner = hasWater ?`, which I had folded into a `completed ?` ternary. A follow-up commit restores that line and sets the solved stripe on the next line. Verify passes after the fix (the behaviour is unchanged).
 
 **Not verified:** whether a colour-blind player can still tell solved from almost-solved without the choice screen. The stripe pattern, not colour, carries "wet versus dry", but solved versus wet now differs only in lightness.
