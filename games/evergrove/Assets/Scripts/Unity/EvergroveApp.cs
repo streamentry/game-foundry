@@ -2658,11 +2658,36 @@ namespace Evergrove.UnityClient
             int[] past = world.Choices;
             Sprite mark = split > 0 && past.Length > 0
                 ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
-            Transform nameRow = row.transform;
+            // The stream's name is painted on a small wooden sign by the path,
+            // part of the scenery rather than a caption (I162).
+            Transform nameRow = CenteredRowIn(row.transform, "Stream name row");
+            nameRow.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+            Sprite plank = MosseloraArt.Load(MosseloraArt.StreamSign);
+            if (plank != null)
+            {
+                var sign = Node("Stream sign", nameRow);
+                var signImage = sign.AddComponent<Image>();
+                signImage.sprite = plank;
+                signImage.type = Image.Type.Sliced;
+                signImage.pixelsPerUnitMultiplier = 2.6f;
+                signImage.raycastTarget = false;
+                var signRow = sign.AddComponent<HorizontalLayoutGroup>();
+                signRow.padding = new RectOffset(24, 24, 7, 8);
+                signRow.spacing = 6;
+                signRow.childAlignment = TextAnchor.MiddleCenter;
+                signRow.childControlWidth = true;
+                signRow.childControlHeight = true;
+                signRow.childForceExpandWidth = false;
+                signRow.childForceExpandHeight = false;
+                // A slim plank: its height is set, not taken from the sprite.
+                var signSize = sign.AddComponent<LayoutElement>();
+                signSize.layoutPriority = 2;
+                signSize.minHeight = signSize.preferredHeight = TextScale.Scale(36);
+                signSize.flexibleHeight = 0f;
+                nameRow = sign.transform;
+            }
             if (mark != null)
             {
-                nameRow = CenteredRowIn(row.transform, "Stream name row");
-                nameRow.GetComponent<HorizontalLayoutGroup>().spacing = 6;
                 var icon = Node("Rooted by your choice", nameRow);
                 var iconLayout = icon.AddComponent<LayoutElement>();
                 iconLayout.minWidth = iconLayout.preferredWidth = 26;
@@ -2673,9 +2698,17 @@ namespace Evergrove.UnityClient
                 iconImage.raycastTarget = false;
             }
             Text title = Label(nameRow, "Stream name",
-                name.Length == 0 ? " " : mark != null ? name.Substring(0, split) : name, 16, 0, Moss, // was 14 (I137)
+                name.Length == 0 ? " " : mark != null ? name.Substring(0, split) : name, 16, 0,
+                plank != null ? Ink : Moss, // was 14 (I137); ink on the painted wood (I162)
                 TextAnchor.MiddleCenter);
             Emphasize(title);
+            if (plank != null)
+            {
+                // One line on the sign; the sign grows to fit the name.
+                title.horizontalOverflow = HorizontalWrapMode.Overflow;
+                var titleSize = title.GetComponent<LayoutElement>();
+                titleSize.minWidth = titleSize.preferredWidth = Mathf.Ceil(title.preferredWidth) + 2f;
+            }
             // Spoken position along the creek, not shown: the stones show it.
             Text spoken = Label(row.transform, "Stream position",
                 GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count),

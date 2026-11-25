@@ -451,6 +451,15 @@ def main() -> None:
             part = fit(trim(cell, 2), 300, 150)
             save(part, name, border=int(part.height * 0.45))
 
+    sign = master("stream-sign")
+    if sign:
+        # A painted plank for the stream's name (I162): faint speckles cleared,
+        # trimmed, and 9-sliced so only the plain middle stretches.
+        plank = sign.convert("RGBA")
+        plank.putalpha(plank.getchannel("A").point(lambda value: 0 if value < 60 else value))
+        part = fit(trim(plank, 2), 480, 160)
+        save(part, "stream-sign", border=int(part.height * 0.5))
+
     medallions = master("medallions")
     if medallions:
         # Round tokens for the board's Undo and Hint (I129).

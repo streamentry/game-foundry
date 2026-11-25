@@ -27,6 +27,7 @@ namespace Evergrove.UnityClient
         public const string StoneWinter = "stone-winter";
         public const string StoneWalked = "stone-wet";
         public const string StoneHere = "stone-here";
+        public const string StreamSign = "stream-sign"; // painted plank for the stream name (I162)
         public const string VignetteTree = "vignette-tree";
         public const string VignetteBridge = "vignette-bridge";
         public const string VignetteFlowers = "vignette-flowers";
