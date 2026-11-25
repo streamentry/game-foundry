@@ -501,14 +501,15 @@ namespace Evergrove.UnityClient
             else
                 columnLeft = columnRight = tablet ? Mathf.Max(0f, Mathf.Floor((logicalWidth - MaxColumn) / 2f)) : 0f;
             var column = content != null ? content.GetComponent<VerticalLayoutGroup>() : null;
+            // Sideways the menu and book sit on the painting (I116), so the play
+            // column starts at the top: no inset spent on chrome it doesn't carry.
             if (column != null)
-                // Sideways the column starts below the floating chrome, so the book never
-            // sits on the page's first card (I114).
-            column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight, landscape ? 82 : 15, 36);
+                column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight, 15, 36);
             if (chromeBand != null)
             {
                 chromeBand.offsetMin = new Vector2(columnLeft, -104f);
                 chromeBand.offsetMax = Vector2.zero;
+                chromeBand.gameObject.SetActive(!landscape);
             }
             FitSheet(menuSheet, "Menu panel");
             FitSheet(journalSheet, "Journal panel");
@@ -1348,7 +1349,7 @@ namespace Evergrove.UnityClient
             rect.anchoredPosition = Vector2.zero;
             Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => { CloseTitle(); SetMenu(true); }, 54, MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, -6f));
+            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
             if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
             {
                 Button book = IconButton(bar.transform, "Memories", GameLocalization.Text("journal_show"),
@@ -1359,7 +1360,7 @@ namespace Evergrove.UnityClient
                         Rebuild();
                         if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
                     }, 54, MosseloraTheme.QuietAction);
-                PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+                PlaceBook(book);
                 MarkUnreadMemory(book);
             }
         }
@@ -1621,7 +1622,7 @@ namespace Evergrove.UnityClient
             if (chrome == null) return;
             Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => SetMenu(!menuOpen), 54, MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, -6f));
+            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
             if (living && world.Choices.Length > 0)
             {
                 Button book = IconButton(chrome, "Memories",
@@ -1632,10 +1633,27 @@ namespace Evergrove.UnityClient
                         Rebuild();
                         if (showJournal && journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
                     }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
-                PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+                PlaceBook(book);
                 if (!showJournal) MarkUnreadMemory(book);
             }
         }
+
+        // Top right in portrait; sideways it joins the menu on the painting, so
+        // the play column carries no chrome (I116).
+        private void PlaceBook(Button book)
+        {
+            if (landscape) PlaceChrome(book, new Vector2(0f, 1f), new Vector2(86f, ChromeTop));
+            else PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+        }
+
+        // Sideways there is no top safe inset, so the chrome sits a little lower
+        // and the book's new-memory mark is not clipped by the screen edge (I116).
+        private float ChromeTop { get { return landscape ? -12f : -6f; } }
+
+        // Sideways, Undo and Hint stand in a rail right of the board, so the
+        // board gets the height a tool row would take below it (I116).
+        private const float ToolRailWidth = 84f;
+        private const float ToolRailGap = 12f;
 
         private static void PlaceChrome(Button control, Vector2 corner, Vector2 offset)
         {
@@ -2731,6 +2749,7 @@ namespace Evergrove.UnityClient
             solvedBoard = board.GetComponent<RectTransform>();
             // The tiles sit in a painted garden bed of mossy stones (Codex art).
             Sprite bed = MosseloraArt.Load(MosseloraArt.BoardBed);
+            RectTransform bedFrame = null;
             if (bed != null)
             {
                 var bedNode = Node("Garden bed", board.transform);
@@ -2739,6 +2758,7 @@ namespace Evergrove.UnityClient
                 Fill(bedRect);
                 bedRect.offsetMin = new Vector2(-10f, -10f);
                 bedRect.offsetMax = new Vector2(10f, 10f);
+                bedFrame = bedRect;
                 var bedImage = bedNode.AddComponent<Image>();
                 bedImage.sprite = bed;
                 bedImage.raycastTarget = false;
@@ -2767,8 +2787,17 @@ namespace Evergrove.UnityClient
                 // Sideways the screen is short: size tiles so stones, board, drops and
                 // tools fit the height, never below a 44-point touch target (I114).
                 float logicalHeight = Screen.safeArea.height / LiveCanvasScale();
-                int byHeight = Mathf.FloorToInt((logicalHeight - 190f) / puzzle.Size) - gap;
-                standardTile = Mathf.Clamp(Mathf.Min(standardTile, byHeight), 44, standardTile);
+                // Stones, board rim, drops, spacing and margins: about 136 pt; the tools
+                // stand in a rail beside the board while it is unsolved (I116).
+                float below = world.Solved ? 212f : 136f;
+                int byHeight = Mathf.FloorToInt((logicalHeight - below) / puzzle.Size) - gap;
+                if (!world.Solved)
+                {
+                    float railSpace = ToolRailWidth + ToolRailGap;
+                    int byWidth = Mathf.FloorToInt((available - railSpace - (puzzle.Size - 1) * gap) / puzzle.Size);
+                    byHeight = Mathf.Min(byHeight, byWidth);
+                }
+                standardTile = Mathf.Clamp(byHeight, 44, puzzle.Size == 3 ? 90 : 67);
             }
             int tileSize = standardTile;
             if (BoardSize.IsLarge)
@@ -2780,10 +2809,28 @@ namespace Evergrove.UnityClient
                     Mathf.FloorToInt((largeAvailable - (puzzle.Size - 1) * gap) / puzzle.Size),
                     48, LargeTileCap);
             }
+            // Sideways the screen height is the limit for every board size (I116).
+            if (landscape) tileSize = Mathf.Min(tileSize, standardTile);
             // Markers, badges and endpoint icons scale with the tile; Standard is 1.
             float markerScale = tileSize / (float)standardTile;
             int span = (tileSize + gap) * puzzle.Size - gap;
             Height(gridNode, span + 1);
+            // Sideways the stone bed hugs the tiles, not the whole column (I116);
+            // while unsolved the board steps left to make room for the tool rail.
+            float railShift = landscape && !world.Solved ? ToolRailWidth + ToolRailGap : 0f;
+            if (railShift > 0f)
+            {
+                var boardLayout = board.GetComponent<VerticalLayoutGroup>();
+                boardLayout.padding = new RectOffset(boardLayout.padding.left,
+                    boardLayout.padding.right + (int)railShift, boardLayout.padding.top, boardLayout.padding.bottom);
+            }
+            if (landscape && bedFrame != null)
+            {
+                bedFrame.anchorMin = new Vector2(0.5f, 0f);
+                bedFrame.anchorMax = new Vector2(0.5f, 1f);
+                bedFrame.sizeDelta = new Vector2(span + 48f, 20f);
+                bedFrame.anchoredPosition = new Vector2(-railShift / 2f, 0f);
+            }
             var grid = gridNode.AddComponent<GridLayoutGroup>();
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = puzzle.Size;
@@ -3070,6 +3117,7 @@ namespace Evergrove.UnityClient
                     null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
                 Transform hintDots = hintButton.transform.Find("Level dots");
                 if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too
+                if (landscape && solvedBoard != null) DockToolRail(tools, toolHeight);
                 // Restart stream lives in the menu (I109): it clears the undo history,
                 // is rarely needed, and its arrow sat beside Undo's. The board keeps
                 // only the two tools a player reaches for: Undo and Guide me.
@@ -3119,9 +3167,46 @@ namespace Evergrove.UnityClient
             if (!painted) image.color = MosseloraTheme.WaterChannel; // ink-blue marks on parchment
         }
 
+        // Undo above Hint, standing right of the board (landscape, unsolved).
+        private void DockToolRail(GameObject tools, int toolHeight)
+        {
+            var across = tools.GetComponent<HorizontalLayoutGroup>();
+            if (across != null) DestroyImmediate(across);
+            var down = tools.AddComponent<VerticalLayoutGroup>();
+            down.spacing = ToolRailGap;
+            down.childAlignment = TextAnchor.MiddleCenter;
+            down.childControlWidth = true;
+            down.childControlHeight = true;
+            down.childForceExpandWidth = true;
+            down.childForceExpandHeight = false;
+            tools.transform.SetParent(solvedBoard, false);
+            var place = tools.GetComponent<LayoutElement>();
+            if (place == null) place = tools.AddComponent<LayoutElement>();
+            place.ignoreLayout = true;
+            var rect = tools.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
+            rect.pivot = new Vector2(1f, 0.5f);
+            rect.sizeDelta = new Vector2(ToolRailWidth, toolHeight * 2f + ToolRailGap);
+            rect.anchoredPosition = Vector2.zero;
+        }
+
         private void CoachBubble(string message)
         {
-            var row = Node("Prompt", content);
+            // Sideways Mira speaks from the painting, pointing right at the board, so
+            // the whole board and its tools fit the short screen on first play (I116).
+            bool beside = landscape && landscapeGarden != null;
+            var row = Node("Prompt", beside ? landscapeGarden.transform : content);
+            if (beside)
+            {
+                var rowRect = row.GetComponent<RectTransform>();
+                rowRect.anchorMin = new Vector2(0f, 0.36f);
+                rowRect.anchorMax = new Vector2(1f, 0.36f);
+                rowRect.pivot = new Vector2(0.5f, 0f);
+                // Clear of the camera cutout when it sits on the painting's side.
+                rowRect.offsetMin = new Vector2(16f + Screen.safeArea.xMin / LiveCanvasScale(), 8f);
+                rowRect.offsetMax = new Vector2(-30f, 8f);
+                row.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            }
             var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
             rowGroup.childAlignment = TextAnchor.MiddleCenter;
             rowGroup.padding = new RectOffset(10, 10, 0, 12); // room for the tail
@@ -3187,9 +3272,9 @@ namespace Evergrove.UnityClient
             var tail = Node("Coach tail", bubble.transform);
             tail.AddComponent<LayoutElement>().ignoreLayout = true;
             var tailRect = tail.GetComponent<RectTransform>();
-            tailRect.anchorMin = tailRect.anchorMax = new Vector2(0.5f, 0f);
+            tailRect.anchorMin = tailRect.anchorMax = beside ? new Vector2(1f, 0.5f) : new Vector2(0.5f, 0f);
             tailRect.sizeDelta = new Vector2(16f, 16f);
-            tailRect.anchoredPosition = new Vector2(0f, -2f);
+            tailRect.anchoredPosition = beside ? new Vector2(2f, 0f) : new Vector2(0f, -2f);
             tailRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
             var tailImage = tail.AddComponent<Image>();
             tailImage.color = MosseloraTheme.CardFill;
