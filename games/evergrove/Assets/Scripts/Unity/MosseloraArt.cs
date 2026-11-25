@@ -295,6 +295,30 @@ namespace Evergrove.UnityClient
             return art;
         }
 
+        /// <summary>A painted round token (Codex) behind a round button, or null (I129).</summary>
+        public static Image Medallion(Image image, Color tone)
+        {
+            string name = tone == MosseloraTheme.ForestAction ? "medallion-forest"
+                : tone == MosseloraTheme.WaterAction ? "medallion-teal"
+                : tone == MosseloraTheme.QuietAction ? "medallion-parchment" : null;
+            Sprite sprite = name != null ? Load(name) : null;
+            if (sprite == null) return null;
+            Round(image, new Color(1f, 1f, 1f, 0f), 32);
+            var node = new GameObject("Painted medallion", typeof(RectTransform));
+            node.transform.SetParent(image.transform, false);
+            node.transform.SetAsFirstSibling();
+            node.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = node.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var art = node.AddComponent<Image>();
+            art.sprite = sprite;
+            art.preserveAspect = true;
+            art.raycastTarget = false;
+            return art;
+        }
+
         /// <summary>Gives an Image a rounded, sliced, tinted body.</summary>
         public static void Round(Image image, Color fill, int radius = 16)
         {

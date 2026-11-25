@@ -437,6 +437,13 @@ def main() -> None:
             part = fit(trim(cell, 2), 300, 150)
             save(part, name, border=int(part.height * 0.45))
 
+    medallions = master("medallions")
+    if medallions:
+        # Round tokens for the board's Undo and Hint (I129).
+        for name, cell in zip(("medallion-forest", "medallion-teal", "medallion-parchment"),
+                              grid(medallions.convert("RGBA"), 3, 1)):
+            save(fit(trim(cell, 2), 192, 192), name)
+
     butterfly = master("butterfly")
     if butterfly:
         for name, cell in zip(("butterfly-open", "butterfly-closed"),

@@ -1034,7 +1034,8 @@ namespace Evergrove.UnityClient
         private Button IconButton(Transform parent, string name, string caption, string icon,
                                   Action action, int height, Color tone,
                                   bool showCaption = false, string badge = null,
-                                  bool captionBelow = false, int pips = 0, int pipsOn = 0)
+                                  bool captionBelow = false, int pips = 0, int pipsOn = 0,
+                                  bool round = false)
         {
             Sprite glyph = MosseloraArt.Load(icon);
             if (glyph == null) return Button(parent, name, caption, action, height, tone);
@@ -1046,8 +1047,16 @@ namespace Evergrove.UnityClient
             var image = node.AddComponent<Image>();
             // Painted enamel-and-wood plaque (Codex) for the main tones; the
             // rounded fill remains the fallback and for other tones.
-            Image plaque = MosseloraArt.Plaque(image, tone);
-            if (plaque == null) MosseloraArt.Round(image, tone, 18);
+            Image plaque = round ? MosseloraArt.Medallion(image, tone) : MosseloraArt.Plaque(image, tone);
+            if (plaque == null) MosseloraArt.Round(image, tone, round ? height / 2 : 18);
+            if (round)
+            {
+                // A round token as wide as it is tall (I129).
+                var roundLayout = node.GetComponent<LayoutElement>();
+                if (roundLayout == null) roundLayout = node.AddComponent<LayoutElement>();
+                roundLayout.minWidth = roundLayout.preferredWidth = height;
+                roundLayout.flexibleWidth = 0f;
+            }
             MosseloraArt.Lift(plaque != null ? plaque : image, 2f, quiet ? 0.10f : 0.24f);
             if (quiet && plaque == null) MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
             var button = node.AddComponent<Button>();
@@ -1067,7 +1076,7 @@ namespace Evergrove.UnityClient
             group.childControlHeight = true;
             group.childForceExpandWidth = false;
             group.childForceExpandHeight = false;
-            float iconSize = Mathf.Round(height * (captionBelow ? 0.40f : showCaption ? 0.42f : 0.52f));
+            float iconSize = Mathf.Round(height * (captionBelow ? 0.40f : showCaption ? 0.42f : round ? 0.44f : 0.52f));
             var iconNode = Node("Icon", node.transform);
             var iconLayout = iconNode.AddComponent<LayoutElement>();
             iconLayout.minWidth = iconLayout.preferredWidth = iconSize;
@@ -1081,6 +1090,16 @@ namespace Evergrove.UnityClient
             {
                 // Level shown as filled dots, not words or numbers.
                 var dots = Node("Level dots", node.transform);
+                if (round)
+                {
+                    // On a token the level sits under the glyph, inside the disc.
+                    dots.AddComponent<LayoutElement>().ignoreLayout = true;
+                    var dotsRect = dots.GetComponent<RectTransform>();
+                    dotsRect.anchorMin = dotsRect.anchorMax = new Vector2(0.5f, 0f);
+                    dotsRect.pivot = new Vector2(0.5f, 0f);
+                    dotsRect.sizeDelta = new Vector2(height * 0.5f, 10f);
+                    dotsRect.anchoredPosition = new Vector2(0f, height * 0.13f);
+                }
                 var dotRow = dots.AddComponent<HorizontalLayoutGroup>();
                 dotRow.spacing = 4;
                 dotRow.childAlignment = TextAnchor.MiddleCenter;
@@ -3337,17 +3356,22 @@ namespace Evergrove.UnityClient
                 // Icon-only in every stream: Mira's coach bubble teaches the board,
                 // and every tool names itself on press-and-hold (and is spoken).
                 bool teach = false;
-                int toolHeight = 64;
+                // Upright, the tools are two round tokens flanking the water drops,
+                // not two wide slabs under them (I129). Sideways they stand in a rail.
+                // A cold read preferred the tokens but asked for them bigger: 76pt upright.
+                bool roundTools = true;
+                int toolHeight = landscape ? 72 : 76;
                 undoButton = IconButton(tools.transform, "Undo", GameLocalization.Text("undo"),
                     MosseloraArt.IconUndo, () => Act(() => world.Undo(), "undo"),
-                    toolHeight, MosseloraTheme.ForestAction, false, null, teach);
+                    toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
                 undoButton.interactable = world.CanUndo;
                 // Hint depth shows as a small 1/2 or 2/2 badge, not words.
                 Button hintButton = IconButton(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
                     MosseloraArt.IconHint, UseGentleHint, toolHeight, MosseloraTheme.WaterAction, false,
-                    null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep);
+                    null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep, roundTools);
+                if (!landscape) FlankDrops(tools, toolHeight);
                 Transform hintDots = hintButton.transform.Find("Level dots");
                 if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too
                 if (landscape && solvedBoard != null) DockToolRail(tools, toolHeight);
@@ -3398,6 +3422,51 @@ namespace Evergrove.UnityClient
             image.preserveAspect = true;
             image.raycastTarget = false;
             if (!painted) image.color = MosseloraTheme.WaterChannel; // ink-blue marks on parchment
+        }
+
+        // Undo | water drops | Hint on one line under the board (I129). When a big
+        // board's drops are too wide to sit between the tokens, they keep their own
+        // line above, and the tokens stand at either end.
+        private void FlankDrops(GameObject tools, int toolHeight)
+        {
+            var across = tools.GetComponent<HorizontalLayoutGroup>();
+            across.childForceExpandWidth = false;
+            across.childAlignment = TextAnchor.MiddleCenter;
+            across.spacing = 10;
+            MinHeight(tools, toolHeight);
+            Transform meter = waterDrops != null && waterDrops.Length > 0 ? waterDrops[0].transform.parent : null;
+            float room = PageWidth() - 2f * toolHeight - 2f * across.spacing - 8f;
+            if (meter != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)meter);
+                float wanted = LayoutUtility.GetPreferredWidth((RectTransform)meter);
+                // A 4x4 board's sixteen drops shrink a little (to 70% at most) to fit.
+                float shrink = wanted > room ? room / wanted : 1f;
+                if (shrink >= 0.7f && shrink < 1f)
+                {
+                    foreach (Image drop in waterDrops)
+                    {
+                        var dropLayout = drop.GetComponent<LayoutElement>();
+                        dropLayout.minWidth = dropLayout.preferredWidth = Mathf.Floor(dropLayout.preferredWidth * shrink);
+                        dropLayout.minHeight = dropLayout.preferredHeight = Mathf.Floor(dropLayout.preferredHeight * shrink);
+                    }
+                    var meterGroup = meter.GetComponent<HorizontalLayoutGroup>();
+                    meterGroup.spacing = Mathf.Floor(meterGroup.spacing * shrink);
+                    wanted *= shrink;
+                }
+                if (wanted <= room)
+                {
+                    meter.SetParent(tools.transform, false);
+                    meter.SetSiblingIndex(1);
+                    var meterLayout = meter.GetComponent<LayoutElement>();
+                    if (meterLayout == null) meterLayout = meter.gameObject.AddComponent<LayoutElement>();
+                    meterLayout.flexibleWidth = 1f;
+                    return;
+                }
+            }
+            var gap = Node("Between the tools", tools.transform);
+            gap.AddComponent<LayoutElement>().flexibleWidth = 1f;
+            gap.transform.SetSiblingIndex(1);
         }
 
         // Undo above Hint, standing right of the board (landscape, unsolved).

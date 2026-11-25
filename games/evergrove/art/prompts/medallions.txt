@@ -1,0 +1,11 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING button plaque art of this game: match its hand-painted watercolour storybook style, enamel colours and warm wood rims exactly. Generate exactly ONE image.
+Use case: game UI sprite sheet
+Asset type: three ROUND game button medallions (tokens) for a calm village garden water-puzzle game, sliced from a single row of three equal square cells
+Primary request: 1 row x 3 columns, each medallion a perfect CIRCLE centred in its own square cell, filling ~84% of the cell, all exactly the same size, seen straight on, EMPTY (no icons, no text):
+ cell 1: DEEP FOREST GREEN enamel disc (#1F5A43) set in a carved warm honey-wood ring, a soft lighter highlight arc along the top inside edge;
+ cell 2: DEEP TEAL enamel disc (#1C6F7A) in the same carved wood ring, same highlight;
+ cell 3: warm PARCHMENT cream disc (#EFE6D2) in a slightly darker wood ring, subtle grain.
+The flat centre of each disc must be calm and even (a white icon will be drawn on top); all shading stays in the ring and the top highlight. Clean circular silhouette, no drop shadow outside the ring.
+Background: fully TRANSPARENT (alpha). Wide image, 1536x512 (3:1).
+Constraints: no text, no letters, no numbers, no icons, no watermark.
+Copy the final PNG to games/evergrove/art/generated/medallions.png and print the path. Do nothing else.
