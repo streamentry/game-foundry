@@ -685,7 +685,39 @@ namespace Evergrove.UnityClient
                     : last == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
             }
             if (hero == null) hero = MosseloraArt.Load(MosseloraArt.HeroVillage);
+            // Sideways the whole left side is your garden map, editable like upright (I183).
+            if (living && LandscapeGardenMap(landscapeGarden.transform)) return;
             GardenScene(landscapeGarden.transform, hero, living, false, Vector2.one, new Vector2(1f, 0.36f));
+        }
+
+        private bool LandscapeGardenMap(Transform pane)
+        {
+            Sprite plot = MosseloraArt.Load("garden-map");
+            GardenMap map = LoadGardenMap();
+            if (plot == null || map == null) return false;
+            var window = Node("Garden window", pane);
+            var windowRect = window.GetComponent<RectTransform>();
+            Fill(windowRect);
+            window.AddComponent<RectMask2D>();
+            bool memoryScreen = showingMemory && world.Choices.Length > 0;
+            bool animate = celebrateGrowth && memoryScreen && gentleMotion;
+            GardenMapView.Build(windowRect, plot, map, MapItems(map), 1.15f,
+                OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
+                animate ? GreenedShare(1) : -1f,
+                (land, point) => NeighborsOnMap(land, point, map, false));
+            int held = ItemInHand();
+            if (held >= 0 && PlayerPrefs.GetInt(PlacedOnceKey, 0) == 0) PlaceTip(window.transform, held);
+            var side = Node("Garden melt right", window.transform);
+            var sideRect = side.GetComponent<RectTransform>();
+            sideRect.anchorMin = new Vector2(1f, 0f);
+            sideRect.anchorMax = new Vector2(1f, 1f);
+            sideRect.pivot = new Vector2(1f, 0.5f);
+            sideRect.sizeDelta = new Vector2(40f, 0f);
+            var sideImage = side.AddComponent<Image>();
+            sideImage.sprite = MosseloraArt.SideFade();
+            sideImage.color = Paper;
+            sideImage.raycastTarget = false;
+            return true;
         }
 
         // Painting above, your village strip (real water, landmarks, neighbours) below,
