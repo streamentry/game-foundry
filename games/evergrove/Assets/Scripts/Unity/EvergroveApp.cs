@@ -1844,7 +1844,11 @@ namespace Evergrove.UnityClient
             // corner buttons and of each other, on land.
             int[] byCottage = { 25, 36, 67 };
             Vector2 step = point(1) - point(0);
-            for (int villager = 0; villager < 3; villager++)
+            // Those with a thing of their own take their place first; newcomers fit around them.
+            var order = new System.Collections.Generic.List<int> { 0, 1, 2 };
+            order.Sort((a, b) => (Array.IndexOf(made, b) >= 0).CompareTo(Array.IndexOf(made, a) >= 0) != 0
+                ? (Array.IndexOf(made, b) >= 0).CompareTo(Array.IndexOf(made, a) >= 0) : a.CompareTo(b));
+            foreach (int villager in order)
             {
                 int cell = -1;
                 for (int i = made.Length - 1; i >= 0 && cell < 0; i--)
@@ -1852,9 +1856,30 @@ namespace Evergrove.UnityClient
                 Vector2 at = cell >= 0
                     ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns - 2 ? 0.95f : -0.95f), 0f)
                     : point(Mathf.Min(byCottage[villager], map.CellCount - 1));
+                // Nothing of their own yet: they come to see the newest thing you made,
+                // which the map always opens on, so they are in view (I187).
+                float rowStep = Mathf.Abs((point(map.Columns) - point(0)).y);
+                if (cell < 0 && made.Length > 0 && cells[made.Length - 1] >= 0)
+                {
+                    // Try the spots around it in turn: either side, then a step up.
+                    Vector2 newestAt = point(cells[made.Length - 1]);
+                    Vector2[] around = {
+                        new Vector2(-1.15f * step.x, 0f), new Vector2(1.15f * step.x, 0f),
+                        new Vector2(-1.1f * step.x, 1.2f * rowStep), new Vector2(1.1f * step.x, 1.2f * rowStep),
+                        new Vector2(-2.2f * step.x, 0f), new Vector2(2.2f * step.x, 0f) };
+                    at = newestAt + around[0];
+                    foreach (Vector2 offset in around)
+                    {
+                        Vector2 spot = newestAt + offset;
+                        bool taken = false;
+                        foreach (RectTransform other in placed)
+                            if (Mathf.Abs(other.anchoredPosition.x - spot.x) < Mathf.Abs(step.x) * 1.3f &&
+                                Mathf.Abs(other.anchoredPosition.y - spot.y) < rowStep * 1.3f) taken = true;
+                        if (!taken) { at = spot; break; }
+                    }
+                }
                 // Never stand on another neighbour (I184): step down a row and a half
                 // until clear of everyone already placed.
-                float rowStep = Mathf.Abs((point(map.Columns) - point(0)).y);
                 for (int tries = 0; tries < 4; tries++)
                 {
                     bool clash = false;
