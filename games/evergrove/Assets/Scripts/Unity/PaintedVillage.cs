@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -109,6 +110,13 @@ namespace Evergrove.UnityClient
             flowing.color = new Color(1f, 1f, 1f, next);
         }
 
+        /// <summary>
+        /// The painted item for the nth landmark of a family (0 tree, 1 build,
+        /// 2 flowers), or null for the family's default art (I172: the village
+        /// shows the specific apple tree, windmill or poppies the player chose).
+        /// </summary>
+        public static Func<int, int, Sprite> ItemSprite;
+
         public void Show(int chapterIndex, int shade, int crossings, int meadows,
                          bool restored, int waterReachPercent)
         {
@@ -129,22 +137,24 @@ namespace Evergrove.UnityClient
             shownFlowers = meadows;
             for (int i = landmarks.childCount - 1; i >= 0; i--)
                 Destroy(landmarks.GetChild(i).gameObject);
-            Transform tree = Place(MosseloraArt.Load(MosseloraArt.ShadeTree), TreeSlots, shade, "Planted shade tree");
-            Transform flower = Place(MosseloraArt.Load(MosseloraArt.Wildflowers), FlowerSlots, meadows, "Grown wildflowers");
-            Transform bridge = Place(MosseloraArt.Load(MosseloraArt.Bridge), BridgeSlots, crossings, "Restored crossing");
+            Transform tree = Place(MosseloraArt.Load(MosseloraArt.ShadeTree), TreeSlots, shade, "Planted shade tree", 0);
+            Transform flower = Place(MosseloraArt.Load(MosseloraArt.Wildflowers), FlowerSlots, meadows, "Grown wildflowers", 2);
+            Transform bridge = Place(MosseloraArt.Load(MosseloraArt.Bridge), BridgeSlots, crossings, "Restored crossing", 1);
             Transform newest = GrowNewestKind == 0 ? tree : GrowNewestKind == 1 ? bridge : GrowNewestKind == 2 ? flower : null;
             if (newest != null) newest.gameObject.AddComponent<GrowIn>();
             GrowNewestKind = -1;
         }
 
         /// <summary>Places this kind's landmarks; returns the newest (last slot) or null.</summary>
-        private Transform Place(Sprite sprite, Vector3[] slots, int count, string label)
+        private Transform Place(Sprite fallback, Vector3[] slots, int count, string label, int family)
         {
             Transform last = null;
-            if (sprite == null) return null;
             int shown = Mathf.Min(Mathf.Max(0, count), slots.Length);
             for (int i = 0; i < shown; i++)
             {
+                Sprite sprite = ItemSprite != null ? ItemSprite(family, i) : null;
+                if (sprite == null) sprite = fallback;
+                if (sprite == null) continue;
                 var node = new GameObject(label, typeof(RectTransform));
                 node.transform.SetParent(landmarks, false);
                 var rect = node.GetComponent<RectTransform>();

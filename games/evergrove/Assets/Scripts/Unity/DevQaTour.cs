@@ -118,7 +118,9 @@ namespace Evergrove.UnityClient
                 // Seasons arrive through progress: capture the village in autumn and winter.
                 if (chapter == 7 || chapter == 10)
                 {
-                    ScrollTo("Living storybook art");
+                    // Sideways the village lives on the left of the screen, not in the
+                    // page: capture the screen as it is, so the landscape run completes (I170).
+                    if (Screen.width <= Screen.height && GameObject.Find("Living storybook art") != null) ScrollTo("Living storybook art");
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng(chapter == 7 ? "15-autumn-village.png" : "16-winter-village.png");
@@ -127,6 +129,13 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 Press("Choice " + MainPattern[chapter]);
                 for (int f = 0; f < 6; f++) yield return null;
+                if (chapter == 2)
+                {
+                    // The third stream opens the second reach: its mist lifting (I195).
+                    yield return new WaitForSecondsRealtime(1.4f);
+                    yield return new WaitForEndOfFrame();
+                    SavePng("05b-new-reach.png");
+                }
                 Press("Continue");
                 for (int f = 0; f < 6; f++) yield return null;
 
@@ -142,7 +151,21 @@ namespace Evergrove.UnityClient
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10b-journal-bottom.png");
-                    Press("Memories"); // close it before the rest of the run
+                    // A page opens to its memory (I166), then back to the book.
+                    Press("Journal chapter");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("10c-journal-page.png");
+                    Press("Back to the book");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    // The almanac tab (I174), then back to the pages.
+                    Press("Almanac");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("10d-almanac.png");
+                    Press("Our pages");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    Press("Close journal"); // close it before the rest of the run
                     for (int f = 0; f < 4; f++) yield return null;
                 }
             }
@@ -163,7 +186,79 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 4; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("11c-ending-journal-bottom.png");
-            Press("Memories");
+            Press("Close journal");
+            for (int f = 0; f < 4; f++) yield return null;
+            // The home screen's garden map with the whole year's twelve things (I176).
+            app.QaShowHub(true);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17-hub-map.png");
+            // The one corner button's fan (I191), with a whole year of memories.
+            Press("Open menu");
+            for (int f = 0; f < 12; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.4f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17b-menu-fan.png");
+            Press("Open menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            // The basket (I193): three more of the newest thing, planted beside it.
+            app.QaPlantFromBasket();
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17c-basket.png");
+            app.QaCloseBasket();
+            // Every grown thing holds a puzzle (I203/I204): pick one up, play it, see it bloom.
+            int thing = app.QaHoldThing();
+            if (thing >= 0)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17e-thing-picked-up.png");
+                app.QaOpenTreePlay(thing);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17f-tree-puzzle.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17g-tree-solved.png");
+                yield return new WaitForSecondsRealtime(2.2f);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17h-tree-bloomed.png");
+                app.QaEndTreePlay();
+            }
+            // Flowers hold Pairs (depth spine): turn two cards, keep a match.
+            int flower = app.QaHoldThing((int)VillageChoice.Flowers);
+            if (flower >= 0)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaOpenTreePlay(flower);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17i-pairs.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j-pairs-solved.png");
+                yield return new WaitForSecondsRealtime(2.4f);
+                app.QaEndTreePlay();
+            }
+            // Settings as round tokens (I194).
+            Press("Open menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            Press("Settings");
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17d-settings.png");
+            Press("Close menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaShowHub(true);
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaShowHub(false);
             for (int f = 0; f < 4; f++) yield return null;
 
             // Runs B-D: a fresh world per village choice on chapter 1. Each shows
@@ -284,6 +379,15 @@ namespace Evergrove.UnityClient
                     button.onClick.Invoke();
                     foreach (Button again in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                         if (nameMatches(again.name)) return again;
+                    // The corner button opens a fan (I191); settings is one of its tokens.
+                    foreach (Button token in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                        if (token.name == "Settings")
+                        {
+                            token.onClick.Invoke();
+                            foreach (Button again in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                                if (nameMatches(again.name)) return again;
+                            break;
+                        }
                     break;
                 }
             throw new InvalidOperationException("No active button: " + description);

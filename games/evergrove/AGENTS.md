@@ -2,7 +2,9 @@
 
 > **Mosselora is Evergrove.** Evergrove is the internal codename; Mosselora is the public name. Keep internal identifiers; use Mosselora for player-facing text. Logo and app icon masters: `brand/` (copies in `Assets/Branding/` and `site/public/brand/`).
 
-Read [repository AGENTS.md](../../AGENTS.md) and the [Evergrove handbook](docs/README.md) **before** changing this Unity/C# project. It is the approved engine exception in Game Foundry's mostly Godot portfolio.
+Read [repository AGENTS.md](../../AGENTS.md) and the [Evergrove handbook](docs/README.md) **before** changing this Unity/C# project.
+
+**End-game direction (founder, 2026-11-25):** build toward the village the player grows. Read the [end-game design and taste charter](docs/specs/proposals/endgame-village-2026-11-25.md) before any player-facing work. Taste is the top priority, and nothing half-finished ships. It is the approved engine exception in Game Foundry's mostly Godot portfolio.
 
 The separate [37-feature product specifications](docs/specs/README.md) are **proposals** (P0/P1/P2), not part of the current implemented contract. The [execution gates](docs/specs/09-EXECUTION-CONTROL.md) and [machine-readable verification registry](docs/specs/verification-matrix.json) control readiness: **M1 real Unity build → M2 devices/recovery/privacy → M3 first-session usability → M4 puzzle-identical narrative comparison → M5 certified locales → M6 commercial release**. New P1/P2 features are blocked by evidence, not a high abstract score. Check the as-built handbook and code before taking a proposed feature into a PR.
 
@@ -11,7 +13,7 @@ The separate [37-feature product specifications](docs/specs/README.md) are **pro
 
 **Short, satisfying spatial play must have a clear, truthful consequence in the village and the next puzzle.** No extra AI, servers, content volume or art polish unless it can improve a player behavior observable in testing.
 
-**Family goal (2026-11-25):** grandparents, parents and children should be able to play together gently, and the game should connect older players with family rather than only entertain them ([vision §1a](vision.md#1a-family-play-connection-not-only-entertainment)). Keep family play cooperative, one-device first, free of timers, scores between players, chat, strangers and guilt, and collect no data about children. Weigh every feature by whether it keeps the game playable side by side.
+**Family goal (2026-11-25):** grandparents, parents and children should be able to play together gently, and the game should connect older players with family rather than only entertain them ([vision section 1a](vision.md#1a-family-play-connection-not-only-entertainment)). Keep family play cooperative, one-device first, free of timers, scores between players, chat, strangers and guilt, and collect no data about children. Weigh every feature by whether it keeps the game playable side by side.
 
 ## Source authority
 

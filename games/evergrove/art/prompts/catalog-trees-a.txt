@@ -1,0 +1,34 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING painted icon art of this game (a shade tree, a little bridge, a wildflower bed): match its hand-painted watercolour storybook style, soft outlines, warm light and three-quarter view EXACTLY. Generate exactly ONE image.
+Use case: game UI sprite sheet for a calm village garden game
+Asset type: 25 garden item icons, sliced from a single 5x5 grid of equal square cells
+Primary request: a 5 x 5 grid, row by row, left to right. Each cell shows a single young-to-mature TREE of that species, whole tree with a small grassy base, recognisable by its true shape, leaves, blossom or fruit. Each icon is centred in its own cell, fills about 80% of it, and stays strictly inside its cell. All the same scale and style. In order:
+ row 1 col 1: apple tree
+ row 1 col 2: pear tree
+ row 1 col 3: cherry tree
+ row 1 col 4: plum tree
+ row 1 col 5: quince tree
+ row 2 col 1: walnut tree
+ row 2 col 2: sweet chestnut
+ row 2 col 3: hazel
+ row 2 col 4: fig tree
+ row 2 col 5: olive tree
+ row 3 col 1: lemon tree
+ row 3 col 2: orange tree
+ row 3 col 3: peach tree
+ row 3 col 4: apricot tree
+ row 3 col 5: mulberry tree
+ row 4 col 1: elder
+ row 4 col 2: rowan
+ row 4 col 3: silver birch
+ row 4 col 4: weeping willow
+ row 4 col 5: oak
+ row 5 col 1: copper beech
+ row 5 col 2: linden
+ row 5 col 3: sugar maple
+ row 5 col 4: red maple
+ row 5 col 5: ginkgo
+Each icon must read clearly at 80 pixels: strong simple silhouette, clear value contrast against a cream paper background.
+Composition: square canvas 1536x1536.
+Background: fully TRANSPARENT (alpha) around every icon; no grid lines, no frames, no cell borders.
+Constraints: no text, no letters, no numbers, no labels, no watermark.
+Copy the final PNG to games/evergrove/art/generated/catalog-trees-a.png and print the path. Do nothing else.

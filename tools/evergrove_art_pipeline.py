@@ -317,6 +317,26 @@ def quadrants(sheet: Image.Image) -> list[Image.Image]:
             for y in (0, h // 2) for x in (0, w // 2)]
 
 
+def season_maps(plot: Image.Image) -> None:
+    """Autumn and winter grades of the garden map (I198), from the summer painting.
+
+    Seasons arrive with progress; the map wears them too. Autumn: warm amber.
+    Winter: partly desaturated, cooled and frosted.
+    """
+    from PIL import ImageChops, ImageOps
+    base = plot.convert("RGB")
+
+    def grade(mul, over, amount, desaturate=0.0):
+        source = base
+        if desaturate:
+            source = Image.blend(base, ImageOps.grayscale(base).convert("RGB"), desaturate)
+        tinted = ImageChops.multiply(source, Image.new("RGB", base.size, tuple(int(v * 255) for v in mul)))
+        return Image.blend(tinted, Image.new("RGB", base.size, tuple(int(v * 255) for v in over)), amount)
+
+    save(grade((1.0, 0.86, 0.62), (0.9, 0.55, 0.2), 0.10).convert("RGBA"), "garden-map-autumn")
+    save(grade((0.85, 0.9, 1.0), (0.95, 0.97, 1.0), 0.45, 0.6).convert("RGBA"), "garden-map-winter")
+
+
 def main() -> None:
     def master(name: str) -> Image.Image | None:
         path = MASTERS / (name + ".png")
@@ -450,6 +470,75 @@ def main() -> None:
                               grid(plaques.convert("RGBA"), 3, 1)):
             part = fit(trim(cell, 2), 300, 150)
             save(part, name, border=int(part.height * 0.45))
+
+    # The garden catalogue (I172/I173): 8 Codex sheets of 25 painted items each,
+    # sliced in grid order into tree-NN, flower-NN and build-NN.
+    for prefix, sheets in (("tree", ("trees-a", "trees-b")),
+                           ("flower", ("flowers-a", "flowers-b")),
+                           ("build", ("builds-a", "builds-b", "builds-c", "builds-d"))):
+        index = 0
+        for sheet_name in sheets:
+            sheet = master("catalog-" + sheet_name)
+            if not sheet:
+                index += 25
+                continue
+            for cell in grid(sheet.convert("RGBA"), 5, 5):
+                save(fit(trim(cell, 4), 192, 192), f"{prefix}-{index:02d}")
+                index += 1
+
+    # The garden catalogue (I173): 8 Codex sheets of 25 painted items, 5x5,
+    # in GardenCatalog order -> tree-00..49, flower-00..49, build-00..99.
+    for sheet, prefix, start in (("catalog-trees-a", "tree", 0), ("catalog-trees-b", "tree", 25),
+                                 ("catalog-flowers-a", "flower", 0), ("catalog-flowers-b", "flower", 25),
+                                 ("catalog-builds-a", "build", 0), ("catalog-builds-b", "build", 25),
+                                 ("catalog-builds-c", "build", 50), ("catalog-builds-d", "build", 75)):
+        art = master(sheet)
+        if not art:
+            continue
+        for offset, cell in enumerate(grid(art.convert("RGBA"), 5, 5)):
+            save(fit(trim(cell, 4), 192, 192), f"{prefix}-{start + offset:02d}")
+
+    garden = master("garden-map")
+    if garden:
+        # The open garden map (E3, I176): the painting itself, and a 10x15 mask
+        # read from it. Mostly-teal cells are the creek; tan cells in the right
+        # columns are the footpath; the top-right corner is the cottage.
+        plot = garden.convert("RGB")
+        save(plot.convert("RGBA"), "garden-map")
+        season_maps(plot)
+        width, height = plot.size
+        columns, rows = 10, 15
+        pixels = plot.load()
+        lines = []
+        for row in range(rows):
+            line = ""
+            for column in range(columns):
+                x0, x1 = int(column * width / columns), int((column + 1) * width / columns)
+                y0, y1 = int(row * height / rows), int((row + 1) * height / rows)
+                total = water = tan = 0
+                for y in range(y0, y1, 3):
+                    for x in range(x0, x1, 3):
+                        red, green, blue = pixels[x, y]
+                        total += 1
+                        if blue > 130 and blue > red + 20:
+                            water += 1
+                        if red > 185 and 80 < blue < 160 and green < red:
+                            tan += 1
+                if water / total > 0.10:
+                    line += "~"
+                elif (row <= 1 and column >= 7) or (tan / total > 0.06 and column >= 8):
+                    line += "#"
+                else:
+                    line += "."
+            lines.append(line)
+        mask_path = OUT.parent / "garden-map-mask.txt"
+        mask_path.write_text("\n".join(lines) + "\n")
+        meta = mask_path.with_suffix(".txt.meta")
+        if not meta.exists():
+            meta.write_text("fileFormatVersion: 2\nguid: " + guid_for("garden-map-mask") +
+                            "\nTextScriptImporter:\n  externalObjects: {}\n  userData: \n"
+                            "  assetBundleName: \n  assetBundleVariant: \n")
+        print(mask_path.relative_to(ROOT), "\n" + "\n".join(lines))
 
     sign = master("stream-sign")
     if sign:

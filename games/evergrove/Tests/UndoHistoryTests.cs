@@ -65,11 +65,27 @@ internal static class UndoHistoryTests
     }
 
     /// <summary>Removes the optional "history" array from serialized JSON text (simulates an older save).</summary>
+    // Files from before EG-111 predate the garden map (I177) too: strip both.
     private static string RemoveHistoryKey(string text)
     {
+        text = RemoveMapKeys(text);
         int start = text.IndexOf(",\"history\":", StringComparison.Ordinal);
         Expect(start >= 0, "serialized text contains a history key to remove");
         int end = text.IndexOf(']', start);
+        return text.Substring(0, start) + text.Substring(end + 1);
+    }
+
+    internal static string RemoveMapKeys(string text)
+    {
+        int start = text.IndexOf(",\"garden\":", StringComparison.Ordinal);
+        if (start < 0) return text;
+        int end = text.IndexOf(']', text.IndexOf(",\"placements\":", start, StringComparison.Ordinal));
+        int plantings = text.IndexOf(",\"plantings\":", start, StringComparison.Ordinal);
+        if (plantings >= 0) end = text.IndexOf(']', plantings); // I193 key follows the map keys
+        int solvedTrees = text.IndexOf(",\"treeSolved\":", start, StringComparison.Ordinal);
+        if (solvedTrees >= 0) end = text.IndexOf(']', solvedTrees); // I204 keys follow plantings
+        int boughtSolved = text.IndexOf(",\"boughtSolved\":", start, StringComparison.Ordinal);
+        if (boughtSolved >= 0) end = text.IndexOf(']', boughtSolved); // I205 keys follow treeSolved
         return text.Substring(0, start) + text.Substring(end + 1);
     }
 

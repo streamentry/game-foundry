@@ -1458,6 +1458,298 @@ internal static class Program
             "an index past the history is the empty memory");
     }
 
+    // I171: 50 trees, 50 flowers, 100 things to build or mend.
+    private static void GardenCatalogTests()
+    {
+        Expect(GardenCatalog.CountOf(VillageChoice.ShadeTree) == GardenCatalog.TreeCount, "50 trees");
+        Expect(GardenCatalog.CountOf(VillageChoice.Flowers) == GardenCatalog.FlowerCount, "50 flowers");
+        Expect(GardenCatalog.CountOf(VillageChoice.Bridge) == GardenCatalog.BuildCount, "100 things to build");
+        Expect(GardenCatalog.Total == 200, "200 garden items in all");
+        var names = new HashSet<string>();
+        var arts = new HashSet<string>();
+        foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Bridge, VillageChoice.Flowers })
+        {
+            int count = GardenCatalog.CountOf(family);
+            int[] order = GardenCatalog.Order(family);
+            Expect(order.Length == count, "order covers the family");
+            var seen = new HashSet<int>(order);
+            Expect(seen.Count == count, "order is a permutation");
+            for (int i = 0; i < count; i++)
+            {
+                GardenItem item = GardenCatalog.Get(family, i);
+                Expect(item.Family == family && item.Index == i, "item knows its place");
+                Expect(names.Add(item.Name), "item names are unique: " + item.Name);
+                Expect(arts.Add(item.Art), "item art keys are unique: " + item.Art);
+                Expect(item.Card.Length > 4 && item.Memory.StartsWith("the ") && item.Memory.Contains(item.Name),
+                    "item has a card title and a memory phrase: " + item.Name);
+                Expect(!item.Card.Contains("  ") && !item.Card.EndsWith(" "), "card title is tidy: " + item.Card);
+            }
+            // Deterministic: the same garden and chapter always give the same item.
+            Expect(GardenCatalog.For(3, 5, family).Index == GardenCatalog.For(3, 5, family).Index, "deterministic");
+            // No repeats inside a garden; consecutive gardens differ; full coverage.
+            var covered = new HashSet<int>();
+            int gardensToCover = (count + GardenCatalog.ChaptersPerGarden - 1) / GardenCatalog.ChaptersPerGarden;
+            for (int garden = 0; garden < 40; garden++)
+            {
+                var inGarden = new HashSet<int>();
+                for (int chapter = 0; chapter < GardenCatalog.ChaptersPerGarden; chapter++)
+                {
+                    int index = GardenCatalog.For(garden, chapter, family).Index;
+                    Expect(inGarden.Add(index), "no repeat inside garden " + garden);
+                    if (garden < gardensToCover) covered.Add(index);
+                }
+                if (garden > 0 && count >= 2 * GardenCatalog.ChaptersPerGarden)
+                {
+                    var previous = new HashSet<int>();
+                    for (int chapter = 0; chapter < GardenCatalog.ChaptersPerGarden; chapter++)
+                        previous.Add(GardenCatalog.For(garden - 1, chapter, family).Index);
+                    previous.IntersectWith(inGarden);
+                    Expect(previous.Count == 0 || (garden * GardenCatalog.ChaptersPerGarden) % count < GardenCatalog.ChaptersPerGarden,
+                        "consecutive gardens differ (except where the catalogue wraps)");
+                }
+            }
+            Expect(covered.Count == count, "every item appears within " + gardensToCover + " gardens");
+        }
+        Expect(GardenCatalog.Get(VillageChoice.ShadeTree, 0).Card == "Plant an apple tree", "a/an for trees");
+        Expect(GardenCatalog.Get(VillageChoice.Bridge, 3).Card == "Mend the mill wheel", "build verbs");
+        Expect(GardenCatalog.Get(VillageChoice.Flowers, 2).Memory == "the poppies you grew", "flower memory phrase");
+        bool threw = false;
+        try { GardenCatalog.For(0, 12, VillageChoice.Bridge); } catch (ArgumentOutOfRangeException) { threw = true; }
+        Expect(threw, "chapter 13 is out of range");
+    }
+
+    // E2 / I174: the almanac remembers every item ever made, across gardens.
+    private static void AlmanacTests()
+    {
+        Almanac empty = Almanac.Parse(null);
+        Expect(empty.Count == 0 && empty.Serialize() == "", "empty almanac");
+        Almanac junk = Almanac.Parse("tree-07, ,banana,tree-50,build-99,flower-xx,tree-7,build-03,build-03");
+        Expect(junk.Count == 3, "junk and out-of-range keys are ignored, duplicates merged");
+        Expect(junk.Serialize() == "build-03,build-99,tree-07", "stable sorted text");
+        Expect(Almanac.Parse(junk.Serialize()).Serialize() == junk.Serialize(), "round trip");
+        var almanac = new Almanac();
+        GardenItem quince = GardenCatalog.Get(VillageChoice.ShadeTree, 4);
+        Expect(almanac.Add(quince), "a new item is new");
+        Expect(!almanac.Add(quince), "the same item twice is not new");
+        Expect(almanac.Has(quince) && almanac.CountOf(VillageChoice.ShadeTree) == 1 && almanac.CountOf(VillageChoice.Bridge) == 0,
+            "family counts");
+        Expect(!almanac.Add(null), "null is not added");
+        // A full catalogue round-trips and counts 200.
+        var full = new Almanac();
+        foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Bridge, VillageChoice.Flowers })
+            for (int i = 0; i < GardenCatalog.CountOf(family); i++) full.Add(GardenCatalog.Get(family, i));
+        Expect(full.Count == GardenCatalog.Total, "every item can be found");
+        Expect(Almanac.Parse(full.Serialize()).Count == GardenCatalog.Total, "full almanac round trip");
+        Expect(Almanac.IsItemKey("flower-49") && !Almanac.IsItemKey("flower-50") && !Almanac.IsItemKey("build-100"), "key ranges");
+    }
+
+    // E3 / I175: the open garden map's grid, free land and default layout.
+    private static void GardenMapTests()
+    {
+        string mask =
+            "...~......" +
+            "...~....##" +
+            "....~...##" +
+            "....~....." +
+            ".....~...." +
+            ".....~...." +
+            "....~....." +
+            "...~......";
+        var map = new GardenMap(10, 8, mask);
+        Expect(map.CellCount == 80 && map.IsLand(0) && !map.IsLand(3) && !map.IsLand(18), "mask parsed");
+        Expect(map.At(3) == GardenMap.Water && map.At(18) == GardenMap.Built, "water and built cells");
+        Expect(!map.IsLand(-1) && !map.IsLand(80), "outside is not land");
+        Expect(map.DistanceToWater(2) == 1 && map.DistanceToWater(3) == 0, "distance to water");
+        bool threw = false;
+        try { new GardenMap(10, 8, "..."); } catch (ArgumentException) { threw = true; }
+        Expect(threw, "a mask of the wrong size is refused");
+        // Twelve choices of every family fit, on land, never stacked, deterministic.
+        int[] choices = { 0, 1, 2, 1, 0, 2, 2, 1, 0, 1, 2, 0 };
+        int[] layout = map.Layout(choices, null);
+        Expect(layout.Length == 12, "one cell per choice");
+        var used = new HashSet<int>();
+        for (int i = 0; i < layout.Length; i++)
+        {
+            Expect(map.IsLand(layout[i]), "item " + i + " stands on land");
+            Expect(used.Add(layout[i]), "no two items share a cell");
+        }
+        int[] again = map.Layout(choices, null);
+        for (int i = 0; i < layout.Length; i++) Expect(again[i] == layout[i], "layout is deterministic");
+        // Builds sit closer to the creek than trees on average.
+        int buildWater = 0, treeWater = 0, builds = 0, trees = 0;
+        for (int i = 0; i < choices.Length; i++)
+        {
+            if (choices[i] == 1) { buildWater += map.DistanceToWater(layout[i]); builds++; }
+            if (choices[i] == 0) { treeWater += map.DistanceToWater(layout[i]); trees++; }
+        }
+        Expect(buildWater * trees < treeWater * builds, "builds by the water, trees further out");
+        // A player's own valid spot is kept; an invalid or taken one falls back.
+        int[] placed = { 79, 3, 79 };
+        int[] kept = map.Layout(new[] { 0, 1, 2 }, placed);
+        Expect(kept[0] == 79, "a valid placement is kept");
+        Expect(map.IsLand(kept[1]) && kept[1] != 3, "water placement falls back to land");
+        Expect(kept[2] != 79 && map.IsLand(kept[2]), "a taken cell falls back");
+        Expect(map.CanPlace(kept, 0) == (Array.IndexOf(kept, 0) < 0), "can place on free land");
+        Expect(!map.CanPlace(kept, 79) && map.CanPlace(kept, 79, 0), "moving an item may keep its own cell");
+        // A full map reports -1 rather than stacking.
+        var tiny = new GardenMap(2, 1, "..");
+        int[] crowded = tiny.Layout(new[] { 0, 1, 2 }, null);
+        Expect(crowded[0] >= 0 && crowded[1] >= 0 && crowded[2] == -1, "no free cell gives -1");
+    }
+
+    // I192: the endless river, reach by reach.
+    private static void RiverMapTests()
+    {
+        string reach =
+            "...~....##" +
+            "....~....." +
+            ".....~...." +
+            "......~...";
+        GardenMap one = GardenMap.River(10, 4, reach, 1);
+        Expect(one.Rows == 4 && one.ReachRows == 4 && one.Reaches == 1, "one reach");
+        GardenMap three = GardenMap.River(10, 4, reach, 3);
+        Expect(three.Rows == 12 && three.Reaches == 3 && three.CellCount == 120, "three reaches stack");
+        Expect(three.At(3) == GardenMap.Water && three.At(8) == GardenMap.Built, "the first reach is the painting");
+        // The second reach is mirrored: its first row is the painting's last row.
+        Expect(three.At(40 + 6) == GardenMap.Water && three.At(70 + 3) == GardenMap.Water && three.At(70 + 8) == GardenMap.Built,
+            "the second reach is mirrored so the banks join");
+        Expect(three.At(80 + 3) == GardenMap.Water && three.At(80 + 8) == GardenMap.Built, "the third reach repeats the first");
+        Expect(GardenMap.ReachesFor(0, false) == 1 && GardenMap.ReachesFor(2, false) == 1 && GardenMap.ReachesFor(3, false) == 2
+            && GardenMap.ReachesFor(11, false) == 4 && GardenMap.ReachesFor(12, false) == 5 && GardenMap.ReachesFor(99, false) == 5
+            && GardenMap.ReachesFor(0, true) == 5, "a new reach every three streams, all of them at the end");
+        bool threw = false;
+        try { GardenMap.River(10, 4, reach, 0); } catch (ArgumentOutOfRangeException) { threw = true; }
+        Expect(threw, "a river needs a reach");
+        // Each stream's thing grows in the reach its stream opened.
+        string full = "";
+        for (int r = 0; r < 15; r++) full += r % 3 == 0 ? "...~....##" : "....~.....";
+        GardenMap river = GardenMap.River(10, 15, full, 5);
+        int[] choices = { 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+        int[] layout = river.Layout(choices, null);
+        for (int i = 0; i < choices.Length; i++)
+        {
+            Expect(river.IsLand(layout[i]), "river item " + i + " on land");
+            Expect(layout[i] / river.Columns / 15 == Math.Min(i / 3, 4), "item " + i + " stands in its stream's reach");
+        }
+        // Opening more river never moves what already grew.
+        GardenMap shorter = GardenMap.River(10, 15, full, 2);
+        int[] early = shorter.Layout(new[] { 0, 1, 2, 0, 1 }, null);
+        int[] later = river.Layout(new[] { 0, 1, 2, 0, 1 }, null);
+        for (int i = 0; i < early.Length; i++) Expect(early[i] == later[i], "item " + i + " stays put as the river grows");
+    }
+
+    // E4 / I177: the garden number and where things stand live in the save and the garden file.
+    private static void PlacementSaveTests()
+    {
+        WorldModel world = WorldModel.New(PlayMode.Living, 3);
+        Expect(world.Garden == 3 && world.Placements.Length == 0, "a new garden knows its number");
+        Expect(!world.PlaceAt(0, 5), "nothing to place before the first choice");
+        SolveCurrent(world);
+        Expect(world.Choose(VillageChoice.Bridge), "first choice");
+        Expect(world.Placements.Length == 1 && world.Placements[0] == -1, "a new item starts unplaced");
+        Expect(world.PlaceAt(0, 42) && world.Placements[0] == 42, "an item is placed");
+        Expect(!world.PlaceAt(0, WorldModel.MaxMapCell) && !world.PlaceAt(0, -2) && !world.PlaceAt(1, 3),
+            "out-of-range cells and items are refused");
+        SolveCurrent(world);
+        Expect(world.Choose(VillageChoice.Flowers), "second choice");
+        Expect(world.Placements.Length == 2 && world.Placements[0] == 42 && world.Placements[1] == -1,
+            "earlier placements stay; the new item waits");
+        Expect(world.ReconsiderLatestChoice() && world.Placements.Length == 1 && world.Placements[0] == 42,
+            "reconsidering trims only the newest placement");
+        // Save round trip keeps both.
+        WorldModel restored;
+        Expect(WorldModel.TryRestore(world.Export(), out restored), "placed garden restores");
+        Expect(restored.Garden == 3 && restored.Placements.Length == 1 && restored.Placements[0] == 42,
+            "garden and placements survive a save");
+        // Older saves (no fields) restore as garden 0, nothing placed.
+        WorldSnapshot old = world.Export();
+        old.garden = 0;
+        old.placements = null;
+        Expect(WorldModel.TryRestore(old, out restored) && restored.Garden == 0 && restored.Placements.Length == 0,
+            "a save from before the map restores");
+        WorldSnapshot bad = world.Export();
+        bad.placements = new[] { 1, 2, 3 };
+        Expect(!WorldModel.TryRestore(bad, out restored), "more placements than choices is refused");
+        bad = world.Export();
+        bad.garden = -1;
+        Expect(!WorldModel.TryRestore(bad, out restored), "a negative garden is refused");
+        // The garden file carries them, and older files without them still import.
+        string file = GardenTransfer.Export(world, "2026-11-25T00:00:00Z");
+        Expect(file.Contains("\"garden\":3") && file.Contains("\"placements\":[42]"), "garden file carries the map");
+        WorldModel imported;
+        GardenImportError error;
+        Expect(GardenTransfer.TryImport(file, out imported, out error) && imported.Placements[0] == 42 && imported.Garden == 3,
+            "garden file round trip keeps the map");
+        WorldModel plain = WorldModel.New();
+        string plainFile = GardenTransfer.Export(plain, "2026-11-25T00:00:00Z");
+        string inner = plainFile.Substring(plainFile.IndexOf("{\"version\"", StringComparison.Ordinal));
+        inner = inner.Substring(0, inner.IndexOf('}') + 1);
+        string preMap = UndoHistoryTests.RemoveMapKeys(inner);
+        Expect(preMap != inner && !preMap.Contains("placements"), "pre-map snapshot text built");
+        string preMapFile = plainFile.Replace(inner, preMap)
+            .Replace(GardenTransfer.Sha256Hex(inner), GardenTransfer.Sha256Hex(preMap));
+        Expect(GardenTransfer.TryImport(preMapFile, out imported, out error) && error == GardenImportError.None,
+            "a garden file from before the map still imports");
+        string tampered = file.Replace("\"placements\":[42]", "\"placements\":[43]");
+        Expect(!GardenTransfer.TryImport(tampered, out imported, out error), "an edited placement fails its checksum");
+    }
+
+    // I193: free planting from the basket.
+    private static void PlantingTests()
+    {
+        WorldModel world = WorldModel.New(PlayMode.Living, 1);
+        Expect(!world.Plant(0, 10), "nothing to plant before the first choice");
+        SolveCurrent(world);
+        Expect(world.Choose(VillageChoice.Flowers), "first choice");
+        Expect(world.Plant(0, 10) && world.Plant(0, 11) && world.PlantingCount == 2, "plant two more of what you grew");
+        Expect(!world.Plant(1, 12) && !world.Plant(0, -1) && !world.Plant(0, WorldModel.MaxMapCell),
+            "only grown things, on real cells");
+        Expect(world.MovePlanting(1, 20) && world.Plantings[3] == 20, "a planting moves");
+        Expect(!world.MovePlanting(2, 5) && !world.MovePlanting(0, -3), "bad moves are refused");
+        Expect(world.RemovePlanting(0) && world.PlantingCount == 1 && world.Plantings[1] == 20, "a planting goes back to the basket");
+        Expect(!world.RemovePlanting(1), "removing past the end is refused");
+        WorldModel restored;
+        Expect(WorldModel.TryRestore(world.Export(), out restored) && restored.PlantingCount == 1 && restored.Plantings[1] == 20,
+            "plantings survive the save");
+        WorldSnapshot bad = world.Export();
+        bad.plantings = new[] { 0 };
+        Expect(!WorldModel.TryRestore(bad, out restored), "an odd planting list is refused");
+        bad.plantings = new[] { 5, 3 };
+        Expect(!WorldModel.TryRestore(bad, out restored), "a planting of something never grown is refused");
+        bad.plantings = null;
+        Expect(WorldModel.TryRestore(bad, out restored) && restored.PlantingCount == 0, "a save without plantings still loads");
+        string file = GardenTransfer.Export(world, "2026-11-26T00:00:00Z");
+        WorldModel imported;
+        GardenImportError error;
+        Expect(file.Contains("\"plantings\":[0,20]") && GardenTransfer.TryImport(file, out imported, out error) &&
+            imported.PlantingCount == 1, "the garden file carries plantings");
+        Expect(!GardenTransfer.TryImport(file.Replace("\"plantings\":[0,20]", "\"plantings\":[0,21]"), out imported, out error),
+            "an edited planting fails its checksum");
+        // Reconsidering the newest choice takes its plantings back too.
+        SolveCurrent(world);
+        Expect(world.Choose(VillageChoice.ShadeTree) && world.Plant(1, 30) && world.PlantingCount == 2, "second choice planted");
+        Expect(world.ReconsiderLatestChoice() && world.PlantingCount == 1 && world.Plantings[0] == 0,
+            "reconsidering returns that choice's plantings");
+        for (int i = world.PlantingCount; i < WorldModel.MaxPlantings; i++) world.Plant(0, 40 + i);
+        Expect(world.PlantingCount == WorldModel.MaxPlantings && !world.Plant(0, 9), "the basket has a sensible limit");
+        // Defaults step around planted cells.
+        string mask = "....".PadRight(40, '.');
+        var map = new GardenMap(10, 4, mask);
+        int[] plain = map.Layout(new[] { 2 }, null);
+        int[] around = map.Layout(new[] { 2 }, null, new[] { 0, plain[0] });
+        Expect(around[0] != plain[0] && map.IsLand(around[0]), "a default never lands on a planting");
+        Expect(!map.IsFree(around, new[] { 0, plain[0] }, plain[0]) && !map.IsFree(around, null, around[0]) &&
+            map.IsFree(around, new[] { 0, plain[0] }, 39 == plain[0] ? 38 : 39), "free means no item and no planting");
+    }
+
+    private static void SolveCurrent(WorldModel world)
+    {
+        Puzzle puzzle = world.CurrentPuzzle;
+        for (int i = 0; i < puzzle.CellCount; i++)
+            for (int turn = 0; turn < 4 && world.Rotations[i] != puzzle.Solution[i]; turn++)
+                if (!world.Rotate(i)) break;
+    }
+
     private static void BoardFitTests()
     {
         // Portrait keeps the EG-007 sizing: a 402 pt iPhone column gives the 3x3 cap.
@@ -1606,6 +1898,15 @@ internal static class Program
             RepeatedMemoryTests();
             HubRecallTests();
             BoardFitTests();
+            GardenCatalogTests();
+            AlmanacTests();
+            GardenMapTests();
+            RiverMapTests();
+            PlantingTests();
+            assertions += TreePuzzleTests.Run();
+            assertions += NurseryTests.Run();
+            assertions += PairsTests.Run();
+            PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
             return 0;
