@@ -1721,6 +1721,31 @@ namespace Evergrove.UnityClient
                 StartCoroutine(FitHubStack(windowRect, stripRect, stackRect, mapShown ? 0.33f : 0.41f));
         }
 
+        // I201: the memory screen's map grows into the blank paper between the
+        // memory card and the pinned buttons, measured on screen after layout, so
+        // it fits any phone and text size.
+        private GameObject fillTarget;
+        private IEnumerator GrowToFill(GameObject element, RectTransform above, RectTransform buttons)
+        {
+            yield return null; // after the first layout pass, at the real canvas size
+            if (element == null || above == null || buttons == null) yield break;
+            var layout = element.GetComponent<LayoutElement>();
+            if (layout == null) yield break;
+            var corners = new Vector3[4];
+            above.GetWorldCorners(corners);
+            float cardBottom = element.transform.parent.InverseTransformPoint(corners[0]).y;
+            float buttonTop = float.NegativeInfinity;
+            foreach (Transform child in buttons)
+            {
+                if (!child.gameObject.activeSelf) continue;
+                ((RectTransform)child).GetWorldCorners(corners);
+                buttonTop = Mathf.Max(buttonTop, element.transform.parent.InverseTransformPoint(corners[1]).y);
+            }
+            float gap = cardBottom - buttonTop - 22f; // keep a little air above the buttons
+            if (float.IsInfinity(buttonTop) || gap < 12f) yield break;
+            layout.minHeight = layout.preferredHeight = Mathf.Round(layout.preferredHeight + Mathf.Min(gap, 320f));
+        }
+
         // The words and Play under the painting take the room they need: at
         // larger text, or with a memory line and the next stream, the painting
         // and village strip move up instead of the words overflowing (I85).
@@ -4021,6 +4046,9 @@ namespace Evergrove.UnityClient
                 // The garden map replaces the fixed village strip (I178): swipe it, and
                 // tap to put what you made where you want it.
                 bool mapped = !renderedMiniature && PageGardenMap(illustration, memoryScreen);
+                // I201: on the memory screen the map takes whatever room is left above
+                // the pinned buttons, on any phone and text size.
+                fillTarget = mapped && memoryScreen ? illustration : null;
                 if (!renderedMiniature && !mapped)
                 {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -4180,6 +4208,9 @@ namespace Evergrove.UnityClient
                     }, 64, MosseloraTheme.WaterAction);
                 Width(continueButton, 160, 1f);
                 PinToFoot(next);
+                if (fillTarget != null)
+                    StartCoroutine(GrowToFill(fillTarget, (RectTransform)moment.transform, (RectTransform)next));
+                fillTarget = null;
             }
             else if (world.Completed)
             {
