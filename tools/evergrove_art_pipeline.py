@@ -317,6 +317,26 @@ def quadrants(sheet: Image.Image) -> list[Image.Image]:
             for y in (0, h // 2) for x in (0, w // 2)]
 
 
+def season_maps(plot: Image.Image) -> None:
+    """Autumn and winter grades of the garden map (I198), from the summer painting.
+
+    Seasons arrive with progress; the map wears them too. Autumn: warm amber.
+    Winter: partly desaturated, cooled and frosted.
+    """
+    from PIL import ImageChops, ImageOps
+    base = plot.convert("RGB")
+
+    def grade(mul, over, amount, desaturate=0.0):
+        source = base
+        if desaturate:
+            source = Image.blend(base, ImageOps.grayscale(base).convert("RGB"), desaturate)
+        tinted = ImageChops.multiply(source, Image.new("RGB", base.size, tuple(int(v * 255) for v in mul)))
+        return Image.blend(tinted, Image.new("RGB", base.size, tuple(int(v * 255) for v in over)), amount)
+
+    save(grade((1.0, 0.86, 0.62), (0.9, 0.55, 0.2), 0.10).convert("RGBA"), "garden-map-autumn")
+    save(grade((0.85, 0.9, 1.0), (0.95, 0.97, 1.0), 0.45, 0.6).convert("RGBA"), "garden-map-winter")
+
+
 def main() -> None:
     def master(name: str) -> Image.Image | None:
         path = MASTERS / (name + ".png")
@@ -485,6 +505,7 @@ def main() -> None:
         # columns are the footpath; the top-right corner is the cottage.
         plot = garden.convert("RGB")
         save(plot.convert("RGBA"), "garden-map")
+        season_maps(plot)
         width, height = plot.size
         columns, rows = 10, 15
         pixels = plot.load()

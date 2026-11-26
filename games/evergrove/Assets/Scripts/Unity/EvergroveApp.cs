@@ -706,7 +706,7 @@ namespace Evergrove.UnityClient
 
         private bool LandscapeGardenMap(Transform pane)
         {
-            Sprite plot = MosseloraArt.Load("garden-map");
+            Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
             var window = Node("Garden window", pane);
@@ -1841,7 +1841,7 @@ namespace Evergrove.UnityClient
 
         private bool GardenMapOnHub(RectTransform window)
         {
-            Sprite plot = MosseloraArt.Load("garden-map");
+            Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
             GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
@@ -1863,13 +1863,23 @@ namespace Evergrove.UnityClient
         // I189: the garden is the stage. Boards float over your own garden map,
         // full screen and gently veiled so the board stays the brightest thing,
         // instead of a paper page with a strip of garden under the board.
+        // The map wears the season the walk has reached (I198): summer, then autumn
+        // amber, then winter frost; a finished garden is summer again.
+        private Sprite MapPainting()
+        {
+            int season = PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed);
+            Sprite graded = season == 1 ? MosseloraArt.Load("garden-map-autumn")
+                : season == 2 ? MosseloraArt.Load("garden-map-winter") : null;
+            return graded != null ? graded : MosseloraArt.Load("garden-map");
+        }
+
         private bool WorldStage(bool show)
         {
             if (worldStage == null) return false;
             ClearChildren(worldStage);
             worldStage.gameObject.SetActive(false);
             if (!show) return false;
-            Sprite plot = MosseloraArt.Load("garden-map");
+            Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
             worldStage.gameObject.SetActive(true);
@@ -2255,7 +2265,7 @@ namespace Evergrove.UnityClient
 
         private bool PageGardenMap(GameObject window, bool memoryScreen)
         {
-            Sprite plot = MosseloraArt.Load("garden-map");
+            Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
             var size = window.GetComponent<LayoutElement>();
