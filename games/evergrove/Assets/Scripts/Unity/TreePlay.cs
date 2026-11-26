@@ -1,0 +1,318 @@
+using System;
+using Evergrove.Core;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Evergrove.UnityClient
+{
+    /// <summary>
+    /// I204: the puzzle a grown thing holds, played over your garden. A card with
+    /// the thing's painting, the seeds it pays, the water board and a close token.
+    /// Tapping turns a tile; when every channel joins, the board blooms, the seeds
+    /// show, and the card closes by itself. Practice only: the story is untouched.
+    /// Kept apart from EvergroveApp's story board on purpose (no hints, undo or
+    /// chapter state), so other puzzle kinds can live beside it later.
+    /// </summary>
+    internal sealed class TreePlay : MonoBehaviour
+    {
+        public const string SeedIcon = "glyph-sprout";
+
+        private Puzzle puzzle;
+        private int[] rotations;
+        private Image[] tiles;
+        private PipeGraphic[] pipes;
+        private Button[] buttons;
+        private bool solved;
+        private bool gentle;
+        private Action onTurn;
+        private Func<int> onSolved; // records the solve, returns the seeds earned
+        private Action onClose;
+        private Text rewardText;
+        private GameObject rewardPill;
+        private float closeAt = -1f;
+
+        public static TreePlay Open(RectTransform host, Puzzle puzzle, Sprite art, string name, int reward,
+                                    Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed)
+        {
+            var root = new GameObject("Tree puzzle", typeof(RectTransform));
+            root.transform.SetParent(host, false);
+            var rect = (RectTransform)root.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var veil = root.AddComponent<Image>();
+            veil.color = new Color(0.08f, 0.14f, 0.11f, 0.38f); // the garden stays in view, dimmed
+            var play = root.AddComponent<TreePlay>();
+            play.puzzle = puzzle;
+            play.rotations = (int[])puzzle.Initial.Clone();
+            play.gentle = gentleMotion;
+            play.onTurn = turned;
+            play.onSolved = solved;
+            play.onClose = closed;
+            play.Build(rect, art, name, reward, font);
+            return play;
+        }
+
+        private void Build(RectTransform root, Sprite art, string name, int reward, Font font)
+        {
+            var card = new GameObject("Tree puzzle card", typeof(RectTransform));
+            card.transform.SetParent(root, false);
+            var cardRect = (RectTransform)card.transform;
+            cardRect.anchorMin = cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRect.pivot = new Vector2(0.5f, 0.5f);
+            var cardImage = card.AddComponent<Image>();
+            MosseloraArt.Round(cardImage, MosseloraTheme.CardFill, 26);
+            MosseloraArt.Lift(cardImage, 4f, 0.22f);
+            var column = card.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(18, 18, 16, 18);
+            column.spacing = 12;
+            column.childAlignment = TextAnchor.UpperCenter;
+            column.childControlWidth = true;
+            column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            card.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            // Width: the screen less a gutter, never wider than a comfortable card.
+            float screenWidth = root.rect.width > 1f ? root.rect.width : 390f;
+            float screenHeight = root.rect.height > 1f ? root.rect.height : 844f;
+            // The card is about its width plus 100 pt tall: sideways, the height decides (I204).
+            float width = Mathf.Min(screenWidth - 28f, 440f, screenHeight - 112f);
+            cardRect.sizeDelta = new Vector2(width, 0f);
+
+            // Top row: close token, the thing itself, the seeds it pays.
+            var top = Row(card.transform, "Tree puzzle top", 84f);
+            Token(top, "Close tree puzzle", MosseloraArt.Load(MosseloraArt.IconCancel), 56f, MosseloraTheme.QuietAction,
+                Close, true);
+            var thing = new GameObject("The thing", typeof(RectTransform));
+            thing.transform.SetParent(top, false);
+            var thingLayout = thing.AddComponent<LayoutElement>();
+            thingLayout.flexibleWidth = 1f;
+            thingLayout.preferredHeight = 84f;
+            var thingImage = thing.AddComponent<Image>();
+            thingImage.sprite = art;
+            thingImage.preserveAspect = true;
+            thingImage.raycastTarget = false;
+            if (gentle) BloomPulse.Add(thing, 0.2f, 0.05f);
+            rewardPill = Pill(top, "+" + reward, font, out rewardText);
+            // Spoken: what this is and what it pays (screen readers read Text).
+            Hidden(card.transform, name + ". " + reward + " seeds.", font);
+
+            // The board: the same paper tiles and channels as the streams.
+            int size = puzzle.Size;
+            float boardWidth = width - 36f;
+            float gap = 8f;
+            float cell = Mathf.Floor((boardWidth - gap * (size - 1) - 16f) / size);
+            var bed = new GameObject("Tree puzzle board", typeof(RectTransform));
+            bed.transform.SetParent(card.transform, false);
+            var bedLayout = bed.AddComponent<LayoutElement>();
+            bedLayout.preferredHeight = bedLayout.minHeight = cell * size + gap * (size - 1) + 16f;
+            var bedImage = bed.AddComponent<Image>();
+            MosseloraArt.Round(bedImage, new Color(0.55f, 0.5f, 0.36f, 0.55f), 18);
+            bedImage.raycastTarget = false;
+            var grid = bed.AddComponent<GridLayoutGroup>();
+            grid.padding = new RectOffset(8, 8, 8, 8);
+            grid.cellSize = new Vector2(cell, cell);
+            grid.spacing = new Vector2(gap, gap);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = size;
+            grid.childAlignment = TextAnchor.MiddleCenter;
+            tiles = new Image[puzzle.CellCount];
+            pipes = new PipeGraphic[puzzle.CellCount];
+            buttons = new Button[puzzle.CellCount];
+            for (int i = 0; i < puzzle.CellCount; i++)
+            {
+                int index = i;
+                var tile = new GameObject("Row " + (i / size + 1) + " column " + (i % size + 1) + ", tap to turn",
+                    typeof(RectTransform));
+                tile.transform.SetParent(bed.transform, false);
+                var image = tile.AddComponent<Image>();
+                MosseloraArt.PaperTile(image, 12);
+                MosseloraArt.Lift(image, 2f, 0.14f);
+                MosseloraArt.Edge(tile.transform, MosseloraTheme.TileEdge, 12);
+                var button = tile.AddComponent<Button>();
+                button.targetGraphic = image;
+                button.transition = Selectable.Transition.None;
+                button.onClick.AddListener(() => Turn(index));
+                PressSquash.Add(tile);
+                var channel = new GameObject("Visible channel", typeof(RectTransform));
+                channel.transform.SetParent(tile.transform, false);
+                var channelRect = (RectTransform)channel.transform;
+                channelRect.anchorMin = Vector2.zero;
+                channelRect.anchorMax = Vector2.one;
+                channelRect.offsetMin = channelRect.offsetMax = Vector2.zero;
+                var pipe = channel.AddComponent<PipeGraphic>();
+                pipe.raycastTarget = false;
+                tiles[i] = image;
+                pipes[i] = pipe;
+                buttons[i] = button;
+            }
+            Paint();
+        }
+
+        private void Turn(int index)
+        {
+            if (solved || index < 0 || index >= rotations.Length) return;
+            rotations[index] = rotations[index] % PipeRules.OrientationCount(puzzle.Kinds[index]) + 1;
+            onTurn?.Invoke();
+            Paint();
+            if (!PipeRules.IsComplete(puzzle, rotations)) return;
+            solved = true;
+            int earned = onSolved != null ? onSolved() : 0;
+            rewardText.text = "+" + earned;
+            Paint();
+            int spring = Array.IndexOf(puzzle.Kinds, PipeKind.End);
+            for (int i = 0; i < tiles.Length; i++)
+            {
+                buttons[i].interactable = false;
+                int steps = Mathf.Abs(i / puzzle.Size - spring / puzzle.Size) + Mathf.Abs(i % puzzle.Size - spring % puzzle.Size);
+                if (gentle) BloomPulse.Add(tiles[i].gameObject, 0.08f + steps * 0.07f);
+            }
+            if (gentle) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
+            closeAt = Time.unscaledTime + 2.2f; // long enough to see the water run and the seeds
+        }
+
+        /// <summary>Tour only: every tile but one in place, then the last turn by the same path as a tap.</summary>
+        internal void QaSolve()
+        {
+            if (solved) return;
+            int last = puzzle.CellCount - 1;
+            rotations = (int[])puzzle.Solution.Clone();
+            int turns = PipeRules.OrientationCount(puzzle.Kinds[last]);
+            rotations[last] = (puzzle.Solution[last] - 2 + turns) % turns + 1; // one turn short
+            Turn(last);
+        }
+
+        private void Update()
+        {
+            if (closeAt > 0f && Time.unscaledTime >= closeAt) Close();
+        }
+
+        private void Paint()
+        {
+            PipeInsight insight = PipeRules.Inspect(puzzle, rotations);
+            for (int i = 0; i < tiles.Length; i++)
+            {
+                tiles[i].color = MosseloraTheme.TileFill(solved, insight.Flowing[i], false, 0, -1, i, puzzle.Size);
+                pipes[i].Configure(puzzle.Kinds[i], rotations[i], insight.Flowing[i], solved, OpenPorts(i));
+            }
+        }
+
+        private int OpenPorts(int i)
+        {
+            int open = 0;
+            for (int d = 0; d < 4; d++)
+            {
+                if (!PipeRules.HasPort(puzzle.Kinds[i], rotations[i], d)) continue;
+                int j = PipeRules.Neighbor(i, d, puzzle.Size);
+                if (j < 0 || !PipeRules.HasPort(puzzle.Kinds[j], rotations[j], (d + 2) % 4)) open++;
+            }
+            return open;
+        }
+
+        private void Close()
+        {
+            closeAt = -1f;
+            Action closed = onClose;
+            onClose = null;
+            Destroy(gameObject);
+            closed?.Invoke();
+        }
+
+        // ---- small builders
+        private static Transform Row(Transform parent, string name, float height)
+        {
+            var row = new GameObject(name, typeof(RectTransform));
+            row.transform.SetParent(parent, false);
+            row.AddComponent<LayoutElement>().preferredHeight = height;
+            var group = row.AddComponent<HorizontalLayoutGroup>();
+            group.spacing = 10;
+            group.childAlignment = TextAnchor.MiddleCenter;
+            group.childControlWidth = true;
+            group.childControlHeight = true;
+            group.childForceExpandWidth = false;
+            group.childForceExpandHeight = false;
+            return row.transform;
+        }
+
+        private static void Token(Transform parent, string name, Sprite glyph, float size, Color tone, Action action,
+                                  bool glyphOnly)
+        {
+            var node = new GameObject(name, typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            var layout = node.AddComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = size;
+            layout.minHeight = layout.preferredHeight = size;
+            var image = node.AddComponent<Image>();
+            MosseloraArt.Round(image, tone, Mathf.RoundToInt(size / 2f));
+            MosseloraArt.Lift(image, 2f, 0.2f);
+            var button = node.AddComponent<Button>();
+            button.targetGraphic = image;
+            button.onClick.AddListener(() => action());
+            PressSquash.Add(node);
+            if (glyph == null) return;
+            var icon = new GameObject("Icon", typeof(RectTransform));
+            icon.transform.SetParent(node.transform, false);
+            var iconRect = (RectTransform)icon.transform;
+            iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+            iconRect.sizeDelta = new Vector2(size * 0.5f, size * 0.5f);
+            var iconImage = icon.AddComponent<Image>();
+            iconImage.sprite = glyph;
+            iconImage.preserveAspect = true;
+            iconImage.raycastTarget = false;
+            iconImage.color = Color.white;
+        }
+
+        private static GameObject Pill(Transform parent, string words, Font font, out Text label)
+        {
+            var pill = new GameObject("Seeds it pays", typeof(RectTransform));
+            pill.transform.SetParent(parent, false);
+            var layout = pill.AddComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = 96f;
+            layout.minHeight = layout.preferredHeight = 44f;
+            var image = pill.AddComponent<Image>();
+            MosseloraArt.Round(image, new Color(0.93f, 0.88f, 0.72f, 1f), 22);
+            image.raycastTarget = false;
+            var row = pill.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(8, 10, 4, 4);
+            row.spacing = 4;
+            row.childAlignment = TextAnchor.MiddleCenter;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+            var icon = new GameObject("Seed", typeof(RectTransform));
+            icon.transform.SetParent(pill.transform, false);
+            var iconLayout = icon.AddComponent<LayoutElement>();
+            iconLayout.preferredWidth = iconLayout.preferredHeight = 28f;
+            var iconImage = icon.AddComponent<Image>();
+            iconImage.sprite = MosseloraArt.Load(SeedIcon);
+            iconImage.preserveAspect = true;
+            iconImage.raycastTarget = false;
+            var text = new GameObject("Seed count", typeof(RectTransform));
+            text.transform.SetParent(pill.transform, false);
+            label = text.AddComponent<Text>();
+            label.font = font;
+            label.fontSize = 20;
+            label.fontStyle = FontStyle.Bold;
+            label.color = MosseloraTheme.EarthInk;
+            label.alignment = TextAnchor.MiddleLeft;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow; // "+20" wrapped to "+2" (I204)
+            label.raycastTarget = false;
+            label.text = words;
+            return pill;
+        }
+
+        private static void Hidden(Transform parent, string words, Font font)
+        {
+            var node = new GameObject("Caption", typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            node.AddComponent<LayoutElement>().ignoreLayout = true;
+            var text = node.AddComponent<Text>();
+            text.font = font;
+            text.color = new Color(0f, 0f, 0f, 0f);
+            text.raycastTarget = false;
+            text.text = words;
+        }
+    }
+}

@@ -26,6 +26,7 @@ namespace Evergrove.UnityClient
             public int Index;            // the choice this item came from
             public VillageChoice Family;
             public bool Newest;
+            public bool Bloomed;         // its puzzle has been solved (I204): a warm ring of light
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -438,6 +439,22 @@ namespace Evergrove.UnityClient
                     ringImage.raycastTarget = false;
                     Breathe.Add(ringImage);
                     nodes.Add(ringRect);
+                }
+                if (item.Bloomed && !held)
+                {
+                    // Solved: a soft golden glow on the ground beneath it.
+                    var glow = new GameObject("Bloomed", typeof(RectTransform));
+                    glow.transform.SetParent(land, false);
+                    var glowRect = (RectTransform)glow.transform;
+                    glowRect.anchorMin = glowRect.anchorMax = new Vector2(0f, 1f);
+                    glowRect.sizeDelta = new Vector2(cellW * 1.4f, cellH * 0.66f);
+                    glowRect.anchoredPosition = at + new Vector2(0f, cellH * 0.08f);
+                    var glowImage = glow.AddComponent<Image>();
+                    glowImage.sprite = MosseloraArt.Ring(16);
+                    glowImage.type = Image.Type.Sliced;
+                    glowImage.color = new Color(1f, 0.82f, 0.36f, 0.85f);
+                    glowImage.raycastTarget = false;
+                    nodes.Add(glowRect);
                 }
                 var node = new GameObject("On the map", typeof(RectTransform));
                 node.transform.SetParent(land, false);

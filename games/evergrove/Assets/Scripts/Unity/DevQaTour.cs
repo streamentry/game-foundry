@@ -208,6 +208,28 @@ namespace Evergrove.UnityClient
             yield return new WaitForEndOfFrame();
             SavePng("17c-basket.png");
             app.QaCloseBasket();
+            // Every grown thing holds a puzzle (I203/I204): pick one up, play it, see it bloom.
+            int thing = app.QaHoldThing();
+            if (thing >= 0)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17e-thing-picked-up.png");
+                app.QaOpenTreePlay(thing);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17f-tree-puzzle.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17g-tree-solved.png");
+                yield return new WaitForSecondsRealtime(2.2f);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17h-tree-bloomed.png");
+                app.QaEndTreePlay();
+            }
             // Settings as round tokens (I194).
             Press("Open menu");
             for (int f = 0; f < 4; f++) yield return null;

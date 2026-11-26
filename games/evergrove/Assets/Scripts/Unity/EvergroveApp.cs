@@ -1659,6 +1659,45 @@ namespace Evergrove.UnityClient
                 KeeperLine(stack.transform, "Last memory", hubRecall);
             if (worldHome)
             {
+                // I204: a thing you've grown, picked up, holds its own puzzle: the big
+                // token becomes that thing, and plays its puzzle.
+                int held = world.Mode == PlayMode.Living && mapInHand >= 0 && mapInHand < world.Choices.Length
+                    ? mapInHand : -1;
+                if (held >= 0)
+                {
+                    Transform heldRow = CenteredRowIn(stack.transform, "Play row");
+                    Button thing = IconButton(heldRow, "Play its puzzle", ItemAt(held, world.Choices[held]).Name,
+                        MosseloraArt.IconContinue, () => OpenTreePlay(held), 96, MosseloraTheme.WaterAction,
+                        false, null, false, 0, 0, true);
+                    Transform glyph = thing.transform.Find("Icon");
+                    Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                    Sprite heldArt = ItemArt(held, world.Choices[held]);
+                    if (glyphImage != null && heldArt != null)
+                    {
+                        glyphImage.sprite = heldArt;
+                        glyphImage.color = Color.white;
+                        var glyphSize = glyph.GetComponent<LayoutElement>();
+                        glyphSize.minWidth = glyphSize.preferredWidth = 64f;
+                        glyphSize.minHeight = glyphSize.preferredHeight = 64f;
+                        // A small round "play" mark on the token's lower right.
+                        Image disc = MosseloraArt.Ornament(thing.transform, "Plays", MosseloraArt.Rounded(16),
+                            new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(-4f, 4f));
+                        if (disc != null)
+                        {
+                            disc.preserveAspect = false;
+                            disc.color = MosseloraTheme.WaterAction;
+                            Image playMark = MosseloraArt.Ornament(disc.transform, "Play mark", MosseloraArt.Load(MosseloraArt.IconContinue),
+                                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(20f, 20f), Vector2.zero);
+                            if (playMark != null) playMark.color = Color.white;
+                        }
+                    }
+                    if (gentleMotion) BloomPulse.Add(thing.gameObject, 0.2f, 0.06f);
+                    SeedPurse();
+                    if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
+                    HubChrome();
+                    titleScreen.transform.SetAsLastSibling();
+                    return;
+                }
                 // The same plank as over the board, then a round play token (I190).
                 if (!world.Completed && GameLocalization.Current == "en")
                     NextStreamLine(stack.transform, world.CurrentPuzzle.Name, false);
@@ -1668,6 +1707,7 @@ namespace Evergrove.UnityClient
                             basketOpen = false; basketKind = -1; heldPlanting = -1; CloseTitle();
                         }, 96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
                 if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
+                SeedPurse();
                 HubChrome();
                 titleScreen.transform.SetAsLastSibling();
                 return;
@@ -1865,6 +1905,58 @@ namespace Evergrove.UnityClient
         private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.MaxReaches; }
 
         private readonly float[] hubZoom = { 0f, 0f };
+
+        // ---- I204: the puzzle a grown thing holds, and the seeds it pays.
+        private void OpenTreePlay(int item)
+        {
+            int[] made = world.Choices;
+            if (titleScreen == null || item < 0 || item >= made.Length) return;
+            int tier = TreePuzzles.TierFor(item);
+            GardenItem thing = ItemAt(item, made[item]);
+            // The same thing always holds the same board: seeded by garden and place in the story.
+            Puzzle board = TreePuzzles.For(world.Garden * 1000 + item * 7 + 1, tier, thing.Name);
+            int reward = WorldModel.TreeReward(tier, !world.TreeSolved(item));
+            TreePlay.Open((RectTransform)titleScreen.transform, board, ItemArt(item, made[item]), thing.Name,
+                reward, font, gentleMotion,
+                () => { PlayTock(); if (gentleMotion) Haptics.Tick(); },
+                () => { int earned = world.SolveTree(item); SaveWorld(); PlayChime(); return earned; },
+                () => { mapInHand = -1; RefreshMaps(); });
+        }
+
+        // The seeds you have, top right of home: a sprout and a number.
+        private void SeedPurse()
+        {
+            if (titleScreen == null || world.Mode != PlayMode.Living || world.Choices.Length == 0) return;
+            var purse = Node("Seeds you have", titleScreen.transform);
+            var rect = purse.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            rect.anchorMin = rect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.sizeDelta = new Vector2(104f, 48f);
+            rect.anchoredPosition = new Vector2(-12f, -ChromeTop - 4f);
+            var body = purse.AddComponent<Image>();
+            MosseloraArt.Round(body, new Color(0.98f, 0.95f, 0.86f, 0.96f), 24);
+            MosseloraArt.Lift(body, 2f, 0.2f);
+            body.raycastTarget = false;
+            var row = purse.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(8, 12, 4, 4);
+            row.spacing = 4;
+            row.childAlignment = TextAnchor.MiddleCenter;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+            var icon = Node("Seed", purse.transform);
+            var iconLayout = icon.AddComponent<LayoutElement>();
+            iconLayout.preferredWidth = iconLayout.preferredHeight = 30f;
+            var iconImage = icon.AddComponent<Image>();
+            iconImage.sprite = MosseloraArt.Load(TreePlay.SeedIcon);
+            iconImage.preserveAspect = true;
+            iconImage.raycastTarget = false;
+            Text count = Label(purse.transform, "Seed count", world.Seeds.ToString(), 20, 0, Ink, TextAnchor.MiddleLeft);
+            Emphasize(count);
+        }
         private bool GardenMapOnHub(RectTransform window)
         {
             Sprite plot = MapPainting();
@@ -1956,7 +2048,8 @@ namespace Evergrove.UnityClient
                     Cell = cells[i],
                     Index = i,
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
-                    Newest = i == made.Length - 1 && justPlanted < 0
+                    Newest = i == made.Length - 1 && justPlanted < 0,
+                    Bloomed = world.TreeSolved(i) // its puzzle solved (I204)
                 });
             // More of what you grew, planted from the basket (I193).
             for (int k = 0; k * 2 + 1 < planted.Length; k++)
@@ -6381,6 +6474,37 @@ namespace Evergrove.UnityClient
         }
 
         internal void QaCloseBasket() { basketOpen = false; basketKind = -1; heldPlanting = -1; }
+
+        // I204 tour: pick up a grown thing, open its puzzle, solve it, see it bloom.
+        private TreePlay qaTreePlay;
+        internal int QaHoldThing()
+        {
+            int item = Mathf.Min(4, world.Choices.Length - 1);
+            if (item < 0) return -1;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true; // the hub rebuilds when the puzzle closes
+#endif
+            heldPlanting = -1;
+            mapInHand = item;
+            RefreshMaps();
+            return item;
+        }
+
+        internal void QaOpenTreePlay(int item)
+        {
+            OpenTreePlay(item);
+            qaTreePlay = titleScreen != null ? titleScreen.GetComponentInChildren<TreePlay>() : null;
+        }
+
+        internal void QaSolveTreePlay() { if (qaTreePlay != null) qaTreePlay.QaSolve(); }
+
+        internal void QaEndTreePlay()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = false;
+#endif
+            qaTreePlay = null;
+        }
 
         internal void QaShowHub(bool show)
         {
