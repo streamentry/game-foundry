@@ -45,6 +45,10 @@ namespace Evergrove.Core
         // Optional, additive (I193; absent in older JSON). Free planting: more of
         // what you've grown, in pairs [choice index, map cell, choice index, map cell, ...].
         public int[] plantings = Array.Empty<int>();
+        // Optional, additive (I204; absent in older JSON). Seeds earned by solving
+        // the puzzles your grown things hold, and which things you have solved.
+        public int seeds;
+        public int[] treeSolved = Array.Empty<int>();
     }
 
     /// <summary>
@@ -103,6 +107,38 @@ namespace Evergrove.Core
         /// <summary>Free plantings as pairs [choice index, cell, ...] (I193).</summary>
         public int[] Plantings { get { return (int[])state.plantings.Clone(); } }
         public int PlantingCount { get { return state.plantings.Length / 2; } }
+
+        // ---- I204: every grown thing holds a puzzle; solving it earns seeds.
+        public const int MaxSeeds = 9999999;
+        private static readonly int[] FirstReward = { 10, 20, 40 };
+        private static readonly int[] ReplayReward = { 2, 4, 8 };
+        public int Seeds { get { return state.seeds; } }
+
+        public bool TreeSolved(int item) { return Array.IndexOf(state.treeSolved, item) >= 0; }
+
+        /// <summary>Seeds for solving a tier's puzzle: most the first time, a little on every replay.</summary>
+        public static int TreeReward(int tier, bool first)
+        {
+            int t = Math.Max(0, Math.Min(TreePuzzles.Tiers - 1, tier));
+            return first ? FirstReward[t] : ReplayReward[t];
+        }
+
+        /// <summary>Records a solved puzzle of grown thing <paramref name="item"/> and returns the seeds earned.</summary>
+        public int SolveTree(int item)
+        {
+            if (Mode != PlayMode.Living || item < 0 || item >= state.choices.Length) return 0;
+            bool first = !TreeSolved(item);
+            int reward = TreeReward(TreePuzzles.TierFor(item), first);
+            if (first)
+            {
+                int[] next = new int[state.treeSolved.Length + 1];
+                Array.Copy(state.treeSolved, next, state.treeSolved.Length);
+                next[next.Length - 1] = item;
+                state.treeSolved = next;
+            }
+            state.seeds = Math.Min(MaxSeeds, state.seeds + reward);
+            return reward;
+        }
 
         /// <summary>Plants one more of choice <paramref name="source"/>'s item on a cell (the map checks the land).</summary>
         public bool Plant(int source, int cell)
@@ -250,7 +286,8 @@ namespace Evergrove.Core
                 rotations = (int[])PuzzleCatalog.Get(0).Initial.Clone(),
                 previous = Array.Empty<int>(), choices = Array.Empty<int>(),
                 variantSchedule = (int[])schedule.Clone(), history = Array.Empty<int>(),
-                garden = 0, placements = Array.Empty<int>(), plantings = Array.Empty<int>()
+                garden = 0, placements = Array.Empty<int>(), plantings = Array.Empty<int>(),
+                seeds = 0, treeSolved = Array.Empty<int>()
             });
         }
 
@@ -265,7 +302,8 @@ namespace Evergrove.Core
                 variantSchedule = (int[])state.variantSchedule.Clone(),
                 history = (int[])state.history.Clone(),
                 garden = state.garden, placements = (int[])state.placements.Clone(),
-                plantings = (int[])state.plantings.Clone()
+                plantings = (int[])state.plantings.Clone(),
+                seeds = state.seeds, treeSolved = (int[])state.treeSolved.Clone()
             };
         }
 
@@ -311,6 +349,13 @@ namespace Evergrove.Core
             for (int i = 0; i < plantings.Length; i += 2)
                 if (plantings[i] < 0 || plantings[i] >= source.choices.Length ||
                     plantings[i + 1] < 0 || plantings[i + 1] >= MaxMapCell) return false;
+            int[] treeSolved = source.treeSolved ?? Array.Empty<int>();
+            if (source.seeds < 0 || source.seeds > MaxSeeds || treeSolved.Length > source.choices.Length ||
+                (source.mode != "living" && (source.seeds != 0 || treeSolved.Length != 0)))
+                return false;
+            for (int i = 0; i < treeSolved.Length; i++)
+                if (treeSolved[i] < 0 || treeSolved[i] >= source.choices.Length ||
+                    Array.IndexOf(treeSolved, treeSolved[i]) != i) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -371,7 +416,8 @@ namespace Evergrove.Core
                 hintStep = hintStep, hintTile = hintTile,
                 variantSchedule = (int[])schedule.Clone(), history = history,
                 garden = source.garden, placements = (int[])placements.Clone(),
-                plantings = (int[])plantings.Clone()
+                plantings = (int[])plantings.Clone(),
+                seeds = source.seeds, treeSolved = (int[])treeSolved.Clone()
             });
             return true;
         }
@@ -597,6 +643,8 @@ namespace Evergrove.Core
             for (int i = 0; i + 1 < state.plantings.Length; i += 2)
                 if (state.plantings[i] < trimmed.Length) { stillOurs.Add(state.plantings[i]); stillOurs.Add(state.plantings[i + 1]); }
             state.plantings = stillOurs.ToArray();
+            // A reconsidered thing's puzzle is no longer solved; seeds earned stay.
+            state.treeSolved = Array.FindAll(state.treeSolved, item => item < trimmed.Length);
             state.round = previousChapter;
             state.boardVariant = state.lastSolvedVariant;
             state.rotations = (int[])CurrentPuzzle.Solution.Clone();

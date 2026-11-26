@@ -37,7 +37,7 @@ namespace Evergrove.Core
         private static readonly HashSet<string> SnapshotKeys = new HashSet<string> {
             "version", "mode", "round", "solved", "rotations", "previous", "choices",
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
-            "history", "garden", "placements", "plantings"
+            "history", "garden", "placements", "plantings", "seeds", "treeSolved"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -135,15 +135,19 @@ namespace Evergrove.Core
             // Accept that exact pre-history canonical form only when the import has no history.
             bool matchesCurrent = string.Equals(Sha256Hex(SnapshotJson(snapshot)), checksum, StringComparison.Ordinal);
             // Gardens exported before E4 (I177) have no "garden"/"placements" keys.
-            bool noMapYet = snapshot.garden == 0 && snapshot.placements.Length == 0 && snapshot.plantings.Length == 0;
+            bool noTreesYet = snapshot.seeds == 0 && snapshot.treeSolved.Length == 0;
+            bool noMapYet = snapshot.garden == 0 && snapshot.placements.Length == 0 && snapshot.plantings.Length == 0 && noTreesYet;
             // Gardens exported before I193 have no "plantings" key.
-            bool matchesPrePlantings = snapshot.plantings.Length == 0 &&
-                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, false)), checksum, StringComparison.Ordinal);
+            bool matchesPrePlantings = snapshot.plantings.Length == 0 && noTreesYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, false, false)), checksum, StringComparison.Ordinal);
+            // Gardens exported before I204 have no "seeds"/"treeSolved" keys.
+            bool matchesPreTrees = noTreesYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreMap = noMapYet &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreHistory = noMapYet && snapshot.history.Length == 0 &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, false, false)), checksum, StringComparison.Ordinal);
-            if (!matchesCurrent && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
+            if (!matchesCurrent && !matchesPreTrees && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
             {
                 error = GardenImportError.ChecksumMismatch;
                 return false;
@@ -168,7 +172,8 @@ namespace Evergrove.Core
         /// Canonical text. With includeHistory false it reproduces the pre-EG-111
         /// layout, used only to verify checksums of older garden files.
         /// </summary>
-        private static string SnapshotJson(WorldSnapshot s, bool includeHistory, bool includeMap, bool includePlantings = true)
+        private static string SnapshotJson(WorldSnapshot s, bool includeHistory, bool includeMap, bool includePlantings = true,
+                                           bool includeTrees = true)
         {
             var sb = new StringBuilder(256);
             sb.Append("{\"version\":").Append(Int(s.version))
@@ -190,6 +195,9 @@ namespace Evergrove.Core
                   .Append(",\"placements\":").Append(IntArray(s.placements));
             if (includeMap && includePlantings)
                 sb.Append(",\"plantings\":").Append(IntArray(s.plantings));
+            if (includeMap && includePlantings && includeTrees)
+                sb.Append(",\"seeds\":").Append(Int(s.seeds))
+                  .Append(",\"treeSolved\":").Append(IntArray(s.treeSolved));
             return sb.Append('}').ToString();
         }
 
@@ -267,7 +275,9 @@ namespace Evergrove.Core
                    ReadInts(fields, "history", ref snapshot.history) &&
                    ReadInt(fields, "garden", ref snapshot.garden) &&
                    ReadInts(fields, "placements", ref snapshot.placements) &&
-                   ReadInts(fields, "plantings", ref snapshot.plantings);
+                   ReadInts(fields, "plantings", ref snapshot.plantings) &&
+                   ReadInt(fields, "seeds", ref snapshot.seeds) &&
+                   ReadInts(fields, "treeSolved", ref snapshot.treeSolved);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)
