@@ -4088,20 +4088,51 @@ namespace Evergrove.UnityClient
                 Sprite vignette = MosseloraArt.Load(keeper == 0 ? MosseloraArt.VignetteTree
                     : keeper == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
                 Sprite rememberer = MosseloraArt.Portrait(keeper);
+                // I200: one screen, no scrolling. The painting stands beside the
+                // neighbour's sentence (narrower at large text, so the words keep the
+                // room); no generic title; what changed is shown by the map above
+                // and only spoken here.
+                bool roomy = false; // stacking at 150% pushed the sentence under the buttons
+                float sceneShare = TextScale.Percent > 125 ? 0.38f : 0.48f;
+                Transform words = moment.transform;
                 // Sideways, the same painting already fills the left side (I114).
                 if (vignette != null && !landscape)
                 {
-                    var scene = Node("Memory vignette", moment.transform);
-                    // Larger text keeps its size; the painting yields height so the
-                    // continue arrow stays on the first screen (I85).
-                    Height(scene, Mathf.Round(Mathf.Min(PageWidth() - 28f, 360f) / MosseloraArt.Aspect(vignette)
-                        * (TextScale.Percent > 100 ? 0.78f : 1f)));
+                    Transform holder = moment.transform;
+                    float sceneWidth = roomy ? Mathf.Min(PageWidth() - 28f, 300f) : Mathf.Round((PageWidth() - 28f) * sceneShare);
+                    if (!roomy)
+                    {
+                        var pair = Node("Memory row", moment.transform);
+                        var pairGroup = pair.AddComponent<HorizontalLayoutGroup>();
+                        pairGroup.spacing = 12;
+                        pairGroup.childAlignment = TextAnchor.MiddleLeft;
+                        pairGroup.childControlWidth = true;
+                        pairGroup.childControlHeight = true;
+                        pairGroup.childForceExpandWidth = false;
+                        pairGroup.childForceExpandHeight = false;
+                        holder = pair.transform;
+                    }
+                    var scene = Node("Memory vignette", holder);
+                    var sceneLayout = scene.AddComponent<LayoutElement>();
+                    sceneLayout.minWidth = sceneLayout.preferredWidth = sceneWidth;
+                    sceneLayout.minHeight = sceneLayout.preferredHeight =
+                        Mathf.Round(sceneWidth / MosseloraArt.Aspect(vignette));
                     var sceneImage = scene.AddComponent<Image>();
                     sceneImage.sprite = vignette;
                     sceneImage.preserveAspect = true;
                     sceneImage.raycastTarget = false;
-                    // What exactly was grown or built, painted in the corner (I172).
-                    ItemBadge(scene.transform, world.Choices.Length - 1, keeper);
+                    if (!roomy)
+                    {
+                        var column = Node("Memory words", holder);
+                        column.AddComponent<LayoutElement>().flexibleWidth = 1f;
+                        var columnGroup = column.AddComponent<VerticalLayoutGroup>();
+                        columnGroup.childAlignment = TextAnchor.MiddleLeft;
+                        columnGroup.childControlWidth = true;
+                        columnGroup.childControlHeight = true;
+                        columnGroup.childForceExpandWidth = true;
+                        columnGroup.childForceExpandHeight = false;
+                        words = column.transform;
+                    }
                 }
                 // Sideways the left painting already shows who remembers, and the
                 // face would push the continue arrow off a 402 pt screen (I115).
@@ -4114,28 +4145,21 @@ namespace Evergrove.UnityClient
                     faceImage.preserveAspect = true;
                     faceImage.raycastTarget = false;
                 }
-                Text momentTitle = Label(moment.transform, "Moment title",
-                    GameLocalization.Text("memory_title"), 18, 31, Leaf, TextAnchor.MiddleCenter);
-                Emphasize(momentTitle);
-                // The chapter header lives in the scrapbook; here, the memory and its effect.
-                Text story = Label(moment.transform, "Story", Remembered(world.Choices, world.Choices.Length - 1), 18, 0, Ink,
-                    TextAnchor.MiddleCenter);
+                bool beside = words != moment.transform;
+                Text story = Label(words, "Story", Remembered(world.Choices, world.Choices.Length - 1), 18, 0, Ink,
+                    beside ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter);
                 Narrate(story, true);
-                Narrate(Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 17, 0, Ink,
-                    TextAnchor.MiddleCenter));
+                // Still read aloud: what changed in the garden (hidden, takes no room).
+                Text changed = Label(words, "Story consequence", LocalizedVillage.Consequence(world), 17, 0,
+                    new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+                changed.GetComponent<LayoutElement>().ignoreLayout = true;
                 Sprite memorySprig = MosseloraArt.Load(MosseloraArt.Sprig);
                 MosseloraArt.Ornament(moment.transform, "Sprig left", memorySprig, new Vector2(0f, 1f),
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(10f, -8f));
                 MosseloraArt.Ornament(moment.transform, "Sprig right", memorySprig, new Vector2(1f, 1f),
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(-10f, -8f), true);
-                // Where the arrow leads: the stones walked so far and the next
-                // stream, wearing the landmark just planted (as on the hub, I78).
-                if (!world.Completed)
-                {
-                    StreamStones(world.CurrentPuzzle, content, false);
-                    if (GameLocalization.Current == "en" && !landscape)
-                        NextStreamLine(content, world.CurrentPuzzle.Name, false);
-                }
+                // (I200: the walk stones and the next stream's sign wait on the next
+                // board, where they matter; here they pushed the memory off screen.)
                 Transform next = CenteredRow("Memory actions");
                 Button changeButton = IconButton(next, "Change your choice", GameLocalization.Text("change"),
                     MosseloraArt.IconChange, () => {
