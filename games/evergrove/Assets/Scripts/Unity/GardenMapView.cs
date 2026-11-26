@@ -406,12 +406,55 @@ namespace Evergrove.UnityClient
                 scroll.normalizedPosition = keep;
                 return;
             }
+            if (liftFocus > 0)
+            {
+                focus = new Vector2(width / 2f, -reachHeight * liftFocus);
+                focused = true;
+            }
             Vector2 view = window.rect.size;
             float spanX = Mathf.Max(1f, width - view.x), spanY = Mathf.Max(1f, height - view.y);
             float nx = focused ? Mathf.Clamp01((focus.x - view.x / 2f) / spanX) : 0.5f;
             float ny = focused ? 1f - Mathf.Clamp01((-focus.y - view.y * FocusFromTop) / spanY) : 1f;
             scroll.StopMovement();
             scroll.normalizedPosition = new Vector2(nx, ny);
+        }
+
+        /// <summary>
+        /// A new reach of river has just opened (I195): it starts under the same
+        /// dry mist as the reach that waited below, which lifts over two seconds.
+        /// </summary>
+        public void LiftMist(int reach)
+        {
+            if (plotRect == null || reach < 1 || reach >= reaches) return;
+            var node = new GameObject("Mist lifting", typeof(RectTransform));
+            node.transform.SetParent(plotRect, false);
+            var rect = (RectTransform)node.transform;
+            rect.anchorMin = new Vector2(0f, 1f - (reach + 1f) / reaches);
+            rect.anchorMax = new Vector2(1f, 1f - reach / (float)reaches);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            Wash(rect, new Color(0.84f, 0.74f, 0.50f, 0.5f), false);
+            Wash(rect, new Color(0.97f, 0.95f, 0.89f, 0.82f), true);
+            node.AddComponent<CanvasGroup>().blocksRaycasts = false;
+            node.AddComponent<Lift>();
+            liftFocus = reach; // frame where the old river meets the new reach
+            Layout();
+        }
+
+        private int liftFocus = -1;
+
+        private sealed class Lift : MonoBehaviour
+        {
+            private float clock;
+            private CanvasGroup group;
+            private void Start() { group = GetComponent<CanvasGroup>(); }
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01((clock - 0.6f) / 2.2f);
+                if (group != null) group.alpha = 1f - Mathf.SmoothStep(0f, 1f, t);
+                transform.localScale = new Vector3(1f, 1f + 0.06f * t, 1f);
+                if (t >= 1f) Destroy(gameObject);
+            }
         }
 
         /// <summary>Reports taps on the plot (no tap when the finger dragged).</summary>

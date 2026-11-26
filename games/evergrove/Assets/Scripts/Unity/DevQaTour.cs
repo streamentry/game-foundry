@@ -129,6 +129,13 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 Press("Choice " + MainPattern[chapter]);
                 for (int f = 0; f < 6; f++) yield return null;
+                if (chapter == 2)
+                {
+                    // The third stream opens the second reach: its mist lifting (I195).
+                    yield return new WaitForSecondsRealtime(1.4f);
+                    yield return new WaitForEndOfFrame();
+                    SavePng("05b-new-reach.png");
+                }
                 Press("Continue");
                 for (int f = 0; f < 6; f++) yield return null;
 

@@ -2299,6 +2299,13 @@ namespace Evergrove.UnityClient
                 OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
                 animate ? GreenedShare(1) : -1f,
                 memoryScreen ? null : (land, point) => NeighborsOnMap(land, point, map, false), 0f, RiverGoesOn(map));
+            // This stream opened a new reach of river: watch its mist lift (I195).
+            if (animate && !world.Completed && map.Reaches > 1 &&
+                world.Choices.Length % GardenMap.StreamsPerReach == 0)
+            {
+                view.LiftMist(map.Reaches - 1);
+                PlayChime();
+            }
             // Under a floating title the new thing sits lower in view (I185).
             if (hero) view.FocusFromTop = 0.55f;
             int held = ItemInHand();
