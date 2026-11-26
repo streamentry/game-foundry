@@ -1608,7 +1608,7 @@ namespace Evergrove.UnityClient
             // Home is your garden, full screen (I190): no paper, no wordmark, no
             // tagline; the walk, the next stream's sign and one round play button
             // stand on the grass at the bottom.
-            bool worldHome = mapShown && !landscape;
+            bool worldHome = mapShown;
             if (worldHome)
             {
                 windowRect.anchorMin = Vector2.zero;
@@ -1628,6 +1628,13 @@ namespace Evergrove.UnityClient
             column.childForceExpandWidth = true;
             column.childForceExpandHeight = false;
             if (worldHome) column.childAlignment = TextAnchor.LowerCenter;
+            if (worldHome && landscape)
+            {
+                // Sideways the screen is short and the neighbours stand mid-garden, so
+                // the sign and play token keep to a right-hand column (I197).
+                stackRect.anchorMin = new Vector2(0.7f, 0.04f);
+                stackRect.anchorMax = new Vector2(1f, 0.8f);
+            }
             Sprite mark = worldHome ? null : MosseloraArt.Load(MosseloraArt.Wordmark);
             if (mark != null)
             {
@@ -1645,7 +1652,8 @@ namespace Evergrove.UnityClient
                 Emphasize(tagline);
             }
             // How far along the creek this garden has walked: resumes, never resets.
-            if (!world.Completed) StreamStones(world.CurrentPuzzle, stack.transform, false);
+            if (!world.Completed && !(worldHome && landscape))
+                StreamStones(world.CurrentPuzzle, stack.transform, false);
             // What changed last time, told by the neighbor who remembers it.
             if (world.Mode == PlayMode.Living && world.Choices.Length > 0 && !worldHome)
                 KeeperLine(stack.transform, "Last memory", hubRecall);
@@ -1836,17 +1844,19 @@ namespace Evergrove.UnityClient
             Sprite plot = MosseloraArt.Load("garden-map");
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
-            GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), 1.3f, OnMapLand, OnMapItem,
+            GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand, justPlanted >= 0 && gentleMotion,
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
-                landscape ? 0f : 0.22f, RiverGoesOn(map));
+                0.22f, RiverGoesOn(map));
             hubMapView = view;
             justPlanted = -1;
             if (keepHubAt.x >= 0f) view.KeepAt(keepHubAt);
             keepHubAt = new Vector2(-1f, -1f);
             // Full-screen home (I190): what you made sits in the upper part of the
             // screen, clear of the play token at the bottom.
-            if (!landscape) view.FocusFromTop = 0.36f;
+            // Sideways too (I197): home is the whole garden whichever way you hold it.
+            // Sideways the window is short, so what you made sits higher still (I197).
+            view.FocusFromTop = landscape ? 0.24f : 0.36f;
             return true;
         }
 
