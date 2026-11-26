@@ -2300,10 +2300,10 @@ namespace Evergrove.UnityClient
                 animate ? GreenedShare(1) : -1f,
                 memoryScreen ? null : (land, point) => NeighborsOnMap(land, point, map, false), 0f, RiverGoesOn(map));
             // Under a floating title the new thing sits lower in view (I185).
-            if (hero) view.FocusFromTop = 0.7f;
+            if (hero) view.FocusFromTop = 0.55f;
             int held = ItemInHand();
             if (held >= 0 && PlayerPrefs.GetInt(PlacedOnceKey, 0) == 0) PlaceTip(window.transform, held);
-            if (hero) HeroTitle(window.transform);
+            // No wordmark or tagline over your garden (I194): you know where you are.
             return true;
         }
 
@@ -5321,11 +5321,11 @@ namespace Evergrove.UnityClient
                 IconButton(row.transform, "Language settings",
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
-                    MosseloraArt.IconLanguage, () => { languagePicker = true; Rebuild(true); }, 78,
-                    MosseloraTheme.QuietAction, false, null, true);
+                    MosseloraArt.IconLanguage, () => { languagePicker = true; Rebuild(true); }, SettingToken,
+                    MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             TextSizeButton(row.transform);
-            row = Row(panel.transform, "Settings row 2");
             BoardSizeButton(row.transform);
+            row = Row(panel.transform, "Settings row 2");
             IconButton(row.transform, "Gentle motion setting",
                 GameLocalization.Text("gentle_motion"),
                 gentleMotion ? MosseloraArt.IconMotionOn : MosseloraArt.IconMotionOff,
@@ -5335,10 +5335,9 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.SetInt(GentleMotionKey, gentleMotion ? 1 : 0);
                     PlayerPrefs.Save();
                     Rebuild();
-                }, 78, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, true);
-            row = Row(panel.transform, "Settings row 3");
-            Button chimeTile = IconButton(row.transform, "Quiet audio setting",
+                }, SettingToken, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
                 () => {
@@ -5346,15 +5345,23 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.SetInt("evergrove:gentle-audio", soundOn ? 1 : 0);
                     PlayerPrefs.Save();
                     Rebuild();
-                }, 78, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, true);
-            // The tile shows its name like its neighbors ("Gentle chime"); the icon
-            // and tone show on/off. The full sentence stays the spoken name (I76).
-            ShowShortName(chimeTile);
+                }, SettingToken, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
             // An even grid: every tile half the panel wide, the odd one out centred
             // at the same width, instead of widths set by each caption (I143).
-            foreach (Transform settingsRow in panel.transform) EvenTiles(settingsRow);
+            // Round tokens (I194): the picture and its on/off tone say it; the name is
+            // spoken and shown on press-and-hold. Rows centre their tokens, never stretch them.
+            foreach (Transform settingsRow in panel.transform)
+            {
+                var group = settingsRow.GetComponent<HorizontalLayoutGroup>();
+                if (group == null) continue;
+                group.childForceExpandWidth = false;
+                group.childAlignment = TextAnchor.MiddleCenter;
+                group.spacing = 22;
+            }
         }
+
+        private const int SettingToken = 76;
 
         private static void EvenTiles(Transform row)
         {
@@ -5415,8 +5422,8 @@ namespace Evergrove.UnityClient
                 MosseloraArt.IconBoardSize, () => {
                     BoardSize.Toggle();
                     Rebuild();
-                }, 78, BoardSize.IsLarge ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, true, 2, BoardSize.IsLarge ? 2 : 1);
+                }, SettingToken, BoardSize.IsLarge ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 2, BoardSize.IsLarge ? 2 : 1, true);
         }
 
         // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.
@@ -5427,8 +5434,8 @@ namespace Evergrove.UnityClient
                 MosseloraArt.IconTextSize, () => {
                     TextScale.Cycle();
                     Rebuild();
-                }, 78, TextScale.Percent > 100 ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, true, 3, TextScale.Percent >= 150 ? 3 : TextScale.Percent >= 125 ? 2 : 1);
+                }, SettingToken, TextScale.Percent > 100 ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 3, TextScale.Percent >= 150 ? 3 : TextScale.Percent >= 125 ? 2 : 1, true);
         }
 
         private void BuildLanguagePicker()

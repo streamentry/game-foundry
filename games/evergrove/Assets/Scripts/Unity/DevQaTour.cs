@@ -201,6 +201,17 @@ namespace Evergrove.UnityClient
             yield return new WaitForEndOfFrame();
             SavePng("17c-basket.png");
             app.QaCloseBasket();
+            // Settings as round tokens (I194).
+            Press("Open menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            Press("Settings");
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17d-settings.png");
+            Press("Close menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaShowHub(true);
+            for (int f = 0; f < 4; f++) yield return null;
             app.QaShowHub(false);
             for (int f = 0; f < 4; f++) yield return null;
 
