@@ -2476,6 +2476,9 @@ namespace Evergrove.UnityClient
                     false, null, false, 0, 0, true);
                 Transform bagGlyph = bag.transform.Find("Icon");
                 if (bagGlyph != null) bagGlyph.GetComponent<Image>().color = Color.white;
+                // Shop, not plant (I213): the sprout wears the same seed chip as the
+                // purse and the prices, so the token reads "spend seeds here".
+                if (!nurseryOpen) PriceChip(bag.transform, world.Seeds.ToString(), true, true);
                 if (nurseryOpen) NurseryTokens(row.transform);
                 for (int i = nurseryOpen ? -1 : made.Length - 1; i >= 0; i--) // your own kinds, newest first
                 {
@@ -2556,7 +2559,8 @@ namespace Evergrove.UnityClient
                     size.minWidth = size.preferredWidth = 50f;
                     size.minHeight = size.preferredHeight = 50f;
                 }
-                PriceChip(token.transform, open ? price.ToString() : "", affordable, open);
+                // A closed row still shows its price, greyed: you can see what you save for (I213).
+                PriceChip(token.transform, price.ToString(), affordable, open);
                 if (kind == nurseryKind && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
             }
         }
@@ -2565,19 +2569,13 @@ namespace Evergrove.UnityClient
         private void PriceChip(Transform token, string price, bool affordable, bool open)
         {
             Image chip = MosseloraArt.Ornament(token, "Price", MosseloraArt.Rounded(10), new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0.5f), new Vector2(open ? 46f : 26f, 22f), new Vector2(0f, 2f));
+                new Vector2(0.5f, 0.5f), new Vector2(46f, 22f), new Vector2(0f, 2f));
             if (chip == null) return;
             chip.preserveAspect = false;
-            chip.color = affordable ? new Color(0.98f, 0.93f, 0.74f, 1f) : new Color(0.9f, 0.88f, 0.82f, 0.95f);
-            if (!open)
-            {
-                Image lockMark = MosseloraArt.Ornament(chip.transform, "Closed row", MosseloraArt.Load(TreePlay.SeedIcon),
-                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(16f, 16f), Vector2.zero);
-                if (lockMark != null) lockMark.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
-                return;
-            }
+            chip.color = affordable ? new Color(0.98f, 0.93f, 0.74f, 1f)
+                : open ? new Color(0.9f, 0.88f, 0.82f, 0.95f) : new Color(0.82f, 0.82f, 0.8f, 0.9f);
             Text value = Label(chip.transform, "Price value", price, 14, 0,
-                affordable ? Ink : new Color(Ink.r, Ink.g, Ink.b, 0.45f), TextAnchor.MiddleCenter);
+                affordable ? Ink : new Color(Ink.r, Ink.g, Ink.b, open ? 0.45f : 0.35f), TextAnchor.MiddleCenter);
             value.horizontalOverflow = HorizontalWrapMode.Overflow;
             value.GetComponent<LayoutElement>().ignoreLayout = true;
             Fill(value.rectTransform);
