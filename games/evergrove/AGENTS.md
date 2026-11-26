@@ -13,6 +13,8 @@ The separate [37-feature product specifications](docs/specs/README.md) are **pro
 
 **Short, satisfying spatial play must have a clear, truthful consequence in the village and the next puzzle.** No extra AI, servers, content volume or art polish unless it can improve a player behavior observable in testing.
 
+**Family goal (2026-11-25):** grandparents, parents and children should be able to play together gently, and the game should connect older players with family rather than only entertain them ([vision §1a](vision.md#1a-family-play-connection-not-only-entertainment)). Keep family play cooperative, one-device first, free of timers, scores between players, chat, strangers and guilt, and collect no data about children. Weigh every feature by whether it keeps the game playable side by side.
+
 ## Source authority
 
 - `Assets/Scripts/Core/PipeRules.cs` and `ReactiveWatercourses.cs`: pure water puzzle and branching mathematics.
@@ -42,6 +44,7 @@ The separate [37-feature product specifications](docs/specs/README.md) are **pro
 - That 30 locale catalogs mean 30 native-reviewed, RTL/Indic-safe releases.
 - That .NET tests prove Unity Editor, iOS or Android works.
 - That Evergrove as a public app name is cleared, or that global market demand is established.
+- That Mosselora reduces loneliness, improves wellbeing or helps memory, or that families play it together, until a co-play feature exists and evidence supports the wording. Store copy describes only what the game lets people do.
 
 ## Highest-leverage unfinished action
 

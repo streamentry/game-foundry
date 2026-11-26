@@ -765,3 +765,72 @@ Live checks returned HTTP 200 at the Astro site apex and API health endpoint. Th
 **Stop condition:** if M4 shows players prefer Puzzle Only, or M3 shows placement confuses players over 40, cut the village back to what players use.
 
 **Next observable action:** E1, the catalogue live with painted icons (I172–I173), verified on simulator tours.
+
+## 2026-11-25 — Mosselora iOS build 2 delivered to Apple
+
+Xcode exported the App Store distribution package for version 1.0.0 build 2 from source `84c0592`. The upload log reports successful delivery and the start of Apple processing at 07:58 ICT. Processing completion, review submission, approval and public availability remain unverified. Automatic release after approval was last observed selected in App Store Connect. Android build 2 passed bundle validation and completed the first puzzle on the Android 16 emulator. After selecting a shade tree, the game displayed Rainwater as the next level and preserved the tree choice and next level after a force-stop and cold launch. See [Android build 2 captures](../../games/evergrove/docs/qa/android-build-2-2026-11-25/). Upload-key signing, physical-device QA and Play submission remain open.
+
+App Store Connect processed build 2. The build was attached and saved on the public iOS draft, with automatic release after review still selected. Apple blocked Add for Review pending content rights, age rating, privacy policy URL, copyright, reviewer contact, and iPhone and 13-inch iPad screenshots. A release source iOS Simulator export was started for capture. Play Console showed 7 of 12 setup tasks complete, Managed publishing off, and Send app for review disabled. Neither release has been submitted.
+
+Google Play accepted two 1080 × 1920 screenshots from Android build 2: the garden after restoring the shade tree and the Rainwater puzzle. The default listing now reads Ready to send for review. This status applies to the listing only. The app still needs the signed bundle and remaining declarations.
+
+The release-source iOS Simulator build ran on iPhone 17 Pro and iPad Pro 13-inch. App Store Connect accepted both original-size screenshots, and a new Add for Review check cleared the screenshot requirements. Content rights, age rating, copyright, review contact, and App Privacy still block review. Android and iOS captures are under `store/assets/evergrove/1.0/`.
+
+## 2026-11-25 — Mosselora latest-source release recheck
+
+Fetched `origin/main` after checking the dirty worktree, then fast-forwarded `main` from `84c0592` to `8c9e543`. The local decision log, release ledger, Android QA captures, Apple/Google screenshot captures, and `tools/batch_i112_i130.py` were preserved. The upstream update contains the later I112–I165 UI and art changes. The iOS build 2 in App Store Connect was built from `84c0592`; it predates the current source and is not the candidate to submit.
+
+`python3 tools/verify_evergrove_project.py` passes at `8c9e543`: 121 runtime keys across 29 offline catalogs, with the development-only source guard passing. The 15 existing Python preflight/provenance tests pass. The .NET 8 domain tests were not run because no `dotnet` executable is available in the current shell or usual local SDK paths.
+
+The installed Unity 6000.3.0f1 app exists on `/Volumes/SSD`, but the original and staged Editor bundles both fail `codesign --verify --deep --strict`. Unity CLI `editors verify` does not recognize it as an installed editor. `unity self-update --check` failed with `ENOTFOUND`; the partial official package is not verified. No signature-validation bypass or modified Editor was used. The current source has no Unity build, signed Android AAB, or signed iOS build. Xcode currently reports zero valid code-signing identities. The retained Android AAB (SHA-256 `5ca5110113fa381e31f9ac7c0d163b5ff9c1897b80a9f27aab7b211442431f22`) verifies as signed by `Android Debug`, not the Play upload key, and must not be uploaded.
+
+A local-only Unity smoke was attempted in a clean temporary clone at `/private/tmp/game-foundry-current-8c9e543`, pinned to `8c9e543`. The first sandboxed run could not create Unity Package Manager's local IPC socket. The escalated retry started Unity 6000.3.0f1 but never initialized licensing: the log reports missing `com.unity.editor.headless`, repeated Licensing Client launch, and no smoke success marker. The run was interrupted after the license-client retry loop persisted; no build or M1 evidence was produced. Its log remains at `.evergrove-evidence/8c9e543e3e14863084768d0cff2c38a79146e79a/smoke/run-n7fH9d/unity-editor.log` in the temporary snapshot. The shared checkout was not changed by the probe.
+
+Further local repair checks: Unity Hub's cached 6000.3.0f1 package is only 498 MB and fails `pkgutil --check-signature`; the separate 2.19 GB `/private/tmp` package also fails checksum verification. `unity install ... --download-only --dry-run` cannot reach Unity's release service. `/Applications/Unity Hub.app` also fails strict code-signature verification, and LaunchServices returned `kLSNoExecutableErr` when asked to open it. A Hub log from 2026-11-23 reports that the existing auth token could not be read and no gateway token was available. Do not run or repair these invalid app bundles in place; a verified Hub/Editor package and owner-managed Unity sign-in/license are needed for the next build attempt.
+
+The read-only `unity license status --format json` command timed out after 15 seconds, and `open -a '/Applications/Unity Hub.app'` failed with `kLSNoExecutableErr`. The isolated smoke's licensing loop was stopped; no user credentials or license data were read or changed.
+
+## 2026-11-25 — Store Browser login handoff
+
+On the resumed goal, the Browser runtime became available. Its tab list contained: App Store Connect `/login?targetUrl=%2Fapps&authResult=FAILED`, a Google Play Console developer Home tab, and an App Store Connect version page. I invoked the Browser tab's `requestUserTakeover()` on the failed Apple login tab and stopped console work as instructed. No page content was read and no login/2FA response was entered; Play Console content remains unverified.
+
+## 2026-11-25 — Apple first-market availability configured
+
+After the account session became authenticated, App Store Connect Apps showed the existing Mosselora record (Apple ID `6838015597`), version 1.0 `Prepare for Submission`. The attached build remains build 2 from older source `84c0592`; the version release option “Automatically release this version” is checked. App Privacy is blank and the Privacy Policy URL is unset. Review contact and copyright fields are blank.
+
+The App Store price schedule remains set for 175 territories, but App Availability had not been configured. Following the repository's U.S.-English first-market plan and with zero native-reviewed translations, I configured **United States only**, available when the app is released. Readback showed “Availability (1 Country or Region)” and “United States — Available on App Release”; China Mainland is “Not Available.” This does not publish the draft. App Compliance still lists the China Mainland Security Assessment and AI-generated/Synthetic Content rows as `Missing Info`; no declarations were submitted. They remain owner/compliance work if China Mainland is added later.
+
+Google Play Console is authenticated on its Home page. Its Mosselora record (`4974796025760682569`, package `com.streamentry.evergrove`) remains Draft, last updated Nov 25, 2026. Setup is 8/12 complete; Privacy policy, Content rating, Data safety, and Trader status are pending. A country/region rollout was not set. The draft still has no uploadable current-source AAB or submission.
+
+The current Play Publishing overview reads `Managed publishing off`; `Send app for review` is disabled. Advanced settings showed Google Play Games on PC opted in, with no PC QA or PC artifact. I opted out; readback shows the opt-in locked and no PC form-factor change in pending review. Android XR remains active and uses the mobile track by default. A dedicated XR track would still serve mobile artifacts until a separate XR release exists, so I canceled that change. Play country targeting remains unavailable until release.
+
+Device checks found no attached Android device (`adb devices -l` returned an empty list). Four iOS simulators are booted, but CoreDeviceService timed out; no physical iPhone or iPad was observed. The previous simulator/emulator captures and their store uploads are build 2 evidence only, not current-source proof. No current-build preview video exists.
+
+The Browser runtime initialized but `browsers.list()` returned no browser and `getDefault()` returned “No browser is available.” Codex only queued the App Store Connect and Play Console URLs; no signed-in page content or controls were available in this session. Last known store state remains: Apple build 2 uploaded/processed and attached to the draft, automatic release selected, no submission; Google listing assets/screenshots saved, Managed publishing off, no AAB upload or submission. These states were not re-read in this session.
+
+Latest-source release remains blocked by M1/M2/M3/M5/M6 evidence and owner actions: a clean licensed current-source Unity build; physical iPhone and Android QA; the required uncoached adult-40+ study; current binary privacy and network review; store name/rights and account-owner declarations; and reviewed translations (25 mapped locale drafts exist, zero native reviews). Keep the English listing as the only eligible listing locale until native reviewers sign off. Do not submit build 2 as if it matched `8c9e543`.
+
+## 2026-11-25 — Mosselora family goal: generations play together
+
+**Decision (founder direction):** Mosselora should be a game grandparents, parents and children can play together gently. A key goal is to help older players feel less alone by connecting them with family, not only to entertain them. The adult 40+ stays the primary player; children and parents are co-players. Recorded in [vision §1a](../../games/evergrove/vision.md#1a-family-play-connection-not-only-entertainment), the [product brief](../../games/evergrove/docs/PRODUCT.md), both AGENTS.md files, and a new [family co-play session](../../games/evergrove/docs/playtest/family-coplay-session.md) protocol.
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Founder direction. No observation of families playing Mosselora exists. AARP's self-reported data says 79% of U.S. gamers 50+ usually play alone, which cuts against co-play as common use |
+| Owner | Founder |
+| Delete | No feature is added. The first test uses the current build on one device |
+| User value | Families get a calm, failure-free thing to do and talk about together; the choice after each puzzle is a natural "which one should we pick?" moment |
+| Audience fit | Unknown. Age bands to observe: adult 40–49 / 50–64 / 65+ with child 6–8 / 9–12 |
+| Falsification | 5 family groups play the current build on one device without instruction. Fewer than 2 of 5 playing together at all drops co-play as a near-term feature |
+| Stop | Children disengage within 5 minutes in 3+ groups, or adults take over in most groups: redesign before building co-play |
+| Evidence | Anonymized counts in the playtest results template |
+
+**Rules added:** cooperative only (no scores between players, no timers), one device first, no chat or strangers, no guilt or obligation, no data about children. **No claim** that Mosselora reduces loneliness, improves wellbeing or helps memory without evidence; store copy describes only what the game lets people do.
+
+**Open owner decision:** Google Play's target audience is saved as "18 and over". If a build is designed for children to play, the account owner must decide the Families-policy and Apple age-rating declarations before submission. Current store copy makes no family or loneliness claim and was left unchanged. The M3 solo study and the release blockers above are unchanged.
+
+## 2026-11-25 — Mosselora family circle: remote play with optional sign-up
+
+**Founder direction:** family members who live far apart should be able to play together. That needs a backend and a simple sign-up, used only by people who want to connect. Everyone else plays alone and offline with no account. Recorded in [vision §1a](../../games/evergrove/vision.md#1a-family-play-connection-not-only-entertainment) with the minimum requirements: adult-only sign-up (email link or Sign in with Apple / Google, display name only), children as adult-managed profiles with no child data, in-app account deletion, invite-only family circles, asynchronous turn-based play first, and the solo game working when the server is down.
+
+**Not built and not authorized yet.** The existing backend is a demo, and the specs list backend, accounts and multiplayer as not authorized. Before building, run a cheap test of whether families keep playing apart (for example, trading puzzle codes by message for two weeks). Adding accounts changes the App Privacy and Data safety answers, which currently describe no account and no data collection, so the first store release should stay offline-only unless the owner decides otherwise.
