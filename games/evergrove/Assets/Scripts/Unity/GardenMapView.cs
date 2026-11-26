@@ -117,7 +117,9 @@ namespace Evergrove.UnityClient
                 next.uvRect = reaches % 2 == 1
                     ? new Rect(tu, tv + th * t, tw, -th * t)          // mirrored: the painting's foot, upside down
                     : new Rect(tu, tv + th * (1f - t), tw, th * t);   // as painted: the painting's head
-                Wash(nextRect, new Color(0.84f, 0.74f, 0.50f, 0.5f), false);
+                // Both washes fade in from clear (I199): a solid straw wash drew a hard
+                // line across the garden where the open river ends.
+                Wash(nextRect, new Color(0.84f, 0.74f, 0.50f, 0.5f), true);
                 Wash(nextRect, new Color(0.97f, 0.95f, 0.89f, 0.82f), true);
             }
             view.apron = teaser ? 0f : Mathf.Clamp(apron, 0f, 0.4f);
@@ -432,7 +434,7 @@ namespace Evergrove.UnityClient
             rect.anchorMin = new Vector2(0f, 1f - (reach + 1f) / reaches);
             rect.anchorMax = new Vector2(1f, 1f - reach / (float)reaches);
             rect.offsetMin = rect.offsetMax = Vector2.zero;
-            Wash(rect, new Color(0.84f, 0.74f, 0.50f, 0.5f), false);
+            Wash(rect, new Color(0.84f, 0.74f, 0.50f, 0.5f), true); // soft top edge, as the teaser (I199)
             Wash(rect, new Color(0.97f, 0.95f, 0.89f, 0.82f), true);
             node.AddComponent<CanvasGroup>().blocksRaycasts = false;
             node.AddComponent<Lift>();
