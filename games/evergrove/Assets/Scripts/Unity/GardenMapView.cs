@@ -37,7 +37,7 @@ namespace Evergrove.UnityClient
                                           int inHand = -1, bool growNewest = false,
                                           float greened = 1f, float greenedBefore = -1f,
                                           Func<RectTransform, Func<int, Vector2>, List<RectTransform>> decorate = null,
-                                          float apron = 0f)
+                                          float apron = 0f, bool teaser = false)
         {
             var host = new GameObject("Garden map", typeof(RectTransform));
             host.transform.SetParent(window, false);
@@ -77,13 +77,50 @@ namespace Evergrove.UnityClient
             var ground = plotNode.AddComponent<Image>();
             view.ground = ground;
             view.plotRect = plotRect;
-            ground.sprite = plot;
+            // The endless river (I192): one copy of the painting per open reach,
+            // every other one mirrored so the creek runs on without a seam.
+            int reaches = map != null ? Mathf.Max(1, map.Reaches) : 1;
+            view.reaches = reaches;
+            if (reaches == 1) ground.sprite = plot;
+            else
+            {
+                ground.color = new Color(1f, 1f, 1f, 0f); // still catches taps
+                for (int reach = 0; reach < reaches; reach++)
+                {
+                    RawImage copy = ReachImage(plotRect, plot, reach % 2 == 1, "Reach " + (reach + 1));
+                    var copyRect = copy.rectTransform;
+                    copyRect.anchorMin = new Vector2(0f, 1f - (reach + 1f) / reaches);
+                    copyRect.anchorMax = new Vector2(1f, 1f - reach / (float)reaches);
+                    copyRect.offsetMin = copyRect.offsetMax = Vector2.zero;
+                }
+            }
             ground.raycastTarget = onLand != null;
             if (onLand != null) plotNode.AddComponent<MapTap>().Tapped = local => view.TapLand(local);
             // Below the painting the meadow runs on, mirrored so it joins without a
             // seam (I190): the view can then frame the lowest things above the
             // play token instead of stopping at the painting's edge.
-            view.apron = Mathf.Clamp(apron, 0f, 0.4f);
+            // Below the open river, the next reach waits: dry, in a morning mist,
+            // not yet yours to plant (I192). It opens with the next streams.
+            if (teaser && plot != null)
+            {
+                view.teaser = 0.55f;
+                RawImage next = ReachImage(landRect, plot, reaches % 2 == 1, "Next reach in mist");
+                var nextRect = next.rectTransform;
+                nextRect.anchorMin = new Vector2(0f, 0f);
+                nextRect.anchorMax = new Vector2(1f, 0f);
+                nextRect.pivot = new Vector2(0.5f, 0f);
+                view.apronRect = nextRect;
+                // Only the top of that reach shows, so trim the painting to match.
+                Rect r = plot.textureRect;
+                float tu = r.x / plot.texture.width, tv = r.y / plot.texture.height;
+                float tw = r.width / plot.texture.width, th = r.height / plot.texture.height, t = view.teaser;
+                next.uvRect = reaches % 2 == 1
+                    ? new Rect(tu, tv + th * t, tw, -th * t)          // mirrored: the painting's foot, upside down
+                    : new Rect(tu, tv + th * (1f - t), tw, th * t);   // as painted: the painting's head
+                Wash(nextRect, new Color(0.84f, 0.74f, 0.50f, 0.5f), false);
+                Wash(nextRect, new Color(0.97f, 0.95f, 0.89f, 1f), true);
+            }
+            view.apron = teaser ? 0f : Mathf.Clamp(apron, 0f, 0.4f);
             if (view.apron > 0f && plot != null)
             {
                 var apronNode = new GameObject("Meadow beyond", typeof(RectTransform));
@@ -189,7 +226,42 @@ namespace Evergrove.UnityClient
 
         private Image ground;
         private RectTransform plotRect, apronRect;
-        private float apron;
+        private float apron, teaser;
+        private int reaches = 1;
+
+        // One copy of the painting as a RawImage, mirrored top to bottom if asked.
+        private static RawImage ReachImage(RectTransform parent, Sprite plot, bool mirrored, string name)
+        {
+            var node = new GameObject(name, typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            var image = node.AddComponent<RawImage>();
+            image.texture = plot.texture;
+            Rect r = plot.textureRect;
+            float tw = plot.texture.width, th = plot.texture.height;
+            float u = r.x / tw, v = r.y / th, uw = r.width / tw, vh = r.height / th;
+            image.uvRect = mirrored ? new Rect(u, v + vh, uw, -vh) : new Rect(u, v, uw, vh);
+            image.raycastTarget = false;
+            return image;
+        }
+
+        // A full wash over a rect, or (fog) a fade from clear at the top to solid at the bottom.
+        private static void Wash(RectTransform parent, Color color, bool fog)
+        {
+            var node = new GameObject(fog ? "Mist" : "Dry", typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            var rect = (RectTransform)node.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var image = node.AddComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
+            if (fog)
+            {
+                image.sprite = MosseloraArt.TopFade();
+                rect.localScale = new Vector3(1f, -1f, 1f); // solid at the bottom
+            }
+        }
 
         private void Update()
         {
@@ -223,12 +295,14 @@ namespace Evergrove.UnityClient
         {
             if (window == null || map == null) return;
             lastWindow = window.rect.size;
-            float width = Mathf.Max(window.rect.width * widthScale, window.rect.height / aspect);
-            float height = width * aspect;
+            float riverTall = aspect * (reaches + teaser);
+            float width = Mathf.Max(window.rect.width * widthScale, window.rect.height / riverTall);
+            float reachHeight = width * aspect;
+            float height = reachHeight * reaches;
             plotRect.sizeDelta = new Vector2(0f, height);
-            if (apronRect != null) apronRect.sizeDelta = new Vector2(0f, height * apron);
+            if (apronRect != null) apronRect.sizeDelta = new Vector2(0f, teaser > 0f ? reachHeight * teaser : height * apron);
             float cellW = width / map.Columns, cellH = height / map.Rows;
-            height *= 1f + apron; // the land runs on below the painting (I190)
+            height += teaser > 0f ? reachHeight * teaser : height * apron; // the land runs on below (I190, I192)
             land.sizeDelta = new Vector2(width, height);
             foreach (RectTransform old in nodes) if (old != null) Destroy(old.gameObject);
             nodes.Clear();

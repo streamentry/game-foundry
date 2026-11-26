@@ -1597,6 +1597,47 @@ internal static class Program
         Expect(crowded[0] >= 0 && crowded[1] >= 0 && crowded[2] == -1, "no free cell gives -1");
     }
 
+    // I192: the endless river, reach by reach.
+    private static void RiverMapTests()
+    {
+        string reach =
+            "...~....##" +
+            "....~....." +
+            ".....~...." +
+            "......~...";
+        GardenMap one = GardenMap.River(10, 4, reach, 1);
+        Expect(one.Rows == 4 && one.ReachRows == 4 && one.Reaches == 1, "one reach");
+        GardenMap three = GardenMap.River(10, 4, reach, 3);
+        Expect(three.Rows == 12 && three.Reaches == 3 && three.CellCount == 120, "three reaches stack");
+        Expect(three.At(3) == GardenMap.Water && three.At(8) == GardenMap.Built, "the first reach is the painting");
+        // The second reach is mirrored: its first row is the painting's last row.
+        Expect(three.At(40 + 6) == GardenMap.Water && three.At(70 + 3) == GardenMap.Water && three.At(70 + 8) == GardenMap.Built,
+            "the second reach is mirrored so the banks join");
+        Expect(three.At(80 + 3) == GardenMap.Water && three.At(80 + 8) == GardenMap.Built, "the third reach repeats the first");
+        Expect(GardenMap.ReachesFor(0, false) == 1 && GardenMap.ReachesFor(2, false) == 1 && GardenMap.ReachesFor(3, false) == 2
+            && GardenMap.ReachesFor(11, false) == 4 && GardenMap.ReachesFor(12, false) == 5 && GardenMap.ReachesFor(99, false) == 5
+            && GardenMap.ReachesFor(0, true) == 5, "a new reach every three streams, all of them at the end");
+        bool threw = false;
+        try { GardenMap.River(10, 4, reach, 0); } catch (ArgumentOutOfRangeException) { threw = true; }
+        Expect(threw, "a river needs a reach");
+        // Each stream's thing grows in the reach its stream opened.
+        string full = "";
+        for (int r = 0; r < 15; r++) full += r % 3 == 0 ? "...~....##" : "....~.....";
+        GardenMap river = GardenMap.River(10, 15, full, 5);
+        int[] choices = { 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+        int[] layout = river.Layout(choices, null);
+        for (int i = 0; i < choices.Length; i++)
+        {
+            Expect(river.IsLand(layout[i]), "river item " + i + " on land");
+            Expect(layout[i] / river.Columns / 15 == Math.Min(i / 3, 4), "item " + i + " stands in its stream's reach");
+        }
+        // Opening more river never moves what already grew.
+        GardenMap shorter = GardenMap.River(10, 15, full, 2);
+        int[] early = shorter.Layout(new[] { 0, 1, 2, 0, 1 }, null);
+        int[] later = river.Layout(new[] { 0, 1, 2, 0, 1 }, null);
+        for (int i = 0; i < early.Length; i++) Expect(early[i] == later[i], "item " + i + " stays put as the river grows");
+    }
+
     // E4 / I177: the garden number and where things stand live in the save and the garden file.
     private static void PlacementSaveTests()
     {
@@ -1812,6 +1853,7 @@ internal static class Program
             GardenCatalogTests();
             AlmanacTests();
             GardenMapTests();
+        RiverMapTests();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

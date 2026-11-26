@@ -17,7 +17,54 @@ namespace Evergrove.Core
 
         public readonly int Columns;
         public readonly int Rows;
+        /// <summary>Rows in one reach of the endless river (I192); 0 for a single painting.</summary>
+        public readonly int ReachRows;
         private readonly char[] cells;
+
+        /// <summary>Streams restored per new reach of river land.</summary>
+        public const int StreamsPerReach = 3;
+        public const int MaxReaches = 5;
+
+        /// <summary>
+        /// Reaches of river open for a garden (I192): the first from the start,
+        /// one more for every three streams restored, all five once it's finished.
+        /// </summary>
+        public static int ReachesFor(int restored, bool completed)
+        {
+            if (completed) return MaxReaches;
+            int open = 1 + Math.Max(0, restored) / StreamsPerReach;
+            return open < 1 ? 1 : open > MaxReaches ? MaxReaches : open;
+        }
+
+        /// <summary>
+        /// The endless river (I192): one reach's mask repeated down the map, every
+        /// other reach mirrored top to bottom, exactly as the painting is drawn, so
+        /// the creek and the banks join without a seam.
+        /// </summary>
+        public static GardenMap River(int columns, int reachRows, string reachMask, int reaches)
+        {
+            if (reaches < 1) throw new ArgumentOutOfRangeException(nameof(reaches));
+            if (reachMask == null) throw new ArgumentNullException(nameof(reachMask));
+            string flat = reachMask.Replace("\n", "").Replace("\r", "");
+            if (flat.Length != columns * reachRows)
+                throw new ArgumentException("reach mask size " + flat.Length + " != " + columns * reachRows);
+            var all = new System.Text.StringBuilder(flat.Length * reaches);
+            for (int reach = 0; reach < reaches; reach++)
+                for (int row = 0; row < reachRows; row++)
+                {
+                    int source = reach % 2 == 0 ? row : reachRows - 1 - row;
+                    all.Append(flat, source * columns, columns);
+                }
+            return new GardenMap(columns, reachRows * reaches, all.ToString(), reachRows);
+        }
+
+        /// <summary>How many reaches the map holds (1 for a single painting).</summary>
+        public int Reaches { get { return ReachRows > 0 ? Rows / ReachRows : 1; } }
+
+        private GardenMap(int columns, int rows, string mask, int reachRows) : this(columns, rows, mask)
+        {
+            ReachRows = reachRows;
+        }
 
         public GardenMap(int columns, int rows, string mask)
         {
@@ -93,6 +140,16 @@ namespace Evergrove.Core
             // show one (I185), and reaches the valley's foot by the twelfth stream.
             int top = Math.Min(5, Rows - 1);
             int band = Rows <= 1 ? 0 : top + (int)Math.Round(chapter * (Rows - 1 - top) / 11.0);
+            if (ReachRows > 0)
+            {
+                // Down the river (I192): each stream's thing grows in the reach that
+                // stream opened, spreading down that reach, three streams to a reach.
+                int reach = Math.Min(chapter / StreamsPerReach, Reaches - 1);
+                int within = chapter - reach * StreamsPerReach;
+                int start = reach == 0 ? Math.Min(5, ReachRows - 1) : 2;
+                band = reach * ReachRows + start
+                    + (int)Math.Round(Math.Min(within, StreamsPerReach - 1) * (ReachRows - 3 - start) / (double)(StreamsPerReach - 1));
+            }
             int fromBand = Math.Abs(y - band);
             switch (family)
             {

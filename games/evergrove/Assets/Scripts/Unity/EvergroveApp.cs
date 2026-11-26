@@ -718,7 +718,7 @@ namespace Evergrove.UnityClient
             GardenMapView.Build(windowRect, plot, map, MapItems(map), 1.15f,
                 OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
                 animate ? GreenedShare(1) : -1f,
-                (land, point) => NeighborsOnMap(land, point, map, false));
+                (land, point) => NeighborsOnMap(land, point, map, false), 0f, RiverGoesOn(map));
             int held = ItemInHand();
             if (held >= 0 && PlayerPrefs.GetInt(PlacedOnceKey, 0) == 0) PlaceTip(window.transform, held);
             var side = Node("Garden melt right", window.transform);
@@ -1813,24 +1813,30 @@ namespace Evergrove.UnityClient
         // ---- E3 (I176): the open garden map.
         private GardenMap gardenMap;
 
+        // The endless river (I192): one reach of the painting per three streams
+        // restored, all of them once the garden is finished.
         private GardenMap LoadGardenMap()
         {
-            if (gardenMap != null) return gardenMap;
+            int reaches = GardenMap.ReachesFor(world.Choices.Length, world.Completed);
+            if (gardenMap != null && gardenMap.Reaches == reaches) return gardenMap;
             var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
             if (mask == null) return null;
-            try { gardenMap = new GardenMap(10, 15, mask.text.Trim()); }
+            try { gardenMap = GardenMap.River(10, 15, mask.text.Trim(), reaches); }
             catch (ArgumentException error) { Debug.LogWarning("Garden map mask unreadable: " + error.Message); }
             return gardenMap;
         }
+
+        // The next reach shows in mist below the open river until it opens.
+        private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.MaxReaches; }
 
         private bool GardenMapOnHub(RectTransform window)
         {
             Sprite plot = MosseloraArt.Load("garden-map");
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
-            GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), 1.5f, OnMapLand, OnMapItem,
+            GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), 1.3f, OnMapLand, OnMapItem,
                 mapInHand, false, GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
-                landscape ? 0f : 0.22f);
+                landscape ? 0f : 0.22f, RiverGoesOn(map));
             // Full-screen home (I190): what you made sits in the upper part of the
             // screen, clear of the play token at the bottom.
             if (!landscape) view.FocusFromTop = 0.36f;
@@ -1851,7 +1857,7 @@ namespace Evergrove.UnityClient
             if (plot == null || map == null) return false;
             worldStage.gameObject.SetActive(true);
             GardenMapView view = GardenMapView.Build(worldStage, plot, map, MapItems(map), 1.1f,
-                null, null, -1, false, GreenedShare(0));
+                null, null, -1, false, GreenedShare(0), -1f, null, 0f, RiverGoesOn(map));
             view.FocusFromTop = 0.82f; // your newest thing peeks out under the board
             var veil = Node("Morning veil", worldStage);
             Fill(veil.GetComponent<RectTransform>());
@@ -2002,7 +2008,9 @@ namespace Evergrove.UnityClient
         // `back` counts that many streams fewer (the edge before a choice).
         private float GreenedShare(int back)
         {
-            if (world.Completed) return 1f;
+            // The river's open reaches are all green; new land arrives as a new
+            // reach (I192) rather than as the dry edge drawing back.
+            if (world.Completed || world.Mode == PlayMode.Living) return 1f;
             int restored = Mathf.Max(0, world.Choices.Length - back);
             return Mathf.Clamp01(0.14f + 0.86f * restored / (float)GardenCatalog.ChaptersPerGarden);
         }
@@ -2110,7 +2118,7 @@ namespace Evergrove.UnityClient
             GardenMapView view = GardenMapView.Build(window.GetComponent<RectTransform>(), plot, map, MapItems(map), 1.25f,
                 OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
                 animate ? GreenedShare(1) : -1f,
-                memoryScreen ? null : (land, point) => NeighborsOnMap(land, point, map, false));
+                memoryScreen ? null : (land, point) => NeighborsOnMap(land, point, map, false), 0f, RiverGoesOn(map));
             // Under a floating title the new thing sits lower in view (I185).
             if (hero) view.FocusFromTop = 0.7f;
             int held = ItemInHand();
