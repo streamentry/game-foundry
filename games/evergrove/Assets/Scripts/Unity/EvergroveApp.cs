@@ -561,8 +561,11 @@ namespace Evergrove.UnityClient
         {
             if (Screen.width <= 0 || Screen.height <= 0 || scrollArea == null) return;
             Rect safe = Screen.safeArea;
+            // Upright, the page reaches the very top of the screen so the garden can
+            // paint under the status bar; the inset becomes padding instead (I185).
+            bool upright = safe.width <= safe.height;
             scrollArea.anchorMin = new Vector2(safe.xMin / Screen.width, safe.yMin / Screen.height);
-            scrollArea.anchorMax = new Vector2(safe.xMax / Screen.width, safe.yMax / Screen.height);
+            scrollArea.anchorMax = new Vector2(safe.xMax / Screen.width, upright ? 1f : safe.yMax / Screen.height);
             scrollArea.offsetMin = Vector2.zero;
             scrollArea.offsetMax = Vector2.zero;
             FitColumn();
@@ -581,6 +584,7 @@ namespace Evergrove.UnityClient
         private bool landscapeTablet;
         private const float TabletLandscapeColumn = 560f;
         private RectTransform chromeBand;
+        private float topInset; // status-bar height in canvas units, upright only (I185)
         private GameObject landscapeGarden;
 
         private void FitColumn()
@@ -607,14 +611,22 @@ namespace Evergrove.UnityClient
             }
             else
                 columnLeft = columnRight = tablet ? Mathf.Max(0f, Mathf.Floor((logicalWidth - MaxColumn) / 2f)) : 0f;
+            topInset = landscape ? 0f : Mathf.Max(0f, (Screen.height - safe.yMax) / LiveCanvasScale());
             var column = content != null ? content.GetComponent<VerticalLayoutGroup>() : null;
             // Sideways the menu and book sit on the painting (I116), so the play
             // column starts at the top: no inset spent on chrome it doesn't carry.
             if (column != null)
-                column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight, 15, 36);
+                column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight,
+                    15 + Mathf.RoundToInt(topInset), 36);
+            if (chrome != null) chrome.anchoredPosition = new Vector2(0f, -topInset);
             if (chromeBand != null)
             {
-                chromeBand.offsetMin = new Vector2(columnLeft, -104f);
+                chromeBand.offsetMin = new Vector2(columnLeft, -104f - topInset);
+                // The band's paper covers the status bar too, then fades (I185).
+                var solid = chromeBand.Find("Band solid") as RectTransform;
+                if (solid != null) solid.sizeDelta = new Vector2(0f, 74f + topInset);
+                var fade = chromeBand.Find("Band fade") as RectTransform;
+                if (fade != null) fade.anchoredPosition = new Vector2(0f, -74f - topInset);
                 chromeBand.offsetMax = Vector2.zero;
                 chromeBand.gameObject.SetActive(!landscape);
             }
@@ -864,7 +876,7 @@ namespace Evergrove.UnityClient
             chrome.anchorMax = new Vector2(1f, 1f);
             chrome.pivot = new Vector2(0.5f, 1f);
             chrome.sizeDelta = new Vector2(0f, 70f);
-            chrome.anchoredPosition = Vector2.zero;
+            chrome.anchoredPosition = new Vector2(0f, -topInset);
             // The sheet must cover the chrome when open.
             menuSheet.transform.SetAsLastSibling();
             BuildTitleScreen(canvasNode.transform);
@@ -1962,6 +1974,8 @@ namespace Evergrove.UnityClient
         }
 
         // The page's garden window (memory card, boards): the same map as the hub.
+        private bool heroGarden;
+
         private bool PageGardenMap(GameObject window, bool memoryScreen)
         {
             Sprite plot = MosseloraArt.Load("garden-map");
@@ -1969,18 +1983,95 @@ namespace Evergrove.UnityClient
             if (plot == null || map == null) return false;
             var size = window.GetComponent<LayoutElement>();
             if (size == null) size = window.AddComponent<LayoutElement>();
-            size.minHeight = size.preferredHeight = TextScale.Percent > 100 ? 230f : 260f;
+            bool hero = heroGarden && memoryScreen;
+            size.minHeight = size.preferredHeight = hero ? (TextScale.Percent > 100 ? 360f : 420f)
+                : TextScale.Percent > 100 ? 230f : 260f;
+            if (hero)
+            {
+                // Bleed past the page margins and up to the top of the screen.
+                window.transform.SetAsFirstSibling();
+                var bleed = Node("Garden hero", window.transform);
+                var bleedRect = bleed.GetComponent<RectTransform>();
+                Fill(bleedRect);
+                bleedRect.offsetMin = new Vector2(-17f - columnLeft, 0f);
+                bleedRect.offsetMax = new Vector2(17f + columnRight, 15f + topInset);
+                window = bleed;
+                // Melt into the paper at the bottom, as the home screen does.
+                var melt = Node("Hero melt", window.transform);
+                var meltRect = melt.GetComponent<RectTransform>();
+                meltRect.anchorMin = Vector2.zero;
+                meltRect.anchorMax = new Vector2(1f, 0f);
+                meltRect.pivot = new Vector2(0.5f, 0f);
+                meltRect.sizeDelta = new Vector2(0f, 48f);
+                meltRect.localScale = new Vector3(1f, -1f, 1f);
+                meltRect.anchoredPosition = new Vector2(0f, 48f);
+                var meltImage = melt.AddComponent<Image>();
+                meltImage.sprite = MosseloraArt.TopFade();
+                meltImage.color = Paper;
+                meltImage.raycastTarget = false;
+            }
             window.AddComponent<RectMask2D>();
             bool grow = celebrateGrowth && memoryScreen;
             celebrateGrowth = false;
             bool animate = grow && gentleMotion;
-            GardenMapView.Build(window.GetComponent<RectTransform>(), plot, map, MapItems(map), 1.25f,
+            GardenMapView view = GardenMapView.Build(window.GetComponent<RectTransform>(), plot, map, MapItems(map), 1.25f,
                 OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
                 animate ? GreenedShare(1) : -1f,
                 memoryScreen ? null : (land, point) => NeighborsOnMap(land, point, map, false));
+            // Under a floating title the new thing sits lower in view (I185).
+            if (hero) view.FocusFromTop = 0.7f;
             int held = ItemInHand();
             if (held >= 0 && PlayerPrefs.GetInt(PlacedOnceKey, 0) == 0) PlaceTip(window.transform, held);
+            if (hero) HeroTitle(window.transform);
             return true;
+        }
+
+        // The wordmark and tagline float on the garden, under the menu and book.
+        private void HeroTitle(Transform hero)
+        {
+            Sprite mark = MosseloraArt.Load(MosseloraArt.Wordmark);
+            var title = Node("Floating title", hero);
+            title.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = title.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.sizeDelta = new Vector2(0f, 118f);
+            rect.anchoredPosition = new Vector2(0f, -topInset - 6f);
+            if (mark != null)
+            {
+                var markNode = Node("Mosselora wordmark", title.transform);
+                var markRect = markNode.GetComponent<RectTransform>();
+                markRect.anchorMin = new Vector2(0f, 1f);
+                markRect.anchorMax = new Vector2(1f, 1f);
+                markRect.pivot = new Vector2(0.5f, 1f);
+                markRect.sizeDelta = new Vector2(-2f * ChromeInset, 72f);
+                markRect.anchoredPosition = Vector2.zero;
+                var markImage = markNode.AddComponent<Image>();
+                markImage.sprite = mark;
+                markImage.preserveAspect = true;
+                markImage.raycastTarget = false;
+            }
+            // The tagline on a small cream plate, readable over any grass.
+            var plate = Node("Tagline plate", title.transform);
+            var plateRect = plate.GetComponent<RectTransform>();
+            plateRect.anchorMin = plateRect.anchorMax = new Vector2(0.5f, 1f);
+            plateRect.pivot = new Vector2(0.5f, 1f);
+            plateRect.anchoredPosition = new Vector2(0f, -76f);
+            var plateImage = plate.AddComponent<Image>();
+            MosseloraArt.Round(plateImage, new Color(1f, 0.973f, 0.918f, 0.92f), 14);
+            plateImage.raycastTarget = false;
+            var plateRow = plate.AddComponent<HorizontalLayoutGroup>();
+            plateRow.padding = new RectOffset(14, 14, 4, 5);
+            plateRow.childControlWidth = true;
+            plateRow.childControlHeight = true;
+            var fit = plate.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            Text line = Label(plate.transform, "Title", GameLocalization.Text("subtitle"), 17, 0, Ink,
+                TextAnchor.MiddleCenter);
+            Emphasize(line);
+            line.horizontalOverflow = HorizontalWrapMode.Overflow;
         }
 
         // Until a player has put something down once, the map says how (I182): a
@@ -3389,11 +3480,15 @@ namespace Evergrove.UnityClient
             bool settingsAtTop = languagePicker || (!puzzleScreen && !memoryScreen);
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
             // Sideways play keeps the height for the board; the wordmark is on the hub.
-            if (!(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
+            // The memory card opens on your garden, full width and up under the
+            // status bar, with the wordmark and tagline floating on it (I185).
+            heroGarden = living && memoryScreen && !landscape &&
+                MosseloraArt.Load("garden-map") != null && LoadGardenMap() != null;
+            if (!heroGarden && !(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
             // Boards (the first one too, I160) open on the path, the stream name and
             // the board; the tagline lives on the hub and the story screens
             // (memory, ending), where it is part of the story, not a header.
-            if (!puzzleScreen && !(landscape && memoryScreen))
+            if (!puzzleScreen && !(landscape && memoryScreen) && !heroGarden)
             {
                 // Story screens use the hub's size, so the line sits inside the
                 // vine corners instead of running into them (I73).

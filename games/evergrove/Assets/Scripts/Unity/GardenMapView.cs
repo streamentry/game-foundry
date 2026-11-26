@@ -104,6 +104,9 @@ namespace Evergrove.UnityClient
         private bool growNewest;
         private Vector2 lastWindow;
         private float greened = 1f, greenedFrom = 1f;
+        // Where in the window (0 top … 1 bottom) the focused item sits (I185: lower
+        // when a title floats over the map's top).
+        public float FocusFromTop = 0.5f;
         private Func<RectTransform, Func<int, Vector2>, List<RectTransform>> decorate;
         private RectTransform dry;
         private float dryClock;
@@ -266,7 +269,7 @@ namespace Evergrove.UnityClient
             Vector2 view = window.rect.size;
             float spanX = Mathf.Max(1f, width - view.x), spanY = Mathf.Max(1f, height - view.y);
             float nx = focused ? Mathf.Clamp01((focus.x - view.x / 2f) / spanX) : 0.5f;
-            float ny = focused ? 1f - Mathf.Clamp01((-focus.y - view.y / 2f) / spanY) : 1f;
+            float ny = focused ? 1f - Mathf.Clamp01((-focus.y - view.y * FocusFromTop) / spanY) : 1f;
             scroll.StopMovement();
             scroll.normalizedPosition = new Vector2(nx, ny);
         }

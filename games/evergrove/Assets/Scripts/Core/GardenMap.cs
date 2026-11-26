@@ -89,7 +89,10 @@ namespace Evergrove.Core
             int water = DistanceToWater(cell);
             int edge = Math.Min(Math.Min(x, Columns - 1 - x), Math.Min(y, Rows - 1 - y));
             // A gentle spread down the valley as the year goes on.
-            int band = Rows <= 1 ? 0 : (int)Math.Round(chapter * (Rows - 1) / 11.0);
+            // Starts five rows down, below the floating title on the screens that
+            // show one (I185), and reaches the valley's foot by the twelfth stream.
+            int top = Math.Min(5, Rows - 1);
+            int band = Rows <= 1 ? 0 : top + (int)Math.Round(chapter * (Rows - 1 - top) / 11.0);
             int fromBand = Math.Abs(y - band);
             switch (family)
             {
