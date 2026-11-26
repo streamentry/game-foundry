@@ -492,7 +492,7 @@ namespace Evergrove.UnityClient
             return row.transform;
         }
 
-        private static void Token(Transform parent, string name, Sprite glyph, float size, Color tone, Action action,
+        internal static void Token(Transform parent, string name, Sprite glyph, float size, Color tone, Action action,
                                   bool glyphOnly)
         {
             var node = new GameObject(name, typeof(RectTransform));
@@ -520,7 +520,7 @@ namespace Evergrove.UnityClient
             iconImage.color = Color.white;
         }
 
-        private static GameObject Pill(Transform parent, string words, Font font, out Text label)
+        internal static GameObject Pill(Transform parent, string words, Font font, out Text label)
         {
             var pill = new GameObject("Seeds it pays", typeof(RectTransform));
             pill.transform.SetParent(parent, false);

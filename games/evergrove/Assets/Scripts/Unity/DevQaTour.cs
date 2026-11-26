@@ -276,6 +276,52 @@ namespace Evergrove.UnityClient
             SavePng("17l-nursery-bought.png");
             app.QaCloseBasket();
             app.QaEndTreePlay();
+            // Family parcels (I215): send 50 seeds with a letter; then open one from Nan.
+            FamilySheet family = app.QaFamily();
+            if (family != null)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17p-family-send.png");
+                family.QaSend("Grandma Lan", 50, "The pear tree is in flower. Come and see it soon.");
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17q-family-sent.png");
+                FamilyParcel.TryCreate("Nan", "Planted one of these for you. Love, Nan", ParcelGift.Cutting, 2,
+                    "qatour1", out string parcel, out _, out _);
+                GUIUtility.systemCopyBuffer = "Look what I sent!\n" + FamilyParcel.Wrap(parcel, "Nan sent you a gift.");
+                family.QaOpen();
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17r-family-opened.png");
+                // Visit (I216): a relative's garden file, twelve streams and a basket of plantings.
+                WorldModel theirs = WorldModel.New(PlayMode.Living);
+                for (int chapter = 0; chapter < 12; chapter++)
+                {
+                    Puzzle theirBoard = theirs.CurrentPuzzle;
+                    for (int i = 0; i < theirBoard.CellCount; i++)
+                        while (theirs.Rotations[i] != theirBoard.Solution[i]) theirs.Rotate(i);
+                    theirs.Choose((VillageChoice)((chapter * 2) % 3));
+                }
+                for (int cell = 31; cell < 140; cell += 13) theirs.Plant(11, cell);
+                GUIUtility.systemCopyBuffer = GardenTransfer.Export(theirs, "2026-11-27T10:00:00Z");
+                family.QaVisit();
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17s-visiting.png");
+                app.QaCloseVisit();
+                app.QaCloseFamily();
+                // Letters stay in the garden (I217): the letterbox by the cottage, then Nan's letter.
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17t-letterbox.png");
+                app.QaReadLetter();
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17u-letter.png");
+                app.QaCloseLetter();
+            }
             // Neighbours notice (I210): Mira names the poplar you just bought.
             app.QaShowHub(false);
             app.QaTalk(0);
