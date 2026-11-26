@@ -1656,8 +1656,10 @@ namespace Evergrove.UnityClient
                     NextStreamLine(stack.transform, world.CurrentPuzzle.Name, false);
                 Transform token = CenteredRowIn(stack.transform, "Play row");
                 IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")
-                        : world.CurrentPuzzle.Name, MosseloraArt.IconContinue, CloseTitle, 96,
-                    MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
+                        : world.CurrentPuzzle.Name, MosseloraArt.IconContinue, () => {
+                            basketOpen = false; basketKind = -1; heldPlanting = -1; CloseTitle();
+                        }, 96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
+                if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                 HubChrome();
                 titleScreen.transform.SetAsLastSibling();
                 return;
@@ -1835,8 +1837,13 @@ namespace Evergrove.UnityClient
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
             GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), 1.3f, OnMapLand, OnMapItem,
-                mapInHand, false, GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
+                heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand, justPlanted >= 0 && gentleMotion,
+                GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 landscape ? 0f : 0.22f, RiverGoesOn(map));
+            hubMapView = view;
+            justPlanted = -1;
+            if (keepHubAt.x >= 0f) view.KeepAt(keepHubAt);
+            keepHubAt = new Vector2(-1f, -1f);
             // Full-screen home (I190): what you made sits in the upper part of the
             // screen, clear of the play token at the bottom.
             if (!landscape) view.FocusFromTop = 0.36f;
@@ -1869,11 +1876,28 @@ namespace Evergrove.UnityClient
 
         // ---- E4 (I178): place what you made. Tap a thing to pick it up, tap land to put it down.
         private int mapInHand = -1;
+        // ---- I193: the basket. Plant more of anything you've grown, as often as you like.
+        private const int PlantingIndex = 1000; // map indices at or above this are plantings
+        private bool basketOpen;
+        private int basketKind = -1;   // the choice whose item is planted on a tap, -1 none
+        private int heldPlanting = -1; // a planting picked up to move or put back
+        private int justPlanted = -1;  // rises from the ground once
+        private GardenMapView hubMapView;
+        private Vector2 keepHubAt = new Vector2(-1f, -1f);
+
+        private bool PlantedAt(int cell, int except = -1)
+        {
+            int[] planted = world.Plantings;
+            for (int k = 0; k * 2 + 1 < planted.Length; k++)
+                if (k != except && planted[k * 2 + 1] == cell) return true;
+            return false;
+        }
 
         private System.Collections.Generic.List<GardenMapView.Placed> MapItems(GardenMap map)
         {
             int[] made = world.Choices;
-            int[] cells = map.Layout(made, world.Placements);
+            int[] planted = world.Plantings;
+            int[] cells = map.Layout(made, world.Placements, planted);
             var items = new System.Collections.Generic.List<GardenMapView.Placed>();
             for (int i = 0; i < made.Length; i++)
                 items.Add(new GardenMapView.Placed
@@ -1882,8 +1906,22 @@ namespace Evergrove.UnityClient
                     Cell = cells[i],
                     Index = i,
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
-                    Newest = i == made.Length - 1
+                    Newest = i == made.Length - 1 && justPlanted < 0
                 });
+            // More of what you grew, planted from the basket (I193).
+            for (int k = 0; k * 2 + 1 < planted.Length; k++)
+            {
+                int source = planted[k * 2];
+                if (source < 0 || source >= made.Length || !map.IsLand(planted[k * 2 + 1])) continue;
+                items.Add(new GardenMapView.Placed
+                {
+                    Art = ItemArt(source, made[source]),
+                    Cell = planted[k * 2 + 1],
+                    Index = PlantingIndex + k,
+                    Family = (VillageChoice)Mathf.Clamp(made[source], 0, 2),
+                    Newest = k == justPlanted
+                });
+            }
             return items;
         }
 
@@ -2027,6 +2065,16 @@ namespace Evergrove.UnityClient
 
         private void OnMapItem(int index)
         {
+            if (index >= PlantingIndex)
+            {
+                // A planting: pick it up (or put it down again where it is).
+                int k = index - PlantingIndex;
+                heldPlanting = heldPlanting == k ? -1 : k;
+                mapInHand = -1;
+                RefreshMaps();
+                return;
+            }
+            heldPlanting = -1;
             mapInHand = ItemInHand() == index ? -2 : index; // -2: put nothing in hand
             RefreshMaps();
             if (mapInHand == -2) mapInHand = -1;
@@ -2034,11 +2082,30 @@ namespace Evergrove.UnityClient
 
         private void OnMapLand(int cell)
         {
-            int target = ItemInHand();
             GardenMap map = LoadGardenMap();
-            if (target < 0 || map == null) return;
-            int[] layout = map.Layout(world.Choices, world.Placements);
-            if (!map.CanPlace(layout, cell, target)) return; // water, the cottage, or taken: it stays in hand
+            if (map == null) return;
+            int[] layout = map.Layout(world.Choices, world.Placements, world.Plantings);
+            if (heldPlanting >= 0)
+            {
+                // Move a planting: only to free land.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell, heldPlanting)) return;
+                if (!world.MovePlanting(heldPlanting, cell)) return;
+                heldPlanting = -1;
+                PlantDone();
+                return;
+            }
+            int target = ItemInHand();
+            if (target < 0 && basketOpen && basketKind >= 0)
+            {
+                // Plant one more from the basket; the basket stays ready for the next tap.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell)) return;
+                if (!world.Plant(basketKind, cell)) return;
+                justPlanted = world.PlantingCount - 1;
+                PlantDone();
+                return;
+            }
+            if (target < 0) return;
+            if (!map.CanPlace(layout, cell, target) || PlantedAt(cell)) return; // water, the cottage, or taken: it stays in hand
             if (!world.PlaceAt(target, cell)) return;
             PlayerPrefs.SetInt(PlacedOnceKey, 1);
             SaveWorld();
@@ -2048,11 +2115,124 @@ namespace Evergrove.UnityClient
             RefreshMaps();
         }
 
+        private void PlantDone()
+        {
+            SaveWorld();
+            PlayTock();
+            if (gentleMotion) Haptics.Tick();
+            RefreshMaps();
+        }
+
+        // Put a picked-up planting back in the basket.
+        private void PutBack()
+        {
+            if (heldPlanting < 0 || !world.RemovePlanting(heldPlanting)) return;
+            heldPlanting = -1;
+            PlantDone();
+        }
+
+        // The basket on home (I193): a round token bottom left. Open, it shows a tray
+        // of everything you've grown; pick one and tap the grass to plant more of it.
+        private void BasketControls(Transform screen, Transform stack)
+        {
+            int[] made = world.Choices;
+            if (world.Mode != PlayMode.Living || made.Length == 0) return;
+            var corner = Node("Basket corner", screen);
+            var cornerRect = corner.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            cornerRect.anchorMin = new Vector2(safe.xMin / w, safe.yMin / h);
+            cornerRect.anchorMax = new Vector2(safe.xMax / w, safe.yMin / h);
+            cornerRect.pivot = new Vector2(0.5f, 0f);
+            cornerRect.sizeDelta = new Vector2(0f, basketOpen ? 104f : 76f);
+            cornerRect.anchoredPosition = new Vector2(0f, 10f);
+            if (basketOpen)
+            {
+                stack.gameObject.SetActive(false);
+                var tray = Node("Seed tray", corner.transform);
+                var trayRect = tray.GetComponent<RectTransform>();
+                Fill(trayRect);
+                trayRect.offsetMin = new Vector2(86f, 0f);
+                trayRect.offsetMax = new Vector2(-10f, 0f);
+                var trayImage = tray.AddComponent<Image>();
+                MosseloraArt.Round(trayImage, MosseloraTheme.CardFill, 26);
+                MosseloraArt.Lift(trayImage, 2f, 0.18f);
+                tray.AddComponent<RectMask2D>();
+                var trayScroll = tray.AddComponent<ScrollRect>();
+                trayScroll.horizontal = true;
+                trayScroll.vertical = false;
+                trayScroll.movementType = ScrollRect.MovementType.Clamped;
+                var row = Node("Tray row", tray.transform);
+                var rowRect = row.GetComponent<RectTransform>();
+                rowRect.anchorMin = new Vector2(0f, 0f);
+                rowRect.anchorMax = new Vector2(0f, 1f);
+                rowRect.pivot = new Vector2(0f, 0.5f);
+                rowRect.sizeDelta = Vector2.zero;
+                var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
+                rowGroup.padding = new RectOffset(12, 12, 10, 10);
+                rowGroup.spacing = 10;
+                rowGroup.childAlignment = TextAnchor.MiddleLeft;
+                rowGroup.childControlWidth = true;
+                rowGroup.childControlHeight = true;
+                rowGroup.childForceExpandWidth = false;
+                rowGroup.childForceExpandHeight = false;
+                row.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+                trayScroll.content = rowRect;
+                trayScroll.viewport = trayRect;
+                for (int i = made.Length - 1; i >= 0; i--)
+                {
+                    int kind = i;
+                    Sprite art = ItemArt(i, made[i]);
+                    Button seed = IconButton(row.transform, "Basket " + i, ItemAt(i, made[i]).Name, MosseloraArt.IconRooted,
+                        () => { basketKind = basketKind == kind ? -1 : kind; heldPlanting = -1; RefreshMaps(); },
+                        74, kind == basketKind ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                        false, null, false, 0, 0, true);
+                    Transform glyph = seed.transform.Find("Icon");
+                    Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                    if (glyphImage != null && art != null)
+                    {
+                        glyphImage.sprite = art;
+                        glyphImage.color = Color.white;
+                        var glyphSize = glyph.GetComponent<LayoutElement>();
+                        glyphSize.minWidth = glyphSize.preferredWidth = 50f;
+                        glyphSize.minHeight = glyphSize.preferredHeight = 50f;
+                    }
+                    if (kind == basketKind && gentleMotion) BloomPulse.Add(seed.gameObject, 0.9f, 0.06f);
+                }
+            }
+            // The basket itself: open, close, or (holding a planting) put it back.
+            bool holding = heldPlanting >= 0;
+            string glyphName = holding ? MosseloraArt.IconUndo : basketOpen ? MosseloraArt.IconCancel : MosseloraArt.IconRooted;
+            Button basket = IconButton(corner.transform, holding ? "Put back" : basketOpen ? "Close basket" : "Plant more",
+                holding ? "Put back" : basketOpen ? GameLocalization.Text("close") : "Plant more", glyphName, () => {
+                    if (heldPlanting >= 0) { PutBack(); return; }
+                    basketOpen = !basketOpen;
+                    basketKind = basketOpen ? world.Choices.Length - 1 : -1;
+                    RefreshMaps();
+                }, 72, holding || basketOpen ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            var basketRect = basket.GetComponent<RectTransform>();
+            basketRect.anchorMin = basketRect.anchorMax = new Vector2(0f, 0f);
+            basketRect.pivot = new Vector2(0f, 0f);
+            basketRect.anchoredPosition = new Vector2(10f, basketOpen ? 16f : 2f);
+            basketRect.sizeDelta = new Vector2(72f, 72f);
+            if (!basketOpen && !holding)
+            {
+                // Closed, the basket shows the newest thing you grew.
+                Transform glyph = basket.transform.Find("Icon");
+                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                Sprite newest = ItemArt(made.Length - 1, made[made.Length - 1]);
+                if (glyphImage != null && newest != null) { glyphImage.sprite = newest; glyphImage.color = Color.white; }
+                if (world.PlantingCount == 0 && gentleMotion) BloomPulse.Add(basket.gameObject, 0.8f, 0.08f);
+            }
+        }
+
         // Redraw whichever map is showing, keeping the page where it is.
         private void RefreshMaps()
         {
             if (titleScreen != null && canvasRoot != null)
             {
+                if (hubMapView != null) keepHubAt = hubMapView.Position;
                 Transform host = titleScreen.transform.parent;
                 CloseTitle();
                 BuildTitleScreen(host);
@@ -6097,6 +6277,35 @@ namespace Evergrove.UnityClient
         private bool qaShowHub;
 
         // The tour normally skips the hub; this opens it once for a screenshot.
+        // The tour opens the basket and plants three of the newest thing near it (I193).
+        internal void QaPlantFromBasket()
+        {
+            GardenMap map = LoadGardenMap();
+            if (map == null || world.Choices.Length == 0) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true; // the tour's hub rebuilds after each planting
+#endif
+            basketOpen = true;
+            basketKind = world.Choices.Length - 1;
+            int[] layout = map.Layout(world.Choices, world.Placements, world.Plantings);
+            int near = layout[layout.Length - 1];
+            int planted = 0;
+            for (int d = 1; d < 6 && planted < 3; d++)
+                foreach (int cell in new[] { near - d, near + d, near - d * map.Columns, near + d * map.Columns })
+                    if (planted < 3 && map.CanPlace(layout, cell) && !PlantedAt(cell))
+                    {
+                        OnMapLand(cell);
+                        planted++;
+                        layout = map.Layout(world.Choices, world.Placements, world.Plantings);
+                    }
+            RefreshMaps(); // shows the open tray with the kind picked
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = false;
+#endif
+        }
+
+        internal void QaCloseBasket() { basketOpen = false; basketKind = -1; heldPlanting = -1; }
+
         internal void QaShowHub(bool show)
         {
             if (!show) { CloseTitle(); return; }

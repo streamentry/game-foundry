@@ -184,6 +184,41 @@ namespace Evergrove.Core
             return result;
         }
 
+        /// <summary>
+        /// The layout with free plantings (I193): plantings stand where they were
+        /// put; each choice's default avoids their cells. Index i is choice i.
+        /// </summary>
+        public int[] Layout(int[] choices, int[] placed, int[] plantings)
+        {
+            if (plantings == null || plantings.Length == 0) return Layout(choices, placed);
+            int count = choices == null ? 0 : choices.Length;
+            // Reserve the planted cells as if they were taken by extra items.
+            int extra = plantings.Length / 2;
+            var reserved = new int[count + extra];
+            for (int i = 0; i < reserved.Length; i++) reserved[i] = -1;
+            for (int k = 0; k < extra; k++) reserved[count + k] = IsLand(plantings[k * 2 + 1]) ? plantings[k * 2 + 1] : -1;
+            for (int i = 0; i < count; i++)
+            {
+                int wanted = placed != null && i < placed.Length ? placed[i] : -1;
+                if (wanted >= 0 && CanPlace(reserved, wanted, i)) reserved[i] = wanted;
+            }
+            for (int i = 0; i < count; i++)
+                if (reserved[i] < 0) reserved[i] = DefaultCell(reserved, (VillageChoice)Clamp(choices[i]), i);
+            var result = new int[count];
+            Array.Copy(reserved, result, count);
+            return result;
+        }
+
+        /// <summary>True when nothing (item or planting) stands on this land cell.</summary>
+        public bool IsFree(int[] layout, int[] plantings, int cell)
+        {
+            if (!CanPlace(layout, cell)) return false;
+            if (plantings != null)
+                for (int k = 1; k < plantings.Length; k += 2)
+                    if (plantings[k] == cell) return false;
+            return true;
+        }
+
         private static int Clamp(int family) { return family < 0 ? 0 : family > 2 ? 2 : family; }
     }
 }

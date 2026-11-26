@@ -118,7 +118,7 @@ namespace Evergrove.UnityClient
                     ? new Rect(tu, tv + th * t, tw, -th * t)          // mirrored: the painting's foot, upside down
                     : new Rect(tu, tv + th * (1f - t), tw, th * t);   // as painted: the painting's head
                 Wash(nextRect, new Color(0.84f, 0.74f, 0.50f, 0.5f), false);
-                Wash(nextRect, new Color(0.97f, 0.95f, 0.89f, 1f), true);
+                Wash(nextRect, new Color(0.97f, 0.95f, 0.89f, 0.82f), true);
             }
             view.apron = teaser ? 0f : Mathf.Clamp(apron, 0f, 0.4f);
             if (view.apron > 0f && plot != null)
@@ -187,6 +187,15 @@ namespace Evergrove.UnityClient
         // Where in the window (0 top … 1 bottom) the focused item sits (I185: lower
         // when a title floats over the map's top).
         public float FocusFromTop = 0.5f;
+        // Where the view is (normalized), and a place to hold it after a rebuild,
+        // so planting one thing after another never jumps the view away (I193).
+        public Vector2 Position { get { return scroll != null ? scroll.normalizedPosition : new Vector2(-1f, -1f); } }
+        private Vector2 keep = new Vector2(-1f, -1f);
+        public void KeepAt(Vector2 position)
+        {
+            keep = position;
+            if (keep.x >= 0f) Layout();
+        }
         private Func<RectTransform, Func<int, Vector2>, List<RectTransform>> decorate;
         private RectTransform dry;
         private float dryClock;
@@ -282,9 +291,11 @@ namespace Evergrove.UnityClient
         private void TapLand(Vector2 local)
         {
             if (onLand == null || map == null) return;
-            float width = land.rect.width, height = land.rect.height;
-            width = plotRect.rect.width; height = plotRect.rect.height;
-            float x = local.x + width / 2f, y = height / 2f - local.y;
+            // Measured from the painting's own corner, whatever its pivot (the I190
+            // move to a top-pivoted child put taps half a map too low; fixed in I193).
+            Rect area = plotRect.rect;
+            float width = area.width, height = area.height;
+            float x = local.x - area.xMin, y = area.yMax - local.y;
             int column = Mathf.FloorToInt(x / (width / map.Columns));
             int row = Mathf.FloorToInt(y / (height / map.Rows));
             if (column < 0 || column >= map.Columns || row < 0 || row >= map.Rows) return;
@@ -388,6 +399,12 @@ namespace Evergrove.UnityClient
                 List<RectTransform> extra = decorate(land, cell =>
                     new Vector2((cell % map.Columns + 0.5f) * cellW, -(cell / map.Columns + 0.78f) * cellH));
                 if (extra != null) nodes.AddRange(extra);
+            }
+            if (keep.x >= 0f)
+            {
+                scroll.StopMovement();
+                scroll.normalizedPosition = keep;
+                return;
             }
             Vector2 view = window.rect.size;
             float spanX = Mathf.Max(1f, width - view.x), spanY = Mathf.Max(1f, height - view.y);

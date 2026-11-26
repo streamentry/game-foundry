@@ -1694,6 +1694,54 @@ internal static class Program
         Expect(!GardenTransfer.TryImport(tampered, out imported, out error), "an edited placement fails its checksum");
     }
 
+    // I193: free planting from the basket.
+    private static void PlantingTests()
+    {
+        WorldModel world = WorldModel.New(PlayMode.Living, 1);
+        Expect(!world.Plant(0, 10), "nothing to plant before the first choice");
+        SolveCurrent(world);
+        Expect(world.Choose(VillageChoice.Flowers), "first choice");
+        Expect(world.Plant(0, 10) && world.Plant(0, 11) && world.PlantingCount == 2, "plant two more of what you grew");
+        Expect(!world.Plant(1, 12) && !world.Plant(0, -1) && !world.Plant(0, WorldModel.MaxMapCell),
+            "only grown things, on real cells");
+        Expect(world.MovePlanting(1, 20) && world.Plantings[3] == 20, "a planting moves");
+        Expect(!world.MovePlanting(2, 5) && !world.MovePlanting(0, -3), "bad moves are refused");
+        Expect(world.RemovePlanting(0) && world.PlantingCount == 1 && world.Plantings[1] == 20, "a planting goes back to the basket");
+        Expect(!world.RemovePlanting(1), "removing past the end is refused");
+        WorldModel restored;
+        Expect(WorldModel.TryRestore(world.Export(), out restored) && restored.PlantingCount == 1 && restored.Plantings[1] == 20,
+            "plantings survive the save");
+        WorldSnapshot bad = world.Export();
+        bad.plantings = new[] { 0 };
+        Expect(!WorldModel.TryRestore(bad, out restored), "an odd planting list is refused");
+        bad.plantings = new[] { 5, 3 };
+        Expect(!WorldModel.TryRestore(bad, out restored), "a planting of something never grown is refused");
+        bad.plantings = null;
+        Expect(WorldModel.TryRestore(bad, out restored) && restored.PlantingCount == 0, "a save without plantings still loads");
+        string file = GardenTransfer.Export(world, "2026-11-26T00:00:00Z");
+        WorldModel imported;
+        GardenImportError error;
+        Expect(file.Contains("\"plantings\":[0,20]") && GardenTransfer.TryImport(file, out imported, out error) &&
+            imported.PlantingCount == 1, "the garden file carries plantings");
+        Expect(!GardenTransfer.TryImport(file.Replace("\"plantings\":[0,20]", "\"plantings\":[0,21]"), out imported, out error),
+            "an edited planting fails its checksum");
+        // Reconsidering the newest choice takes its plantings back too.
+        SolveCurrent(world);
+        Expect(world.Choose(VillageChoice.ShadeTree) && world.Plant(1, 30) && world.PlantingCount == 2, "second choice planted");
+        Expect(world.ReconsiderLatestChoice() && world.PlantingCount == 1 && world.Plantings[0] == 0,
+            "reconsidering returns that choice's plantings");
+        for (int i = world.PlantingCount; i < WorldModel.MaxPlantings; i++) world.Plant(0, 40 + i);
+        Expect(world.PlantingCount == WorldModel.MaxPlantings && !world.Plant(0, 9), "the basket has a sensible limit");
+        // Defaults step around planted cells.
+        string mask = "....".PadRight(40, '.');
+        var map = new GardenMap(10, 4, mask);
+        int[] plain = map.Layout(new[] { 2 }, null);
+        int[] around = map.Layout(new[] { 2 }, null, new[] { 0, plain[0] });
+        Expect(around[0] != plain[0] && map.IsLand(around[0]), "a default never lands on a planting");
+        Expect(!map.IsFree(around, new[] { 0, plain[0] }, plain[0]) && !map.IsFree(around, null, around[0]) &&
+            map.IsFree(around, new[] { 0, plain[0] }, 39 == plain[0] ? 38 : 39), "free means no item and no planting");
+    }
+
     private static void SolveCurrent(WorldModel world)
     {
         Puzzle puzzle = world.CurrentPuzzle;
@@ -1854,6 +1902,7 @@ internal static class Program
             AlmanacTests();
             GardenMapTests();
         RiverMapTests();
+        PlantingTests();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

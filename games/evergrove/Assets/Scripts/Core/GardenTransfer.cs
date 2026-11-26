@@ -37,7 +37,7 @@ namespace Evergrove.Core
         private static readonly HashSet<string> SnapshotKeys = new HashSet<string> {
             "version", "mode", "round", "solved", "rotations", "previous", "choices",
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
-            "history", "garden", "placements"
+            "history", "garden", "placements", "plantings"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -135,12 +135,15 @@ namespace Evergrove.Core
             // Accept that exact pre-history canonical form only when the import has no history.
             bool matchesCurrent = string.Equals(Sha256Hex(SnapshotJson(snapshot)), checksum, StringComparison.Ordinal);
             // Gardens exported before E4 (I177) have no "garden"/"placements" keys.
-            bool noMapYet = snapshot.garden == 0 && snapshot.placements.Length == 0;
+            bool noMapYet = snapshot.garden == 0 && snapshot.placements.Length == 0 && snapshot.plantings.Length == 0;
+            // Gardens exported before I193 have no "plantings" key.
+            bool matchesPrePlantings = snapshot.plantings.Length == 0 &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreMap = noMapYet &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreHistory = noMapYet && snapshot.history.Length == 0 &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, false, false)), checksum, StringComparison.Ordinal);
-            if (!matchesCurrent && !matchesPreMap && !matchesPreHistory)
+            if (!matchesCurrent && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
             {
                 error = GardenImportError.ChecksumMismatch;
                 return false;
@@ -165,7 +168,7 @@ namespace Evergrove.Core
         /// Canonical text. With includeHistory false it reproduces the pre-EG-111
         /// layout, used only to verify checksums of older garden files.
         /// </summary>
-        private static string SnapshotJson(WorldSnapshot s, bool includeHistory, bool includeMap)
+        private static string SnapshotJson(WorldSnapshot s, bool includeHistory, bool includeMap, bool includePlantings = true)
         {
             var sb = new StringBuilder(256);
             sb.Append("{\"version\":").Append(Int(s.version))
@@ -185,6 +188,8 @@ namespace Evergrove.Core
             if (includeMap)
                 sb.Append(",\"garden\":").Append(Int(s.garden))
                   .Append(",\"placements\":").Append(IntArray(s.placements));
+            if (includeMap && includePlantings)
+                sb.Append(",\"plantings\":").Append(IntArray(s.plantings));
             return sb.Append('}').ToString();
         }
 
@@ -261,7 +266,8 @@ namespace Evergrove.Core
                    ReadInts(fields, "variantSchedule", ref snapshot.variantSchedule) &&
                    ReadInts(fields, "history", ref snapshot.history) &&
                    ReadInt(fields, "garden", ref snapshot.garden) &&
-                   ReadInts(fields, "placements", ref snapshot.placements);
+                   ReadInts(fields, "placements", ref snapshot.placements) &&
+                   ReadInts(fields, "plantings", ref snapshot.plantings);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)

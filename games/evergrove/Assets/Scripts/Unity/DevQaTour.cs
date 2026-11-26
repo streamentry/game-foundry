@@ -194,6 +194,13 @@ namespace Evergrove.UnityClient
             SavePng("17b-menu-fan.png");
             Press("Open menu");
             for (int f = 0; f < 4; f++) yield return null;
+            // The basket (I193): three more of the newest thing, planted beside it.
+            app.QaPlantFromBasket();
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17c-basket.png");
+            app.QaCloseBasket();
             app.QaShowHub(false);
             for (int f = 0; f < 4; f++) yield return null;
 

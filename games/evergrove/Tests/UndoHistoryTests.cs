@@ -80,6 +80,8 @@ internal static class UndoHistoryTests
         int start = text.IndexOf(",\"garden\":", StringComparison.Ordinal);
         if (start < 0) return text;
         int end = text.IndexOf(']', text.IndexOf(",\"placements\":", start, StringComparison.Ordinal));
+        int plantings = text.IndexOf(",\"plantings\":", start, StringComparison.Ordinal);
+        if (plantings >= 0) end = text.IndexOf(']', plantings); // I193 key follows the map keys
         return text.Substring(0, start) + text.Substring(end + 1);
     }
 
