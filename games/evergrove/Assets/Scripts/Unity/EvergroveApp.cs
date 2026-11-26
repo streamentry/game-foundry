@@ -1605,6 +1605,15 @@ namespace Evergrove.UnityClient
             }
             if (world.Mode == PlayMode.Living) NeighborsOnPainting(strip.transform, true);
 
+            // Home is your garden, full screen (I190): no paper, no wordmark, no
+            // tagline; the walk, the next stream's sign and one round play button
+            // stand on the grass at the bottom.
+            bool worldHome = mapShown && !landscape;
+            if (worldHome)
+            {
+                windowRect.anchorMin = Vector2.zero;
+                melt.SetActive(false);
+            }
             var stack = Node("Title stack", titleScreen.transform);
             var stackRect = stack.GetComponent<RectTransform>();
             stackRect.anchorMin = new Vector2(0f, 0.03f);
@@ -1618,7 +1627,8 @@ namespace Evergrove.UnityClient
             column.childControlHeight = true;
             column.childForceExpandWidth = true;
             column.childForceExpandHeight = false;
-            Sprite mark = MosseloraArt.Load(MosseloraArt.Wordmark);
+            if (worldHome) column.childAlignment = TextAnchor.LowerCenter;
+            Sprite mark = worldHome ? null : MosseloraArt.Load(MosseloraArt.Wordmark);
             if (mark != null)
             {
                 var markNode = Node("Mosselora wordmark", stack.transform);
@@ -1628,14 +1638,30 @@ namespace Evergrove.UnityClient
                 markImage.preserveAspect = true;
                 markImage.raycastTarget = false;
             }
-            Text tagline = Label(stack.transform, "Title", GameLocalization.Text("subtitle"), 17, 0, Ink,
-                TextAnchor.MiddleCenter);
-            Emphasize(tagline);
+            if (!worldHome)
+            {
+                Text tagline = Label(stack.transform, "Title", GameLocalization.Text("subtitle"), 17, 0, Ink,
+                    TextAnchor.MiddleCenter);
+                Emphasize(tagline);
+            }
             // How far along the creek this garden has walked: resumes, never resets.
             if (!world.Completed) StreamStones(world.CurrentPuzzle, stack.transform, false);
             // What changed last time, told by the neighbor who remembers it.
-            if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0 && !worldHome)
                 KeeperLine(stack.transform, "Last memory", hubRecall);
+            if (worldHome)
+            {
+                // The same plank as over the board, then a round play token (I190).
+                if (!world.Completed && GameLocalization.Current == "en")
+                    NextStreamLine(stack.transform, world.CurrentPuzzle.Name, false);
+                Transform token = CenteredRowIn(stack.transform, "Play row");
+                IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")
+                        : world.CurrentPuzzle.Name, MosseloraArt.IconContinue, CloseTitle, 96,
+                    MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
+                HubChrome();
+                titleScreen.transform.SetAsLastSibling();
+                return;
+            }
             Transform play = CenteredRowIn(stack.transform, "Play row");
             // The big button names where the walk continues ("First Bend").
             string nextStop = !world.Completed && GameLocalization.Current == "en"
@@ -1813,8 +1839,12 @@ namespace Evergrove.UnityClient
             Sprite plot = MosseloraArt.Load("garden-map");
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
-            GardenMapView.Build(window, plot, map, MapItems(map), 1.5f, OnMapLand, OnMapItem, mapInHand,
-                false, GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true));
+            GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), 1.5f, OnMapLand, OnMapItem,
+                mapInHand, false, GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
+                landscape ? 0f : 0.22f);
+            // Full-screen home (I190): what you made sits in the upper part of the
+            // screen, clear of the play token at the bottom.
+            if (!landscape) view.FocusFromTop = 0.36f;
             return true;
         }
 

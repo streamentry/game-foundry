@@ -36,7 +36,8 @@ namespace Evergrove.UnityClient
                                           Action<int> onLand = null, Action<int> onItem = null,
                                           int inHand = -1, bool growNewest = false,
                                           float greened = 1f, float greenedBefore = -1f,
-                                          Func<RectTransform, Func<int, Vector2>, List<RectTransform>> decorate = null)
+                                          Func<RectTransform, Func<int, Vector2>, List<RectTransform>> decorate = null,
+                                          float apron = 0f)
         {
             var host = new GameObject("Garden map", typeof(RectTransform));
             host.transform.SetParent(window, false);
@@ -66,11 +67,53 @@ namespace Evergrove.UnityClient
             landRect.anchorMin = landRect.anchorMax = new Vector2(0.5f, 0.5f);
             landRect.pivot = new Vector2(0.5f, 0.5f);
             scroll.content = landRect;
-            var ground = land.AddComponent<Image>();
+            // The painting itself (I190: a child, so the land can run on past it).
+            var plotNode = new GameObject("Garden painting", typeof(RectTransform));
+            plotNode.transform.SetParent(land.transform, false);
+            var plotRect = (RectTransform)plotNode.transform;
+            plotRect.anchorMin = new Vector2(0f, 1f);
+            plotRect.anchorMax = new Vector2(1f, 1f);
+            plotRect.pivot = new Vector2(0.5f, 1f);
+            var ground = plotNode.AddComponent<Image>();
             view.ground = ground;
+            view.plotRect = plotRect;
             ground.sprite = plot;
             ground.raycastTarget = onLand != null;
-            if (onLand != null) land.AddComponent<MapTap>().Tapped = local => view.TapLand(local);
+            if (onLand != null) plotNode.AddComponent<MapTap>().Tapped = local => view.TapLand(local);
+            // Below the painting the meadow runs on, mirrored so it joins without a
+            // seam (I190): the view can then frame the lowest things above the
+            // play token instead of stopping at the painting's edge.
+            view.apron = Mathf.Clamp(apron, 0f, 0.4f);
+            if (view.apron > 0f && plot != null)
+            {
+                var apronNode = new GameObject("Meadow beyond", typeof(RectTransform));
+                apronNode.transform.SetParent(land.transform, false);
+                var apronRect = (RectTransform)apronNode.transform;
+                apronRect.anchorMin = new Vector2(0f, 0f);
+                apronRect.anchorMax = new Vector2(1f, 0f);
+                apronRect.pivot = new Vector2(0.5f, 0f);
+                view.apronRect = apronRect;
+                var apronImage = apronNode.AddComponent<RawImage>();
+                apronImage.texture = plot.texture;
+                Rect r = plot.textureRect;
+                float tw = plot.texture.width, th = plot.texture.height;
+                float u = r.x / tw, v = r.y / th, uw = r.width / tw, vh = r.height / th * view.apron;
+                apronImage.uvRect = new Rect(u, v + vh, uw, -vh);
+                apronImage.raycastTarget = false;
+                if (greened < 0.999f)
+                {
+                    // Still dry down here, like the painting's lower valley.
+                    var wash = new GameObject("Dry beyond", typeof(RectTransform));
+                    wash.transform.SetParent(apronNode.transform, false);
+                    var washRect = (RectTransform)wash.transform;
+                    washRect.anchorMin = Vector2.zero;
+                    washRect.anchorMax = Vector2.one;
+                    washRect.offsetMin = washRect.offsetMax = Vector2.zero;
+                    var washImage = wash.AddComponent<Image>();
+                    washImage.color = new Color(0.84f, 0.74f, 0.50f, 0.58f);
+                    washImage.raycastTarget = false;
+                }
+            }
 
             view.scroll = scroll;
             view.land = landRect;
@@ -119,7 +162,7 @@ namespace Evergrove.UnityClient
         {
             if (greened >= 0.999f && greenedFrom >= 0.999f) return;
             var node = new GameObject("Dry land", typeof(RectTransform));
-            node.transform.SetParent(land, false);
+            node.transform.SetParent(plotRect, false); // over the painting only (I190)
             dry = (RectTransform)node.transform;
             dry.anchorMin = new Vector2(0f, 0f);
             dry.anchorMax = new Vector2(1f, 1f - greenedFrom);
@@ -145,6 +188,8 @@ namespace Evergrove.UnityClient
         }
 
         private Image ground;
+        private RectTransform plotRect, apronRect;
+        private float apron;
 
         private void Update()
         {
@@ -166,6 +211,7 @@ namespace Evergrove.UnityClient
         {
             if (onLand == null || map == null) return;
             float width = land.rect.width, height = land.rect.height;
+            width = plotRect.rect.width; height = plotRect.rect.height;
             float x = local.x + width / 2f, y = height / 2f - local.y;
             int column = Mathf.FloorToInt(x / (width / map.Columns));
             int row = Mathf.FloorToInt(y / (height / map.Rows));
@@ -179,8 +225,11 @@ namespace Evergrove.UnityClient
             lastWindow = window.rect.size;
             float width = Mathf.Max(window.rect.width * widthScale, window.rect.height / aspect);
             float height = width * aspect;
-            land.sizeDelta = new Vector2(width, height);
+            plotRect.sizeDelta = new Vector2(0f, height);
+            if (apronRect != null) apronRect.sizeDelta = new Vector2(0f, height * apron);
             float cellW = width / map.Columns, cellH = height / map.Rows;
+            height *= 1f + apron; // the land runs on below the painting (I190)
+            land.sizeDelta = new Vector2(width, height);
             foreach (RectTransform old in nodes) if (old != null) Destroy(old.gameObject);
             nodes.Clear();
             var order = new List<Placed>(items);
