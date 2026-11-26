@@ -1663,15 +1663,20 @@ namespace Evergrove.UnityClient
                 // token becomes that thing, and plays its puzzle.
                 int held = world.Mode == PlayMode.Living && mapInHand >= 0 && mapInHand < world.Choices.Length
                     ? mapInHand : -1;
-                if (held >= 0)
+                int heldPlant = world.Mode == PlayMode.Living && heldBought >= 0 && heldBought < world.BoughtCount
+                    ? heldBought : -1;
+                if (held >= 0 || heldPlant >= 0)
                 {
                     Transform heldRow = CenteredRowIn(stack.transform, "Play row");
-                    Button thing = IconButton(heldRow, "Play its puzzle", ItemAt(held, world.Choices[held]).Name,
-                        MosseloraArt.IconContinue, () => OpenTreePlay(held), 96, MosseloraTheme.WaterAction,
-                        false, null, false, 0, 0, true);
+                    int heldKind = heldPlant >= 0 ? world.Bought[heldPlant * 2] : -1;
+                    string heldName = heldPlant >= 0 ? Nursery.Item(heldKind).Name : ItemAt(held, world.Choices[held]).Name;
+                    Button thing = IconButton(heldRow, "Play its puzzle", heldName,
+                        MosseloraArt.IconContinue, () => { if (heldPlant >= 0) OpenBoughtPlay(heldPlant); else OpenTreePlay(held); },
+                        96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
                     Transform glyph = thing.transform.Find("Icon");
                     Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
-                    Sprite heldArt = ItemArt(held, world.Choices[held]);
+                    Sprite heldArt = heldPlant >= 0 ? MosseloraArt.Load(Nursery.Item(heldKind).Art)
+                        : ItemArt(held, world.Choices[held]);
                     if (glyphImage != null && heldArt != null)
                     {
                         glyphImage.sprite = heldArt;
@@ -1704,7 +1709,8 @@ namespace Evergrove.UnityClient
                 Transform token = CenteredRowIn(stack.transform, "Play row");
                 IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")
                         : world.CurrentPuzzle.Name, MosseloraArt.IconContinue, () => {
-                            basketOpen = false; basketKind = -1; heldPlanting = -1; CloseTitle();
+                            basketOpen = false; basketKind = -1; heldPlanting = -1;
+                            nurseryOpen = false; nurseryKind = -1; heldBought = -1; CloseTitle();
                         }, 96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
                 if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                 SeedPurse();
@@ -1916,23 +1922,58 @@ namespace Evergrove.UnityClient
             // The same thing always holds the same board: seeded by garden and place in the story.
             int seed = world.Garden * 1000 + item * 7 + 1;
             int reward = WorldModel.TreeReward(tier, !world.TreeSolved(item));
-            Action turned = () => { PlayTock(); if (gentleMotion) Haptics.Tick(); };
             Func<int> solved = () => { int earned = world.SolveTree(item); SaveWorld(); PlayChime(); return earned; };
-            Action closed = () => { mapInHand = -1; RefreshMaps(); };
-            // Puzzle kind follows the family (depth spine): flowers hold Pairs.
-            if ((VillageChoice)made[item] == VillageChoice.Flowers)
+            OpenThingPuzzle(seed, tier, (VillageChoice)made[item], ItemArt(item, made[item]), thing.Name, reward,
+                item, solved);
+        }
+
+        // A nursery plant's puzzle (I208): its row is its tier; its own seed.
+        private void OpenBoughtPlay(int k)
+        {
+            if (titleScreen == null || k < 0 || k >= world.BoughtCount) return;
+            int kind = world.Bought[k * 2];
+            GardenItem plant = Nursery.Item(kind);
+            int tier = Nursery.Row(kind);
+            int reward = WorldModel.TreeReward(tier, !world.BoughtSolved(k));
+            OpenThingPuzzle(world.Garden * 1000 + 500 + k * 7, tier, Nursery.Family(kind),
+                MosseloraArt.Load(plant.Art), plant.Name, reward, k * 5 + kind,
+                () => { int earned = world.SolveBought(k); SaveWorld(); PlayChime(); return earned; });
+        }
+
+        // Puzzle kind follows the family (depth spine): flowers hold Pairs, the rest water.
+        private void OpenThingPuzzle(int seed, int tier, VillageChoice family, Sprite art, string name, int reward,
+                                     int pictureStart, Func<int> solved)
+        {
+            Action turned = () => { PlayTock(); if (gentleMotion) Haptics.Tick(); };
+            int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
+            // Back home, the view returns to the thing and its ring grows in (I212).
+            Action closed = () => { justSolved = solvedHere ? shown : -1; solvedHere = false;
+                mapInHand = -1; heldBought = -1; keepHubAt = new Vector2(-1f, -1f); RefreshMapsFresh(); };
+            Func<int> solvedOnce = solved;
+            solved = () => { solvedHere = true; return solvedOnce(); };
+            var host = (RectTransform)titleScreen.transform;
+            if (family == VillageChoice.Flowers)
             {
                 var game = new PairsGame(seed, tier);
-                TreePlay.OpenPairs((RectTransform)titleScreen.transform, game, PairsPictures(game.Pairs, item),
-                    ItemArt(item, made[item]), thing.Name, reward, font, gentleMotion, turned, solved, closed);
+                TreePlay.OpenPairs(host, game, PairsPictures(game.Pairs, pictureStart), art, name, reward, font,
+                    gentleMotion, turned, solved, closed);
                 return;
             }
-            Puzzle board = TreePuzzles.For(seed, tier, thing.Name);
-            TreePlay.Open((RectTransform)titleScreen.transform, board, ItemArt(item, made[item]), thing.Name,
-                reward, font, gentleMotion,
-                () => { PlayTock(); if (gentleMotion) Haptics.Tick(); },
-                () => { int earned = world.SolveTree(item); SaveWorld(); PlayChime(); return earned; },
-                () => { mapInHand = -1; RefreshMaps(); });
+            if (family == VillageChoice.Bridge)
+            {
+                // Buildings hold a Mosaic of one of the village's memory paintings.
+                string[] paintings = { MosseloraArt.VignetteBridge, MosseloraArt.VignetteTree,
+                    MosseloraArt.VignetteFlowers, MosseloraArt.HeroVillage, MosseloraArt.EndingFestival };
+                Sprite picture = MosseloraArt.Load(paintings[Mathf.Abs(seed) % paintings.Length]);
+                if (picture != null)
+                {
+                    TreePlay.OpenMosaic(host, new MosaicGame(seed, tier), picture, art, name, reward, font,
+                        gentleMotion, turned, solved, closed);
+                    return;
+                }
+            }
+                        TreePlay.Open(host, TreePuzzles.For(seed, tier, name), art, name, reward, font, gentleMotion,
+                turned, solved, closed);
         }
 
         // Distinct paintings from this garden's catalogue for a Pairs table, starting
@@ -1991,10 +2032,13 @@ namespace Evergrove.UnityClient
             if (plot == null || map == null) return false;
             float zoom = hubZoom[landscape ? 1 : 0];
             GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
-                heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand, justPlanted >= 0 && gentleMotion,
+                heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
+                (justPlanted >= 0 || justBought >= 0) && gentleMotion,
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 0.22f, RiverGoesOn(map));
             hubMapView = view;
+            justBought = -1;
+            justSolved = -1;
             // Pinch to zoom (I202), kept while the app runs, per orientation.
             bool sideways = landscape;
             view.Zoomed = z => hubZoom[sideways ? 1 : 0] = z;
@@ -2050,15 +2094,36 @@ namespace Evergrove.UnityClient
         private bool basketOpen;
         private int basketKind = -1;   // the choice whose item is planted on a tap, -1 none
         private int heldPlanting = -1; // a planting picked up to move or put back
+        // ---- I208: the nursery. Seeds buy new plants; each holds its own puzzle.
+        private const int BoughtIndex = 2000; // map indices at or above this are bought plants
+        private int heldBought = -1;   // a bought plant picked up (to move, or to play its puzzle)
+        private bool nurseryOpen;      // the basket tray shows the nursery instead of your own kinds
+        private int nurseryKind = -1;  // the nursery kind planted (bought) on a tap, -1 none
+        private int justBought = -1;
+        private int justSolved = -1;   // map index of the thing whose puzzle was just solved (I212)
+        private bool solvedHere;
+
+        // Everything standing on the map besides your story things: plantings, then bought plants.
+        private int[] Occupied()
+        {
+            int[] planted = world.Plantings, bought = world.Bought;
+            int[] all = new int[planted.Length + bought.Length];
+            Array.Copy(planted, all, planted.Length);
+            Array.Copy(bought, 0, all, planted.Length, bought.Length);
+            return all;
+        }
         private int justPlanted = -1;  // rises from the ground once
         private GardenMapView hubMapView;
         private Vector2 keepHubAt = new Vector2(-1f, -1f);
 
-        private bool PlantedAt(int cell, int except = -1)
+        private bool PlantedAt(int cell, int except = -1, int exceptBought = -1)
         {
             int[] planted = world.Plantings;
             for (int k = 0; k * 2 + 1 < planted.Length; k++)
                 if (k != except && planted[k * 2 + 1] == cell) return true;
+            int[] bought = world.Bought;
+            for (int k = 0; k * 2 + 1 < bought.Length; k++)
+                if (k != exceptBought && bought[k * 2 + 1] == cell) return true;
             return false;
         }
 
@@ -2066,7 +2131,7 @@ namespace Evergrove.UnityClient
         {
             int[] made = world.Choices;
             int[] planted = world.Plantings;
-            int[] cells = map.Layout(made, world.Placements, planted);
+            int[] cells = map.Layout(made, world.Placements, Occupied());
             var items = new System.Collections.Generic.List<GardenMapView.Placed>();
             for (int i = 0; i < made.Length; i++)
                 items.Add(new GardenMapView.Placed
@@ -2075,8 +2140,9 @@ namespace Evergrove.UnityClient
                     Cell = cells[i],
                     Index = i,
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
-                    Newest = i == made.Length - 1 && justPlanted < 0,
-                    Bloomed = world.TreeSolved(i) // its puzzle solved (I204)
+                    Newest = justSolved >= 0 ? i == justSolved : i == made.Length - 1 && justPlanted < 0,
+                    Bloomed = world.TreeSolved(i), // its puzzle solved (I204)
+                    BloomNow = i == justSolved && gentleMotion
                 });
             // More of what you grew, planted from the basket (I193).
             for (int k = 0; k * 2 + 1 < planted.Length; k++)
@@ -2090,6 +2156,23 @@ namespace Evergrove.UnityClient
                     Index = PlantingIndex + k,
                     Family = (VillageChoice)Mathf.Clamp(made[source], 0, 2),
                     Newest = k == justPlanted
+                });
+            }
+            // Plants from the nursery (I208): each holds its own puzzle.
+            int[] bought = world.Bought;
+            for (int k = 0; k * 2 + 1 < bought.Length; k++)
+            {
+                int kind = bought[k * 2];
+                if (kind < 0 || kind >= Nursery.Kinds || !map.IsLand(bought[k * 2 + 1])) continue;
+                items.Add(new GardenMapView.Placed
+                {
+                    Art = MosseloraArt.Load(Nursery.Item(kind).Art),
+                    Cell = bought[k * 2 + 1],
+                    Index = BoughtIndex + k,
+                    Family = Nursery.Family(kind),
+                    Newest = justSolved >= 0 ? BoughtIndex + k == justSolved : k == justBought,
+                    Bloomed = world.BoughtSolved(k),
+                    BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
             return items;
@@ -2183,6 +2266,10 @@ namespace Evergrove.UnityClient
         {
             if (world.Mode != PlayMode.Living || GameLocalization.Current != "en")
                 return LocalizedVillage.Speak(world, villager);
+            // I210: what they noticed you do since (a nursery plant of their kind, the
+            // puzzles you solved under their kind of thing) comes first, when true.
+            string noticed = NeighbourNotice.Line(villager, world);
+            if (noticed != null) return noticed;
             int[] made = world.Choices;
             int newest = -1, count = 0;
             for (int i = 0; i < made.Length; i++)
@@ -2235,6 +2322,17 @@ namespace Evergrove.UnityClient
 
         private void OnMapItem(int index)
         {
+            if (index >= BoughtIndex)
+            {
+                // A bought plant: pick it up (to move it, or play its puzzle), or put it down.
+                int k = index - BoughtIndex;
+                heldBought = heldBought == k ? -1 : k;
+                heldPlanting = -1;
+                mapInHand = -1;
+                RefreshMaps();
+                return;
+            }
+            heldBought = -1;
             if (index >= PlantingIndex)
             {
                 // A planting: pick it up (or put it down again where it is).
@@ -2254,7 +2352,27 @@ namespace Evergrove.UnityClient
         {
             GardenMap map = LoadGardenMap();
             if (map == null) return;
-            int[] layout = map.Layout(world.Choices, world.Placements, world.Plantings);
+            int[] layout = map.Layout(world.Choices, world.Placements, Occupied());
+            if (heldBought >= 0)
+            {
+                // Move a bought plant: only to free land.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell, -1, heldBought)) return;
+                if (!world.MoveBought(heldBought, cell)) return;
+                heldBought = -1;
+                PlantDone();
+                return;
+            }
+            if (nurseryOpen && nurseryKind >= 0 && ItemInHand() < 0)
+            {
+                // Buy and plant from the nursery; it stays picked while you can afford another.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell)) return;
+                if (!world.Buy(nurseryKind, cell)) return;
+                justBought = world.BoughtCount - 1;
+                if (world.Seeds < Nursery.Price(nurseryKind)) nurseryKind = -1;
+                PlayChime();
+                PlantDone();
+                return;
+            }
             if (heldPlanting >= 0)
             {
                 // Move a planting: only to free land.
@@ -2349,7 +2467,17 @@ namespace Evergrove.UnityClient
                 row.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
                 trayScroll.content = rowRect;
                 trayScroll.viewport = trayRect;
-                for (int i = made.Length - 1; i >= 0; i--)
+                // The nursery (I208): a seed-bag token first in the tray switches it
+                // between your own kinds and the plants seeds can buy.
+                Button bag = IconButton(row.transform, nurseryOpen ? "Your own" : "Nursery",
+                    nurseryOpen ? "Your own" : "Nursery", TreePlay.SeedIcon, () => {
+                        nurseryOpen = !nurseryOpen; nurseryKind = -1; basketKind = -1; heldPlanting = -1; RefreshMaps();
+                    }, 74, nurseryOpen ? MosseloraTheme.ForestAction : new Color(0.93f, 0.88f, 0.72f, 1f),
+                    false, null, false, 0, 0, true);
+                Transform bagGlyph = bag.transform.Find("Icon");
+                if (bagGlyph != null) bagGlyph.GetComponent<Image>().color = Color.white;
+                if (nurseryOpen) NurseryTokens(row.transform);
+                for (int i = nurseryOpen ? -1 : made.Length - 1; i >= 0; i--) // your own kinds, newest first
                 {
                     int kind = i;
                     Sprite art = ItemArt(i, made[i]);
@@ -2378,6 +2506,7 @@ namespace Evergrove.UnityClient
                     if (heldPlanting >= 0) { PutBack(); return; }
                     basketOpen = !basketOpen;
                     basketKind = basketOpen ? world.Choices.Length - 1 : -1;
+                    if (!basketOpen) { nurseryOpen = false; nurseryKind = -1; }
                     RefreshMaps();
                 }, 72, holding || basketOpen ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
@@ -2395,6 +2524,77 @@ namespace Evergrove.UnityClient
                 if (glyphImage != null && newest != null) { glyphImage.sprite = newest; glyphImage.color = Color.white; }
                 if (world.PlantingCount == 0 && gentleMotion) BloomPulse.Add(basket.gameObject, 0.8f, 0.08f);
             }
+        }
+
+        // The nursery's nine plants in the tray: row by row, each with its price. A
+        // closed row is faded with a small lock; a plant you can't afford yet shows
+        // its price dimmed. Pick one, then tap the grass to buy and plant it.
+        private void NurseryTokens(Transform row)
+        {
+            for (int kind = 0; kind < Nursery.Kinds; kind++)
+            {
+                int pick = kind;
+                GardenItem plant = Nursery.Item(kind);
+                int price = Nursery.Price(kind);
+                bool open = world.RowOpen(Nursery.Row(kind));
+                bool affordable = open && world.Seeds >= price;
+                Button token = IconButton(row, "Nursery " + kind, plant.Name + ", " + price + " seeds",
+                    MosseloraArt.IconRooted, () => {
+                        if (!affordable) return; // gently refused: the faded look already says why
+                        nurseryKind = nurseryKind == pick ? -1 : pick;
+                        RefreshMaps();
+                    }, 74, kind == nurseryKind ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                    false, null, false, 0, 0, true);
+                Transform glyph = token.transform.Find("Icon");
+                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                Sprite art = MosseloraArt.Load(plant.Art);
+                if (glyphImage != null && art != null)
+                {
+                    glyphImage.sprite = art;
+                    glyphImage.color = open ? Color.white : new Color(1f, 1f, 1f, 0.35f);
+                    var size = glyph.GetComponent<LayoutElement>();
+                    size.minWidth = size.preferredWidth = 50f;
+                    size.minHeight = size.preferredHeight = 50f;
+                }
+                PriceChip(token.transform, open ? price.ToString() : "", affordable, open);
+                if (kind == nurseryKind && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
+            }
+        }
+
+        // A small chip on a nursery token's lower edge: the price, or a lock when the row is closed.
+        private void PriceChip(Transform token, string price, bool affordable, bool open)
+        {
+            Image chip = MosseloraArt.Ornament(token, "Price", MosseloraArt.Rounded(10), new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0.5f), new Vector2(open ? 46f : 26f, 22f), new Vector2(0f, 2f));
+            if (chip == null) return;
+            chip.preserveAspect = false;
+            chip.color = affordable ? new Color(0.98f, 0.93f, 0.74f, 1f) : new Color(0.9f, 0.88f, 0.82f, 0.95f);
+            if (!open)
+            {
+                Image lockMark = MosseloraArt.Ornament(chip.transform, "Closed row", MosseloraArt.Load(TreePlay.SeedIcon),
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(16f, 16f), Vector2.zero);
+                if (lockMark != null) lockMark.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+                return;
+            }
+            Text value = Label(chip.transform, "Price value", price, 14, 0,
+                affordable ? Ink : new Color(Ink.r, Ink.g, Ink.b, 0.45f), TextAnchor.MiddleCenter);
+            value.horizontalOverflow = HorizontalWrapMode.Overflow;
+            value.GetComponent<LayoutElement>().ignoreLayout = true;
+            Fill(value.rectTransform);
+            Emphasize(value);
+        }
+
+        // Redraw home framed on the newest/just-solved thing, not where the view was.
+        private void RefreshMapsFresh()
+        {
+            keepHubAt = new Vector2(-1f, -1f);
+            if (titleScreen != null && canvasRoot != null)
+            {
+                Transform host = titleScreen.transform.parent;
+                CloseTitle();
+                BuildTitleScreen(host);
+            }
+            else Rebuild();
         }
 
         // Redraw whichever map is showing, keeping the page where it is.
@@ -6483,7 +6683,7 @@ namespace Evergrove.UnityClient
 #endif
             basketOpen = true;
             basketKind = world.Choices.Length - 1;
-            int[] layout = map.Layout(world.Choices, world.Placements, world.Plantings);
+            int[] layout = map.Layout(world.Choices, world.Placements, Occupied());
             int near = layout[layout.Length - 1];
             int planted = 0;
             for (int d = 1; d < 6 && planted < 3; d++)
@@ -6492,7 +6692,7 @@ namespace Evergrove.UnityClient
                     {
                         OnMapLand(cell);
                         planted++;
-                        layout = map.Layout(world.Choices, world.Placements, world.Plantings);
+                        layout = map.Layout(world.Choices, world.Placements, Occupied());
                     }
             RefreshMaps(); // shows the open tray with the kind picked
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -6500,7 +6700,40 @@ namespace Evergrove.UnityClient
 #endif
         }
 
-        internal void QaCloseBasket() { basketOpen = false; basketKind = -1; heldPlanting = -1; }
+        // I208 tour: open the nursery with the first plant picked, then buy one beside the newest thing.
+        internal void QaOpenNursery()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true;
+#endif
+            basketOpen = true;
+            nurseryOpen = true;
+            nurseryKind = world.Seeds >= Nursery.Price(0) ? 0 : -1;
+            RefreshMaps();
+        }
+
+        internal void QaBuyFromNursery()
+        {
+            GardenMap map = LoadGardenMap();
+            if (map == null || nurseryKind < 0) return;
+            int[] layout = map.Layout(world.Choices, world.Placements, Occupied());
+            int near = layout.Length > 0 ? layout[layout.Length - 1] : map.CellCount / 2;
+            for (int d = 1; d < 8; d++)
+                foreach (int cell in new[] { near + d, near - d, near + d * map.Columns, near - d * map.Columns })
+                    if (cell >= 0 && map.CanPlace(layout, cell) && !PlantedAt(cell)) { OnMapLand(cell); return; }
+        }
+
+        internal void QaTalk(int villager)
+        {
+            if (villager < 0) { speakingWith = -1; Rebuild(); return; }
+            OpenConversation(villager);
+        }
+
+        internal void QaCloseBasket()
+        {
+            basketOpen = false; basketKind = -1; heldPlanting = -1;
+            nurseryOpen = false; nurseryKind = -1; heldBought = -1;
+        }
 
         // I204 tour: pick up a grown thing, open its puzzle, solve it, see it bloom.
         private TreePlay qaTreePlay;
