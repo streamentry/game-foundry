@@ -27,6 +27,7 @@ namespace Evergrove.UnityClient
             public VillageChoice Family;
             public bool Newest;
             public bool Bloomed;         // its puzzle has been solved (I204): a warm ring of light
+            public bool BloomNow;        // just solved (I212): the ring grows in while you watch
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -454,6 +455,7 @@ namespace Evergrove.UnityClient
                     glowImage.type = Image.Type.Sliced;
                     glowImage.color = new Color(1f, 0.82f, 0.36f, 0.85f);
                     glowImage.raycastTarget = false;
+                    if (item.BloomNow) glow.AddComponent<RingGrow>();
                     nodes.Add(glowRect);
                 }
                 var node = new GameObject("On the map", typeof(RectTransform));
@@ -595,6 +597,21 @@ namespace Evergrove.UnityClient
         }
 
         /// <summary>The newest thing rises from the ground once.</summary>
+        /// <summary>A just-solved thing's ring widens from nothing, then settles (I212).</summary>
+        private sealed class RingGrow : MonoBehaviour
+        {
+            private float clock;
+            private void Start() { transform.localScale = Vector3.zero; }
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01((clock - 0.35f) / 0.9f);
+                float s = t < 1f ? Mathf.SmoothStep(0f, 1.12f, t) : 1f;
+                if (t >= 1f) { transform.localScale = Vector3.one; Destroy(this); return; }
+                transform.localScale = new Vector3(s, s, 1f);
+            }
+        }
+
         private sealed class GrowUp : MonoBehaviour
         {
             private float clock;

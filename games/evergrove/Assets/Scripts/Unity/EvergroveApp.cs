@@ -1945,7 +1945,12 @@ namespace Evergrove.UnityClient
                                      int pictureStart, Func<int> solved)
         {
             Action turned = () => { PlayTock(); if (gentleMotion) Haptics.Tick(); };
-            Action closed = () => { mapInHand = -1; heldBought = -1; RefreshMaps(); };
+            int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
+            // Back home, the view returns to the thing and its ring grows in (I212).
+            Action closed = () => { justSolved = solvedHere ? shown : -1; solvedHere = false;
+                mapInHand = -1; heldBought = -1; keepHubAt = new Vector2(-1f, -1f); RefreshMapsFresh(); };
+            Func<int> solvedOnce = solved;
+            solved = () => { solvedHere = true; return solvedOnce(); };
             var host = (RectTransform)titleScreen.transform;
             if (family == VillageChoice.Flowers)
             {
@@ -2033,6 +2038,7 @@ namespace Evergrove.UnityClient
                 0.22f, RiverGoesOn(map));
             hubMapView = view;
             justBought = -1;
+            justSolved = -1;
             // Pinch to zoom (I202), kept while the app runs, per orientation.
             bool sideways = landscape;
             view.Zoomed = z => hubZoom[sideways ? 1 : 0] = z;
@@ -2094,6 +2100,8 @@ namespace Evergrove.UnityClient
         private bool nurseryOpen;      // the basket tray shows the nursery instead of your own kinds
         private int nurseryKind = -1;  // the nursery kind planted (bought) on a tap, -1 none
         private int justBought = -1;
+        private int justSolved = -1;   // map index of the thing whose puzzle was just solved (I212)
+        private bool solvedHere;
 
         // Everything standing on the map besides your story things: plantings, then bought plants.
         private int[] Occupied()
@@ -2132,8 +2140,9 @@ namespace Evergrove.UnityClient
                     Cell = cells[i],
                     Index = i,
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
-                    Newest = i == made.Length - 1 && justPlanted < 0,
-                    Bloomed = world.TreeSolved(i) // its puzzle solved (I204)
+                    Newest = justSolved >= 0 ? i == justSolved : i == made.Length - 1 && justPlanted < 0,
+                    Bloomed = world.TreeSolved(i), // its puzzle solved (I204)
+                    BloomNow = i == justSolved && gentleMotion
                 });
             // More of what you grew, planted from the basket (I193).
             for (int k = 0; k * 2 + 1 < planted.Length; k++)
@@ -2161,8 +2170,9 @@ namespace Evergrove.UnityClient
                     Cell = bought[k * 2 + 1],
                     Index = BoughtIndex + k,
                     Family = Nursery.Family(kind),
-                    Newest = k == justBought,
-                    Bloomed = world.BoughtSolved(k)
+                    Newest = justSolved >= 0 ? BoughtIndex + k == justSolved : k == justBought,
+                    Bloomed = world.BoughtSolved(k),
+                    BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
             return items;
@@ -2572,6 +2582,19 @@ namespace Evergrove.UnityClient
             value.GetComponent<LayoutElement>().ignoreLayout = true;
             Fill(value.rectTransform);
             Emphasize(value);
+        }
+
+        // Redraw home framed on the newest/just-solved thing, not where the view was.
+        private void RefreshMapsFresh()
+        {
+            keepHubAt = new Vector2(-1f, -1f);
+            if (titleScreen != null && canvasRoot != null)
+            {
+                Transform host = titleScreen.transform.parent;
+                CloseTitle();
+                BuildTitleScreen(host);
+            }
+            else Rebuild();
         }
 
         // Redraw whichever map is showing, keeping the page where it is.
