@@ -1840,6 +1840,18 @@ namespace Evergrove.UnityClient
                 Vector2 at = cell >= 0
                     ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns - 2 ? 0.95f : -0.95f), 0f)
                     : point(Mathf.Min(byCottage[villager], map.CellCount - 1));
+                // Never stand on another neighbour (I184): step down a row and a half
+                // until clear of everyone already placed.
+                float rowStep = Mathf.Abs((point(map.Columns) - point(0)).y);
+                for (int tries = 0; tries < 4; tries++)
+                {
+                    bool clash = false;
+                    foreach (RectTransform other in placed)
+                        if (Mathf.Abs(other.anchoredPosition.x - at.x) < Mathf.Abs(step.x) * 1.3f &&
+                            Mathf.Abs(other.anchoredPosition.y - at.y) < rowStep * 1.3f) clash = true;
+                    if (!clash) break;
+                    at.y -= rowStep * 1.5f;
+                }
                 var holder = Node("Neighbour on the map", land);
                 var rect = holder.GetComponent<RectTransform>();
                 rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
@@ -1857,6 +1869,41 @@ namespace Evergrove.UnityClient
                 placed.Add(rect);
             }
             return placed;
+        }
+
+        // What a neighbour says (I184): about the newest thing of their own family
+        // and where it stands on your map, from the save alone. Before they have
+        // one, or outside English, their authored lines (LocalizedVillage) as before.
+        private string NeighborSays(int villager)
+        {
+            if (world.Mode != PlayMode.Living || GameLocalization.Current != "en")
+                return LocalizedVillage.Speak(world, villager);
+            int[] made = world.Choices;
+            int newest = -1, count = 0;
+            for (int i = 0; i < made.Length; i++)
+                if (made[i] == villager) { newest = i; count++; }
+            if (newest < 0) return LocalizedVillage.Speak(world, villager);
+            string thing = ItemAt(newest, villager).Name;
+            string where = "";
+            GardenMap map = LoadGardenMap();
+            if (map != null)
+            {
+                int cell = map.Layout(made, world.Placements)[newest];
+                if (cell >= 0)
+                {
+                    int row = cell / map.Columns, column = cell % map.Columns;
+                    where = map.DistanceToWater(cell) <= 1 ? " by the creek"
+                        : row <= 3 && column >= 5 ? " by the cottage"
+                        : row >= map.Rows - 4 ? " down the valley" : " in the meadow";
+                }
+            }
+            string more = count >= 3 ? " That makes " + count + " now." : "";
+            switch (villager)
+            {
+                case 0: return "Your " + thing + where + " is taking root nicely." + more;
+                case 1: return "I walked past your " + thing + where + " this morning. Good, sturdy work." + more;
+                default: return "The bees found your " + thing + where + " before I did." + more;
+            }
         }
 
         // How much of the valley the restored water has greened (I180): the
@@ -2716,7 +2763,7 @@ namespace Evergrove.UnityClient
                 LocalizedVillage.Name(speakingWith), 15, 0, Leaf, TextAnchor.MiddleLeft);
             Emphasize(speaker);
             Narrate(Label(bubble.transform, "What they say",
-                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft));
+                NeighborSays(speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
                 MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
                 MosseloraTheme.ForestAction);
@@ -4925,7 +4972,7 @@ namespace Evergrove.UnityClient
         private bool HasNews(int villager)
         {
             if (world.Mode != PlayMode.Living) return false;
-            return LocalizedVillage.Speak(world, villager) != PlayerPrefs.GetString(HeardKey + villager, "");
+            return NeighborSays(villager) != PlayerPrefs.GetString(HeardKey + villager, "");
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -5086,7 +5133,7 @@ namespace Evergrove.UnityClient
             speakingWith = villagerIndex;
             if (world.Mode == PlayMode.Living)
             {
-                PlayerPrefs.SetString(HeardKey + villagerIndex, LocalizedVillage.Speak(world, villagerIndex));
+                PlayerPrefs.SetString(HeardKey + villagerIndex, NeighborSays(villagerIndex));
                 PlayerPrefs.Save();
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
