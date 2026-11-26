@@ -36,7 +36,7 @@ Every layer below either feeds this loop or makes it more personal. Anything tha
   - Neighbours notice what you actually did: which things you tend, what you solved, how long since your last visit (without blame), and what you planted near their homes.
   - They speak rarely, one line, by their portrait on the map, and only from true facts in your save. Never fake intimacy, never guilt, never "I missed you".
   - Offline and deterministic: a rules table of facts → lines, testable like everything else.
-- **A real AI (language model) companion is a separate founder decision:** it needs a network or an on-device model, a privacy and cost review, safety for child co-players, and the store's child-audience declaration. Until then, the noticing neighbours are the companion.
+- **Founder decision (2026-11-26): offline noticing neighbours first; a real language-model companion comes later in the plan.** That later step still needs: a network or an on-device model, a privacy and cost review, safety for child co-players, and the store's child-audience declaration.
 
 ## Layer 5 — family (opt-in, no server first)
 - **Visit:** open a relative's garden file (the existing garden file) to walk their river read-only.
@@ -46,7 +46,8 @@ Every layer below either feeds this loop or makes it more personal. Anything tha
 
 ## Simple economics, checked by tests
 - One currency (seeds). Fixed prices. Rewards from play only.
-- Invariants to test: seeds never go negative; a purchase is atomic; first solve > replay at every tier; every row is reachable by first solves alone; gifts move seeds and never create them.
+- Invariants to test: seeds never go negative; a purchase is atomic; first solve > replay at every tier; gifts move seeds and never create them.
+- Measured (I206): one garden's twelve first solves pay 280 seeds, which opens rows 1 and 2 (50 + 100). A row-3 plant (200) needs a second garden or replays; the third row is a long-term goal, by design for now. Revisit with playtests.
 
 ## Order of the next iterations
 1. Nursery: buy a plant with seeds; the rows unlock in order; bought plants hold puzzles. (Core TDD, then UI.)
@@ -57,6 +58,6 @@ Every layer below either feeds this loop or makes it more personal. Anything tha
 6. Family visit and parcel (file-based).
 
 ## Open decisions for the founder
-1. A real language-model companion: yes/no and where it runs (Layer 4).
+1. ~~A real language-model companion~~: decided 2026-11-26, offline first, a model later in the plan; where it runs is still open.
 2. Family circle backend: provider, sign-up, and data retention (vision §1a).
 3. Nursery prices (50/100/200 proposed) and whether bought plants can be given to family.

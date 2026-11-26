@@ -84,6 +84,8 @@ internal static class UndoHistoryTests
         if (plantings >= 0) end = text.IndexOf(']', plantings); // I193 key follows the map keys
         int solvedTrees = text.IndexOf(",\"treeSolved\":", start, StringComparison.Ordinal);
         if (solvedTrees >= 0) end = text.IndexOf(']', solvedTrees); // I204 keys follow plantings
+        int boughtSolved = text.IndexOf(",\"boughtSolved\":", start, StringComparison.Ordinal);
+        if (boughtSolved >= 0) end = text.IndexOf(']', boughtSolved); // I205 keys follow treeSolved
         return text.Substring(0, start) + text.Substring(end + 1);
     }
 

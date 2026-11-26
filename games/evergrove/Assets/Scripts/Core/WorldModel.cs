@@ -49,6 +49,10 @@ namespace Evergrove.Core
         // the puzzles your grown things hold, and which things you have solved.
         public int seeds;
         public int[] treeSolved = Array.Empty<int>();
+        // Optional, additive (I205; absent in older JSON). Plants bought in the
+        // nursery as pairs [kind, map cell, ...], and which of them are solved.
+        public int[] bought = Array.Empty<int>();
+        public int[] boughtSolved = Array.Empty<int>();
     }
 
     /// <summary>
@@ -135,6 +139,65 @@ namespace Evergrove.Core
                 Array.Copy(state.treeSolved, next, state.treeSolved.Length);
                 next[next.Length - 1] = item;
                 state.treeSolved = next;
+            }
+            state.seeds = Math.Min(MaxSeeds, state.seeds + reward);
+            return reward;
+        }
+
+        // ---- I205: the nursery. Bought plants are never removed, so indices stay put.
+        public const int MaxBought = 200;
+        public int BoughtCount { get { return state.bought.Length / 2; } }
+        /// <summary>Bought plants as pairs [kind, cell, ...].</summary>
+        public int[] Bought { get { return (int[])state.bought.Clone(); } }
+
+        /// <summary>Row 0 is always open; a row opens once you own a plant of the row before it.</summary>
+        public bool RowOpen(int row)
+        {
+            if (row < 0 || row >= Nursery.Rows) return false;
+            if (row == 0) return true;
+            for (int i = 0; i < state.bought.Length; i += 2)
+                if (Nursery.Row(state.bought[i]) == row - 1) return true;
+            return false;
+        }
+
+        /// <summary>Buys one plant of <paramref name="kind"/> and stands it on a cell. All or nothing.</summary>
+        public bool Buy(int kind, int cell)
+        {
+            if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds || !RowOpen(Nursery.Row(kind)) ||
+                state.seeds < Nursery.Price(kind) || cell < 0 || cell >= MaxMapCell || BoughtCount >= MaxBought)
+                return false;
+            int[] next = new int[state.bought.Length + 2];
+            Array.Copy(state.bought, next, state.bought.Length);
+            next[next.Length - 2] = kind;
+            next[next.Length - 1] = cell;
+            state.bought = next;
+            state.seeds -= Nursery.Price(kind);
+            return true;
+        }
+
+        public bool MoveBought(int k, int cell)
+        {
+            if (k < 0 || k >= BoughtCount || cell < 0 || cell >= MaxMapCell) return false;
+            int[] next = (int[])state.bought.Clone();
+            next[k * 2 + 1] = cell;
+            state.bought = next;
+            return true;
+        }
+
+        public bool BoughtSolved(int k) { return Array.IndexOf(state.boughtSolved, k) >= 0; }
+
+        /// <summary>Records a solved puzzle of bought plant <paramref name="k"/> (its row is its tier); returns seeds earned.</summary>
+        public int SolveBought(int k)
+        {
+            if (Mode != PlayMode.Living || k < 0 || k >= BoughtCount) return 0;
+            bool first = !BoughtSolved(k);
+            int reward = TreeReward(Nursery.Row(state.bought[k * 2]), first);
+            if (first)
+            {
+                int[] next = new int[state.boughtSolved.Length + 1];
+                Array.Copy(state.boughtSolved, next, state.boughtSolved.Length);
+                next[next.Length - 1] = k;
+                state.boughtSolved = next;
             }
             state.seeds = Math.Min(MaxSeeds, state.seeds + reward);
             return reward;
@@ -287,7 +350,8 @@ namespace Evergrove.Core
                 previous = Array.Empty<int>(), choices = Array.Empty<int>(),
                 variantSchedule = (int[])schedule.Clone(), history = Array.Empty<int>(),
                 garden = 0, placements = Array.Empty<int>(), plantings = Array.Empty<int>(),
-                seeds = 0, treeSolved = Array.Empty<int>()
+                seeds = 0, treeSolved = Array.Empty<int>(),
+                bought = Array.Empty<int>(), boughtSolved = Array.Empty<int>()
             });
         }
 
@@ -303,7 +367,8 @@ namespace Evergrove.Core
                 history = (int[])state.history.Clone(),
                 garden = state.garden, placements = (int[])state.placements.Clone(),
                 plantings = (int[])state.plantings.Clone(),
-                seeds = state.seeds, treeSolved = (int[])state.treeSolved.Clone()
+                seeds = state.seeds, treeSolved = (int[])state.treeSolved.Clone(),
+                bought = (int[])state.bought.Clone(), boughtSolved = (int[])state.boughtSolved.Clone()
             };
         }
 
@@ -356,6 +421,17 @@ namespace Evergrove.Core
             for (int i = 0; i < treeSolved.Length; i++)
                 if (treeSolved[i] < 0 || treeSolved[i] >= source.choices.Length ||
                     Array.IndexOf(treeSolved, treeSolved[i]) != i) return false;
+            int[] bought = source.bought ?? Array.Empty<int>();
+            int[] boughtSolved = source.boughtSolved ?? Array.Empty<int>();
+            if (bought.Length % 2 != 0 || bought.Length > MaxBought * 2 || boughtSolved.Length > bought.Length / 2 ||
+                (source.mode != "living" && (bought.Length != 0 || boughtSolved.Length != 0)))
+                return false;
+            for (int i = 0; i < bought.Length; i += 2)
+                if (bought[i] < 0 || bought[i] >= Nursery.Kinds ||
+                    bought[i + 1] < 0 || bought[i + 1] >= MaxMapCell) return false;
+            for (int i = 0; i < boughtSolved.Length; i++)
+                if (boughtSolved[i] < 0 || boughtSolved[i] >= bought.Length / 2 ||
+                    Array.IndexOf(boughtSolved, boughtSolved[i]) != i) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -417,7 +493,8 @@ namespace Evergrove.Core
                 variantSchedule = (int[])schedule.Clone(), history = history,
                 garden = source.garden, placements = (int[])placements.Clone(),
                 plantings = (int[])plantings.Clone(),
-                seeds = source.seeds, treeSolved = (int[])treeSolved.Clone()
+                seeds = source.seeds, treeSolved = (int[])treeSolved.Clone(),
+                bought = (int[])bought.Clone(), boughtSolved = (int[])boughtSolved.Clone()
             });
             return true;
         }
