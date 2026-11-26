@@ -41,6 +41,8 @@ namespace Evergrove.UnityClient
         // buttons) floats over the page and never scrolls away.
         private RectTransform canvasRoot;
         private RectTransform chrome;
+        private RectTransform worldStage; // I189: the garden behind every board
+        private bool worldShownNow;
         private GameObject menuSheet;
         private RectTransform menuContent;
         private ScrollRect menuScroll;
@@ -628,7 +630,7 @@ namespace Evergrove.UnityClient
                 var fade = chromeBand.Find("Band fade") as RectTransform;
                 if (fade != null) fade.anchoredPosition = new Vector2(0f, -74f - topInset);
                 chromeBand.offsetMax = Vector2.zero;
-                chromeBand.gameObject.SetActive(!landscape);
+                chromeBand.gameObject.SetActive(!landscape && !worldShownNow);
             }
             FitSheet(menuSheet, "Menu panel");
             FitSheet(journalSheet, "Journal panel");
@@ -798,6 +800,13 @@ namespace Evergrove.UnityClient
             var backdropImage = backdrop.AddComponent<Image>();
             MosseloraArt.PagePaper(backdropImage, Paper); // painted paper, not a flat fill (I94)
             backdropImage.raycastTarget = false;
+
+            // The garden is the stage (I189): behind the page, full screen, your own map.
+            var stageNode = Node("Living world", canvasNode.transform);
+            worldStage = stageNode.GetComponent<RectTransform>();
+            Fill(worldStage);
+            stageNode.AddComponent<RectMask2D>();
+            stageNode.SetActive(false);
 
             var scrollNode = Node("Safe scroll area", canvasNode.transform);
             scrollArea = scrollNode.GetComponent<RectTransform>();
@@ -1806,6 +1815,30 @@ namespace Evergrove.UnityClient
             if (plot == null || map == null) return false;
             GardenMapView.Build(window, plot, map, MapItems(map), 1.5f, OnMapLand, OnMapItem, mapInHand,
                 false, GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true));
+            return true;
+        }
+
+        // I189: the garden is the stage. Boards float over your own garden map,
+        // full screen and gently veiled so the board stays the brightest thing,
+        // instead of a paper page with a strip of garden under the board.
+        private bool WorldStage(bool show)
+        {
+            if (worldStage == null) return false;
+            ClearChildren(worldStage);
+            worldStage.gameObject.SetActive(false);
+            if (!show) return false;
+            Sprite plot = MosseloraArt.Load("garden-map");
+            GardenMap map = LoadGardenMap();
+            if (plot == null || map == null) return false;
+            worldStage.gameObject.SetActive(true);
+            GardenMapView view = GardenMapView.Build(worldStage, plot, map, MapItems(map), 1.1f,
+                null, null, -1, false, GreenedShare(0));
+            view.FocusFromTop = 0.82f; // your newest thing peeks out under the board
+            var veil = Node("Morning veil", worldStage);
+            Fill(veil.GetComponent<RectTransform>());
+            var veilImage = veil.AddComponent<Image>();
+            veilImage.color = new Color(Paper.r, Paper.g, Paper.b, 0.2f);
+            veilImage.raycastTarget = false;
             return true;
         }
 
@@ -3525,7 +3558,13 @@ namespace Evergrove.UnityClient
             // status bar, with the wordmark and tagline floating on it (I185).
             heroGarden = living && memoryScreen && !landscape &&
                 MosseloraArt.Load("garden-map") != null && LoadGardenMap() != null;
-            if (!heroGarden && !(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
+            // Boards float over your own garden, full screen (I189): no paper page, no
+            // wordmark header, no strip of garden under the board.
+            bool worldShown = WorldStage(living && puzzleScreen && !landscape && !languagePicker);
+            worldShownNow = worldShown;
+            if (chromeBand != null) chromeBand.gameObject.SetActive(!landscape && !worldShown);
+            if (worldShown) Height(Node("Room under the corner buttons", content), 50f);
+            else if (!heroGarden && !(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
             // Boards (the first one too, I160) open on the path, the stream name and
             // the board; the tagline lives on the hub and the story screens
             // (memory, ending), where it is part of the story, not a header.
@@ -3570,7 +3609,7 @@ namespace Evergrove.UnityClient
                 BuildPuzzle();
 
             // Sideways, the village lives full height on the left (LandscapeGarden).
-            if (living && !landscape)
+            if (living && !landscape && !worldShown)
             {
                 VillageScenePlan scenePlan = VillageScenePlan.From(world);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -4248,7 +4287,7 @@ namespace Evergrove.UnityClient
                 // dry until the stream is solved and flowing after, softly behind the
                 // stone bed. Tiles stay opaque parchment, so the puzzle reads the same.
                 // Living world only; the Puzzle-only control keeps a plain page.
-                if (world.Mode == PlayMode.Living && !landscape) CreekBehindBoard(board.transform);
+                if (world.Mode == PlayMode.Living && !landscape && !worldShownNow) CreekBehindBoard(board.transform);
             }
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
