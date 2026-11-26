@@ -1864,16 +1864,21 @@ namespace Evergrove.UnityClient
         // The next reach shows in mist below the open river until it opens.
         private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.MaxReaches; }
 
+        private readonly float[] hubZoom = { 0f, 0f };
         private bool GardenMapOnHub(RectTransform window)
         {
             Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
-            GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
+            float zoom = hubZoom[landscape ? 1 : 0];
+            GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand, justPlanted >= 0 && gentleMotion,
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 0.22f, RiverGoesOn(map));
             hubMapView = view;
+            // Pinch to zoom (I202), kept while the app runs, per orientation.
+            bool sideways = landscape;
+            view.Zoomed = z => hubZoom[sideways ? 1 : 0] = z;
             justPlanted = -1;
             if (keepHubAt.x >= 0f) view.KeepAt(keepHubAt);
             keepHubAt = new Vector2(-1f, -1f);

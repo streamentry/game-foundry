@@ -4,6 +4,9 @@ using Evergrove.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if !ENABLE_LEGACY_INPUT_MANAGER && ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace Evergrove.UnityClient
 {
@@ -286,13 +289,101 @@ namespace Evergrove.UnityClient
 
         private void LateUpdate()
         {
-            if (window != null && window.rect.size != lastWindow) Layout();
+            Pinch();
+            if (!pinching && window != null && window.rect.size != lastWindow) Layout();
+        }
+
+        // ---- I202: pinch to zoom. Two fingers scale the land around the point
+        // between them; one relayout when they lift. The zoom is reported so the
+        // caller can keep it across rebuilds.
+        public float MinZoom = 1f, MaxZoom = 3f;
+        public float Zoom { get { return widthScale; } }
+        public Action<float> Zoomed;
+        private bool pinching;
+        private float pinchFrom;
+        private Vector2 pinchPoint; // the land point under the fingers, unscaled
+        private float pinchScale = 1f;
+        private float pinchEnded = -10f;
+        // Lifting two fingers is not a tap on whatever was under them.
+        private bool PinchBusy { get { return pinching || Time.unscaledTime - pinchEnded < 0.35f; } }
+
+        private static bool TwoFingers(out Vector2 first, out Vector2 second)
+        {
+            first = second = Vector2.zero;
+#if ENABLE_LEGACY_INPUT_MANAGER
+            if (Input.touchCount != 2) return false;
+            first = Input.GetTouch(0).position;
+            second = Input.GetTouch(1).position;
+            return true;
+#elif ENABLE_INPUT_SYSTEM
+            Touchscreen screen = Touchscreen.current;
+            if (screen == null) return false;
+            int found = 0;
+            foreach (var touch in screen.touches)
+            {
+                if (!touch.isInProgress) continue;
+                if (found == 0) first = touch.position.ReadValue();
+                else if (found == 1) second = touch.position.ReadValue();
+                found++;
+            }
+            return found == 2;
+#else
+            return false;
+#endif
+        }
+
+        private void Pinch()
+        {
+            if (land == null || window == null || map == null) return;
+            bool two = TwoFingers(out Vector2 a, out Vector2 b);
+            var host = (RectTransform)land.parent;
+            Camera eye = null;
+            Canvas canvas = host.GetComponentInParent<Canvas>();
+            if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay) eye = canvas.worldCamera;
+            Vector2 middle = (a + b) * 0.5f;
+            if (two && !pinching)
+            {
+                if (!RectTransformUtility.RectangleContainsScreenPoint(host, middle, eye)) return;
+                pinching = true;
+                pinchFrom = Mathf.Max(1f, Vector2.Distance(a, b));
+                pinchScale = 1f;
+                scroll.StopMovement();
+                scroll.enabled = false; // the fingers own the land while they pinch
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(land, middle, eye, out pinchPoint);
+                return;
+            }
+            if (!pinching) return;
+            if (two)
+            {
+                float wanted = widthScale * Vector2.Distance(a, b) / pinchFrom;
+                pinchScale = Mathf.Clamp(wanted, MinZoom, MaxZoom) / widthScale;
+                land.localScale = new Vector3(pinchScale, pinchScale, 1f);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(host, middle, eye, out Vector2 at);
+                land.anchoredPosition = at - pinchPoint * pinchScale;
+                return;
+            }
+            // Fingers lifted: settle at the new size, the same spot under them.
+            pinching = false;
+            // The land is now as wide as it looked, so the same anchored position
+            // keeps the same spot under the fingers.
+            Vector2 held = land.anchoredPosition;
+            float scale = pinchScale;
+            land.localScale = Vector3.one;
+            widthScale = Mathf.Clamp(widthScale * scale, MinZoom, MaxZoom);
+            growNewest = false; // no replay of the newest thing rising
+            keep = new Vector2(-1f, -1f);
+            Layout();
+            land.anchoredPosition = held;
+            pinchEnded = Time.unscaledTime;
+            scroll.enabled = true;
+            scroll.StopMovement();
+            Zoomed?.Invoke(widthScale);
         }
 
         // A tap on bare land: the cell under the finger.
         private void TapLand(Vector2 local)
         {
-            if (onLand == null || map == null) return;
+            if (onLand == null || map == null || PinchBusy) return;
             // Measured from the painting's own corner, whatever its pivot (the I190
             // move to a top-pivoted child put taps half a map too low; fixed in I193).
             Rect area = plotRect.rect;
@@ -366,7 +457,7 @@ namespace Evergrove.UnityClient
                     int index = item.Index;
                     var button = node.AddComponent<Button>();
                     button.transition = Selectable.Transition.None;
-                    button.onClick.AddListener(() => onItem(index));
+                    button.onClick.AddListener(() => { if (!PinchBusy) onItem(index); });
                 }
                 if (held)
                 {
