@@ -1,0 +1,351 @@
+using System;
+using Evergrove.Core;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Evergrove.UnityClient
+{
+    /// <summary>
+    /// I215: family parcels, over your garden. Two round tokens switch between
+    /// sending (your name, one gift, a few words, then the share sheet) and
+    /// opening (paste what a relative sent: their name, their letter, the gift).
+    /// The rules live in Core (FamilyParcel, WorldModel.SendParcel/Open); this
+    /// only gathers choices, shows results in plain words and reports back.
+    /// English only for now, like the other new screens.
+    /// </summary>
+    internal sealed class FamilySheet : MonoBehaviour
+    {
+        internal sealed class Hooks
+        {
+            public Func<int> Seeds;
+            public Func<int, bool> RowOpen;
+            public Func<int[]> OwnedKinds;          // nursery kinds you have bought, newest first
+            public Func<string, string, ParcelGift, int, string, ParcelSendResult> Send;
+            public Func<string, ParcelOpenResult> Open;
+            public Action<string> Share;           // native share sheet, else the clipboard
+            public Func<string> Paste;              // the clipboard
+            public Action Postcard;
+            public Func<string, bool> Visit;        // a relative's garden file, read-only
+            public Action Closed;
+            public Func<string> Name;
+            public Action<string> SaveName;
+        }
+
+        private static readonly int[] SeedChoices = { 10, 50, 100 };
+        private const int LetterOnly = -1, CuttingBase = 1000; // pick codes: seed amount, 1000+kind, or -1
+
+        private Hooks hooks;
+        private Font font;
+        private bool sending = true;
+        private int pick = 10;
+        private string letter = "";
+        private string outcome = "";
+        private Transform body;
+        private RectTransform card;
+        private float width;
+
+        public static FamilySheet Open(RectTransform host, Font font, Hooks hooks)
+        {
+            var root = new GameObject("Family", typeof(RectTransform));
+            root.transform.SetParent(host, false);
+            var rect = (RectTransform)root.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            root.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.38f);
+            var sheet = root.AddComponent<FamilySheet>();
+            sheet.hooks = hooks;
+            sheet.font = font;
+            sheet.Build(rect);
+            return sheet;
+        }
+
+        private void Build(RectTransform root)
+        {
+            float screenWidth = root.rect.width > 1f ? root.rect.width : 390f;
+            width = Mathf.Min(screenWidth - 28f, 440f);
+            var node = new GameObject("Family card", typeof(RectTransform));
+            node.transform.SetParent(root, false);
+            card = (RectTransform)node.transform;
+            card.anchorMin = card.anchorMax = new Vector2(0.5f, 0.5f);
+            card.sizeDelta = new Vector2(width, 0f);
+            var image = node.AddComponent<Image>();
+            MosseloraArt.Round(image, MosseloraTheme.CardFill, 26);
+            MosseloraArt.Lift(image, 4f, 0.22f);
+            var column = node.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(18, 18, 16, 18);
+            column.spacing = 12;
+            column.childAlignment = TextAnchor.UpperCenter;
+            column.childControlWidth = column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            node.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            // Top: close, send / open, the postcard, and the seeds you have.
+            Transform top = Row(node.transform, "Family top", 60f, 8f);
+            TreePlay.Token(top, "Close family", MosseloraArt.Load(MosseloraArt.IconCancel), 52f,
+                MosseloraTheme.QuietAction, Close, true);
+            TreePlay.Token(top, "Send a parcel", MosseloraArt.Load(MosseloraArt.IconCopyFile), 56f,
+                sending ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, () => Switch(true), true);
+            TreePlay.Token(top, "Open a parcel", MosseloraArt.Load(MosseloraArt.IconRestoreFile), 56f,
+                sending ? MosseloraTheme.QuietAction : MosseloraTheme.ForestAction, () => Switch(false), true);
+            TreePlay.Token(top, "Send a garden postcard", MosseloraArt.Load(MosseloraArt.IconChat), 52f,
+                MosseloraTheme.QuietAction, () => hooks.Postcard?.Invoke(), true);
+            TreePlay.Token(top, "Visit their garden", MosseloraArt.Load(MosseloraArt.IconHome), 52f,
+                MosseloraTheme.QuietAction, DoVisit, true);
+
+            var bodyNode = new GameObject("Family body", typeof(RectTransform));
+            bodyNode.transform.SetParent(node.transform, false);
+            var bodyColumn = bodyNode.AddComponent<VerticalLayoutGroup>();
+            bodyColumn.spacing = 12;
+            bodyColumn.childAlignment = TextAnchor.UpperCenter;
+            bodyColumn.childControlWidth = bodyColumn.childControlHeight = true;
+            bodyColumn.childForceExpandWidth = true;
+            bodyColumn.childForceExpandHeight = false;
+            body = bodyNode.transform;
+            if (sending) BuildSend(); else BuildOpen();
+        }
+
+        // Sideways the card can be taller than the screen: once laid out, it shrinks
+        // to fit (never below 75%), so the send token is always on screen (I215).
+        private void LateUpdate()
+        {
+            if (card == null) return;
+            var root = (RectTransform)transform;
+            float room = root.rect.height - 24f, tall = card.rect.height;
+            float scale = tall > room && tall > 1f ? Mathf.Max(0.75f, room / tall) : 1f;
+            if (Mathf.Abs(card.localScale.x - scale) > 0.001f) card.localScale = new Vector3(scale, scale, 1f);
+        }
+
+        private void Switch(bool send)
+        {
+            sending = send;
+            outcome = "";
+            Rebuild();
+        }
+
+        private void Rebuild()
+        {
+            foreach (Transform child in transform) Destroy(child.gameObject);
+            Build((RectTransform)transform);
+        }
+
+        // ---- Sending
+        private void BuildSend()
+        {
+            InputField name = Field(body, "Your name", hooks.Name() ?? "", 48f, false, FamilyParcel.MaxNameLength);
+            Transform pickRow = Row(body, "Pick row", 44f, 10f);
+            Words(pickRow, "Pick one gift", 15, MosseloraTheme.EarthInk);
+            TreePlay.Pill(pickRow, hooks.Seeds().ToString(), font, out _);
+            Transform gifts = Row(body, "Gifts", 82f, 10f);
+            foreach (int amount in SeedChoices)
+                GiftToken(gifts, amount, MosseloraArt.Load(TreePlay.SeedIcon), amount.ToString(),
+                    hooks.Seeds() >= amount);
+            GiftToken(gifts, LetterOnly, MosseloraArt.Load(MosseloraArt.IconChat), "", true);
+            // A cutting of a plant you have grown from the nursery (it costs its price).
+            int[] owned = hooks.OwnedKinds();
+            if (owned.Length > 0)
+            {
+                Transform cuttings = Row(body, "Cuttings", 82f, 10f);
+                for (int i = 0; i < owned.Length && i < 4; i++)
+                    GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
+                        Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
+            }
+            InputField words = Field(body, "A few words for them (optional)", letter, 104f, true,
+                FamilyParcel.MaxLetterLength);
+            words.onValueChanged.AddListener(v => letter = v ?? "");
+            Transform go = Row(body, "Send row", 76f, 12f);
+            TreePlay.Token(go, "Send it", MosseloraArt.Load(MosseloraArt.IconContinue), 72f,
+                MosseloraTheme.WaterAction, () => DoSend(name.text), true);
+            if (outcome.Length > 0) Words(body, outcome, 16, MosseloraTheme.EarthInk);
+        }
+
+        private void GiftToken(Transform row, int code, Sprite art, string price, bool can)
+        {
+            bool chosen = pick == code;
+            TreePlay.Token(row, code == LetterOnly ? "Just a letter" : code >= CuttingBase
+                    ? "A cutting of " + Nursery.Item(code - CuttingBase).Name : code + " seeds",
+                art, 66f, chosen ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                () => { if (can) { pick = code; Rebuild(); } }, true);
+            Transform token = row.GetChild(row.childCount - 1);
+            Transform icon = token.Find("Icon");
+            if (icon != null)
+            {
+                ((RectTransform)icon).sizeDelta = new Vector2(46f, 46f);
+                icon.GetComponent<Image>().color = can ? Color.white : new Color(1f, 1f, 1f, 0.35f);
+            }
+            if (price.Length > 0)
+            {
+                Image chip = MosseloraArt.Ornament(token, "Price", MosseloraArt.Rounded(10), new Vector2(0.5f, 0f),
+                    new Vector2(0.5f, 0.5f), new Vector2(44f, 20f), new Vector2(0f, 2f));
+                if (chip != null)
+                {
+                    chip.preserveAspect = false;
+                    chip.color = can ? new Color(0.98f, 0.93f, 0.74f, 1f) : new Color(0.86f, 0.85f, 0.82f, 0.9f);
+                    Text value = Words(chip.transform, price, 13, MosseloraTheme.EarthInk);
+                    value.GetComponent<LayoutElement>().ignoreLayout = true;
+                    var valueRect = value.rectTransform;
+                    valueRect.anchorMin = Vector2.zero;
+                    valueRect.anchorMax = Vector2.one;
+                    valueRect.offsetMin = valueRect.offsetMax = Vector2.zero;
+                }
+            }
+        }
+
+        private void DoSend(string name)
+        {
+            string from = (name ?? "").Trim();
+            if (!FamilyParcel.ValidName(from)) { outcome = "Write your name first, so they know who it's from."; Rebuild(); return; }
+            hooks.SaveName(from);
+            ParcelGift gift = pick == LetterOnly ? ParcelGift.None : pick >= CuttingBase ? ParcelGift.Cutting : ParcelGift.Seeds;
+            int value = pick >= CuttingBase ? pick - CuttingBase : pick;
+            string nonce = Guid.NewGuid().ToString("N").Substring(0, 16);
+            ParcelSendResult sent = hooks.Send(from, letter.Trim(), gift, value, nonce);
+            if (!sent.Ok) { outcome = Explain(sent.Error); Rebuild(); return; }
+            string what = gift == ParcelGift.Seeds ? value + " seeds"
+                : gift == ParcelGift.Cutting ? "a cutting of " + Nursery.Item(value).Name : "a letter";
+            hooks.Share(FamilyParcel.Wrap(sent.Text, from + " sent you " + what + " in Mosselora. Open it in the game: Family, then Open."));
+            letter = "";
+            outcome = "Sent. Share it with them however you like to talk.";
+            Rebuild();
+        }
+
+        // ---- Opening
+        private void BuildOpen()
+        {
+            Words(body, "Copy the message they sent you, then tap here.", 16, MosseloraTheme.EarthInk);
+            Transform go = Row(body, "Open row", 92f, 12f);
+            TreePlay.Token(go, "Paste and open", MosseloraArt.Load(MosseloraArt.IconRestoreFile), 84f,
+                MosseloraTheme.WaterAction, DoOpen, true);
+            if (outcome.Length > 0) Words(body, outcome, 17, MosseloraTheme.EarthInk);
+        }
+
+        private void DoOpen()
+        {
+            string raw = FamilyParcel.Unwrap(hooks.Paste());
+            if (raw == null) { outcome = "There's no parcel in what you copied. Copy their whole message and try again."; Rebuild(); return; }
+            ParcelOpenResult opened = hooks.Open(raw);
+            if (!opened.Ok) { outcome = Explain(opened.Error); Rebuild(); return; }
+            ParcelContents c = opened.Contents;
+            string gift = c.Gift == ParcelGift.Seeds ? opened.SeedsGained + " seeds are in your purse."
+                : c.Gift == ParcelGift.Cutting ? "A cutting of " + Nursery.Item(c.Kind).Name + " is waiting in your basket."
+                : "";
+            outcome = "From " + c.From + "." + (c.Letter.Length > 0 ? "\n“" + c.Letter + "”" : "") +
+                (gift.Length > 0 ? "\n" + gift : "");
+            Rebuild();
+        }
+
+        // Visit: their garden file (Settings → Copy garden file on their phone).
+        private void DoVisit()
+        {
+            string text = hooks.Paste();
+            if (string.IsNullOrWhiteSpace(text) || hooks.Visit == null || !hooks.Visit(text.Trim()))
+            {
+                sending = false;
+                outcome = "To visit, ask them for their garden file (Menu, Settings, Copy garden file), copy it, then tap the house.";
+                Rebuild();
+            }
+        }
+
+        // Tour only: send with this name, or open this text, by the same paths as taps.
+        internal void QaSend(string name, int code, string words) { pick = code; letter = words; DoSend(name); }
+        internal void QaOpen() { sending = false; DoOpen(); }
+        internal void QaVisit() { DoVisit(); }
+
+        private static string Explain(ParcelError error)
+        {
+            switch (error)
+            {
+                case ParcelError.AlreadyOpened: return "You've already opened this parcel.";
+                case ParcelError.AlreadyUsed: return "This parcel came from your own garden.";
+                case ParcelError.NotEnoughSeeds: return "You don't have enough seeds for that gift yet.";
+                case ParcelError.BasketFull: return "Your basket is full. Plant a gift first, then open this one.";
+                case ParcelError.CuttingNotAvailable: return "That plant isn't open in your nursery yet.";
+                case ParcelError.ChecksumMismatch:
+                case ParcelError.Malformed:
+                case ParcelError.Invalid: return "This parcel was changed on the way and can't be opened. Ask them to send it again.";
+                case ParcelError.UnsupportedFutureVersion: return "This parcel needs a newer Mosselora. Update the game, then try again.";
+                default: return "That didn't work. Copy their whole message and try again.";
+            }
+        }
+
+        private void Close()
+        {
+            Action closed = hooks.Closed;
+            Destroy(gameObject);
+            closed?.Invoke();
+        }
+
+        // ---- builders
+        private static Transform Row(Transform parent, string name, float height, float spacing)
+        {
+            var row = new GameObject(name, typeof(RectTransform));
+            row.transform.SetParent(parent, false);
+            row.AddComponent<LayoutElement>().preferredHeight = height;
+            var group = row.AddComponent<HorizontalLayoutGroup>();
+            group.spacing = spacing;
+            group.childAlignment = TextAnchor.MiddleCenter;
+            group.childControlWidth = group.childControlHeight = true;
+            group.childForceExpandWidth = group.childForceExpandHeight = false;
+            return row.transform;
+        }
+
+        private Text Words(Transform parent, string words, int size, Color color)
+        {
+            var node = new GameObject("Words", typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            node.AddComponent<LayoutElement>();
+            var text = node.AddComponent<Text>();
+            text.font = font;
+            text.fontSize = Mathf.RoundToInt(size * TextScale.Percent / 100f);
+            text.color = color;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.text = words;
+            return text;
+        }
+
+        private InputField Field(Transform parent, string hint, string value, float height, bool multi, int limit)
+        {
+            var node = new GameObject(hint, typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            node.AddComponent<LayoutElement>().preferredHeight = height;
+            var back = node.AddComponent<Image>();
+            MosseloraArt.Round(back, Color.white, 14);
+            MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 14);
+            var field = node.AddComponent<InputField>();
+            Text shown = Inner(node.transform, "Text", value, MosseloraTheme.EarthInk);
+            Text placeholder = Inner(node.transform, "Placeholder", hint, new Color(0.45f, 0.5f, 0.45f, 0.9f));
+            placeholder.fontStyle = FontStyle.Italic;
+            field.targetGraphic = back;
+            field.textComponent = shown;
+            field.placeholder = placeholder;
+            field.lineType = multi ? InputField.LineType.MultiLineNewline : InputField.LineType.SingleLine;
+            field.characterLimit = limit;
+            field.text = value;
+            return field;
+        }
+
+        private Text Inner(Transform parent, string name, string words, Color color)
+        {
+            var node = new GameObject(name, typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            var rect = (RectTransform)node.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(12f, 8f);
+            rect.offsetMax = new Vector2(-12f, -8f);
+            var text = node.AddComponent<Text>();
+            text.font = font;
+            text.fontSize = Mathf.RoundToInt(18 * TextScale.Percent / 100f);
+            text.color = color;
+            text.supportRichText = false;
+            text.alignment = TextAnchor.UpperLeft;
+            text.raycastTarget = false;
+            text.text = words;
+            return text;
+        }
+    }
+}

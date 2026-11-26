@@ -353,7 +353,11 @@ def season_maps(plot: Image.Image) -> None:
         return Image.blend(tinted, Image.new("RGB", base.size, tuple(int(v * 255) for v in over)), amount)
 
     save(grade((1.0, 0.86, 0.62), (0.9, 0.55, 0.2), 0.10).convert("RGBA"), "garden-map-autumn")
-    save(grade((0.85, 0.9, 1.0), (0.95, 0.97, 1.0), 0.45, 0.6).convert("RGBA"), "garden-map-winter")
+    # Winter (I213): the first grade (frost 0.45, desaturate 0.6) washed the map so
+    # pale that home looked switched off. Lighter frost, a little more contrast.
+    from PIL import ImageEnhance
+    winter = grade((0.82, 0.9, 1.0), (0.97, 0.98, 1.0), 0.28, 0.5)
+    save(ImageEnhance.Contrast(winter).enhance(1.18).convert("RGBA"), "garden-map-winter")
 
 
 def main() -> None:

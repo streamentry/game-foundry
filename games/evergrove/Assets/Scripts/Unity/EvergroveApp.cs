@@ -1698,6 +1698,7 @@ namespace Evergrove.UnityClient
                     }
                     if (gentleMotion) BloomPulse.Add(thing.gameObject, 0.2f, 0.06f);
                     SeedPurse();
+                    LetterBox();
                     if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                     HubChrome();
                     titleScreen.transform.SetAsLastSibling();
@@ -1714,6 +1715,7 @@ namespace Evergrove.UnityClient
                         }, 96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
                 if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                 SeedPurse();
+                LetterBox();
                 HubChrome();
                 titleScreen.transform.SetAsLastSibling();
                 return;
@@ -1991,6 +1993,155 @@ namespace Evergrove.UnityClient
             return found.ToArray();
         }
 
+        // ---- I215: family parcels, over home (or the page when on a board).
+        private FamilySheet familySheet;
+        private const string FamilyNameKey = "evergrove:family-name";
+
+        private void OpenFamily()
+        {
+            if (familySheet != null) return;
+            RectTransform host = titleScreen != null ? (RectTransform)titleScreen.transform : canvasRoot;
+            familySheet = FamilySheet.Open(host, font, new FamilySheet.Hooks
+            {
+                Seeds = () => world.Seeds,
+                RowOpen = row => world.RowOpen(row),
+                OwnedKinds = () => {
+                    int[] bought = world.Bought;
+                    var kinds = new System.Collections.Generic.List<int>();
+                    for (int k = bought.Length / 2 - 1; k >= 0; k--)
+                        if (!kinds.Contains(bought[k * 2])) kinds.Add(bought[k * 2]);
+                    return kinds.ToArray();
+                },
+                Send = (from, words, gift, value, nonce) => {
+                    ParcelSendResult sent = world.SendParcel(from, words, gift, value, nonce);
+                    if (sent.Ok) { SaveWorld(); PlayChime(); }
+                    return sent;
+                },
+                Open = text => {
+                    ParcelOpenResult opened = world.Open(text);
+                    if (opened.Ok) { SaveWorld(); PlayChime(); }
+                    return opened;
+                },
+                Share = text => { if (!NativeShare.Text(text, "Mosselora")) GUIUtility.systemCopyBuffer = text; },
+                Paste = () => GUIUtility.systemCopyBuffer,
+                Postcard = () => {
+                    string text = GardenPostcard.Build(world,
+                        world.Completed ? "" : GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count));
+                    if (!NativeShare.Text(text, GameLocalization.Text("postcard"))) GUIUtility.systemCopyBuffer = text;
+                },
+                Visit = text => {
+                    if (!OpenVisit(text)) return false;
+                    if (familySheet != null) Destroy(familySheet.gameObject);
+                    familySheet = null;
+                    return true;
+                },
+                Closed = () => { familySheet = null; RefreshMaps(); },
+                Name = () => PlayerPrefs.GetString(FamilyNameKey, ""),
+                SaveName = name => { PlayerPrefs.SetString(FamilyNameKey, name); PlayerPrefs.Save(); },
+            });
+        }
+
+        // ---- I216: visit a relative's garden, read-only. Their garden file (the one
+        // Settings copies) is read without touching yours; their river, things,
+        // plantings and nursery plants stand on their own painted map.
+        private GameObject visitLayer;
+
+        private bool OpenVisit(string text)
+        {
+            if (!GardenTransfer.TryImport(text, out WorldModel visited, out GardenImportError _) ||
+                visited.Mode != PlayMode.Living) return false;
+            var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
+            if (mask == null) return false;
+            GardenMap map;
+            try { map = GardenMap.River(10, 15, mask.text.Trim(), GardenMap.ReachesFor(visited.Choices.Length, visited.Completed)); }
+            catch (ArgumentException) { return false; }
+            int season = PaintedVillage.SeasonFor(VillageScenePlan.From(visited).LandscapePhase, visited.Completed);
+            Sprite plot = (season == 1 ? MosseloraArt.Load("garden-map-autumn") : season == 2 ? MosseloraArt.Load("garden-map-winter") : null)
+                ?? MosseloraArt.Load("garden-map");
+            if (plot == null) return false;
+
+            visitLayer = Node("Visiting a garden", canvasRoot);
+            Fill(visitLayer.GetComponent<RectTransform>());
+            visitLayer.AddComponent<Image>().color = Paper;
+            visitLayer.transform.SetAsLastSibling();
+            var window = Node("Their garden", visitLayer.transform);
+            Fill(window.GetComponent<RectTransform>());
+            window.AddComponent<RectMask2D>();
+            GardenMapView view = GardenMapView.Build((RectTransform)window.transform, plot, map, VisitItems(visited, map),
+                landscape ? 1f : 1.3f, null, null, -1, false, 1f, -1f, null, 0.22f, map.Reaches < GardenMap.MaxReaches);
+            view.FocusFromTop = 0.4f;
+
+            // A wooden "back home" token where the menu button lives, and a sign.
+            var bar = Node("Visit chrome", visitLayer.transform);
+            var barRect = bar.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            barRect.anchorMin = new Vector2(safe.xMin / w, safe.yMax / h);
+            barRect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
+            barRect.pivot = new Vector2(0.5f, 1f);
+            barRect.sizeDelta = new Vector2(0f, 70f);
+            Button home = IconButton(bar.transform, "Back to your garden", "Back to your garden", MosseloraArt.IconHome,
+                CloseVisit, 54, MosseloraTheme.QuietAction);
+            PlaceChrome(home, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
+            var sign = Node("Visiting sign", bar.transform);
+            var signRect = sign.GetComponent<RectTransform>();
+            signRect.anchorMin = signRect.anchorMax = new Vector2(0f, 1f);
+            signRect.pivot = new Vector2(0f, 1f);
+            signRect.sizeDelta = new Vector2(Mathf.Round(220f * Mathf.Max(1f, TextScale.Percent / 100f)), 44f);
+            signRect.anchoredPosition = new Vector2(78f, -ChromeTop - 4f); // right of the home token
+            var signImage = sign.AddComponent<Image>();
+            MosseloraArt.Round(signImage, new Color(0.98f, 0.95f, 0.86f, 0.96f), 22);
+            MosseloraArt.Lift(signImage, 2f, 0.2f);
+            Text words = Label(sign.transform, "Visiting words", "Visiting a garden", 18, 0, Ink, TextAnchor.MiddleCenter);
+            words.GetComponent<LayoutElement>().ignoreLayout = true;
+            Fill(words.rectTransform);
+            words.rectTransform.offsetMin = new Vector2(12f, 4f);
+            words.rectTransform.offsetMax = new Vector2(-12f, -4f);
+            Emphasize(words);
+            words.horizontalOverflow = HorizontalWrapMode.Overflow; // one line; the sign grows with text size
+            semanticsDirty = true;
+            return true;
+        }
+
+        private System.Collections.Generic.List<GardenMapView.Placed> VisitItems(WorldModel visited, GardenMap map)
+        {
+            int[] made = visited.Choices, planted = visited.Plantings, bought = visited.Bought;
+            int[] occupied = new int[planted.Length + bought.Length];
+            Array.Copy(planted, occupied, planted.Length);
+            Array.Copy(bought, 0, occupied, planted.Length, bought.Length);
+            int[] cells = map.Layout(made, visited.Placements, occupied);
+            var items = new System.Collections.Generic.List<GardenMapView.Placed>();
+            Func<int, int, Sprite> art = (chapter, family) => MosseloraArt.Load(GardenCatalog.For(visited.Garden,
+                Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)Mathf.Clamp(family, 0, 2)).Art);
+            for (int i = 0; i < made.Length; i++)
+                items.Add(new GardenMapView.Placed { Art = art(i, made[i]), Cell = cells[i], Index = i,
+                    Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2), Bloomed = visited.TreeSolved(i) });
+            for (int k = 0; k * 2 + 1 < planted.Length; k++)
+                if (planted[k * 2] < made.Length && map.IsLand(planted[k * 2 + 1]))
+                    items.Add(new GardenMapView.Placed { Art = art(planted[k * 2], made[planted[k * 2]]),
+                        Cell = planted[k * 2 + 1], Index = PlantingIndex + k,
+                        Family = (VillageChoice)Mathf.Clamp(made[planted[k * 2]], 0, 2) });
+            for (int k = 0; k * 2 + 1 < bought.Length; k++)
+                if (map.IsLand(bought[k * 2 + 1]))
+                    items.Add(new GardenMapView.Placed { Art = MosseloraArt.Load(Nursery.Item(bought[k * 2]).Art),
+                        Cell = bought[k * 2 + 1], Index = BoughtIndex + k, Family = Nursery.Family(bought[k * 2]),
+                        Bloomed = visited.BoughtSolved(k) });
+            if (items.Count > 0)
+            {
+                var newest = items[made.Length > 0 ? made.Length - 1 : 0];
+                newest.Newest = true; // frame their newest thing
+                items[made.Length > 0 ? made.Length - 1 : 0] = newest;
+            }
+            return items;
+        }
+
+        private void CloseVisit()
+        {
+            if (visitLayer != null) Destroy(visitLayer);
+            visitLayer = null;
+            semanticsDirty = true;
+        }
+
         // The seeds you have, top right of home: a sprout and a number.
         private void SeedPurse()
         {
@@ -2180,6 +2331,110 @@ namespace Evergrove.UnityClient
 
         // Mira, Orin and Fen stand in the garden (I181): each beside the newest thing
         // of their family (trees, builds, flowers), or by the cottage before that.
+        // ---- I217: letters from family stay in your garden: a small letterbox on the
+        // lane below the cottage. A tap reads them, newest first, one at a time.
+        private const string LettersReadKey = "evergrove:letters-read";
+        private int letterShown = -1;
+        private GameObject letterCard;
+
+        // Under the seed purse, top right of home: always in view, wherever the
+        // river has taken you (I217: on the map by the cottage it was off-screen for
+        // anyone whose newest things are downstream).
+        private void LetterBox()
+        {
+            string[] letters = world.Letters;
+            if (titleScreen == null || letters.Length == 0) return;
+            var node = Node("Letterbox", titleScreen.transform);
+            var rect = node.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            rect.anchorMin = rect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.sizeDelta = new Vector2(56f, 56f);
+            rect.anchoredPosition = new Vector2(-16f, -ChromeTop - 60f);
+            var disc = node.AddComponent<Image>();
+            MosseloraArt.Round(disc, new Color(0.98f, 0.95f, 0.86f, 0.98f), 28);
+            MosseloraArt.Lift(disc, 2f, 0.22f);
+            var button = node.AddComponent<Button>();
+            button.targetGraphic = disc;
+            button.onClick.AddListener(() => ShowLetter(0));
+            PressSquash.Add(node);
+            Image mark = MosseloraArt.Ornament(node.transform, "Letter", MosseloraArt.Load(MosseloraArt.IconChat),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(32f, 32f), Vector2.zero);
+            if (mark != null) mark.color = MosseloraTheme.ForestAction;
+            if (PlayerPrefs.GetInt(LettersReadKey, 0) < letters.Length)
+            {
+                Image dot = MosseloraArt.Ornament(node.transform, "Unread", MosseloraArt.Rounded(8),
+                    new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(16f, 16f), new Vector2(-6f, -6f));
+                if (dot != null) { dot.preserveAspect = false; dot.color = new Color(0.85f, 0.32f, 0.35f, 1f); }
+                if (gentleMotion) BloomPulse.Add(node, 0.6f, 0.06f);
+            }
+            var caption = Node("Caption", node.transform);
+            caption.AddComponent<LayoutElement>().ignoreLayout = true;
+            var spoken = caption.AddComponent<Text>();
+            spoken.font = font;
+            spoken.color = new Color(0f, 0f, 0f, 0f);
+            spoken.text = letters.Length == 1 ? "A letter from " + world.LetterFrom[0] : letters.Length + " letters from family";
+        }
+
+        // Newest first: index 0 is the last letter received.
+        private void ShowLetter(int fromNewest)
+        {
+            string[] letters = world.Letters, from = world.LetterFrom;
+            if (letters.Length == 0 || titleScreen == null) return;
+            fromNewest = Mathf.Clamp(fromNewest, 0, letters.Length - 1);
+            int i = letters.Length - 1 - fromNewest;
+            letterShown = fromNewest;
+            PlayerPrefs.SetInt(LettersReadKey, letters.Length);
+            PlayerPrefs.Save();
+            if (letterCard != null) Destroy(letterCard);
+            letterCard = Node("Reading a letter", titleScreen.transform);
+            Fill(letterCard.GetComponent<RectTransform>());
+            letterCard.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.38f);
+            letterCard.AddComponent<TapCatcher>().Tapped = CloseLetter;
+            var paper = Node("Letter paper", letterCard.transform);
+            var paperRect = paper.GetComponent<RectTransform>();
+            paperRect.anchorMin = paperRect.anchorMax = new Vector2(0.5f, 0.5f);
+            paperRect.sizeDelta = new Vector2(Mathf.Min(PageWidth() + 6f, 420f), 0f);
+            var paperImage = paper.AddComponent<Image>();
+            MosseloraArt.PaperTile(paperImage, 22);
+            paperImage.color = new Color(0.99f, 0.97f, 0.9f, 1f);
+            MosseloraArt.Lift(paperImage, 4f, 0.22f);
+            // Taps on the letter itself don't reach the backdrop (which closes it).
+            paper.AddComponent<Button>().transition = Selectable.Transition.None;
+            var column = paper.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(22, 22, 20, 18);
+            column.spacing = 12;
+            column.childControlWidth = column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            Text who = Label(paper.transform, "Letter from", "From " + from[i], 17, 0, Leaf, TextAnchor.MiddleLeft);
+            Emphasize(who);
+            Narrate(Label(paper.transform, "Letter words", letters[i], 19, 0, Ink, TextAnchor.UpperLeft), true);
+            Transform row = CenteredRowIn(paper.transform, "Letter actions");
+            if (fromNewest < letters.Length - 1)
+                IconButton(row, "Older letter", "Older letter", MosseloraArt.IconUndo, () => ShowLetter(letterShown + 1),
+                    56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            IconButton(row, "Close letter", GameLocalization.Text("close"), MosseloraArt.IconConfirm, CloseLetter,
+                56, MosseloraTheme.ForestAction, false, null, false, 0, 0, true);
+            if (fromNewest > 0)
+                IconButton(row, "Newer letter", "Newer letter", MosseloraArt.IconContinue, () => ShowLetter(letterShown - 1),
+                    56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            semanticsDirty = true;
+        }
+
+        private void CloseLetter()
+        {
+            if (letterCard != null) Destroy(letterCard);
+            letterCard = null;
+            letterShown = -1;
+            RefreshMaps(); // the unread dot goes
+        }
+
+        internal void QaReadLetter() { ShowLetter(0); }
+        internal void QaCloseLetter() { CloseLetter(); }
+
         private System.Collections.Generic.List<RectTransform> NeighborsOnMap(RectTransform land,
             Func<int, Vector2> point, GardenMap map, bool fromTitle)
         {
@@ -2362,6 +2617,17 @@ namespace Evergrove.UnityClient
                 PlantDone();
                 return;
             }
+            if (giftPick >= 0 && giftPick < world.Gifts.Length && ItemInHand() < 0)
+            {
+                // Plant a cutting a relative sent: it becomes a nursery plant of yours.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell)) return;
+                if (!world.PlantGift(giftPick, cell)) return;
+                justBought = world.BoughtCount - 1;
+                giftPick = -1;
+                PlayChime();
+                PlantDone();
+                return;
+            }
             if (nurseryOpen && nurseryKind >= 0 && ItemInHand() < 0)
             {
                 // Buy and plant from the nursery; it stays picked while you can afford another.
@@ -2476,13 +2742,17 @@ namespace Evergrove.UnityClient
                     false, null, false, 0, 0, true);
                 Transform bagGlyph = bag.transform.Find("Icon");
                 if (bagGlyph != null) bagGlyph.GetComponent<Image>().color = Color.white;
+                // Shop, not plant (I213): the sprout wears the same seed chip as the
+                // purse and the prices, so the token reads "spend seeds here".
+                if (!nurseryOpen) PriceChip(bag.transform, world.Seeds.ToString(), true, true);
                 if (nurseryOpen) NurseryTokens(row.transform);
+                else GiftTokens(row.transform);
                 for (int i = nurseryOpen ? -1 : made.Length - 1; i >= 0; i--) // your own kinds, newest first
                 {
                     int kind = i;
                     Sprite art = ItemArt(i, made[i]);
                     Button seed = IconButton(row.transform, "Basket " + i, ItemAt(i, made[i]).Name, MosseloraArt.IconRooted,
-                        () => { basketKind = basketKind == kind ? -1 : kind; heldPlanting = -1; RefreshMaps(); },
+                        () => { basketKind = basketKind == kind ? -1 : kind; heldPlanting = -1; giftPick = -1; RefreshMaps(); },
                         74, kind == basketKind ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                         false, null, false, 0, 0, true);
                     Transform glyph = seed.transform.Find("Icon");
@@ -2526,6 +2796,38 @@ namespace Evergrove.UnityClient
             }
         }
 
+        // Cuttings relatives sent (I215), waiting in the basket: each wears a small
+        // ribbon. Pick one, tap the grass: it's planted and becomes yours.
+        private int giftPick = -1;
+        private void GiftTokens(Transform row)
+        {
+            int[] gifts = world.Gifts;
+            for (int i = 0; i < gifts.Length; i++)
+            {
+                int index = i;
+                GardenItem plant = Nursery.Item(gifts[i]);
+                Button token = IconButton(row, "Gift " + i, "A gift: " + plant.Name, MosseloraArt.IconRooted, () => {
+                        giftPick = giftPick == index ? -1 : index; basketKind = -1; heldPlanting = -1; RefreshMaps();
+                    }, 74, index == giftPick ? MosseloraTheme.ForestAction : new Color(0.98f, 0.9f, 0.86f, 1f),
+                    false, null, false, 0, 0, true);
+                Transform glyph = token.transform.Find("Icon");
+                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                Sprite art = MosseloraArt.Load(plant.Art);
+                if (glyphImage != null && art != null)
+                {
+                    glyphImage.sprite = art;
+                    glyphImage.color = Color.white;
+                    var size = glyph.GetComponent<LayoutElement>();
+                    size.minWidth = size.preferredWidth = 50f;
+                    size.minHeight = size.preferredHeight = 50f;
+                }
+                Image ribbon = MosseloraArt.Ornament(token.transform, "Ribbon", MosseloraArt.Rounded(8),
+                    new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(18f, 18f), new Vector2(-8f, -8f));
+                if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.85f, 0.32f, 0.35f, 1f); }
+                if (index == giftPick && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
+            }
+        }
+
         // The nursery's nine plants in the tray: row by row, each with its price. A
         // closed row is faded with a small lock; a plant you can't afford yet shows
         // its price dimmed. Pick one, then tap the grass to buy and plant it.
@@ -2556,7 +2858,8 @@ namespace Evergrove.UnityClient
                     size.minWidth = size.preferredWidth = 50f;
                     size.minHeight = size.preferredHeight = 50f;
                 }
-                PriceChip(token.transform, open ? price.ToString() : "", affordable, open);
+                // A closed row still shows its price, greyed: you can see what you save for (I213).
+                PriceChip(token.transform, price.ToString(), affordable, open);
                 if (kind == nurseryKind && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
             }
         }
@@ -2565,19 +2868,13 @@ namespace Evergrove.UnityClient
         private void PriceChip(Transform token, string price, bool affordable, bool open)
         {
             Image chip = MosseloraArt.Ornament(token, "Price", MosseloraArt.Rounded(10), new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0.5f), new Vector2(open ? 46f : 26f, 22f), new Vector2(0f, 2f));
+                new Vector2(0.5f, 0.5f), new Vector2(46f, 22f), new Vector2(0f, 2f));
             if (chip == null) return;
             chip.preserveAspect = false;
-            chip.color = affordable ? new Color(0.98f, 0.93f, 0.74f, 1f) : new Color(0.9f, 0.88f, 0.82f, 0.95f);
-            if (!open)
-            {
-                Image lockMark = MosseloraArt.Ornament(chip.transform, "Closed row", MosseloraArt.Load(TreePlay.SeedIcon),
-                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(16f, 16f), Vector2.zero);
-                if (lockMark != null) lockMark.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
-                return;
-            }
+            chip.color = affordable ? new Color(0.98f, 0.93f, 0.74f, 1f)
+                : open ? new Color(0.9f, 0.88f, 0.82f, 0.95f) : new Color(0.82f, 0.82f, 0.8f, 0.9f);
             Text value = Label(chip.transform, "Price value", price, 14, 0,
-                affordable ? Ink : new Color(Ink.r, Ink.g, Ink.b, 0.45f), TextAnchor.MiddleCenter);
+                affordable ? Ink : new Color(Ink.r, Ink.g, Ink.b, open ? 0.45f : 0.35f), TextAnchor.MiddleCenter);
             value.horizontalOverflow = HorizontalWrapMode.Overflow;
             value.GetComponent<LayoutElement>().ignoreLayout = true;
             Fill(value.rectTransform);
@@ -3124,14 +3421,10 @@ namespace Evergrove.UnityClient
                 tokens.Add(almanac);
             }
             if (living)
-                tokens.Add(FanToken(column.transform, "Send postcard", GameLocalization.Text("postcard"),
-                    MosseloraArt.IconChat, () => {
-                        CloseFan();
-                        string text = GardenPostcard.Build(world,
-                            world.Completed ? "" : GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count));
-                        if (!NativeShare.Text(text, GameLocalization.Text("postcard")))
-                            GUIUtility.systemCopyBuffer = text;
-                    }));
+                tokens.Add(FanToken(column.transform, "Family", "Family", MosseloraArt.IconNeighbors, () => {
+                    CloseFan();
+                    OpenFamily();
+                }));
             tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
                 () => { CloseFan(); CloseTitle(); SetMenu(true); }));
             // Hang the fan just under the corner button it came from.
@@ -6727,6 +7020,26 @@ namespace Evergrove.UnityClient
         {
             if (villager < 0) { speakingWith = -1; Rebuild(); return; }
             OpenConversation(villager);
+        }
+
+        // I215 tour: open Family, send 50 seeds with a letter, then open a parcel from "Nan".
+        internal FamilySheet QaFamily()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true;
+#endif
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            OpenFamily();
+            return familySheet;
+        }
+
+        internal void QaCloseVisit() { CloseVisit(); }
+
+        internal void QaCloseFamily()
+        {
+            if (familySheet != null) Destroy(familySheet.gameObject);
+            familySheet = null;
+            RefreshMaps(); // as a real close does: the letterbox appears
         }
 
         internal void QaCloseBasket()
