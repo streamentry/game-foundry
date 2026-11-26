@@ -1986,16 +1986,30 @@ namespace Evergrove.UnityClient
             bool hero = heroGarden && memoryScreen;
             size.minHeight = size.preferredHeight = hero ? (TextScale.Percent > 100 ? 360f : 420f)
                 : TextScale.Percent > 100 ? 230f : 260f;
-            if (hero)
+            // Every page's garden runs edge to edge (I186); the memory card's also
+            // reaches up under the status bar (I185).
             {
-                // Bleed past the page margins and up to the top of the screen.
-                window.transform.SetAsFirstSibling();
-                var bleed = Node("Garden hero", window.transform);
+                if (hero) window.transform.SetAsFirstSibling();
+                var bleed = Node(hero ? "Garden hero" : "Garden band", window.transform);
                 var bleedRect = bleed.GetComponent<RectTransform>();
                 Fill(bleedRect);
                 bleedRect.offsetMin = new Vector2(-17f - columnLeft, 0f);
-                bleedRect.offsetMax = new Vector2(17f + columnRight, 15f + topInset);
+                bleedRect.offsetMax = new Vector2(17f + columnRight, hero ? 15f + topInset : 0f);
                 window = bleed;
+                if (!hero)
+                {
+                    // Below a board the garden melts into the paper at its top too.
+                    var top = Node("Garden melt top", window.transform);
+                    var topRect = top.GetComponent<RectTransform>();
+                    topRect.anchorMin = new Vector2(0f, 1f);
+                    topRect.anchorMax = new Vector2(1f, 1f);
+                    topRect.pivot = new Vector2(0.5f, 1f);
+                    topRect.sizeDelta = new Vector2(0f, 40f);
+                    var topImage = top.AddComponent<Image>();
+                    topImage.sprite = MosseloraArt.TopFade();
+                    topImage.color = Paper;
+                    topImage.raycastTarget = false;
+                }
                 // Melt into the paper at the bottom, as the home screen does.
                 var melt = Node("Hero melt", window.transform);
                 var meltRect = melt.GetComponent<RectTransform>();
