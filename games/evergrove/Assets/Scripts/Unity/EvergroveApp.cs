@@ -1900,7 +1900,8 @@ namespace Evergrove.UnityClient
         // restored, all of them once the garden is finished.
         private GardenMap LoadGardenMap()
         {
-            int reaches = GardenMap.ReachesFor(world.Choices.Length, world.Completed);
+            // After the story the river keeps opening as you tend your things (I220).
+            int reaches = GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved);
             if (gardenMap != null && gardenMap.Reaches == reaches) return gardenMap;
             var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
             if (mask == null) return null;
@@ -1910,9 +1911,10 @@ namespace Evergrove.UnityClient
         }
 
         // The next reach shows in mist below the open river until it opens.
-        private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.MaxReaches; }
+        private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.ReachesCeiling; }
 
         private readonly float[] hubZoom = { 0f, 0f };
+        private bool markPuzzles;
 
         // ---- I204: the puzzle a grown thing holds, and the seeds it pays.
         private void OpenTreePlay(int item)
@@ -2053,7 +2055,7 @@ namespace Evergrove.UnityClient
             var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
             if (mask == null) return false;
             GardenMap map;
-            try { map = GardenMap.River(10, 15, mask.text.Trim(), GardenMap.ReachesFor(visited.Choices.Length, visited.Completed)); }
+            try { map = GardenMap.River(10, 15, mask.text.Trim(), GardenMap.ReachesFor(visited.Choices.Length, visited.Completed, visited.PuzzlesSolved)); }
             catch (ArgumentException) { return false; }
             int season = PaintedVillage.SeasonFor(VillageScenePlan.From(visited).LandscapePhase, visited.Completed);
             Sprite plot = (season == 1 ? MosseloraArt.Load("garden-map-autumn") : season == 2 ? MosseloraArt.Load("garden-map-winter") : null)
@@ -2068,7 +2070,7 @@ namespace Evergrove.UnityClient
             Fill(window.GetComponent<RectTransform>());
             window.AddComponent<RectMask2D>();
             GardenMapView view = GardenMapView.Build((RectTransform)window.transform, plot, map, VisitItems(visited, map),
-                landscape ? 1f : 1.3f, null, null, -1, false, 1f, -1f, null, 0.22f, map.Reaches < GardenMap.MaxReaches);
+                landscape ? 1f : 1.3f, null, null, -1, false, 1f, -1f, null, 0.22f, RiverGoesOn(map));
             view.FocusFromTop = 0.4f;
 
             // A wooden "back home" token where the menu button lives, and a sign.
@@ -2182,7 +2184,11 @@ namespace Evergrove.UnityClient
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
             float zoom = hubZoom[landscape ? 1 : 0];
-            GardenMapView view = GardenMapView.Build(window, plot, map, MapItems(map), zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
+            // Only home marks things that hold a puzzle: only home plays them (I221).
+            markPuzzles = world.Mode == PlayMode.Living;
+            var hubItems = MapItems(map);
+            markPuzzles = false;
+            GardenMapView view = GardenMapView.Build(window, plot, map, hubItems, zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
                 (justPlanted >= 0 || justBought >= 0) && gentleMotion,
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
@@ -2201,6 +2207,9 @@ namespace Evergrove.UnityClient
             // Sideways too (I197): home is the whole garden whichever way you hold it.
             // Sideways the window is short, so what you made sits higher still (I197).
             view.FocusFromTop = landscape ? 0.24f : 0.36f;
+            // The play row and the basket live in the bottom of home: neighbours keep out of it (I218).
+            view.ClearBottom = landscape ? 0f : 190f;
+            view.ClearTop = landscape ? 0f : 140f;
             return true;
         }
 
@@ -2293,6 +2302,7 @@ namespace Evergrove.UnityClient
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
                     Newest = justSolved >= 0 ? i == justSolved : i == made.Length - 1 && justPlanted < 0,
                     Bloomed = world.TreeSolved(i), // its puzzle solved (I204)
+                    HoldsPuzzle = markPuzzles,
                     BloomNow = i == justSolved && gentleMotion
                 });
             // More of what you grew, planted from the basket (I193).
@@ -2323,6 +2333,7 @@ namespace Evergrove.UnityClient
                     Family = Nursery.Family(kind),
                     Newest = justSolved >= 0 ? BoughtIndex + k == justSolved : k == justBought,
                     Bloomed = world.BoughtSolved(k),
+                    HoldsPuzzle = markPuzzles,
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
@@ -6804,8 +6815,10 @@ namespace Evergrove.UnityClient
                 {
                     Label(card.transform, "Garden replace warning", GameLocalization.Text("garden_replace"),
                         13, 40, Ink);
-                    IconButton(card.transform, "Confirm garden restore", GameLocalization.Text("erase"),
-                        MosseloraArt.IconConfirm, ConfirmGardenRestore, 54, MosseloraTheme.EarthAction, true);
+                    // I219: restoring is what the player came to do, not an erasure: the button
+                    // names the restore, in the restore's own colour; the warning above stays.
+                    IconButton(card.transform, "Confirm garden restore", GameLocalization.Text("garden_restore"),
+                        MosseloraArt.IconRestoreFile, ConfirmGardenRestore, 54, MosseloraTheme.WaterAction, true);
                     IconButton(card.transform, "Cancel garden restore", GameLocalization.Text("keep"),
                         MosseloraArt.IconCancel, CancelGardenRestore, 52, MosseloraTheme.QuietAction);
                 }

@@ -14,6 +14,10 @@ namespace Evergrove.Core
         public static string Line(int villager, WorldModel world)
         {
             if (world == null || world.Mode != PlayMode.Living || villager < 0 || villager > 2) return null;
+            // A cutting from family waiting in the basket comes first (I222): it's
+            // easy to miss, and it was sent with care.
+            foreach (int kind in world.Gifts)
+                if ((int)Nursery.Family(kind) == villager) return Waiting(villager, Nursery.Item(kind).Name);
             // A new arrival from the nursery is the freshest news: the newest one of
             // their kind, while its puzzle is still unsolved.
             int[] bought = world.Bought;
@@ -41,13 +45,25 @@ namespace Evergrove.Core
             return count;
         }
 
+        // A nursery plant or a planted gift: both are simply new in the garden (the
+        // save doesn't record which, so the line claims neither).
         private static string Arrival(int villager, string name)
         {
             switch (villager)
             {
-                case 0: return "A " + name + " from the nursery. Give it a season and it will shade the whole bank.";
-                case 1: return "That " + name + " from the nursery: I would like to see how it is joined.";
-                default: return "The " + name + " from the nursery! The bees will find it by noon.";
+                case 0: return "A " + name + ", new in the garden. Give it a season and it will shade the whole bank.";
+                case 1: return "That new " + name + ": I would like to see how it is joined.";
+                default: return "A new " + name + "! The bees will find it by noon.";
+            }
+        }
+
+        private static string Waiting(int villager, string name)
+        {
+            switch (villager)
+            {
+                case 0: return "Someone sent you a " + name + " cutting. It's waiting in your basket for a good spot.";
+                case 1: return "There's a " + name + " in your basket, sent with care. Shall we find it a place?";
+                default: return "A " + name + " cutting came for you! It's waiting in your basket.";
             }
         }
 
