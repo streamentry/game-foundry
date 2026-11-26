@@ -153,6 +153,25 @@ def knock_out_paper(image: Image.Image, tolerance: int = 26) -> Image.Image:
     return rgba
 
 
+def clear_veil(image: Image.Image, below: int = 120) -> Image.Image:
+    """Clear a pale, half-transparent backdrop (I211).
+
+    One catalogue sheet (builds-d) came back with a cream background at 15-40%
+    opacity instead of none, so its 25 buildings stood in pale boxes on the map.
+    Light pixels under the opacity floor are the veil; the painting itself is
+    opaque, and dark antialiased edges are kept.
+    """
+    rgba = image.convert("RGBA")
+    pixels = rgba.load()
+    w, h = rgba.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = pixels[x, y]
+            if a < below and min(r, g, b) > 150:
+                pixels[x, y] = (r, g, b, 0)
+    return rgba
+
+
 def knock_out_border(image: Image.Image, tolerance: int = 22) -> Image.Image:
     """Remove only the background connected to the image border.
 
@@ -482,7 +501,7 @@ def main() -> None:
             if not sheet:
                 index += 25
                 continue
-            for cell in grid(sheet.convert("RGBA"), 5, 5):
+            for cell in grid(clear_veil(sheet), 5, 5):
                 save(fit(trim(cell, 4), 192, 192), f"{prefix}-{index:02d}")
                 index += 1
 
@@ -495,7 +514,7 @@ def main() -> None:
         art = master(sheet)
         if not art:
             continue
-        for offset, cell in enumerate(grid(art.convert("RGBA"), 5, 5)):
+        for offset, cell in enumerate(grid(clear_veil(art), 5, 5)):
             save(fit(trim(cell, 4), 192, 192), f"{prefix}-{start + offset:02d}")
 
     garden = master("garden-map")
