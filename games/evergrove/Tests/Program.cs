@@ -1901,8 +1901,9 @@ internal static class Program
             GardenCatalogTests();
             AlmanacTests();
             GardenMapTests();
-        RiverMapTests();
-        PlantingTests();
+            RiverMapTests();
+            PlantingTests();
+            assertions += TreePuzzleTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
