@@ -247,6 +247,43 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(2.4f);
                 app.QaEndTreePlay();
             }
+            // Buildings hold a Mosaic (I209): swap tiles to mend a memory painting.
+            int building = app.QaHoldThing((int)VillageChoice.Bridge);
+            if (building >= 0)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaOpenTreePlay(building);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17m-mosaic.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17n-mosaic-mended.png");
+                yield return new WaitForSecondsRealtime(2.4f);
+                app.QaEndTreePlay();
+            }
+            // The nursery (I208): seeds buy a new plant that holds its own puzzle.
+            app.QaOpenNursery();
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17k-nursery.png");
+            app.QaBuyFromNursery();
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17l-nursery-bought.png");
+            app.QaCloseBasket();
+            app.QaEndTreePlay();
+            // Neighbours notice (I210): Mira names the poplar you just bought.
+            app.QaShowHub(false);
+            app.QaTalk(0);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17o-mira-notices.png");
+            app.QaTalk(-1);
             // Settings as round tokens (I194).
             Press("Open menu");
             for (int f = 0; f < 4; f++) yield return null;

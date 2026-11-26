@@ -35,11 +35,15 @@ namespace Evergrove.UnityClient
         private Sprite[] pictures;
         private Image[] cardFaces;
         private Sprite cardBack;
+        // Mosaic (buildings): the scattered painting.
+        private MosaicGame mosaic;
+        private Sprite painting;
+        private RawImage[] pieces;
 
         public static TreePlay Open(RectTransform host, Puzzle puzzle, Sprite art, string name, int reward,
                                     Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed)
         {
-            return Open(host, puzzle, null, null, art, name, reward, font, gentleMotion, turned, solved, closed);
+            return Open(host, puzzle, null, null, null, null, art, name, reward, font, gentleMotion, turned, solved, closed);
         }
 
         /// <summary>The Pairs table a flower holds: same card, same rewards, cards instead of channels.</summary>
@@ -47,12 +51,20 @@ namespace Evergrove.UnityClient
                                          int reward, Font font, bool gentleMotion, Action turned, Func<int> solved,
                                          Action closed)
         {
-            return Open(host, null, game, faces, art, name, reward, font, gentleMotion, turned, solved, closed);
+            return Open(host, null, game, faces, null, null, art, name, reward, font, gentleMotion, turned, solved, closed);
         }
 
-        private static TreePlay Open(RectTransform host, Puzzle puzzle, PairsGame game, Sprite[] faces, Sprite art,
-                                     string name, int reward, Font font, bool gentleMotion, Action turned,
-                                     Func<int> solved, Action closed)
+        /// <summary>The Mosaic a building holds: a memory painting in scattered tiles, swapped home.</summary>
+        public static TreePlay OpenMosaic(RectTransform host, MosaicGame game, Sprite painting, Sprite art, string name,
+                                          int reward, Font font, bool gentleMotion, Action turned, Func<int> solved,
+                                          Action closed)
+        {
+            return Open(host, null, null, null, game, painting, art, name, reward, font, gentleMotion, turned, solved, closed);
+        }
+
+        private static TreePlay Open(RectTransform host, Puzzle puzzle, PairsGame game, Sprite[] faces,
+                                     MosaicGame mosaicGame, Sprite painting, Sprite art, string name, int reward,
+                                     Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed)
         {
             var root = new GameObject("Tree puzzle", typeof(RectTransform));
             root.transform.SetParent(host, false);
@@ -67,6 +79,8 @@ namespace Evergrove.UnityClient
             play.rotations = puzzle != null ? (int[])puzzle.Initial.Clone() : null;
             play.pairs = game;
             play.pictures = faces;
+            play.mosaic = mosaicGame;
+            play.painting = painting;
             play.gentle = gentleMotion;
             play.onTurn = turned;
             play.onSolved = solved;
@@ -121,6 +135,7 @@ namespace Evergrove.UnityClient
             Hidden(card.transform, name + ". " + reward + " seeds.", font);
 
             if (pairs != null) { BuildPairs(card.transform, width, screenHeight); return; }
+            if (mosaic != null) { BuildMosaic(card.transform, width, screenHeight); return; }
             // The board: the same paper tiles and channels as the streams.
             int size = puzzle.Size;
             float boardWidth = width - 36f;
@@ -189,12 +204,13 @@ namespace Evergrove.UnityClient
             solved = true;
             int earned = onSolved != null ? onSolved() : 0;
             rewardText.text = "+" + earned;
-            if (pairs != null)
+            if (pairs != null || mosaic != null)
             {
-                for (int i = 0; i < cardFaces.Length; i++)
+                if (mosaic != null) PaintMosaic();
+                for (int i = 0; i < tiles.Length; i++)
                 {
                     if (buttons[i] != null) buttons[i].interactable = false;
-                    if (gentle) BloomPulse.Add(cardFaces[i].transform.parent.gameObject, 0.08f + i * 0.04f);
+                    if (gentle) BloomPulse.Add(tiles[i].gameObject, 0.08f + i * 0.03f);
                 }
                 if (gentle) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
                 closeAt = Time.unscaledTime + 2.2f;
@@ -298,6 +314,99 @@ namespace Evergrove.UnityClient
             }
         }
 
+        // ---- Mosaic: the painting's central square, cut into Size×Size tiles.
+        private Rect square; // the painting's central square, in texture UVs
+
+        private void BuildMosaic(Transform card, float width, float screenHeight)
+        {
+            int size = mosaic.Size;
+            float gap = 3f; // tight seams: the picture should read as one painting
+            float cell = Mathf.Floor((width - 36f - gap * (size - 1) - 12f) / size);
+            cell = Mathf.Min(cell, Mathf.Floor((screenHeight - 176f - gap * (size - 1) - 12f) / size));
+            var bed = new GameObject("Mosaic", typeof(RectTransform));
+            bed.transform.SetParent(card, false);
+            var bedLayout = bed.AddComponent<LayoutElement>();
+            bedLayout.preferredHeight = bedLayout.minHeight = cell * size + gap * (size - 1) + 12f;
+            var bedImage = bed.AddComponent<Image>();
+            MosseloraArt.Round(bedImage, new Color(0.45f, 0.38f, 0.26f, 0.7f), 14);
+            bedImage.raycastTarget = false;
+            var grid = bed.AddComponent<GridLayoutGroup>();
+            grid.padding = new RectOffset(6, 6, 6, 6);
+            grid.cellSize = new Vector2(cell, cell);
+            grid.spacing = new Vector2(gap, gap);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = size;
+            grid.childAlignment = TextAnchor.MiddleCenter;
+            Texture texture = painting != null ? painting.texture : null;
+            if (painting != null)
+            {
+                Rect r = painting.textureRect;
+                float side = Mathf.Min(r.width, r.height);
+                float tw = painting.texture.width, th = painting.texture.height;
+                square = new Rect((r.x + (r.width - side) / 2f) / tw, (r.y + (r.height - side) / 2f) / th, side / tw, side / th);
+            }
+            tiles = new Image[mosaic.Count];
+            pieces = new RawImage[mosaic.Count];
+            buttons = new Button[mosaic.Count];
+            for (int i = 0; i < mosaic.Count; i++)
+            {
+                int slot = i;
+                var node = new GameObject("Tile " + (i + 1) + ", tap two to swap", typeof(RectTransform));
+                node.transform.SetParent(bed.transform, false);
+                var frame = node.AddComponent<Image>();
+                frame.sprite = MosseloraArt.Rounded(6);
+                frame.type = Image.Type.Sliced;
+                var button = node.AddComponent<Button>();
+                button.targetGraphic = frame;
+                button.transition = Selectable.Transition.None;
+                button.onClick.AddListener(() => TapPiece(slot));
+                PressSquash.Add(node);
+                var pictureNode = new GameObject("Piece", typeof(RectTransform));
+                pictureNode.transform.SetParent(node.transform, false);
+                var pictureRect = (RectTransform)pictureNode.transform;
+                pictureRect.anchorMin = Vector2.zero;
+                pictureRect.anchorMax = Vector2.one;
+                pictureRect.offsetMin = new Vector2(2f, 2f);
+                pictureRect.offsetMax = new Vector2(-2f, -2f);
+                var piece = pictureNode.AddComponent<RawImage>();
+                piece.texture = texture;
+                piece.raycastTarget = false;
+                tiles[i] = frame;
+                pieces[i] = piece;
+                buttons[i] = button;
+            }
+            PaintMosaic();
+        }
+
+        private void TapPiece(int slot)
+        {
+            if (solved) return;
+            MosaicGame.Step step = mosaic.Select(slot);
+            if (step == MosaicGame.Step.Ignored) return;
+            onTurn?.Invoke();
+            PaintMosaic();
+            if (step == MosaicGame.Step.Swapped && gentle)
+                for (int i = 0; i < mosaic.Count; i++)
+                    if (mosaic.InPlace(i) && (i == slot)) BloomPulse.Add(tiles[i].gameObject, 0.02f, 0.08f);
+            if (mosaic.Solved) Finish();
+        }
+
+        private void PaintMosaic()
+        {
+            int size = mosaic.Size;
+            for (int i = 0; i < mosaic.Count; i++)
+            {
+                int piece = mosaic.At(i);
+                int column = piece % size, row = piece / size; // row 0 is the painting's top
+                float w = square.width / size, h = square.height / size;
+                pieces[i].uvRect = new Rect(square.x + column * w, square.y + (size - 1 - row) * h, w, h);
+                bool home = mosaic.InPlace(i);
+                tiles[i].color = i == mosaic.Picked ? MosseloraTheme.WaterAction
+                    : home ? new Color(0.98f, 0.93f, 0.74f, 1f) : new Color(0.93f, 0.91f, 0.86f, 1f);
+                tiles[i].transform.localScale = i == mosaic.Picked ? new Vector3(1.06f, 1.06f, 1f) : Vector3.one;
+            }
+        }
+
         /// <summary>Tour only: every tile but one in place, then the last turn by the same path as a tap.</summary>
         internal void QaSolve()
         {
@@ -310,6 +419,17 @@ namespace Evergrove.UnityClient
                     if (pairs.Kept(c)) continue;
                     for (int d = c + 1; d < pairs.Count; d++)
                         if (!pairs.Kept(d) && pairs.Face(d) == pairs.Face(c)) { TurnCard(c); TurnCard(d); break; }
+                }
+                return;
+            }
+            if (mosaic != null)
+            {
+                // Bring each piece home in one swap, as a careful player would.
+                for (int slot = 0; slot < mosaic.Count && !mosaic.Solved; slot++)
+                {
+                    if (mosaic.InPlace(slot)) continue;
+                    for (int s2 = 0; s2 < mosaic.Count; s2++)
+                        if (mosaic.At(s2) == slot) { TapPiece(slot); TapPiece(s2); break; }
                 }
                 return;
             }
