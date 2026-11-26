@@ -1747,22 +1747,11 @@ namespace Evergrove.UnityClient
             rect.pivot = new Vector2(0.5f, 1f);
             rect.sizeDelta = new Vector2(0f, 70f);
             rect.anchoredPosition = Vector2.zero;
+            // One button (I191): it opens the fan of everything else.
             Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
-                MosseloraArt.IconMenu, () => { CloseTitle(); SetMenu(true); }, 54, MosseloraTheme.QuietAction);
+                MosseloraArt.IconMenu, () => ToggleFan(true), 54, MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
-            if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
-            {
-                Button book = IconButton(bar.transform, "Memories", GameLocalization.Text("journal_show"),
-                    MosseloraArt.IconJournal, () => {
-                        CloseTitle();
-                        menuOpen = false;
-                        showJournal = true;
-                        Rebuild();
-                        if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
-                    }, 54, MosseloraTheme.QuietAction);
-                PlaceBook(book);
-                MarkUnreadMemory(book);
-            }
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu);
         }
 
         // "Rainwater" with the painted landmark your last choice planted in it:
@@ -2489,30 +2478,149 @@ namespace Evergrove.UnityClient
         private void BuildChrome(bool living)
         {
             if (chrome == null) return;
+            CloseFan();
+            // One corner button (I191): book, almanac, postcard, home and settings
+            // open from it as a fan of round tokens, instead of a button per corner.
             Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("menu"),
-                MosseloraArt.IconMenu, () => SetMenu(!menuOpen), 54, MosseloraTheme.QuietAction);
+                MosseloraArt.IconMenu, () => {
+                    if (menuOpen) SetMenu(false);
+                    else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; Rebuild(); }
+                    else ToggleFan(false);
+                }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
-            if (living && world.Choices.Length > 0)
-            {
-                Button book = IconButton(chrome, "Memories",
-                    GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"),
-                    MosseloraArt.IconJournal, () => {
-                        showJournal = !showJournal;
-                        if (showJournal) menuOpen = false;
-                        Rebuild();
-                        if (showJournal && journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
-                    }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
-                PlaceBook(book);
-                if (!showJournal) MarkUnreadMemory(book);
-            }
+            if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu);
         }
 
-        // Top right in portrait; sideways it joins the menu on the painting, so
-        // the play column carries no chrome (I116).
-        private void PlaceBook(Button book)
+        // ---- I191: the fan menu. One corner button opens a column of round
+        // tokens under it; a tap anywhere else folds it away again.
+        private GameObject fan;
+
+        private void CloseFan()
         {
-            if (landscape) PlaceChrome(book, new Vector2(0f, 1f), new Vector2(86f, ChromeTop));
-            else PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+            if (fan == null) return;
+            fan.SetActive(false);
+            Destroy(fan);
+            fan = null;
+            semanticsDirty = true;
+        }
+
+        private void ToggleFan(bool fromHub)
+        {
+            if (fan != null) { CloseFan(); return; }
+            if (canvasRoot == null) return;
+            speakingWith = -1;
+            fan = Node("Menu fan", canvasRoot);
+            Fill(fan.GetComponent<RectTransform>());
+            var scrim = fan.AddComponent<Image>();
+            scrim.color = new Color(0.08f, 0.14f, 0.11f, 0.30f);
+            var away = fan.AddComponent<Button>();
+            away.transition = Selectable.Transition.None;
+            away.onClick.AddListener(CloseFan);
+            var column = Node("Fan column", fan.transform);
+            var columnRect = column.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            columnRect.anchorMin = columnRect.anchorMax = new Vector2(safe.xMin / w, safe.yMax / h);
+            columnRect.pivot = new Vector2(0f, 1f);
+            columnRect.anchoredPosition = new Vector2(10f, ChromeTop - 66f);
+            var stack = column.AddComponent<VerticalLayoutGroup>();
+            stack.spacing = 12;
+            stack.childAlignment = TextAnchor.UpperLeft;
+            stack.childControlWidth = true;
+            stack.childControlHeight = true;
+            stack.childForceExpandWidth = false;
+            stack.childForceExpandHeight = false;
+            var fit = column.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            bool living = world.Mode == PlayMode.Living;
+            bool memories = living && world.Choices.Length > 0;
+            var tokens = new System.Collections.Generic.List<GameObject>();
+            if (!fromHub && titleScreen == null)
+                tokens.Add(FanToken(column.transform, "Home", "Home", MosseloraArt.IconHome, () => {
+                    CloseFan();
+                    menuOpen = false;
+                    showJournal = false;
+                    BuildTitleScreen(canvasRoot);
+                }));
+            if (memories)
+            {
+                GameObject book = FanToken(column.transform, "Memories", GameLocalization.Text("journal_show"),
+                    MosseloraArt.IconJournal, () => OpenBook(false));
+                MarkUnreadMemory(book.GetComponent<Button>());
+                tokens.Add(book);
+                GameObject almanac = FanToken(column.transform, "Almanac", "Almanac", MosseloraArt.IconJournal,
+                    () => OpenBook(true));
+                // A painted sapling, not a second book (as on the book's tab).
+                Transform glyph = almanac.transform.Find("Icon");
+                Sprite sapling = MosseloraArt.Load(GardenCatalog.Get(VillageChoice.ShadeTree, 0).Art);
+                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                if (glyphImage != null && sapling != null) { glyphImage.sprite = sapling; glyphImage.color = Color.white; }
+                tokens.Add(almanac);
+            }
+            if (living)
+                tokens.Add(FanToken(column.transform, "Send postcard", GameLocalization.Text("postcard"),
+                    MosseloraArt.IconChat, () => {
+                        CloseFan();
+                        string text = GardenPostcard.Build(world,
+                            world.Completed ? "" : GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count));
+                        if (!NativeShare.Text(text, GameLocalization.Text("postcard")))
+                            GUIUtility.systemCopyBuffer = text;
+                    }));
+            tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
+                () => { CloseFan(); CloseTitle(); SetMenu(true); }));
+            // Hang the fan just under the corner button it came from.
+            foreach (Button corner in canvasRoot.GetComponentsInChildren<Button>())
+                if (corner.name == "Open menu" && corner.gameObject.activeInHierarchy)
+                {
+                    var corners = new Vector3[4];
+                    ((RectTransform)corner.transform).GetWorldCorners(corners);
+                    columnRect.position = corners[0] + new Vector3(0f, -12f * canvasRoot.lossyScale.y, 0f);
+                    break;
+                }
+            if (gentleMotion)
+                for (int i = 0; i < tokens.Count; i++) StartCoroutine(FanIn(tokens[i], i * 0.045f));
+            semanticsDirty = true;
+        }
+
+        private GameObject FanToken(Transform parent, string name, string caption, string icon, Action action)
+        {
+            Button token = IconButton(parent, name, caption, icon, action, 64, MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            var size = token.GetComponent<LayoutElement>();
+            if (size == null) size = token.gameObject.AddComponent<LayoutElement>();
+            size.minHeight = size.preferredHeight = 64f;
+            size.flexibleHeight = 0f;
+            return token.gameObject;
+        }
+
+        private void OpenBook(bool almanac)
+        {
+            CloseFan();
+            CloseTitle();
+            menuOpen = false;
+            showJournal = true;
+            almanacTab = almanac;
+            journalOpenPage = -1;
+            Rebuild();
+            if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
+        }
+
+        private static IEnumerator FanIn(GameObject token, float delay)
+        {
+            if (token == null) yield break;
+            var group = token.AddComponent<CanvasGroup>();
+            group.alpha = 0f;
+            token.transform.localScale = new Vector3(0.7f, 0.7f, 1f);
+            float clock = -delay;
+            while (clock < 0.22f && token != null)
+            {
+                clock += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(clock / 0.22f));
+                group.alpha = t;
+                token.transform.localScale = Vector3.one * Mathf.Lerp(0.7f, 1f, t);
+                yield return null;
+            }
         }
 
         // Sideways there is no top safe inset, so the chrome sits a little lower

@@ -158,7 +158,7 @@ namespace Evergrove.UnityClient
                     SavePng("10d-almanac.png");
                     Press("Our pages");
                     for (int f = 0; f < 4; f++) yield return null;
-                    Press("Memories"); // close it before the rest of the run
+                    Press("Close journal"); // close it before the rest of the run
                     for (int f = 0; f < 4; f++) yield return null;
                 }
             }
@@ -179,13 +179,21 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 4; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("11c-ending-journal-bottom.png");
-            Press("Memories");
+            Press("Close journal");
             for (int f = 0; f < 4; f++) yield return null;
             // The home screen's garden map with the whole year's twelve things (I176).
             app.QaShowHub(true);
             for (int f = 0; f < 8; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("17-hub-map.png");
+            // The one corner button's fan (I191), with a whole year of memories.
+            Press("Open menu");
+            for (int f = 0; f < 12; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.4f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17b-menu-fan.png");
+            Press("Open menu");
+            for (int f = 0; f < 4; f++) yield return null;
             app.QaShowHub(false);
             for (int f = 0; f < 4; f++) yield return null;
 
@@ -307,6 +315,15 @@ namespace Evergrove.UnityClient
                     button.onClick.Invoke();
                     foreach (Button again in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                         if (nameMatches(again.name)) return again;
+                    // The corner button opens a fan (I191); settings is one of its tokens.
+                    foreach (Button token in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                        if (token.name == "Settings")
+                        {
+                            token.onClick.Invoke();
+                            foreach (Button again in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                                if (nameMatches(again.name)) return again;
+                            break;
+                        }
                     break;
                 }
             throw new InvalidOperationException("No active button: " + description);
