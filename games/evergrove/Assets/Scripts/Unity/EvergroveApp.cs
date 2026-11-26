@@ -3050,6 +3050,16 @@ namespace Evergrove.UnityClient
                 new Vector2(0.5f, 0.5f), new Vector2(58f, 58f), Vector2.zero);
         }
 
+        // The card's visible label (I196): the thing itself, "Silver birch", not the
+        // sentence "Plant a silver birch". The full sentence is still spoken.
+        private string ChoiceName(VillageChoice choice)
+        {
+            if (GameLocalization.Current != "en") return LocalizedVillage.Choice(choice);
+            string name = ItemAt(world.Round, (int)choice).Name;
+            return string.IsNullOrEmpty(name) ? ChoiceTitle(choice)
+                : char.ToUpperInvariant(name[0]) + name.Substring(1);
+        }
+
         private string ChoiceTitle(VillageChoice choice)
         {
             return GameLocalization.Current == "en"
@@ -5246,7 +5256,7 @@ namespace Evergrove.UnityClient
             {
                 var picture = Node("Choice picture", node.transform);
                 var pictureLayout = picture.AddComponent<LayoutElement>();
-                pictureLayout.minHeight = pictureLayout.preferredHeight = 84;
+                pictureLayout.minHeight = pictureLayout.preferredHeight = wide ? 84 : 104;
                 if (wide) pictureLayout.minWidth = pictureLayout.preferredWidth = 92;
                 var pictureImage = picture.AddComponent<Image>();
                 pictureImage.sprite = icon;
@@ -5257,9 +5267,9 @@ namespace Evergrove.UnityClient
                 if (keeper != null)
                     MosseloraArt.Ornament(picture.transform, "Who will remember", keeper, new Vector2(1f, 0f),
                         new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(4f, -6f));
-                // And what it leaves in the next stream: the same framed tile the
-                // player will meet on the next board, in miniature (I134).
-                NextStreamTile(picture.transform, choice);
+                // I196: the miniature next-stream tile (I134) read as a mystery box in
+                // play; the next board shows that landmark itself, so the card is
+                // just the thing and who will remember it.
             }
             if (wide)
             {
@@ -5274,8 +5284,10 @@ namespace Evergrove.UnityClient
                 words = column.transform;
             }
             TextAnchor align = wide ? TextAnchor.MiddleLeft : TextAnchor.UpperCenter;
-            Text title = Label(words, "Choice name", ChoiceTitle(choice), 16, 0, Ink, align);
+            Text title = Label(words, "Choice name", ChoiceName(choice), 16, 0, Ink, align);
             Emphasize(title);
+            if (!wide && !CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
+                WholeWordFit.Attach(title, 12);
             // Picture first: the painting, the keeper and the name say it; the
             // consequence is spoken (and shown on the memory screen that follows).
             // A hidden "Caption" gives screen readers the full choice.
@@ -5283,36 +5295,6 @@ namespace Evergrove.UnityClient
                 ChoiceTitle(choice) + "\n" + LocalizedVillage.ChoiceOutcome(choice, world),
                 14, 0, new Color(0f, 0f, 0f, 0f), align);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
-        }
-
-        // A miniature of the protected landmark tile this choice roots in the next
-        // stream: bark frame, a dry channel and the choice's painting in its corner.
-        private void NextStreamTile(Transform picture, VillageChoice choice)
-        {
-            if (world.Round + 1 >= PuzzleCatalog.Count) return; // no next stream to change
-            var tile = Node("Leaves in the next stream", picture);
-            tile.AddComponent<LayoutElement>().ignoreLayout = true;
-            var rect = tile.GetComponent<RectTransform>();
-            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.sizeDelta = new Vector2(38f, 38f);
-            rect.anchoredPosition = new Vector2(-2f, 6f);
-            var body = tile.AddComponent<Image>();
-            MosseloraArt.Round(body, MosseloraTheme.AnchoredTile, 7);
-            body.raycastTarget = false;
-            MosseloraArt.Lift(body, 1.5f, 0.22f);
-            var frame = Node("Landmark frame", tile.transform);
-            Fill(frame.GetComponent<RectTransform>());
-            frame.AddComponent<LandmarkGraphic>().Configure((int)choice + 1);
-            var channel = Node("Channel", tile.transform);
-            Fill(channel.GetComponent<RectTransform>());
-            var pipe = channel.AddComponent<PipeGraphic>();
-            pipe.Configure(PipeKind.Straight, 1, false, false, 0); // dry, as the player will first see it
-            pipe.raycastTarget = false;
-            Sprite holder = ItemArt(world.Round, (int)choice);
-            if (holder != null)
-                MosseloraArt.Ornament(tile.transform, "Rooted by", holder, new Vector2(0f, 1f),
-                    new Vector2(0f, 1f), new Vector2(18f, 18f), new Vector2(1f, -1f));
         }
 
         // Compact settings row below the primary content of puzzle and post-choice
