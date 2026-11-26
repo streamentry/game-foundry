@@ -230,6 +230,23 @@ namespace Evergrove.UnityClient
                 SavePng("17h-tree-bloomed.png");
                 app.QaEndTreePlay();
             }
+            // Flowers hold Pairs (depth spine): turn two cards, keep a match.
+            int flower = app.QaHoldThing((int)VillageChoice.Flowers);
+            if (flower >= 0)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaOpenTreePlay(flower);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17i-pairs.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j-pairs-solved.png");
+                yield return new WaitForSecondsRealtime(2.4f);
+                app.QaEndTreePlay();
+            }
             // Settings as round tokens (I194).
             Press("Open menu");
             for (int f = 0; f < 4; f++) yield return null;

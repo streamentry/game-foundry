@@ -30,9 +30,29 @@ namespace Evergrove.UnityClient
         private Text rewardText;
         private GameObject rewardPill;
         private float closeAt = -1f;
+        // Pairs (flowers): the table, its pictures and the card images.
+        private PairsGame pairs;
+        private Sprite[] pictures;
+        private Image[] cardFaces;
+        private Sprite cardBack;
 
         public static TreePlay Open(RectTransform host, Puzzle puzzle, Sprite art, string name, int reward,
                                     Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed)
+        {
+            return Open(host, puzzle, null, null, art, name, reward, font, gentleMotion, turned, solved, closed);
+        }
+
+        /// <summary>The Pairs table a flower holds: same card, same rewards, cards instead of channels.</summary>
+        public static TreePlay OpenPairs(RectTransform host, PairsGame game, Sprite[] faces, Sprite art, string name,
+                                         int reward, Font font, bool gentleMotion, Action turned, Func<int> solved,
+                                         Action closed)
+        {
+            return Open(host, null, game, faces, art, name, reward, font, gentleMotion, turned, solved, closed);
+        }
+
+        private static TreePlay Open(RectTransform host, Puzzle puzzle, PairsGame game, Sprite[] faces, Sprite art,
+                                     string name, int reward, Font font, bool gentleMotion, Action turned,
+                                     Func<int> solved, Action closed)
         {
             var root = new GameObject("Tree puzzle", typeof(RectTransform));
             root.transform.SetParent(host, false);
@@ -44,7 +64,9 @@ namespace Evergrove.UnityClient
             veil.color = new Color(0.08f, 0.14f, 0.11f, 0.38f); // the garden stays in view, dimmed
             var play = root.AddComponent<TreePlay>();
             play.puzzle = puzzle;
-            play.rotations = (int[])puzzle.Initial.Clone();
+            play.rotations = puzzle != null ? (int[])puzzle.Initial.Clone() : null;
+            play.pairs = game;
+            play.pictures = faces;
             play.gentle = gentleMotion;
             play.onTurn = turned;
             play.onSolved = solved;
@@ -98,6 +120,7 @@ namespace Evergrove.UnityClient
             // Spoken: what this is and what it pays (screen readers read Text).
             Hidden(card.transform, name + ". " + reward + " seeds.", font);
 
+            if (pairs != null) { BuildPairs(card.transform, width, screenHeight); return; }
             // The board: the same paper tiles and channels as the streams.
             int size = puzzle.Size;
             float boardWidth = width - 36f;
@@ -157,9 +180,26 @@ namespace Evergrove.UnityClient
             onTurn?.Invoke();
             Paint();
             if (!PipeRules.IsComplete(puzzle, rotations)) return;
+            Finish();
+        }
+
+        // Solved, whatever the kind: record it, show the seeds, bloom, close soon.
+        private void Finish()
+        {
             solved = true;
             int earned = onSolved != null ? onSolved() : 0;
             rewardText.text = "+" + earned;
+            if (pairs != null)
+            {
+                for (int i = 0; i < cardFaces.Length; i++)
+                {
+                    if (buttons[i] != null) buttons[i].interactable = false;
+                    if (gentle) BloomPulse.Add(cardFaces[i].transform.parent.gameObject, 0.08f + i * 0.04f);
+                }
+                if (gentle) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
+                closeAt = Time.unscaledTime + 2.2f;
+                return;
+            }
             Paint();
             int spring = Array.IndexOf(puzzle.Kinds, PipeKind.End);
             for (int i = 0; i < tiles.Length; i++)
@@ -172,10 +212,107 @@ namespace Evergrove.UnityClient
             closeAt = Time.unscaledTime + 2.2f; // long enough to see the water run and the seeds
         }
 
+        // ---- Pairs: a 4-wide table of painted cards, face down on paper.
+        private void BuildPairs(Transform card, float width, float screenHeight)
+        {
+            int columns = 4, rows = pairs.Count / columns;
+            float gap = 8f;
+            float cell = Mathf.Floor((width - 36f - gap * (columns - 1) - 16f) / columns);
+            float tall = Mathf.Floor(cell * 1.18f); // cards stand a little taller than wide
+            // Sideways the height decides: the whole table must fit under the top row (I207).
+            float roomy = Mathf.Floor((screenHeight - 176f - gap * (rows - 1) - 16f) / rows);
+            if (tall > roomy) { tall = roomy; cell = Mathf.Floor(roomy / 1.18f); }
+            var bed = new GameObject("Pairs table", typeof(RectTransform));
+            bed.transform.SetParent(card, false);
+            var bedLayout = bed.AddComponent<LayoutElement>();
+            bedLayout.preferredHeight = bedLayout.minHeight = tall * rows + gap * (rows - 1) + 16f;
+            var bedImage = bed.AddComponent<Image>();
+            MosseloraArt.Round(bedImage, new Color(0.55f, 0.5f, 0.36f, 0.55f), 18);
+            bedImage.raycastTarget = false;
+            var grid = bed.AddComponent<GridLayoutGroup>();
+            grid.padding = new RectOffset(8, 8, 8, 8);
+            grid.cellSize = new Vector2(cell, tall);
+            grid.spacing = new Vector2(gap, gap);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = columns;
+            grid.childAlignment = TextAnchor.MiddleCenter;
+            cardBack = MosseloraArt.Load(MosseloraArt.Sprig);
+            tiles = new Image[pairs.Count];
+            cardFaces = new Image[pairs.Count];
+            buttons = new Button[pairs.Count];
+            for (int i = 0; i < pairs.Count; i++)
+            {
+                int index = i;
+                var node = new GameObject("Card " + (i + 1) + ", tap to turn over", typeof(RectTransform));
+                node.transform.SetParent(bed.transform, false);
+                var image = node.AddComponent<Image>();
+                MosseloraArt.PaperTile(image, 12);
+                MosseloraArt.Lift(image, 2f, 0.14f);
+                MosseloraArt.Edge(node.transform, MosseloraTheme.TileEdge, 12);
+                var button = node.AddComponent<Button>();
+                button.targetGraphic = image;
+                button.transition = Selectable.Transition.None;
+                button.onClick.AddListener(() => TurnCard(index));
+                PressSquash.Add(node);
+                var face = new GameObject("Picture", typeof(RectTransform));
+                face.transform.SetParent(node.transform, false);
+                var faceRect = (RectTransform)face.transform;
+                faceRect.anchorMin = Vector2.zero;
+                faceRect.anchorMax = Vector2.one;
+                faceRect.offsetMin = new Vector2(6f, 6f);
+                faceRect.offsetMax = new Vector2(-6f, -6f);
+                var faceImage = face.AddComponent<Image>();
+                faceImage.preserveAspect = true;
+                faceImage.raycastTarget = false;
+                tiles[i] = image;
+                cardFaces[i] = faceImage;
+                buttons[i] = button;
+            }
+            PaintPairs();
+        }
+
+        private void TurnCard(int index)
+        {
+            if (solved) return;
+            PairsGame.Turn turn = pairs.Flip(index);
+            if (turn == PairsGame.Turn.Ignored) return;
+            onTurn?.Invoke();
+            PaintPairs();
+            if (turn == PairsGame.Turn.Match && gentle)
+                for (int i = 0; i < pairs.Count; i++)
+                    if (pairs.Kept(i) && pairs.Face(i) == pairs.Face(index)) BloomPulse.Add(tiles[i].gameObject, 0.02f, 0.1f);
+            if (pairs.Solved) Finish();
+        }
+
+        private void PaintPairs()
+        {
+            for (int i = 0; i < pairs.Count; i++)
+            {
+                bool up = pairs.Showing(i);
+                int picture = pairs.Face(i);
+                tiles[i].color = up
+                    ? (pairs.Kept(i) ? new Color(0.86f, 0.94f, 0.9f, 1f) : MosseloraTheme.CardFill)
+                    : new Color(0.62f, 0.72f, 0.58f, 1f); // a sage back, the same for every card
+                cardFaces[i].sprite = up && pictures != null && picture < pictures.Length ? pictures[picture] : cardBack;
+                cardFaces[i].color = up ? Color.white : new Color(1f, 1f, 1f, 0.55f);
+            }
+        }
+
         /// <summary>Tour only: every tile but one in place, then the last turn by the same path as a tap.</summary>
         internal void QaSolve()
         {
             if (solved) return;
+            if (pairs != null)
+            {
+                // Turn the pairs up by memory, perfectly.
+                for (int c = 0; c < pairs.Count && !pairs.Solved; c++)
+                {
+                    if (pairs.Kept(c)) continue;
+                    for (int d = c + 1; d < pairs.Count; d++)
+                        if (!pairs.Kept(d) && pairs.Face(d) == pairs.Face(c)) { TurnCard(c); TurnCard(d); break; }
+                }
+                return;
+            }
             int last = puzzle.CellCount - 1;
             rotations = (int[])puzzle.Solution.Clone();
             int turns = PipeRules.OrientationCount(puzzle.Kinds[last]);

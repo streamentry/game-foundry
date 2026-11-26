@@ -1914,13 +1914,40 @@ namespace Evergrove.UnityClient
             int tier = TreePuzzles.TierFor(item);
             GardenItem thing = ItemAt(item, made[item]);
             // The same thing always holds the same board: seeded by garden and place in the story.
-            Puzzle board = TreePuzzles.For(world.Garden * 1000 + item * 7 + 1, tier, thing.Name);
+            int seed = world.Garden * 1000 + item * 7 + 1;
             int reward = WorldModel.TreeReward(tier, !world.TreeSolved(item));
+            Action turned = () => { PlayTock(); if (gentleMotion) Haptics.Tick(); };
+            Func<int> solved = () => { int earned = world.SolveTree(item); SaveWorld(); PlayChime(); return earned; };
+            Action closed = () => { mapInHand = -1; RefreshMaps(); };
+            // Puzzle kind follows the family (depth spine): flowers hold Pairs.
+            if ((VillageChoice)made[item] == VillageChoice.Flowers)
+            {
+                var game = new PairsGame(seed, tier);
+                TreePlay.OpenPairs((RectTransform)titleScreen.transform, game, PairsPictures(game.Pairs, item),
+                    ItemArt(item, made[item]), thing.Name, reward, font, gentleMotion, turned, solved, closed);
+                return;
+            }
+            Puzzle board = TreePuzzles.For(seed, tier, thing.Name);
             TreePlay.Open((RectTransform)titleScreen.transform, board, ItemArt(item, made[item]), thing.Name,
                 reward, font, gentleMotion,
                 () => { PlayTock(); if (gentleMotion) Haptics.Tick(); },
                 () => { int earned = world.SolveTree(item); SaveWorld(); PlayChime(); return earned; },
                 () => { mapInHand = -1; RefreshMaps(); });
+        }
+
+        // Distinct paintings from this garden's catalogue for a Pairs table, starting
+        // at a place set by the flower, so each flower deals different pictures.
+        private Sprite[] PairsPictures(int count, int item)
+        {
+            var found = new System.Collections.Generic.List<Sprite>();
+            int total = GardenCatalog.ChaptersPerGarden * 3;
+            for (int step = 0; step < total && found.Count < count; step++)
+            {
+                int slot = (item * 5 + step) % total;
+                Sprite art = ItemArt(slot / 3, slot % 3);
+                if (art != null && !found.Contains(art)) found.Add(art);
+            }
+            return found.ToArray();
         }
 
         // The seeds you have, top right of home: a sprout and a number.
@@ -6477,9 +6504,10 @@ namespace Evergrove.UnityClient
 
         // I204 tour: pick up a grown thing, open its puzzle, solve it, see it bloom.
         private TreePlay qaTreePlay;
-        internal int QaHoldThing()
+        internal int QaHoldThing(int family = -1)
         {
             int item = Mathf.Min(4, world.Choices.Length - 1);
+            if (family >= 0) item = System.Array.LastIndexOf(world.Choices, family); // a flower: Pairs
             if (item < 0) return -1;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             qaShowHub = true; // the hub rebuilds when the puzzle closes
