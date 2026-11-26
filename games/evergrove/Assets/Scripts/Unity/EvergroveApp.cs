@@ -1854,7 +1854,7 @@ namespace Evergrove.UnityClient
                 for (int i = made.Length - 1; i >= 0 && cell < 0; i--)
                     if (made[i] == villager) cell = cells[i];
                 Vector2 at = cell >= 0
-                    ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns - 2 ? 0.95f : -0.95f), 0f)
+                    ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns / 2 ? 0.95f : -0.95f), 0f)
                     : point(Mathf.Min(byCottage[villager], map.CellCount - 1));
                 // Nothing of their own yet: they come to see the newest thing you made,
                 // which the map always opens on, so they are in view (I187).
@@ -1863,10 +1863,12 @@ namespace Evergrove.UnityClient
                 {
                     // Try the spots around it in turn: either side, then a step up.
                     Vector2 newestAt = point(cells[made.Length - 1]);
+                    // Toward the middle of the valley first, so nobody stands off the edge (I188).
+                    float inward = cells[made.Length - 1] % map.Columns < map.Columns / 2 ? 1f : -1f;
                     Vector2[] around = {
-                        new Vector2(-1.15f * step.x, 0f), new Vector2(1.15f * step.x, 0f),
-                        new Vector2(-1.1f * step.x, 1.2f * rowStep), new Vector2(1.1f * step.x, 1.2f * rowStep),
-                        new Vector2(-2.2f * step.x, 0f), new Vector2(2.2f * step.x, 0f) };
+                        new Vector2(inward * 1.15f * step.x, 0f), new Vector2(inward * 2.5f * step.x, 0f),
+                        new Vector2(inward * 1.2f * step.x, -1.6f * rowStep), new Vector2(inward * 1.2f * step.x, 1.6f * rowStep),
+                        new Vector2(inward * 3.8f * step.x, 0f), new Vector2(-inward * 1.15f * step.x, 0f) };
                     at = newestAt + around[0];
                     foreach (Vector2 offset in around)
                     {
