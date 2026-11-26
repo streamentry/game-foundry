@@ -86,6 +86,8 @@ internal static class UndoHistoryTests
         if (solvedTrees >= 0) end = text.IndexOf(']', solvedTrees); // I204 keys follow plantings
         int boughtSolved = text.IndexOf(",\"boughtSolved\":", start, StringComparison.Ordinal);
         if (boughtSolved >= 0) end = text.IndexOf(']', boughtSolved); // I205 keys follow treeSolved
+        int letterFrom = text.IndexOf(",\"letterFrom\":", start, StringComparison.Ordinal);
+        if (letterFrom >= 0) end = text.IndexOf(']', letterFrom); // family keys follow boughtSolved
         return text.Substring(0, start) + text.Substring(end + 1);
     }
 

@@ -37,7 +37,8 @@ namespace Evergrove.Core
         private static readonly HashSet<string> SnapshotKeys = new HashSet<string> {
             "version", "mode", "round", "solved", "rotations", "previous", "choices",
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
-            "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved"
+            "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
+            "gifts", "parcelIds", "letters", "letterFrom"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -135,12 +136,17 @@ namespace Evergrove.Core
             // Accept that exact pre-history canonical form only when the import has no history.
             bool matchesCurrent = string.Equals(Sha256Hex(SnapshotJson(snapshot)), checksum, StringComparison.Ordinal);
             // Gardens exported before E4 (I177) have no "garden"/"placements" keys.
-            bool noNurseryYet = snapshot.bought.Length == 0 && snapshot.boughtSolved.Length == 0;
+            // Gardens exported before I213 have no "gifts"/"parcelIds"/"letters"/"letterFrom" keys.
+            bool noFamilyYet = snapshot.gifts.Length == 0 && snapshot.parcelIds.Length == 0 &&
+                snapshot.letters.Length == 0 && snapshot.letterFrom.Length == 0;
+            bool noNurseryYet = snapshot.bought.Length == 0 && snapshot.boughtSolved.Length == 0 && noFamilyYet;
             bool noTreesYet = snapshot.seeds == 0 && snapshot.treeSolved.Length == 0 && noNurseryYet;
             bool noMapYet = snapshot.garden == 0 && snapshot.placements.Length == 0 && snapshot.plantings.Length == 0 && noTreesYet;
             // Gardens exported before I193 have no "plantings" key.
             bool matchesPrePlantings = snapshot.plantings.Length == 0 && noTreesYet &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, false, false, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreFamily = noFamilyYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
             // Gardens exported before I205 have no "bought"/"boughtSolved" keys; seeds may be set.
             bool matchesPreNursery = noNurseryYet &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, false)), checksum, StringComparison.Ordinal);
@@ -151,7 +157,7 @@ namespace Evergrove.Core
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreHistory = noMapYet && snapshot.history.Length == 0 &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, false, false)), checksum, StringComparison.Ordinal);
-            if (!matchesCurrent && !matchesPreNursery && !matchesPreTrees && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
+            if (!matchesCurrent && !matchesPreFamily && !matchesPreNursery && !matchesPreTrees && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
             {
                 error = GardenImportError.ChecksumMismatch;
                 return false;
@@ -177,7 +183,7 @@ namespace Evergrove.Core
         /// layout, used only to verify checksums of older garden files.
         /// </summary>
         private static string SnapshotJson(WorldSnapshot s, bool includeHistory, bool includeMap, bool includePlantings = true,
-                                           bool includeTrees = true, bool includeNursery = true)
+                                           bool includeTrees = true, bool includeNursery = true, bool includeFamily = true)
         {
             var sb = new StringBuilder(256);
             sb.Append("{\"version\":").Append(Int(s.version))
@@ -205,6 +211,11 @@ namespace Evergrove.Core
             if (includeMap && includePlantings && includeTrees && includeNursery)
                 sb.Append(",\"bought\":").Append(IntArray(s.bought))
                   .Append(",\"boughtSolved\":").Append(IntArray(s.boughtSolved));
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily)
+                sb.Append(",\"gifts\":").Append(IntArray(s.gifts))
+                  .Append(",\"parcelIds\":").Append(StringArray(s.parcelIds))
+                  .Append(",\"letters\":").Append(StringArray(s.letters))
+                  .Append(",\"letterFrom\":").Append(StringArray(s.letterFrom));
             return sb.Append('}').ToString();
         }
 
@@ -219,7 +230,20 @@ namespace Evergrove.Core
             }
         }
 
-        private static string Int(int value)
+        private static string StringArray(string[] values)
+        {
+            if (values == null) return "null";
+            var sb = new StringBuilder();
+            sb.Append('[');
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (i > 0) sb.Append(',');
+                sb.Append(Quote(values[i]));
+            }
+            return sb.Append(']').ToString();
+        }
+
+        internal static string Int(int value)
         {
             return value.ToString(CultureInfo.InvariantCulture);
         }
@@ -237,7 +261,7 @@ namespace Evergrove.Core
             return sb.Append(']').ToString();
         }
 
-        private static string Quote(string value)
+        internal static string Quote(string value)
         {
             if (value == null) return "null";
             var sb = new StringBuilder(value.Length + 2);
@@ -286,7 +310,11 @@ namespace Evergrove.Core
                    ReadInt(fields, "seeds", ref snapshot.seeds) &&
                    ReadInts(fields, "treeSolved", ref snapshot.treeSolved) &&
                    ReadInts(fields, "bought", ref snapshot.bought) &&
-                   ReadInts(fields, "boughtSolved", ref snapshot.boughtSolved);
+                   ReadInts(fields, "boughtSolved", ref snapshot.boughtSolved) &&
+                   ReadInts(fields, "gifts", ref snapshot.gifts) &&
+                   ReadStrings(fields, "parcelIds", ref snapshot.parcelIds) &&
+                   ReadStrings(fields, "letters", ref snapshot.letters) &&
+                   ReadStrings(fields, "letterFrom", ref snapshot.letterFrom);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)
@@ -330,6 +358,20 @@ namespace Evergrove.Core
             return true;
         }
 
+        private static bool ReadStrings(Dictionary<string, object> fields, string key, ref string[] target)
+        {
+            object raw;
+            if (!fields.TryGetValue(key, out raw)) return true;
+            if (raw == null) { target = null; return true; }
+            var items = raw as List<object>;
+            if (items == null) return false;
+            var values = new string[items.Count];
+            for (int i = 0; i < items.Count; i++)
+                if ((values[i] = items[i] as string) == null) return false;
+            target = values;
+            return true;
+        }
+
         private static bool ReadRequiredInt(Dictionary<string, object> fields, string key, out int value)
         {
             object raw;
@@ -352,7 +394,7 @@ namespace Evergrove.Core
         }
 
         /// <summary>Accepts only integer JSON tokens (no fraction or exponent) within int range.</summary>
-        private static bool AsInt(object raw, out int value)
+        internal static bool AsInt(object raw, out int value)
         {
             value = 0;
             var number = raw as JsonNumber;
@@ -362,14 +404,14 @@ namespace Evergrove.Core
             return int.TryParse(number.Raw, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out value);
         }
 
-        private sealed class JsonNumber
+        internal sealed class JsonNumber
         {
             public readonly string Raw;
             public JsonNumber(string raw) { Raw = raw; }
         }
 
         /// <summary>Strict, minimal RFC 8259 reader: no duplicate keys, no trailing content.</summary>
-        private sealed class Parser
+        internal sealed class Parser
         {
             private readonly string text;
             private int position;

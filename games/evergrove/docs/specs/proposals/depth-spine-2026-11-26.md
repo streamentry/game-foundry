@@ -47,6 +47,7 @@ Every layer below either feeds this loop or makes it more personal. Anything tha
 ## Simple economics, checked by tests
 - One currency (seeds). Fixed prices. Rewards from play only.
 - Invariants to test: seeds never go negative; a purchase is atomic; first solve > replay at every tier; gifts move seeds and never create them.
+- Known limit of the no-server parcel (I214): a parcel isn't addressed to one garden, so a sender could forward the same seed parcel to several relatives and each would gain the seeds. Opening twice in one garden and opening your own parcel are refused; cross-garden copies can only be stopped by the family-circle server. Accepted for the offline version because seeds have no money value and parcels travel only between family; revisit before any live circle.
 - Measured (I206): one garden's twelve first solves pay 280 seeds, which opens rows 1 and 2 (50 + 100). A row-3 plant (200) needs a second garden or replays; the third row is a long-term goal, by design for now. Revisit with playtests.
 
 ## Order of the next iterations

@@ -53,13 +53,20 @@ namespace Evergrove.Core
         // nursery as pairs [kind, map cell, ...], and which of them are solved.
         public int[] bought = Array.Empty<int>();
         public int[] boughtSolved = Array.Empty<int>();
+        // Optional, additive (I213; absent in older JSON). Family parcels (file-based, no server):
+        // cuttings waiting in the basket (nursery kinds), ids of parcels this garden has sent or
+        // opened (newest last), and the newest letters with who wrote them (parallel arrays).
+        public int[] gifts = Array.Empty<int>();
+        public string[] parcelIds = Array.Empty<string>();
+        public string[] letters = Array.Empty<string>();
+        public string[] letterFrom = Array.Empty<string>();
     }
 
     /// <summary>
     /// The authoritative offline rules. This class has zero Unity dependencies,
     /// zero wall-clock requirements and no hidden randomness.
     /// </summary>
-    public sealed class WorldModel
+    public sealed partial class WorldModel
     {
         public const int Version = 4;
         /// <summary>Maximum number of tile-rotation undo steps kept for one board (EG-111).</summary>
@@ -351,7 +358,9 @@ namespace Evergrove.Core
                 variantSchedule = (int[])schedule.Clone(), history = Array.Empty<int>(),
                 garden = 0, placements = Array.Empty<int>(), plantings = Array.Empty<int>(),
                 seeds = 0, treeSolved = Array.Empty<int>(),
-                bought = Array.Empty<int>(), boughtSolved = Array.Empty<int>()
+                bought = Array.Empty<int>(), boughtSolved = Array.Empty<int>(),
+                gifts = Array.Empty<int>(), parcelIds = Array.Empty<string>(),
+                letters = Array.Empty<string>(), letterFrom = Array.Empty<string>()
             });
         }
 
@@ -368,7 +377,9 @@ namespace Evergrove.Core
                 garden = state.garden, placements = (int[])state.placements.Clone(),
                 plantings = (int[])state.plantings.Clone(),
                 seeds = state.seeds, treeSolved = (int[])state.treeSolved.Clone(),
-                bought = (int[])state.bought.Clone(), boughtSolved = (int[])state.boughtSolved.Clone()
+                bought = (int[])state.bought.Clone(), boughtSolved = (int[])state.boughtSolved.Clone(),
+                gifts = (int[])state.gifts.Clone(), parcelIds = (string[])state.parcelIds.Clone(),
+                letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone()
             };
         }
 
@@ -432,6 +443,9 @@ namespace Evergrove.Core
             for (int i = 0; i < boughtSolved.Length; i++)
                 if (boughtSolved[i] < 0 || boughtSolved[i] >= bought.Length / 2 ||
                     Array.IndexOf(boughtSolved, boughtSolved[i]) != i) return false;
+            int[] gifts;
+            string[] parcelIds, letters, letterFrom;
+            if (!ReadFamily(source, out gifts, out parcelIds, out letters, out letterFrom)) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -494,7 +508,8 @@ namespace Evergrove.Core
                 garden = source.garden, placements = (int[])placements.Clone(),
                 plantings = (int[])plantings.Clone(),
                 seeds = source.seeds, treeSolved = (int[])treeSolved.Clone(),
-                bought = (int[])bought.Clone(), boughtSolved = (int[])boughtSolved.Clone()
+                bought = (int[])bought.Clone(), boughtSolved = (int[])boughtSolved.Clone(),
+                gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom
             });
             return true;
         }
