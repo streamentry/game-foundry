@@ -2661,6 +2661,11 @@ namespace Evergrove.UnityClient
             var hubItems = MapItems(map);
             markPuzzles = false;
             GardenMapView.LanternsNext = world.Lanterns.Length;
+            // I363: wild flowers on the banks, two for each stream restored, never on a thing.
+            int restored = world.Completed ? PuzzleCatalog.Count : world.Round;
+            var taken = new System.Collections.Generic.List<int>(map.Layout(world.Choices, world.Placements, world.Occupied));
+            taken.AddRange(world.Occupied);
+            GardenMapView.MeadowTufts = MeadowLife.Cells(map, MeadowLife.Count(restored), taken.ToArray());
             GardenMapView view = GardenMapView.Build(window, plot, map, hubItems, zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldDecor >= 0 ? DecorIndex + heldDecor : heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
                 (justPlanted >= 0 || justBought >= 0) && gentleMotion,
@@ -3202,6 +3207,13 @@ namespace Evergrove.UnityClient
                                 Mathf.Abs(other.anchoredPosition.y - spot.y) < rowStep * 1.3f) taken = true;
                         if (!taken) { at = spot; break; }
                     }
+                }
+                // I367: in the evening they gather on the path below the lamplit cottage door.
+                if (fromTitle && DayLightOn && DayLight.NeighboursGather(CurrentPhase()))
+                {
+                    int[] byDoor = { 2 * map.Columns + 7, 3 * map.Columns + 8, 2 * map.Columns + 5 };
+                    int spot = byDoor[villager % byDoor.Length];
+                    if (spot < map.CellCount) at = point(spot);
                 }
                 // Never stand on another neighbour (I184): step down a row and a half
                 // until clear of everyone already placed.
@@ -8259,6 +8271,11 @@ namespace Evergrove.UnityClient
             GardenMapView.SeasonNow = garden != null && garden.Mode == PlayMode.Living ? visitSeason : Season.Summer; // I338
             GardenMapView.WeatherNow = TodayWeather(garden); // I353
             GardenMapView.SignFont = font; // I360
+            GardenMapView.RainbowNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living && qaWeather < 0 &&
+                DayWeather.Rainbow(DateTime.Now.Date, GardenSeason.For(garden), garden.Garden) &&
+                (visitPhase == DayPhase.Morning || visitPhase == DayPhase.Day || visitPhase == DayPhase.Golden) || qaRainbow; // I364
+            GardenMapView.DewNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living
+                ? DayLight.Dew(visitPhase, GardenSeason.For(garden)) : Dew.None; // I366
             // I295: the season's drift by day; it follows the season even with the light switch off.
             bool living = garden != null && garden.Mode == PlayMode.Living;
             GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),
@@ -8394,6 +8411,14 @@ namespace Evergrove.UnityClient
             // The season, as its stone: the year at a glance.
             string[] stones = { "stone-spring", "stone-summer", "stone-autumn", "stone-winter" };
             CottageLine(paper.transform, MosseloraArt.Load(stones[(int)summary.Season]), summary.Season.ToString());
+            // I365: today's weather, in a word and a mark (I353).
+            Weather today = TodayWeather(world);
+            string weatherWords = today == Weather.Rainy ? "A rainy day" : today == Weather.Windy ? "A windy day"
+                : today == Weather.Hot ? "A hot day" : today == Weather.Snowy ? "A snowy day" : "A fair day";
+            Sprite weatherMark = today == Weather.Rainy ? MosseloraArt.Load(MosseloraArt.Droplet)
+                : today == Weather.Snowy ? MosseloraArt.Load("stone-winter")
+                : today == Weather.Windy ? MosseloraArt.Load("stone-autumn") : MosseloraArt.Load(MosseloraArt.IconSun);
+            if (DayLightOn) CottageLine(paper.transform, weatherMark, weatherWords);
             if (summary.Letters > 0)
                 CottageLine(paper.transform, MosseloraArt.Load("letter-sealed"),
                     summary.Letters == 1 ? "A letter in your box" : summary.Letters + " letters in your box");
@@ -8727,6 +8752,8 @@ namespace Evergrove.UnityClient
         internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
         internal void QaSetClock(int hour) { qaClockHour = hour; }
         internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
+        private bool qaRainbow;
+        internal void QaRainbow(bool on) { qaRainbow = on; } // I364 tour
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }
         internal void QaTogetherTreePlay() { if (qaTreePlay != null) qaTreePlay.QaTogether(); }
         internal void QaFourTurnsTreePlay() { if (qaTreePlay != null) qaTreePlay.QaFourTurns(); }

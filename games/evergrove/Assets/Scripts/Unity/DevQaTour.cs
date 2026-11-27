@@ -797,6 +797,14 @@ namespace Evergrove.UnityClient
                 app.QaShowHub(false);
                 app.QaSetWeather((int)Weather.Fair);
             }
+            // I364: the first fair day after rain brings a rainbow.
+            app.QaRainbow(true);
+            app.QaShowHub(true);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("19r-rainbow.png");
+            app.QaShowHub(false);
+            app.QaRainbow(false);
 
             // I278-I282: the same garden at dawn, golden hour, dusk and night; Fen at night.
             foreach (int hour in new[] { 6, 18, 20, 23 })
