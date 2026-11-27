@@ -96,7 +96,7 @@ namespace Evergrove.Core
                     break;
                 case SeasonYield.Seeds:
                     if (state.seeds >= MaxSeeds) return SeasonYield.None;
-                    state.seeds = Math.Min(MaxSeeds, state.seeds + SeasonalYields.SummerSeeds);
+                    ChangeSeeds(SeasonalYields.SummerSeeds, SeedReason.Season); // v1 #78: every seed change is in the ledger
                     break;
                 case SeasonYield.Fruit:
                     if (state.fruit >= MaxFruit) return SeasonYield.None;

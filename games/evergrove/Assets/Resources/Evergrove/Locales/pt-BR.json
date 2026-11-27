@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "Fazer esta mudança"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Política de privacidade"
     }
   ]
 }

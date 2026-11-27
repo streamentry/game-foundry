@@ -1,6 +1,6 @@
 # Evergrove — build, quality gates, reproducibility and release runbook
 
-**Current source check (2026-11-26):** the .NET 8 run passed **51,611 reported assertions**, including choice-preview equivalence and isolation; the separate SaveJournal runner reported **1,626 assertions**. All **45 catalog profiles** (12 base boards + 33 variants) passed. The current localization contract is **124 keys × 29 JSON catalogs**, plus built-in English. Re-run the static project and documentation checks after the final diff and record their results with the source revision.
+**Current source check (2026-11-26):** the .NET 8 run passed **51,611 reported assertions**, including choice-preview equivalence and isolation; the separate SaveJournal runner reported **1,626 assertions**. All **45 catalog profiles** (12 base boards + 33 variants) passed. The current localization contract is **125 keys × 29 JSON catalogs**, plus built-in English. Re-run the static project and documentation checks after the final diff and record their results with the source revision.
 
 **Historical evidence:** source `5acbac4` has recorded [licensed Editor smoke](evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-001/verification.md), [Android development APK](evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-002/verification.md) and [iOS device Xcode export](evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-003/verification.md) packets. Those packets record an AI agent’s local log review, not independent human verification. Later [iOS Simulator](qa/ios-simulator-2026-11-23/README.md) and [Android emulator](qa/android-emulator-2026-11-23/README.md) checks exercised earlier builds. The 2026-11-24 baseline reported **39,931 assertions** and **121 locale keys**; those counts describe that revision, not this change.
 
@@ -108,7 +108,7 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 | Suite / command | Current scope | Does not prove |
 | --- | --- | --- |
 | `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release` | Fixture shape, exhaustive uniqueness, leaks/connectivity, 33 branch variants, immutable landmarks, campaign completion, Hint/Undo/Restart/Choice/Reconsider, non-mutating previews matching actual commits, save v1/v2/v3/v4 rules and copied garden-file import with standard JSON whitespace, scene flags and local playtest counters; catalog validation for 29 non-English languages | Unity UI compile, gameplay feel, device performance, bilingual rendering |
-| `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 124 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
+| `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 125 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
 | `npm test` under `games/evergrove/backend` | Separate optional Worker model API behavior | Any linkage to actual offline game; cloud security or billing |
 | `.github/workflows/ci.yml` | Repo-wide research tooling and unrelated Godot game jobs | Unity-native correctness |
 
@@ -133,7 +133,7 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 | EG-13 | Kill/relaunch after move and choice | Rotations, variant, history survive or explicit save error surfaced; no inconsistent character |
 | EG-14 | v1 six-chapter save, v2 mid-chapter save | Six choices remain; old active board not silently transformed; new branch rules only after the next eligible choice; no rewrite of saved active board |
 | EG-15 | Corrupt primary, valid backup | Recover valid prior garden without poisoning backup; log potential loss of the latest move |
-| EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 124 keys load correctly |
+| EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 125 keys load correctly |
 | EG-17 | 320px phone + tablets + cutout devices | No clipped/out-of-view actionable puzzle, controls, wave/sprout endpoint icons or choices |
 | EG-18 | VoiceOver/TalkBack, keyboard and RTL/Indic | Accessible names, focus order and shaped text actually correct; **currently unverified** |
 | EG-19 | In-game local playtest report | Zero counters without opt-in; copy only when tapped; no network/identifiers |
@@ -164,7 +164,7 @@ The updated `DevQaTour` drives the real buttons: `Choice ShadeTree` / `Choice Br
 
 For each launch language:
 
-- Native speaker approves all 124 compact keys, actual runtime combinations and tone.
+- Native speaker approves all 125 compact keys, actual runtime combinations and tone.
 - Screenshot test: language picker, board, ecological rule, decision cards and uncommitted/confirmed previews, conversations, journal, end screen.
 - Correct font shaping, bidi order, line breaks and numerical placeholders, especially Arabic/Persian/Hebrew/Urdu, Hindi/Bengali/Tamil/Telugu and Thai.
 - Focus order, readable contrast, large touch targets and safe-area handling on small phones.

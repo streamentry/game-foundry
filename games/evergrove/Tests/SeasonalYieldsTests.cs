@@ -50,6 +50,8 @@ internal static class SeasonalYieldsTests
         Expect(SeasonalYields.Waiting(w), "summer's yield is waiting");
         int seeds = w.Seeds;
         Expect(w.TakeSeasonYield(grove) == SeasonYield.Seeds && w.Seeds == seeds + SeasonalYields.SummerSeeds, "summer seeds");
+        Expect(w.Ledger.Length > 0 && w.Ledger[0].Reason == SeedReason.Season && w.Ledger[0].Delta == SeasonalYields.SummerSeeds,
+            "summer seeds write one Season line in the seed ledger (v1 #78)");
         Expect(w.TakeSeasonYield(grove) == SeasonYield.None, "once a season");
         Expect(!SeasonalYields.Waiting(w), "taken: nothing waiting");
         Expect(Array.Find(MemoryShelf.For(w), k => k.Label == "The first gift of a season").Kept, "the first season's gift is kept on the shelf");

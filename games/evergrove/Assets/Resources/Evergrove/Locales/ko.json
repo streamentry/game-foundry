@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "이 변경 적용"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "개인정보 처리방침"
     }
   ]
 }
