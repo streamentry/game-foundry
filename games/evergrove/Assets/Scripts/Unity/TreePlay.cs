@@ -33,6 +33,16 @@ namespace Evergrove.UnityClient
         private Image hintToken; // I302
         /// <summary>I309: set by the app for your own boards; once solved, the hint becomes "send this board".</summary>
         internal Action SendBoard;
+        private int fruitReward; // review fix (I333): the well pays fruit, so its pill shows a pear
+
+        internal void PaysFruit(int fruit)
+        {
+            fruitReward = fruit;
+            if (rewardPill == null) return;
+            Transform seed = rewardPill.transform.Find("Seed");
+            if (seed != null) seed.GetComponent<Image>().sprite = MosseloraArt.Load("food-pear");
+            if (rewardText != null) rewardText.text = "+" + fruit;
+        }
         private RectTransform cardRect; // I293: the card the solved board fades out of
         private Sprite thingArt;
         // Pairs (flowers): the table, its pictures and the card images.
@@ -153,7 +163,7 @@ namespace Evergrove.UnityClient
             if (hintToken != null)
             {
                 Breathe glow = hintToken.GetComponent<Breathe>();
-                if (glow != null) Destroy(glow);
+                if (glow != null) DestroyImmediate(glow); // review fix: no stale honey from this frame's Update
                 bool offer = TakeTurns.OfferHint(turn, players);
                 hintToken.color = offer ? new Color(0.96f, 0.84f, 0.55f, 1f) : MosseloraTheme.QuietAction;
                 if (offer && gentle) Breathe.Add(hintToken);
@@ -492,13 +502,13 @@ namespace Evergrove.UnityClient
             if (gentle && Flourish != null) RiseFlourish();
             SettleIntoThing();
             OfferToSend();
-            rewardText.text = "+" + earned;
+            rewardText.text = "+" + (fruitReward > 0 ? fruitReward : earned);
             if (together && turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
             if (board != null)
             {
                 board.Lock();
                 if (gentle && rewardPill.activeSelf) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
-                closeAt = Time.unscaledTime + SettleClose;
+                closeAt = Time.unscaledTime + SettleClose + (SendBoard != null ? 3f : 0f); // review: time to see the letter
                 return;
             }
             if (pairs != null || mosaic != null)
@@ -510,7 +520,7 @@ namespace Evergrove.UnityClient
                     if (gentle) BloomPulse.Add(tiles[i].gameObject, 0.08f + i * 0.03f);
                 }
                 if (gentle) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
-                closeAt = Time.unscaledTime + SettleClose;
+                closeAt = Time.unscaledTime + SettleClose + (SendBoard != null ? 3f : 0f); // review: time to see the letter
                 return;
             }
             Paint();
@@ -522,7 +532,7 @@ namespace Evergrove.UnityClient
                 if (gentle) BloomPulse.Add(tiles[i].gameObject, 0.08f + steps * 0.07f);
             }
             if (gentle) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
-            closeAt = Time.unscaledTime + SettleClose; // long enough to see the water run and the seeds
+            closeAt = Time.unscaledTime + SettleClose + (SendBoard != null ? 3f : 0f); // review: time to see the letter // long enough to see the water run and the seeds
         }
 
         // I293 (idea 46, after puzzles whose solved world transforms): once the board has

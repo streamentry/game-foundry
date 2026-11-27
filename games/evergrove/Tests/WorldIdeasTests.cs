@@ -496,6 +496,11 @@ internal static class WorldIdeasTests
         Expect(GardenCat.NapBy(catGarden, DayPhase.Night) == GardenCat.ByTheDoor && GardenCat.NapBy(catGarden, DayPhase.Dusk) == GardenCat.ByTheDoor,
             "after dusk, by the cottage door");
         Expect(GardenCat.NapBy(WorldModel.New(PlayMode.PuzzleOnly), DayPhase.Day) == GardenCat.NotHere, "only in a living garden");
+        // b309: seed sudoku promises logic only. An honest singles solver must finish every
+        // board (the generator's own check returned v + 1 for a naked single).
+        for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
+            for (int seed = 1; seed <= 300; seed++)
+                Expect(!new SeedSudokuGame(seed, tier).NeedsMoreThanSingles, "sudoku solvable by singles: tier " + tier + " seed " + seed);
         return assertions;
     }
 

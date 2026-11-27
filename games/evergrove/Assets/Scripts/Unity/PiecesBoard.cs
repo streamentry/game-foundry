@@ -83,16 +83,16 @@ namespace Evergrove.UnityClient
                 MosseloraArt.Round(hit, new Color(1f, 1f, 1f, 0f), 10);
                 var button = slot.AddComponent<Button>();
                 button.transition = Selectable.Transition.None;
-                button.onClick.AddListener(() => { if (!locked) { selected = piece; Paint(); } });
+                button.onClick.AddListener(() => { if (!locked && !game.Placed(piece)) { selected = piece; shownPiece = -1; Paint(); } });
                 slots[p] = (RectTransform)slot.transform;
             }
             Transform tools = TreePlay.Row(card, "Turn and mirror", 60f);
             tools.GetComponent<HorizontalLayoutGroup>().spacing = 12f;
             TreePlay.Token(tools, "Turn the piece", MosseloraArt.Load(MosseloraArt.IconTurn), 56f, MosseloraTheme.QuietAction,
-                () => { if (!locked && game.Rotate(selected) == PieceMove.Done) { play.Moved(); Paint(); } }, true);
+                () => { if (!locked && game.Rotate(selected) == PieceMove.Done) { shownPiece = -1; Paint(); } }, true);
             if (canMirror)
                 TreePlay.Token(tools, "Mirror the piece", MosseloraArt.Load(MosseloraArt.IconChange), 56f, MosseloraTheme.QuietAction,
-                    () => { if (!locked && game.Mirror(selected) == PieceMove.Done) { play.Moved(); Paint(); } }, true);
+                    () => { if (!locked && game.Mirror(selected) == PieceMove.Done) { shownPiece = -1; Paint(); } }, true);
             Paint();
         }
 
@@ -103,12 +103,13 @@ namespace Evergrove.UnityClient
             int owner = game.Owner(cell);
             if (owner >= 0)
             {
-                if (game.Lift(owner) == PieceMove.Done) { selected = owner; play.Moved(); Paint(); }
+                if (game.Lift(owner) == PieceMove.Done) { selected = owner; shownPiece = -1; Paint(); } // lifting isn't a turn
                 return;
             }
             if (selected < 0 || game.Placed(selected)) return;
             if (!TryLay(selected, cell)) { BoardKit.Shiver(cells[cell].gameObject); return; }
-            play.Moved();
+            shownPiece = -1;
+            play.Moved(); // laying a piece is the move (and, taking turns, passes the turn)
             NextInTray();
             Paint();
             if (game.Solved) play.Done();

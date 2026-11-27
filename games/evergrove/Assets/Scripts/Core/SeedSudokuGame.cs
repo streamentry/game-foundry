@@ -186,9 +186,11 @@ namespace Evergrove.Core
             if (mask == 0) return 0;
             if ((mask & (mask - 1)) == 0)
             {
+                // Bit v stands for value v, so shifting it down to 1 takes exactly v shifts
+                // (b309: this returned v + 1, letting boards that need guessing through).
                 int n = 0;
                 while ((mask >>= 1) != 0) n++;
-                return n + 1;
+                return n;
             }
             int r = cell / size, c = cell % size;
             for (int v = 1; v <= size; v++)

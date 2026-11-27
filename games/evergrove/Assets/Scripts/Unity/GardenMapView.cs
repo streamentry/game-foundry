@@ -269,6 +269,8 @@ namespace Evergrove.UnityClient
             view.greenedFrom = greenedBefore < 0f ? view.greened : Mathf.Clamp01(greenedBefore);
             view.decorate = decorate;
             view.BuildDryLand();
+            view.lanterns = Mathf.Max(0, LanternsNext); // review fix: known before the first layout
+            LanternsNext = 0;
             view.Layout();
             return view;
         }
@@ -340,6 +342,7 @@ namespace Evergrove.UnityClient
         private float apron, teaser;
         private int reaches = 1;
         private int lanterns; // I310
+        public static int LanternsNext; // set by the app just before building home's map
 
         /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
         public void SetLanterns(int count)
@@ -462,6 +465,7 @@ namespace Evergrove.UnityClient
 
         private void Pinch()
         {
+            if (beforeLookout > 0f) return; // review fix: no pinching while looking out over the whole river
             if (land == null || window == null || map == null) return;
             bool two = TwoFingers(out Vector2 a, out Vector2 b);
             var host = (RectTransform)land.parent;

@@ -2062,7 +2062,9 @@ namespace Evergrove.UnityClient
                 count => PairsPictures(count, pictureStart, (c, f) => ItemArt(c, f)), turned, solved, closed);
             TreePlay card = titleScreen.GetComponentInChildren<TreePlay>();
             openCard = card;
-            if (card != null) card.ShowTier(tier); // I261: how deep this board is, in leaves
+            // I261: how deep this board is, in leaves. I336 (idea 13, after Nikoli's honest
+            // difficulty): kinds that can measure their own logic show that, not their size.
+            if (card != null) card.ShowTier(boardLeaves >= 1 ? boardLeaves - 1 : tier);
             // I323: each kind's flourish when solved.
             if (card != null) { card.Flourish = FlourishArt(kind, out Color tint); card.FlourishTint = tint; }
             // I322: a kind that needed hints last time starts with a move or two made.
@@ -2073,25 +2075,47 @@ namespace Evergrove.UnityClient
         }
 
         // The card itself, for your things and, visiting, for theirs (I227); eight kinds (I243).
+        private int boardLeaves; // I336: 1..3 from the board's logic, or 0 when the kind can't measure it
+
         private void PuzzleCard(RectTransform host, int seed, int tier, PuzzleKind kind, Sprite art, string name,
                                 int reward, Func<int, Sprite[]> pictures, Action turned, Func<int> solved, Action closed)
         {
             TreePlay.IPuzzleBoard board = null;
+            boardLeaves = 0; // I336: set by kinds that measure their own logic
             switch (kind)
             {
-                case PuzzleKind.Nonogram: board = new NonogramBoard(new NonogramGame(seed, tier)); break;
+                case PuzzleKind.Nonogram:
+                {
+                    var nonogram = new NonogramGame(seed, tier);
+                    boardLeaves = nonogram.Leaves;
+                    board = new NonogramBoard(nonogram);
+                    break;
+                }
                 case PuzzleKind.Sudoku:
                 {
                     var sudoku = new SeedSudokuGame(seed, tier);
+                    boardLeaves = sudoku.Leaves;
                     board = new SudokuBoard(sudoku, pictures(sudoku.Size));
                     break;
                 }
                 case PuzzleKind.Plots: board = new PlotsBoard(new PlotsGame(seed, tier)); break;
                 case PuzzleKind.StreamPath: board = new StreamBoard(new StreamPathGame(seed, tier)); break;
                 case PuzzleKind.Sowing: board = new SowBoard(seed, tier); break;            // I318
-                case PuzzleKind.Sums: board = new SumsBoard(new SeedSumsGame(seed, tier)); break; // I324
+                case PuzzleKind.Sums: // I324
+                {
+                    var sums = new SeedSumsGame(seed, tier);
+                    boardLeaves = sums.Leaves;
+                    board = new SumsBoard(sums);
+                    break;
+                }
                 case PuzzleKind.Pieces: board = new PiecesBoard(new GardenPiecesGame(seed, tier), tier); break; // I331
-                case PuzzleKind.Doorstep: board = new DoorstepBoard(new DoorstepGame(seed, tier), tier); break; // I332
+                case PuzzleKind.Doorstep: // I332
+                {
+                    var doorstep = new DoorstepGame(seed, tier);
+                    boardLeaves = doorstep.Leaves;
+                    board = new DoorstepBoard(doorstep, tier);
+                    break;
+                }
                 case PuzzleKind.Mahjong: board = new MahjongBoard(new MahjongGame(seed, tier), tier, pictures(MahjongGame.FacesFor(tier))); break;
             }
             if (board != null)
@@ -2337,7 +2361,14 @@ namespace Evergrove.UnityClient
 
         private void TakeKeepsake(int kind, string visit)
         {
-            if (!world.TakeKeepsake(kind)) return; // not enough seeds yet, or a full basket
+            if (!world.TakeKeepsake(kind))
+            {
+                if (visitLayer != null)
+                    RuleToast.Show((RectTransform)visitLayer.transform, world.Seeds < Nursery.Price(kind)
+                        ? "A keepsake cutting costs " + Nursery.Price(kind) + " seeds, like the nursery."
+                        : "Your basket is full. Plant something first.", font, Ink, MosseloraTheme.CardFill);
+                return;
+            }
             keepsakeTakenFrom = visit;
             world.KeepNote("Fen", "You brought home a cutting of " + Nursery.Item(kind).Name +
                 " from your family's garden. It's in your basket, a keepsake of the visit.");
@@ -2526,8 +2557,10 @@ namespace Evergrove.UnityClient
                 NeighbourWish wish = NeighbourWish.For(world, villager);
                 string key = "evergrove:wish-thanked:" + world.Garden + ":" + villager;
                 if (wish == null || !wish.Granted || PlayerPrefs.GetInt(key, 0) == 1) continue;
+                if (!world.KeepNote(wish.From, wish.Thanks)) continue; // review fix: try again next time
                 PlayerPrefs.SetInt(key, 1);
-                if (world.KeepNote(wish.From, wish.Thanks)) { letterArrived = true; SaveWorld(); }
+                letterArrived = true;
+                SaveWorld();
             }
             PlayerPrefs.Save();
         }
@@ -2567,13 +2600,14 @@ namespace Evergrove.UnityClient
             markPuzzles = world.Mode == PlayMode.Living;
             var hubItems = MapItems(map);
             markPuzzles = false;
+            GardenMapView.LanternsNext = world.Lanterns.Length;
             GardenMapView view = GardenMapView.Build(window, plot, map, hubItems, zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldDecor >= 0 ? DecorIndex + heldDecor : heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
                 (justPlanted >= 0 || justBought >= 0) && gentleMotion,
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;
-            view.SetLanterns(world.Lanterns.Length); // I310
+            // I310: lanterns are passed in before the build (LanternsNext), so nothing lays out twice.
             waveHello = false; // they waved (or would have) on this return; not on every rebuild
             // A solve opened more river (I223): its mist lifts, framed, with the chime.
             if (riverOpened && map.Reaches > 1)
@@ -2836,6 +2870,7 @@ namespace Evergrove.UnityClient
                     if (world.TendWell() > 0) { SaveWorld(); PlayChime(); fruitPicked = world.Fruit > fruitBefore; }
                     return 0;
                 });
+            if (openCard != null) openCard.PaysFruit(OldWell.FruitPerBoard);
         }
 
         private string StoneKey(int reach) { return "evergrove:mossy-stone:" + world.Garden + ":" + reach; }
@@ -2846,7 +2881,13 @@ namespace Evergrove.UnityClient
         {
             if (SecretFound(reach) || world.Mode != PlayMode.Living) return;
             int kind = RiverSecrets.CuttingFor(world, reach);
-            if (kind < 0 || !world.ReceiveNeighbourCutting(kind)) return; // basket full: the stone keeps it
+            if (kind < 0 || !world.ReceiveNeighbourCutting(kind))
+            {
+                if (titleScreen != null)
+                    RuleToast.Show((RectTransform)titleScreen.transform, "Your basket is full. Plant something first; the stone will wait.",
+                        font, Ink, MosseloraTheme.CardFill);
+                return;
+            }
             PlayerPrefs.SetInt(StoneKey(reach), 1);
             PlayerPrefs.Save();
             string what = Nursery.Family(kind) == VillageChoice.Bridge ? "a little " + Nursery.Item(kind).Name
@@ -3209,7 +3250,7 @@ namespace Evergrove.UnityClient
 
         private void OnMapItem(int index)
         {
-            if (index == WellIndex) { OpenWell(); return; }
+            if (index == WellIndex) { decorInHand = -1; heldDecor = -1; OpenWell(); return; }
             if (index >= DecorIndex)
             {
                 // I330: tap a decoration to pick it up; tap it again to put it away.
@@ -3219,6 +3260,8 @@ namespace Evergrove.UnityClient
                 RefreshMaps();
                 return;
             }
+            decorInHand = -1; // review fix: picking up anything else lets go of a decoration
+            heldDecor = -1;
             if (index >= SecretIndex) { FindSecret(index - SecretIndex); return; }
             if (index >= BoughtIndex)
             {
@@ -3256,7 +3299,17 @@ namespace Evergrove.UnityClient
                 // I330: set a decoration down (or move one): free land only, never on a thing.
                 bool done = heldDecor >= 0 ? world.MoveDecor(heldDecor, cell, map)
                     : world.PlaceDecor((Decoration)decorInHand, cell, map);
-                if (!done) return;
+                if (!done)
+                {
+                    // Review fix: never a silent lock. A tap where it can't go puts it back.
+                    decorInHand = -1;
+                    heldDecor = -1;
+                    if (titleScreen != null)
+                        RuleToast.Show((RectTransform)titleScreen.transform, "It can't stand there, so it went back to the cottage.",
+                            font, Ink, MosseloraTheme.CardFill);
+                    RefreshMaps();
+                    return;
+                }
                 justDecorated = heldDecor >= 0 ? heldDecor : world.DecorCount - 1;
                 decorInHand = -1;
                 heldDecor = -1;
@@ -8250,12 +8303,21 @@ namespace Evergrove.UnityClient
                     world.Jam == 1 ? "A jar of jam in the pantry" : world.Jam + " jars of jam in the pantry");
             // I330 (ideas 14 and 16, after block-building sandboxes): decorate anywhere, for free.
             Transform decorRow = CenteredRowIn(paper.transform, "Decorate");
+            decorRow.gameObject.SetActive(world.DecorCount < WorldModel.MaxDecor);
             decorRow.GetComponent<HorizontalLayoutGroup>().spacing = 8;
             foreach (Decoration piece in new[] { Decoration.Stones, Decoration.Bench, Decoration.Fence, Decoration.LanternPost })
             {
                 Decoration chosen = piece;
                 TreePlay.Token(decorRow, "Place " + DecorName(piece), MosseloraArt.Load(DecorArt(piece)), 56f,
-                    MosseloraTheme.QuietAction, () => { CloseCottage(); decorInHand = (int)chosen; heldDecor = -1; RefreshMaps(); }, true);
+                    MosseloraTheme.QuietAction, () => {
+                        CloseCottage();
+                        decorInHand = (int)chosen;
+                        heldDecor = -1;
+                        RefreshMaps();
+                        if (titleScreen != null)
+                            RuleToast.Show((RectTransform)titleScreen.transform, "Tap free land to set down " + DecorName(chosen) + ".",
+                                font, Ink, MosseloraTheme.CardFill);
+                    }, true);
                 Transform glyph = decorRow.GetChild(decorRow.childCount - 1).Find("Icon");
                 if (glyph != null) { ((RectTransform)glyph).sizeDelta = new Vector2(46f, 46f); glyph.GetComponent<Image>().color = Color.white; }
             }
