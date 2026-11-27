@@ -616,7 +616,15 @@ namespace Evergrove.UnityClient
             int column = Mathf.FloorToInt(x / (width / map.Columns));
             int row = Mathf.FloorToInt(y / (height / map.Rows));
             if (column < 0 || column >= map.Columns || row < 0 || row >= map.Rows) return;
-            onLand(row * map.Columns + column);
+            int tapped = row * map.Columns + column;
+            // I414: tap the river and it answers: a ripple where you touched, and a soft drop.
+            if (map.At(tapped) == GardenMap.Water && riverLife != null)
+            {
+                float cw = width / map.Columns, ch = height / map.Rows;
+                riverLife.Ripple(new Vector2(x * (riverLife.Cell / cw), -y * (riverLife.Cell / cw)));
+                if (WaterTapped != null) WaterTapped();
+            }
+            onLand(tapped);
         }
 
         private void Layout()
@@ -685,6 +693,38 @@ namespace Evergrove.UnityClient
                     cat.AddComponent<SleepingCat>();
                     nodes.Add(catRect);
                 }
+            }
+            // I413-I417: the river's small moments, on the real water cells.
+            {
+                var lifeNode = new GameObject("The river's life", typeof(RectTransform));
+                lifeNode.transform.SetParent(land, false);
+                var lifeRect = (RectTransform)lifeNode.transform;
+                lifeRect.anchorMin = Vector2.zero;
+                lifeRect.anchorMax = Vector2.one;
+                lifeRect.offsetMin = lifeRect.offsetMax = Vector2.zero;
+                riverLife = lifeNode.AddComponent<RiverLifeLayer>();
+                riverLife.Cell = cellW;
+                riverLife.Rain = RiverRainNow;
+                riverLife.Glitter = RiverGlitterNow;
+                riverLife.Leaves = RiverLeavesNow;
+                riverLife.FishEvery = FishEveryNow;
+                riverLife.Moving = FirefliesMove;
+                for (int row = 0; row < map.Rows; row++)
+                {
+                    float sum = 0f;
+                    int count = 0;
+                    for (int column = 0; column < map.Columns; column++)
+                    {
+                        int c = row * map.Columns + column;
+                        if (map.At(c) != GardenMap.Water) continue;
+                        Vector2 centre = new Vector2((column + 0.5f) * cellW, -(row + 0.5f) * cellH);
+                        riverLife.Water.Add(centre);
+                        sum += centre.x;
+                        count++;
+                    }
+                    if (count > 0) riverLife.Course.Add(new Vector2(sum / count, -(row + 0.5f) * cellH));
+                }
+                nodes.Add(lifeRect);
             }
             // I409: morning mist lying low on the river, a few soft banks along the water.
             for (int c = 0, drawn = 0; MistNow && c < map.CellCount && drawn < 16; c++)
@@ -1554,6 +1594,10 @@ namespace Evergrove.UnityClient
         public static int HeronAtNext = -1, HedgehogAtNext = -1, OwlAtNext = -1; // I374: cells, -1 none
         public static int KingfisherAtNext = -1; // I382
         public static bool MistNow, SmokeNow, FootprintsNow; // I409, I410, I412
+        public static bool RiverRainNow, RiverGlitterNow, RiverLeavesNow; // I413, I415, I417
+        public static float FishEveryNow; // I416: seconds between fish rising, 0 none
+        public static Action WaterTapped; // I414: the app's soft drop
+        private RiverLifeLayer riverLife;
         public static bool RainbowNow;   // I364
         public static Dew DewNow;        // I366
 

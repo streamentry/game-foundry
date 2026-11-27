@@ -8636,6 +8636,13 @@ namespace Evergrove.UnityClient
             GardenMapView.RainbowNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living && qaWeather < 0 &&
                 DayWeather.Rainbow(DateTime.Now.Date, GardenSeason.For(garden), garden.Garden) &&
                 (visitPhase == DayPhase.Morning || visitPhase == DayPhase.Day || visitPhase == DayPhase.Golden) || qaRainbow; // I364
+            bool livingHere = garden != null && garden.Mode == PlayMode.Living;
+            Season riverSeason = GardenSeason.For(garden);
+            GardenMapView.RiverRainNow = livingHere && RiverMoments.RainRings(riverSeason, visitWeather); // I413
+            GardenMapView.RiverGlitterNow = livingHere && DayLightOn && RiverMoments.Glitter(riverSeason, visitPhase, visitWeather); // I415
+            GardenMapView.RiverLeavesNow = livingHere && RiverMoments.LeavesAfloat(riverSeason); // I417
+            GardenMapView.FishEveryNow = livingHere ? RiverMoments.FishEvery(riverSeason, DayLightOn ? visitPhase : DayPhase.Day) : 0f; // I416
+            GardenMapView.WaterTapped = () => { if (soundOn && sound != null) sound.PlayOneShot(GardenSounds.Ambient(AmbientVoice.Water, ambientDice.Next(3)), 0.9f); };
             GardenMapView.MistNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living && DayLight.Mist(visitPhase, visitWeather); // I409
             GardenMapView.SmokeNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living &&
                 DayLight.ChimneySmoke(visitPhase, GardenSeason.For(garden), visitWeather); // I410
