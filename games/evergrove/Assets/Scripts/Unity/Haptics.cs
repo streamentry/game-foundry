@@ -7,42 +7,74 @@ using System.Runtime.InteropServices;
 namespace Evergrove.UnityClient
 {
     /// <summary>
-    /// Light touch feedback (I140, EG-013): a tick per tile turn and a success
-    /// pulse on a finished stream. Never the only signal: every haptic moment
-    /// also has motion and (optional) sound. The OS haptics setting is honoured
-    /// on both platforms; the game calls this only while gentle motion is on.
+    /// Haptics with meaning (checklist 29, I140 / EG-013). Exactly three cues:
+    /// Placed (a move or a thing placed), Finished (a board or thing completed)
+    /// and Arrived (a letter, parcel or gift arrived). Each one echoes a moment
+    /// that motion and sound already show; none is the only signal. One switch,
+    /// "evergrove:haptics" (default on), turns all three off. The OS haptics
+    /// setting is honoured on both platforms.
     /// </summary>
     internal static class Haptics
     {
+        public const string SwitchKey = "evergrove:haptics";
+
+        public static bool Enabled
+        {
+            // Until the player sets this switch, it follows their earlier Gentle motion choice, which used
+            // to gate haptics: someone who turned motion off doesn't suddenly feel the phone buzz.
+            get { return PlayerPrefs.HasKey(SwitchKey) ? PlayerPrefs.GetInt(SwitchKey, 1) == 1
+                                                       : PlayerPrefs.GetInt("evergrove:gentle-motion:v1", 1) == 1; }
+            set
+            {
+                PlayerPrefs.SetInt(SwitchKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+            }
+        }
+
 #if UNITY_IOS && !UNITY_EDITOR
-        [DllImport("__Internal")] private static extern void _MosseloraHapticTick();
-        [DllImport("__Internal")] private static extern void _MosseloraHapticSuccess();
+        [DllImport("__Internal")] private static extern void _MosseloraHapticPlaced();
+        [DllImport("__Internal")] private static extern void _MosseloraHapticFinished();
+        [DllImport("__Internal")] private static extern void _MosseloraHapticArrived();
 #endif
 
         // android.view.HapticFeedbackConstants
-        private const int ClockTick = 4;
-        private const int Confirm = 16;      // API 30+
+        private const int KeyboardTap = 3;   // soft, for arrivals
+        private const int ClockTick = 4;     // light, for placements
         private const int VirtualKey = 1;
+        private const int Confirm = 16;      // API 30+, for completions
 
         private static bool failed;
 
-        public static void Tick()
+        // A move landed: a tile turned, a thing placed on the map or a plant put in.
+        public static void Placed()
         {
-            if (failed) return;
+            if (!Enabled || failed) return;
 #if UNITY_IOS && !UNITY_EDITOR
-            try { _MosseloraHapticTick(); } catch (Exception error) { Fail(error); }
+            try { _MosseloraHapticPlaced(); } catch (Exception error) { Fail(error); }
 #elif UNITY_ANDROID && !UNITY_EDITOR
             Perform(ClockTick);
 #endif
         }
 
-        public static void Success()
+        // A board or a thing is complete.
+        public static void Finished()
         {
-            if (failed) return;
+            if (!Enabled || failed) return;
 #if UNITY_IOS && !UNITY_EDITOR
-            try { _MosseloraHapticSuccess(); } catch (Exception error) { Fail(error); }
+            try { _MosseloraHapticFinished(); } catch (Exception error) { Fail(error); }
 #elif UNITY_ANDROID && !UNITY_EDITOR
             Perform(AndroidApi() >= 30 ? Confirm : VirtualKey);
+#endif
+        }
+
+        // Something came to the door: a letter, a parcel or a gift.
+        public static void Arrived()
+        {
+            if (!Enabled || failed) return;
+#if UNITY_IOS && !UNITY_EDITOR
+            try { _MosseloraHapticArrived(); } catch (Exception error) { Fail(error); }
+#elif UNITY_ANDROID && !UNITY_EDITOR
+            Perform(KeyboardTap);
 #endif
         }
 

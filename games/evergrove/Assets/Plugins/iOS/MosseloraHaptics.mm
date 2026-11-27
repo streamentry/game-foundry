@@ -1,21 +1,28 @@
-// Mosselora haptics (iOS, I140 / EG-013). A light tick when a tile turns and a
-// success pulse when a stream is finished. UIFeedbackGenerator honours the
-// system's own haptics setting; the game calls these only while gentle motion
-// is on. No data, no network.
+// Mosselora haptics (iOS, checklist 29 / I140 / EG-013). Three cues, one per
+// meaning: a light tap when a move lands, a success pulse when a board or thing
+// is finished, and a soft tap when something arrives. UIFeedbackGenerator honours
+// the system's own haptics setting; the game calls these only while its own
+// haptics switch is on. No data, no network.
 #import <UIKit/UIKit.h>
 
-static UIImpactFeedbackGenerator* gMosseloraTick = nil;
+static UIImpactFeedbackGenerator* gMosseloraPlaced = nil;
 
-extern "C" void _MosseloraHapticTick(void)
+extern "C" void _MosseloraHapticPlaced(void)
 {
-    if (gMosseloraTick == nil)
-        gMosseloraTick = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
-    [gMosseloraTick impactOccurred];
-    [gMosseloraTick prepare];
+    if (gMosseloraPlaced == nil)
+        gMosseloraPlaced = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+    [gMosseloraPlaced impactOccurred];
+    [gMosseloraPlaced prepare];
 }
 
-extern "C" void _MosseloraHapticSuccess(void)
+extern "C" void _MosseloraHapticFinished(void)
 {
     UINotificationFeedbackGenerator* success = [[UINotificationFeedbackGenerator alloc] init];
     [success notificationOccurred:UINotificationFeedbackTypeSuccess];
+}
+
+extern "C" void _MosseloraHapticArrived(void)
+{
+    UIImpactFeedbackGenerator* soft = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleSoft];
+    [soft impactOccurred];
 }
