@@ -111,12 +111,12 @@ namespace Evergrove.UnityClient
                     at.y -= rowStep * 1.5f;
                 }
                 // Checklist 24: a neighbour whose spot moved since the last hub view walks there.
-                bool walking = NeighbourStartFor(villager, at, fromTitle, out Vector2 walkFrom);
+                bool walking = NeighbourStartFor(villager, at, fromTitle, out Vector2 walkFrom, out float walkSince);
                 var holder = Node("Neighbour on the map", land);
                 var rect = holder.GetComponent<RectTransform>();
                 rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
                 rect.pivot = new Vector2(0.5f, 0f);
-                rect.anchoredPosition = walking ? walkFrom : at;
+                rect.anchoredPosition = walking ? NeighbourWalker.PoseAt(walkFrom, at, walkSince) : at;
                 // A fixed footprint (no nested size fitters) keeps face and name centred.
                 rect.sizeDelta = new Vector2(TextScale.Scale(96), 62f + TextScale.Scale(30));
                 var stack = holder.AddComponent<VerticalLayoutGroup>();
@@ -131,6 +131,7 @@ namespace Evergrove.UnityClient
                     var walker = holder.AddComponent<NeighbourWalker>(); // the walk replaces this time's hop
                     walker.From = walkFrom;
                     walker.To = at;
+                    walker.StartedAt = walkSince;
                 }
                 // I298 (idea 35, presence without words): when you come back, they look up and
                 // give a little hop, one after another. Once per return; never with reduced motion.

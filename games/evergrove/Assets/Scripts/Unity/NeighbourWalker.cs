@@ -12,23 +12,29 @@ namespace Evergrove.UnityClient
     {
         public Vector2 From;
         public Vector2 To;
+        /// <summary>When the walk began (unscaled time). A holder re-placed mid-walk carries on from here.</summary>
+        public float StartedAt;
 
-        private float clock;
-        private float duration;
-        private int steps;
-        private bool started;
+        /// <summary>Where a walk from <paramref name="from"/> to <paramref name="to"/> begun at
+        /// <paramref name="startedAt"/> has reached now: the pose a re-placed holder starts in, so a
+        /// relayout mid-walk never jumps the neighbour back to the start.</summary>
+        public static Vector2 PoseAt(Vector2 from, Vector2 to, float startedAt)
+        {
+            float distance = Vector2.Distance(from, to);
+            float duration = NeighbourWalk.Duration(distance);
+            float clock = Time.unscaledTime - startedAt;
+            if (clock >= duration) return to;
+            return Vector2.Lerp(from, to, NeighbourWalk.Progress(clock, duration))
+                + new Vector2(0f, NeighbourWalk.Bob(clock, duration, NeighbourWalk.Steps(distance)));
+        }
 
         private void Update()
         {
             var rect = (RectTransform)transform;
-            if (!started)
-            {
-                float distance = Vector2.Distance(From, To);
-                duration = NeighbourWalk.Duration(distance);
-                steps = NeighbourWalk.Steps(distance);
-                started = true;
-            }
-            clock += Time.unscaledDeltaTime;
+            float distance = Vector2.Distance(From, To);
+            float duration = NeighbourWalk.Duration(distance);
+            int steps = NeighbourWalk.Steps(distance);
+            float clock = Time.unscaledTime - StartedAt;
             if (clock >= duration)
             {
                 rect.anchoredPosition = To;

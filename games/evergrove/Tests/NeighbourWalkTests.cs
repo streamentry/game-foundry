@@ -26,6 +26,7 @@ internal static class NeighbourWalkTests
         NoWalkBelowMinDistance();
         WalkerMovesOnlyPositionAndRotation();
         PlacementWalksOnlyWithGentleMotion();
+        WalkSurvivesRelayout();
         ClashChecksUseWalkDestinations();
         TourSavesTheWalkShots();
         TourLogsEveryNeighbourSpot();
@@ -125,7 +126,7 @@ internal static class NeighbourWalkTests
     private static void WalkerMovesOnlyPositionAndRotation()
     {
         string walker = ReadEvergrove("Assets/Scripts/Unity/NeighbourWalker.cs");
-        Expect(walker.Contains("Time.unscaledDeltaTime") && !Regex.IsMatch(walker, @"\bTime\.deltaTime\b"),
+        Expect(walker.Contains("Time.unscaledTime - StartedAt") && !Regex.IsMatch(walker, @"\bTime\.deltaTime\b"),
             "the walker runs on unscaled time");
         Expect(walker.Contains("rect.anchoredPosition = To;") && walker.Contains("rect.localRotation = Quaternion.identity;") &&
                walker.Contains("enabled = false;"), "the walker ends exactly at To, upright, and disables itself");
@@ -146,9 +147,9 @@ internal static class NeighbourWalkTests
         string app = UnityAppSource.ReadAll();
         string neighbours = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Neighbours.cs");
         string helper = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.NeighbourWalk.cs");
-        Expect(neighbours.Contains("bool walking = NeighbourStartFor(villager, at, fromTitle, out Vector2 walkFrom);"),
+        Expect(neighbours.Contains("bool walking = NeighbourStartFor(villager, at, fromTitle, out Vector2 walkFrom, out float walkSince);"),
             "placement asks where the neighbour walks from");
-        Expect(neighbours.Contains("rect.anchoredPosition = walking ? walkFrom : at;"), "a walking neighbour starts at the last spot");
+        Expect(neighbours.Contains("rect.anchoredPosition = walking ? NeighbourWalker.PoseAt(walkFrom, at, walkSince) : at;"), "a walking neighbour starts where its walk has reached (the last spot, at first)");
         Expect(neighbours.Contains("holder.AddComponent<NeighbourWalker>()") && neighbours.Contains("walker.From = walkFrom;") &&
                neighbours.Contains("walker.To = at;"), "a walk is added from the last spot to the new one");
         Expect(neighbours.Contains("else if (fromTitle && waveHello && gentleMotion)") && neighbours.IndexOf("if (walking)", StringComparison.Ordinal) <
@@ -166,6 +167,19 @@ internal static class NeighbourWalkTests
 
     // Clash checks place the next neighbour against where each placed one will stand (a walker's
     // destination), never where its walk starts, so nobody ends a walk on top of another.
+    // The map lays its land out several times after a build and places the neighbours each time, so a
+    // walk is kept per neighbour and a re-placement mid-walk carries on from the same start and time.
+    private static void WalkSurvivesRelayout()
+    {
+        string walk = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.NeighbourWalk.cs");
+        string neighbours = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Neighbours.cs");
+        Expect(walk.Contains("neighbourWalks.TryGetValue(villager, out NeighbourWalkUnderWay under)") &&
+               walk.Contains("startedAt = under.StartedAt;"), "a walk under way to the same spot carries on");
+        Expect(walk.Contains("neighbourWalks.Clear();"), "walks are forgotten with the garden");
+        Expect(neighbours.Contains("NeighbourWalker.PoseAt(walkFrom, at, walkSince)") && neighbours.Contains("walker.StartedAt = walkSince;"),
+            "a re-placed holder starts where the walk has reached, not back at the start");
+    }
+
     private static void ClashChecksUseWalkDestinations()
     {
         string neighbours = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Neighbours.cs");
