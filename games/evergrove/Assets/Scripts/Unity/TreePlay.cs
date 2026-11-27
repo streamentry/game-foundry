@@ -411,6 +411,7 @@ namespace Evergrove.UnityClient
             // The card is about its width plus 100 pt tall: sideways, the height decides (I204).
             float width = Mathf.Min(screenWidth - 28f, 440f, screenHeight - 112f);
             cardRect.sizeDelta = new Vector2(width, 0f);
+            StartCoroutine(KeepCardOnScreen(root));
 
             // Top row: close token, the thing itself, the seeds it pays.
             var top = Row(card.transform, "Tree puzzle top", 84f);
@@ -449,6 +450,13 @@ namespace Evergrove.UnityClient
             float boardWidth = width - 36f;
             float gap = 8f;
             float cell = Mathf.Floor((boardWidth - gap * (size - 1) - 16f) / size);
+            // Fit the height too, like pairs and mosaic: the top row, the Size chooser (item 34) and the
+            // undo row (item 39) all sit on this card, and sideways the board ran off the screen (v1 tour).
+            // Never below a 48 pt touch target (item 91); a very short screen scrolls instead.
+            const float chooserSpace = 64f;
+            float byHeight = Mathf.Floor((screenHeight - 176f - chooserSpace - BoardKit.UndoRowSpace
+                - gap * (size - 1) - 16f) / size);
+            cell = Mathf.Max(BoardFit.MinTouch, Mathf.Min(cell, byHeight));
             var bed = new GameObject("Tree puzzle board", typeof(RectTransform));
             bed.transform.SetParent(card.transform, false);
             var bedLayout = bed.AddComponent<LayoutElement>();
@@ -708,6 +716,21 @@ namespace Evergrove.UnityClient
         }
 
         // ---- Pairs: a 4-wide table of painted cards, face down on paper.
+        // Sideways, the top row, the Size chooser (added a frame later), the board and the undo row can
+        // be taller than the screen, and the card doesn't scroll: the close button would be out of reach.
+        // Once laid out, a card taller than the screen is scaled down to fit, so every control stays
+        // reachable (v1 tour, 2026-11-28). Scale only: no layout change, nothing animates.
+        internal System.Collections.IEnumerator KeepCardOnScreen(RectTransform root)
+        {
+            yield return null;
+            yield return null; // after the leaves chooser attaches (EvergroveApp.Difficulty.cs)
+            if (cardRect == null || root == null) yield break;
+            Canvas.ForceUpdateCanvases();
+            float room = root.rect.height - 16f;
+            float tall = cardRect.rect.height;
+            cardRect.localScale = tall > room && tall > 1f ? Vector3.one * Mathf.Max(0.6f, room / tall) : Vector3.one;
+        }
+
         private void BuildPairs(Transform card, float width, float screenHeight, Font font)
         {
             int columns = 4, rows = pairs.Count / columns;
