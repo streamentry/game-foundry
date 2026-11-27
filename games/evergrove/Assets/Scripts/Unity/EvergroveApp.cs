@@ -4589,6 +4589,7 @@ namespace Evergrove.UnityClient
             else if (nameSheet != null) CloseNameSheet();
             else if (datesSheet != null) CloseDatesSheet();
             else if (weeklySheet != null) CloseWeeklyBoardSheet();
+            else if (travelSheet != null) CloseTravelSheet(); // v1 #43
             else if (menuOpen) SetMenu(false);
             else if (showJournal) CloseJournal();
             else if (choicePreview != null) CloseChoicePreview();
@@ -6392,6 +6393,7 @@ namespace Evergrove.UnityClient
 #endif
             BuildPostcard();
             BuildStallEntries(); // EvergroveApp.Market.cs: the stall and deeper boards (v1 #74 #79 #35)
+            BuildTravelEntry(); // EvergroveApp.Boat.cs: travel by boat to any open stretch (checklist 43)
             BuildNameEntry(); // EvergroveApp.Name.cs: "Name your garden" (checklist 3)
             BuildDatesEntry(); // EvergroveApp.Dates.cs: "Dates to remember" (checklist 87)
             BuildGardenFileSection();

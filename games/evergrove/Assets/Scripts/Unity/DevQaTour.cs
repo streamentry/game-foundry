@@ -461,6 +461,16 @@ namespace Evergrove.UnityClient
                 yield return new WaitForEndOfFrame();
                 SavePng("17x-river-opened.png");
                 app.QaEndTreePlay();
+                // Checklist 43: travel by boat, from the hub, to the furthest open stretch.
+                for (int f = 0; f < 8; f++) yield return null;
+                app.QaOpenTravel();
+                yield return new WaitForSecondsRealtime(0.5f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17zc-boat-travel.png");
+                app.QaTravel(app.QaOpenReaches() - 1);
+                yield return new WaitForSecondsRealtime(1.5f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17zd-boat-arrived.png");
             }
             // I243-I247: the five newer kinds, each unsolved and then solved.
             foreach (PuzzleKind kind in new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots,
