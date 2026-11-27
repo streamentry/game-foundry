@@ -25,6 +25,7 @@ namespace Evergrove.Core
         Hour,             // the light at dawn, golden hour, dusk or night (I281)
         NewestThing,      // the newest thing of their kind and where it stands (I184)
         VisitorCame,      // the visitor their good neighbours brought: owl, heron, hedgehog (I377)
+        HourHabit,        // the hour you usually come, by its noticer (I419)
     }
 
     /// <summary>
@@ -111,12 +112,15 @@ namespace Evergrove.Core
         public PuzzleKind TogetherKind { get; }
         /// <summary>The painted map, for where things stand; null when unavailable.</summary>
         public GardenMap Map { get; }
+        /// <summary>I419: device-only counts of the hour (phase) you come, or null.</summary>
+        public IReadOnlyList<int> HourCounts { get; }
 
         public CompanionContext(DateTime today, DateTime? lastSeen = null, int lettersRead = 0,
             Weather weather = Weather.Fair, bool lightOn = false, DayPhase phase = DayPhase.Day,
             int fruitJustGivenTo = -1, int togetherKeeper = -1, PuzzleKind togetherKind = PuzzleKind.Water,
-            GardenMap map = null)
+            GardenMap map = null, int[] hourCounts = null)
         {
+            HourCounts = hourCounts == null ? null : Array.AsReadOnly((int[])hourCounts.Clone());
             Today = today.Date;
             LastSeen = lastSeen;
             LettersRead = Math.Max(0, lettersRead);
@@ -170,6 +174,7 @@ namespace Evergrove.Core
                 Solved(world, v, facts);
                 Pairings(world, v, facts);
                 Visitor(world, context, v, facts);
+                Habit(context, v, facts);
                 Newest(world, context, v, facts);
             }
             WhileAway(world, context, facts);
@@ -200,8 +205,12 @@ namespace Evergrove.Core
             DateTime last = context.LastSeen.Value.Date;
             string weather = DayWeather.WhileAway(last, context.Today, GardenSeason.For(world), world.Garden, out int days);
             if (weather == null) return;
+            // I420: after a long time away, reassurance first, never guilt.
+            string welcome = Companion.WelcomeBack(days);
+            var slots = new List<string> { "weather", weather, "days", Num(days) };
+            if (welcome != null) { slots.Add("welcome"); slots.Add(welcome); }
             facts.Add(Make(FactKind.WeatherWhileAway, 0, "away:" + last.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
-                RareWeight, false, false, 2 * Step, "weather", weather, "days", Num(days)));
+                RareWeight, false, false, 2 * Step, slots.ToArray()));
         }
 
         private static void Letter(WorldModel world, CompanionContext context, List<Fact> facts)
@@ -311,6 +320,20 @@ namespace Evergrove.Core
             var slots = new List<string> { "visitor", VisitorName(visitor) };
             if (!legacyDay) { slots.Add(LegacyOffSlot); slots.Add("1"); }
             facts.Add(Make(FactKind.VisitorCame, v, "visitor:" + visitor, RareWeight, false, false, 11 * Step + 50,
+                slots.ToArray()));
+        }
+
+        // I419: the hour you usually come, said by its noticer. The old chain said it one day in seven.
+        private static void Habit(CompanionContext context, int v, List<Fact> facts)
+        {
+            if (context.HourCounts == null) return;
+            int[] counts = new int[context.HourCounts.Count];
+            for (int i = 0; i < counts.Length; i++) counts[i] = context.HourCounts[i];
+            DayPhase? habit = Companion.Habit(counts);
+            if (!habit.HasValue || Companion.Noticer(habit.Value) != v) return;
+            var slots = new List<string> { "phase", habit.Value.ToString() };
+            if (Companion.HabitLine(counts, v, context.DayNumber) == null) { slots.Add(LegacyOffSlot); slots.Add("1"); }
+            facts.Add(Make(FactKind.HourHabit, v, "habit:" + habit.Value, AmbientWeight, false, false, 11 * Step + 80,
                 slots.ToArray()));
         }
 

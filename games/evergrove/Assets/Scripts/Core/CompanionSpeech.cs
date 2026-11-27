@@ -17,7 +17,9 @@ namespace Evergrove.Core
             {
                 case FactKind.FruitGiven: return NeighbourNotice.Thanked(speaker);
                 case FactKind.SolvedTogether: return NeighbourNotice.TogetherLine(fact.EnumSlot<PuzzleKind>("puzzle"));
-                case FactKind.WeatherWhileAway: return DayWeather.SinceSentence(fact.Slot("weather"), fact.IntSlot("days"));
+                case FactKind.WeatherWhileAway:
+                    string since = DayWeather.SinceSentence(fact.Slot("weather"), fact.IntSlot("days"));
+                    return fact.Slot("welcome") == null ? since : fact.Slot("welcome") + " " + since; // I420
                 case FactKind.LetterWaiting:
                     return "There's a letter in your box from " + fact.Slot("name") + ". I saw the flag go up this morning.";
                 case FactKind.GiftWaiting: return NeighbourNotice.Waiting(speaker, fact.Slot("thing"));
@@ -36,6 +38,7 @@ namespace Evergrove.Core
                     return DayLight.Remark(speaker, fact.EnumSlot<DayPhase>("phase"), fact.EnumSlot<Season>("season"));
                 case FactKind.NewestThing: return Newest(fact, speaker);
                 case FactKind.VisitorCame: return VisitorRemark(fact.Slot("visitor"));
+                case FactKind.HourHabit: return HabitRemark(fact.EnumSlot<DayPhase>("phase"), speaker);
                 default: return null;
             }
         }
@@ -68,6 +71,14 @@ namespace Evergrove.Core
                 case Pairing.Waterside: return "Some flowers like their feet wet. Try one right by the water.";
                 default: return "Two different flowers side by side make a bed. They show each other off.";
             }
+        }
+
+        // I419 (Companion.HabitLine), the same words: a clear habit at that hour, on its noticer's day.
+        private static string HabitRemark(DayPhase phase, int speaker)
+        {
+            int[] counts = new int[Companion.PhaseCount];
+            counts[(int)phase] = Companion.HabitNeeds;
+            return Companion.HabitLine(counts, speaker, speaker * 2);
         }
 
         // I377 (Visitors.KeeperRemark), the same words.

@@ -126,9 +126,14 @@ internal static class DailyRhythmAuditTests
                 dayCounters.Add(field.Name);
         }
         Expect(suspicious.Count == 0, "no streak-like save field: " + string.Join(",", suspicious));
-        // Known gap (checklist 52 asks for a days-played total): none exists in the save yet.
-        // When one is built, remove this line and assert it only grows across the gap below.
-        Expect(dayCounters.Count == 0, "no days-played counter exists yet (known gap): " + string.Join(",", dayCounters));
+        // Checklist 52: the only day fields are the days-played total and its date stamp (batch 5).
+        dayCounters.Sort(StringComparer.Ordinal);
+        Expect(string.Join(",", dayCounters) == "daysPlayed,lastPlayedDay",
+            "the only day fields are the days-played total and its stamp: " + string.Join(",", dayCounters));
+        // The total only grows across a 3-day gap and never resets (DaysPlayedTests covers the details).
+        WorldModel played = WorldModel.New(PlayMode.Living);
+        Expect(played.MarkPlayed(20261201) && played.MarkPlayed(20261202) && played.MarkPlayed(20261206) &&
+               played.DaysPlayed == 3, "a 3-day gap still counts every day played and resets nothing");
     }
 
     private static void SkippedDaysCostNothing()
