@@ -53,7 +53,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **34. Difficulty the player chooses, honestly labelled.** Leaves 1–3 (I336) on every puzzle kind, with the chosen level remembered per kind. *Test:* no kind lacks a gentle level.
 - [x] **35. A weekly deeper board.** One harder board each week per favourite kind, with no timer, and no penalty for skipping it. *Test:* generator proves uniqueness at the top tier.
 - [x] **36. Technique names.** When a player uses a known technique (a naked pair in seed sudoku), the almanac names it the first time. *Test:* the detector agrees with the solver on 1,000 boards.
-- [ ] **37. Boards drawn from the player's own garden.** Mosaic and pictures-by-numbers boards use shapes of things the player grew. *Test:* generated boards are unique and solvable.
+- [x] **37. Boards drawn from the player's own garden.** Mosaic and pictures-by-numbers boards use shapes of things the player grew. *Test:* generated boards are unique and solvable.
 - [ ] **38. Chains between puzzles.** Finishing a stream path waters plots; finishing plots feeds the nursery. Each link is one visible, logical cause. *Test:* the cause shows on screen within 2 s.
 - [x] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
 - [x] **40. Mistakes shown kindly.** Show conflicts only on request (a lens icon), never automatically in red. *Test:* setting persists; no red anywhere.

@@ -140,6 +140,59 @@ namespace Evergrove.Core
             return false;
         }
 
+        /// <summary>
+        /// The standard seed whose board a relative can play as the same puzzle (checklist 37): the
+        /// standard generator (new NonogramGame(seed, tier)) with identical row and column clues and
+        /// solution. Every bed the library can deal is one of the 2 x count standard boards (seeds
+        /// 0..2*count-1; a further lap repeats a pose), so that range is searched exhaustively in order.
+        /// Returns -1 when no standard seed matches, and the caller then offers no send for that bed.
+        /// </summary>
+        public static int SharedSeedFor(NonogramGame ownBoard, int tier)
+        {
+            if (ownBoard == null || tier < 0 || tier >= TreePuzzles.Tiers) return -1;
+            int limit = 2 * NonogramPictures.Count(tier);
+            for (int seed = 0; seed < limit; seed++)
+                if (SameBoard(new NonogramGame(seed, tier), ownBoard)) return seed;
+            return -1;
+        }
+
+        /// <summary>
+        /// The own bed a chosen leaves level deals (item 34): the first seed from the given one whose
+        /// own bed measures that level in the level's tier, as DifficultyChoice.DealAt does for standard
+        /// beds. If none is found within the search, the seed's own bed is kept, and its leaves are shown.
+        /// </summary>
+        public static (int seed, int tier) DealAt(WorldModel world, int seed, int level)
+        {
+            int chosen = DifficultyChoice.Clamp(level);
+            int tier = DifficultyChoice.TierFor(PuzzleKind.Nonogram, chosen);
+            for (int offset = 0; offset < DealSearchLimit; offset++)
+            {
+                int candidate = unchecked(seed + offset);
+                if (NonogramFor(world, candidate, tier).Leaves == chosen) return (candidate, tier);
+            }
+            return (seed, tier);
+        }
+
+        // Seeds tried after the given one by DealAt (the same bound DifficultyChoice uses).
+        private const int DealSearchLimit = 200;
+
+        private static bool SameBoard(NonogramGame a, NonogramGame b)
+        {
+            if (a.Size != b.Size) return false;
+            for (int i = 0; i < a.Size; i++)
+                if (!SameClues(a.RowClues[i], b.RowClues[i]) || !SameClues(a.ColumnClues[i], b.ColumnClues[i])) return false;
+            for (int cell = 0; cell < a.Size * a.Size; cell++)
+                if (a.Solution(cell) != b.Solution(cell)) return false;
+            return true;
+        }
+
+        private static bool SameClues(int[] a, int[] b)
+        {
+            if (a.Length != b.Length) return false;
+            for (int i = 0; i < a.Length; i++) if (a[i] != b[i]) return false;
+            return true;
+        }
+
         /// <summary>Whether a library picture's clues have exactly one solution.</summary>
         public static bool IsUnique(int tier, int index)
         {
