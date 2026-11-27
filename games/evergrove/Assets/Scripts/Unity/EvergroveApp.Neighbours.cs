@@ -65,8 +65,8 @@ namespace Evergrove.UnityClient
                         Vector2 spot = newestAt + offset;
                         bool taken = false;
                         foreach (RectTransform other in placed)
-                            if (Mathf.Abs(other.anchoredPosition.x - spot.x) < Mathf.Abs(step.x) * 1.3f &&
-                                Mathf.Abs(other.anchoredPosition.y - spot.y) < rowStep * 1.3f) taken = true;
+                            if (Mathf.Abs(NeighbourSpot(other).x - spot.x) < Mathf.Abs(step.x) * 1.3f &&
+                                Mathf.Abs(NeighbourSpot(other).y - spot.y) < rowStep * 1.3f) taken = true;
                         if (!taken) { at = spot; break; }
                     }
                 }
@@ -105,16 +105,18 @@ namespace Evergrove.UnityClient
                 {
                     bool clash = false;
                     foreach (RectTransform other in placed)
-                        if (Mathf.Abs(other.anchoredPosition.x - at.x) < Mathf.Abs(step.x) * 1.3f &&
-                            Mathf.Abs(other.anchoredPosition.y - at.y) < rowStep * 1.3f) clash = true;
+                        if (Mathf.Abs(NeighbourSpot(other).x - at.x) < Mathf.Abs(step.x) * 1.3f &&
+                            Mathf.Abs(NeighbourSpot(other).y - at.y) < rowStep * 1.3f) clash = true;
                     if (!clash) break;
                     at.y -= rowStep * 1.5f;
                 }
+                // Checklist 24: a neighbour whose spot moved since the last hub view walks there.
+                bool walking = NeighbourStartFor(villager, at, fromTitle, out Vector2 walkFrom);
                 var holder = Node("Neighbour on the map", land);
                 var rect = holder.GetComponent<RectTransform>();
                 rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
                 rect.pivot = new Vector2(0.5f, 0f);
-                rect.anchoredPosition = at;
+                rect.anchoredPosition = walking ? walkFrom : at;
                 // A fixed footprint (no nested size fitters) keeps face and name centred.
                 rect.sizeDelta = new Vector2(TextScale.Scale(96), 62f + TextScale.Scale(30));
                 var stack = holder.AddComponent<VerticalLayoutGroup>();
@@ -124,9 +126,15 @@ namespace Evergrove.UnityClient
                 stack.childForceExpandWidth = true;
                 stack.childForceExpandHeight = true;
                 PortraitButton(holder.transform, villager, true, fromTitle);
+                if (walking)
+                {
+                    var walker = holder.AddComponent<NeighbourWalker>(); // the walk replaces this time's hop
+                    walker.From = walkFrom;
+                    walker.To = at;
+                }
                 // I298 (idea 35, presence without words): when you come back, they look up and
                 // give a little hop, one after another. Once per return; never with reduced motion.
-                if (fromTitle && waveHello && gentleMotion)
+                else if (fromTitle && waveHello && gentleMotion)
                     holder.AddComponent<HelloHop>().Delay = 0.35f + placed.Count * 0.28f;
                 // I424: the keeper whose good neighbour was just found gives a little hop of joy.
                 else if (fromTitle && celebrateKeeper == villager && gentleMotion)
