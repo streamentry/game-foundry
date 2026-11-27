@@ -8,6 +8,7 @@
 - **Family co-play (founder goal, 2026-11-25):** 5 family groups, an adult 40+ and a child on one device, no instructions. See [family-coplay-session.md](family-coplay-session.md). Runs alongside M3, not in place of it.
 
 - **Daily loop (I189–I288 build):** 9–12 adults across bands 40–49, 50–64, 65+ over three days: puzzle kinds and hints, the river's drops, garden notes, return without reminders, and optional co-play pairs. See [daily-loop-kit.md](daily-loop-kit.md).
+- **Companion week (smart companion SC01–SC06):** 5–10 adults across bands 40–49, 50–64, 65+ for a week. What did the neighbours say, was it true, was it repetitive, and old lines or new? See [companion-week-kit.md](companion-week-kit.md).
 
 Results are captured in [results-template.md](results-template.md).
 

@@ -922,6 +922,35 @@ namespace Evergrove.UnityClient
             }
             app.QaSetDay(0);
             app.QaSetWeather((int)Weather.Fair);
+
+            // Smart companion (SC05): one ranker, many uses. A finished garden with a cutting in the
+            // basket, a letter, and family help on thing 2: the arrow plays the helped thing, one soft
+            // mark shows where the top waiting thing lives, the cottage card lists what waits first.
+            WorldModel waiting = WorldModel.New(PlayMode.Living);
+            for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+            {
+                Puzzle stream = waiting.CurrentPuzzle;
+                for (int i = 0; i < stream.CellCount; i++)
+                    while (waiting.Rotations[i] != stream.Solution[i]) waiting.Rotate(i);
+                waiting.Choose((VillageChoice)(chapter % 3));
+            }
+            WorldSnapshot helpedSave = waiting.Export();
+            helpedSave.helped = new[] { 2 };
+            helpedSave.helpedFrom = new[] { "Anh" };
+            if (WorldModel.TryRestore(helpedSave, out WorldModel helped)) waiting = helped;
+            for (int kind = 0; kind < Nursery.Kinds; kind++)
+                if (Nursery.Family(kind) == VillageChoice.Flowers) { waiting.ReceiveNeighbourCutting(kind); break; }
+            app.QaReplaceWorld(waiting);
+            app.QaShowHub(true);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("22-attention-hub.png");
+            app.OpenCottage();
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("22-attention-cottage.png");
+            app.CloseCottage();
+            app.QaShowHub(false);
             app.QaSetClock(13);
 
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);

@@ -2,7 +2,7 @@
 
 Smart companion, iteration 4 of 7 ([spec](../../games/evergrove/docs/specs/proposals/smart-companion-2026-11-27.md)).
 
-**Status: done.** The founder approved all 612 lines (15 kinds) on 2026-11-27, and they ship in `en.json`: 912 English lines, every fact kind covered. The one exception is `RainComing`, a v1 kind that reached main during this iteration. Its 20 lines are drafted and await review, and it speaks its fixed sentence meanwhile.
+**Status: done.** The founder approved all 612 lines (15 kinds) on 2026-11-27, and they ship in `en.json`: 912 English lines, every fact kind covered. `RainComing`, a v1 kind that reached main during this iteration, got 20 Orin lines; the founder approved them on 2026-11-28 and they ship with SC05–SC07 (932 lines in all). Every fact kind on main now has a reviewed English bank, and a test requires it.
 
 ## Player note
 
