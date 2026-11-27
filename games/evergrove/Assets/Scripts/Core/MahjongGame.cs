@@ -116,6 +116,22 @@ namespace Evergrove.Core
         }
 
         public int Face(int tile) { return faces[tile]; }
+
+        /// <summary>
+        /// I291 (idea 2, after mahjong's season tiles): face 0 is dealt twice at every tier,
+        /// so it has exactly four tiles. They are drawn as the four seasons, all different,
+        /// and any two still match, because the rule is unchanged: same face, same set.
+        /// </summary>
+        public const int SeasonFace = 0;
+
+        /// <summary>The season tiles in tile order: the first is spring, the last winter.</summary>
+        public static int[] SeasonTiles(MahjongGame game)
+        {
+            var found = new List<int>();
+            for (int t = 0; t < game.TileCount; t++)
+                if (game.Face(t) == SeasonFace) found.Add(t);
+            return found.ToArray();
+        }
         public int X(int tile) { return xs[tile]; }
         public int Y(int tile) { return ys[tile]; }
         public int Z(int tile) { return zs[tile]; }

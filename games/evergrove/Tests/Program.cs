@@ -1919,6 +1919,7 @@ internal static class Program
             assertions += ReplayBoardTests.Run();
             assertions += DayLightTests.Run();
             assertions += GardenNoteTests.Run();
+            assertions += WorldIdeasTests.Run();
             assertions += NoticeTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();

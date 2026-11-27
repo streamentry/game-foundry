@@ -2108,6 +2108,15 @@ namespace Evergrove.UnityClient
         private Sprite[] PairsPictures(int count, int item, Func<int, int, Sprite> artOf)
         {
             var found = new System.Collections.Generic.List<Sprite>();
+            // I290: the table is dealt from the flowers of the garden's season first, a
+            // card for each flower in bloom, starting where this thing points.
+            int[] inBloom = GardenCatalog.FlowersOf(world != null ? GardenSeason.For(world) : Season.Spring);
+            for (int step = 0; step < inBloom.Length && found.Count < count; step++)
+            {
+                int flower = inBloom[(Mathf.Abs(item) * 3 + step) % inBloom.Length];
+                Sprite art = MosseloraArt.Load(GardenCatalog.Get(VillageChoice.Flowers, flower).Art);
+                if (art != null && !found.Contains(art)) found.Add(art);
+            }
             int total = GardenCatalog.ChaptersPerGarden * 3;
             for (int step = 0; step < total && found.Count < count; step++)
             {
@@ -2541,6 +2550,7 @@ namespace Evergrove.UnityClient
                     HoldsPuzzle = markPuzzles && !world.TreeSolved(i), // helped still holds your own first solve
                     Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, // I255
                     Together = world.SolvedTogether(i), // I265
+                    Crowned = world.TreeSolved(i) && ReplayBoards.Crowned(TreePuzzles.TierFor(i), Replays(i)), // I292
                     BloomNow = i == justSolved && gentleMotion
                 });
             // More of what you grew, planted from the basket (I193).
@@ -2574,6 +2584,7 @@ namespace Evergrove.UnityClient
                     HoldsPuzzle = markPuzzles && !world.BoughtSolved(k),
                     Kind = (int)ThingPuzzle.ForNursery(kind) + 1, // I255
                     Together = world.SolvedTogether(BoughtIndex + k), // I265
+                    Crowned = world.BoughtSolved(k) && ReplayBoards.Crowned(Nursery.Row(kind), Replays(BoughtIndex + k)), // I292
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
@@ -3776,6 +3787,17 @@ namespace Evergrove.UnityClient
                     CloseFan();
                     OpenFamily();
                 }));
+            if (living && titleScreen != null)
+            {
+                // I294 (idea 50, ma): just look. Everything but the garden steps aside.
+                GameObject look = FanToken(column.transform, "Just look at the garden", "Look", MosseloraArt.IconSun,
+                    () => { CloseFan(); EnterQuiet(); });
+                Transform lookGlyph = look.transform.Find("Icon");
+                Image lookImage = lookGlyph != null ? lookGlyph.GetComponent<Image>() : null;
+                Sprite sprig = MosseloraArt.Load(MosseloraArt.Sprig);
+                if (lookImage != null && sprig != null) { lookImage.sprite = sprig; lookImage.color = Color.white; }
+                tokens.Add(look);
+            }
             tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
                 () => { CloseFan(); CloseTitle(); SetMenu(true); }));
             // Hang the fan just under the corner button it came from.
@@ -3790,6 +3812,70 @@ namespace Evergrove.UnityClient
             if (gentleMotion)
                 for (int i = 0; i < tokens.Count; i++) StartCoroutine(FanIn(tokens[i], i * 0.045f));
             semanticsDirty = true;
+        }
+
+        // ---- I294: quiet mode. Home's controls, words and purse step aside; only the garden
+        // stays, with its light, neighbours and seasons. A tap anywhere brings it all back.
+        private readonly System.Collections.Generic.List<GameObject> quieted = new System.Collections.Generic.List<GameObject>();
+        private GameObject quietLayer;
+
+        internal bool Quiet { get { return quietLayer != null; } }
+
+        internal void EnterQuiet()
+        {
+            if (titleScreen == null || quietLayer != null) return;
+            quieted.Clear();
+            foreach (Transform child in titleScreen.transform)
+                if (child.gameObject.activeSelf && child.name != "Village window")
+                {
+                    quieted.Add(child.gameObject);
+                    child.gameObject.SetActive(false);
+                }
+            if (chrome != null && chrome.gameObject.activeSelf) { quieted.Add(chrome.gameObject); chrome.gameObject.SetActive(false); }
+            quietLayer = Node("Quiet garden. Tap anywhere to come back.", titleScreen.transform);
+            Fill(quietLayer.GetComponent<RectTransform>());
+            var catcher = quietLayer.AddComponent<Image>();
+            catcher.color = new Color(0f, 0f, 0f, 0f); // invisible, still takes the tap
+            var back = quietLayer.AddComponent<Button>();
+            back.transition = Selectable.Transition.None;
+            back.onClick.AddListener(ExitQuiet);
+            // A small sprig in the corner says how to come back, then fades away.
+            Sprite sprig = MosseloraArt.Load(MosseloraArt.Sprig);
+            if (sprig != null)
+            {
+                var cue = MosseloraArt.Ornament(quietLayer.transform, "Tap to come back", sprig, new Vector2(1f, 0f),
+                    new Vector2(1f, 0f), new Vector2(44f, 44f), new Vector2(-28f, 40f));
+                if (cue != null) cue.gameObject.AddComponent<CueFade>().After = gentleMotion ? 2.5f : 4f;
+            }
+            semanticsDirty = true;
+        }
+
+        internal void ExitQuiet()
+        {
+            if (quietLayer != null) Destroy(quietLayer);
+            quietLayer = null;
+            foreach (GameObject hidden in quieted)
+                if (hidden != null) hidden.SetActive(true);
+            quieted.Clear();
+            semanticsDirty = true;
+        }
+
+        private sealed class CueFade : MonoBehaviour
+        {
+            public float After = 2.5f;
+            private float start;
+            private Image image;
+            private void Start() { start = Time.unscaledTime; image = GetComponent<Image>(); }
+            private void Update()
+            {
+                if (image == null) return;
+                float t = Time.unscaledTime - start - After;
+                if (t <= 0f) return;
+                Color c = image.color;
+                c.a = Mathf.Clamp01(1f - t / 1.2f) * 0.9f;
+                image.color = c;
+                if (c.a <= 0f) enabled = false;
+            }
         }
 
         private GameObject FanToken(Transform parent, string name, string caption, string icon, Action action)
@@ -7862,6 +7948,19 @@ namespace Evergrove.UnityClient
             qaShowHub = false;
 #endif
             qaTreePlay = null;
+        }
+
+        // I292/I294 tour: crown a thing as if replayed to the deepest tier; enter or leave quiet.
+        internal void QaCrown(int item)
+        {
+            if (!qaInMemoryOnly || item < 0) return;
+            PlayerPrefs.SetInt(ReplayKey(item), ReplayBoards.ReplaysPerTier * 3);
+            RefreshMapsFresh();
+        }
+
+        internal void QaQuiet(bool on)
+        {
+            if (on) EnterQuiet(); else ExitQuiet();
         }
 
         internal void QaShowHub(bool show)

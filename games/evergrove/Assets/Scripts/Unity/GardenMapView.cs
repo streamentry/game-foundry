@@ -31,6 +31,7 @@ namespace Evergrove.UnityClient
             public bool HoldsPuzzle;     // has a puzzle not yet solved (I221): a small play mark
             public int Kind;             // I255: PuzzleKind + 1 drawn in the mark (0: a plain play arrow)
             public bool Together;        // I265: solved taking turns: two small discs, sage and honey
+            public bool Crowned;         // I292: a replay solved at the deepest tier: a second, outer ring
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -515,6 +516,22 @@ namespace Evergrove.UnityClient
                     glowImage.raycastTarget = false;
                     if (item.BloomNow) glow.AddComponent<RingGrow>();
                     nodes.Add(glowRect);
+                    if (item.Crowned)
+                    {
+                        // Promoted, as a far-travelled piece is: a wider, deeper gold ring around the first.
+                        var crown = new GameObject("Crowned", typeof(RectTransform));
+                        crown.transform.SetParent(land, false);
+                        var crownRect = (RectTransform)crown.transform;
+                        crownRect.anchorMin = crownRect.anchorMax = new Vector2(0f, 1f);
+                        crownRect.sizeDelta = new Vector2(cellW * 1.85f, cellH * 0.9f);
+                        crownRect.anchoredPosition = glowRect.anchoredPosition;
+                        var crownImage = crown.AddComponent<Image>();
+                        crownImage.sprite = MosseloraArt.Ring(16);
+                        crownImage.type = Image.Type.Sliced;
+                        crownImage.color = new Color(0.86f, 0.62f, 0.16f, 0.9f);
+                        crownImage.raycastTarget = false;
+                        nodes.Add(crownRect);
+                    }
                 }
                 var node = new GameObject("On the map", typeof(RectTransform));
                 node.transform.SetParent(land, false);
