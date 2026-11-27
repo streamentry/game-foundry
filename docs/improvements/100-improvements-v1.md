@@ -30,7 +30,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **17. Sheets slide, never pop.** Every panel enters from the edge it belongs to (letters from the letterbox, nursery from the gate), with motion limited to transform and opacity. *Test:* reduced-motion setting replaces each slide with a fade.
 - [x] **18. Hide the HUD while looking.** After 6 s with no touch, the menu and purse fade to 20% so the garden fills the screen. Any touch brings them back. *Test:* screenshot pairs at rest and in use.
 - [x] **19. Long-press explains anything.** Any icon or thing, long-pressed, shows its name and one line. This replaces help pages. *Test:* coverage script lists every raycast target without a caption.
-- [ ] **20. Split `EvergroveApp.cs`.** Break the monolith into Hub, Sheets, Map and Notes partials so navigation changes stop colliding. *Test:* no file over 800 lines; build and tours unchanged.
+- [x] **20. Split `EvergroveApp.cs`.** Break the monolith into Hub, Sheets, Map and Notes partials so navigation changes stop colliding. *Test:* no file over 800 lines; build and tours unchanged.
 
 ## C. Immersion: art, light, sound
 
