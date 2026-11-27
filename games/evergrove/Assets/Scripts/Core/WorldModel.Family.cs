@@ -125,6 +125,20 @@ namespace Evergrove.Core
         public string[] Letters { get { return (string[])state.letters.Clone(); } }
         public string[] LetterFrom { get { return (string[])state.letterFrom.Clone(); } }
 
+        /// <summary>
+        /// I271: a neighbour's note, kept in the letterbox beside family letters (same cap,
+        /// oldest leave first). Same rules as a letter's words and sender; moves nothing.
+        /// </summary>
+        public bool KeepNote(string from, string text)
+        {
+            if (Mode != PlayMode.Living || !FamilyParcel.ValidName(from)) return false;
+            string words = text == null ? "" : text.Replace("\r\n", "\n").Trim();
+            if (words.Length == 0 || !FamilyParcel.ValidLetter(words)) return false;
+            state.letters = AppendCapped(state.letters, words, MaxLetters);
+            state.letterFrom = AppendCapped(state.letterFrom, from, MaxLetters);
+            return true;
+        }
+
         public bool HasSeenParcel(string id) { return id != null && Array.IndexOf(state.parcelIds, id) >= 0; }
 
         /// <summary>

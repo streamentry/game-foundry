@@ -300,6 +300,22 @@ namespace Evergrove.UnityClient
                 app.QaEndTreePlay();
             }
             // I223: one more first solve opens a new stretch of river; home lifts its mist.
+            // Make the river step independent of what came before: first solves until exactly one
+            // drop is left (the b290 tour reached it one short after the I256 tour change).
+            for (int guard = 0; guard < 8 && app.QaPuzzlesSolved() % GardenMap.SolvesPerReach != GardenMap.SolvesPerReach - 1; guard++)
+            {
+                app.QaShowHub(true); // a thing's puzzle opens over home (b291: the loop ran with home closed)
+                for (int f = 0; f < 4; f++) yield return null;
+                int extra = app.QaHoldUnsolved();
+                if (extra < 0) break;
+                for (int f = 0; f < 4; f++) yield return null;
+                app.QaOpenTreePlay(extra);
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(2.6f);
+                for (int f = 0; f < 4; f++) yield return null;
+                app.QaEndTreePlay();
+            }
             // I224: at the river's foot, three of four drops filled on the next stretch's mist.
             app.QaHubToFoot();
             for (int f = 0; f < 8; f++) yield return null;
@@ -308,7 +324,8 @@ namespace Evergrove.UnityClient
             int tree = app.QaHoldUnsolved();
             if (tree >= 0)
             {
-                Debug.Log("MOSSELORA_QA_RIVER solves before " + app.QaPuzzlesSolved());
+                Debug.Log("MOSSELORA_QA_RIVER solves before " + app.QaPuzzlesSolved() + " (wants " +
+                    (GardenMap.SolvesPerReach - 1) + ")");
                 for (int f = 0; f < 6; f++) yield return null;
                 app.QaOpenTreePlay(tree);
                 for (int f = 0; f < 8; f++) yield return null;
@@ -461,6 +478,18 @@ namespace Evergrove.UnityClient
                 SavePng("17u2-write-back.png");
                 app.QaCloseFamily();
                 app.QaCloseLetter();
+                // I269: the book's family page: letters (Nan's, and Mira's river note), help, together.
+                app.QaShowHub(false);
+                Press("Open menu");
+                for (int f = 0; f < 8; f++) yield return null;
+                Press("Memories");
+                for (int f = 0; f < 6; f++) yield return null;
+                Press("Family in the garden");
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17u3-family-page.png");
+                Press("Close journal");
+                for (int f = 0; f < 4; f++) yield return null;
             }
             // Neighbours notice (I210): Mira names the poplar you just bought.
             app.QaShowHub(false);
@@ -502,6 +531,21 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 8; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("17d-settings.png");
+            // I276: the soft ask for garden notes, in the garden's own words.
+            Press("Close menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaShowHub(true);
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaNotesAsk();
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17d2-garden-notes-ask.png");
+            app.QaCloseNotesAsk();
+            app.QaShowHub(false);
+            Press("Open menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            Press("Settings");
+            for (int f = 0; f < 6; f++) yield return null;
             Press("Close menu");
             for (int f = 0; f < 4; f++) yield return null;
             app.QaShowHub(true);

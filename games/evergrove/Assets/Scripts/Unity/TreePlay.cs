@@ -109,6 +109,10 @@ namespace Evergrove.UnityClient
             Image disc = turnDiscs != null && turnDiscs.Length > 0 ? turnDiscs[0] : null;
             if (disc == null) return;
             disc.color = !together ? MosseloraTheme.QuietAction : turn == 0 ? TurnSage : TurnHoney;
+            // Shape as well as colour (I268): sage and honey sit close in brightness, so the
+            // two people swap sides on honey's turn: readable without colour vision.
+            Transform icon = disc.transform.Find("Icon");
+            if (icon != null) icon.localScale = together && turn == 1 ? new Vector3(-1f, 1f, 1f) : Vector3.one;
             if (together && gentle) BloomPulse.Add(disc.gameObject, 0f, 0.12f);
         }
 
