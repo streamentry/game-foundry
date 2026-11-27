@@ -486,6 +486,18 @@
       "value": "Fen podąża za pszczołami między twoimi polnymi kwiatami."
     },
     {
+      "key": "preview_title",
+      "value": "Zanim wybierzesz"
+    },
+    {
+      "key": "preview_help",
+      "value": "Dotknij karty, aby porównać. Ogród zmieni się dopiero po potwierdzeniu."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Wprowadź tę zmianę"
+    },
+    {
       "key": "privacy_policy",
       "value": "Polityka prywatności"
     }

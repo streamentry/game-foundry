@@ -130,6 +130,8 @@ Everything in this vision depends on that claim surviving **M4**: a preregistere
 
 ## 4. The end-state experience (layers, each with its own smallest test)
 
+> **2026-11-25:** the founder chose to build toward the end game now. The phased plan and taste charter are in [the end-game proposal](docs/specs/proposals/endgame-village-2026-11-25.md); the gates in §9 of that document still apply.
+
 None of this is built. Each layer must pass its **smallest test** before it is designed at scale, and each has a **cost gate**: estimate the per-player cost of generation, storage, moderation and live operations before scaling ([living-worlds thesis](../../docs/ideas/living-worlds-social-systems-2026-2036.md)).
 
 ### 4.1 The verb: guide the water

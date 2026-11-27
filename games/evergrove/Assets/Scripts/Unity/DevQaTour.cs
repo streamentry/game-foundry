@@ -22,6 +22,7 @@ namespace Evergrove.UnityClient
     {
         private const string TourArg = "-mosseloraQaTour";
         private const int JournalAfterChapter = 3; // zero-based: choice made on chapter 4
+        private const string SnapshotStamp = "2026-01-01T00:00:00Z";
 
         // Mixed, non-repeating choice pattern for the main (ending) run.
         private static readonly VillageChoice[] MainPattern =
@@ -93,6 +94,12 @@ namespace Evergrove.UnityClient
                 if (app == null) yield return null;
             }
             if (app == null) throw new InvalidOperationException("EvergroveApp was not created");
+            // A fixed clock (I282): shots compare build to build whatever time the tour runs.
+            app.QaSetClock(13);
+            app.QaSetWeather((int)Weather.Fair); // I353: tours never depend on today's real weather
+            // Picture rules show the first few times per device (I254/I262): every tour sees them.
+            foreach (string kind in new[] { "water", "pairs", "mosaic", "nonogram", "sudoku", "plots", "streampath", "mahjong" })
+                PlayerPrefs.DeleteKey("evergrove:rule-seen-" + kind);
             for (int f = 0; f < 8; f++) yield return null;
 
             // Run A: the first chapter, then the mixed choice path to the ending.
@@ -118,15 +125,66 @@ namespace Evergrove.UnityClient
                 // Seasons arrive through progress: capture the village in autumn and winter.
                 if (chapter == 7 || chapter == 10)
                 {
-                    ScrollTo("Living storybook art");
+                    // Sideways the village lives on the left of the screen, not in the
+                    // page: capture the screen as it is, so the landscape run completes (I170).
+                    if (Screen.width <= Screen.height && GameObject.Find("Living storybook art") != null) ScrollTo("Living storybook art");
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng(chapter == 7 ? "15-autumn-village.png" : "16-winter-village.png");
                 }
                 SolveBoard();
                 for (int f = 0; f < 6; f++) yield return null;
+                string beforePreview = GardenTransfer.Export(app.QaWorld, SnapshotStamp);
+                string afterChoice = ExpectedChoice(MainPattern[chapter]);
                 Press("Choice " + MainPattern[chapter]);
                 for (int f = 0; f < 6; f++) yield return null;
+                RequirePreview(beforePreview, chapter);
+                if (chapter == 0)
+                {
+                    // Inspect another card, then close it: neither action may
+                    // change any saved board, history, hint or garden field.
+                    Button oldApply = FindButton(n => n == "Apply garden choice", "Apply garden choice");
+                    Button oldClose = FindButton(n => n == "Close choice preview", "Close choice preview");
+                    Press("Choice " + VillageChoice.Flowers);
+                    // Rebuild destroys old controls at frame end. A stale
+                    // activation must not apply or cancel the new selection.
+                    oldApply.onClick.Invoke();
+                    oldClose.onClick.Invoke();
+                    RequirePreview(beforePreview, chapter);
+                    for (int f = 0; f < 6; f++) yield return null;
+                    RequirePreview(beforePreview, chapter);
+                    Press("Close choice preview");
+                    for (int f = 0; f < 6; f++) yield return null;
+                    RequireWorld(beforePreview, "Closing a preview changed the garden");
+                    if (HasActiveElement("Choice preview") || HasActiveElement("Apply garden choice"))
+                        throw new InvalidOperationException("Closing a preview left its controls active");
+                    Press("Choice " + MainPattern[chapter]);
+                    for (int f = 0; f < 6; f++) yield return null;
+                    RequirePreview(beforePreview, chapter);
+                    ScrollTo("Choice preview");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("03b-chapter1-choice-preview.png");
+                }
+                if (chapter == PuzzleCatalog.Count - 1)
+                {
+                    ScrollTo("Choice preview");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("17-final-choice-preview.png");
+                }
+                Press("Apply garden choice");
+                for (int f = 0; f < 6; f++) yield return null;
+                RequireWorld(afterChoice, "Applying a preview differed from the chosen outcome");
+                if (HasActiveElement("Choice preview"))
+                    throw new InvalidOperationException("Committed choice left a preview active");
+                if (chapter == 2)
+                {
+                    // The third stream opens the second reach: its mist lifting (I195).
+                    yield return new WaitForSecondsRealtime(1.4f);
+                    yield return new WaitForEndOfFrame();
+                    SavePng("05b-new-reach.png");
+                }
                 Press("Continue");
                 for (int f = 0; f < 6; f++) yield return null;
 
@@ -142,7 +200,21 @@ namespace Evergrove.UnityClient
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10b-journal-bottom.png");
-                    Press("Memories"); // close it before the rest of the run
+                    // A page opens to its memory (I166), then back to the book.
+                    Press("Journal chapter");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("10c-journal-page.png");
+                    Press("Back to the book");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    // The almanac tab (I174), then back to the pages.
+                    Press("Almanac");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("10d-almanac.png");
+                    Press("Our pages");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    Press("Close journal"); // close it before the rest of the run
                     for (int f = 0; f < 4; f++) yield return null;
                 }
             }
@@ -163,7 +235,434 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 4; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("11c-ending-journal-bottom.png");
-            Press("Memories");
+            Press("Close journal");
+            for (int f = 0; f < 4; f++) yield return null;
+            // The home screen's garden map with the whole year's twelve things (I176).
+            app.QaShowHub(true);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17-hub-map.png");
+            // The one corner button's fan (I191), with a whole year of memories.
+            Press("Open menu");
+            for (int f = 0; f < 12; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.4f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17b-menu-fan.png");
+            Press("Open menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            // The basket (I193): three more of the newest thing, planted beside it.
+            app.QaPlantFromBasket();
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17c-basket.png");
+            app.QaCloseBasket();
+            // Every grown thing holds a puzzle (I203/I204): pick one up, play it, see it bloom.
+            int thing = app.QaHoldThing();
+            if (thing >= 0)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17e-thing-picked-up.png");
+                app.QaOpenTreePlay(thing);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17f-tree-puzzle.png");
+                // I256: the classic kinds hint too: a wrong tile glows.
+                app.QaHintTreePlay();
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17f2-water-hint.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17g-tree-solved.png");
+                // I293: the solved board settles into the thing it belongs to.
+                yield return new WaitForSecondsRealtime(1.0f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17g2-becomes-the-thing.png");
+                yield return new WaitForSecondsRealtime(1.4f);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17h-tree-bloomed.png");
+                app.QaEndTreePlay();
+                // I259/I261: play it again: a fresh board, depth shown in leaves.
+                thing = app.QaHoldThing();
+                app.QaOpenTreePlay(thing);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17h2-replay-fresh-board.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(3.2f);
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaEndTreePlay();
+            }
+            // Flowers hold Pairs (depth spine): turn two cards, keep a match.
+            int flower = app.QaHoldThing((int)VillageChoice.Flowers);
+            if (flower >= 0)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaOpenTreePlay(flower);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17i-pairs.png");
+                // I264: take turns: the token wears whose turn it is.
+                app.QaTogetherTreePlay();
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17i2-taking-turns.png");
+                // I303/I302: four round one board, the second player's turn: the hint glows as an offer.
+                app.QaFourTurnsTreePlay();
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17i3-four-take-turns.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j-pairs-solved.png");
+                yield return new WaitForSecondsRealtime(2.4f);
+                app.QaEndTreePlay();
+                // I265/I266: the flowers wear two players' colours; Fen says you played it together.
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j2-solved-together-mark.png");
+                // I292: a thing replayed to its deepest tier wears a crown ring.
+                app.QaCrown(flower);
+                app.QaShowHub(true); // the refresh closes home in the tour; open it again
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j3-crowned.png");
+                // I294: quiet mode, just the garden; a tap brings everything back.
+                app.QaQuiet(true);
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j4-quiet-garden.png");
+                app.QaQuiet(false);
+                for (int f = 0; f < 4; f++) yield return null;
+                // I328/I330: a jar of jam made, a bench and stepping stones set down.
+                app.QaDecorAndJam();
+                app.QaShowHub(true);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j7-decorations.png");
+                // I333: the old well holds a deepest board; solving pays two fruit.
+                app.QaOpenWell();
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j8-old-well.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(3.2f);
+                app.QaEndTreePlay();
+                app.QaShowHub(true);
+                for (int f = 0; f < 4; f++) yield return null;
+                // I310: Nan left a lantern by the cottage (it glows at night below).
+                app.QaLantern();
+                // I299: the cottage's summary, what's waiting at a glance (and who left lanterns).
+                app.OpenCottage();
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j5-cottage.png");
+                app.CloseCottage();
+                for (int f = 0; f < 4; f++) yield return null;
+                // I319: the lookout, the whole river at once.
+                app.QaQuiet(true, true);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j6-lookout.png");
+                app.QaQuiet(false);
+                for (int f = 0; f < 4; f++) yield return null;
+                app.QaShowHub(false);
+                app.QaTalk(2);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.5f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j3-fen-together.png");
+                app.QaTalk(-1);
+            }
+            // Buildings hold a Mosaic (I209): swap tiles to mend a memory painting.
+            int building = app.QaHoldThing((int)VillageChoice.Bridge);
+            if (building >= 0)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaOpenTreePlay(building);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17m-mosaic.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17n-mosaic-mended.png");
+                yield return new WaitForSecondsRealtime(2.4f);
+                app.QaEndTreePlay();
+            }
+            // I223: one more first solve opens a new stretch of river; home lifts its mist.
+            // Make the river step independent of what came before: first solves until exactly one
+            // drop is left (the b290 tour reached it one short after the I256 tour change).
+            for (int guard = 0; guard < 8 && app.QaPuzzlesSolved() % GardenMap.SolvesPerReach != GardenMap.SolvesPerReach - 1; guard++)
+            {
+                app.QaShowHub(true); // a thing's puzzle opens over home (b291: the loop ran with home closed)
+                for (int f = 0; f < 4; f++) yield return null;
+                int extra = app.QaHoldUnsolved();
+                if (extra < 0) break;
+                for (int f = 0; f < 4; f++) yield return null;
+                app.QaOpenTreePlay(extra);
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(3.2f);
+                for (int f = 0; f < 4; f++) yield return null;
+                app.QaEndTreePlay();
+            }
+            // I224: at the river's foot, three of four drops filled on the next stretch's mist.
+            app.QaHubToFoot();
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17y-drops-on-the-mist.png");
+            int tree = app.QaHoldUnsolved();
+            if (tree >= 0)
+            {
+                Debug.Log("MOSSELORA_QA_RIVER solves before " + app.QaPuzzlesSolved() + " (wants " +
+                    (GardenMap.SolvesPerReach - 1) + ")");
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaOpenTreePlay(tree);
+                for (int f = 0; f < 8; f++) yield return null;
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(2.4f);
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17w-river-opens.png");
+                yield return new WaitForSecondsRealtime(3.2f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17x-river-opened.png");
+                app.QaEndTreePlay();
+            }
+            // I243-I247: the five newer kinds, each unsolved and then solved.
+            foreach (PuzzleKind kind in new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots,
+                         PuzzleKind.StreamPath, PuzzleKind.Mahjong, PuzzleKind.Sowing, PuzzleKind.Sums,
+                         PuzzleKind.Pieces, PuzzleKind.Doorstep })
+            {
+                app.QaOpenKind(kind, 1);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("18-" + kind.ToString().ToLowerInvariant() + ".png");
+                // I253: one hint, shown (not yet made).
+                app.QaHintTreePlay();
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForEndOfFrame();
+                SavePng("18-" + kind.ToString().ToLowerInvariant() + "-hint.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("18-" + kind.ToString().ToLowerInvariant() + "-solved.png");
+                yield return new WaitForSecondsRealtime(2.4f);
+                for (int f = 0; f < 4; f++) yield return null;
+                app.QaEndTreePlay();
+            }
+            // The nursery (I208): seeds buy a new plant that holds its own puzzle.
+            app.QaOpenNursery();
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17k-nursery.png");
+            app.QaBuyFromNursery();
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17l-nursery-bought.png");
+            app.QaCloseBasket();
+            // I238/I242: the poplar you bought is in your almanac now.
+            app.QaShowHub(false);
+            Press("Open menu");
+            for (int f = 0; f < 8; f++) yield return null;
+            Press("Almanac");
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17l2-almanac-after-buying.png");
+            Press("Close journal");
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaEndTreePlay();
+            // Family parcels (I215): send 50 seeds with a letter; then open one from Nan.
+            FamilySheet family = app.QaFamily();
+            if (family != null)
+            {
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17p-family-send.png");
+                // I343/I344: the wrapping step (a wish and a picture stamp), then the words step.
+                family.QaStep(1, 50, 2, 3);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17p1-family-wrap.png");
+                family.QaStep(2, 50, 2, 3);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17p2-family-words.png");
+                family.QaSend("Grandma Lan", 50, "The pear tree is in flower. Come and see it soon.");
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17q-family-sent.png");
+                FamilyParcel.TryCreate("Nan", "Planted one of these for you. Love, Nan", ParcelGift.Cutting, 2,
+                    "qatour1", out string parcel, out _, out _);
+                GUIUtility.systemCopyBuffer = "Look what I sent!\n" + FamilyParcel.Wrap(parcel, "Nan sent you a gift.");
+                family.QaOpen();
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17r-family-opened.png");
+                // Visit (I216): a relative's garden file, twelve streams and a basket of plantings.
+                WorldModel theirs = WorldModel.New(PlayMode.Living);
+                for (int chapter = 0; chapter < 12; chapter++)
+                {
+                    Puzzle theirBoard = theirs.CurrentPuzzle;
+                    for (int i = 0; i < theirBoard.CellCount; i++)
+                        while (theirs.Rotations[i] != theirBoard.Solution[i]) theirs.Rotate(i);
+                    theirs.Choose((VillageChoice)((chapter * 2) % 3));
+                }
+                for (int cell = 31; cell < 140; cell += 13) theirs.Plant(11, cell);
+                GUIUtility.systemCopyBuffer = GardenTransfer.Export(theirs, "2026-11-27T10:00:00Z");
+                family.QaVisit();
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17s-visiting.png");
+                // I227: help with one of their flower beds; it blooms in their garden.
+                if (app.QaHelpOnVisit((int)VillageChoice.Flowers))
+                {
+                    for (int f = 0; f < 8; f++) yield return null;
+                    yield return new WaitForSecondsRealtime(0.4f);
+                    yield return new WaitForEndOfFrame();
+                    SavePng("17s2-helping.png");
+                    app.QaSolveTreePlay();
+                    yield return new WaitForSecondsRealtime(3.2f);
+                    for (int f = 0; f < 8; f++) yield return null;
+                    yield return new WaitForSecondsRealtime(0.8f);
+                    yield return new WaitForEndOfFrame();
+                    SavePng("17s3-helped-their-garden.png");
+                    app.QaEndTreePlay();
+                }
+                app.QaCloseVisit();
+                // And the other way: Nan helped with one of your buildings.
+                int helpedThing = app.QaUnsolved((int)VillageChoice.Bridge);
+                if (helpedThing >= 0 && FamilyParcel.TryCreate("Nan", "", ParcelGift.Help, helpedThing,
+                        "qatour2", out string help, out _, out _))
+                {
+                    GUIUtility.systemCopyBuffer = FamilyParcel.Wrap(help, "Nan helped in your garden.");
+                    family = app.QaFamily(); // a visit closes the family card
+                    for (int f = 0; f < 4; f++) yield return null;
+                    family.QaOpen();
+                    for (int f = 0; f < 6; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("17s4-help-opened.png");
+                }
+                app.QaCloseFamily();
+                // Letters stay in the garden (I217): the letterbox by the cottage, then Nan's letter.
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17t-letterbox.png");
+                // I236: Orin points to the letter waiting unread.
+                app.QaShowHub(false);
+                app.QaTalk(1);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17t2-orin-letter.png");
+                app.QaTalk(-1);
+                app.QaShowHub(true);
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaReadLetter();
+                // I234: the seal lifts, then the paper rises.
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17u0-envelope.png");
+                yield return new WaitForSecondsRealtime(1.2f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17u-letter.png");
+                // I235: write back, "Dear Nan," begun.
+                app.QaWriteBack();
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17u2-write-back.png");
+                app.QaCloseFamily();
+                app.QaCloseLetter();
+                // I269: the book's family page: letters (Nan's, and Mira's river note), help, together.
+                app.QaShowHub(false);
+                Press("Open menu");
+                for (int f = 0; f < 8; f++) yield return null;
+                Press("Memories");
+                for (int f = 0; f < 6; f++) yield return null;
+                Press("Family in the garden");
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17u3-family-page.png");
+                Press("Close journal");
+                for (int f = 0; f < 4; f++) yield return null;
+            }
+            // Neighbours notice (I210): Mira names the poplar you just bought.
+            app.QaShowHub(false);
+            app.QaTalk(0);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17o-mira-notices.png");
+            app.QaTalk(-1);
+            // I222: Fen points to the clover cutting Nan sent, still in the basket.
+            app.QaTalk(2);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17v-fen-gift.png");
+            app.QaTalk(-1);
+            // I227: Orin names Nan, who helped with one of your buildings.
+            app.QaTalk(1);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17z-orin-help.png");
+            // I231: hand Fen a fruit from your trees; she thanks you at once.
+            Debug.Log("MOSSELORA_QA_FRUIT " + app.QaFruit());
+            app.QaTalk(2);
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17za-give-fruit.png");
+            app.QaGiveFruit(2);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17zb-fen-thanks.png");
+            app.QaTalk(-1);
+            // Settings as round tokens (I194).
+            Press("Open menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            Press("Settings");
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17d-settings.png");
+            // I276: the soft ask for garden notes, in the garden's own words.
+            Press("Close menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaShowHub(true);
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaNotesAsk();
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17d2-garden-notes-ask.png");
+            app.QaCloseNotesAsk();
+            app.QaShowHub(false);
+            Press("Open menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            Press("Settings");
+            for (int f = 0; f < 6; f++) yield return null;
+            Press("Close menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaShowHub(true);
+            for (int f = 0; f < 4; f++) yield return null;
+            app.QaShowHub(false);
             for (int f = 0; f < 4; f++) yield return null;
 
             // Runs B-D: a fresh world per village choice on chapter 1. Each shows
@@ -177,8 +676,14 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 SolveBoard();
                 for (int f = 0; f < 6; f++) yield return null;
+                string beforePreview = GardenTransfer.Export(app.QaWorld, SnapshotStamp);
+                string afterChoice = ExpectedChoice(branches[b]);
                 Press("Choice " + branches[b]);
                 for (int f = 0; f < 6; f++) yield return null;
+                RequirePreview(beforePreview, 0);
+                Press("Apply garden choice");
+                for (int f = 0; f < 6; f++) yield return null;
+                RequireWorld(afterChoice, "Branch preview committed a different outcome");
                 yield return new WaitForEndOfFrame();
                 SavePng(consequenceShots[b]);
                 if (b == 0)
@@ -203,6 +708,9 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 6; f++) yield return null;
             SolveBoard();
             for (int f = 0; f < 6; f++) yield return null;
+            if (HasActiveElement("Choice preview") || HasActiveElement("Apply garden choice") ||
+                HasActiveElement("Choice " + VillageChoice.ShadeTree))
+                throw new InvalidOperationException("PuzzleMatched exposed a village choice");
             Press("Next stream");
             for (int f = 0; f < 6; f++) yield return null;
             ScrollTo("Chapter");
@@ -231,33 +739,115 @@ namespace Evergrove.UnityClient
             // Step 14: garden file round trip through the real settings buttons and
             // the system clipboard. Copy, change the garden, restore, and require
             // the restored garden to match the copied one exactly.
-            const string probeStamp = "2026-01-01T00:00:00Z";
-            string beforeCopy = GardenTransfer.Export(app.QaWorld, probeStamp);
+            string beforeCopy = GardenTransfer.Export(app.QaWorld, SnapshotStamp);
             Press("Copy garden file");
             for (int f = 0; f < 4; f++) yield return null;
             WorldModel copiedWorld;
             GardenImportError copyError;
             if (!GardenTransfer.TryImport(GUIUtility.systemCopyBuffer, out copiedWorld, out copyError))
                 throw new InvalidOperationException("Copied garden file did not import: " + copyError);
-            if (GardenTransfer.Export(copiedWorld, probeStamp) != beforeCopy)
+            if (GardenTransfer.Export(copiedWorld, SnapshotStamp) != beforeCopy)
                 throw new InvalidOperationException("Clipboard garden file differs from the live garden");
             app.QaReplaceWorld(WorldModel.New());
             for (int f = 0; f < 4; f++) yield return null;
-            if (GardenTransfer.Export(app.QaWorld, probeStamp) == beforeCopy)
+            if (GardenTransfer.Export(app.QaWorld, SnapshotStamp) == beforeCopy)
                 throw new InvalidOperationException("Garden change did not take effect before restore");
             Press("Restore garden file");
             for (int f = 0; f < 4; f++) yield return null;
             Press("Confirm garden restore");
             for (int f = 0; f < 4; f++) yield return null;
-            if (GardenTransfer.Export(app.QaWorld, probeStamp) != beforeCopy)
+            if (GardenTransfer.Export(app.QaWorld, SnapshotStamp) != beforeCopy)
                 throw new InvalidOperationException("Restored garden does not match the copied garden");
             ScrollTo("Garden file");
             for (int f = 0; f < 4; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("14-garden-file.png");
 
+            // I251: home through the year. A finished garden, then 4, 8 and 12 first
+            // solves: autumn, winter, spring (the festival itself is summer).
+            Press("Close menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            string[] seasons = { "19-summer-home.png", "19-autumn-home.png", "19-winter-home.png", "19-spring-home.png" };
+            for (int turn = 0; turn < seasons.Length; turn++)
+            {
+                WorldModel year = WorldModel.New(PlayMode.Living);
+                for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+                {
+                    Puzzle stream = year.CurrentPuzzle;
+                    for (int i = 0; i < stream.CellCount; i++)
+                        while (year.Rotations[i] != stream.Solution[i]) year.Rotate(i);
+                    year.Choose((VillageChoice)(chapter % 3));
+                }
+                for (int i = 0; i < turn * GardenMap.SolvesPerReach; i++) year.SolveTree(i);
+                app.QaReplaceWorld(year);
+                app.QaShowHub(true);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng(seasons[turn]);
+                app.QaShowHub(false);
+                // I354–I357: a day of each season's own weather: hot summer, windy autumn,
+                // snowy winter, rainy spring.
+                Weather[] dayOf = { Weather.Hot, Weather.Windy, Weather.Snowy, Weather.Rainy };
+                app.QaSetWeather((int)dayOf[turn]);
+                app.QaShowHub(true);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.6f);
+                yield return new WaitForEndOfFrame();
+                SavePng("19w-" + dayOf[turn].ToString().ToLowerInvariant() + "-day.png");
+                app.QaShowHub(false);
+                app.QaSetWeather((int)Weather.Fair);
+            }
+
+            // I278-I282: the same garden at dawn, golden hour, dusk and night; Fen at night.
+            foreach (int hour in new[] { 6, 18, 20, 23 })
+            {
+                app.QaSetClock(hour);
+                app.QaShowHub(true);
+                for (int f = 0; f < 10; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("20-light-" + hour.ToString("00") + ".png");
+                app.QaShowHub(false);
+            }
+            app.QaTalk(2);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("20-fen-at-night.png");
+            app.QaTalk(-1);
+            app.QaSetClock(13);
+
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
             Application.Quit();
+        }
+
+        private string ExpectedChoice(VillageChoice choice)
+        {
+            WorldModel expected;
+            if (!WorldModel.TryRestore(app.QaWorld.Export(), out expected) || !expected.Choose(choice))
+                throw new InvalidOperationException("Cannot prepare the expected choice outcome");
+            return GardenTransfer.Export(expected, SnapshotStamp);
+        }
+
+        private void RequireWorld(string expected, string failure)
+        {
+            if (GardenTransfer.Export(app.QaWorld, SnapshotStamp) != expected)
+                throw new InvalidOperationException(failure);
+        }
+
+        private void RequirePreview(string beforePreview, int chapter)
+        {
+            RequireWorld(beforePreview, "Inspecting a preview changed the garden");
+            if (!HasActiveElement("Choice preview") || !HasActiveElement("Apply garden choice"))
+                throw new InvalidOperationException("Choice preview or its confirmation is missing");
+            bool hasNextStream = HasActiveElement("Next stream preview");
+            if (hasNextStream != (chapter < PuzzleCatalog.Count - 1))
+                throw new InvalidOperationException("Preview promised the wrong next-stream state");
+        }
+
+        private static bool HasActiveElement(string name)
+        {
+            return FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                .Any(t => t.name == name);
         }
 
         private void SavePng(string fileName)
@@ -284,6 +874,15 @@ namespace Evergrove.UnityClient
                     button.onClick.Invoke();
                     foreach (Button again in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                         if (nameMatches(again.name)) return again;
+                    // The corner button opens a fan (I191); settings is one of its tokens.
+                    foreach (Button token in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                        if (token.name == "Settings")
+                        {
+                            token.onClick.Invoke();
+                            foreach (Button again in FindObjectsByType<Button>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                                if (nameMatches(again.name)) return again;
+                            break;
+                        }
                     break;
                 }
             throw new InvalidOperationException("No active button: " + description);

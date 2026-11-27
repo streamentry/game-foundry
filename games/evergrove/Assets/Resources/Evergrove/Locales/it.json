@@ -486,6 +486,18 @@
       "value": "Fen segue le api tra i tuoi fiori selvatici."
     },
     {
+      "key": "preview_title",
+      "value": "Prima di scegliere"
+    },
+    {
+      "key": "preview_help",
+      "value": "Tocca una carta per confrontare. Il giardino cambia solo quando confermi."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Applica questa modifica"
+    },
+    {
       "key": "privacy_policy",
       "value": "Informativa sulla privacy"
     }

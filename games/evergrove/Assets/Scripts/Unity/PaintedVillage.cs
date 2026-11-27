@@ -1,3 +1,5 @@
+using Evergrove.Core;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -58,9 +60,38 @@ namespace Evergrove.UnityClient
             return landscapePhase >= 3 ? 2 : landscapePhase >= 2 ? 1 : 0;
         }
 
+        /// <summary>
+        /// The art season for a garden (I249): four seasons by progress (GardenSeason).
+        /// 0 summer, 1 autumn, 2 winter (the old meanings), 3 spring.
+        /// </summary>
+        public static int ArtSeason(WorldModel world)
+        {
+            switch (GardenSeason.For(world))
+            {
+                case Season.Spring: return 3;
+                case Season.Autumn: return 1;
+                case Season.Winter: return 2;
+                default: return 0;
+            }
+        }
+
+        /// <summary>The garden map painting's resource name for an art season.</summary>
+        public static string MapFor(int season)
+        {
+            return season == 1 ? "garden-map-autumn" : season == 2 ? "garden-map-winter"
+                : season == 3 ? "garden-map-spring" : "garden-map";
+        }
+
+        /// <summary>The banner prefix for an art season.</summary>
+        public static string BannerFor(int season)
+        {
+            return season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-"
+                : season == 3 ? "banner-spring-" : "banner-stream-";
+        }
+
         public void Build(float bleed, int season = 0)
         {
-            string prefix = season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-" : null;
+            string prefix = season == 0 ? null : BannerFor(season);
             Sprite drySprite = prefix != null ? MosseloraArt.Load(prefix + "dry") : null;
             Sprite wetSprite = prefix != null ? MosseloraArt.Load(prefix + "flowing") : null;
             if (drySprite == null || wetSprite == null)
@@ -109,6 +140,13 @@ namespace Evergrove.UnityClient
             flowing.color = new Color(1f, 1f, 1f, next);
         }
 
+        /// <summary>
+        /// The painted item for the nth landmark of a family (0 tree, 1 build,
+        /// 2 flowers), or null for the family's default art (I172: the village
+        /// shows the specific apple tree, windmill or poppies the player chose).
+        /// </summary>
+        public static Func<int, int, Sprite> ItemSprite;
+
         public void Show(int chapterIndex, int shade, int crossings, int meadows,
                          bool restored, int waterReachPercent)
         {
@@ -129,22 +167,24 @@ namespace Evergrove.UnityClient
             shownFlowers = meadows;
             for (int i = landmarks.childCount - 1; i >= 0; i--)
                 Destroy(landmarks.GetChild(i).gameObject);
-            Transform tree = Place(MosseloraArt.Load(MosseloraArt.ShadeTree), TreeSlots, shade, "Planted shade tree");
-            Transform flower = Place(MosseloraArt.Load(MosseloraArt.Wildflowers), FlowerSlots, meadows, "Grown wildflowers");
-            Transform bridge = Place(MosseloraArt.Load(MosseloraArt.Bridge), BridgeSlots, crossings, "Restored crossing");
+            Transform tree = Place(MosseloraArt.Load(MosseloraArt.ShadeTree), TreeSlots, shade, "Planted shade tree", 0);
+            Transform flower = Place(MosseloraArt.Load(MosseloraArt.Wildflowers), FlowerSlots, meadows, "Grown wildflowers", 2);
+            Transform bridge = Place(MosseloraArt.Load(MosseloraArt.Bridge), BridgeSlots, crossings, "Restored crossing", 1);
             Transform newest = GrowNewestKind == 0 ? tree : GrowNewestKind == 1 ? bridge : GrowNewestKind == 2 ? flower : null;
             if (newest != null) newest.gameObject.AddComponent<GrowIn>();
             GrowNewestKind = -1;
         }
 
         /// <summary>Places this kind's landmarks; returns the newest (last slot) or null.</summary>
-        private Transform Place(Sprite sprite, Vector3[] slots, int count, string label)
+        private Transform Place(Sprite fallback, Vector3[] slots, int count, string label, int family)
         {
             Transform last = null;
-            if (sprite == null) return null;
             int shown = Mathf.Min(Mathf.Max(0, count), slots.Length);
             for (int i = 0; i < shown; i++)
             {
+                Sprite sprite = ItemSprite != null ? ItemSprite(family, i) : null;
+                if (sprite == null) sprite = fallback;
+                if (sprite == null) continue;
                 var node = new GameObject(label, typeof(RectTransform));
                 node.transform.SetParent(landmarks, false);
                 var rect = node.GetComponent<RectTransform>();

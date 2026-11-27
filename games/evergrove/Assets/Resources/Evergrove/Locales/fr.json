@@ -486,6 +486,18 @@
       "value": "Fen suit les abeilles parmi vos fleurs sauvages."
     },
     {
+      "key": "preview_title",
+      "value": "Avant de choisir"
+    },
+    {
+      "key": "preview_help",
+      "value": "Touchez une carte pour comparer. Votre jardin ne change que lorsque vous confirmez."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Faire ce changement"
+    },
+    {
       "key": "privacy_policy",
       "value": "Politique de confidentialité"
     }

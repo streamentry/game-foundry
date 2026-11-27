@@ -37,7 +37,9 @@ namespace Evergrove.Core
         private static readonly HashSet<string> SnapshotKeys = new HashSet<string> {
             "version", "mode", "round", "solved", "rotations", "previous", "choices",
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
-            "history"
+            "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
+            "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
+            "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam", "letterStamps", "decor", "well"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -134,9 +136,45 @@ namespace Evergrove.Core
             // Gardens exported before EG-111 have no "history" key in their checksummed text.
             // Accept that exact pre-history canonical form only when the import has no history.
             bool matchesCurrent = string.Equals(Sha256Hex(SnapshotJson(snapshot)), checksum, StringComparison.Ordinal);
-            bool matchesPreHistory = snapshot.history.Length == 0 &&
-                string.Equals(Sha256Hex(SnapshotJson(snapshot, false)), checksum, StringComparison.Ordinal);
-            if (!matchesCurrent && !matchesPreHistory)
+            // Gardens exported before E4 (I177) have no "garden"/"placements" keys.
+            // Gardens exported before I213 have no "gifts"/"parcelIds"/"letters"/"letterFrom" keys.
+            // Gardens exported before I226 have no "helped"/"helpedFrom" keys.
+            // Gardens exported before I228 have no "fruit"/"fruitGiven"/"lastFruitTo" keys.
+            // Gardens exported before I263 have no "together" key.
+            // Gardens exported before lantern parcels have no "lanterns" key.
+            bool noLanternsYet = snapshot.lanterns == null || snapshot.lanterns.Length == 0;
+            bool noTogetherYet = snapshot.together.Length == 0 && noLanternsYet;
+            bool noFruitYet = snapshot.fruit == 0 && snapshot.lastFruitTo == -1 && AllZero(snapshot.fruitGiven) && noTogetherYet;
+            bool noHelpYet = snapshot.helped.Length == 0 && snapshot.helpedFrom.Length == 0 && noFruitYet;
+            bool noFamilyYet = snapshot.gifts.Length == 0 && snapshot.parcelIds.Length == 0 &&
+                snapshot.letters.Length == 0 && snapshot.letterFrom.Length == 0 && noHelpYet;
+            bool noNurseryYet = snapshot.bought.Length == 0 && snapshot.boughtSolved.Length == 0 && noFamilyYet;
+            bool noTreesYet = snapshot.seeds == 0 && snapshot.treeSolved.Length == 0 && noNurseryYet;
+            bool noMapYet = snapshot.garden == 0 && snapshot.placements.Length == 0 && snapshot.plantings.Length == 0 && noTreesYet;
+            // Gardens exported before I193 have no "plantings" key.
+            bool matchesPrePlantings = snapshot.plantings.Length == 0 && noTreesYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, false, false, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreLanterns = noLanternsYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreTogether = noTogetherYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreFruit = noFruitYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, true, false, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreHelp = noHelpYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, false, false, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreFamily = noFamilyYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, false, false, false, false)), checksum, StringComparison.Ordinal);
+            // Gardens exported before I205 have no "bought"/"boughtSolved" keys; seeds may be set.
+            bool matchesPreNursery = noNurseryYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, false)), checksum, StringComparison.Ordinal);
+            // Gardens exported before I204 have no "seeds"/"treeSolved" keys.
+            bool matchesPreTrees = noTreesYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, false, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreMap = noMapYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreHistory = noMapYet && snapshot.history.Length == 0 &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, false, false)), checksum, StringComparison.Ordinal);
+            if (!matchesCurrent && !matchesPreLanterns && !matchesPreTogether && !matchesPreFruit && !matchesPreHelp && !matchesPreFamily && !matchesPreNursery && !matchesPreTrees && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
             {
                 error = GardenImportError.ChecksumMismatch;
                 return false;
@@ -154,14 +192,17 @@ namespace Evergrove.Core
         /// <summary>Field order mirrors Unity JsonUtility.ToJson(WorldSnapshot).</summary>
         internal static string SnapshotJson(WorldSnapshot s)
         {
-            return SnapshotJson(s, true);
+            return SnapshotJson(s, true, true);
         }
 
         /// <summary>
         /// Canonical text. With includeHistory false it reproduces the pre-EG-111
         /// layout, used only to verify checksums of older garden files.
         /// </summary>
-        private static string SnapshotJson(WorldSnapshot s, bool includeHistory)
+        private static string SnapshotJson(WorldSnapshot s, bool includeHistory, bool includeMap, bool includePlantings = true,
+                                           bool includeTrees = true, bool includeNursery = true, bool includeFamily = true,
+                                           bool includeHelp = true, bool includeFruit = true, bool includeTogether = true,
+                                           bool includeLanterns = true)
         {
             var sb = new StringBuilder(256);
             sb.Append("{\"version\":").Append(Int(s.version))
@@ -178,6 +219,42 @@ namespace Evergrove.Core
               .Append(",\"hintTile\":").Append(Int(s.hintTile))
               .Append(",\"variantSchedule\":").Append(IntArray(s.variantSchedule));
             if (includeHistory) sb.Append(",\"history\":").Append(IntArray(s.history));
+            if (includeMap)
+                sb.Append(",\"garden\":").Append(Int(s.garden))
+                  .Append(",\"placements\":").Append(IntArray(s.placements));
+            if (includeMap && includePlantings)
+                sb.Append(",\"plantings\":").Append(IntArray(s.plantings));
+            if (includeMap && includePlantings && includeTrees)
+                sb.Append(",\"seeds\":").Append(Int(s.seeds))
+                  .Append(",\"treeSolved\":").Append(IntArray(s.treeSolved));
+            if (includeMap && includePlantings && includeTrees && includeNursery)
+                sb.Append(",\"bought\":").Append(IntArray(s.bought))
+                  .Append(",\"boughtSolved\":").Append(IntArray(s.boughtSolved));
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily)
+                sb.Append(",\"gifts\":").Append(IntArray(s.gifts))
+                  .Append(",\"parcelIds\":").Append(StringArray(s.parcelIds))
+                  .Append(",\"letters\":").Append(StringArray(s.letters))
+                  .Append(",\"letterFrom\":").Append(StringArray(s.letterFrom));
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp)
+                sb.Append(",\"helped\":").Append(IntArray(s.helped))
+                  .Append(",\"helpedFrom\":").Append(StringArray(s.helpedFrom));
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit)
+                sb.Append(",\"fruit\":").Append(Int(s.fruit))
+                  .Append(",\"fruitGiven\":").Append(IntArray(s.fruitGiven))
+                  .Append(",\"lastFruitTo\":").Append(Int(s.lastFruitTo));
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit && includeTogether)
+                sb.Append(",\"together\":").Append(IntArray(s.together));
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit && includeTogether && includeLanterns)
+                sb.Append(",\"lanterns\":").Append(StringArray(s.lanterns));
+            // Newer keys are written only when they hold something, so every older garden's text and checksum
+            // stay byte-identical and no explicit "pre" step is needed for them.
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit && includeTogether && includeLanterns)
+            {
+                if (s.jam != 0) sb.Append(",\"jam\":").Append(Int(s.jam));
+                if (s.letterStamps != null && s.letterStamps.Length != 0) sb.Append(",\"letterStamps\":").Append(IntArray(s.letterStamps));
+                if (s.decor != null && s.decor.Length != 0) sb.Append(",\"decor\":").Append(IntArray(s.decor));
+                if (s.well != 0) sb.Append(",\"well\":").Append(Int(s.well));
+            }
             return sb.Append('}').ToString();
         }
 
@@ -192,7 +269,27 @@ namespace Evergrove.Core
             }
         }
 
-        private static string Int(int value)
+        private static string StringArray(string[] values)
+        {
+            if (values == null) return "null";
+            var sb = new StringBuilder();
+            sb.Append('[');
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (i > 0) sb.Append(',');
+                sb.Append(Quote(values[i]));
+            }
+            return sb.Append(']').ToString();
+        }
+
+        private static bool AllZero(int[] values)
+        {
+            if (values == null) return true;
+            foreach (int v in values) if (v != 0) return false;
+            return true;
+        }
+
+        internal static string Int(int value)
         {
             return value.ToString(CultureInfo.InvariantCulture);
         }
@@ -210,7 +307,7 @@ namespace Evergrove.Core
             return sb.Append(']').ToString();
         }
 
-        private static string Quote(string value)
+        internal static string Quote(string value)
         {
             if (value == null) return "null";
             var sb = new StringBuilder(value.Length + 2);
@@ -252,7 +349,29 @@ namespace Evergrove.Core
                    ReadInt(fields, "hintStep", ref snapshot.hintStep) &&
                    ReadInt(fields, "hintTile", ref snapshot.hintTile) &&
                    ReadInts(fields, "variantSchedule", ref snapshot.variantSchedule) &&
-                   ReadInts(fields, "history", ref snapshot.history);
+                   ReadInts(fields, "history", ref snapshot.history) &&
+                   ReadInt(fields, "garden", ref snapshot.garden) &&
+                   ReadInts(fields, "placements", ref snapshot.placements) &&
+                   ReadInts(fields, "plantings", ref snapshot.plantings) &&
+                   ReadInt(fields, "seeds", ref snapshot.seeds) &&
+                   ReadInts(fields, "treeSolved", ref snapshot.treeSolved) &&
+                   ReadInts(fields, "bought", ref snapshot.bought) &&
+                   ReadInts(fields, "boughtSolved", ref snapshot.boughtSolved) &&
+                   ReadInts(fields, "gifts", ref snapshot.gifts) &&
+                   ReadStrings(fields, "parcelIds", ref snapshot.parcelIds) &&
+                   ReadStrings(fields, "letters", ref snapshot.letters) &&
+                   ReadStrings(fields, "letterFrom", ref snapshot.letterFrom) &&
+                   ReadInts(fields, "helped", ref snapshot.helped) &&
+                   ReadStrings(fields, "helpedFrom", ref snapshot.helpedFrom) &&
+                   ReadInt(fields, "fruit", ref snapshot.fruit) &&
+                   ReadInts(fields, "fruitGiven", ref snapshot.fruitGiven) &&
+                   ReadInt(fields, "lastFruitTo", ref snapshot.lastFruitTo) &&
+                   ReadInts(fields, "together", ref snapshot.together) &&
+                   ReadStrings(fields, "lanterns", ref snapshot.lanterns) &&
+                   ReadInt(fields, "jam", ref snapshot.jam) &&
+                   ReadInts(fields, "letterStamps", ref snapshot.letterStamps) &&
+                   ReadInts(fields, "decor", ref snapshot.decor) &&
+                   ReadInt(fields, "well", ref snapshot.well);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)
@@ -296,6 +415,20 @@ namespace Evergrove.Core
             return true;
         }
 
+        private static bool ReadStrings(Dictionary<string, object> fields, string key, ref string[] target)
+        {
+            object raw;
+            if (!fields.TryGetValue(key, out raw)) return true;
+            if (raw == null) { target = null; return true; }
+            var items = raw as List<object>;
+            if (items == null) return false;
+            var values = new string[items.Count];
+            for (int i = 0; i < items.Count; i++)
+                if ((values[i] = items[i] as string) == null) return false;
+            target = values;
+            return true;
+        }
+
         private static bool ReadRequiredInt(Dictionary<string, object> fields, string key, out int value)
         {
             object raw;
@@ -318,7 +451,7 @@ namespace Evergrove.Core
         }
 
         /// <summary>Accepts only integer JSON tokens (no fraction or exponent) within int range.</summary>
-        private static bool AsInt(object raw, out int value)
+        internal static bool AsInt(object raw, out int value)
         {
             value = 0;
             var number = raw as JsonNumber;
@@ -328,14 +461,14 @@ namespace Evergrove.Core
             return int.TryParse(number.Raw, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out value);
         }
 
-        private sealed class JsonNumber
+        internal sealed class JsonNumber
         {
             public readonly string Raw;
             public JsonNumber(string raw) { Raw = raw; }
         }
 
         /// <summary>Strict, minimal RFC 8259 reader: no duplicate keys, no trailing content.</summary>
-        private sealed class Parser
+        internal sealed class Parser
         {
             private readonly string text;
             private int position;
@@ -346,6 +479,7 @@ namespace Evergrove.Core
             {
                 root = null;
                 var parser = new Parser(text);
+                parser.SkipWhitespace();
                 object value;
                 if (!parser.ParseValue(0, out value)) return false;
                 parser.SkipWhitespace();

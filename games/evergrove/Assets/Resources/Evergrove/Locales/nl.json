@@ -486,6 +486,18 @@
       "value": "Fen volgt de bijen tussen je wilde bloemen."
     },
     {
+      "key": "preview_title",
+      "value": "Voordat je kiest"
+    },
+    {
+      "key": "preview_help",
+      "value": "Tik op een kaart om te vergelijken. Je tuin verandert pas als je bevestigt."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Pas deze wijziging toe"
+    },
+    {
       "key": "privacy_policy",
       "value": "Privacybeleid"
     }

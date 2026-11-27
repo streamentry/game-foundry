@@ -748,6 +748,24 @@ Fetched and fast-forward checked main at `1e4caa2445adc8eff9aa4ebec5725448534b4a
 
 Live checks returned HTTP 200 at the Astro site apex and API health endpoint. The API still reports prototype status with gameplay sync disabled. No signed build or store submission was produced by this recovery attempt.
 
+## 2026-11-25 — Mosselora: build toward the end-game village now
+
+**Decision (founder):** build Mosselora toward its end-game version, a calm village the player grows and shapes, now rather than after M4. Taste is the top priority, and the goal is to release a finished, polished game. Full design: [`games/evergrove/docs/specs/proposals/endgame-village-2026-11-25.md`](../../games/evergrove/docs/specs/proposals/endgame-village-2026-11-25.md).
+
+**What changes:** a 200-item garden catalogue (50 trees, 50 flowers, 100 things to build or mend; I171), then an almanac, a pannable garden map where the player places what they earn, neighbours who walk among the player's things, and generations of gardens down a valley. The water puzzle stays the core verb.
+
+**What we know:** the core loop, save system and painted UI exist, verified on simulators and an emulator. No adults 40+ have played any version. No physical-device test has been run.
+
+**Unknown:** whether players value the village over a pure puzzle (M4), whether placement is easy for players over 40 (M3 probe), and the device performance of a tile map.
+
+**Why:** founder direction. Three fixed choices (tree, bridge, flowers) and a fixed painting were judged too thin for daily play, and an open, shapeable garden is the end-game the vision describes.
+
+**Opposing case:** the specs hold village expansion until M4 proves the living world beats a puzzle-only control on identical boards. Building the village first risks large effort on a layer players may not value, and puzzle dilution.
+
+**Stop condition:** if M4 shows players prefer Puzzle Only, or M3 shows placement confuses players over 40, cut the village back to what players use.
+
+**Next observable action:** E1, the catalogue live with painted icons (I172–I173), verified on simulator tours.
+
 ## 2026-11-25 — Mosselora iOS build 2 delivered to Apple
 
 Xcode exported the App Store distribution package for version 1.0.0 build 2 from source `84c0592`. The upload log reports successful delivery and the start of Apple processing at 07:58 ICT. Processing completion, review submission, approval and public availability remain unverified. Automatic release after approval was last observed selected in App Store Connect. Android build 2 passed bundle validation and completed the first puzzle on the Android 16 emulator. After selecting a shade tree, the game displayed Rainwater as the next level and preserved the tree choice and next level after a force-stop and cold launch. See [Android build 2 captures](../../games/evergrove/docs/qa/android-build-2-2026-11-25/). Upload-key signing, physical-device QA and Play submission remain open.
@@ -924,3 +942,45 @@ The TestFlight build 4 crash log shows `EXC_BREAKPOINT` at UIKit's `UIApplicatio
 Fetched latest upstream main `d51cf14` and merged it with the privacy link and BidiSharp notice in an isolated checkout. Updated the Unity patch and explicit editor validator in isolated commit `751342d`. The shared checkout remains unchanged by the merge. Verified the Unity base editor signature and its official signed iOS module. The source verifier passed, as did 72,001 .NET assertions. Unity exported the iOS candidate, whose Xcode project has `UnityScene` and the scene manifest. A signed build 6 was produced; the signed IPA contains the scene manifest and BidiSharp notice. SHA-256 `dd8f2bdec2b20e881d13ab77aa008f376a020b2c07950cc8a902c22d623957c3`. Apple altool validation and upload succeeded; build processing is pending. An iOS 26.5 simulator build installed, launched and displayed the game, with its process still running. No iOS 27 simulator or physical device was available; the original crash is not yet verified fixed on iOS 27. Do not submit build 5 as the fix.
 
 Apple build 6 later reached processing state VALID, upload COMPLETE. An attempt to associate it with the existing internal TestFlight group returned HTTP 422 ENTITY_UNPROCESSABLE. Readback shows `usesNonExemptEncryption` unset; the exact cause of the 422 is not confirmed. The temporary isolated checkout and build artifacts were cleared by the environment after upload. The shared checkout still contains the earlier privacy and license changes, but the isolated Unity upgrade commits are no longer available in that temporary directory. App Store Connect browser returned to authentication and was handed to the user. No device launch on iOS 27 is verified.
+
+## 2026-11-26 — Understand a garden choice before applying it
+
+**Decision:** improve the existing offline choice loop. The founder requested a source review and practical improvements toward Mosselora's vision. This change makes the current consequence inspectable; it does not authorize family accounts, multiplayer or a store release.
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | The previous choice cards hid consequence copy from sighted players, committed immediately, and pictured the next protected pipe as a hardcoded straight channel. The actual next tile can be a corner, differently oriented, wet or dry |
+| Owner | Founder request; the existing design contract requires truthful, reversible inspection before confirmation |
+| Delete | Reuse the real model transition, existing art and localization. No extra garden simulation, choice currency, profile, network call or save schema |
+| Player value | Compare tree, bridge and flowers; see the resulting garden fact and actual next protected pipe; apply one choice explicitly |
+| Audience fit | Not validated with people. Readable labels, scaled text, equally weighted choices and no timed decision preserve the adult 40+ direction. The pause may also support side-by-side discussion, but that is unobserved |
+| Strongest objection | An extra tap and explanation may slow an otherwise simple choice |
+| Cheapest disproof | Observe five uncoached players or family groups at their first decision. Ask afterwards what changed and when it was saved |
+| Stop | Simplify the preview before expanding it if at least 2 of 5 think inspection already saved the choice or cannot find the apply action |
+
+**Implemented:** a temporary preview clones the current snapshot, restores it, and calls the same WorldModel.Choose operation as committed play. Comparing, closing or losing the preview on relaunch leaves the solved garden unchanged. Only the explicit apply action reaches the existing save and choice-recorder path. The next pipe uses its real shape, orientation, water reach and position; the final choice has no next-stream promise. The preview is invalidated when the world, round or solved state changes. Old apply/close callbacks cannot act on a newer selection; accessibility activations reject inactive controls and respect interaction locks. All three new strings exist in English and 29 draft catalogs (124 keys total); draft status is unchanged.
+
+**Reliability fix:** clipboard garden restoration now accepts standard leading JSON whitespace. A regression first reproduced rejection, then proved restoration retains choices, the unfinished board, undo history and a staged hint. Checksum and malformed-input rejection remain in place.
+
+**Observed verification:** .NET 8 Release reports 51,611 assertions, including 1,416 preview assertions; the save-journal suite separately reports 1,626. All 45 source-derived puzzle profiles match. The static Unity project contract and 65 Python tool tests pass. The preview/commit comparison covers all 12 chapters × 3 choices and legacy v1/v2/v3 saves. Roslyn syntax parsing under five Unity/test define sets passes; this is not Unity type checking.
+
+**Not run:** licensed Unity import/compile, the expanded native QA tour, physical iPhone/Android tests, native-reader review or human sessions. Historical simulator/emulator evidence predates this source change. The existing native tour now checks preview, comparison, cancellation, stale callbacks, actual committed state, the final chapter and the matched control; it must be executed on the new build.
+
+**Next real action:** build this source with the pinned licensed Editor, run the updated tour and phone accessibility/layout checks, then use the existing solo and family session kits. Continue to M4 only after comprehension passes. Rotation-based variants still preserve the connection graph: this change improves clarity, not ecological depth, retention or validated demand.
+
+## 2026-11-27 — Mosselora iteration run I189–I288: depth, family, seasons, notes
+
+**Decisions (founder directions in this run):** earned seeds and a nursery; offline neighbours who notice (a language-model companion later); five more puzzle kinds (nonogram, seed sudoku, garden plots, one-path stream, mahjong solitaire) chosen from the studio's own demand research; four seasons by progress; light that follows the player's local time (cosmetic only); on-device "garden notes" (local notifications) under the rules in [notifications-2026-11-27.md](../../games/evergrove/docs/specs/proposals/notifications-2026-11-27.md). Each iteration is documented in `docs/improvements/I189` to `I288`.
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Pure C# tests (349,144 assertions) and simulator tours in portrait, landscape and 150% text for every merged batch. One real local notification delivered on the iOS simulator (I284). No physical device, no player aged 40+, no family group has played any of it |
+| Owner | Founder, through the iteration goal and in-session requests |
+| Delete | Notifications stay off until the player says yes; Android notes are not built; translations of new text wait for native review (consumer builds ship English only) |
+| User value | A daily loop with a horizon (seeds, nursery, river, seasons), eight puzzle kinds that teach themselves, family letters, help, gifts and playing together on one device, and a neighbour's true note at the player's own hour |
+| Audience fit | Unknown: none of it has been observed with adults 40+ |
+| Falsification | Uncoached adults 40+ (bands 40–49, 50–64, 65+) play three days: do they return without the note, choose puzzle kinds by the marks, understand the drops on the mist, and find any note pressuring? |
+| Stop | Notes: more than one in four who turn them on turn them off within a week, or any note called pressure. Puzzles: a kind skipped by most players moves to later editions or is cut |
+| Evidence | The research diary and session notes; per-iteration docs |
+
+**Never claim** from this run: retention, wellbeing, memory or connection effects; that families play together; that the 29 non-English catalogs cover the new text.

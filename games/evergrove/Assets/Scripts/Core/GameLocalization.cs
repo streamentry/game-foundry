@@ -101,7 +101,8 @@ namespace Evergrove.Core
             "mira_autumn","mira_winter","orin_autumn","orin_winter","fen_autumn","fen_winter",
             "has_news",
             "memory_tree_2","memory_tree_3","memory_bridge_2","memory_bridge_3",
-            "memory_flowers_2","memory_flowers_3","privacy_policy"
+            "memory_flowers_2","memory_flowers_3",
+            "preview_title","preview_help","preview_apply","privacy_policy"
         };
 
         private static readonly string[] English = {
@@ -226,6 +227,9 @@ namespace Evergrove.Core
             "Orin keeps your crossings in good repair.",
             "Fen gathers seeds from your wildflowers.",
             "Fen follows the bees along your wildflowers.",
+            "Before you choose",
+            "Tap a card to compare. Your garden changes only when you confirm.",
+            "Make this change",
             "Privacy policy"
         };
 

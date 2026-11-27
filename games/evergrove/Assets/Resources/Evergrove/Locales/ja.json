@@ -486,6 +486,18 @@
       "value": "フェンは、あなたの野の花のあいだでミツバチを追っています。"
     },
     {
+      "key": "preview_title",
+      "value": "選ぶ前に"
+    },
+    {
+      "key": "preview_help",
+      "value": "カードをタップして比べましょう。確定するまで庭は変わりません。"
+    },
+    {
+      "key": "preview_apply",
+      "value": "この変更を確定"
+    },
+    {
       "key": "privacy_policy",
       "value": "プライバシーポリシー"
     }

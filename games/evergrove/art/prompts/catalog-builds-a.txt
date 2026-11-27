@@ -1,0 +1,34 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached image is the EXISTING painted icon art of this game (a shade tree, a little bridge, a wildflower bed): match its hand-painted watercolour storybook style, soft outlines, warm light and three-quarter view EXACTLY. Generate exactly ONE image.
+Use case: game UI sprite sheet for a calm village garden game
+Asset type: 25 garden item icons, sliced from a single 5x5 grid of equal square cells
+Primary request: a 5 x 5 grid, row by row, left to right. Each cell shows that village STRUCTURE or object, small and complete, sitting on a little patch of grass or stone, warm wood and stone, clearly recognisable. Each icon is centred in its own cell, fills about 80% of it, and stays strictly inside its cell. All the same scale and style. In order:
+ row 1 col 1: stone bridge
+ row 1 col 2: footbridge
+ row 1 col 3: stepping stones
+ row 1 col 4: mill wheel
+ row 1 col 5: windmill
+ row 2 col 1: village well
+ row 2 col 2: dovecote
+ row 2 col 3: beehives
+ row 2 col 4: glasshouse
+ row 2 col 5: garden shed
+ row 3 col 1: potting bench
+ row 3 col 2: bird bath
+ row 3 col 3: nesting boxes
+ row 3 col 4: pergola
+ row 3 col 5: rose arch
+ row 4 col 1: gazebo
+ row 4 col 2: bandstand
+ row 4 col 3: creekside bench
+ row 4 col 4: picnic table
+ row 4 col 5: picket fence
+ row 5 col 1: dry stone wall
+ row 5 col 2: garden gate
+ row 5 col 3: lantern posts
+ row 5 col 4: sundial
+ row 5 col 5: scarecrow
+Each icon must read clearly at 80 pixels: strong simple silhouette, clear value contrast against a cream paper background.
+Composition: square canvas 1536x1536.
+Background: fully TRANSPARENT (alpha) around every icon; no grid lines, no frames, no cell borders.
+Constraints: no text, no letters, no numbers, no labels, no watermark.
+Copy the final PNG to games/evergrove/art/generated/catalog-builds-a.png and print the path. Do nothing else.

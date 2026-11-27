@@ -59,7 +59,7 @@ assert ui.index(first_board) < ui.index("VillageScenePlan scenePlan = VillageSce
     "World art must not push first interactive tile below the title/controls"
 )
 for marker in ("private RectTransform decisionHeading;",
-               "Label(content, \"Choose title\"",
+               "Label(titleRow.transform, \"Choose title\"",
                "decisionHeading = chooseTitle.rectTransform;",
                "content.InverseTransformPoint(worldTop).y",
                "scroll.StopMovement()"):
@@ -123,7 +123,7 @@ localization_source = (game / "Assets" / "Scripts" / "Core" / "GameLocalization.
 ids_block = re.search(r"private static readonly string\[\] Ids = \{([\s\S]*?)\};", localization_source)
 assert ids_block, "canonical translation IDs not found"
 keys = re.findall(r'"([^"]+)"', ids_block.group(1))
-assert len(keys) == 122 and len(keys) == len(set(keys)), "canonical locale key set drifted"
+assert len(keys) == 125 and len(keys) == len(set(keys)), "canonical locale key set drifted"
 bundle_dir = game / "Assets" / "Resources" / "Evergrove" / "Locales"
 supported = {
     "zh-Hans", "zh-Hant", "es", "pt-BR", "fr", "de", "ja", "ko", "ar",

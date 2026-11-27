@@ -17,7 +17,7 @@ namespace Evergrove.UnityClient
     /// UI is generated from code so no proprietary assets or prefab machinery
     /// are required for the playable research slice.
     /// </summary>
-    public sealed class EvergroveApp : MonoBehaviour
+    public sealed partial class EvergroveApp : MonoBehaviour
     {
         private static readonly Color Paper = MosseloraTheme.Paper;
         private static readonly Color Ink = MosseloraTheme.Ink;
@@ -41,6 +41,8 @@ namespace Evergrove.UnityClient
         // buttons) floats over the page and never scrolls away.
         private RectTransform canvasRoot;
         private RectTransform chrome;
+        private RectTransform worldStage; // I189: the garden behind every board
+        private bool worldShownNow;
         private GameObject menuSheet;
         private RectTransform menuContent;
         private ScrollRect menuScroll;
@@ -62,14 +64,25 @@ namespace Evergrove.UnityClient
         private Vector2Int lastScreen;
         private bool showingMemory;
         private bool showJournal;
+        private int journalOpenPage = -1; // a page opened full size in the book (I166)
         private int speakingWith = -1;
         // The neighbor's speech floats over the page (I127), so talking never
         // scrolls the board away or pushes the header off screen.
         private GameObject neighborLayer;
-        private GameObject pinnedActions; // the memory card's actions, held at the screen's foot (I164)
+        private GameObject pinnedActions;
+        private Image creekWater; // the flowing creek over the dry one, as full as the board (I167)
+        private float creekShown; // the memory card's actions, held at the screen's foot (I164)
         private int neighborShown = -1;
         private bool confirmReset;
         private bool soundOn;
+        // Which garden this is (0, 1, 2…): picks the catalogue's items (I172).
+        private const string GardenNumberKey = "evergrove:garden-number";
+        private int gardenNumber;
+        // E2 (I174): every tree, flower and build ever made, across gardens.
+        private const string AlmanacKey = "evergrove:almanac";
+        private Almanac almanac = new Almanac();
+        private bool almanacTab;
+        private bool familyTab; // I269: the book's family page
         // WCAG 2.3.3: motion triggered by play (pipe swing, bloom, butterfly,
         // glide) can be switched off. Off means snap, still and instant.
         private const string GentleMotionKey = "evergrove:gentle-motion:v1";
@@ -126,6 +139,7 @@ namespace Evergrove.UnityClient
         private static readonly bool srLogEveryScreen = DevArgs.Read("-mosseloraSrLog") == "1";
 #endif
         private RectTransform decisionHeading; // anchor for intentional post-solve navigation
+        private RectTransform decisionCards;
         private RectTransform solvedBoard;     // the board whose payoff the decision glide keeps whole
         private int hintTurnedTile = -1;       // the tile the third hint just turned
         private readonly System.Collections.Generic.List<GameObject> hintMarkers =
@@ -210,6 +224,27 @@ namespace Evergrove.UnityClient
             // An unreadable save cannot silently be overwritten by fresh progress.
             saveFailed = WorldStore.RecoveryBlocked;
             soundOn = PlayerPrefs.GetInt("evergrove:gentle-audio", 0) == 1;
+            gardenNumber = Mathf.Max(0, PlayerPrefs.GetInt(GardenNumberKey, 0));
+            almanac = Almanac.Parse(PlayerPrefs.GetString(AlmanacKey, ""));
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // The QA tour plays garden 0 in memory: it never reads the player's almanac.
+            if (qaInMemoryOnly) { gardenNumber = 0; almanac = new Almanac(); }
+#endif
+            RecordInAlmanac();
+            NotesLifecycle(false); // a cold start is an opening too (I275)
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (!qaInMemoryOnly) GardenNotes.DevTest(world); // I284: see a real note delivered
+#endif
+            PaintedVillage.ItemSprite = (family, nth) =>
+            {
+                // The nth tree (or build, or flowers) in the village is the one
+                // chosen at that family's nth choice.
+                if (world == null) return null;
+                int[] made = world.Choices;
+                for (int i = 0, seen = 0; i < made.Length; i++)
+                    if (made[i] == family && seen++ == nth) return ItemArt(i, family, false);
+                return null;
+            };
             gentleMotion = PlayerPrefs.GetInt(GentleMotionKey, 1) == 1;
             PipeGraphic.Animate = gentleMotion;
             // Default to the proven-in-code 2D art; keep the experimental
@@ -356,6 +391,7 @@ namespace Evergrove.UnityClient
 
         private void Update()
         {
+            TickSoundscape();
             if (scrollArea == null) return;
             Rect safe = Screen.safeArea;
             var size = new Vector2Int(Screen.width, Screen.height);
@@ -534,8 +570,11 @@ namespace Evergrove.UnityClient
         {
             if (Screen.width <= 0 || Screen.height <= 0 || scrollArea == null) return;
             Rect safe = Screen.safeArea;
+            // Upright, the page reaches the very top of the screen so the garden can
+            // paint under the status bar; the inset becomes padding instead (I185).
+            bool upright = safe.width <= safe.height;
             scrollArea.anchorMin = new Vector2(safe.xMin / Screen.width, safe.yMin / Screen.height);
-            scrollArea.anchorMax = new Vector2(safe.xMax / Screen.width, safe.yMax / Screen.height);
+            scrollArea.anchorMax = new Vector2(safe.xMax / Screen.width, upright ? 1f : safe.yMax / Screen.height);
             scrollArea.offsetMin = Vector2.zero;
             scrollArea.offsetMax = Vector2.zero;
             FitColumn();
@@ -554,6 +593,7 @@ namespace Evergrove.UnityClient
         private bool landscapeTablet;
         private const float TabletLandscapeColumn = 560f;
         private RectTransform chromeBand;
+        private float topInset; // status-bar height in canvas units, upright only (I185)
         private GameObject landscapeGarden;
 
         private void FitColumn()
@@ -580,16 +620,24 @@ namespace Evergrove.UnityClient
             }
             else
                 columnLeft = columnRight = tablet ? Mathf.Max(0f, Mathf.Floor((logicalWidth - MaxColumn) / 2f)) : 0f;
+            topInset = landscape ? 0f : Mathf.Max(0f, (Screen.height - safe.yMax) / LiveCanvasScale());
             var column = content != null ? content.GetComponent<VerticalLayoutGroup>() : null;
             // Sideways the menu and book sit on the painting (I116), so the play
             // column starts at the top: no inset spent on chrome it doesn't carry.
             if (column != null)
-                column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight, 15, 36);
+                column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight,
+                    15 + Mathf.RoundToInt(topInset), 36);
+            if (chrome != null) chrome.anchoredPosition = new Vector2(0f, -topInset);
             if (chromeBand != null)
             {
-                chromeBand.offsetMin = new Vector2(columnLeft, -104f);
+                chromeBand.offsetMin = new Vector2(columnLeft, -104f - topInset);
+                // The band's paper covers the status bar too, then fades (I185).
+                var solid = chromeBand.Find("Band solid") as RectTransform;
+                if (solid != null) solid.sizeDelta = new Vector2(0f, 74f + topInset);
+                var fade = chromeBand.Find("Band fade") as RectTransform;
+                if (fade != null) fade.anchoredPosition = new Vector2(0f, -74f - topInset);
                 chromeBand.offsetMax = Vector2.zero;
-                chromeBand.gameObject.SetActive(!landscape);
+                chromeBand.gameObject.SetActive(!landscape && !worldShownNow);
             }
             FitSheet(menuSheet, "Menu panel");
             FitSheet(journalSheet, "Journal panel");
@@ -658,7 +706,40 @@ namespace Evergrove.UnityClient
                     : last == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
             }
             if (hero == null) hero = MosseloraArt.Load(MosseloraArt.HeroVillage);
+            // Sideways the whole left side is your garden map, editable like upright (I183).
+            if (living && LandscapeGardenMap(landscapeGarden.transform)) return;
             GardenScene(landscapeGarden.transform, hero, living, false, Vector2.one, new Vector2(1f, 0.36f));
+        }
+
+        private bool LandscapeGardenMap(Transform pane)
+        {
+            ApplyDayLight(world);
+            Sprite plot = MapPainting();
+            GardenMap map = LoadGardenMap();
+            if (plot == null || map == null) return false;
+            var window = Node("Garden window", pane);
+            var windowRect = window.GetComponent<RectTransform>();
+            Fill(windowRect);
+            window.AddComponent<RectMask2D>();
+            bool memoryScreen = showingMemory && world.Choices.Length > 0;
+            bool animate = celebrateGrowth && memoryScreen && gentleMotion;
+            GardenMapView.Build(windowRect, plot, map, MapItems(map), 1.15f,
+                OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
+                animate ? GreenedShare(1) : -1f,
+                (land, point) => NeighborsOnMap(land, point, map, false), 0f, RiverGoesOn(map));
+            int held = ItemInHand();
+            if (held >= 0 && PlayerPrefs.GetInt(PlacedOnceKey, 0) == 0) PlaceTip(window.transform, held);
+            var side = Node("Garden melt right", window.transform);
+            var sideRect = side.GetComponent<RectTransform>();
+            sideRect.anchorMin = new Vector2(1f, 0f);
+            sideRect.anchorMax = new Vector2(1f, 1f);
+            sideRect.pivot = new Vector2(1f, 0.5f);
+            sideRect.sizeDelta = new Vector2(40f, 0f);
+            var sideImage = side.AddComponent<Image>();
+            sideImage.sprite = MosseloraArt.SideFade();
+            sideImage.color = Paper;
+            sideImage.raycastTarget = false;
+            return true;
         }
 
         // Painting above, your village strip (real water, landmarks, neighbours) below,
@@ -701,7 +782,7 @@ namespace Evergrove.UnityClient
             stripRect.offsetMin = stripRect.offsetMax = Vector2.zero;
             var painting = strip.AddComponent<PaintedVillage>();
             VillageScenePlan plan = VillageScenePlan.From(world);
-            painting.Build(0f, PaintedVillage.SeasonFor(plan.LandscapePhase, world.Completed));
+            painting.Build(0f, PaintedVillage.ArtSeason(world));
             if (painting.Ready)
                 painting.Show(plan.Chapter, plan.TreeCount, plan.CrossingCount, plan.FlowerCount,
                     plan.WaterRestored, plan.WaterReachPercent);
@@ -727,6 +808,13 @@ namespace Evergrove.UnityClient
             var backdropImage = backdrop.AddComponent<Image>();
             MosseloraArt.PagePaper(backdropImage, Paper); // painted paper, not a flat fill (I94)
             backdropImage.raycastTarget = false;
+
+            // The garden is the stage (I189): behind the page, full screen, your own map.
+            var stageNode = Node("Living world", canvasNode.transform);
+            worldStage = stageNode.GetComponent<RectTransform>();
+            Fill(worldStage);
+            stageNode.AddComponent<RectMask2D>();
+            stageNode.SetActive(false);
 
             var scrollNode = Node("Safe scroll area", canvasNode.transform);
             scrollArea = scrollNode.GetComponent<RectTransform>();
@@ -805,7 +893,7 @@ namespace Evergrove.UnityClient
             chrome.anchorMax = new Vector2(1f, 1f);
             chrome.pivot = new Vector2(0.5f, 1f);
             chrome.sizeDelta = new Vector2(0f, 70f);
-            chrome.anchoredPosition = Vector2.zero;
+            chrome.anchoredPosition = new Vector2(0f, -topInset);
             // The sheet must cover the chrome when open.
             menuSheet.transform.SetAsLastSibling();
             BuildTitleScreen(canvasNode.transform);
@@ -1179,7 +1267,7 @@ namespace Evergrove.UnityClient
             Height(strip, rows * cellHeight + (rows - 1) * 6f);
             for (int i = 0; i < chosen.Length; i++)
             {
-                Sprite icon = MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]);
+                Sprite icon = ItemArt(i, chosen[i]);
                 var cell = Node("Chapter choice", strip.transform);
                 Sprite stone = PathStone(i, false, false);
                 if (stone != null)
@@ -1228,7 +1316,7 @@ namespace Evergrove.UnityClient
                 faceImage.preserveAspect = true;
                 faceImage.raycastTarget = false;
             }
-            Text line = Label(memory, name, LocalizedVillage.MemoryAt(past, index), 14, 0, Ink, TextAnchor.MiddleLeft);
+            Text line = Label(memory, name, Remembered(past, index), 14, 0, Ink, TextAnchor.MiddleLeft);
             Narrate(line);
             line.GetComponent<LayoutElement>().flexibleWidth = 1f;
         }
@@ -1248,6 +1336,21 @@ namespace Evergrove.UnityClient
             return mask;
         }
 
+        private void MeterEnd(Transform row, string art, float size, Color tint)
+        {
+            Sprite sprite = MosseloraArt.Load(art);
+            if (sprite == null) return;
+            var node = Node("Water meter " + (art == TreePlay.SeedIcon ? "garden" : "spring"), row);
+            var layout = node.AddComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = size;
+            layout.minHeight = layout.preferredHeight = size;
+            var image = node.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.color = tint;
+            image.raycastTarget = false;
+        }
+
         // Progress at a glance: a droplet per tile, filled as real water reaches it.
         // The sentence below stays as the exact, spoken statement.
         private void WaterMeter(int tiles, int reached)
@@ -1258,6 +1361,9 @@ namespace Evergrove.UnityClient
             MinHeight(row.gameObject, 26);
             waterDrops = new Image[tiles];
             float height = tiles > 9 ? 19f : 23f;
+            // I350 (run 3, P7): the row starts at the spring and ends at the sprout, the same
+            // marks as the board, so the drops read as water reaching the garden.
+            MeterEnd(row, "glyph-waves", height + 4f, MosseloraTheme.WaterAction);
             for (int i = 0; i < tiles; i++)
             {
                 var node = Node("Water drop", row);
@@ -1270,6 +1376,7 @@ namespace Evergrove.UnityClient
                 image.raycastTarget = false;
                 waterDrops[i] = image;
             }
+            MeterEnd(row, TreePlay.SeedIcon, height + 4f, Color.white);
             PaintDrops(reached);
         }
 
@@ -1302,6 +1409,39 @@ namespace Evergrove.UnityClient
             }
             // Drops not tied to a newly wet tile (a solve fills the rest) fill at once.
             for (; slot < reached && slot < waterDrops.Length; slot++) SetDrop(waterDrops[slot], true);
+        }
+
+        // Something arcs from mid-screen into where it's kept (I229 a pear into the
+        // purse, I237 a letter into the letterbox); its home swells once.
+        private IEnumerator FlyInto(RectTransform target, string art, Vector2 size)
+        {
+            Sprite sprite = MosseloraArt.Load(art);
+            if (sprite == null || target == null || canvasRoot == null) yield break;
+            for (float wait = 0.35f; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
+            if (target == null) yield break;
+            var node = Node("Arriving " + art, canvasRoot);
+            var rect = node.GetComponent<RectTransform>();
+            rect.sizeDelta = size;
+            var image = node.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            Vector3 start = canvasRoot.TransformPoint(canvasRoot.rect.center);
+            float lift = 90f * canvasRoot.lossyScale.y;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.8f)
+            {
+                if (target == null) { Destroy(node); yield break; }
+                Vector3 end = target.TransformPoint(target.rect.center);
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                Vector3 at = Vector3.Lerp(start, end, k);
+                at.y += Mathf.Sin(k * Mathf.PI) * lift; // tossed up, then down into the purse
+                rect.position = at;
+                rect.localScale = Vector3.one * Mathf.Lerp(1.2f, 0.6f, k);
+                rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(k * Mathf.PI * 2f) * 14f);
+                yield return null;
+            }
+            Destroy(node);
+            if (target != null) BloomPulse.Add(target.gameObject, 0f, 0.25f);
         }
 
         private IEnumerator FlyDrop(RectTransform from, int slot, float startDelay)
@@ -1437,8 +1577,9 @@ namespace Evergrove.UnityClient
         // streaks, no "you were away" - the garden simply waited.
         private void BuildTitleScreen(Transform host)
         {
+            if (quietLayer != null) ExitQuiet(); // a new home never starts hidden (I294)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (qaInMemoryOnly) return; // the scripted QA tour starts on the board
+            if (qaInMemoryOnly && !qaShowHub) return; // the scripted QA tour starts on the board
 #endif
             // A finished garden opens on its festival; otherwise the everyday village.
             // The hub opens on *your* story: the finished garden's festival, else
@@ -1475,8 +1616,16 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (qaInMemoryOnly) lively = false;
 #endif
-            if (lively) window.AddComponent<HubButterflies>();
+            // I325: butterflies come to flowers in spring and summer (before I325 they always flew).
+            bool livingGarden = world != null && world.Mode == PlayMode.Living;
+            if (lively && (!livingGarden || (Visitors.Welcomes(world, Visitor.Butterflies) &&
+                Visitors.Out(Visitor.Butterflies, GardenSeason.For(world), DayLightOn ? CurrentPhase() : DayPhase.Day))))
+                window.AddComponent<HubButterflies>();
+            // The living garden opens on its own map (E3, I176): everything you made
+            // standing where it grew. Otherwise, the painting as before.
+            bool mapShown = world.Mode == PlayMode.Living && GardenMapOnHub(windowRect);
             var art = Node("Village at the start", window.transform);
+            art.SetActive(!mapShown);
             var artRect = art.GetComponent<RectTransform>();
             artRect.anchorMin = Vector2.zero;
             artRect.anchorMax = Vector2.one;
@@ -1493,7 +1642,7 @@ namespace Evergrove.UnityClient
             var melt = Node("Village melt", window.transform);
             var meltRect = melt.GetComponent<RectTransform>();
             meltRect.anchorMin = Vector2.zero;
-            meltRect.anchorMax = new Vector2(1f, 0.24f);
+            meltRect.anchorMax = new Vector2(1f, mapShown ? 0.08f : 0.24f); // the map runs nearly to the wordmark (I181)
             meltRect.offsetMin = meltRect.offsetMax = Vector2.zero;
             var meltImage = melt.AddComponent<Image>();
             meltImage.sprite = MosseloraArt.TopFade();
@@ -1507,8 +1656,12 @@ namespace Evergrove.UnityClient
             stripRect.anchorMin = new Vector2(0f, 0.33f);
             stripRect.anchorMax = new Vector2(1f, 0.52f);
             stripRect.offsetMin = stripRect.offsetMax = Vector2.zero;
+            // With the map, the neighbours stand in the garden itself and the map
+            // takes the strip's place (I181).
+            strip.SetActive(!mapShown);
+            if (mapShown) windowRect.anchorMin = new Vector2(0f, 0.33f);
             var painting = strip.AddComponent<PaintedVillage>();
-            painting.Build(0f, PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed));
+            painting.Build(0f, PaintedVillage.ArtSeason(world));
             if (painting.Ready)
             {
                 VillageScenePlan plan = VillageScenePlan.From(world);
@@ -1517,6 +1670,15 @@ namespace Evergrove.UnityClient
             }
             if (world.Mode == PlayMode.Living) NeighborsOnPainting(strip.transform, true);
 
+            // Home is your garden, full screen (I190): no paper, no wordmark, no
+            // tagline; the walk, the next stream's sign and one round play button
+            // stand on the grass at the bottom.
+            bool worldHome = mapShown;
+            if (worldHome)
+            {
+                windowRect.anchorMin = Vector2.zero;
+                melt.SetActive(false);
+            }
             var stack = Node("Title stack", titleScreen.transform);
             var stackRect = stack.GetComponent<RectTransform>();
             stackRect.anchorMin = new Vector2(0f, 0.03f);
@@ -1530,7 +1692,15 @@ namespace Evergrove.UnityClient
             column.childControlHeight = true;
             column.childForceExpandWidth = true;
             column.childForceExpandHeight = false;
-            Sprite mark = MosseloraArt.Load(MosseloraArt.Wordmark);
+            if (worldHome) column.childAlignment = TextAnchor.LowerCenter;
+            if (worldHome && landscape)
+            {
+                // Sideways the screen is short and the neighbours stand mid-garden, so
+                // the sign and play token keep to a right-hand column (I197).
+                stackRect.anchorMin = new Vector2(0.7f, 0.04f);
+                stackRect.anchorMax = new Vector2(1f, 0.8f);
+            }
+            Sprite mark = worldHome ? null : MosseloraArt.Load(MosseloraArt.Wordmark);
             if (mark != null)
             {
                 var markNode = Node("Mosselora wordmark", stack.transform);
@@ -1540,14 +1710,103 @@ namespace Evergrove.UnityClient
                 markImage.preserveAspect = true;
                 markImage.raycastTarget = false;
             }
-            Text tagline = Label(stack.transform, "Title", GameLocalization.Text("subtitle"), 17, 0, Ink,
-                TextAnchor.MiddleCenter);
-            Emphasize(tagline);
+            if (!worldHome)
+            {
+                Text tagline = Label(stack.transform, "Title", GameLocalization.Text("subtitle"), 17, 0, Ink,
+                    TextAnchor.MiddleCenter);
+                Emphasize(tagline);
+            }
             // How far along the creek this garden has walked: resumes, never resets.
-            if (!world.Completed) StreamStones(world.CurrentPuzzle, stack.transform, false);
+            if (!world.Completed && !(worldHome && landscape))
+                StreamStones(world.CurrentPuzzle, stack.transform, false);
             // What changed last time, told by the neighbor who remembers it.
-            if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0 && !worldHome)
                 KeeperLine(stack.transform, "Last memory", hubRecall);
+            if (worldHome)
+            {
+                // I204: a thing you've grown, picked up, holds its own puzzle: the big
+                // token becomes that thing, and plays its puzzle.
+                int held = world.Mode == PlayMode.Living && mapInHand >= 0 && mapInHand < world.Choices.Length
+                    ? mapInHand : -1;
+                int heldPlant = world.Mode == PlayMode.Living && heldBought >= 0 && heldBought < world.BoughtCount
+                    ? heldBought : -1;
+                if (held >= 0 || heldPlant >= 0)
+                {
+                    Transform heldRow = CenteredRowIn(stack.transform, "Play row");
+                    int heldKind = heldPlant >= 0 ? world.Bought[heldPlant * 2] : -1;
+                    string heldName = heldPlant >= 0 ? Nursery.Item(heldKind).Name : ItemAt(held, world.Choices[held]).Name;
+                    Button thing = IconButton(heldRow, "Play its puzzle", heldName,
+                        MosseloraArt.IconContinue, () => { if (heldPlant >= 0) OpenBoughtPlay(heldPlant); else OpenTreePlay(held); },
+                        96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
+                    Transform glyph = thing.transform.Find("Icon");
+                    Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                    Sprite heldArt = heldPlant >= 0 ? MosseloraArt.Load(Nursery.Item(heldKind).Art)
+                        : ItemArt(held, world.Choices[held]);
+                    if (glyphImage != null && heldArt != null)
+                    {
+                        glyphImage.sprite = heldArt;
+                        glyphImage.color = Color.white;
+                        var glyphSize = glyph.GetComponent<LayoutElement>();
+                        glyphSize.minWidth = glyphSize.preferredWidth = 64f;
+                        glyphSize.minHeight = glyphSize.preferredHeight = 64f;
+                        // A small round "play" mark on the token's lower right.
+                        Image disc = MosseloraArt.Ornament(thing.transform, "Plays", MosseloraArt.Rounded(16),
+                            new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(-4f, 4f));
+                        if (disc != null)
+                        {
+                            disc.preserveAspect = false;
+                            disc.color = MosseloraTheme.WaterAction;
+                            Image playMark = MosseloraArt.Ornament(disc.transform, "Play mark", MosseloraArt.Load(MosseloraArt.IconContinue),
+                                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(20f, 20f), Vector2.zero);
+                            if (playMark != null) playMark.color = Color.white;
+                        }
+                    }
+                    if (gentleMotion) BloomPulse.Add(thing.gameObject, 0.2f, 0.06f);
+                    SeedPurse();
+                    LetterBox();
+                    if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
+                    HubChrome();
+                    MaybeAskNotes();
+                    FollowNote();
+                    titleScreen.transform.SetAsLastSibling();
+                    return;
+                }
+                // The same plank as over the board, then a round play token (I190).
+                if (!world.Completed && GameLocalization.Current == "en")
+                    NextStreamLine(stack.transform, world.CurrentPuzzle.Name, false);
+                Transform token = CenteredRowIn(stack.transform, "Play row");
+                // I351 (run 3, P9): after the story, the big arrow plays what's waiting: the
+                // newest thing still holding its first puzzle, whose picture peeks from the token.
+                int waitingBought = -1, waitingThing = -1;
+                if (world.Completed && world.Mode == PlayMode.Living)
+                {
+                    for (int k = world.BoughtCount - 1; k >= 0 && waitingBought < 0; k--) if (!world.BoughtSolved(k)) waitingBought = k;
+                    if (waitingBought < 0)
+                        for (int i = world.Choices.Length - 1; i >= 0 && waitingThing < 0; i--) if (!world.TreeSolved(i)) waitingThing = i;
+                }
+                Button playToken = IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")
+                        : world.CurrentPuzzle.Name, MosseloraArt.IconContinue, () => {
+                            basketOpen = false; basketKind = -1; heldPlanting = -1;
+                            nurseryOpen = false; nurseryKind = -1;
+                            if (waitingBought >= 0) { heldBought = waitingBought; mapInHand = -1; OpenBoughtPlay(waitingBought); return; }
+                            heldBought = -1;
+                            if (waitingThing >= 0) { mapInHand = waitingThing; OpenTreePlay(waitingThing); return; }
+                            CloseTitle();
+                        }, 96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
+                Sprite waiting = waitingBought >= 0 ? MosseloraArt.Load(Nursery.Item(world.Bought[waitingBought * 2]).Art)
+                    : waitingThing >= 0 ? ItemArt(waitingThing, world.Choices[waitingThing]) : null;
+                if (waiting != null)
+                    MosseloraArt.Ornament(playToken.transform, "What it plays", waiting, new Vector2(1f, 1f),
+                        new Vector2(0.5f, 0.5f), new Vector2(44f, 44f), new Vector2(-4f, -4f));
+                if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
+                SeedPurse();
+                LetterBox();
+                HubChrome();
+                MaybeAskNotes();
+                FollowNote();
+                titleScreen.transform.SetAsLastSibling();
+                return;
+            }
             Transform play = CenteredRowIn(stack.transform, "Play row");
             // The big button names where the walk continues ("First Bend").
             string nextStop = !world.Completed && GameLocalization.Current == "en"
@@ -1594,13 +1853,39 @@ namespace Evergrove.UnityClient
                 sideImage.raycastTarget = false;
             }
             else
-                StartCoroutine(FitHubStack(windowRect, stripRect, stackRect));
+                StartCoroutine(FitHubStack(windowRect, stripRect, stackRect, mapShown ? 0.33f : 0.41f));
+        }
+
+        // I201: the memory screen's map grows into the blank paper between the
+        // memory card and the pinned buttons, measured on screen after layout, so
+        // it fits any phone and text size.
+        private GameObject fillTarget;
+        private IEnumerator GrowToFill(GameObject element, RectTransform above, RectTransform buttons)
+        {
+            yield return null; // after the first layout pass, at the real canvas size
+            if (element == null || above == null || buttons == null) yield break;
+            var layout = element.GetComponent<LayoutElement>();
+            if (layout == null) yield break;
+            var corners = new Vector3[4];
+            above.GetWorldCorners(corners);
+            float cardBottom = element.transform.parent.InverseTransformPoint(corners[0]).y;
+            float buttonTop = float.NegativeInfinity;
+            foreach (Transform child in buttons)
+            {
+                if (!child.gameObject.activeSelf) continue;
+                ((RectTransform)child).GetWorldCorners(corners);
+                buttonTop = Mathf.Max(buttonTop, element.transform.parent.InverseTransformPoint(corners[1]).y);
+            }
+            float gap = cardBottom - buttonTop - 22f; // keep a little air above the buttons
+            if (float.IsInfinity(buttonTop) || gap < 12f) yield break;
+            layout.minHeight = layout.preferredHeight = Mathf.Round(layout.preferredHeight + Mathf.Min(gap, 320f));
         }
 
         // The words and Play under the painting take the room they need: at
         // larger text, or with a memory line and the next stream, the painting
         // and village strip move up instead of the words overflowing (I85).
-        private IEnumerator FitHubStack(RectTransform window, RectTransform strip, RectTransform stack)
+        private IEnumerator FitHubStack(RectTransform window, RectTransform strip, RectTransform stack,
+                                        float windowBase)
         {
             yield return null; // real canvas size, after the first layout pass
             if (stack == null || canvasRoot == null) yield break;
@@ -1614,7 +1899,8 @@ namespace Evergrove.UnityClient
             stack.anchorMax = new Vector2(1f, top);
             strip.anchorMin = new Vector2(0f, 0.33f + shift);
             strip.anchorMax = new Vector2(1f, 0.52f + shift);
-            window.anchorMin = new Vector2(0f, 0.41f + shift);
+            // The map reaches down to the words (I181); the painting kept its old base.
+            window.anchorMin = new Vector2(0f, windowBase + shift);
         }
 
         // The hub wears the same two wooden buttons as the game, in the same
@@ -1631,22 +1917,11 @@ namespace Evergrove.UnityClient
             rect.pivot = new Vector2(0.5f, 1f);
             rect.sizeDelta = new Vector2(0f, 70f);
             rect.anchoredPosition = Vector2.zero;
+            // One button (I191): it opens the fan of everything else.
             Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
-                MosseloraArt.IconMenu, () => { CloseTitle(); SetMenu(true); }, 54, MosseloraTheme.QuietAction);
+                MosseloraArt.IconMenu, () => ToggleFan(true), 54, MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
-            if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
-            {
-                Button book = IconButton(bar.transform, "Memories", GameLocalization.Text("journal_show"),
-                    MosseloraArt.IconJournal, () => {
-                        CloseTitle();
-                        menuOpen = false;
-                        showJournal = true;
-                        Rebuild();
-                        if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
-                    }, 54, MosseloraTheme.QuietAction);
-                PlaceBook(book);
-                MarkUnreadMemory(book);
-            }
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu);
         }
 
         // "Rainwater" with the painted landmark your last choice planted in it:
@@ -1656,7 +1931,7 @@ namespace Evergrove.UnityClient
             int split = nextStop.IndexOf(" · ", System.StringComparison.Ordinal);
             int[] past = world.Choices;
             Sprite mark = split > 0 && past.Length > 0
-                ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
+                ? ItemArt(past.Length - 1, past[past.Length - 1]) : null;
             Transform row = CenteredRowIn(stack, "Next stream row");
             row.GetComponent<HorizontalLayoutGroup>().spacing = 6;
             Transform outer = row;
@@ -1705,8 +1980,1901 @@ namespace Evergrove.UnityClient
             return index;
         }
 
+        // ---- E3 (I176): the open garden map.
+        private GardenMap gardenMap;
+
+        // The endless river (I192): one reach of the painting per three streams
+        // restored, all of them once the garden is finished.
+        private GardenMap LoadGardenMap()
+        {
+            // After the story the river keeps opening as you tend your things (I220).
+            int reaches = GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved);
+            if (gardenMap != null && gardenMap.Reaches == reaches) return gardenMap;
+            var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
+            if (mask == null) return null;
+            try { gardenMap = GardenMap.River(10, 15, mask.text.Trim(), reaches); }
+            catch (ArgumentException error) { Debug.LogWarning("Garden map mask unreadable: " + error.Message); }
+            return gardenMap;
+        }
+
+        // After the story, the stretch in the mist wears the season it will bring (I252).
+        private Sprite NextSeasonPlot()
+        {
+            if (world.Mode != PlayMode.Living || !world.Completed) return null;
+            if (!GardenMap.TowardNext(world.Choices.Length, true, world.PuzzlesSolved, out int have, out int need)) return null;
+            Season next = GardenSeason.AfterStory(world.PuzzlesSolved + (need - have));
+            int art = next == Season.Spring ? 3 : next == Season.Autumn ? 1 : next == Season.Winter ? 2 : 0;
+            return MosseloraArt.Load(PaintedVillage.MapFor(art));
+        }
+
+        // The next reach shows in mist below the open river until it opens.
+        private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.ReachesCeiling; }
+
+        private readonly float[] hubZoom = { 0f, 0f };
+        private bool markPuzzles;
+
+        // ---- I204: the puzzle a grown thing holds, and the seeds it pays.
+        private void OpenTreePlay(int item)
+        {
+            int[] made = world.Choices;
+            if (titleScreen == null || item < 0 || item >= made.Length) return;
+            GardenItem thing = ItemAt(item, made[item]);
+            // A thing's first board is its own (seeded by garden and place); replays deal fresh
+            // boards that deepen as you come back to it (I259/I260).
+            int replays = world.TreeSolved(item) ? Replays(item) : 0;
+            int tier = ReplayBoards.Tier(TreePuzzles.TierFor(item), replays);
+            int seed = ReplayBoards.Seed(world.Garden * 1000 + item * 7 + 1, world.TreeSolved(item) ? replays + 1 : 0);
+            int reward = WorldModel.TreeReward(TreePuzzles.TierFor(item), !world.TreeSolved(item));
+            bool replay = world.TreeSolved(item);
+            Func<int> solved = () => { int earned = world.SolveTree(item); if (replay) CountReplay(item);
+                SaveWorld(); PlayChime(); return earned; };
+            OpenThingPuzzle(seed, tier, ThingPuzzle.ForStory(item, (VillageChoice)made[item]), ItemArt(item, made[item]),
+                thing.Name, reward, item, solved);
+        }
+
+        // Replays per thing, on this device (I259): only what boards to deal next, never progress.
+        private string ReplayKey(int index) { return "evergrove:replays:" + world.Garden + ":" + index; }
+        private int Replays(int index) { return Mathf.Max(0, PlayerPrefs.GetInt(ReplayKey(index), 0)); }
+        private void CountReplay(int index)
+        {
+            PlayerPrefs.SetInt(ReplayKey(index), Replays(index) + 1);
+            PlayerPrefs.Save();
+        }
+
+        // A nursery plant's puzzle (I208): its row is its tier; its own seed.
+        private void OpenBoughtPlay(int k)
+        {
+            if (titleScreen == null || k < 0 || k >= world.BoughtCount) return;
+            int kind = world.Bought[k * 2];
+            GardenItem plant = Nursery.Item(kind);
+            bool replay = world.BoughtSolved(k);
+            int replays = replay ? Replays(BoughtIndex + k) : 0;
+            int tier = ReplayBoards.Tier(Nursery.Row(kind), replays);
+            int reward = WorldModel.TreeReward(Nursery.Row(kind), !replay);
+            OpenThingPuzzle(ReplayBoards.Seed(world.Garden * 1000 + 500 + k * 7, replay ? replays + 1 : 0), tier,
+                ThingPuzzle.ForNursery(kind),
+                MosseloraArt.Load(plant.Art), plant.Name, reward, k * 5 + kind,
+                () => { int earned = world.SolveBought(k); if (replay) CountReplay(BoughtIndex + k);
+                    SaveWorld(); PlayChime(); return earned; });
+        }
+
+        // Each thing holds one kind of puzzle (I243: ThingPuzzle).
+        private void OpenThingPuzzle(int seed, int tier, PuzzleKind kind, Sprite art, string name, int reward,
+                                     int pictureStart, Func<int> solved)
+        {
+            moveNote = 0; // I305: each board starts its phrase from the top
+            Action turned = () => { PlayMove(kind); if (gentleMotion) Haptics.Tick(); };
+            int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
+            // Back home, the view returns to the thing and its ring grows in (I212).
+            string hintsKey = "evergrove:hints:" + (int)kind; // I322: per kind, on this device
+            Action closed = () => { if (openCard != null) { PlayerPrefs.SetInt(hintsKey, openCard.HintsUsed); PlayerPrefs.Save(); }
+                justSolved = solvedHere ? shown : -1; solvedHere = false;
+                mapInHand = -1; heldBought = -1; keepHubAt = new Vector2(-1f, -1f); RefreshMapsFresh(); };
+            Func<int> solvedOnce = solved;
+            solved = () =>
+            {
+                solvedHere = true;
+                int before = OpenReaches(), solvedBefore = world.PuzzlesSolved, fruitBefore = world.Fruit;
+                int earned = solvedOnce();
+                // Played taking turns (I263/I264): the garden remembers it was solved together.
+                if (openCard != null && openCard.PlayedTogether && shown >= 0 && world.MarkTogether(shown))
+                {
+                    SaveWorld();
+                    togetherKind = kind; // I266: its keeper has news
+                    togetherKeeper = NeighbourNotice.OwnerOf(kind);
+                }
+                fruitPicked = world.Fruit > fruitBefore; // trees bear fruit when tended (I229)
+                // After the story, every fourth solve opens more river (I220): home shows it (I223).
+                riverOpened = OpenReaches() > before;
+                // Mira leaves a note in the letterbox when the river opens (I271).
+                if (riverOpened && world.Completed &&
+                    world.KeepNote("Mira", NeighbourNotice.RiverNote(GardenSeason.AfterStory(world.PuzzlesSolved))))
+                {
+                    letterArrived = true;
+                    SaveWorld();
+                }
+                dropEarned = world.PuzzlesSolved > solvedBefore;
+                return earned;
+            };
+            PuzzleCard((RectTransform)titleScreen.transform, seed, tier, kind, art, name, reward,
+                count => PairsPictures(count, pictureStart, (c, f) => ItemArt(c, f)), turned, solved, closed);
+            TreePlay card = titleScreen.GetComponentInChildren<TreePlay>();
+            openCard = card;
+            // I261: how deep this board is, in leaves. I336 (idea 13, after Nikoli's honest
+            // difficulty): kinds that can measure their own logic show that, not their size.
+            if (card != null) card.ShowTier(boardLeaves >= 1 ? boardLeaves - 1 : tier);
+            // I323: each kind's flourish when solved.
+            if (card != null) { card.Flourish = FlourishArt(kind, out Color tint); card.FlourishTint = tint; }
+            // I322: a kind that needed hints last time starts with a move or two made.
+            if (card != null) card.GiveHeadStart(HeadStart.Moves(PlayerPrefs.GetInt(hintsKey, 0), tier));
+            // I309: a board of your own can be sent to family once solved.
+            if (card != null && reward > 0 && world.Mode == PlayMode.Living)
+                card.SendBoard = () => SendBoardToFamily(kind, tier, seed, name);
+        }
+
+        // The card itself, for your things and, visiting, for theirs (I227); eight kinds (I243).
+        private int boardLeaves; // I336: 1..3 from the board's logic, or 0 when the kind can't measure it
+
+        private void PuzzleCard(RectTransform host, int seed, int tier, PuzzleKind kind, Sprite art, string name,
+                                int reward, Func<int, Sprite[]> pictures, Action turned, Func<int> solved, Action closed)
+        {
+            TreePlay.IPuzzleBoard board = null;
+            boardLeaves = 0; // I336: set by kinds that measure their own logic
+            switch (kind)
+            {
+                case PuzzleKind.Nonogram:
+                {
+                    var nonogram = new NonogramGame(seed, tier);
+                    boardLeaves = nonogram.Leaves;
+                    board = new NonogramBoard(nonogram);
+                    break;
+                }
+                case PuzzleKind.Sudoku:
+                {
+                    var sudoku = new SeedSudokuGame(seed, tier);
+                    boardLeaves = sudoku.Leaves;
+                    board = new SudokuBoard(sudoku, pictures(sudoku.Size));
+                    break;
+                }
+                case PuzzleKind.Plots: board = new PlotsBoard(new PlotsGame(seed, tier)); break;
+                case PuzzleKind.StreamPath: board = new StreamBoard(new StreamPathGame(seed, tier)); break;
+                case PuzzleKind.Sowing: board = new SowBoard(seed, tier); break;            // I318
+                case PuzzleKind.Sums: // I324
+                {
+                    var sums = new SeedSumsGame(seed, tier);
+                    boardLeaves = sums.Leaves;
+                    board = new SumsBoard(sums);
+                    break;
+                }
+                case PuzzleKind.Pieces: board = new PiecesBoard(new GardenPiecesGame(seed, tier), tier); break; // I331
+                case PuzzleKind.Doorstep: // I332
+                {
+                    var doorstep = new DoorstepGame(seed, tier);
+                    boardLeaves = doorstep.Leaves;
+                    board = new DoorstepBoard(doorstep, tier);
+                    break;
+                }
+                case PuzzleKind.Mahjong: board = new MahjongBoard(new MahjongGame(seed, tier), tier, pictures(MahjongGame.FacesFor(tier))); break;
+            }
+            if (board != null)
+            {
+                TreePlay.OpenBoard(host, board, art, name, reward, font, gentleMotion, turned, solved, closed);
+                return;
+            }
+            if (kind == PuzzleKind.Pairs)
+            {
+                var game = new PairsGame(seed, tier);
+                TreePlay.OpenPairs(host, game, pictures(game.Pairs), art, name, reward, font,
+                    gentleMotion, turned, solved, closed);
+                return;
+            }
+            if (kind == PuzzleKind.Mosaic)
+            {
+                // Buildings hold a Mosaic of one of the village's memory paintings.
+                string[] paintings = { MosseloraArt.VignetteBridge, MosseloraArt.VignetteTree,
+                    MosseloraArt.VignetteFlowers, MosseloraArt.HeroVillage, MosseloraArt.EndingFestival };
+                Sprite picture = MosseloraArt.Load(paintings[Mathf.Abs(seed) % paintings.Length]);
+                if (picture != null)
+                {
+                    TreePlay.OpenMosaic(host, new MosaicGame(seed, tier), picture, art, name, reward, font,
+                        gentleMotion, turned, solved, closed);
+                    return;
+                }
+            }
+                        TreePlay.Open(host, TreePuzzles.For(seed, tier, name), art, name, reward, font, gentleMotion,
+                turned, solved, closed);
+        }
+
+        // Distinct paintings from this garden's catalogue for a Pairs table, starting
+        // at a place set by the flower, so each flower deals different pictures.
+        private Sprite[] PairsPictures(int count, int item, Func<int, int, Sprite> artOf)
+        {
+            var found = new System.Collections.Generic.List<Sprite>();
+            // I290: the table is dealt from the flowers of the garden's season first, a
+            // card for each flower in bloom, starting where this thing points.
+            int[] inBloom = GardenCatalog.FlowersOf(world != null ? GardenSeason.For(world) : Season.Spring);
+            for (int step = 0; step < inBloom.Length && found.Count < count; step++)
+            {
+                int flower = inBloom[(Mathf.Abs(item) * 3 + step) % inBloom.Length];
+                Sprite art = MosseloraArt.Load(GardenCatalog.Get(VillageChoice.Flowers, flower).Art);
+                if (art != null && !found.Contains(art)) found.Add(art);
+            }
+            int total = GardenCatalog.ChaptersPerGarden * 3;
+            for (int step = 0; step < total && found.Count < count; step++)
+            {
+                int slot = (item * 5 + step) % total;
+                Sprite art = artOf(slot / 3, slot % 3);
+                if (art != null && !found.Contains(art)) found.Add(art);
+            }
+            return found.ToArray();
+        }
+
+        // ---- I215: family parcels, over home (or the page when on a board).
+        private FamilySheet familySheet;
+        private const string FamilyNameKey = "evergrove:family-name";
+
+        private void OpenFamily()
+        {
+            if (familySheet != null) return;
+            RectTransform host = titleScreen != null ? (RectTransform)titleScreen.transform : canvasRoot;
+            familySheet = FamilySheet.Open(host, font, new FamilySheet.Hooks
+            {
+                Seeds = () => world.Seeds,
+                Fruit = () => world.Fruit,
+                Jam = () => world.Jam,
+                RowOpen = row => world.RowOpen(row),
+                OwnedKinds = () => {
+                    int[] bought = world.Bought;
+                    var kinds = new System.Collections.Generic.List<int>();
+                    for (int k = bought.Length / 2 - 1; k >= 0; k--)
+                        if (!kinds.Contains(bought[k * 2])) kinds.Add(bought[k * 2]);
+                    return kinds.ToArray();
+                },
+                Send = (from, words, gift, value, nonce, wish, picture) => {
+                    ParcelSendResult sent = world.SendParcel(from, words, gift, value, nonce, wish, 0, picture);
+                    if (sent.Ok) { SaveWorld(); PlayChime(); }
+                    return sent;
+                },
+                Open = text => {
+                    ParcelOpenResult opened = world.Open(text);
+                    if (opened.Ok && opened.Contents != null && opened.Contents.Letter.Length > 0) letterArrived = true;
+                    if (opened.Ok) { SaveWorld(); PlayChime(); }
+                    return opened;
+                },
+                Share = text => { if (!NativeShare.Text(text, "Mosselora")) GUIUtility.systemCopyBuffer = text; },
+                Paste = () => GUIUtility.systemCopyBuffer,
+                Postcard = () => {
+                    string text = GardenPostcard.Build(world,
+                        world.Completed ? "" : GameLocalization.Text("stream", world.Round + 1, PuzzleCatalog.Count));
+                    if (!NativeShare.Text(text, GameLocalization.Text("postcard"))) GUIUtility.systemCopyBuffer = text;
+                },
+                Visit = text => {
+                    if (!OpenVisit(text)) return false;
+                    if (familySheet != null) Destroy(familySheet.gameObject);
+                    familySheet = null;
+                    return true;
+                },
+                Closed = () => { familySheet = null; RefreshMaps(); },
+                Name = () => PlayerPrefs.GetString(FamilyNameKey, ""),
+                SaveName = name => { PlayerPrefs.SetString(FamilyNameKey, name); PlayerPrefs.Save(); },
+                PlayBoard = (kind, tier, seed, from) => {
+                    if (familySheet != null) Destroy(familySheet.gameObject);
+                    familySheet = null;
+                    PlayTheirBoard(kind, tier, seed, from);
+                },
+            });
+        }
+
+        // ---- I309: the very board a relative solved, played here. It pays nothing and
+        // changes nothing in your garden; it's simply the same puzzle, shared.
+        private void PlayTheirBoard(int kind, int tier, int seed, string from)
+        {
+            if (titleScreen == null || kind < 0 || kind > (int)PuzzleKind.Doorstep) return;
+            OpenThingPuzzle(seed, Mathf.Clamp(tier, 0, TreePuzzles.Tiers - 1), (PuzzleKind)kind,
+                MosseloraArt.Load("letter-sealed"), from + "'s board", 0, Mathf.Abs(seed % 97), () => 0);
+        }
+
+        private Sprite FlourishArt(PuzzleKind kind, out Color tint)
+        {
+            tint = Color.white;
+            switch (kind)
+            {
+                case PuzzleKind.Water: case PuzzleKind.StreamPath:
+                    return MosseloraArt.Load(MosseloraArt.Droplet);
+                case PuzzleKind.Pairs:
+                    Sprite[] bloom = PairsPictures(1, 0, (c, f) => ItemArt(c, f));
+                    return bloom.Length > 0 ? bloom[0] : MosseloraArt.Load(MosseloraArt.Sprig);
+                case PuzzleKind.Mosaic:
+                    tint = new Color(1f, 0.86f, 0.45f, 1f);
+                    return MosseloraArt.Rounded(6);
+                case PuzzleKind.Mahjong:
+                    return MosseloraArt.Load("stone-spring");
+                case PuzzleKind.Plots:
+                    return MosseloraArt.Load(MosseloraArt.Sprig);
+                default:
+                    return MosseloraArt.Load(TreePlay.SeedIcon);
+            }
+        }
+
+        private void SendBoardToFamily(PuzzleKind kind, int tier, int seed, string thing)
+        {
+            string from = PlayerPrefs.GetString(FamilyNameKey, "");
+            if (!FamilyParcel.ValidName(from)) { OpenFamily(); return; } // your name first, on the family page
+            string nonce = Guid.NewGuid().ToString("N").Substring(0, 16);
+            ParcelSendResult sent = world.SendBoard(from, "", (int)kind, tier, seed, nonce);
+            if (!sent.Ok) return;
+            SaveWorld();
+            string text = FamilyParcel.Wrap(sent.Text, from + " sent you the " + thing +
+                " puzzle they solved in Mosselora. Open it in the game: Family, then Open.");
+            if (!NativeShare.Text(text, "Mosselora")) GUIUtility.systemCopyBuffer = text;
+        }
+
+        // ---- I216: visit a relative's garden, read-only. Their garden file (the one
+        // Settings copies) is read without touching yours; their river, things,
+        // plantings and nursery plants stand on their own painted map.
+        private GameObject visitLayer;
+        private string visitText;
+        private WorldModel visitWorld;
+        private readonly System.Collections.Generic.List<int> helpedOnVisit = new System.Collections.Generic.List<int>();
+
+        private bool OpenVisit(string text)
+        {
+            if (!GardenTransfer.TryImport(text, out WorldModel visited, out GardenImportError _) ||
+                visited.Mode != PlayMode.Living) return false;
+            var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
+            if (mask == null) return false;
+            GardenMap map;
+            try { map = GardenMap.River(10, 15, mask.text.Trim(), GardenMap.ReachesFor(visited.Choices.Length, visited.Completed, visited.PuzzlesSolved)); }
+            catch (ArgumentException) { return false; }
+            ApplyDayLight(visited); // your hour, their season
+            // Their garden in its own season (I249): families see each other's year.
+            int season = PaintedVillage.ArtSeason(visited);
+            Sprite plot = MosseloraArt.Load(PaintedVillage.MapFor(season)) ?? MosseloraArt.Load("garden-map");
+            if (plot == null) return false;
+
+            if (text != visitText) helpedOnVisit.Clear();
+            visitText = text;
+            visitWorld = visited;
+            visitLayer = Node("Visiting a garden", canvasRoot);
+            Fill(visitLayer.GetComponent<RectTransform>());
+            visitLayer.AddComponent<Image>().color = Paper;
+            visitLayer.transform.SetAsLastSibling();
+            var window = Node("Their garden", visitLayer.transform);
+            Fill(window.GetComponent<RectTransform>());
+            window.AddComponent<RectMask2D>();
+            // Help (I227): tap one of their things that still holds a puzzle, solve it for them.
+            GardenMapView view = GardenMapView.Build((RectTransform)window.transform, plot, map, VisitItems(visited, map),
+                landscape ? 1f : 1.3f, null, HelpWith, -1, false, 1f, -1f, null, 0.22f, RiverGoesOn(map));
+            view.FocusFromTop = 0.4f;
+
+            // A wooden "back home" token where the menu button lives, and a sign.
+            var bar = Node("Visit chrome", visitLayer.transform);
+            var barRect = bar.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            barRect.anchorMin = new Vector2(safe.xMin / w, safe.yMax / h);
+            barRect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
+            barRect.pivot = new Vector2(0.5f, 1f);
+            barRect.sizeDelta = new Vector2(0f, 70f);
+            Button home = IconButton(bar.transform, "Back to your garden", "Back to your garden", MosseloraArt.IconHome,
+                CloseVisit, 54, MosseloraTheme.QuietAction);
+            PlaceChrome(home, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
+            var sign = Node("Visiting sign", bar.transform);
+            var signRect = sign.GetComponent<RectTransform>();
+            signRect.anchorMin = signRect.anchorMax = new Vector2(0f, 1f);
+            signRect.pivot = new Vector2(0f, 1f);
+            signRect.sizeDelta = new Vector2(Mathf.Round(220f * Mathf.Max(1f, TextScale.Percent / 100f)), 44f);
+            signRect.anchoredPosition = new Vector2(78f, -ChromeTop - 4f); // right of the home token
+            var signImage = sign.AddComponent<Image>();
+            MosseloraArt.Round(signImage, new Color(0.98f, 0.95f, 0.86f, 0.96f), 22);
+            MosseloraArt.Lift(signImage, 2f, 0.2f);
+            Text words = Label(sign.transform, "Visiting words", "Visiting a garden", 18, 0, Ink, TextAnchor.MiddleCenter);
+            words.GetComponent<LayoutElement>().ignoreLayout = true;
+            Fill(words.rectTransform);
+            words.rectTransform.offsetMin = new Vector2(12f, 4f);
+            words.rectTransform.offsetMax = new Vector2(-12f, -4f);
+            Emphasize(words);
+            words.horizontalOverflow = HorizontalWrapMode.Overflow; // one line; the sign grows with text size
+            // I334 (idea 40, omiyage): take a keepsake home: a cutting of their newest nursery plant,
+            // copied, never taken from them, at its nursery price. Once a visit.
+            int[] theirs = visited.Bought;
+            if (theirs.Length >= 2 && keepsakeTakenFrom != text && world.Mode == PlayMode.Living)
+            {
+                int keepKind = theirs[theirs.Length - 2];
+                if (keepKind >= 0 && keepKind < Nursery.Kinds)
+                {
+                    bool afford = world.Seeds >= Nursery.Price(keepKind);
+                    Button keep = IconButton(bar.transform, "Take a keepsake cutting home, " + Nursery.Price(keepKind) + " seeds",
+                        "Keepsake", Nursery.Item(keepKind).Art, () => TakeKeepsake(keepKind, text), 54, MosseloraTheme.QuietAction);
+                    PlaceChrome(keep, new Vector2(1f, 1f), new Vector2(-10f, ChromeTop));
+                    Transform glyph = keep.transform.Find("Icon");
+                    if (glyph != null) glyph.GetComponent<Image>().color = afford ? Color.white : new Color(1f, 1f, 1f, 0.4f);
+                }
+            }
+            semanticsDirty = true;
+            return true;
+        }
+
+        private string keepsakeTakenFrom;
+
+        private void TakeKeepsake(int kind, string visit)
+        {
+            if (!world.TakeKeepsake(kind))
+            {
+                if (visitLayer != null)
+                    RuleToast.Show((RectTransform)visitLayer.transform, world.Seeds < Nursery.Price(kind)
+                        ? "A keepsake cutting costs " + Nursery.Price(kind) + " seeds, like the nursery."
+                        : "Your basket is full. Plant something first.", font, Ink, MosseloraTheme.CardFill);
+                return;
+            }
+            keepsakeTakenFrom = visit;
+            world.KeepNote("Fen", "You brought home a cutting of " + Nursery.Item(kind).Name +
+                " from your family's garden. It's in your basket, a keepsake of the visit.");
+            letterArrived = true;
+            SaveWorld();
+            PlayChime();
+            if (visitLayer != null) { Destroy(visitLayer); visitLayer = null; OpenVisit(visit); }
+        }
+
+        private System.Collections.Generic.List<GardenMapView.Placed> VisitItems(WorldModel visited, GardenMap map)
+        {
+            int[] made = visited.Choices, planted = visited.Plantings, bought = visited.Bought;
+            int[] cells = map.Layout(made, visited.Placements, visited.Occupied); // decorations too (I330)
+            var items = new System.Collections.Generic.List<GardenMapView.Placed>();
+            Func<int, int, Sprite> art = (chapter, family) => MosseloraArt.Load(GardenCatalog.For(visited.Garden,
+                Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)Mathf.Clamp(family, 0, 2)).Art);
+            for (int i = 0; i < made.Length; i++)
+            {
+                bool done = visited.TreeSolved(i) || visited.IsHelped(i) || helpedOnVisit.Contains(i);
+                items.Add(new GardenMapView.Placed { Art = art(i, made[i]), Cell = cells[i], Index = i,
+                    Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2), Bloomed = done,
+                    HoldsPuzzle = !done && world.Mode == PlayMode.Living,
+                    Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1,
+                    Together = visited.SolvedTogether(i), // I270: their family moments show when you visit
+                    BloomNow = gentleMotion && helpedOnVisit.Count > 0 && helpedOnVisit[helpedOnVisit.Count - 1] == i });
+            }
+            for (int k = 0; k * 2 + 1 < planted.Length; k++)
+                if (planted[k * 2] < made.Length && map.IsLand(planted[k * 2 + 1]))
+                    items.Add(new GardenMapView.Placed { Art = art(planted[k * 2], made[planted[k * 2]]),
+                        Cell = planted[k * 2 + 1], Index = PlantingIndex + k,
+                        Family = (VillageChoice)Mathf.Clamp(made[planted[k * 2]], 0, 2) });
+            for (int k = 0; k * 2 + 1 < bought.Length; k++)
+                if (map.IsLand(bought[k * 2 + 1]))
+                    items.Add(new GardenMapView.Placed { Art = MosseloraArt.Load(Nursery.Item(bought[k * 2]).Art),
+                        Cell = bought[k * 2 + 1], Index = BoughtIndex + k, Family = Nursery.Family(bought[k * 2]),
+                        Bloomed = visited.BoughtSolved(k), Together = visited.SolvedTogether(BoughtIndex + k) });
+            if (items.Count > 0)
+            {
+                // Frame their newest thing, or the one you just helped with, blooming (I227).
+                int frame = helpedOnVisit.Count > 0 ? helpedOnVisit[helpedOnVisit.Count - 1] : made.Length > 0 ? made.Length - 1 : 0;
+                var newest = items[frame];
+                newest.Newest = true;
+                items[frame] = newest;
+            }
+            // I330 (idea 16, after visiting player-made worlds): their decorations stand where they set them.
+            int[] theirDecor = visited.Decor;
+            for (int d = 0; d * 2 + 1 < theirDecor.Length; d++)
+                if (map.IsLand(theirDecor[d * 2 + 1]))
+                    items.Add(new GardenMapView.Placed { Art = MosseloraArt.Load(DecorArt((Decoration)theirDecor[d * 2])),
+                        Cell = theirDecor[d * 2 + 1], Index = DecorIndex + d, Family = VillageChoice.Bridge });
+            return items;
+        }
+
+        private void CloseVisit()
+        {
+            if (visitLayer != null) Destroy(visitLayer);
+            visitLayer = null;
+            semanticsDirty = true;
+        }
+
+        // I227: help with one of their things. You play the very board they would
+        // (same seed), earn nothing, and a Help parcel goes to them by any message
+        // app; it blooms in their garden when they open it.
+        private void HelpWith(int item)
+        {
+            WorldModel theirs = visitWorld;
+            if (theirs == null || visitLayer == null || world.Mode != PlayMode.Living) return;
+            int[] made = theirs.Choices;
+            if (item < 0 || item >= made.Length || theirs.TreeSolved(item) || theirs.IsHelped(item) ||
+                helpedOnVisit.Contains(item)) return;
+            int tier = TreePuzzles.TierFor(item);
+            GardenItem thing = GardenCatalog.For(theirs.Garden, Mathf.Clamp(item, 0, GardenCatalog.ChaptersPerGarden - 1),
+                (VillageChoice)Mathf.Clamp(made[item], 0, 2));
+            Func<int, int, Sprite> artOf = (chapter, family) => MosseloraArt.Load(GardenCatalog.For(theirs.Garden,
+                Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)Mathf.Clamp(family, 0, 2)).Art);
+            moveNote = 0;
+            PuzzleKind helpKind = ThingPuzzle.ForStory(item, (VillageChoice)made[item]);
+            Action turned = () => { PlayMove(helpKind); if (gentleMotion) Haptics.Tick(); };
+            Func<int> solved = () =>
+            {
+                string from = PlayerPrefs.GetString(FamilyNameKey, "");
+                if (!FamilyParcel.ValidName(from)) from = "Family";
+                string nonce = Guid.NewGuid().ToString("N").Substring(0, 16);
+                ParcelSendResult sent = world.SendParcel(from, "", ParcelGift.Help, item, nonce);
+                if (!sent.Ok) return 0;
+                SaveWorld();
+                PlayChime();
+                helpedOnVisit.Add(item);
+                helpShare = FamilyParcel.Wrap(sent.Text, from + " helped in your Mosselora garden.");
+                return 0;
+            };
+            Action closed = () =>
+            {
+                string share = helpShare;
+                helpShare = null;
+                if (visitLayer != null) { Destroy(visitLayer); visitLayer = null; OpenVisit(visitText); }
+                if (share != null && !NativeShare.Text(share, "Mosselora")) GUIUtility.systemCopyBuffer = share;
+            };
+            PuzzleCard((RectTransform)visitLayer.transform, theirs.Garden * 1000 + item * 7 + 1, tier,
+                ThingPuzzle.ForStory(item, (VillageChoice)made[item]), artOf(item, made[item]), thing.Name, -1,
+                count => PairsPictures(count, item, artOf), turned, solved, closed);
+        }
+        private string helpShare;
+
+        // The seeds you have, top right of home: a sprout and a number.
+        private void SeedPurse()
+        {
+            if (titleScreen == null || world.Mode != PlayMode.Living || world.Choices.Length == 0) return;
+            var purse = Node("Seeds you have", titleScreen.transform);
+            var rect = purse.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            rect.anchorMin = rect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.sizeDelta = new Vector2(104f, 48f);
+            rect.anchoredPosition = new Vector2(-12f, -ChromeTop - 4f);
+            var body = purse.AddComponent<Image>();
+            MosseloraArt.Round(body, new Color(0.98f, 0.95f, 0.86f, 0.96f), 24);
+            MosseloraArt.Lift(body, 2f, 0.2f);
+            body.raycastTarget = false;
+            var row = purse.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(8, 12, 4, 4);
+            row.spacing = 4;
+            row.childAlignment = TextAnchor.MiddleCenter;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+            var icon = Node("Seed", purse.transform);
+            var iconLayout = icon.AddComponent<LayoutElement>();
+            iconLayout.preferredWidth = iconLayout.preferredHeight = 30f;
+            var iconImage = icon.AddComponent<Image>();
+            iconImage.sprite = MosseloraArt.Load(TreePlay.SeedIcon);
+            iconImage.preserveAspect = true;
+            iconImage.raycastTarget = false;
+            Text count = Label(purse.transform, "Seed count", world.Seeds.ToString(), 20, 0, Ink, TextAnchor.MiddleLeft);
+            Emphasize(count);
+            // One line at any text size; the purse grows leftward to fit "100" at 150% (I227).
+            count.horizontalOverflow = HorizontalWrapMode.Overflow;
+            // Fruit from your trees sits beside the seeds once you have picked any (I229).
+            purseFruit = null;
+            if (world.Fruit > 0 || fruitPicked)
+            {
+                var pear = Node("Fruit", purse.transform);
+                var pearLayout = pear.AddComponent<LayoutElement>();
+                pearLayout.preferredWidth = pearLayout.preferredHeight = 30f;
+                purseFruit = pear.AddComponent<Image>();
+                purseFruit.sprite = MosseloraArt.Load("food-pear");
+                purseFruit.preserveAspect = true;
+                purseFruit.raycastTarget = false;
+                Text fruit = Label(purse.transform, "Fruit count", world.Fruit.ToString(), 20, 0, Ink, TextAnchor.MiddleLeft);
+                Emphasize(fruit);
+                fruit.horizontalOverflow = HorizontalWrapMode.Overflow;
+            }
+            var fit = purse.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        }
+        // ---- I311/I312: when the garden's season turns, the next neighbour leaves a note with
+        // a tale. The first time home is seen only records the season, so nothing is sudden.
+        private void NoteSeasonTurn()
+        {
+            if (world == null || world.Mode != PlayMode.Living || world.Choices.Length == 0) return;
+            string seenKey = "evergrove:season-seen:" + world.Garden, turnsKey = "evergrove:season-turns:" + world.Garden;
+            int now = (int)GardenSeason.For(world) + 1, seen = PlayerPrefs.GetInt(seenKey, 0);
+            if (seen == now) return;
+            PlayerPrefs.SetInt(seenKey, now);
+            if (seen != 0)
+            {
+                int turn = PlayerPrefs.GetInt(turnsKey, 0);
+                SeasonNote note = SeasonTales.For(GardenSeason.For(world), turn);
+                if (world.KeepNote(note.From, note.Body)) { letterArrived = true; SaveWorld(); }
+                if (GardenSeason.Festival(world) &&
+                    world.KeepNote("Orin", GardenSeason.FestivalNote(GardenSeason.YearAfterStory(world.PuzzlesSolved))))
+                { letterArrived = true; SaveWorld(); }
+                PlayerPrefs.SetInt(turnsKey, turn + 1);
+            }
+            PlayerPrefs.Save();
+        }
+
+        // I313: a wish that has come true is thanked for once, by letter.
+        private void NoteGrantedWishes()
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            for (int villager = 0; villager < 3; villager++)
+            {
+                NeighbourWish wish = NeighbourWish.For(world, villager);
+                string key = "evergrove:wish-thanked:" + world.Garden + ":" + villager;
+                if (wish == null || !wish.Granted || PlayerPrefs.GetInt(key, 0) == 1) continue;
+                if (!world.KeepNote(wish.From, wish.Thanks)) continue; // review fix: try again next time
+                PlayerPrefs.SetInt(key, 1);
+                letterArrived = true;
+                SaveWorld();
+            }
+            PlayerPrefs.Save();
+        }
+
+        // I315: at a few milestones of puzzles solved, a neighbour leaves a cutting and a note.
+        private void NoteNeighbourGifts()
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            string key = "evergrove:neighbour-gifts:" + world.Garden;
+            int given = PlayerPrefs.GetInt(key, 0);
+            for (int due = NeighbourGifts.Due(world.PuzzlesSolved, given); due > 0; due--, given++)
+            {
+                int kind = NeighbourGifts.CuttingFor(world, given);
+                if (kind < 0 || !world.ReceiveNeighbourCutting(kind)) break; // basket full: it waits for room
+                string what = Nursery.Family(kind) == VillageChoice.Bridge
+                    ? "I've made you a " + Nursery.Item(kind).Name + ". It's in your basket; set it wherever you like."
+                    : "I've left a cutting of " + Nursery.Item(kind).Name + " in your basket, from my own. Plant it wherever you like.";
+                world.KeepNote(NeighbourGifts.From(given), what);
+                letterArrived = true;
+                PlayerPrefs.SetInt(key, given + 1);
+                SaveWorld();
+            }
+            PlayerPrefs.Save();
+        }
+
+        private bool GardenMapOnHub(RectTransform window)
+        {
+            NoteSeasonTurn();
+            NoteGrantedWishes();
+            NoteNeighbourGifts();
+            ApplyDayLight(world);
+            Sprite plot = MapPainting();
+            GardenMap map = LoadGardenMap();
+            if (plot == null || map == null) return false;
+            float zoom = hubZoom[landscape ? 1 : 0];
+            // Only home marks things that hold a puzzle: only home plays them (I221).
+            markPuzzles = world.Mode == PlayMode.Living;
+            var hubItems = MapItems(map);
+            markPuzzles = false;
+            GardenMapView.LanternsNext = world.Lanterns.Length;
+            GardenMapView view = GardenMapView.Build(window, plot, map, hubItems, zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
+                heldDecor >= 0 ? DecorIndex + heldDecor : heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
+                (justPlanted >= 0 || justBought >= 0) && gentleMotion,
+                GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
+                0.22f, RiverGoesOn(map), NextSeasonPlot());
+            hubMapView = view;
+            // I310: lanterns are passed in before the build (LanternsNext), so nothing lays out twice.
+            waveHello = false; // they waved (or would have) on this return; not on every rebuild
+            // A solve opened more river (I223): its mist lifts, framed, with the chime.
+            if (riverOpened && map.Reaches > 1)
+            {
+                if (gentleMotion) view.LiftMist(map.Reaches - 1);
+                PlayChime();
+            }
+            riverOpened = false;
+            if (fruitPicked && purseFruit != null)
+            {
+                if (gentleMotion) StartCoroutine(FlyInto(purseFruit.rectTransform, "food-pear", new Vector2(54f, 54f)));
+                else BloomPulse.Add(purseFruit.gameObject, 0.1f, 0.22f);
+            }
+            fruitPicked = false;
+            RiverDrops(view, dropEarned && gentleMotion);
+            dropEarned = false;
+            justBought = -1;
+            justSolved = -1;
+            // Pinch to zoom (I202), kept while the app runs, per orientation.
+            bool sideways = landscape;
+            view.Zoomed = z => hubZoom[sideways ? 1 : 0] = z;
+            justPlanted = -1;
+            if (keepHubAt.x >= 0f) view.KeepAt(keepHubAt);
+            keepHubAt = new Vector2(-1f, -1f);
+            // Full-screen home (I190): what you made sits in the upper part of the
+            // screen, clear of the play token at the bottom.
+            // Sideways too (I197): home is the whole garden whichever way you hold it.
+            // Sideways the window is short, so what you made sits higher still (I197).
+            view.FocusFromTop = landscape ? 0.24f : 0.36f;
+            // The play row and the basket live in the bottom of home: neighbours keep out of it (I218).
+            view.ClearBottom = landscape ? 0f : 190f;
+            // The letterbox stands under the purse (I233): neighbours keep below it too.
+            view.ClearTop = landscape ? 0f : world.Letters.Length > 0 ? 220f : 140f; // the box's foot is ~195 pt down
+            return true;
+        }
+
+        // I189: the garden is the stage. Boards float over your own garden map,
+        // full screen and gently veiled so the board stays the brightest thing,
+        // instead of a paper page with a strip of garden under the board.
+        // The map wears the season the walk has reached (I198): summer, then autumn
+        // amber, then winter frost; a finished garden is summer again.
+        private Sprite MapPainting()
+        {
+            // Four seasons by progress (I248/I249): the story walks spring to winter; after it,
+            // tending turns the year on.
+            Sprite graded = MosseloraArt.Load(PaintedVillage.MapFor(PaintedVillage.ArtSeason(world)));
+            return graded != null ? graded : MosseloraArt.Load("garden-map");
+        }
+
+        private bool WorldStage(bool show)
+        {
+            if (worldStage == null) return false;
+            ClearChildren(worldStage);
+            worldStage.gameObject.SetActive(false);
+            if (!show) return false;
+            Sprite plot = MapPainting();
+            GardenMap map = LoadGardenMap();
+            if (plot == null || map == null) return false;
+            worldStage.gameObject.SetActive(true);
+            GardenMapView view = GardenMapView.Build(worldStage, plot, map, MapItems(map), 1.1f,
+                null, null, -1, false, GreenedShare(0), -1f, null, 0f, RiverGoesOn(map));
+            view.FocusFromTop = 0.82f; // your newest thing peeks out under the board
+            var veil = Node("Morning veil", worldStage);
+            Fill(veil.GetComponent<RectTransform>());
+            var veilImage = veil.AddComponent<Image>();
+            veilImage.color = new Color(Paper.r, Paper.g, Paper.b, 0.2f);
+            veilImage.raycastTarget = false;
+            return true;
+        }
+
+        // ---- E4 (I178): place what you made. Tap a thing to pick it up, tap land to put it down.
+        private int mapInHand = -1;
+        // ---- I193: the basket. Plant more of anything you've grown, as often as you like.
+        private const int PlantingIndex = 1000; // map indices at or above this are plantings
+        private bool basketOpen;
+        private int basketKind = -1;   // the choice whose item is planted on a tap, -1 none
+        private int heldPlanting = -1; // a planting picked up to move or put back
+        // ---- I208: the nursery. Seeds buy new plants; each holds its own puzzle.
+        private const int BoughtIndex = 2000; // map indices at or above this are bought plants
+        private const int SecretIndex = 3000; // I320: map indices at or above this are mossy stones, by stretch
+        private const int DecorIndex = 4000;  // I330: map indices at or above this are decorations
+        private const int WellIndex = 5000;   // I333: the old well at the river's head
+        private int decorInHand = -1;          // a Decoration chosen at the cottage, to place
+        private int heldDecor = -1;            // a placed decoration picked up, to move or put away
+
+        private static string DecorArt(Decoration piece)
+        {
+            return piece == Decoration.Stones ? "build-02" : piece == Decoration.Bench ? "build-17"
+                : piece == Decoration.Fence ? "build-19" : "build-22";
+        }
+
+        private static string DecorName(Decoration piece)
+        {
+            return piece == Decoration.Stones ? "stepping stones" : piece == Decoration.Bench ? "a bench"
+                : piece == Decoration.Fence ? "a fence" : "a lantern post";
+        }
+        private int heldBought = -1;   // a bought plant picked up (to move, or to play its puzzle)
+        private bool nurseryOpen;      // the basket tray shows the nursery instead of your own kinds
+        private int nurseryKind = -1;  // the nursery kind planted (bought) on a tap, -1 none
+        private int justBought = -1;
+        private int justSolved = -1;   // map index of the thing whose puzzle was just solved (I212)
+        private bool solvedHere;
+        private bool riverOpened;   // the last solve opened a new stretch of river (I223)
+        private TreePlay openCard;  // the puzzle card now open (I264: was it played together?)
+        private PuzzleKind togetherKind;
+        private int togetherKeeper = -1; // I266: the neighbour who'll say you played it together
+        private bool dropEarned;    // the last solve was a first solve: a drop on the mist fills (I224)
+        private bool fruitPicked;   // the last solve picked fruit from a tree (I229)
+        private Image purseFruit;   // the pear in the purse, where picked fruit flies (I229)
+
+        // Drops on the next stretch's mist (I224): how close more river is.
+        private void RiverDrops(GardenMapView view, bool swell)
+        {
+            if (view == null || world.Mode != PlayMode.Living) return;
+            if (GardenMap.TowardNext(world.Choices.Length, world.Completed, world.PuzzlesSolved, out int have, out int need))
+                view.ShowDrops(have, need, swell);
+        }
+        private int OpenReaches() { return GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved); }
+
+        // Everything standing on the map besides your story things: plantings, then bought plants.
+        private int[] Occupied()
+        {
+            return world.Occupied; // plantings, bought plants and, since I330, decorations
+        }
+        private int justPlanted = -1;  // rises from the ground once
+        private int justDecorated = -1; // I330
+        private GardenMapView hubMapView;
+        private Vector2 keepHubAt = new Vector2(-1f, -1f);
+
+        private bool PlantedAt(int cell, int except = -1, int exceptBought = -1)
+        {
+            int[] planted = world.Plantings;
+            for (int k = 0; k * 2 + 1 < planted.Length; k++)
+                if (k != except && planted[k * 2 + 1] == cell) return true;
+            int[] bought = world.Bought;
+            for (int k = 0; k * 2 + 1 < bought.Length; k++)
+                if (k != exceptBought && bought[k * 2 + 1] == cell) return true;
+            return false;
+        }
+
+        private System.Collections.Generic.List<GardenMapView.Placed> MapItems(GardenMap map)
+        {
+            int[] made = world.Choices;
+            int[] planted = world.Plantings;
+            int[] cells = map.Layout(made, world.Placements, Occupied());
+            var items = new System.Collections.Generic.List<GardenMapView.Placed>();
+            for (int i = 0; i < made.Length; i++)
+                items.Add(new GardenMapView.Placed
+                {
+                    Art = ItemArt(i, made[i]),
+                    Cell = cells[i],
+                    Index = i,
+                    Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
+                    Newest = justSolved >= 0 ? i == justSolved : i == made.Length - 1 && justPlanted < 0,
+                    Bloomed = world.TreeSolved(i) || world.IsHelped(i), // solved (I204), or by family (I227)
+                    HoldsPuzzle = markPuzzles && !world.TreeSolved(i), // helped still holds your own first solve
+                    Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, // I255
+                    Together = world.SolvedTogether(i), // I265
+                    FlowerIndex = made[i] == (int)VillageChoice.Flowers ? ItemAt(i, made[i]).Index + 1 : 0, // I338
+                    Crowned = world.TreeSolved(i) && ReplayBoards.Crowned(TreePuzzles.TierFor(i), Replays(i)), // I292
+                    Grown = world.TreeSolved(i) ? ReplayBoards.Maturity(TreePuzzles.TierFor(i), Replays(i)) : 1f, // I300
+                    BloomNow = i == justSolved && gentleMotion
+                });
+            // More of what you grew, planted from the basket (I193).
+            for (int k = 0; k * 2 + 1 < planted.Length; k++)
+            {
+                int source = planted[k * 2];
+                if (source < 0 || source >= made.Length || !map.IsLand(planted[k * 2 + 1])) continue;
+                items.Add(new GardenMapView.Placed
+                {
+                    Art = ItemArt(source, made[source]),
+                    Cell = planted[k * 2 + 1],
+                    Index = PlantingIndex + k,
+                    Family = (VillageChoice)Mathf.Clamp(made[source], 0, 2),
+                    Newest = k == justPlanted
+                });
+            }
+            // Plants from the nursery (I208): each holds its own puzzle.
+            int[] bought = world.Bought;
+            for (int k = 0; k * 2 + 1 < bought.Length; k++)
+            {
+                int kind = bought[k * 2];
+                if (kind < 0 || kind >= Nursery.Kinds || !map.IsLand(bought[k * 2 + 1])) continue;
+                items.Add(new GardenMapView.Placed
+                {
+                    Art = MosseloraArt.Load(Nursery.Item(kind).Art),
+                    Cell = bought[k * 2 + 1],
+                    Index = BoughtIndex + k,
+                    Family = Nursery.Family(kind),
+                    Newest = justSolved >= 0 ? BoughtIndex + k == justSolved : k == justBought,
+                    Bloomed = world.BoughtSolved(k),
+                    HoldsPuzzle = markPuzzles && !world.BoughtSolved(k),
+                    Kind = (int)ThingPuzzle.ForNursery(kind) + 1, // I255
+                    Together = world.SolvedTogether(BoughtIndex + k), // I265
+                    FlowerIndex = Nursery.Family(kind) == VillageChoice.Flowers ? Nursery.Item(kind).Index + 1 : 0, // I338
+                    Crowned = world.BoughtSolved(k) && ReplayBoards.Crowned(Nursery.Row(kind), Replays(BoughtIndex + k)), // I292
+                    Grown = world.BoughtSolved(k) ? ReplayBoards.Maturity(Nursery.Row(kind), Replays(BoughtIndex + k)) : 1f, // I300
+                    BloomNow = BoughtIndex + k == justSolved && gentleMotion
+                });
+            }
+            // I330: decorations, free to place and move; drawn as the catalogue's own paintings.
+            int[] decor = world.Decor;
+            for (int d = 0; d * 2 + 1 < decor.Length; d++)
+            {
+                if (!map.IsLand(decor[d * 2 + 1])) continue;
+                items.Add(new GardenMapView.Placed { Art = MosseloraArt.Load(DecorArt((Decoration)decor[d * 2])),
+                    Cell = decor[d * 2 + 1], Index = DecorIndex + d, Family = VillageChoice.Bridge,
+                    Newest = d == justDecorated });
+            }
+            // I333: the old well at the head of the river, first free land at the top left.
+            if (markPuzzles)
+            {
+                var wellTaken = new System.Collections.Generic.List<int>(cells);
+                for (int k = 1; k < planted.Length; k += 2) wellTaken.Add(planted[k]);
+                for (int k = 1; k < bought.Length; k += 2) wellTaken.Add(bought[k]);
+                for (int k = 1; k < decor.Length; k += 2) wellTaken.Add(decor[k]);
+                int wellCell = -1;
+                for (int row = 1; row < 4 && wellCell < 0; row++)
+                    for (int col = 0; col < 3 && wellCell < 0; col++)
+                    {
+                        int c = row * map.Columns + col;
+                        if (map.IsLand(c) && !wellTaken.Contains(c)) wellCell = c;
+                    }
+                if (wellCell >= 0)
+                    items.Add(new GardenMapView.Placed { Art = MosseloraArt.Load("build-05"), Cell = wellCell, Index = WellIndex,
+                        Family = VillageChoice.Bridge, HoldsPuzzle = OldWell.Waiting(world) > 0,
+                        Kind = (int)OldWell.KindFor(world.WellSolved) + 1 });
+            }
+            // I320: one mossy stone on the bank of each stretch after the first, until found.
+            if (markPuzzles)
+            {
+                var taken = new System.Collections.Generic.List<int>(cells);
+                for (int k = 1; k < planted.Length; k += 2) taken.Add(planted[k]);
+                for (int k = 1; k < bought.Length; k += 2) taken.Add(bought[k]);
+                Sprite moss = MosseloraArt.Load("stone-spring");
+                for (int reach = 1; reach < map.Reaches && moss != null; reach++)
+                {
+                    int cell = RiverSecrets.CellFor(map, reach, taken.ToArray());
+                    if (cell < 0 || SecretFound(reach)) continue;
+                    items.Add(new GardenMapView.Placed { Art = moss, Cell = cell, Index = SecretIndex + reach,
+                        Family = VillageChoice.Bridge });
+                }
+            }
+            return items;
+        }
+
+        // I333: the well's next deepest board; two fruit when solved, once.
+        private void OpenWell()
+        {
+            if (titleScreen == null) return;
+            if (OldWell.Waiting(world) <= 0)
+            {
+                Transform hub = titleScreen.transform;
+                RuleToast.Show((RectTransform)hub, "The well is still. New river will fill it again.", font, Ink, MosseloraTheme.CardFill);
+                return;
+            }
+            int index = world.WellSolved;
+            OpenThingPuzzle(OldWell.SeedFor(world.Garden, index), OldWell.Tier, OldWell.KindFor(index),
+                MosseloraArt.Load("build-05"), "the old well", 0, index, () =>
+                {
+                    int fruitBefore = world.Fruit;
+                    if (world.TendWell() > 0) { SaveWorld(); PlayChime(); fruitPicked = world.Fruit > fruitBefore; }
+                    return 0;
+                });
+            if (openCard != null) openCard.PaysFruit(OldWell.FruitPerBoard);
+        }
+
+        private string StoneKey(int reach) { return "evergrove:mossy-stone:" + world.Garden + ":" + reach; }
+        private bool SecretFound(int reach) { return PlayerPrefs.GetInt(StoneKey(reach), 0) == 1; }
+
+        // I320: lift the mossy stone: a lost cutting goes to the basket, with a note from Fen.
+        private void FindSecret(int reach)
+        {
+            if (SecretFound(reach) || world.Mode != PlayMode.Living) return;
+            int kind = RiverSecrets.CuttingFor(world, reach);
+            if (kind < 0 || !world.ReceiveNeighbourCutting(kind))
+            {
+                if (titleScreen != null)
+                    RuleToast.Show((RectTransform)titleScreen.transform, "Your basket is full. Plant something first; the stone will wait.",
+                        font, Ink, MosseloraTheme.CardFill);
+                return;
+            }
+            PlayerPrefs.SetInt(StoneKey(reach), 1);
+            PlayerPrefs.Save();
+            string what = Nursery.Family(kind) == VillageChoice.Bridge ? "a little " + Nursery.Item(kind).Name
+                : "a cutting of " + Nursery.Item(kind).Name;
+            world.KeepNote("Fen", "You found what was under the mossy stone: " + what +
+                ", lost there long ago. It's in your basket now.");
+            letterArrived = true;
+            SaveWorld();
+            PlayChime();
+            RefreshMaps();
+        }
+
+        // Mira, Orin and Fen stand in the garden (I181): each beside the newest thing
+        // of their family (trees, builds, flowers), or by the cottage before that.
+        // ---- I217: letters from family stay in your garden: a small letterbox on the
+        // lane below the cottage. A tap reads them, newest first, one at a time.
+        private const string LettersReadKey = "evergrove:letters-read";
+        private int letterShown = -1;
+        private GameObject letterCard;
+        private RectTransform letterboxRect;
+        private bool letterArrived; // a parcel with a letter was just opened: it flies into the box (I237)
+
+        // Under the seed purse, top right of home: always in view, wherever the
+        // river has taken you (I217: on the map by the cottage it was off-screen for
+        // anyone whose newest things are downstream).
+        private void LetterBox()
+        {
+            string[] letters = world.Letters;
+            if (titleScreen == null || letters.Length == 0) return;
+            var node = Node("Letterbox", titleScreen.transform);
+            var rect = node.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            rect.anchorMin = rect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
+            rect.pivot = new Vector2(1f, 1f);
+            // A painted letterbox on its post (I233), not an app badge: a sealed
+            // envelope sits on top while a letter waits unread.
+            rect.sizeDelta = new Vector2(60f, 80f);
+            rect.anchoredPosition = new Vector2(-14f, -ChromeTop - 58f);
+            var box = node.AddComponent<Image>();
+            box.sprite = MosseloraArt.Load("letterbox");
+            box.preserveAspect = true;
+            MosseloraArt.Lift(box, 2f, 0.22f);
+            var button = node.AddComponent<Button>();
+            button.targetGraphic = box;
+            button.onClick.AddListener(() => ShowLetter(0));
+            PressSquash.Add(node);
+            letterboxRect = rect;
+            if (PlayerPrefs.GetInt(LettersReadKey, 0) < letters.Length)
+            {
+                Image sealedLetter = MosseloraArt.Ornament(node.transform, "Unread letter", MosseloraArt.Load("letter-sealed"),
+                    new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(44f, 34f), new Vector2(-4f, -8f));
+                if (sealedLetter != null && gentleMotion) BloomPulse.Add(sealedLetter.gameObject, 0.6f, 0.08f);
+            }
+            if (letterArrived && gentleMotion) StartCoroutine(FlyInto(rect, "letter-sealed", new Vector2(64f, 50f)));
+            letterArrived = false;
+            var caption = Node("Caption", node.transform);
+            caption.AddComponent<LayoutElement>().ignoreLayout = true;
+            var spoken = caption.AddComponent<Text>();
+            spoken.font = font;
+            spoken.color = new Color(0f, 0f, 0f, 0f);
+            spoken.text = letters.Length == 1 ? "A letter from " + world.LetterFrom[0] : letters.Length + " letters from family";
+        }
+
+        // Newest first: index 0 is the last letter received.
+        private void ShowLetter(int fromNewest)
+        {
+            string[] letters = world.Letters, from = world.LetterFrom;
+            if (letters.Length == 0 || titleScreen == null) return;
+            fromNewest = Mathf.Clamp(fromNewest, 0, letters.Length - 1);
+            int i = letters.Length - 1 - fromNewest;
+            letterShown = fromNewest;
+            bool unread = PlayerPrefs.GetInt(LettersReadKey, 0) < letters.Length && fromNewest == 0;
+            PlayerPrefs.SetInt(LettersReadKey, letters.Length);
+            PlayerPrefs.Save();
+            if (letterCard != null) Destroy(letterCard);
+            letterCard = Node("Reading a letter", titleScreen.transform);
+            Fill(letterCard.GetComponent<RectTransform>());
+            letterCard.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.38f);
+            letterCard.AddComponent<TapCatcher>().Tapped = CloseLetter;
+            // An unread letter arrives sealed: the seal lifts, then the paper (I234).
+            if (unread && gentleMotion) { StartCoroutine(OpenEnvelope(letterCard, i, from[i], letters[i])); return; }
+            LetterPaper(letterCard, i, from[i], letters[i], false);
+        }
+
+        private IEnumerator OpenEnvelope(GameObject card, int i, string from, string words)
+        {
+            Image sealedLetter = MosseloraArt.Ornament(card.transform, "Sealed letter", MosseloraArt.Load("letter-sealed"),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(200f, 154f), Vector2.zero);
+            if (sealedLetter == null) { LetterPaper(card, i, from, words, true); yield break; }
+            PlayChime();
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.7f)
+            {
+                if (card == null || sealedLetter == null) yield break;
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                sealedLetter.transform.localScale = Vector3.one * Mathf.Lerp(0.82f, 1.06f, k);
+                sealedLetter.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI * 3f) * 4f * (1f - k));
+                yield return null;
+            }
+            if (card == null) yield break;
+            Destroy(sealedLetter.gameObject);
+            LetterPaper(card, i, from, words, true);
+        }
+
+        private void LetterPaper(GameObject card, int i, string sender, string words, bool rise)
+        {
+            string[] letters = world.Letters;
+            int fromNewest = letters.Length - 1 - i;
+            letterCard = card;
+            var paper = Node("Letter paper", card.transform);
+            var paperRect = paper.GetComponent<RectTransform>();
+            paperRect.anchorMin = paperRect.anchorMax = new Vector2(0.5f, 0.5f);
+            paperRect.sizeDelta = new Vector2(Mathf.Min(PageWidth() + 6f, 420f), 0f);
+            var paperImage = paper.AddComponent<Image>();
+            MosseloraArt.PaperTile(paperImage, 22);
+            paperImage.color = new Color(0.99f, 0.97f, 0.9f, 1f);
+            MosseloraArt.Lift(paperImage, 4f, 0.22f);
+            // Taps on the letter itself don't reach the backdrop (which closes it).
+            paper.AddComponent<Button>().transition = Selectable.Transition.None;
+            var column = paper.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(22, 22, 20, 18);
+            column.spacing = 12;
+            column.childControlWidth = column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            // The opened envelope crowns the page; the words are big; it's signed at the foot.
+            var envelope = Node("Opened envelope", paper.transform);
+            var envelopeLayout = envelope.AddComponent<LayoutElement>();
+            envelopeLayout.preferredHeight = envelopeLayout.minHeight = 64f;
+            var envelopeImage = envelope.AddComponent<Image>();
+            envelopeImage.sprite = MosseloraArt.Load("letter-open");
+            envelopeImage.preserveAspect = true;
+            envelopeImage.raycastTarget = false;
+            // I329: the picture stamp they chose, kept with the letter, shown each time it's read.
+            int[] stamps = world.LetterStamps;
+            int stampOn = i >= 0 && i < stamps.Length ? stamps[i] : 0;
+            if (stampOn > 0 && stampOn <= FamilyParcel.StampCount)
+            {
+                var stampNode = Node("Picture stamp", paper.transform);
+                var stampLayout = stampNode.AddComponent<LayoutElement>();
+                stampLayout.preferredHeight = stampLayout.minHeight = 96f;
+                var stampImage = stampNode.AddComponent<Image>();
+                stampImage.sprite = MosseloraArt.Load(FamilyParcel.Stamps[stampOn - 1]);
+                stampImage.preserveAspect = true;
+                stampImage.raycastTarget = false;
+            }
+            Narrate(Label(paper.transform, "Letter words", words, 21, 0, Ink, TextAnchor.UpperLeft), true);
+            // Signed at the foot, unless they already signed it ("Love, Nan").
+            string tail = words.TrimEnd(' ', '.', '!', '\n');
+            if (!tail.EndsWith(sender, StringComparison.OrdinalIgnoreCase))
+                Emphasize(Label(paper.transform, "Letter from", "\u2014 " + sender, 19, 0, Leaf, TextAnchor.MiddleRight));
+            Transform row = CenteredRowIn(paper.transform, "Letter actions");
+            if (fromNewest < letters.Length - 1)
+                IconButton(row, "Older letter", "Older letter", MosseloraArt.IconUndo, () => ShowLetter(letterShown + 1),
+                    56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            IconButton(row, "Close letter", GameLocalization.Text("close"), MosseloraArt.IconConfirm, CloseLetter,
+                56, MosseloraTheme.ForestAction, false, null, false, 0, 0, true);
+            // Write back (I235): the family card opens with "Dear <name>," begun.
+            if (world.Mode == PlayMode.Living)
+            {
+                string to = sender;
+                Button reply = IconButton(row, "Write back", "Write back to " + to, "letter-pen", () => WriteBack(to),
+                    56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+                Transform pen = reply.transform.Find("Icon");
+                if (pen != null)
+                {
+                    pen.GetComponent<Image>().color = Color.white; // painted, not a glyph
+                    var penSize = pen.GetComponent<LayoutElement>();
+                    penSize.minWidth = penSize.preferredWidth = penSize.minHeight = penSize.preferredHeight = 36f;
+                }
+            }
+            if (fromNewest > 0)
+                IconButton(row, "Newer letter", "Newer letter", MosseloraArt.IconContinue, () => ShowLetter(letterShown - 1),
+                    56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            if (rise) StartCoroutine(RiseIn(paperRect));
+            semanticsDirty = true;
+        }
+
+        private void WriteBack(string to)
+        {
+            CloseLetter();
+            OpenFamily();
+            if (familySheet != null) familySheet.Prefill("Dear " + to + ",\n");
+        }
+
+        private void CloseLetter()
+        {
+            if (letterCard != null) Destroy(letterCard);
+            letterCard = null;
+            letterShown = -1;
+            RefreshMaps(); // the unread dot goes
+        }
+
+        internal void QaReadLetter() { ShowLetter(0); }
+        internal void QaCloseLetter() { CloseLetter(); }
+        internal void QaWriteBack() { string[] from = world.LetterFrom; if (from.Length > 0) WriteBack(from[from.Length - 1]); }
+
+        private System.Collections.Generic.List<RectTransform> NeighborsOnMap(RectTransform land,
+            Func<int, Vector2> point, GardenMap map, bool fromTitle)
+        {
+            var placed = new System.Collections.Generic.List<RectTransform>();
+            if (world.Mode != PlayMode.Living) return placed;
+            int[] made = world.Choices;
+            int[] cells = map.Layout(made, world.Placements);
+            // Before they have a thing of their own, each waits in a different
+            // part of the valley (land cells in the mask), never in a huddle.
+            // Row 2 col 5 (Mira), row 3 col 6 (Orin), row 6 col 7 (Fen): clear of the
+            // corner buttons and of each other, on land.
+            int[] byCottage = { 25, 36, 67 };
+            Vector2 step = point(1) - point(0);
+            // Those with a thing of their own take their place first; newcomers fit around them.
+            var order = new System.Collections.Generic.List<int> { 0, 1, 2 };
+            order.Sort((a, b) => (Array.IndexOf(made, b) >= 0).CompareTo(Array.IndexOf(made, a) >= 0) != 0
+                ? (Array.IndexOf(made, b) >= 0).CompareTo(Array.IndexOf(made, a) >= 0) : a.CompareTo(b));
+            foreach (int villager in order)
+            {
+                // I301: beside the newest thing of their kind, a nursery plant of theirs first.
+                int cell = -1;
+                int beside = NeighbourNotice.StandBy(world, villager, out bool besideBought);
+                int[] boughtNow = world.Bought;
+                if (beside >= 0 && besideBought && beside * 2 + 1 < boughtNow.Length && map.IsLand(boughtNow[beside * 2 + 1]))
+                    cell = boughtNow[beside * 2 + 1];
+                else
+                    for (int i = made.Length - 1; i >= 0 && cell < 0; i--)
+                        if (made[i] == villager) cell = cells[i];
+                Vector2 at = cell >= 0
+                    ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns / 2 ? 0.95f : -0.95f), 0f)
+                    : point(Mathf.Min(byCottage[villager], map.CellCount - 1));
+                // Nothing of their own yet: they come to see the newest thing you made,
+                // which the map always opens on, so they are in view (I187).
+                float rowStep = Mathf.Abs((point(map.Columns) - point(0)).y);
+                if (cell < 0 && made.Length > 0 && cells[made.Length - 1] >= 0)
+                {
+                    // Try the spots around it in turn: either side, then a step up.
+                    Vector2 newestAt = point(cells[made.Length - 1]);
+                    // Toward the middle of the valley first, so nobody stands off the edge (I188).
+                    float inward = cells[made.Length - 1] % map.Columns < map.Columns / 2 ? 1f : -1f;
+                    Vector2[] around = {
+                        new Vector2(inward * 1.15f * step.x, 0f), new Vector2(inward * 2.5f * step.x, 0f),
+                        new Vector2(inward * 1.2f * step.x, -1.6f * rowStep), new Vector2(inward * 1.2f * step.x, 1.6f * rowStep),
+                        new Vector2(inward * 3.8f * step.x, 0f), new Vector2(-inward * 1.15f * step.x, 0f) };
+                    at = newestAt + around[0];
+                    foreach (Vector2 offset in around)
+                    {
+                        Vector2 spot = newestAt + offset;
+                        bool taken = false;
+                        foreach (RectTransform other in placed)
+                            if (Mathf.Abs(other.anchoredPosition.x - spot.x) < Mathf.Abs(step.x) * 1.3f &&
+                                Mathf.Abs(other.anchoredPosition.y - spot.y) < rowStep * 1.3f) taken = true;
+                        if (!taken) { at = spot; break; }
+                    }
+                }
+                // Never stand on another neighbour (I184): step down a row and a half
+                // until clear of everyone already placed.
+                for (int tries = 0; tries < 4; tries++)
+                {
+                    bool clash = false;
+                    foreach (RectTransform other in placed)
+                        if (Mathf.Abs(other.anchoredPosition.x - at.x) < Mathf.Abs(step.x) * 1.3f &&
+                            Mathf.Abs(other.anchoredPosition.y - at.y) < rowStep * 1.3f) clash = true;
+                    if (!clash) break;
+                    at.y -= rowStep * 1.5f;
+                }
+                var holder = Node("Neighbour on the map", land);
+                var rect = holder.GetComponent<RectTransform>();
+                rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+                rect.pivot = new Vector2(0.5f, 0f);
+                rect.anchoredPosition = at;
+                // A fixed footprint (no nested size fitters) keeps face and name centred.
+                rect.sizeDelta = new Vector2(TextScale.Scale(96), 62f + TextScale.Scale(30));
+                var stack = holder.AddComponent<VerticalLayoutGroup>();
+                stack.childAlignment = TextAnchor.LowerCenter;
+                stack.childControlWidth = true;
+                stack.childControlHeight = true;
+                stack.childForceExpandWidth = true;
+                stack.childForceExpandHeight = true;
+                PortraitButton(holder.transform, villager, true, fromTitle);
+                // I298 (idea 35, presence without words): when you come back, they look up and
+                // give a little hop, one after another. Once per return; never with reduced motion.
+                if (fromTitle && waveHello && gentleMotion)
+                    holder.AddComponent<HelloHop>().Delay = 0.35f + placed.Count * 0.28f;
+                placed.Add(rect);
+            }
+            return placed;
+        }
+
+        // What a neighbour says (I184): about the newest thing of their own family
+        // and where it stands on your map, from the save alone. Before they have
+        // one, or outside English, their authored lines (LocalizedVillage) as before.
+        private string NeighborSays(int villager)
+        {
+            if (world.Mode != PlayMode.Living || GameLocalization.Current != "en")
+                return LocalizedVillage.Speak(world, villager);
+            // I210: what they noticed you do since (a nursery plant of their kind, the
+            // puzzles you solved under their kind of thing) comes first, when true.
+            string thanks = fruitThanks == villager ? NeighbourNotice.ThanksFor(villager, world) : null;
+            if (thanks != null) return thanks;
+            if (villager == togetherKeeper) return NeighbourNotice.TogetherLine(togetherKind);
+            // Orin keeps an eye on the lane (I236): a letter waiting unread, by name, until you read it.
+            string[] mail = world.Letters;
+            if (villager == 1 && world.Mode == PlayMode.Living && mail.Length > 0 &&
+                PlayerPrefs.GetInt(LettersReadKey, 0) < mail.Length)
+                return "There's a letter in your box from " + world.LetterFrom[mail.Length - 1] +
+                    ". I saw the flag go up this morning.";
+            string noticed = NeighbourNotice.Line(villager, world);
+            if (noticed != null) return noticed;
+            // I357: nothing new to tell, but it's raining, snowing, windy or hot: they say so.
+            string weatherLine = world.Mode == PlayMode.Living ? DayWeather.Remark(TodayWeather(world)) : null;
+            if (weatherLine != null) return weatherLine;
+            // Nothing new and true to tell: they may notice the light instead (I281).
+            string hourLine = HourRemark(villager);
+            if (hourLine != null) return hourLine;
+            int[] made = world.Choices;
+            int newest = -1, count = 0;
+            for (int i = 0; i < made.Length; i++)
+                if (made[i] == villager) { newest = i; count++; }
+            if (newest < 0) return LocalizedVillage.Speak(world, villager);
+            string thing = ItemAt(newest, villager).Name;
+            string where = "";
+            GardenMap map = LoadGardenMap();
+            if (map != null)
+            {
+                int cell = map.Layout(made, world.Placements)[newest];
+                if (cell >= 0)
+                {
+                    int row = cell / map.Columns, column = cell % map.Columns;
+                    where = map.DistanceToWater(cell) <= 1 ? " by the creek"
+                        : row <= 3 && column >= 5 ? " by the cottage"
+                        : row >= map.Rows - 4 ? " down the valley" : " in the meadow";
+                }
+            }
+            string more = count >= 3 ? " That makes " + count + " now." : "";
+            switch (villager)
+            {
+                case 0: return "Your " + thing + where + " is taking root nicely." + more;
+                case 1: return "I walked past your " + thing + where + " this morning. Good, sturdy work." + more;
+                default: return "The bees found your " + thing + where + " before I did." + more;
+            }
+        }
+
+        // How much of the valley the restored water has greened (I180): the
+        // cottage's top rows from the start, then a twelfth per stream restored.
+        // `back` counts that many streams fewer (the edge before a choice).
+        private float GreenedShare(int back)
+        {
+            // The river's open reaches are all green; new land arrives as a new
+            // reach (I192) rather than as the dry edge drawing back.
+            if (world.Completed || world.Mode == PlayMode.Living) return 1f;
+            int restored = Mathf.Max(0, world.Choices.Length - back);
+            return Mathf.Clamp01(0.14f + 0.86f * restored / (float)GardenCatalog.ChaptersPerGarden);
+        }
+
+        // Right after a choice the new thing is in your hand until you put it down.
+        private int ItemInHand()
+        {
+            if (mapInHand >= 0) return mapInHand;
+            int[] placed = world.Placements;
+            int newest = world.Choices.Length - 1;
+            bool justMade = showingMemory && newest >= 0 && (newest >= placed.Length || placed[newest] < 0);
+            return justMade ? newest : -1;
+        }
+
+        private void OnMapItem(int index)
+        {
+            if (index == WellIndex) { decorInHand = -1; heldDecor = -1; OpenWell(); return; }
+            if (index >= DecorIndex)
+            {
+                // I330: tap a decoration to pick it up; tap it again to put it away.
+                int d = index - DecorIndex;
+                if (heldDecor == d) { if (world.RemoveDecor(d)) SaveWorld(); heldDecor = -1; }
+                else { heldDecor = d; decorInHand = -1; }
+                RefreshMaps();
+                return;
+            }
+            decorInHand = -1; // review fix: picking up anything else lets go of a decoration
+            heldDecor = -1;
+            if (index >= SecretIndex) { FindSecret(index - SecretIndex); return; }
+            if (index >= BoughtIndex)
+            {
+                // A bought plant: pick it up (to move it, or play its puzzle), or put it down.
+                int k = index - BoughtIndex;
+                heldBought = heldBought == k ? -1 : k;
+                heldPlanting = -1;
+                mapInHand = -1;
+                RefreshMaps();
+                return;
+            }
+            heldBought = -1;
+            if (index >= PlantingIndex)
+            {
+                // A planting: pick it up (or put it down again where it is).
+                int k = index - PlantingIndex;
+                heldPlanting = heldPlanting == k ? -1 : k;
+                mapInHand = -1;
+                RefreshMaps();
+                return;
+            }
+            heldPlanting = -1;
+            mapInHand = ItemInHand() == index ? -2 : index; // -2: put nothing in hand
+            RefreshMaps();
+            if (mapInHand == -2) mapInHand = -1;
+        }
+
+        private void OnMapLand(int cell)
+        {
+            GardenMap map = LoadGardenMap();
+            if (map == null) return;
+            int[] layout = map.Layout(world.Choices, world.Placements, Occupied());
+            if (decorInHand >= 0 || heldDecor >= 0)
+            {
+                // I330: set a decoration down (or move one): free land only, never on a thing.
+                bool done = heldDecor >= 0 ? world.MoveDecor(heldDecor, cell, map)
+                    : world.PlaceDecor((Decoration)decorInHand, cell, map);
+                if (!done)
+                {
+                    // Review fix: never a silent lock. A tap where it can't go puts it back.
+                    decorInHand = -1;
+                    heldDecor = -1;
+                    if (titleScreen != null)
+                        RuleToast.Show((RectTransform)titleScreen.transform, "It can't stand there, so it went back to the cottage.",
+                            font, Ink, MosseloraTheme.CardFill);
+                    RefreshMaps();
+                    return;
+                }
+                justDecorated = heldDecor >= 0 ? heldDecor : world.DecorCount - 1;
+                decorInHand = -1;
+                heldDecor = -1;
+                SaveWorld();
+                PlayTock();
+                RefreshMaps();
+                return;
+            }
+            if (heldBought >= 0)
+            {
+                // Move a bought plant: only to free land.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell, -1, heldBought)) return;
+                if (!world.MoveBought(heldBought, cell)) return;
+                heldBought = -1;
+                PlantDone();
+                return;
+            }
+            if (giftPick >= 0 && giftPick < world.Gifts.Length && ItemInHand() < 0)
+            {
+                // Plant a cutting a relative sent: it becomes a nursery plant of yours.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell)) return;
+                if (!world.PlantGift(giftPick, cell)) return;
+                RecordInAlmanac();
+                justBought = world.BoughtCount - 1;
+                giftPick = -1;
+                PlayChime();
+                PlantDone();
+                return;
+            }
+            if (nurseryOpen && nurseryKind >= 0 && ItemInHand() < 0)
+            {
+                // Buy and plant from the nursery; it stays picked while you can afford another.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell)) return;
+                if (!world.Buy(nurseryKind, cell)) return;
+                RecordInAlmanac();
+                justBought = world.BoughtCount - 1;
+                // The slot restocks with its next plant (I240); keep it picked while affordable.
+                nurseryKind = world.NurseryStock(Nursery.Slot(nurseryKind));
+                if (world.Seeds < Nursery.Price(nurseryKind)) nurseryKind = -1;
+                PlayChime();
+                PlantDone();
+                return;
+            }
+            if (heldPlanting >= 0)
+            {
+                // Move a planting: only to free land.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell, heldPlanting)) return;
+                if (!world.MovePlanting(heldPlanting, cell)) return;
+                heldPlanting = -1;
+                PlantDone();
+                return;
+            }
+            // I299: your cottage, tapped with nothing in hand: what's waiting, at a glance.
+            if (ItemInHand() < 0 && !basketOpen && titleScreen != null && map.IsCottage(cell))
+            {
+                OpenCottage();
+                return;
+            }
+            int target = ItemInHand();
+            if (target < 0 && basketOpen && basketKind >= 0)
+            {
+                // Plant one more from the basket; the basket stays ready for the next tap.
+                if (!map.CanPlace(layout, cell) || PlantedAt(cell)) return;
+                if (!world.Plant(basketKind, cell)) return;
+                justPlanted = world.PlantingCount - 1;
+                PlantDone();
+                return;
+            }
+            if (target < 0) return;
+            if (!map.CanPlace(layout, cell, target) || PlantedAt(cell)) return; // water, the cottage, or taken: it stays in hand
+            if (!world.PlaceAt(target, cell)) return;
+            PlayerPrefs.SetInt(PlacedOnceKey, 1);
+            SaveWorld();
+            mapInHand = -1;
+            PlayTock();
+            if (gentleMotion) Haptics.Tick();
+            RefreshMaps();
+        }
+
+        private void PlantDone()
+        {
+            SaveWorld();
+            PlayTock();
+            if (gentleMotion) Haptics.Tick();
+            RefreshMaps();
+        }
+
+        // Put a picked-up planting back in the basket.
+        private void PutBack()
+        {
+            if (heldPlanting < 0 || !world.RemovePlanting(heldPlanting)) return;
+            heldPlanting = -1;
+            PlantDone();
+        }
+
+        // The basket on home (I193): a round token bottom left. Open, it shows a tray
+        // of everything you've grown; pick one and tap the grass to plant more of it.
+        private void BasketControls(Transform screen, Transform stack)
+        {
+            int[] made = world.Choices;
+            if (world.Mode != PlayMode.Living || made.Length == 0) return;
+            var corner = Node("Basket corner", screen);
+            var cornerRect = corner.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            cornerRect.anchorMin = new Vector2(safe.xMin / w, safe.yMin / h);
+            cornerRect.anchorMax = new Vector2(safe.xMax / w, safe.yMin / h);
+            cornerRect.pivot = new Vector2(0.5f, 0f);
+            cornerRect.sizeDelta = new Vector2(0f, basketOpen ? 104f : 76f);
+            cornerRect.anchoredPosition = new Vector2(0f, 10f);
+            if (basketOpen)
+            {
+                stack.gameObject.SetActive(false);
+                var tray = Node("Seed tray", corner.transform);
+                var trayRect = tray.GetComponent<RectTransform>();
+                Fill(trayRect);
+                trayRect.offsetMin = new Vector2(86f, 0f);
+                trayRect.offsetMax = new Vector2(-10f, 0f);
+                var trayImage = tray.AddComponent<Image>();
+                MosseloraArt.Round(trayImage, MosseloraTheme.CardFill, 26);
+                MosseloraArt.Lift(trayImage, 2f, 0.18f);
+                tray.AddComponent<RectMask2D>();
+                var trayScroll = tray.AddComponent<ScrollRect>();
+                trayScroll.horizontal = true;
+                trayScroll.vertical = false;
+                trayScroll.movementType = ScrollRect.MovementType.Clamped;
+                var row = Node("Tray row", tray.transform);
+                var rowRect = row.GetComponent<RectTransform>();
+                rowRect.anchorMin = new Vector2(0f, 0f);
+                rowRect.anchorMax = new Vector2(0f, 1f);
+                rowRect.pivot = new Vector2(0f, 0.5f);
+                rowRect.sizeDelta = Vector2.zero;
+                var rowGroup = row.AddComponent<HorizontalLayoutGroup>();
+                rowGroup.padding = new RectOffset(12, 12, 10, 10);
+                rowGroup.spacing = 10;
+                rowGroup.childAlignment = TextAnchor.MiddleLeft;
+                rowGroup.childControlWidth = true;
+                rowGroup.childControlHeight = true;
+                rowGroup.childForceExpandWidth = false;
+                rowGroup.childForceExpandHeight = false;
+                row.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+                trayScroll.content = rowRect;
+                trayScroll.viewport = trayRect;
+                // The nursery (I208): a seed-bag token first in the tray switches it
+                // between your own kinds and the plants seeds can buy.
+                Button bag = IconButton(row.transform, nurseryOpen ? "Your own" : "Nursery",
+                    nurseryOpen ? "Your own" : "Nursery", TreePlay.SeedIcon, () => {
+                        nurseryOpen = !nurseryOpen; nurseryKind = -1; basketKind = -1; heldPlanting = -1; RefreshMaps();
+                    }, 74, nurseryOpen ? MosseloraTheme.ForestAction : new Color(0.93f, 0.88f, 0.72f, 1f),
+                    false, null, false, 0, 0, true);
+                Transform bagGlyph = bag.transform.Find("Icon");
+                if (bagGlyph != null) bagGlyph.GetComponent<Image>().color = Color.white;
+                // Shop, not plant (I213): the sprout wears the same seed chip as the
+                // purse and the prices, so the token reads "spend seeds here".
+                if (!nurseryOpen) PriceChip(bag.transform, world.Seeds.ToString(), true, true);
+                if (nurseryOpen) NurseryTokens(row.transform);
+                else GiftTokens(row.transform);
+                for (int i = nurseryOpen ? -1 : made.Length - 1; i >= 0; i--) // your own kinds, newest first
+                {
+                    int kind = i;
+                    Sprite art = ItemArt(i, made[i]);
+                    Button seed = IconButton(row.transform, "Basket " + i, ItemAt(i, made[i]).Name, MosseloraArt.IconRooted,
+                        () => { basketKind = basketKind == kind ? -1 : kind; heldPlanting = -1; giftPick = -1; RefreshMaps(); },
+                        74, kind == basketKind ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                        false, null, false, 0, 0, true);
+                    Transform glyph = seed.transform.Find("Icon");
+                    Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                    if (glyphImage != null && art != null)
+                    {
+                        glyphImage.sprite = art;
+                        glyphImage.color = Color.white;
+                        var glyphSize = glyph.GetComponent<LayoutElement>();
+                        glyphSize.minWidth = glyphSize.preferredWidth = 50f;
+                        glyphSize.minHeight = glyphSize.preferredHeight = 50f;
+                    }
+                    if (kind == basketKind && gentleMotion) BloomPulse.Add(seed.gameObject, 0.9f, 0.06f);
+                }
+            }
+            // The basket itself: open, close, or (holding a planting) put it back.
+            bool holding = heldPlanting >= 0;
+            string glyphName = holding ? MosseloraArt.IconUndo : basketOpen ? MosseloraArt.IconCancel : MosseloraArt.IconRooted;
+            Button basket = IconButton(corner.transform, holding ? "Put back" : basketOpen ? "Close basket" : "Plant more",
+                holding ? "Put back" : basketOpen ? GameLocalization.Text("close") : "Plant more", glyphName, () => {
+                    if (heldPlanting >= 0) { PutBack(); return; }
+                    basketOpen = !basketOpen;
+                    basketKind = basketOpen ? world.Choices.Length - 1 : -1;
+                    if (!basketOpen) { nurseryOpen = false; nurseryKind = -1; }
+                    RefreshMaps();
+                }, 72, holding || basketOpen ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            var basketRect = basket.GetComponent<RectTransform>();
+            basketRect.anchorMin = basketRect.anchorMax = new Vector2(0f, 0f);
+            basketRect.pivot = new Vector2(0f, 0f);
+            basketRect.anchoredPosition = new Vector2(10f, basketOpen ? 16f : 2f);
+            basketRect.sizeDelta = new Vector2(72f, 72f);
+            if (!basketOpen && !holding)
+            {
+                // I345 (run 3, P3): closed, it reads as a basket (the painted one) with the
+                // newest thing you grew peeking out of it, so "things to plant" says itself.
+                Transform glyph = basket.transform.Find("Icon");
+                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                Sprite newest = ItemArt(made.Length - 1, made[made.Length - 1]);
+                Sprite basketArt = MosseloraArt.Load("food-basket");
+                if (glyphImage != null && basketArt != null)
+                {
+                    glyphImage.sprite = basketArt;
+                    glyphImage.color = Color.white;
+                    ((RectTransform)glyph).anchoredPosition = new Vector2(0f, -6f);
+                    Image peek = newest == null ? null : MosseloraArt.Ornament(basket.transform, "Newest thing, peeking out",
+                        newest, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f), new Vector2(34f, 34f), new Vector2(4f, 2f));
+                    if (peek != null) peek.transform.SetSiblingIndex(glyph.GetSiblingIndex()); // behind the basket's rim
+                }
+                else if (glyphImage != null && newest != null) { glyphImage.sprite = newest; glyphImage.color = Color.white; }
+                if (world.PlantingCount == 0 && gentleMotion) BloomPulse.Add(basket.gameObject, 0.8f, 0.08f);
+            }
+        }
+
+        // Cuttings relatives sent (I215), waiting in the basket: each wears a small
+        // ribbon. Pick one, tap the grass: it's planted and becomes yours.
+        private int giftPick = -1;
+        private void GiftTokens(Transform row)
+        {
+            int[] gifts = world.Gifts;
+            for (int i = 0; i < gifts.Length; i++)
+            {
+                int index = i;
+                GardenItem plant = Nursery.Item(gifts[i]);
+                Button token = IconButton(row, "Gift " + i, "A gift: " + plant.Name, MosseloraArt.IconRooted, () => {
+                        giftPick = giftPick == index ? -1 : index; basketKind = -1; heldPlanting = -1; RefreshMaps();
+                    }, 74, index == giftPick ? MosseloraTheme.ForestAction : new Color(0.98f, 0.9f, 0.86f, 1f),
+                    false, null, false, 0, 0, true);
+                Transform glyph = token.transform.Find("Icon");
+                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                Sprite art = MosseloraArt.Load(plant.Art);
+                if (glyphImage != null && art != null)
+                {
+                    glyphImage.sprite = art;
+                    glyphImage.color = Color.white;
+                    var size = glyph.GetComponent<LayoutElement>();
+                    size.minWidth = size.preferredWidth = 50f;
+                    size.minHeight = size.preferredHeight = 50f;
+                }
+                Image ribbon = MosseloraArt.Ornament(token.transform, "Ribbon", MosseloraArt.Rounded(8),
+                    new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(18f, 18f), new Vector2(-8f, -8f));
+                if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.85f, 0.32f, 0.35f, 1f); }
+                if (index == giftPick && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
+            }
+        }
+
+        // The nursery's nine plants in the tray: row by row, each with its price. A
+        // closed row is faded with a small lock; a plant you can't afford yet shows
+        // its price dimmed. Pick one, then tap the grass to buy and plant it.
+        private void NurseryTokens(Transform row)
+        {
+            // One token per slot, showing what it has in stock now (I240: it restocks as you buy).
+            for (int slot = 0; slot < Nursery.Slots; slot++)
+            {
+                int kind = world.NurseryStock(slot);
+                int pick = kind;
+                GardenItem plant = Nursery.Item(kind);
+                int price = Nursery.Price(kind);
+                bool open = world.RowOpen(Nursery.Row(kind));
+                bool affordable = open && world.Seeds >= price;
+                Button token = IconButton(row, "Nursery " + kind, plant.Name + ", " + price + " seeds",
+                    MosseloraArt.IconRooted, () => {
+                        if (!affordable) return; // gently refused: the faded look already says why
+                        nurseryKind = nurseryKind == pick ? -1 : pick;
+                        RefreshMaps();
+                    }, 74, kind == nurseryKind ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                    false, null, false, 0, 0, true);
+                Transform glyph = token.transform.Find("Icon");
+                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                Sprite art = MosseloraArt.Load(plant.Art);
+                if (glyphImage != null && art != null)
+                {
+                    glyphImage.sprite = art;
+                    glyphImage.color = open ? Color.white : new Color(1f, 1f, 1f, 0.35f);
+                    var size = glyph.GetComponent<LayoutElement>();
+                    size.minWidth = size.preferredWidth = 50f;
+                    size.minHeight = size.preferredHeight = 50f;
+                }
+                // A closed row still shows its price, greyed: you can see what you save for (I213).
+                PriceChip(token.transform, price.ToString(), affordable, open);
+                // Not yet in your almanac (I239): a small book on the token's shoulder.
+                if (!almanac.Has(plant)) NewToAlmanac(token.transform);
+                if (kind == nurseryKind && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
+            }
+        }
+
+        private void NewToAlmanac(Transform token)
+        {
+            Image disc = MosseloraArt.Ornament(token, "New to your almanac", MosseloraArt.Rounded(13), new Vector2(1f, 1f),
+                new Vector2(0.5f, 0.5f), new Vector2(26f, 26f), new Vector2(-8f, -8f));
+            if (disc == null) return;
+            disc.preserveAspect = false;
+            disc.color = new Color(0.98f, 0.95f, 0.86f, 1f);
+            Image book = MosseloraArt.Ornament(disc.transform, "Almanac mark", MosseloraArt.Load(MosseloraArt.IconJournal),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(16f, 16f), Vector2.zero);
+            if (book != null) book.color = Leaf;
+        }
+
+        // A small chip on a nursery token's lower edge: the price, or a lock when the row is closed.
+        private void PriceChip(Transform token, string price, bool affordable, bool open)
+        {
+            Image chip = MosseloraArt.Ornament(token, "Price", MosseloraArt.Rounded(10), new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0.5f), new Vector2(46f, 22f), new Vector2(0f, 2f));
+            if (chip == null) return;
+            chip.preserveAspect = false;
+            chip.color = affordable ? new Color(0.98f, 0.93f, 0.74f, 1f)
+                : open ? new Color(0.9f, 0.88f, 0.82f, 0.95f) : new Color(0.82f, 0.82f, 0.8f, 0.9f);
+            Text value = Label(chip.transform, "Price value", price, 14, 0,
+                affordable ? Ink : new Color(Ink.r, Ink.g, Ink.b, open ? 0.45f : 0.35f), TextAnchor.MiddleCenter);
+            value.horizontalOverflow = HorizontalWrapMode.Overflow;
+            value.GetComponent<LayoutElement>().ignoreLayout = true;
+            Fill(value.rectTransform);
+            Emphasize(value);
+        }
+
+        // Redraw home framed on the newest/just-solved thing, not where the view was.
+        private void RefreshMapsFresh()
+        {
+            keepHubAt = new Vector2(-1f, -1f);
+            if (titleScreen != null && canvasRoot != null)
+            {
+                Transform host = titleScreen.transform.parent;
+                CloseTitle();
+                BuildTitleScreen(host);
+            }
+            else Rebuild();
+        }
+
+        // Redraw whichever map is showing, keeping the page where it is.
+        private void RefreshMaps()
+        {
+            if (titleScreen != null && canvasRoot != null)
+            {
+                if (hubMapView != null) keepHubAt = hubMapView.Position;
+                Transform host = titleScreen.transform.parent;
+                CloseTitle();
+                BuildTitleScreen(host);
+            }
+            else Rebuild();
+        }
+
+        // The page's garden window (memory card, boards): the same map as the hub.
+        private bool heroGarden;
+
+        private bool PageGardenMap(GameObject window, bool memoryScreen)
+        {
+            ApplyDayLight(world);
+            Sprite plot = MapPainting();
+            GardenMap map = LoadGardenMap();
+            if (plot == null || map == null) return false;
+            var size = window.GetComponent<LayoutElement>();
+            if (size == null) size = window.AddComponent<LayoutElement>();
+            bool hero = heroGarden && memoryScreen;
+            size.minHeight = size.preferredHeight = hero ? (TextScale.Percent > 100 ? 360f : 420f)
+                : TextScale.Percent > 100 ? 230f : 260f;
+            // Every page's garden runs edge to edge (I186); the memory card's also
+            // reaches up under the status bar (I185).
+            {
+                if (hero) window.transform.SetAsFirstSibling();
+                var bleed = Node(hero ? "Garden hero" : "Garden band", window.transform);
+                var bleedRect = bleed.GetComponent<RectTransform>();
+                Fill(bleedRect);
+                bleedRect.offsetMin = new Vector2(-17f - columnLeft, 0f);
+                bleedRect.offsetMax = new Vector2(17f + columnRight, hero ? 15f + topInset : 0f);
+                window = bleed;
+                if (!hero)
+                {
+                    // Below a board the garden melts into the paper at its top too.
+                    var top = Node("Garden melt top", window.transform);
+                    var topRect = top.GetComponent<RectTransform>();
+                    topRect.anchorMin = new Vector2(0f, 1f);
+                    topRect.anchorMax = new Vector2(1f, 1f);
+                    topRect.pivot = new Vector2(0.5f, 1f);
+                    topRect.sizeDelta = new Vector2(0f, 40f);
+                    var topImage = top.AddComponent<Image>();
+                    topImage.sprite = MosseloraArt.TopFade();
+                    topImage.color = Paper;
+                    topImage.raycastTarget = false;
+                }
+                // Melt into the paper at the bottom, as the home screen does.
+                var melt = Node("Hero melt", window.transform);
+                var meltRect = melt.GetComponent<RectTransform>();
+                meltRect.anchorMin = Vector2.zero;
+                meltRect.anchorMax = new Vector2(1f, 0f);
+                meltRect.pivot = new Vector2(0.5f, 0f);
+                meltRect.sizeDelta = new Vector2(0f, 48f);
+                meltRect.localScale = new Vector3(1f, -1f, 1f);
+                meltRect.anchoredPosition = new Vector2(0f, 48f);
+                var meltImage = melt.AddComponent<Image>();
+                meltImage.sprite = MosseloraArt.TopFade();
+                meltImage.color = Paper;
+                meltImage.raycastTarget = false;
+            }
+            window.AddComponent<RectMask2D>();
+            bool grow = celebrateGrowth && memoryScreen;
+            celebrateGrowth = false;
+            bool animate = grow && gentleMotion;
+            GardenMapView view = GardenMapView.Build(window.GetComponent<RectTransform>(), plot, map, MapItems(map), 1.25f,
+                OnMapLand, OnMapItem, ItemInHand(), animate, GreenedShare(0),
+                animate ? GreenedShare(1) : -1f,
+                memoryScreen ? null : (land, point) => NeighborsOnMap(land, point, map, false), 0f, RiverGoesOn(map));
+            // This stream opened a new reach of river: watch its mist lift (I195).
+            if (animate && !world.Completed && map.Reaches > 1 &&
+                world.Choices.Length % GardenMap.StreamsPerReach == 0)
+            {
+                view.LiftMist(map.Reaches - 1);
+                PlayChime();
+            }
+            if (!memoryScreen) RiverDrops(view, false);
+            // Under a floating title the new thing sits lower in view (I185).
+            if (hero) view.FocusFromTop = 0.55f;
+            int held = ItemInHand();
+            if (held >= 0 && PlayerPrefs.GetInt(PlacedOnceKey, 0) == 0) PlaceTip(window.transform, held);
+            // No wordmark or tagline over your garden (I194): you know where you are.
+            return true;
+        }
+
+        // The wordmark and tagline float on the garden, under the menu and book.
+        private void HeroTitle(Transform hero)
+        {
+            Sprite mark = MosseloraArt.Load(MosseloraArt.Wordmark);
+            var title = Node("Floating title", hero);
+            title.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = title.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.sizeDelta = new Vector2(0f, 118f);
+            rect.anchoredPosition = new Vector2(0f, -topInset - 6f);
+            if (mark != null)
+            {
+                var markNode = Node("Mosselora wordmark", title.transform);
+                var markRect = markNode.GetComponent<RectTransform>();
+                markRect.anchorMin = new Vector2(0f, 1f);
+                markRect.anchorMax = new Vector2(1f, 1f);
+                markRect.pivot = new Vector2(0.5f, 1f);
+                markRect.sizeDelta = new Vector2(-2f * ChromeInset, 72f);
+                markRect.anchoredPosition = Vector2.zero;
+                var markImage = markNode.AddComponent<Image>();
+                markImage.sprite = mark;
+                markImage.preserveAspect = true;
+                markImage.raycastTarget = false;
+            }
+            // The tagline on a small cream plate, readable over any grass.
+            var plate = Node("Tagline plate", title.transform);
+            var plateRect = plate.GetComponent<RectTransform>();
+            plateRect.anchorMin = plateRect.anchorMax = new Vector2(0.5f, 1f);
+            plateRect.pivot = new Vector2(0.5f, 1f);
+            plateRect.anchoredPosition = new Vector2(0f, -76f);
+            var plateImage = plate.AddComponent<Image>();
+            MosseloraArt.Round(plateImage, new Color(1f, 0.973f, 0.918f, 0.92f), 14);
+            plateImage.raycastTarget = false;
+            var plateRow = plate.AddComponent<HorizontalLayoutGroup>();
+            plateRow.padding = new RectOffset(14, 14, 4, 5);
+            plateRow.childControlWidth = true;
+            plateRow.childControlHeight = true;
+            var fit = plate.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            Text line = Label(plate.transform, "Title", GameLocalization.Text("subtitle"), 17, 0, Ink,
+                TextAnchor.MiddleCenter);
+            Emphasize(line);
+            line.horizontalOverflow = HorizontalWrapMode.Overflow;
+        }
+
+        // Until a player has put something down once, the map says how (I182): a
+        // cold read pressed the arrow and never found that the birch could move.
+        private const string PlacedOnceKey = "evergrove:placed-once";
+
+        private void PlaceTip(Transform window, int held)
+        {
+            GardenItem item = ItemAt(held, world.Choices[held]);
+            var tip = Node("How to place", window);
+            tip.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = tip.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.offsetMin = new Vector2(12f, 10f);
+            rect.offsetMax = new Vector2(-12f, 10f);
+            var body = tip.AddComponent<Image>();
+            MosseloraArt.Round(body, MosseloraTheme.CardFill, 16);
+            body.raycastTarget = false;
+            MosseloraArt.Lift(body, 3f, 0.25f);
+            var row = tip.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(10, 14, 8, 8);
+            row.spacing = 8;
+            row.childAlignment = TextAnchor.MiddleLeft;
+            row.childControlWidth = true;
+            row.childControlHeight = true;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+            tip.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            Sprite art = MosseloraArt.Load(item.Art);
+            foreach (Sprite glyph in new[] { art, MosseloraArt.Load(MosseloraArt.IconTap) })
+            {
+                if (glyph == null) continue;
+                var icon = Node("Tip picture", tip.transform);
+                var iconLayout = icon.AddComponent<LayoutElement>();
+                iconLayout.minWidth = iconLayout.preferredWidth = 38;
+                iconLayout.minHeight = iconLayout.preferredHeight = 38;
+                var iconImage = icon.AddComponent<Image>();
+                iconImage.sprite = glyph;
+                iconImage.preserveAspect = true;
+                iconImage.raycastTarget = false;
+                if (glyph != art) iconImage.color = MosseloraTheme.WaterChannel;
+            }
+            string verb = item.Family == VillageChoice.ShadeTree ? "plant" : item.Family == VillageChoice.Flowers ? "grow" : "build";
+            string words = GameLocalization.Current == "en"
+                ? "Tap the grass to " + verb + " your " + item.Name + " there." : "";
+            if (words.Length == 0) return; // other languages: the pictures alone
+            Text line = Label(tip.transform, "Tip words", words, 16, 0, Ink, TextAnchor.MiddleLeft);
+            Emphasize(line);
+            line.GetComponent<LayoutElement>().flexibleWidth = 1f;
+        }
+
         private void CloseTitle()
         {
+            if (quietLayer != null) ExitQuiet(); // never leave the page beneath hidden (I294)
             if (titleScreen == null) return;
             Destroy(titleScreen);
             titleScreen = null;
@@ -1832,8 +4000,7 @@ namespace Evergrove.UnityClient
 
         private void CreekBehindBoard(Transform board)
         {
-            int season = PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed);
-            string prefix = season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-" : "banner-stream-";
+            string prefix = PaintedVillage.BannerFor(PaintedVillage.ArtSeason(world));
             Sprite creek = MosseloraArt.Load(prefix + (world.Solved ? "flowing" : "dry"));
             if (creek == null) return;
             var window = Node("Creek behind board", board);
@@ -1855,6 +4022,23 @@ namespace Evergrove.UnityClient
             var fit = art.AddComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
             fit.aspectRatio = MosseloraArt.Aspect(creek);
+            // The creek fills as the board does (I167): the flowing painting lies
+            // over the dry one, as opaque as the share of tiles the water reaches.
+            creekWater = null;
+            Sprite flowing = world.Solved ? null : MosseloraArt.Load(prefix + "flowing");
+            if (flowing != null)
+            {
+                var water = Node("Creek water", window.transform);
+                Fill(water.GetComponent<RectTransform>());
+                creekWater = water.AddComponent<Image>();
+                creekWater.sprite = flowing;
+                creekWater.raycastTarget = false;
+                var waterFit = water.AddComponent<AspectRatioFitter>();
+                waterFit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                waterFit.aspectRatio = MosseloraArt.Aspect(flowing);
+                creekShown = CreekShare();
+                creekWater.color = new Color(1f, 1f, 1f, 0.55f * creekShown);
+            }
             // Soft top and bottom: the painting melts into the paper instead of
             // ending in a ruled line (I111).
             Sprite fade = MosseloraArt.TopFade();
@@ -1874,6 +4058,30 @@ namespace Evergrove.UnityClient
                 meltImage.raycastTarget = false;
             }
             window.transform.SetAsFirstSibling(); // under the stone bed and the tiles
+        }
+
+        private float CreekShare()
+        {
+            Puzzle puzzle = world.CurrentPuzzle;
+            return puzzle.CellCount > 0 ? (float)world.Insight.ConnectedCount / puzzle.CellCount : 0f;
+        }
+
+        // Eases the creek's water toward the board's share (gentle motion), or sets it.
+        private IEnumerator FillCreek(Image water, float target)
+        {
+            float from = creekShown;
+            creekShown = target;
+            bool animate = gentleMotion;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) animate = false;
+#endif
+            for (float t = 0f; animate && t < 1f; t += Time.unscaledDeltaTime / 0.8f)
+            {
+                if (water == null || water != creekWater) yield break;
+                water.color = new Color(1f, 1f, 1f, 0.55f * Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t)));
+                yield return null;
+            }
+            if (water != null) water.color = new Color(1f, 1f, 1f, 0.55f * target);
         }
 
         // A sheet's close button lives in a fixed band above its scrolling
@@ -1924,30 +4132,247 @@ namespace Evergrove.UnityClient
         private void BuildChrome(bool living)
         {
             if (chrome == null) return;
+            CloseFan();
+            // One corner button (I191): book, almanac, postcard, home and settings
+            // open from it as a fan of round tokens, instead of a button per corner.
             Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("menu"),
-                MosseloraArt.IconMenu, () => SetMenu(!menuOpen), 54, MosseloraTheme.QuietAction);
+                MosseloraArt.IconMenu, () => {
+                    if (menuOpen) SetMenu(false);
+                    else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; Rebuild(); }
+                    else ToggleFan(false);
+                }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
-            if (living && world.Choices.Length > 0)
+            if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu);
+        }
+
+        // ---- I191: the fan menu. One corner button opens a column of round
+        // tokens under it; a tap anywhere else folds it away again.
+        private GameObject fan;
+
+        private void CloseFan()
+        {
+            if (fan == null) return;
+            fan.SetActive(false);
+            Destroy(fan);
+            fan = null;
+            semanticsDirty = true;
+        }
+
+        private void ToggleFan(bool fromHub)
+        {
+            if (fan != null) { CloseFan(); return; }
+            if (canvasRoot == null) return;
+            speakingWith = -1;
+            fan = Node("Menu fan", canvasRoot);
+            Fill(fan.GetComponent<RectTransform>());
+            var scrim = fan.AddComponent<Image>();
+            scrim.color = new Color(0.08f, 0.14f, 0.11f, 0.30f);
+            var away = fan.AddComponent<Button>();
+            away.transition = Selectable.Transition.None;
+            away.onClick.AddListener(CloseFan);
+            var column = Node("Fan column", fan.transform);
+            var columnRect = column.GetComponent<RectTransform>();
+            Rect safe = Screen.safeArea;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            columnRect.anchorMin = columnRect.anchorMax = new Vector2(safe.xMin / w, safe.yMax / h);
+            columnRect.pivot = new Vector2(0f, 1f);
+            columnRect.anchoredPosition = new Vector2(10f, ChromeTop - 66f);
+            var stack = column.AddComponent<VerticalLayoutGroup>();
+            stack.spacing = 12;
+            stack.childAlignment = TextAnchor.UpperLeft;
+            stack.childControlWidth = true;
+            stack.childControlHeight = true;
+            stack.childForceExpandWidth = false;
+            stack.childForceExpandHeight = false;
+            var fit = column.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            bool living = world.Mode == PlayMode.Living;
+            bool memories = living && world.Choices.Length > 0;
+            var tokens = new System.Collections.Generic.List<GameObject>();
+            if (!fromHub && titleScreen == null)
+                tokens.Add(FanToken(column.transform, "Home", "Home", MosseloraArt.IconHome, () => {
+                    CloseFan();
+                    menuOpen = false;
+                    showJournal = false;
+                    BuildTitleScreen(canvasRoot);
+                }));
+            if (memories)
             {
-                Button book = IconButton(chrome, "Memories",
-                    GameLocalization.Text(showJournal ? "journal_hide" : "journal_show"),
-                    MosseloraArt.IconJournal, () => {
-                        showJournal = !showJournal;
-                        if (showJournal) menuOpen = false;
-                        Rebuild();
-                        if (showJournal && journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
-                    }, 54, showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
-                PlaceBook(book);
-                if (!showJournal) MarkUnreadMemory(book);
+                GameObject book = FanToken(column.transform, "Memories", GameLocalization.Text("journal_show"),
+                    MosseloraArt.IconJournal, () => OpenBook(false));
+                MarkUnreadMemory(book.GetComponent<Button>());
+                tokens.Add(book);
+                GameObject almanac = FanToken(column.transform, "Almanac", "Almanac", MosseloraArt.IconJournal,
+                    () => OpenBook(true));
+                // A painted sapling, not a second book (as on the book's tab).
+                Transform glyph = almanac.transform.Find("Icon");
+                Sprite sapling = MosseloraArt.Load(GardenCatalog.Get(VillageChoice.ShadeTree, 0).Art);
+                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+                if (glyphImage != null && sapling != null) { glyphImage.sprite = sapling; glyphImage.color = Color.white; }
+                tokens.Add(almanac);
+            }
+            if (living)
+                tokens.Add(FanToken(column.transform, "Family", "Family", MosseloraArt.IconNeighbors, () => {
+                    CloseFan();
+                    OpenFamily();
+                }));
+            if (living && titleScreen != null)
+            {
+                // I294 (idea 50, ma): just look. Everything but the garden steps aside.
+                GameObject look = FanToken(column.transform, "Just look at the garden", "Look", MosseloraArt.IconSun,
+                    () => { CloseFan(); EnterQuiet(); });
+                Transform lookGlyph = look.transform.Find("Icon");
+                Image lookImage = lookGlyph != null ? lookGlyph.GetComponent<Image>() : null;
+                // I346 (run 3, P4): a tiny painting of the garden says "look", where a sprig didn't.
+                Sprite view = MosseloraArt.Load(MosseloraArt.VignetteTree) ?? MosseloraArt.Load(MosseloraArt.Sprig);
+                if (lookImage != null && view != null)
+                {
+                    lookImage.sprite = view;
+                    lookImage.color = Color.white;
+                    lookImage.preserveAspect = true;
+                    ((RectTransform)lookGlyph).sizeDelta = new Vector2(48f, 40f);
+                }
+                tokens.Add(look);
+            }
+            tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
+                () => { CloseFan(); CloseTitle(); SetMenu(true); }));
+            // Hang the fan just under the corner button it came from.
+            foreach (Button corner in canvasRoot.GetComponentsInChildren<Button>())
+                if (corner.name == "Open menu" && corner.gameObject.activeInHierarchy)
+                {
+                    var corners = new Vector3[4];
+                    ((RectTransform)corner.transform).GetWorldCorners(corners);
+                    columnRect.position = corners[0] + new Vector3(0f, -12f * canvasRoot.lossyScale.y, 0f);
+                    break;
+                }
+            if (gentleMotion)
+                for (int i = 0; i < tokens.Count; i++) StartCoroutine(FanIn(tokens[i], i * 0.045f));
+            semanticsDirty = true;
+        }
+
+        // ---- I294: quiet mode. Home's controls, words and purse step aside; only the garden
+        // stays, with its light, neighbours and seasons. A tap anywhere brings it all back.
+        private readonly System.Collections.Generic.List<GameObject> quieted = new System.Collections.Generic.List<GameObject>();
+        private GameObject quietLayer;
+
+        internal bool Quiet { get { return quietLayer != null; } }
+
+        internal void EnterQuiet() { EnterQuiet(false); }
+
+        internal void EnterQuiet(bool wholeRiver)
+        {
+            if (titleScreen == null || quietLayer != null) return;
+            if (wholeRiver && hubMapView != null) hubMapView.LookOut(true); // I319
+            quieted.Clear();
+            // Keep only the line of parents that holds home's live map; every sibling along
+            // that line steps aside (b305: in portrait, controls also lived outside the title).
+            Transform keep = hubMapView != null ? hubMapView.transform : titleScreen.transform.Find("Village window");
+            Transform stop = canvasRoot != null ? canvasRoot.parent : null;
+            for (Transform at = keep; at != null && at.parent != null && at != stop; at = at.parent)
+            {
+                foreach (Transform sibling in at.parent)
+                    if (sibling != at && sibling.gameObject.activeSelf && sibling.GetComponent<Canvas>() == null &&
+                        sibling.GetComponent<UnityEngine.EventSystems.EventSystem>() == null)
+                    {
+                        quieted.Add(sibling.gameObject);
+                        sibling.gameObject.SetActive(false);
+                    }
+                if (at == (Transform)canvasRoot) break;
+            }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var hidNames = new System.Collections.Generic.List<string>();
+            foreach (GameObject hid in quieted) hidNames.Add(hid.name);
+            Debug.Log("MOSSELORA_QUIET hid " + quieted.Count + " under " + titleScreen.name + " (" +
+                titleScreen.transform.childCount + " children): " + string.Join(", ", hidNames));
+#endif
+            quietLayer = Node("Quiet garden. Tap anywhere to come back.", canvasRoot != null ? (Transform)canvasRoot : titleScreen.transform);
+            quietLayer.transform.SetAsLastSibling();
+            Fill(quietLayer.GetComponent<RectTransform>());
+            var catcher = quietLayer.AddComponent<Image>();
+            catcher.color = new Color(0f, 0f, 0f, 0f); // invisible, still takes the tap
+            var back = quietLayer.AddComponent<Button>();
+            back.transition = Selectable.Transition.None;
+            back.onClick.AddListener(ExitQuiet);
+            // A small sprig in the corner says how to come back, then fades away.
+            Sprite sprig = MosseloraArt.Load(MosseloraArt.Sprig);
+            if (sprig != null)
+            {
+                var cue = MosseloraArt.Ornament(quietLayer.transform, "Tap to come back", sprig, new Vector2(1f, 0f),
+                    new Vector2(1f, 0f), new Vector2(44f, 44f), new Vector2(-28f, 40f));
+                if (cue != null) cue.gameObject.AddComponent<CueFade>().After = gentleMotion ? 2.5f : 4f;
+            }
+            semanticsDirty = true;
+        }
+
+        internal void ExitQuiet()
+        {
+            if (hubMapView != null) hubMapView.LookOut(false);
+            if (quietLayer != null) Destroy(quietLayer);
+            quietLayer = null;
+            foreach (GameObject hidden in quieted)
+                if (hidden != null) hidden.SetActive(true);
+            quieted.Clear();
+            semanticsDirty = true;
+        }
+
+        private sealed class CueFade : MonoBehaviour
+        {
+            public float After = 2.5f;
+            private float start;
+            private Image image;
+            private void Start() { start = Time.unscaledTime; image = GetComponent<Image>(); }
+            private void Update()
+            {
+                if (image == null) return;
+                float t = Time.unscaledTime - start - After;
+                if (t <= 0f) return;
+                Color c = image.color;
+                c.a = Mathf.Clamp01(1f - t / 1.2f) * 0.9f;
+                image.color = c;
+                if (c.a <= 0f) enabled = false;
             }
         }
 
-        // Top right in portrait; sideways it joins the menu on the painting, so
-        // the play column carries no chrome (I116).
-        private void PlaceBook(Button book)
+        private GameObject FanToken(Transform parent, string name, string caption, string icon, Action action)
         {
-            if (landscape) PlaceChrome(book, new Vector2(0f, 1f), new Vector2(86f, ChromeTop));
-            else PlaceChrome(book, new Vector2(1f, 1f), new Vector2(-10f, -6f));
+            Button token = IconButton(parent, name, caption, icon, action, 64, MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            var size = token.GetComponent<LayoutElement>();
+            if (size == null) size = token.gameObject.AddComponent<LayoutElement>();
+            size.minHeight = size.preferredHeight = 64f;
+            size.flexibleHeight = 0f;
+            return token.gameObject;
+        }
+
+        private void OpenBook(bool almanac)
+        {
+            CloseFan();
+            CloseTitle();
+            menuOpen = false;
+            showJournal = true;
+            almanacTab = almanac;
+            familyTab = false;
+            journalOpenPage = -1;
+            Rebuild();
+            if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
+        }
+
+        private static IEnumerator FanIn(GameObject token, float delay)
+        {
+            if (token == null) yield break;
+            var group = token.AddComponent<CanvasGroup>();
+            group.alpha = 0f;
+            token.transform.localScale = new Vector3(0.7f, 0.7f, 1f);
+            float clock = -delay;
+            while (clock < 0.22f && token != null)
+            {
+                clock += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(clock / 0.22f));
+                group.alpha = t;
+                token.transform.localScale = Vector3.one * Mathf.Lerp(0.7f, 1f, t);
+                yield return null;
+            }
         }
 
         // Sideways there is no top safe inset, so the chrome sits a little lower
@@ -2105,6 +4530,10 @@ namespace Evergrove.UnityClient
             bar.pivot = new Vector2(0.5f, 0f);
             bar.sizeDelta = new Vector2(0f, barHeight + 26f);
             bar.anchoredPosition = Vector2.zero;
+            // Only over the page's column: sideways, the garden painting on the left
+            // stays uncovered (I170: the fade had blanked its lower half).
+            bar.offsetMin = new Vector2(columnLeft, bar.offsetMin.y);
+            bar.offsetMax = new Vector2(-columnRight, bar.offsetMax.y);
             var fade = Node("Paper fade", pinnedActions.transform);
             var fadeRect = fade.GetComponent<RectTransform>();
             Fill(fadeRect);
@@ -2133,9 +4562,65 @@ namespace Evergrove.UnityClient
             rect.anchorMin = new Vector2(0f, 0f);
             rect.anchorMax = new Vector2(1f, 0f);
             rect.pivot = new Vector2(0.5f, 0f);
-            rect.sizeDelta = new Vector2(-34f - columnLeft - columnRight, rowHeight);
-            rect.anchoredPosition = new Vector2((columnLeft - columnRight) / 2f, 14f);
+            rect.sizeDelta = new Vector2(-34f, rowHeight);
+            rect.anchoredPosition = new Vector2(0f, 14f);
             keep.transform.SetSiblingIndex(Mathf.Min(index, content.childCount - 1));
+        }
+
+        // ---- I172: the garden catalogue (Core/GardenCatalog) at every choice.
+        private GardenItem ItemAt(int chapter, int family)
+        {
+            int safe = Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1);
+            // The save knows its garden (I177/I178); a restored file keeps its items.
+            int garden = world != null ? world.Garden : gardenNumber;
+            return GardenCatalog.For(garden, safe, (VillageChoice)Mathf.Clamp(family, 0, 2));
+        }
+
+        // The painted item, or the family's own art while an item's art is missing.
+        private Sprite ItemArt(int chapter, int family, bool fallback = true)
+        {
+            Sprite art = MosseloraArt.Load(ItemAt(chapter, family).Art);
+            return art != null || !fallback ? art : MosseloraArt.ChoiceIcon((VillageChoice)Mathf.Clamp(family, 0, 2));
+        }
+
+        // "Mira remembers the quince tree you planted." English names the item; other
+        // languages keep their reviewed family lines until the catalogue is translated.
+        private string Remembered(int[] choices, int index)
+        {
+            if (GameLocalization.Current != "en" || choices == null || index < 0 || index >= choices.Length)
+                return LocalizedVillage.MemoryAt(choices, index);
+            return LocalizedVillage.Name(choices[index]) + " remembers " + ItemAt(index, choices[index]).Memory + ".";
+        }
+
+        // The chosen item's painted icon on a cream disc, at a painting's lower-left.
+        private void ItemBadge(Transform painting, int chapter, int family)
+        {
+            Sprite art = ItemArt(chapter, family, false);
+            if (art == null) return;
+            var disc = MosseloraArt.Ornament(painting, "What was made", MosseloraArt.Rounded(30),
+                new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(70f, 70f), new Vector2(8f, 6f));
+            if (disc == null) return;
+            disc.preserveAspect = false;
+            disc.color = MosseloraTheme.CardFill;
+            MosseloraArt.Lift(disc, 2f, 0.25f);
+            MosseloraArt.Ornament(disc.transform, "Item", art, new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f), new Vector2(58f, 58f), Vector2.zero);
+        }
+
+        // The card's visible label (I196): the thing itself, "Silver birch", not the
+        // sentence "Plant a silver birch". The full sentence is still spoken.
+        private string ChoiceName(VillageChoice choice)
+        {
+            if (GameLocalization.Current != "en") return LocalizedVillage.Choice(choice);
+            string name = ItemAt(world.Round, (int)choice).Name;
+            return string.IsNullOrEmpty(name) ? ChoiceTitle(choice)
+                : char.ToUpperInvariant(name[0]) + name.Substring(1);
+        }
+
+        private string ChoiceTitle(VillageChoice choice)
+        {
+            return GameLocalization.Current == "en"
+                ? ItemAt(world.Round, (int)choice).Card : LocalizedVillage.Choice(choice);
         }
 
         // A slim painted wooden plank (I162) holding a row of icon + name, or null
@@ -2296,7 +4781,8 @@ namespace Evergrove.UnityClient
             neighborLayer.transform.SetSiblingIndex(1);
             Fill(neighborLayer.GetComponent<RectTransform>());
             var veil = neighborLayer.AddComponent<Image>();
-            veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.10f);
+            // I347 (run 3, P6): the neighbour comes forward; the page behind steps back.
+            veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.36f);
             // A tap anywhere else ends the conversation, as the check does.
             neighborLayer.AddComponent<TapCatcher>().Tapped = () => { speakingWith = -1; Rebuild(); };
             var row = Node("A neighbor's memory", neighborLayer.transform);
@@ -2329,8 +4815,8 @@ namespace Evergrove.UnityClient
             {
                 var portrait = Node("Speaker portrait", row.transform);
                 var portraitLayout = portrait.AddComponent<LayoutElement>();
-                portraitLayout.minWidth = portraitLayout.preferredWidth = 64;
-                portraitLayout.minHeight = portraitLayout.preferredHeight = 64;
+                portraitLayout.minWidth = portraitLayout.preferredWidth = 92; // I347: a face you can see
+                portraitLayout.minHeight = portraitLayout.preferredHeight = 92;
                 var portraitImage = portrait.AddComponent<Image>();
                 portraitImage.sprite = face;
                 portraitImage.preserveAspect = true;
@@ -2340,10 +4826,10 @@ namespace Evergrove.UnityClient
             var bubble = Card(row.transform, "Speech bubble", new Color(0f, 0f, 0f, 0f));
             bubble.AddComponent<LayoutElement>().flexibleWidth = 1f;
             Text speaker = Label(bubble.transform, "Neighbor name",
-                LocalizedVillage.Name(speakingWith), 15, 0, Leaf, TextAnchor.MiddleLeft);
+                LocalizedVillage.Name(speakingWith), 17, 0, Leaf, TextAnchor.MiddleLeft);
             Emphasize(speaker);
             Narrate(Label(bubble.transform, "What they say",
-                LocalizedVillage.Speak(world, speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft));
+                NeighborSays(speakingWith), 20, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
                 MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
                 MosseloraTheme.ForestAction);
@@ -2354,7 +4840,31 @@ namespace Evergrove.UnityClient
             thanksRect.pivot = new Vector2(1f, 0f);
             thanksRect.sizeDelta = new Vector2(56f, 44f);
             thanksRect.anchoredPosition = new Vector2(-10f, 10f);
-            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(6, 10, 2, 56);
+            // Bring them some fruit from your trees (I231): one pear, a kind word back.
+            if (world.Mode == PlayMode.Living && world.Fruit > 0)
+            {
+                int villager = speakingWith;
+                var give = IconButton(bubble.transform, "Give fruit", "Give " + LocalizedVillage.Name(villager) + " some fruit",
+                    "food-basket", () => GiveFruit(villager), 44, MosseloraTheme.QuietAction);
+                give.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
+                var giveRect = give.GetComponent<RectTransform>();
+                giveRect.anchorMin = giveRect.anchorMax = new Vector2(1f, 0f);
+                giveRect.pivot = new Vector2(1f, 0f);
+                giveRect.sizeDelta = new Vector2(64f, 48f);
+                giveRect.anchoredPosition = new Vector2(-74f, 8f);
+                Transform giveIcon = give.transform.Find("Icon");
+                if (giveIcon != null)
+                {
+                    giveIcon.GetComponent<Image>().color = Color.white; // painted, not a glyph
+                    // A painted basket needs room to read as fruit (I232): about twice a glyph.
+                    var iconSize = giveIcon.GetComponent<LayoutElement>();
+                    iconSize.minWidth = iconSize.preferredWidth = 38f;
+                    iconSize.minHeight = iconSize.preferredHeight = 38f;
+                }
+            }
+            // Room under the words for the tokens (I232): the basket stands a little taller.
+            bool basket = world.Mode == PlayMode.Living && world.Fruit > 0;
+            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(6, 10, 2, basket ? 64 : 56);
         }
 
         // Neighbor as a painted portrait medallion with their name beneath.
@@ -2511,11 +5021,10 @@ namespace Evergrove.UnityClient
         // "Change your choice" shows what would change: the painted landmark you
         // just chose, with a small turn-back mark at its corner (I87). Two opposed
         // arrows read as "shuffle" in three AI reviews.
-        private static void ShowChoiceToChange(Button button, VillageChoice chosen)
+        private static void ShowChoiceToChange(Button button, Sprite painted)
         {
             Transform iconNode = button.transform.Find("Icon");
             Image icon = iconNode != null ? iconNode.GetComponent<Image>() : null;
-            Sprite painted = MosseloraArt.ChoiceIcon(chosen);
             if (icon == null || painted == null) return;
             icon.sprite = painted;
             icon.color = Color.white; // painted art, not a tinted glyph
@@ -2747,7 +5256,7 @@ namespace Evergrove.UnityClient
             int split = name.IndexOf(" · ", StringComparison.Ordinal);
             int[] past = world.Choices;
             Sprite mark = split > 0 && past.Length > 0
-                ? MosseloraArt.ChoiceIcon((VillageChoice)past[past.Length - 1]) : null;
+                ? ItemArt(past.Length - 1, past[past.Length - 1]) : null;
             // The stream's name is painted on a small wooden sign by the path,
             // part of the scenery rather than a caption (I162).
             Transform nameRow = CenteredRowIn(row.transform, "Stream name row");
@@ -2809,25 +5318,27 @@ namespace Evergrove.UnityClient
             if (here) return MosseloraArt.Load(MosseloraArt.StoneHere);
             if (passed) return MosseloraArt.Load(MosseloraArt.StoneWalked);
             int phase = stream >= 9 ? 3 : stream >= 6 ? 2 : stream >= 3 ? 1 : 0;
-            switch (PaintedVillage.SeasonFor(phase, false))
+            switch (GardenSeason.ForStory(phase))
             {
-                case 1: return MosseloraArt.Load(MosseloraArt.StoneAutumn);
-                case 2: return MosseloraArt.Load(MosseloraArt.StoneWinter);
+                case Season.Spring: return MosseloraArt.Load("stone-spring") ?? MosseloraArt.Load(MosseloraArt.StoneSummer);
+                case Season.Autumn: return MosseloraArt.Load(MosseloraArt.StoneAutumn);
+                case Season.Winter: return MosseloraArt.Load(MosseloraArt.StoneWinter);
                 default: return MosseloraArt.Load(MosseloraArt.StoneSummer);
             }
         }
 
-        // Stones ahead wear the season they will be walked in (summer sage,
-        // autumn amber, winter frost): the year ahead is visible, never timed.
+        // Stones ahead wear the season they will be walked in (spring mint, summer
+        // sage, autumn amber, winter frost): the year ahead is visible, never timed.
         private static Color SeasonStone(int stream)
         {
             int phase = stream >= 9 ? 3 : stream >= 6 ? 2 : stream >= 3 ? 1 : 0;
-            switch (PaintedVillage.SeasonFor(phase, false))
+            switch (GardenSeason.ForStory(phase))
             {
                 // Opaque season tones, each at least 3:1 against the paper
                 // (WCAG 1.4.11); the old translucent stones measured about 1.6:1 (I84).
-                case 1: return new Color(0.72f, 0.47f, 0.20f, 1f);   // autumn 3.3:1
-                case 2: return new Color(0.36f, 0.52f, 0.66f, 1f);   // winter 3.5:1
+                case Season.Spring: return new Color(0.27f, 0.53f, 0.43f, 1f); // spring mint, darker than summer for 3:1
+                case Season.Autumn: return new Color(0.72f, 0.47f, 0.20f, 1f);   // autumn 3.3:1
+                case Season.Winter: return new Color(0.36f, 0.52f, 0.66f, 1f);   // winter 3.5:1
                 default: return new Color(0.40f, 0.55f, 0.35f, 1f);  // summer 3.4:1
             }
         }
@@ -2912,6 +5423,8 @@ namespace Evergrove.UnityClient
         private void Rebuild(bool top = false)
         {
             rebuildGeneration++;
+            RefreshChoicePreview();
+            choicePreviewPanel = null;
             RuleToast.Dismiss();
             if (content == null) { celebrateSolve = false; return; }
             semanticsDirty = true;
@@ -2930,6 +5443,7 @@ namespace Evergrove.UnityClient
             waterDrops = null;
             undoButton = null;
             decisionHeading = null;
+            decisionCards = null;
             solvedBoard = null;
             screenHeading = null;
             if (neighborLayer != null)
@@ -2970,11 +5484,21 @@ namespace Evergrove.UnityClient
             bool settingsAtTop = languagePicker || (!puzzleScreen && !memoryScreen);
             bool multiLanguage = LocaleRuntime.SelectableLanguages.Count > 1;
             // Sideways play keeps the height for the board; the wordmark is on the hub.
-            if (!(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
+            // The memory card opens on your garden, full width and up under the
+            // status bar, with the wordmark and tagline floating on it (I185).
+            heroGarden = living && memoryScreen && !landscape &&
+                MosseloraArt.Load("garden-map") != null && LoadGardenMap() != null;
+            // Boards float over your own garden, full screen (I189): no paper page, no
+            // wordmark header, no strip of garden under the board.
+            bool worldShown = WorldStage(living && puzzleScreen && !landscape && !languagePicker);
+            worldShownNow = worldShown;
+            if (chromeBand != null) chromeBand.gameObject.SetActive(!landscape && !worldShown);
+            if (worldShown) Height(Node("Room under the corner buttons", content), 50f);
+            else if (!heroGarden && !(landscape && (puzzleScreen || memoryScreen))) GardenHeader(puzzleScreen);
             // Boards (the first one too, I160) open on the path, the stream name and
             // the board; the tagline lives on the hub and the story screens
             // (memory, ending), where it is part of the story, not a header.
-            if (!puzzleScreen && !(landscape && memoryScreen))
+            if (!puzzleScreen && !(landscape && memoryScreen) && !heroGarden)
             {
                 // Story screens use the hub's size, so the line sits inside the
                 // vine corners instead of running into them (I73).
@@ -3015,7 +5539,7 @@ namespace Evergrove.UnityClient
                 BuildPuzzle();
 
             // Sideways, the village lives full height on the left (LandscapeGarden).
-            if (living && !landscape)
+            if (living && !landscape && !worldShown)
             {
                 VillageScenePlan scenePlan = VillageScenePlan.From(world);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -3061,13 +5585,19 @@ namespace Evergrove.UnityClient
                     }
                 }
 #endif
-                if (!renderedMiniature)
+                // The garden map replaces the fixed village strip (I178): swipe it, and
+                // tap to put what you made where you want it.
+                bool mapped = !renderedMiniature && PageGardenMap(illustration, memoryScreen);
+                // I201: on the memory screen the map takes whatever room is left above
+                // the pinned buttons, on any phone and text size.
+                fillTarget = mapped && memoryScreen ? illustration : null;
+                if (!renderedMiniature && !mapped)
                 {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     if (diorama != null) diorama.Hide();
 #endif
                     var painting = illustration.AddComponent<PaintedVillage>();
-                    painting.Build(17f, PaintedVillage.SeasonFor(scenePlan.LandscapePhase, world.Completed));
+                    painting.Build(17f, PaintedVillage.ArtSeason(world));
                     if (painting.Ready)
                     {
                         int[] grown = world.Choices;
@@ -3090,7 +5620,7 @@ namespace Evergrove.UnityClient
                     }
                 }
                 // After the painting's own layers, so the villagers stand on top of it.
-                if (!showingMemory) NeighborsOnPainting(illustration.transform);
+                if (!showingMemory && !mapped) NeighborsOnPainting(illustration.transform);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             else if (diorama != null)
@@ -3128,18 +5658,51 @@ namespace Evergrove.UnityClient
                 Sprite vignette = MosseloraArt.Load(keeper == 0 ? MosseloraArt.VignetteTree
                     : keeper == 1 ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
                 Sprite rememberer = MosseloraArt.Portrait(keeper);
+                // I200: one screen, no scrolling. The painting stands beside the
+                // neighbour's sentence (narrower at large text, so the words keep the
+                // room); no generic title; what changed is shown by the map above
+                // and only spoken here.
+                bool roomy = false; // stacking at 150% pushed the sentence under the buttons
+                float sceneShare = TextScale.Percent > 125 ? 0.38f : 0.48f;
+                Transform words = moment.transform;
                 // Sideways, the same painting already fills the left side (I114).
                 if (vignette != null && !landscape)
                 {
-                    var scene = Node("Memory vignette", moment.transform);
-                    // Larger text keeps its size; the painting yields height so the
-                    // continue arrow stays on the first screen (I85).
-                    Height(scene, Mathf.Round(Mathf.Min(PageWidth() - 28f, 360f) / MosseloraArt.Aspect(vignette)
-                        * (TextScale.Percent > 100 ? 0.78f : 1f)));
+                    Transform holder = moment.transform;
+                    float sceneWidth = roomy ? Mathf.Min(PageWidth() - 28f, 300f) : Mathf.Round((PageWidth() - 28f) * sceneShare);
+                    if (!roomy)
+                    {
+                        var pair = Node("Memory row", moment.transform);
+                        var pairGroup = pair.AddComponent<HorizontalLayoutGroup>();
+                        pairGroup.spacing = 12;
+                        pairGroup.childAlignment = TextAnchor.MiddleLeft;
+                        pairGroup.childControlWidth = true;
+                        pairGroup.childControlHeight = true;
+                        pairGroup.childForceExpandWidth = false;
+                        pairGroup.childForceExpandHeight = false;
+                        holder = pair.transform;
+                    }
+                    var scene = Node("Memory vignette", holder);
+                    var sceneLayout = scene.AddComponent<LayoutElement>();
+                    sceneLayout.minWidth = sceneLayout.preferredWidth = sceneWidth;
+                    sceneLayout.minHeight = sceneLayout.preferredHeight =
+                        Mathf.Round(sceneWidth / MosseloraArt.Aspect(vignette));
                     var sceneImage = scene.AddComponent<Image>();
                     sceneImage.sprite = vignette;
                     sceneImage.preserveAspect = true;
                     sceneImage.raycastTarget = false;
+                    if (!roomy)
+                    {
+                        var column = Node("Memory words", holder);
+                        column.AddComponent<LayoutElement>().flexibleWidth = 1f;
+                        var columnGroup = column.AddComponent<VerticalLayoutGroup>();
+                        columnGroup.childAlignment = TextAnchor.MiddleLeft;
+                        columnGroup.childControlWidth = true;
+                        columnGroup.childControlHeight = true;
+                        columnGroup.childForceExpandWidth = true;
+                        columnGroup.childForceExpandHeight = false;
+                        words = column.transform;
+                    }
                 }
                 // Sideways the left painting already shows who remembers, and the
                 // face would push the continue arrow off a 402 pt screen (I115).
@@ -3152,28 +5715,21 @@ namespace Evergrove.UnityClient
                     faceImage.preserveAspect = true;
                     faceImage.raycastTarget = false;
                 }
-                Text momentTitle = Label(moment.transform, "Moment title",
-                    GameLocalization.Text("memory_title"), 18, 31, Leaf, TextAnchor.MiddleCenter);
-                Emphasize(momentTitle);
-                // The chapter header lives in the scrapbook; here, the memory and its effect.
-                Text story = Label(moment.transform, "Story", LocalizedVillage.Memory(world), 18, 0, Ink,
-                    TextAnchor.MiddleCenter);
+                bool beside = words != moment.transform;
+                Text story = Label(words, "Story", Remembered(world.Choices, world.Choices.Length - 1), 18, 0, Ink,
+                    beside ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter);
                 Narrate(story, true);
-                Narrate(Label(moment.transform, "Story consequence", LocalizedVillage.Consequence(world), 17, 0, Ink,
-                    TextAnchor.MiddleCenter));
+                // Still read aloud: what changed in the garden (hidden, takes no room).
+                Text changed = Label(words, "Story consequence", LocalizedVillage.Consequence(world), 17, 0,
+                    new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+                changed.GetComponent<LayoutElement>().ignoreLayout = true;
                 Sprite memorySprig = MosseloraArt.Load(MosseloraArt.Sprig);
                 MosseloraArt.Ornament(moment.transform, "Sprig left", memorySprig, new Vector2(0f, 1f),
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(10f, -8f));
                 MosseloraArt.Ornament(moment.transform, "Sprig right", memorySprig, new Vector2(1f, 1f),
                     new Vector2(0f, 1f), new Vector2(64f, 22f), new Vector2(-10f, -8f), true);
-                // Where the arrow leads: the stones walked so far and the next
-                // stream, wearing the landmark just planted (as on the hub, I78).
-                if (!world.Completed)
-                {
-                    StreamStones(world.CurrentPuzzle, content, false);
-                    if (GameLocalization.Current == "en" && !landscape)
-                        NextStreamLine(content, world.CurrentPuzzle.Name, false);
-                }
+                // (I200: the walk stones and the next stream's sign wait on the next
+                // board, where they matter; here they pushed the memory off screen.)
                 Transform next = CenteredRow("Memory actions");
                 Button changeButton = IconButton(next, "Change your choice", GameLocalization.Text("change"),
                     MosseloraArt.IconChange, () => {
@@ -3185,7 +5741,7 @@ namespace Evergrove.UnityClient
                     showingMemory = false;
                     Rebuild(false);
                 }, 76, MosseloraTheme.QuietAction, false, null, false, 0, 0, true); // a round token (I133)
-                ShowChoiceToChange(changeButton, (VillageChoice)world.Choices[world.Choices.Length - 1]);
+                ShowChoiceToChange(changeButton, ItemArt(world.Choices.Length - 1, world.Choices[world.Choices.Length - 1]));
                 Button continueButton = IconButton(next, "Continue", GameLocalization.Text("continue"),
                     MosseloraArt.IconContinue, () => {
                         showingMemory = false;
@@ -3194,6 +5750,9 @@ namespace Evergrove.UnityClient
                     }, 64, MosseloraTheme.WaterAction);
                 Width(continueButton, 160, 1f);
                 PinToFoot(next);
+                if (fillTarget != null)
+                    StartCoroutine(GrowToFill(fillTarget, (RectTransform)moment.transform, (RectTransform)next));
+                fillTarget = null;
             }
             else if (world.Completed)
             {
@@ -3263,8 +5822,12 @@ namespace Evergrove.UnityClient
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
             if (menuOpen) FitSheetToPages(menuSheet, menuContent);
             else if (showJournal) FitSheetToPages(journalSheet, journalContent);
-            if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
+            if (revealChoicePreview && choicePreviewPanel != null) RevealChoicePreview();
+            else if (revealChoices && decisionHeading != null) RevealChoices();
+            else if (revealNewScreen && screenHeading != null) RevealAtTop(screenHeading);
             else scroll.verticalNormalizedPosition = top ? 1f : previousPosition;
+            revealChoicePreview = false;
+            revealChoices = false;
             revealNewScreen = false;
         }
 
@@ -3324,8 +5887,26 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
             RectTransform pageRoot = content;
             content = journalContent;
-            SheetClose(journalContent, "Close journal", () => { showJournal = false; Rebuild(); });
+            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; Rebuild(); });
             content = pageRoot;
+            JournalTabs();
+            if (familyTab)
+            {
+                FamilyPage();
+                return;
+            }
+            if (almanacTab)
+            {
+                AlmanacPage();
+                return;
+            }
+            string[] allEntries = LocalizedVillage.Journal(world);
+            if (journalOpenPage >= 0 && journalOpenPage < allEntries.Length && journalOpenPage < world.Choices.Length)
+            {
+                JournalPageOpen(journalOpenPage, allEntries[journalOpenPage]);
+                return;
+            }
+            journalOpenPage = -1;
             // The pages lie on the sheet's own paper: no card inside the sheet (I128).
             var journal = Card(journalContent, "A living journal", new Color(0f, 0f, 0f, 0f));
             Text journalTitle = Label(journal.transform, "Journal title",
@@ -3353,6 +5934,18 @@ namespace Evergrove.UnityClient
                 MosseloraArt.PaperTile(pageImage, 14);
                 pageImage.color = MosseloraTheme.DryTile;
                 pageImage.raycastTarget = false;
+                if (i < chosen.Length)
+                {
+                    // A page opens to its memory, full size (I166).
+                    int pageIndex = i;
+                    pageImage.raycastTarget = true;
+                    var pageButton = page.AddComponent<Button>();
+                    pageButton.targetGraphic = pageImage;
+                    pageButton.colors = PressTint();
+                    pageButton.onClick.AddListener(() => { journalOpenPage = pageIndex; Rebuild(); });
+                    PressSquash.Add(page);
+                    DogEar(page.transform);
+                }
                 // I102 tilted these pages like a scrapbook; a blind comparison found
                 // no gain (slight lean to the flat grid), so I103 removed it.
                 MosseloraArt.Lift(pageImage, 2f, 0.12f);
@@ -3389,7 +5982,7 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text("stream", i + 1, PuzzleCatalog.Count), 13, 0,
                     new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
                 streamName.GetComponent<LayoutElement>().ignoreLayout = true;
-                Sprite icon = i < chosen.Length ? MosseloraArt.ChoiceIcon((VillageChoice)chosen[i]) : null;
+                Sprite icon = i < chosen.Length ? ItemArt(i, chosen[i]) : null;
                 if (icon != null)
                 {
                     var picture = Node("Journal picture", page.transform);
@@ -3404,7 +5997,7 @@ namespace Evergrove.UnityClient
                             new Vector2(1f, 0f), new Vector2(30f, 30f), new Vector2(0f, -4f));
                 }
                 // One remembered sentence on the page; the full chapter record is spoken.
-                string remembered = i < chosen.Length ? LocalizedVillage.MemoryAt(chosen, i) : entries[i];
+                string remembered = i < chosen.Length ? Remembered(chosen, i) : entries[i];
                 // The journal is read, not glanced at: body size, as on the memory card (I98).
                 Narrate(Label(page.transform, "Remembered line", remembered, 17, 0, Ink, TextAnchor.UpperCenter));
                 Text record = Label(page.transform, "Recorded cause and effect", entries[i], 14, 0,
@@ -3415,6 +6008,349 @@ namespace Evergrove.UnityClient
                 Node("Scrapbook blank", spread.transform); // keeps the last page half width
             if (world.Journal.Length == 0)
                 Label(journal.transform, "Blank page", GameLocalization.Text("journal_empty"), 14, 0, Moss);
+        }
+
+        // Every living-garden choice so far, saved to the device-wide almanac.
+        private void RecordInAlmanac()
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            int[] made = world.Choices;
+            bool changed = false;
+            for (int i = 0; i < made.Length && i < GardenCatalog.ChaptersPerGarden; i++)
+                changed |= almanac.Add(ItemAt(i, made[i]));
+            // Nursery plants and planted gifts from family are catalogue things too (I238).
+            int[] bought = world.Bought;
+            for (int k = 0; k * 2 + 1 < bought.Length; k++)
+                changed |= almanac.Add(Nursery.Item(bought[k * 2]));
+            if (!changed) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) return; // the tour never writes the player's almanac
+#endif
+            PlayerPrefs.SetString(AlmanacKey, almanac.Serialize());
+            PlayerPrefs.Save();
+        }
+
+        // Two round tabs at the top of the book: your pages, and the almanac (I174).
+        private void JournalTabs()
+        {
+            if (world.Mode != PlayMode.Living) { almanacTab = false; return; }
+            Transform tabs = CenteredRowIn(journalContent, "Book tabs");
+            tabs.GetComponent<HorizontalLayoutGroup>().spacing = 18;
+            bool pagesTab = !almanacTab && !familyTab;
+            IconButton(tabs, "Our pages", GameLocalization.Text("journal_title"), MosseloraArt.IconJournal,
+                () => { almanacTab = false; familyTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                pagesTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            Button almanacButton = IconButton(tabs, "Almanac", "Almanac", MosseloraArt.IconJournal,
+                () => { almanacTab = true; familyTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                almanacTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            // The family page (I269): letters, help and puzzles played together.
+            IconButton(tabs, "Family in the garden", "Family in the garden", MosseloraArt.IconNeighbors,
+                () => { familyTab = true; almanacTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                familyTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            // The almanac's mark is a painted sapling, not a second book.
+            Transform glyph = almanacButton.transform.Find("Icon");
+            Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+            Sprite sapling = MosseloraArt.Load(GardenCatalog.Get(VillageChoice.ShadeTree, 0).Art);
+            if (glyphImage != null && sapling != null)
+            {
+                glyphImage.sprite = sapling;
+                glyphImage.color = Color.white;
+                var glyphSize = glyph.GetComponent<LayoutElement>();
+                glyphSize.minWidth = glyphSize.preferredWidth = 38f;
+                glyphSize.minHeight = glyphSize.preferredHeight = 38f;
+            }
+        }
+
+        // All 200 garden items: made ones painted, the rest as faint silhouettes.
+        // Counts per neighbour, no rewards, no pressure (E2, I174).
+        // I269: the family layer, remembered truly from the save. No dates, no counts to beat.
+        private void FamilyPage()
+        {
+            var page = Card(journalContent, "Family in the garden", new Color(0f, 0f, 0f, 0f));
+            string[] letters = world.Letters, from = world.LetterFrom;
+            int[] helped = world.Helped, together = world.Together;
+            if (letters.Length == 0 && helped.Length == 0 && together.Length == 0)
+            {
+                Narrate(Label(page.transform, "Nothing yet",
+                    "When family write, help, or play a puzzle with you, it is kept here.", 18, 0, Moss,
+                    TextAnchor.MiddleCenter), true);
+                return;
+            }
+            if (letters.Length > 0)
+            {
+                FamilyHeading(page.transform, "letter-sealed", "Letters");
+                for (int i = letters.Length - 1; i >= 0 && i >= letters.Length - 6; i--)
+                {
+                    string first = letters[i].Split('\n')[0];
+                    if (first.Length > 48) first = first.Substring(0, 46).TrimEnd() + "\u2026";
+                    Narrate(Label(page.transform, "Letter from " + from[i], "\u2014 " + from[i] + ": \u201c" + first + "\u201d",
+                        17, 0, Ink, TextAnchor.MiddleLeft), true);
+                }
+            }
+            if (helped.Length > 0)
+            {
+                FamilyHeading(page.transform, MosseloraArt.IconNeighbors, "Helped");
+                int[] made = world.Choices;
+                foreach (int item in helped)
+                {
+                    if (item < 0 || item >= made.Length) continue;
+                    Narrate(Label(page.transform, "Helped with " + item,
+                        world.HelpedBy(item) + " helped with your " + ItemAt(item, made[item]).Name + ".",
+                        17, 0, Ink, TextAnchor.MiddleLeft), true);
+                }
+            }
+            if (together.Length > 0)
+            {
+                FamilyHeading(page.transform, MosseloraArt.IconNeighbors, "Played together");
+                int[] made = world.Choices, bought = world.Bought;
+                foreach (int thing in together)
+                {
+                    string name = thing < made.Length ? ItemAt(thing, made[thing]).Name
+                        : thing >= BoughtIndex && (thing - BoughtIndex) * 2 < bought.Length
+                            ? Nursery.Item(bought[(thing - BoughtIndex) * 2]).Name : null;
+                    if (name == null) continue;
+                    Narrate(Label(page.transform, "Together " + thing, "The " + name + ", taking turns.",
+                        17, 0, Ink, TextAnchor.MiddleLeft), true);
+                }
+            }
+        }
+
+        private void FamilyHeading(Transform page, string art, string words)
+        {
+            Transform head = CenteredRowIn(page, "Family heading");
+            head.GetComponent<HorizontalLayoutGroup>().spacing = 8;
+            var icon = Node("Mark", head);
+            var iconLayout = icon.AddComponent<LayoutElement>();
+            iconLayout.minWidth = iconLayout.preferredWidth = 34;
+            iconLayout.minHeight = iconLayout.preferredHeight = 34;
+            var iconImage = icon.AddComponent<Image>();
+            iconImage.sprite = MosseloraArt.Load(art);
+            iconImage.preserveAspect = true;
+            iconImage.raycastTarget = false;
+            if (art == MosseloraArt.IconNeighbors) iconImage.color = Leaf;
+            Emphasize(Label(head, words, words, 19, 0, Moss, TextAnchor.MiddleLeft));
+        }
+
+        private void AlmanacPage()
+        {
+            var page = Card(journalContent, "The almanac", new Color(0f, 0f, 0f, 0f));
+            MemoryShelfRow(page.transform);
+            VisitorsRows(page.transform);
+            foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Flowers, VillageChoice.Bridge })
+            {
+                Transform head = CenteredRowIn(page.transform, "Almanac family");
+                head.GetComponent<HorizontalLayoutGroup>().spacing = 8;
+                Sprite face = MosseloraArt.Portrait((int)family);
+                if (face != null)
+                {
+                    var faceNode = Node("Keeper", head);
+                    var faceLayout = faceNode.AddComponent<LayoutElement>();
+                    faceLayout.minWidth = faceLayout.preferredWidth = 40;
+                    faceLayout.minHeight = faceLayout.preferredHeight = 40;
+                    var faceImage = faceNode.AddComponent<Image>();
+                    faceImage.sprite = face;
+                    faceImage.preserveAspect = true;
+                    faceImage.raycastTarget = false;
+                }
+                int count = GardenCatalog.CountOf(family);
+                Text tally = Label(head, "Found", almanac.CountOf(family) + " / " + count, 18, 0, Moss,
+                    TextAnchor.MiddleLeft);
+                Emphasize(tally);
+                var grid = Node("Almanac grid", page.transform);
+                var layout = grid.AddComponent<GridLayoutGroup>();
+                float cell = Mathf.Floor(Mathf.Min(52f, (PageWidth() - 40f) / 7f - 4f));
+                layout.cellSize = new Vector2(cell, cell);
+                layout.spacing = new Vector2(4f, 4f);
+                layout.childAlignment = TextAnchor.UpperCenter;
+                layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                layout.constraintCount = 7;
+                int rows = (count + 6) / 7;
+                Height(grid, rows * cell + (rows - 1) * 4f);
+                for (int i = 0; i < count; i++)
+                {
+                    GardenItem item = GardenCatalog.Get(family, i);
+                    Sprite art = MosseloraArt.Load(item.Art);
+                    var slot = Node(item.Name, grid.transform);
+                    var image = slot.AddComponent<Image>();
+                    image.sprite = art;
+                    image.preserveAspect = true;
+                    bool found = almanac.Has(item);
+                    // Not yet made: a soft pencil silhouette of the same painting.
+                    image.color = found ? Color.white : new Color(0.33f, 0.30f, 0.25f, 0.16f);
+                    image.raycastTarget = true;
+                    if (!found)
+                    {
+                        // Where an unfound thing grows (I241); its name stays a surprise.
+                        int sold = Nursery.KindOf(item);
+                        bool now = sold >= 0 && world.Mode == PlayMode.Living &&
+                            world.NurseryStock(Nursery.Slot(sold)) == sold;
+                        string where = now ? "In the nursery now" : sold >= 0 ? "Comes to the nursery in time"
+                            : "In a garden yet to come";
+                        var hint = slot.AddComponent<Button>();
+                        hint.transition = Selectable.Transition.None;
+                        hint.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
+                            where, font, Ink, MosseloraTheme.CardFill));
+                        continue;
+                    }
+                    var name = slot.AddComponent<Button>();
+                    name.transition = Selectable.Transition.None;
+                    string label = item.Name;
+                    // I304: its name, then a line from its keeper (true things only).
+                    string said = char.ToUpperInvariant(label[0]) + label.Substring(1) + "\n" + Almanac.KeeperLine(item);
+                    name.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
+                        said, font, Ink, MosseloraTheme.CardFill));
+                }
+            }
+        }
+
+        // I327 (idea 19, after the joy of a full page in creature-collecting games): who visits
+        // the garden and why. Each says, truly, what brings it; those who've come are in ink.
+        private void VisitorsRows(Transform page)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            foreach (Visitor visitor in new[] { Visitor.Bees, Visitor.Birds, Visitor.Butterflies })
+            {
+                bool come = Visitors.Welcomes(world, visitor);
+                Transform row = CenteredRowIn(page, "Visitor " + visitor);
+                var layout = row.GetComponent<HorizontalLayoutGroup>();
+                layout.spacing = 10;
+                layout.childAlignment = TextAnchor.MiddleLeft;
+                var mark = Node(visitor.ToString(), row);
+                var markLayout = mark.AddComponent<LayoutElement>();
+                markLayout.preferredWidth = markLayout.minWidth = markLayout.preferredHeight = 36f;
+                var markImage = mark.AddComponent<Image>();
+                markImage.sprite = MosseloraArt.Rounded(12);
+                markImage.color = !come ? new Color(0.33f, 0.30f, 0.25f, 0.16f)
+                    : visitor == Visitor.Bees ? new Color(0.98f, 0.78f, 0.18f, 1f)
+                    : visitor == Visitor.Birds ? new Color(0.45f, 0.38f, 0.30f, 1f) : new Color(0.93f, 0.62f, 0.72f, 1f);
+                markImage.raycastTarget = false;
+                Text why = Label(row, "Why", Visitors.Why(visitor), 16, 0, come ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f),
+                    TextAnchor.MiddleLeft);
+                why.GetComponent<LayoutElement>().flexibleWidth = 1f;
+            }
+        }
+
+        // I314: the memory shelf, your firsts, above the almanac's collections. Kept ones in
+        // colour; the rest are pencil silhouettes, like unfound almanac items.
+        private void MemoryShelfRow(Transform page)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            Keepsake[] shelf = MemoryShelf.For(world);
+            var grid = Node("Memory shelf", page);
+            var layout = grid.AddComponent<GridLayoutGroup>();
+            float cell = Mathf.Floor(Mathf.Min(64f, (PageWidth() - 40f) / 4f - 8f));
+            layout.cellSize = new Vector2(cell, cell);
+            layout.spacing = new Vector2(8f, 8f);
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            layout.constraintCount = 4;
+            int rows = (shelf.Length + 3) / 4;
+            Height(grid, rows * cell + (rows - 1) * 8f + 12f);
+            foreach (Keepsake keepsake in shelf)
+            {
+                var slot = Node(keepsake.Kept ? keepsake.Label : "Not yet", grid.transform);
+                var image = slot.AddComponent<Image>();
+                image.sprite = MosseloraArt.Load(keepsake.Art);
+                image.preserveAspect = true;
+                bool icon = keepsake.Art.StartsWith("ui-");
+                image.color = keepsake.Kept ? (icon ? MosseloraTheme.ForestAction : Color.white)
+                    : new Color(0.33f, 0.30f, 0.25f, 0.16f);
+                var tap = slot.AddComponent<Button>();
+                tap.transition = Selectable.Transition.None;
+                string said = keepsake.Kept ? keepsake.Label : "Not yet";
+                tap.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(), said, font, Ink, MosseloraTheme.CardFill));
+            }
+        }
+
+        // A folded top-right corner: the page can be turned (I168). A square turned
+        // 45 degrees on the corner, clipped by the page, reads as a dog-ear.
+        private static void DogEar(Transform page)
+        {
+            if (page.GetComponent<RectMask2D>() == null) page.gameObject.AddComponent<RectMask2D>();
+            var fold = new GameObject("Page corner", typeof(RectTransform));
+            fold.transform.SetParent(page, false);
+            fold.AddComponent<LayoutElement>().ignoreLayout = true;
+            var rect = fold.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(26f, 26f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            var image = fold.AddComponent<Image>();
+            image.sprite = MosseloraArt.Rounded(3);
+            image.type = Image.Type.Sliced;
+            image.color = MosseloraTheme.CardEdge;
+            image.raycastTarget = false;
+            MosseloraArt.Lift(image, 1.5f, 0.18f);
+        }
+
+        // One memory, opened from the book: its painting, who remembers it, the
+        // remembered line and the full cause-and-effect record. A tap anywhere on
+        // the page (or the back token) returns to the book (I166).
+        private void JournalPageOpen(int index, string record)
+        {
+            int[] chosen = world.Choices;
+            var choice = (VillageChoice)chosen[index];
+            var open = Card(journalContent, "Open memory", new Color(0f, 0f, 0f, 0f));
+            var back = open.AddComponent<Button>();
+            var hit = open.GetComponent<Image>();
+            hit.raycastTarget = true;
+            back.targetGraphic = hit;
+            back.transition = Selectable.Transition.None;
+            back.onClick.AddListener(() => { journalOpenPage = -1; Rebuild(); });
+            Transform when = CenteredRowIn(open.transform, "Open memory stream");
+            when.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+            Sprite stone = PathStone(index, false, false);
+            if (stone != null)
+            {
+                var stoneNode = Node("Season stone", when);
+                var stoneLayout = stoneNode.AddComponent<LayoutElement>();
+                stoneLayout.minHeight = stoneLayout.preferredHeight = 26f;
+                stoneLayout.minWidth = stoneLayout.preferredWidth = Mathf.Round(26f * MosseloraArt.Aspect(stone));
+                var stoneImage = stoneNode.AddComponent<Image>();
+                stoneImage.sprite = stone;
+                stoneImage.preserveAspect = true;
+                stoneImage.raycastTarget = false;
+            }
+            Text number = Label(when, "Open memory number", (index + 1).ToString(CultureInfo.InvariantCulture),
+                20, 0, Moss, TextAnchor.MiddleCenter);
+            Emphasize(number);
+            Text spokenStream = Label(when, "Open memory stream name",
+                GameLocalization.Text("stream", index + 1, PuzzleCatalog.Count), 13, 0,
+                new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+            spokenStream.GetComponent<LayoutElement>().ignoreLayout = true;
+            Sprite vignette = MosseloraArt.Load(choice == VillageChoice.ShadeTree ? MosseloraArt.VignetteTree
+                : choice == VillageChoice.Bridge ? MosseloraArt.VignetteBridge : MosseloraArt.VignetteFlowers);
+            if (vignette == null) vignette = MosseloraArt.ChoiceIcon(choice);
+            if (vignette != null)
+            {
+                var picture = Node("Open memory painting", open.transform);
+                float width = Mathf.Min(PageWidth() - 24f, 420f);
+                Height(picture, Mathf.Round(width / MosseloraArt.Aspect(vignette)));
+                var pictureImage = picture.AddComponent<Image>();
+                pictureImage.sprite = vignette;
+                pictureImage.preserveAspect = true;
+                pictureImage.raycastTarget = false;
+                Sprite face = MosseloraArt.Portrait(chosen[index]);
+                if (face != null)
+                    MosseloraArt.Ornament(picture.transform, "Who remembers", face, new Vector2(1f, 0f),
+                        new Vector2(1f, 0f), new Vector2(54f, 54f), new Vector2(-8f, 6f));
+                ItemBadge(picture.transform, index, chosen[index]);
+            }
+            Narrate(Label(open.transform, "Remembered line", Remembered(chosen, index), 20, 0,
+                Ink, TextAnchor.MiddleCenter), true);
+            // Shown: only what changed ("The crossing connects both banks."). The
+            // full record, with its "Chapter 1 · Orin · …" heading, stays spoken.
+            int lineBreak = record.LastIndexOf('\n');
+            string consequence = lineBreak >= 0 ? record.Substring(lineBreak + 1) : record;
+            Narrate(Label(open.transform, "What changed", consequence, 17, 0, Ink, TextAnchor.MiddleCenter));
+            Text fullRecord = Label(open.transform, "Recorded cause and effect", record, 14, 0,
+                new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+            fullRecord.GetComponent<LayoutElement>().ignoreLayout = true;
+            Transform backRow = CenteredRowIn(open.transform, "Back to the book row");
+            IconButton(backRow, "Back to the book", GameLocalization.Text("journal_title"),
+                MosseloraArt.IconUndo, () => { journalOpenPage = -1; Rebuild(); }, 64,
+                MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
         }
 
         // Upper bound for Large tiles so a tablet-width board stays reachable.
@@ -3475,7 +6411,7 @@ namespace Evergrove.UnityClient
                 // dry until the stream is solved and flowing after, softly behind the
                 // stone bed. Tiles stay opaque parchment, so the puzzle reads the same.
                 // Living world only; the Puzzle-only control keeps a plain page.
-                if (world.Mode == PlayMode.Living && !landscape) CreekBehindBoard(board.transform);
+                if (world.Mode == PlayMode.Living && !landscape && !worldShownNow) CreekBehindBoard(board.transform);
             }
             var gridNode = Node("Water connections", board.transform);
             // Keep the entire puzzle inside a compact phone, including the
@@ -3597,7 +6533,9 @@ namespace Evergrove.UnityClient
                     landmarkNode.AddComponent<LandmarkGraphic>()
                         .Configure(Mathf.Clamp(world.BoardVariant, 1, 3));
                     // The thing that roots it, painted, over the badge: tree, bridge or flowers.
-                    Sprite holder = MosseloraArt.ChoiceIcon((VillageChoice)(Mathf.Clamp(world.BoardVariant, 1, 3) - 1));
+                    int rootedFamily = Mathf.Clamp(world.BoardVariant, 1, 3) - 1;
+                    Sprite holder = world.Round > 0 ? ItemArt(world.Round - 1, rootedFamily)
+                        : MosseloraArt.ChoiceIcon((VillageChoice)rootedFamily);
                     if (holder != null)
                         MosseloraArt.Ornament(landmarkNode.transform, "Rooted by", holder, new Vector2(0f, 1f),
                             new Vector2(0f, 1f), new Vector2(0.46f, 0.46f) * tileSize, new Vector2(2f, -2f));
@@ -3753,10 +6691,20 @@ namespace Evergrove.UnityClient
                         }, 64, MosseloraTheme.ForestAction);
                 else
                 {
-                    Text chooseTitle = Label(content, "Choose title", GameLocalization.Text("choose"),
+                    // I349 (run 3, P12): the heading keeps clear of the floating menu button on
+                    // both sides, so no scroll position can hide its first letters under it.
+                    var titleRow = Node("Choose title row", content);
+                    var titleGroup = titleRow.AddComponent<HorizontalLayoutGroup>();
+                    titleGroup.padding = new RectOffset(72, 72, 0, 0);
+                    titleGroup.childControlWidth = titleGroup.childControlHeight = true;
+                    titleGroup.childForceExpandWidth = true;
+                    titleGroup.childForceExpandHeight = false;
+                    Text chooseTitle = Label(titleRow.transform, "Choose title", GameLocalization.Text("choose"),
                         24, 56, Ink, TextAnchor.MiddleCenter);
                     Emphasize(chooseTitle);
                     decisionHeading = chooseTitle.rectTransform;
+                    Label(content, "Choice preview help", GameLocalization.Text("preview_help"),
+                        16, 0, Ink, TextAnchor.MiddleCenter);
                     // Three tall painted cards side by side, like cards on a table.
                     // With larger text they stack as wide cards so no word breaks.
                     bool stacked = TextScale.Percent > 100;
@@ -3778,26 +6726,21 @@ namespace Evergrove.UnityClient
                         choiceGroup.childForceExpandHeight = true;
                         choiceGroup.childAlignment = TextAnchor.UpperCenter;
                     }
+                    decisionCards = choiceRow.GetComponent<RectTransform>();
                     for (int choiceIndex = 0; choiceIndex < 3; choiceIndex++)
                     {
                         VillageChoice choice = (VillageChoice)choiceIndex;
                         // None is visually preselected. A golden default would
                         // bias research toward the first habitat, not player care.
                         Transform cards = choiceRow.transform;
-                        ChoiceCard(cards, choice, () => SettleChoice(cards, choice), stacked);
+                        ChoiceCard(cards, choice, () => PreviewChoice(choice), stacked);
                     }
+                    BuildChoicePreview(choiceRow.transform);
                 }
-                // Second thoughts live after the decision, not between the payoff
-                // line and the choices, where a lone back-arrow read as "go back".
-                // Same bottom-left slot as the board's undo, so it never moves (I79).
-                Transform revisitRow = CenteredRow("Revisit row");
-                revisitRow.GetComponent<HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleLeft;
-                // A round token like the board's own Undo (I132).
-                Button revisit = IconButton(revisitRow, "Revisit water",
-                    GameLocalization.Text("undo_last"), MosseloraArt.IconUndo,
-                    () => Act(() => world.Undo(), "undo"), 64, MosseloraTheme.QuietAction,
-                    false, null, false, 0, 0, true);
-                revisit.interactable = world.CanUndo;
+                // No "revisit the water" token here any more (I169): once the stream
+                // runs, the only decision is what to grow. A cold read took the round
+                // undo arrow for "cancel the choice", and second thoughts about the
+                // choice itself already live on the memory card ("change my choice").
             }
             else
             {
@@ -4082,9 +7025,10 @@ namespace Evergrove.UnityClient
             MinHeight(node, wide ? 96 : TextScale.Scale(150));
             var image = node.AddComponent<Image>();
             MosseloraArt.PaperTile(image, 18);
-            image.color = MosseloraTheme.CardFill;
+            bool selected = choicePreview != null && choicePreview.Choice == choice;
+            image.color = selected ? MosseloraTheme.LeafSoft : MosseloraTheme.CardFill;
             MosseloraArt.Lift(image, 3f, 0.16f);
-            MosseloraArt.Edge(node.transform, MosseloraTheme.CardEdge, 18);
+            MosseloraArt.Edge(node.transform, selected ? MosseloraTheme.LeafAction : MosseloraTheme.CardEdge, 18);
             var button = node.AddComponent<Button>();
             button.targetGraphic = image;
             button.colors = PressTint();
@@ -4101,12 +7045,12 @@ namespace Evergrove.UnityClient
             stack.childForceExpandWidth = !wide;
             stack.childForceExpandHeight = false;
             Transform words = node.transform;
-            Sprite icon = MosseloraArt.ChoiceIcon(choice);
+            Sprite icon = ItemArt(world.Round, (int)choice);
             if (icon != null)
             {
                 var picture = Node("Choice picture", node.transform);
                 var pictureLayout = picture.AddComponent<LayoutElement>();
-                pictureLayout.minHeight = pictureLayout.preferredHeight = 84;
+                pictureLayout.minHeight = pictureLayout.preferredHeight = wide ? 84 : 104;
                 if (wide) pictureLayout.minWidth = pictureLayout.preferredWidth = 92;
                 var pictureImage = picture.AddComponent<Image>();
                 pictureImage.sprite = icon;
@@ -4117,9 +7061,9 @@ namespace Evergrove.UnityClient
                 if (keeper != null)
                     MosseloraArt.Ornament(picture.transform, "Who will remember", keeper, new Vector2(1f, 0f),
                         new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(4f, -6f));
-                // And what it leaves in the next stream: the same framed tile the
-                // player will meet on the next board, in miniature (I134).
-                NextStreamTile(picture.transform, choice);
+                // I196: the miniature next-stream tile (I134) read as a mystery box in
+                // play; the next board shows that landmark itself, so the card is
+                // just the thing and who will remember it.
             }
             if (wide)
             {
@@ -4134,45 +7078,23 @@ namespace Evergrove.UnityClient
                 words = column.transform;
             }
             TextAnchor align = wide ? TextAnchor.MiddleLeft : TextAnchor.UpperCenter;
-            Text title = Label(words, "Choice name", LocalizedVillage.Choice(choice), 16, 0, Ink, align);
+            Text title = Label(words, "Choice name", ChoiceName(choice), 16, 0, Ink, align);
             Emphasize(title);
-            // Picture first: the painting, the keeper and the name say it; the
-            // consequence is spoken (and shown on the memory screen that follows).
+            if (!wide && !CjkLineBreakFixer.NeedsFitting(GameLocalization.Current))
+                WholeWordFit.Attach(title, 12);
+            // PR #82: the selected card has a shape cue as well as a tint; the full,
+            // truthful consequence (from the real model) is in the preview before any commit.
+            if (selected)
+                Label(words, "Selected choice marker", "\u2713", 18, 22, Ink, align);
+            VillageChoicePreview candidate;
+            string outcome = VillageChoicePreview.TryCreate(world, choice, out candidate)
+                ? LocalizedVillage.Consequence(candidate.WorldAfter)
+                : LocalizedVillage.ChoiceOutcome(choice, world);
             // A hidden "Caption" gives screen readers the full choice.
             Text spoken = Label(node.transform, "Caption",
-                LocalizedVillage.Choice(choice) + "\n" + LocalizedVillage.ChoiceOutcome(choice, world),
+                ChoiceTitle(choice) + "\n" + outcome,
                 14, 0, new Color(0f, 0f, 0f, 0f), align);
             spoken.GetComponent<LayoutElement>().ignoreLayout = true;
-        }
-
-        // A miniature of the protected landmark tile this choice roots in the next
-        // stream: bark frame, a dry channel and the choice's painting in its corner.
-        private void NextStreamTile(Transform picture, VillageChoice choice)
-        {
-            if (world.Round + 1 >= PuzzleCatalog.Count) return; // no next stream to change
-            var tile = Node("Leaves in the next stream", picture);
-            tile.AddComponent<LayoutElement>().ignoreLayout = true;
-            var rect = tile.GetComponent<RectTransform>();
-            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.sizeDelta = new Vector2(38f, 38f);
-            rect.anchoredPosition = new Vector2(-2f, 6f);
-            var body = tile.AddComponent<Image>();
-            MosseloraArt.Round(body, MosseloraTheme.AnchoredTile, 7);
-            body.raycastTarget = false;
-            MosseloraArt.Lift(body, 1.5f, 0.22f);
-            var frame = Node("Landmark frame", tile.transform);
-            Fill(frame.GetComponent<RectTransform>());
-            frame.AddComponent<LandmarkGraphic>().Configure((int)choice + 1);
-            var channel = Node("Channel", tile.transform);
-            Fill(channel.GetComponent<RectTransform>());
-            var pipe = channel.AddComponent<PipeGraphic>();
-            pipe.Configure(PipeKind.Straight, 1, false, false, 0); // dry, as the player will first see it
-            pipe.raycastTarget = false;
-            Sprite holder = MosseloraArt.ChoiceIcon(choice);
-            if (holder != null)
-                MosseloraArt.Ornament(tile.transform, "Rooted by", holder, new Vector2(0f, 1f),
-                    new Vector2(0f, 1f), new Vector2(18f, 18f), new Vector2(1f, -1f));
         }
 
         // Compact settings row below the primary content of puzzle and post-choice
@@ -4188,11 +7110,11 @@ namespace Evergrove.UnityClient
                 IconButton(row.transform, "Language settings",
                     GameLocalization.Text("language") + ": " +
                     GameLocalization.NativeName(GameLocalization.Current),
-                    MosseloraArt.IconLanguage, () => { languagePicker = true; Rebuild(true); }, 78,
-                    MosseloraTheme.QuietAction, false, null, true);
+                    MosseloraArt.IconLanguage, () => { languagePicker = true; Rebuild(true); }, SettingToken,
+                    MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             TextSizeButton(row.transform);
-            row = Row(panel.transform, "Settings row 2");
             BoardSizeButton(row.transform);
+            row = Row(panel.transform, "Settings row 2");
             IconButton(row.transform, "Gentle motion setting",
                 GameLocalization.Text("gentle_motion"),
                 gentleMotion ? MosseloraArt.IconMotionOn : MosseloraArt.IconMotionOff,
@@ -4202,10 +7124,9 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.SetInt(GentleMotionKey, gentleMotion ? 1 : 0);
                     PlayerPrefs.Save();
                     Rebuild();
-                }, 78, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, true);
-            row = Row(panel.transform, "Settings row 3");
-            Button chimeTile = IconButton(row.transform, "Quiet audio setting",
+                }, SettingToken, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
                 () => {
@@ -4213,15 +7134,60 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.SetInt("evergrove:gentle-audio", soundOn ? 1 : 0);
                     PlayerPrefs.Save();
                     Rebuild();
-                }, 78, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, true);
-            // The tile shows its name like its neighbors ("Gentle chime"); the icon
-            // and tone show on/off. The full sentence stays the spoken name (I76).
-            ShowShortName(chimeTile);
+                }, SettingToken, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            // Light that follows the day (I280): on by default; off keeps the garden in clear daylight.
+            IconButton(row.transform, "Day light setting",
+                DayLightOn ? "The garden's light follows your day: on" : "The garden's light follows your day: off",
+                MosseloraArt.IconSun, () => {
+                    PlayerPrefs.SetInt(DayLightKey, DayLightOn ? 0 : 1);
+                    PlayerPrefs.Save();
+                    Rebuild();
+                }, SettingToken, DayLightOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            // Garden notes (I277): one switch in plain sight, and the hour when it's on.
+            if (GardenNotes.Supported && world.Mode == PlayMode.Living)
+            {
+                row = Row(panel.transform, "Settings row 3");
+                Button notes = IconButton(row.transform, "Garden notes setting",
+                    GardenNotes.On ? "A note from the garden once a day: on" : "A note from the garden once a day: off",
+                    "letter-sealed", () => {
+                        if (GardenNotes.On) GardenNotes.TurnOff(); else GardenNotes.TurnOn(GardenNotes.Hour);
+                        Rebuild();
+                    }, SettingToken, GardenNotes.On ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                    false, null, false, 0, 0, true);
+                PaintedIcon(notes, GardenNotes.On ? 1f : 0.55f);
+                if (GardenNotes.On)
+                {
+                    Button hour = IconButton(row.transform, "Garden note hour",
+                        "Notes at " + GardenNotes.Hour + ":00", MosseloraArt.IconSun, () => {
+                            int[] hours = { 9, 15, 19 };
+                            int at = System.Array.IndexOf(hours, GardenNotes.Hour);
+                            GardenNotes.TurnOn(hours[(at + 1) % hours.Length]);
+                            Rebuild();
+                        }, SettingToken, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+                    Text when = Label(hour.transform, "Note hour", GardenNotes.Hour + ":00", 15, 0, Ink, TextAnchor.LowerCenter);
+                    when.GetComponent<LayoutElement>().ignoreLayout = true;
+                    Fill(when.rectTransform);
+                    when.rectTransform.offsetMin = new Vector2(0f, 4f);
+                    when.horizontalOverflow = HorizontalWrapMode.Overflow;
+                }
+            }
             // An even grid: every tile half the panel wide, the odd one out centred
             // at the same width, instead of widths set by each caption (I143).
-            foreach (Transform settingsRow in panel.transform) EvenTiles(settingsRow);
+            // Round tokens (I194): the picture and its on/off tone say it; the name is
+            // spoken and shown on press-and-hold. Rows centre their tokens, never stretch them.
+            foreach (Transform settingsRow in panel.transform)
+            {
+                var group = settingsRow.GetComponent<HorizontalLayoutGroup>();
+                if (group == null) continue;
+                group.childForceExpandWidth = false;
+                group.childAlignment = TextAnchor.MiddleCenter;
+                group.spacing = 22;
+            }
         }
+
+        private const int SettingToken = 76;
 
         private static void EvenTiles(Transform row)
         {
@@ -4282,8 +7248,8 @@ namespace Evergrove.UnityClient
                 MosseloraArt.IconBoardSize, () => {
                     BoardSize.Toggle();
                     Rebuild();
-                }, 78, BoardSize.IsLarge ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, true, 2, BoardSize.IsLarge ? 2 : 1);
+                }, SettingToken, BoardSize.IsLarge ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 2, BoardSize.IsLarge ? 2 : 1, true);
         }
 
         // Language-neutral label: "Aa" plus the current size. Cycles 100/125/150%.
@@ -4294,8 +7260,8 @@ namespace Evergrove.UnityClient
                 MosseloraArt.IconTextSize, () => {
                     TextScale.Cycle();
                     Rebuild();
-                }, 78, TextScale.Percent > 100 ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, true, 3, TextScale.Percent >= 150 ? 3 : TextScale.Percent >= 125 ? 2 : 1);
+                }, SettingToken, TextScale.Percent > 100 ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 3, TextScale.Percent >= 150 ? 3 : TextScale.Percent >= 125 ? 2 : 1, true);
         }
 
         private void BuildLanguagePicker()
@@ -4340,7 +7306,7 @@ namespace Evergrove.UnityClient
         private bool HasNews(int villager)
         {
             if (world.Mode != PlayMode.Living) return false;
-            return LocalizedVillage.Speak(world, villager) != PlayerPrefs.GetString(HeardKey + villager, "");
+            return NeighborSays(villager) != PlayerPrefs.GetString(HeardKey + villager, "");
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -4496,12 +7462,26 @@ namespace Evergrove.UnityClient
         }
 #endif
 
-        private void OpenConversation(int villagerIndex)
+        // One fruit to a neighbour (I231): they remember it truthfully (no meter).
+        private void GiveFruit(int villager)
         {
+            if (!world.GiveFruit(villager)) return;
+            SaveWorld();
+            PlayChime();
+            if (gentleMotion) Haptics.Tick();
+            OpenConversation(villager, true); // their next line is the thank-you
+        }
+        private int fruitThanks = -1; // the neighbour just given fruit: thanks come first (I231)
+
+        private void OpenConversation(int villagerIndex, bool afterFruit = false)
+        {
+            fruitThanks = afterFruit ? villagerIndex : -1;
+            // The "together" line is said once: talking to anyone else lets it pass (I266).
+            if (togetherKeeper >= 0 && villagerIndex != togetherKeeper) togetherKeeper = -1;
             speakingWith = villagerIndex;
             if (world.Mode == PlayMode.Living)
             {
-                PlayerPrefs.SetString(HeardKey + villagerIndex, LocalizedVillage.Speak(world, villagerIndex));
+                PlayerPrefs.SetString(HeardKey + villagerIndex, NeighborSays(villagerIndex));
                 PlayerPrefs.Save();
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -4686,6 +7666,11 @@ namespace Evergrove.UnityClient
                 if (delay > 0f) StartCoroutine(WetLater(i, delay));
             }
             PaintDropsWithFlights(puzzle, insight, arrive);
+            if (creekWater != null && !world.Solved)
+            {
+                float share = CreekShare();
+                if (!Mathf.Approximately(share, creekShown)) StartCoroutine(FillCreek(creekWater, share));
+            }
             lastFlowing = (bool[])insight.Flowing.Clone();
             if (feedbackText != null)
                 CjkLineBreakFixer.SetText(feedbackText, GameLocalization.Text("progress",
@@ -4822,11 +7807,10 @@ namespace Evergrove.UnityClient
             // Better: the whole finished creek above all three choices, so the
             // board is never cut in half under the menu button (I74). Only when
             // both fit on this screen; larger text keeps the heading anchor.
-            int cardsIndex = decisionHeading.GetSiblingIndex() + 1;
-            if (solvedBoard != null && cardsIndex < content.childCount)
+            if (solvedBoard != null && decisionCards != null)
             {
                 float boardTop = DepthInContent(solvedBoard, true) - 10f; // painted bed overhang
-                float cardsBottom = DepthInContent((RectTransform)content.GetChild(cardsIndex), false);
+                float cardsBottom = DepthInContent(decisionCards, false);
                 float boardFirst = boardTop - ChromeClearance() - 6f;
                 if (cardsBottom - boardFirst <= scroll.viewport.rect.height - 8f)
                     stopAt = boardFirst;
@@ -4925,10 +7909,12 @@ namespace Evergrove.UnityClient
         private void MakeChoice(VillageChoice choice)
         {
             if (!world.Choose(choice)) return;
+            ClearChoicePreview();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Choose(Time.unscaledTime);
 #endif
             SaveWorld();
+            RecordInAlmanac();
             showingMemory = true;
             showJournal = false;
             speakingWith = -1;
@@ -4976,8 +7962,10 @@ namespace Evergrove.UnityClient
                 {
                     Label(card.transform, "Garden replace warning", GameLocalization.Text("garden_replace"),
                         13, 40, Ink);
-                    IconButton(card.transform, "Confirm garden restore", GameLocalization.Text("erase"),
-                        MosseloraArt.IconConfirm, ConfirmGardenRestore, 54, MosseloraTheme.EarthAction, true);
+                    // I219: restoring is what the player came to do, not an erasure: the button
+                    // names the restore, in the restore's own colour; the warning above stays.
+                    IconButton(card.transform, "Confirm garden restore", GameLocalization.Text("garden_restore"),
+                        MosseloraArt.IconRestoreFile, ConfirmGardenRestore, 54, MosseloraTheme.WaterAction, true);
                     IconButton(card.transform, "Cancel garden restore", GameLocalization.Text("keep"),
                         MosseloraArt.IconCancel, CancelGardenRestore, 52, MosseloraTheme.QuietAction);
                 }
@@ -5070,7 +8058,20 @@ namespace Evergrove.UnityClient
                 Rebuild();
                 return;
             }
-            world = WorldModel.New();
+            // A new garden meets the next twelve trees, flowers and builds (I172),
+            // and remembers which garden it is in its own save (I178).
+            gardenNumber = Mathf.Max(gardenNumber, world != null ? world.Garden : 0) + 1;
+            world = WorldModel.New(PlayMode.Living, gardenNumber);
+            mapInHand = -1;
+            bool persist = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            persist = !qaInMemoryOnly;
+#endif
+            if (persist)
+            {
+                PlayerPrefs.SetInt(GardenNumberKey, gardenNumber);
+                PlayerPrefs.Save();
+            }
             saveFailed = false;
             confirmReset = false;
             showJournal = false;
@@ -5099,11 +8100,401 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
         }
 
-        private void OnApplicationPause(bool paused)
+        private void ResearchPause(bool paused)
         {
             if (!paused) RecordReturnDiaryOpen();
         }
 #endif
+
+        // Leaving or returning (I275): the one garden note is queued on the way out and
+        // cleared on the way back in.
+        private bool waveHello = true; // I298: set on launch and on every return
+
+        private sealed class HelloHop : MonoBehaviour
+        {
+            public float Delay;
+            private float clock;
+            private Vector2 home;
+            private bool started;
+
+            private void Update()
+            {
+                var rect = (RectTransform)transform;
+                if (!started) { home = rect.anchoredPosition; started = true; }
+                clock += Time.unscaledDeltaTime;
+                float t = clock - Delay;
+                if (t < 0f) return;
+                const float hop = 0.42f;
+                if (t >= hop * 2f) { rect.anchoredPosition = home; rect.localRotation = Quaternion.identity; enabled = false; return; }
+                float k = (t % hop) / hop;
+                rect.anchoredPosition = home + new Vector2(0f, Mathf.Sin(k * Mathf.PI) * 9f);
+                rect.localRotation = Quaternion.Euler(0f, 0f, (t < hop ? 1f : -1f) * Mathf.Sin(k * Mathf.PI) * 4f);
+            }
+        }
+
+        private void OnApplicationPause(bool paused)
+        {
+            if (!paused) waveHello = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            ResearchPause(paused);
+#endif
+            NotesLifecycle(paused);
+        }
+
+        private void OnApplicationQuit() { NotesLifecycle(true); }
+
+        private void NotesLifecycle(bool leaving)
+        {
+            if (world == null) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly)
+            {
+                // The tour never schedules a real note; it logs what would be said.
+                GardenNote qa = GardenNote.For(world, UnreadLetters());
+                Debug.Log("MOSSELORA_GARDEN_NOTE_QA " + (qa == null ? "(nothing waiting)" : qa.From + ": " + qa.Body));
+                return;
+            }
+#endif
+            if (leaving) { GardenNotes.Schedule(world, UnreadLetters()); return; }
+            noteCame = GardenNotes.Opened(); // shown once home is built (I283)
+            if (noteCame != null && titleScreen != null) FollowNote(); // resumed onto home already built
+        }
+
+        private bool UnreadLetters() { return PlayerPrefs.GetInt(LettersReadKey, 0) < world.Letters.Length; }
+
+        // I283: the note came while you were away; home shows what it pointed at, once.
+        private GardenNote noteCame;
+
+        private void FollowNote()
+        {
+            GardenNote note = noteCame;
+            noteCame = null;
+            if (note == null || titleScreen == null || world.Mode != PlayMode.Living) return;
+            switch (note.Target)
+            {
+                case NoteTarget.Letterbox:
+                    if (world.Letters.Length > 0) ShowLetter(0);
+                    break;
+                case NoteTarget.Basket:
+                    if (world.Gifts.Length > 0) { basketOpen = true; giftPick = world.Gifts.Length - 1; RefreshMaps(); }
+                    break;
+                case NoteTarget.Thing:
+                    // The thing it named is picked up: its puzzle is one tap away.
+                    if (note.Thing >= BoughtIndex && note.Thing - BoughtIndex < world.BoughtCount) { heldBought = note.Thing - BoughtIndex; RefreshMaps(); }
+                    else if (note.Thing >= 0 && note.Thing < world.Choices.Length) { mapInHand = note.Thing; RefreshMaps(); }
+                    break;
+                case NoteTarget.River:
+                    if (hubMapView != null) hubMapView.KeepAt(new Vector2(0.5f, 0f)); // the mist and its drops
+                    break;
+            }
+        }
+
+        // ---- I278-I281: light that follows the player's day. Cosmetic only, never saved.
+        private const string DayLightKey = "evergrove:daylight";
+        private static bool DayLightOn { get { return PlayerPrefs.GetInt(DayLightKey, 1) == 1; } }
+        private int qaClockHour = -1; // the tour's fixed clock (I282)
+
+        private void Now(out int hour, out int minute)
+        {
+            DateTime now = DateTime.Now;
+            hour = qaClockHour >= 0 ? qaClockHour : now.Hour;
+            minute = qaClockHour >= 0 ? 0 : now.Minute;
+        }
+
+        private DayPhase CurrentPhase() { Now(out int hour, out int minute); return DayLight.PhaseAt(hour, minute); }
+
+        // I353: the day's weather for a living garden, with the light on; the tour may set it.
+        private int qaWeather = -1;
+        private Weather TodayWeather(WorldModel garden)
+        {
+            if (!DayLightOn || garden == null || garden.Mode != PlayMode.Living) return Weather.Fair;
+            if (qaWeather >= 0) return (Weather)qaWeather;
+            return DayWeather.For(DateTime.Now.Date, GardenSeason.For(garden), garden.Garden);
+        }
+
+        private void ApplyDayLight(WorldModel garden)
+        {
+            Now(out int hour, out int minute);
+            DayTint tint = DayLight.TintAt(hour, minute);
+            bool on = DayLightOn && garden != null && garden.Mode == PlayMode.Living;
+            GardenMapView.Tint = on ? new Color(tint.R, tint.G, tint.B, tint.A) : new Color(0f, 0f, 0f, 0f);
+            GardenMapView.Dark = on ? tint.Dark : 0f;
+            GardenMapView.Fireflies = on && DayLight.Fireflies(DayLight.PhaseAt(hour, minute), GardenSeason.For(garden));
+            GardenMapView.FirefliesMove = gentleMotion;
+            GardenMapView.LampLit = on && DayLight.LampLit(DayLight.PhaseAt(hour, minute)); // I296
+            GardenMapView.FestivalNow = GardenSeason.Festival(garden); // I317
+            // I325/I326: visitors come for logical reasons, and are out by season and hour.
+            DayPhase visitPhase = DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day;
+            Season visitSeason = GardenSeason.For(garden);
+            GardenMapView.BeesOut = Visitors.Welcomes(garden, Visitor.Bees) && Visitors.Out(Visitor.Bees, visitSeason, visitPhase);
+            GardenMapView.BirdsOut = Visitors.Welcomes(garden, Visitor.Birds) && Visitors.Out(Visitor.Birds, visitSeason, visitPhase);
+            GardenMapView.CatBy = GardenCat.NapBy(garden, visitPhase); // I335
+            GardenMapView.SeasonNow = garden != null && garden.Mode == PlayMode.Living ? visitSeason : Season.Summer; // I338
+            GardenMapView.WeatherNow = TodayWeather(garden); // I353
+            // I295: the season's drift by day; it follows the season even with the light switch off.
+            bool living = garden != null && garden.Mode == PlayMode.Living;
+            GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),
+                DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day) : Drift.None;
+        }
+
+        private string HourRemark(int villager)
+        {
+            if (!DayLightOn || world.Mode != PlayMode.Living) return null;
+            Now(out int hour, out int minute);
+            return DayLight.Remark(villager, DayLight.PhaseAt(hour, minute), GardenSeason.For(world));
+        }
+
+        // A painted picture in a token keeps its colours (not tinted like a glyph).
+        private static void PaintedIcon(Button token, float alpha)
+        {
+            Transform icon = token != null ? token.transform.Find("Icon") : null;
+            if (icon != null) icon.GetComponent<Image>().color = new Color(1f, 1f, 1f, alpha);
+        }
+
+        // ---- I276: the soft ask, in the garden's own words, once there's a reason to want it.
+        private bool notesAskedThisSession;
+        private GameObject notesCard;
+
+        private void MaybeAskNotes()
+        {
+            if (!GardenNotes.Supported || GardenNotes.On || notesAskedThisSession || titleScreen == null) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) return; // the tour shoots the ask on purpose (QaNotesAsk)
+#endif
+            if (world.Mode != PlayMode.Living || letterCard != null || familySheet != null || openCard != null) return;
+            int asked = GardenNotes.Asked;
+            bool reason = asked == 0 ? (world.Choices.Length >= 3 || PlayerPrefs.GetInt(LettersReadKey, 0) > 0)
+                : asked == 1 && world.PuzzlesSolved >= 10;
+            if (!reason) return;
+            notesAskedThisSession = true;
+            ShowNotesAsk();
+        }
+
+        private void ShowNotesAsk()
+        {
+            if (notesCard != null) Destroy(notesCard);
+            notesCard = Node("A note from the garden?", titleScreen.transform);
+            Fill(notesCard.GetComponent<RectTransform>());
+            notesCard.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.38f);
+            var paper = Node("Ask paper", notesCard.transform);
+            var paperRect = paper.GetComponent<RectTransform>();
+            paperRect.anchorMin = paperRect.anchorMax = new Vector2(0.5f, 0.5f);
+            paperRect.sizeDelta = new Vector2(Mathf.Min(PageWidth() + 6f, 420f), 0f);
+            var paperImage = paper.AddComponent<Image>();
+            MosseloraArt.PaperTile(paperImage, 22);
+            paperImage.color = new Color(0.99f, 0.97f, 0.9f, 1f);
+            MosseloraArt.Lift(paperImage, 4f, 0.22f);
+            var column = paper.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(22, 22, 18, 18);
+            column.spacing = 12;
+            column.childControlWidth = column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var envelope = Node("Envelope", paper.transform);
+            var envelopeLayout = envelope.AddComponent<LayoutElement>();
+            envelopeLayout.preferredHeight = envelopeLayout.minHeight = 64f;
+            var envelopeImage = envelope.AddComponent<Image>();
+            envelopeImage.sprite = MosseloraArt.Load("letter-sealed");
+            envelopeImage.preserveAspect = true;
+            envelopeImage.raycastTarget = false;
+            Narrate(Label(paper.transform, "The ask",
+                "Would you like a short note from the garden once a day, at a time you choose? Only when something's waiting.",
+                19, 0, Ink, TextAnchor.UpperCenter), true);
+            Transform times = CenteredRowIn(paper.transform, "Note times");
+            times.GetComponent<HorizontalLayoutGroup>().spacing = 12;
+            foreach (int hour in new[] { 9, 15, 19 })
+            {
+                int pick = hour;
+                // Each hour stands under its sun in ink (b293: white-on-paper hours were unreadable).
+                var hourColumn = Node("Hour " + hour, times);
+                // Wide enough for "15:00" at 150% text, so each hour stays under its own sun (I287).
+                var columnWidth = hourColumn.AddComponent<LayoutElement>();
+                columnWidth.minWidth = columnWidth.preferredWidth = Mathf.Max(72f, 58f * TextScale.Percent / 100f);
+                var stack = hourColumn.AddComponent<VerticalLayoutGroup>();
+                stack.spacing = 4;
+                stack.childAlignment = TextAnchor.UpperCenter;
+                stack.childControlWidth = stack.childControlHeight = true;
+                stack.childForceExpandWidth = stack.childForceExpandHeight = false;
+                IconButton(hourColumn.transform, "Notes at " + hour + ":00", "Notes at " + hour + ":00", MosseloraArt.IconSun,
+                    () => { GardenNotes.TurnOn(pick); CloseNotesAsk(); PlayChime(); }, 64, MosseloraTheme.ForestAction,
+                    false, null, false, 0, 0, true);
+                Text when = Label(hourColumn.transform, "Hour", hour + ":00", 17, 0, Ink, TextAnchor.MiddleCenter);
+                when.horizontalOverflow = HorizontalWrapMode.Overflow;
+                Emphasize(when);
+            }
+            IconButton(times, "Not now", "Not now", MosseloraArt.IconCancel,
+                () => { GardenNotes.NotNow(); CloseNotesAsk(); }, 64, MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            semanticsDirty = true;
+        }
+
+        // ---- I299 (idea 36): the cottage summary. Pictures and counts, true ones only.
+        private GameObject cottageCard;
+
+        private int UnreadLetterCount()
+        {
+            return Mathf.Max(0, world.Letters.Length - PlayerPrefs.GetInt(LettersReadKey, 0));
+        }
+
+        internal void OpenCottage()
+        {
+            CottageSummary summary = CottageSummary.For(world, UnreadLetterCount());
+            if (summary == null || titleScreen == null) return;
+            CloseCottage();
+            cottageCard = Node("Your cottage. Tap to close.", titleScreen.transform);
+            Fill(cottageCard.GetComponent<RectTransform>());
+            cottageCard.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.32f);
+            var backdrop = cottageCard.AddComponent<Button>();
+            backdrop.transition = Selectable.Transition.None;
+            backdrop.onClick.AddListener(CloseCottage);
+            var paper = Node("Cottage paper", cottageCard.transform);
+            var paperRect = paper.GetComponent<RectTransform>();
+            paperRect.anchorMin = paperRect.anchorMax = new Vector2(0.5f, 0.5f);
+            paperRect.sizeDelta = new Vector2(Mathf.Min(PageWidth() - 20f, 360f), 0f);
+            var paperImage = paper.AddComponent<Image>();
+            MosseloraArt.PaperTile(paperImage, 22);
+            paperImage.color = new Color(0.99f, 0.97f, 0.9f, 1f);
+            MosseloraArt.Lift(paperImage, 4f, 0.22f);
+            var column = paper.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(22, 22, 18, 18);
+            column.spacing = 10;
+            column.childControlWidth = column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            // The season, as its stone: the year at a glance.
+            string[] stones = { "stone-spring", "stone-summer", "stone-autumn", "stone-winter" };
+            CottageLine(paper.transform, MosseloraArt.Load(stones[(int)summary.Season]), summary.Season.ToString());
+            if (summary.Letters > 0)
+                CottageLine(paper.transform, MosseloraArt.Load("letter-sealed"),
+                    summary.Letters == 1 ? "A letter in your box" : summary.Letters + " letters in your box");
+            if (summary.Cuttings > 0)
+                CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.Sprig),
+                    summary.Cuttings == 1 ? "A cutting in your basket" : summary.Cuttings + " cuttings in your basket");
+            if (summary.Waiting > 0)
+                CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconContinue),
+                    summary.Waiting == 1 ? "One thing holds a new puzzle" : summary.Waiting + " things hold a new puzzle");
+            if (summary.DropsNeed > 0) CottageDrops(paper.transform, summary.DropsHave, summary.DropsNeed);
+            // I313: the open hope nearest to coming true, with its true count (one line, not three).
+            NeighbourWish nearest = null;
+            int nearestWho = -1;
+            for (int villager = 0; villager < 3; villager++)
+            {
+                NeighbourWish wish = NeighbourWish.For(world, villager);
+                if (wish == null || wish.Granted) continue;
+                if (nearest == null || wish.Have * nearest.Need > nearest.Have * wish.Need) { nearest = wish; nearestWho = villager; }
+            }
+            if (nearest != null)
+                CottageLine(paper.transform, MosseloraArt.Portrait(nearestWho), nearest.Hope + ": " + nearest.Have + " of " + nearest.Need);
+            // I310: who left a light here, newest first.
+            string[] lit = world.Lanterns;
+            if (lit.Length > 0)
+            {
+                var names = new System.Collections.Generic.List<string>();
+                for (int l = lit.Length - 1; l >= 0 && names.Count < 3; l--) if (!names.Contains(lit[l])) names.Add(lit[l]);
+                CottageLine(paper.transform, MosseloraArt.Load(FamilySheet.LanternArt), "Lanterns from " +
+                    (names.Count == 1 ? names[0] : string.Join(", ", names.GetRange(0, names.Count - 1).ToArray()) + " and " + names[names.Count - 1]));
+            }
+            if (!summary.Anything)
+                CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconConfirm), "All tended. Replays wait whenever you like.");
+            // I328 (idea 45, after cooking games): three fruit make a jar of jam, a richer gift.
+            if (world.Jam > 0)
+                CottageLine(paper.transform, MosseloraArt.Load("food-jam"),
+                    world.Jam == 1 ? "A jar of jam in the pantry" : world.Jam + " jars of jam in the pantry");
+            // I330 (ideas 14 and 16, after block-building sandboxes): decorate anywhere, for free.
+            Transform decorRow = CenteredRowIn(paper.transform, "Decorate");
+            decorRow.gameObject.SetActive(world.DecorCount < WorldModel.MaxDecor);
+            decorRow.GetComponent<HorizontalLayoutGroup>().spacing = 8;
+            foreach (Decoration piece in new[] { Decoration.Stones, Decoration.Bench, Decoration.Fence, Decoration.LanternPost })
+            {
+                Decoration chosen = piece;
+                TreePlay.Token(decorRow, "Place " + DecorName(piece), MosseloraArt.Load(DecorArt(piece)), 56f,
+                    MosseloraTheme.QuietAction, () => {
+                        CloseCottage();
+                        decorInHand = (int)chosen;
+                        heldDecor = -1;
+                        RefreshMaps();
+                        if (titleScreen != null)
+                            RuleToast.Show((RectTransform)titleScreen.transform, "Tap free land to set down " + DecorName(chosen) + ".",
+                                font, Ink, MosseloraTheme.CardFill);
+                    }, true);
+                Transform glyph = decorRow.GetChild(decorRow.childCount - 1).Find("Icon");
+                if (glyph != null) { ((RectTransform)glyph).sizeDelta = new Vector2(46f, 46f); glyph.GetComponent<Image>().color = Color.white; }
+            }
+            // I319: from the cottage, look out over the whole river.
+            Transform look = CenteredRowIn(paper.transform, "Look out");
+            TreePlay.Token(look, "Look out over the whole river", MosseloraArt.Load(MosseloraArt.IconPath), 56f,
+                MosseloraTheme.WaterAction, () => { CloseCottage(); EnterQuiet(true); }, true);
+            if (world.Fruit >= WorldModel.JamPerJar && world.Jam < WorldModel.MaxJam)
+            {
+                TreePlay.Token(look, "Make a jar of jam from three fruit", MosseloraArt.Load("food-jam"), 56f,
+                    MosseloraTheme.QuietAction, () => {
+                        if (!world.MakeJam()) return;
+                        SaveWorld();
+                        PlayChime();
+                        if (purseFruit != null && gentleMotion) BloomPulse.Add(purseFruit.gameObject, 0f, 0.2f);
+                        OpenCottage(); // the card again, with the jar counted
+                    }, true);
+                Transform jamGlyph = look.GetChild(look.childCount - 1).Find("Icon");
+                if (jamGlyph != null) { ((RectTransform)jamGlyph).sizeDelta = new Vector2(44f, 44f); jamGlyph.GetComponent<Image>().color = Color.white; }
+            }
+            if (gentleMotion) BloomPulse.Add(paper, 0.05f, 0.04f);
+            semanticsDirty = true;
+        }
+
+        private void CottageLine(Transform parent, Sprite icon, string words)
+        {
+            Transform row = CenteredRowIn(parent, "Cottage line");
+            var layout = row.GetComponent<HorizontalLayoutGroup>();
+            layout.spacing = 12;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            var mark = Node("Picture", row);
+            var markLayout = mark.AddComponent<LayoutElement>();
+            markLayout.preferredWidth = markLayout.preferredHeight = markLayout.minWidth = 44f;
+            var markImage = mark.AddComponent<Image>();
+            markImage.sprite = icon;
+            markImage.preserveAspect = true;
+            markImage.raycastTarget = false;
+            if (icon != null && icon.name.StartsWith("ui-")) markImage.color = MosseloraTheme.ForestAction;
+            Text text = Label(row, "Line", words, 19, 0, Ink, TextAnchor.MiddleLeft);
+            text.GetComponent<LayoutElement>().flexibleWidth = 1f;
+            Narrate(text, false);
+        }
+
+        // The drops toward the next stretch of river, as on the mist (I224).
+        private void CottageDrops(Transform parent, int have, int need)
+        {
+            Transform row = CenteredRowIn(parent, "Toward the next stretch, " + have + " of " + need);
+            var layout = row.GetComponent<HorizontalLayoutGroup>();
+            layout.spacing = 8;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            for (int d = 0; d < need; d++)
+            {
+                var drop = Node(d < have ? "Drop" : "Drop to come", row);
+                var dropLayout = drop.AddComponent<LayoutElement>();
+                dropLayout.preferredWidth = dropLayout.preferredHeight = dropLayout.minWidth = 24f;
+                var dropImage = drop.AddComponent<Image>();
+                dropImage.sprite = d < have ? MosseloraArt.Rounded(12) : MosseloraArt.Ring(12);
+                dropImage.color = MosseloraTheme.WaterAction;
+                dropImage.raycastTarget = false;
+            }
+            Text text = Label(row, "Line", "toward new river", 17, 0, Ink, TextAnchor.MiddleLeft);
+            text.GetComponent<LayoutElement>().flexibleWidth = 1f;
+        }
+
+        internal void CloseCottage()
+        {
+            if (cottageCard != null) Destroy(cottageCard);
+            cottageCard = null;
+            semanticsDirty = true;
+        }
+
+        private void CloseNotesAsk()
+        {
+            if (notesCard != null) Destroy(notesCard);
+            notesCard = null;
+        }
 
         private void SaveWorld()
         {
@@ -5120,6 +8511,264 @@ namespace Evergrove.UnityClient
         // Dev-only seam for DevQaTour. Replaces the in-memory world and redraws
         // through the normal Rebuild path; refuses any world that is not in-memory.
         internal WorldModel QaWorld { get { return world; } }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private bool qaShowHub;
+
+        // The tour normally skips the hub; this opens it once for a screenshot.
+        // The tour opens the basket and plants three of the newest thing near it (I193).
+        internal void QaPlantFromBasket()
+        {
+            GardenMap map = LoadGardenMap();
+            if (map == null || world.Choices.Length == 0) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true; // the tour's hub rebuilds after each planting
+#endif
+            basketOpen = true;
+            basketKind = world.Choices.Length - 1;
+            int[] layout = map.Layout(world.Choices, world.Placements, Occupied());
+            int near = layout[layout.Length - 1];
+            int planted = 0;
+            for (int d = 1; d < 6 && planted < 3; d++)
+                foreach (int cell in new[] { near - d, near + d, near - d * map.Columns, near + d * map.Columns })
+                    if (planted < 3 && map.CanPlace(layout, cell) && !PlantedAt(cell))
+                    {
+                        OnMapLand(cell);
+                        planted++;
+                        layout = map.Layout(world.Choices, world.Placements, Occupied());
+                    }
+            RefreshMaps(); // shows the open tray with the kind picked
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = false;
+#endif
+        }
+
+        // I208 tour: open the nursery with the first plant picked, then buy one beside the newest thing.
+        internal void QaOpenNursery()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true;
+#endif
+            basketOpen = true;
+            nurseryOpen = true;
+            nurseryKind = world.Seeds >= Nursery.Price(0) ? 0 : -1;
+            RefreshMaps();
+        }
+
+        internal void QaBuyFromNursery()
+        {
+            GardenMap map = LoadGardenMap();
+            if (map == null || nurseryKind < 0) return;
+            int[] layout = map.Layout(world.Choices, world.Placements, Occupied());
+            int near = layout.Length > 0 ? layout[layout.Length - 1] : map.CellCount / 2;
+            for (int d = 1; d < 8; d++)
+                foreach (int cell in new[] { near + d, near - d, near + d * map.Columns, near - d * map.Columns })
+                    if (cell >= 0 && map.CanPlace(layout, cell) && !PlantedAt(cell)) { OnMapLand(cell); return; }
+        }
+
+        internal void QaTalk(int villager)
+        {
+            if (villager < 0) { speakingWith = -1; Rebuild(); return; }
+            OpenConversation(villager);
+        }
+
+        // I215 tour: open Family, send 50 seeds with a letter, then open a parcel from "Nan".
+        internal FamilySheet QaFamily()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true;
+#endif
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            OpenFamily();
+            return familySheet;
+        }
+
+        internal void QaCloseVisit() { CloseVisit(); }
+
+        internal void QaCloseFamily()
+        {
+            if (familySheet != null) Destroy(familySheet.gameObject);
+            familySheet = null;
+            RefreshMaps(); // as a real close does: the letterbox appears
+        }
+
+        internal void QaCloseBasket()
+        {
+            basketOpen = false; basketKind = -1; heldPlanting = -1;
+            nurseryOpen = false; nurseryKind = -1; heldBought = -1;
+        }
+
+        // I204 tour: pick up a grown thing, open its puzzle, solve it, see it bloom.
+        private TreePlay qaTreePlay;
+        internal int QaHoldThing(int family = -1)
+        {
+            // The classic kinds live in the first four things (I243): pick from those, so the
+            // tour keeps playing water, Pairs and Mosaic (the newer kinds have their own shots).
+            int[] made = world.Choices;
+            int want = family >= 0 ? family : (int)VillageChoice.ShadeTree;
+            int item = -1;
+            for (int i = 0; i < made.Length && i < ThingPuzzle.ClassicChapters && item < 0; i++)
+                if (made[i] == want) item = i;
+            if (item < 0) item = family >= 0 ? System.Array.LastIndexOf(made, family) : Mathf.Min(4, made.Length - 1);
+            if (item < 0) return -1;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true; // the hub rebuilds when the puzzle closes
+#endif
+            heldPlanting = -1;
+            mapInHand = item;
+            RefreshMaps();
+            return item;
+        }
+
+        // I223 tour: a grown thing whose puzzle is still unsolved (a first solve counts toward the river).
+        internal int QaHoldUnsolved()
+        {
+            int item = -1;
+            for (int i = world.Choices.Length - 1; i >= 0 && item < 0; i--)
+                if (!world.TreeSolved(i) && world.Choices[i] == (int)VillageChoice.ShadeTree) item = i;
+            if (item < 0) return -1;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true;
+#endif
+            heldPlanting = -1;
+            mapInHand = item;
+            RefreshMaps();
+            return item;
+        }
+
+        internal int QaPuzzlesSolved() { return world.PuzzlesSolved; }
+        internal int QaFruit() { return world.Fruit; }
+        internal void QaGiveFruit(int villager) { GiveFruit(villager); }
+
+        // I227 tour: help with the first unsolved thing of a kind in the garden being visited.
+        internal bool QaHelpOnVisit(int family)
+        {
+            if (visitWorld == null || visitLayer == null) return false;
+            int[] made = visitWorld.Choices;
+            for (int i = 0; i < made.Length; i++)
+                if (made[i] == family && !visitWorld.TreeSolved(i) && !visitWorld.IsHelped(i))
+                {
+                    HelpWith(i);
+                    qaTreePlay = visitLayer.GetComponentInChildren<TreePlay>();
+                    return qaTreePlay != null;
+                }
+            return false;
+        }
+
+        // The first grown thing of a kind in your garden still unsolved, or -1.
+        internal int QaUnsolved(int family)
+        {
+            int[] made = world.Choices;
+            for (int i = 0; i < made.Length; i++)
+                if (made[i] == family && !world.TreeSolved(i)) return i;
+            return -1;
+        }
+
+        // I224 tour: home scrolled to the river's foot, where the drops sit on the mist.
+        internal void QaHubToFoot()
+        {
+            qaShowHub = true;
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            if (hubMapView != null) hubMapView.KeepAt(new Vector2(0.5f, 0f));
+        }
+
+        // I243 tour: open one of the newer kinds as a grown thing would hold it.
+        internal void QaOpenKind(PuzzleKind kind, int tier)
+        {
+            qaShowHub = true;
+            PlayerPrefs.DeleteKey("evergrove:rule-seen-" + kind.ToString().ToLowerInvariant()); // I254: shown each tour
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            int item = Mathf.Min(5, world.Choices.Length - 1);
+            if (titleScreen == null || item < 0) return;
+            int[] made = world.Choices;
+            PuzzleCard((RectTransform)titleScreen.transform, world.Garden * 1000 + 77 + (int)kind, tier, kind,
+                ItemArt(item, made[item]), ItemAt(item, made[item]).Name, 0,
+                count => PairsPictures(count, item, (c, f) => ItemArt(c, f)), () => PlayTock(), () => 0,
+                () => { qaShowHub = false; });
+            qaTreePlay = titleScreen.GetComponentInChildren<TreePlay>();
+        }
+
+        internal void QaOpenTreePlay(int item)
+        {
+            OpenTreePlay(item);
+            qaTreePlay = titleScreen != null ? titleScreen.GetComponentInChildren<TreePlay>() : null;
+        }
+
+        internal void QaSolveTreePlay() { if (qaTreePlay != null) qaTreePlay.QaSolve(); }
+        internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
+        internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
+        internal void QaSetClock(int hour) { qaClockHour = hour; }
+        internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
+        internal void QaCloseNotesAsk() { CloseNotesAsk(); }
+        internal void QaTogetherTreePlay() { if (qaTreePlay != null) qaTreePlay.QaTogether(); }
+        internal void QaFourTurnsTreePlay() { if (qaTreePlay != null) qaTreePlay.QaFourTurns(); }
+
+        internal void QaEndTreePlay()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = false;
+#endif
+            qaTreePlay = null;
+        }
+
+        // I292/I294 tour: crown a thing as if replayed to the deepest tier; enter or leave quiet.
+        internal void QaCrown(int item)
+        {
+            if (!qaInMemoryOnly || item < 0) return;
+            PlayerPrefs.SetInt(ReplayKey(item), ReplayBoards.ReplaysPerTier * 3);
+            justSolved = item; // home frames it
+            RefreshMapsFresh();
+        }
+
+        // I328/I330 tour: a jar of jam from three fruit, and a bench and stepping stones set down
+        // on free land near the newest thing.
+        internal void QaDecorAndJam()
+        {
+            if (!qaInMemoryOnly) return;
+            world.MakeJam();
+            GardenMap map = LoadGardenMap();
+            if (map == null) return;
+            int[] cells = map.Layout(world.Choices, world.Placements, world.Occupied);
+            int near = cells.Length > 0 ? cells[cells.Length - 1] : 30;
+            int placed = 0;
+            for (int step = 1; step < map.CellCount && placed < 2; step++)
+            {
+                int cell = (near + step) % map.CellCount;
+                if (world.PlaceDecor(placed == 0 ? Decoration.Bench : Decoration.Stones, cell, map)) placed++;
+            }
+            RefreshMaps();
+        }
+
+        // I333 tour: open the old well's board.
+        internal void QaOpenWell()
+        {
+            if (!qaInMemoryOnly) return;
+            OpenWell();
+            qaTreePlay = titleScreen != null ? titleScreen.GetComponentInChildren<TreePlay>() : null;
+        }
+
+        // I310 tour: a real lantern parcel from a relative, opened here.
+        internal void QaLantern()
+        {
+            if (!qaInMemoryOnly) return;
+            if (FamilyParcel.TryCreate("Nan", "", ParcelGift.Lantern, 0, "qa-lantern-" + world.Lanterns.Length,
+                    out string text, out ParcelContents _, out ParcelError _))
+                world.Open(text);
+        }
+
+        internal void QaQuiet(bool on, bool wholeRiver = false)
+        {
+            if (on) EnterQuiet(wholeRiver); else ExitQuiet();
+        }
+
+        internal void QaShowHub(bool show)
+        {
+            if (!show) { CloseTitle(); return; }
+            qaShowHub = true;
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            qaShowHub = false;
+        }
+#endif
         internal void QaReplaceWorld(WorldModel next)
         {
             if (!qaInMemoryOnly || next == null) return;
@@ -5206,6 +8855,36 @@ namespace Evergrove.UnityClient
             float reach = world.Solved ? 1f : VillageScenePlan.From(world).WaterReachPercent / 100f;
             creek.volume = reach <= 0f ? 0f : 0.05f + 0.20f * reach;
             if (!creek.isPlaying) creek.Play();
+        }
+
+        // I316: now and then, over home, a voice of the season and the hour.
+        private float nextAmbient;
+        private readonly System.Random ambientDice = new System.Random();
+
+        private void TickSoundscape()
+        {
+            if (!soundOn || sound == null || titleScreen == null || world == null || world.Mode != PlayMode.Living) return;
+            if (familySheet != null || openCard != null) return; // quiet while a card is open
+            float now = Time.unscaledTime;
+            if (now < nextAmbient) return;
+            Now(out int hour, out int minute);
+            DayPhase phase = DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day;
+            AmbientVoice[] voices = Soundscape.For(GardenSeason.For(world), phase);
+            AmbientVoice voice = voices[ambientDice.Next(voices.Length)];
+            AmbientVoice? weatherVoice = Soundscape.WeatherVoice(TodayWeather(world), phase); // I354–I356
+            if (weatherVoice.HasValue && ambientDice.NextDouble() < 0.6) voice = weatherVoice.Value;
+            if (nextAmbient > 0f) sound.PlayOneShot(GardenSounds.Ambient(voice, ambientDice.Next(3)), 0.55f);
+            nextAmbient = now + Soundscape.SecondsBetween(voice) * (0.6f + 0.8f * (float)ambientDice.NextDouble());
+        }
+
+        // I305/I306: a move on a thing's puzzle sounds in its kind's own voice, at the next
+        // note of the kind's phrase.
+        private int moveNote;
+
+        private void PlayMove(PuzzleKind kind)
+        {
+            if (!soundOn) return;
+            sound.PlayOneShot(GardenSounds.Move(kind, moveNote++), 0.9f);
         }
 
         private void PlayChime()

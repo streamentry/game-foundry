@@ -486,6 +486,18 @@
       "value": "Fen mengikuti lebah di antara bunga liar anda."
     },
     {
+      "key": "preview_title",
+      "value": "Sebelum memilih"
+    },
+    {
+      "key": "preview_help",
+      "value": "Ketik kad untuk membandingkan. Taman anda hanya berubah selepas anda mengesahkan."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Terapkan perubahan ini"
+    },
+    {
       "key": "privacy_policy",
       "value": "Dasar privasi"
     }

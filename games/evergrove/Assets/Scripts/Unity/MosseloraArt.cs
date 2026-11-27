@@ -224,6 +224,30 @@ namespace Evergrove.UnityClient
             image.color = Color.white;
         }
 
+        private static Sprite softGlow;
+
+        /// <summary>White, opaque at the centre and fading to clear at the rim: lamplight, a halo (I296).</summary>
+        public static Sprite SoftGlow()
+        {
+            if (softGlow != null) return softGlow;
+            const int n = 64;
+            var texture = new Texture2D(n, n, TextureFormat.RGBA32, false)
+            { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "Mosselora soft glow" };
+            var pixels = new Color32[n * n];
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float dx = (x + 0.5f) / n * 2f - 1f, dy = (y + 0.5f) / n * 2f - 1f;
+                    float r = Mathf.Sqrt(dx * dx + dy * dy);
+                    float a = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(r));
+                    pixels[y * n + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(255f * a * a));
+                }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            softGlow = Sprite.Create(texture, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+            return softGlow;
+        }
+
         private static Sprite fade;
 
         /// <summary>White, opaque at the top, transparent at the bottom; tint for a paper fade.</summary>

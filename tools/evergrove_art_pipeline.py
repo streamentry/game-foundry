@@ -153,6 +153,25 @@ def knock_out_paper(image: Image.Image, tolerance: int = 26) -> Image.Image:
     return rgba
 
 
+def clear_veil(image: Image.Image, below: int = 120) -> Image.Image:
+    """Clear a pale, half-transparent backdrop (I211).
+
+    One catalogue sheet (builds-d) came back with a cream background at 15-40%
+    opacity instead of none, so its 25 buildings stood in pale boxes on the map.
+    Light pixels under the opacity floor are the veil; the painting itself is
+    opaque, and dark antialiased edges are kept.
+    """
+    rgba = image.convert("RGBA")
+    pixels = rgba.load()
+    w, h = rgba.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = pixels[x, y]
+            if a < below and min(r, g, b) > 150:
+                pixels[x, y] = (r, g, b, 0)
+    return rgba
+
+
 def knock_out_border(image: Image.Image, tolerance: int = 22) -> Image.Image:
     """Remove only the background connected to the image border.
 
@@ -251,6 +270,10 @@ UI_ICONS = ("ui-undo", "ui-hint", "ui-restart", "ui-language",
             "ui-restore-file", "ui-new-garden", "ui-confirm", "ui-cancel")
 
 
+FOOD_ICONS = ("food-pear", "food-basket", "food-jam", "food-apple")
+LETTER_ICONS = ("letter-sealed", "letter-open", "letterbox", "letter-pen")
+
+
 SUPERSEDED = {"ui-board-size", "ui-chime-on", "ui-chime-off", "ui-change"}
 
 
@@ -315,6 +338,64 @@ def quadrants(sheet: Image.Image) -> list[Image.Image]:
     w, h = sheet.size
     return [sheet.crop((x, y, x + w // 2, y + h // 2))
             for y in (0, h // 2) for x in (0, w // 2)]
+
+
+def season_maps(plot: Image.Image) -> None:
+    """Autumn and winter grades of the garden map (I198), from the summer painting.
+
+    Seasons arrive with progress; the map wears them too. Autumn: warm amber.
+    Winter: partly desaturated, cooled and frosted.
+    """
+    from PIL import ImageChops, ImageOps
+    base = plot.convert("RGB")
+
+    def grade(mul, over, amount, desaturate=0.0):
+        source = base
+        if desaturate:
+            source = Image.blend(base, ImageOps.grayscale(base).convert("RGB"), desaturate)
+        tinted = ImageChops.multiply(source, Image.new("RGB", base.size, tuple(int(v * 255) for v in mul)))
+        return Image.blend(tinted, Image.new("RGB", base.size, tuple(int(v * 255) for v in over)), amount)
+
+    save(grade((1.0, 0.86, 0.62), (0.9, 0.55, 0.2), 0.10).convert("RGBA"), "garden-map-autumn")
+    # Winter (I213): the first grade (frost 0.45, desaturate 0.6) washed the map so
+    # pale that home looked switched off. Lighter frost, a little more contrast.
+    from PIL import ImageEnhance
+    winter = grade((0.82, 0.9, 1.0), (0.97, 0.98, 1.0), 0.28, 0.5)
+    save(ImageEnhance.Contrast(winter).enhance(1.18).convert("RGBA"), "garden-map-winter")
+    save(spring_grade(plot, True).convert("RGBA"), "garden-map-spring")
+
+
+def spring_grade(image: Image.Image, blossom: bool = False) -> Image.Image:
+    """Spring (I249): cooler, fresher mint greens and a soft morning haze, so it reads
+    apart from the yellow summer at a glance. With `blossom`, a deterministic scatter of
+    soft pink and white petal clusters over the land (the map only)."""
+    import random
+    from PIL import ImageChops, ImageDraw, ImageEnhance, ImageFilter
+    alpha = image.getchannel("A") if image.mode == "RGBA" else None
+    base = image.convert("RGB")
+    cooled = ImageChops.multiply(base, Image.new("RGB", base.size, (200, 250, 215)))
+    hazed = Image.blend(cooled, Image.new("RGB", base.size, (250, 235, 245)), 0.20)
+    fresh = ImageEnhance.Color(ImageEnhance.Brightness(hazed).enhance(1.10)).enhance(0.95)
+    if blossom:
+        petals = Image.new("RGBA", base.size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(petals)
+        rng = random.Random(1225)  # fixed: the same spring every build
+        w, h = base.size
+        for _ in range(int(w * h / 2600)):
+            x, y = rng.uniform(0, w), rng.uniform(0, h)
+            r, g, b = base.getpixel((int(x), int(y)))
+            if b > r and b > g * 0.95:  # skip water: blue dominates there
+                continue
+            tone = rng.choice([(246, 190, 210), (250, 214, 226), (255, 246, 248), (238, 176, 200)])
+            for _ in range(rng.randint(2, 5)):
+                dx, dy, rad = rng.uniform(-5, 5), rng.uniform(-5, 5), rng.uniform(1.6, 3.2)
+                draw.ellipse((x + dx - rad, y + dy - rad, x + dx + rad, y + dy + rad), fill=tone + (rng.randint(150, 220),))
+        petals = petals.filter(ImageFilter.GaussianBlur(0.6))
+        fresh = Image.alpha_composite(fresh.convert("RGBA"), petals).convert("RGB")
+    if alpha is not None:
+        fresh = fresh.convert("RGBA")
+        fresh.putalpha(alpha)
+    return fresh
 
 
 def main() -> None:
@@ -401,6 +482,18 @@ def main() -> None:
             if name == "glyph-droplet":
                 save(hollow(glyph), "glyph-droplet-empty")  # I146: an empty drop looks empty
 
+    # I228: food the player picks from their trees and shares (prompts/food.txt).
+    food = master("icons-food")
+    if food:
+        for name, part in zip(FOOD_ICONS, quadrants(food.convert("RGBA"))):
+            save(fit(trim(part, 4), 192, 192), name)
+
+    # I233: letters between family (prompts/letters.txt).
+    letters = master("icons-letters")
+    if letters:
+        for name, part in zip(LETTER_ICONS, quadrants(letters.convert("RGBA"))):
+            save(fit(trim(part, 4), 192, 192), name)
+
     ui = master("icons-ui")
     if ui:
         for name, cell in zip(UI_ICONS, grid(ui, 4, 4)):
@@ -450,6 +543,75 @@ def main() -> None:
                               grid(plaques.convert("RGBA"), 3, 1)):
             part = fit(trim(cell, 2), 300, 150)
             save(part, name, border=int(part.height * 0.45))
+
+    # The garden catalogue (I172/I173): 8 Codex sheets of 25 painted items each,
+    # sliced in grid order into tree-NN, flower-NN and build-NN.
+    for prefix, sheets in (("tree", ("trees-a", "trees-b")),
+                           ("flower", ("flowers-a", "flowers-b")),
+                           ("build", ("builds-a", "builds-b", "builds-c", "builds-d"))):
+        index = 0
+        for sheet_name in sheets:
+            sheet = master("catalog-" + sheet_name)
+            if not sheet:
+                index += 25
+                continue
+            for cell in grid(clear_veil(sheet), 5, 5):
+                save(fit(trim(cell, 4), 192, 192), f"{prefix}-{index:02d}")
+                index += 1
+
+    # The garden catalogue (I173): 8 Codex sheets of 25 painted items, 5x5,
+    # in GardenCatalog order -> tree-00..49, flower-00..49, build-00..99.
+    for sheet, prefix, start in (("catalog-trees-a", "tree", 0), ("catalog-trees-b", "tree", 25),
+                                 ("catalog-flowers-a", "flower", 0), ("catalog-flowers-b", "flower", 25),
+                                 ("catalog-builds-a", "build", 0), ("catalog-builds-b", "build", 25),
+                                 ("catalog-builds-c", "build", 50), ("catalog-builds-d", "build", 75)):
+        art = master(sheet)
+        if not art:
+            continue
+        for offset, cell in enumerate(grid(clear_veil(art), 5, 5)):
+            save(fit(trim(cell, 4), 192, 192), f"{prefix}-{start + offset:02d}")
+
+    garden = master("garden-map")
+    if garden:
+        # The open garden map (E3, I176): the painting itself, and a 10x15 mask
+        # read from it. Mostly-teal cells are the creek; tan cells in the right
+        # columns are the footpath; the top-right corner is the cottage.
+        plot = garden.convert("RGB")
+        save(plot.convert("RGBA"), "garden-map")
+        season_maps(plot)
+        width, height = plot.size
+        columns, rows = 10, 15
+        pixels = plot.load()
+        lines = []
+        for row in range(rows):
+            line = ""
+            for column in range(columns):
+                x0, x1 = int(column * width / columns), int((column + 1) * width / columns)
+                y0, y1 = int(row * height / rows), int((row + 1) * height / rows)
+                total = water = tan = 0
+                for y in range(y0, y1, 3):
+                    for x in range(x0, x1, 3):
+                        red, green, blue = pixels[x, y]
+                        total += 1
+                        if blue > 130 and blue > red + 20:
+                            water += 1
+                        if red > 185 and 80 < blue < 160 and green < red:
+                            tan += 1
+                if water / total > 0.10:
+                    line += "~"
+                elif (row <= 1 and column >= 7) or (tan / total > 0.06 and column >= 8):
+                    line += "#"
+                else:
+                    line += "."
+            lines.append(line)
+        mask_path = OUT.parent / "garden-map-mask.txt"
+        mask_path.write_text("\n".join(lines) + "\n")
+        meta = mask_path.with_suffix(".txt.meta")
+        if not meta.exists():
+            meta.write_text("fileFormatVersion: 2\nguid: " + guid_for("garden-map-mask") +
+                            "\nTextScriptImporter:\n  externalObjects: {}\n  userData: \n"
+                            "  assetBundleName: \n  assetBundleVariant: \n")
+        print(mask_path.relative_to(ROOT), "\n" + "\n".join(lines))
 
     sign = master("stream-sign")
     if sign:

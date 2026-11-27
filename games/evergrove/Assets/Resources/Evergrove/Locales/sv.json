@@ -486,6 +486,18 @@
       "value": "Fen följer bina bland dina vildblommor."
     },
     {
+      "key": "preview_title",
+      "value": "Innan du väljer"
+    },
+    {
+      "key": "preview_help",
+      "value": "Tryck på ett kort för att jämföra. Din trädgård ändras först när du bekräftar."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Gör denna ändring"
+    },
+    {
       "key": "privacy_policy",
       "value": "Integritetspolicy"
     }

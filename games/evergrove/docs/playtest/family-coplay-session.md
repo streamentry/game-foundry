@@ -31,6 +31,7 @@ This is **not** the M3 gate. M3 stays an uncoached solo study of adults 40+ ([m3
 | **Touch** | Who touches the screen, and roughly what share of the boards each person plays |
 | **Hand-off** | Does the device change hands without prompting? Who starts it? |
 | **Choice talk** | At the tree / bridge / flowers choice, does one person ask the other? Quote the words if heard |
+| **Preview comprehension** | Without explaining the preview, note whether people compare cards, find confirmation, or think the garden has already changed. Note whether the actual next protected tile helps them explain the choice |
 | **Help** | Who helps whom, and how (pointing, explaining, taking over) |
 | **Disengage** | Time when either person looks away for more than 30 seconds, leaves, or asks to stop |
 | **Friction** | Anything that blocks shared play: tile size, reading load, a child tapping too fast, a grandparent rushed |
@@ -42,11 +43,15 @@ This is **not** the M3 gate. M3 stays an uncoached solo study of adults 40+ ([m3
 3. Adult only: *"Would you show this to anyone else in your family?"* Who (relationship only, no names)?
 4. Child only: *"Was it too easy, too hard, or just right?"*
 
-Do not ask about loneliness or wellbeing. This session records behaviour and stated intent only.
+After play, ask *"When did the garden change?"* and *"What did that choice change in the next stream?"* without supplying the answer. Record their words and any help needed to confirm. Do not introduce these questions during the uncoached attempt.
+
+Do not ask about loneliness or wellbeing. This session records behaviour and stated intent only. The preview adds no family names, profiles, turn-taking rules or data collection; whether it supports shared decisions remains untested.
 
 ## Decision rules (`TO PREDECLARE` before the first group)
 
-Proposed defaults:
+Proposed defaults (including the preview rule added 2026-11-26):
+
+- **Simplify the preview before further expansion** if **2 or more of 5 groups** think an unconfirmed preview is already saved, or cannot find how to apply it without help. Count a group once if either person encounters either failure. Record each failure type separately. This is a practical small-sample stopping rule, not statistical evidence.
 
 - **Continue to a take-turns prototype** if at least 3 of 5 groups have both people take part without a prompt, **and** at least 3 of 5 adults say "yes" to playing together again.
 - **Redesign before building co-play** if children disengage within 5 minutes in 3 or more groups, or if adults take over the device in most groups.

@@ -486,6 +486,18 @@
       "value": "Fen sigue a las abejas entre tus flores silvestres."
     },
     {
+      "key": "preview_title",
+      "value": "Antes de elegir"
+    },
+    {
+      "key": "preview_help",
+      "value": "Toca una tarjeta para comparar. Tu jardín solo cambia cuando confirmas."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Hacer este cambio"
+    },
+    {
       "key": "privacy_policy",
       "value": "Política de privacidad"
     }
