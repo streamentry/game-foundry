@@ -834,3 +834,20 @@ Latest-source release remains blocked by M1/M2/M3/M5/M6 evidence and owner actio
 **Founder direction:** family members who live far apart should be able to play together. That needs a backend and a simple sign-up, used only by people who want to connect. Everyone else plays alone and offline with no account. Recorded in [vision §1a](../../games/evergrove/vision.md#1a-family-play-connection-not-only-entertainment) with the minimum requirements: adult-only sign-up (email link or Sign in with Apple / Google, display name only), children as adult-managed profiles with no child data, in-app account deletion, invite-only family circles, asynchronous turn-based play first, and the solo game working when the server is down.
 
 **Not built and not authorized yet.** The existing backend is a demo, and the specs list backend, accounts and multiplayer as not authorized. Before building, run a cheap test of whether families keep playing apart (for example, trading puzzle codes by message for two weeks). Adding accounts changes the App Privacy and Data safety answers, which currently describe no account and no data collection, so the first store release should stay offline-only unless the owner decides otherwise.
+
+## 2026-11-27 — Mosselora iteration run I189–I288: depth, family, seasons, notes
+
+**Decisions (founder directions in this run):** earned seeds and a nursery; offline neighbours who notice (a language-model companion later); five more puzzle kinds (nonogram, seed sudoku, garden plots, one-path stream, mahjong solitaire) chosen from the studio's own demand research; four seasons by progress; light that follows the player's local time (cosmetic only); on-device "garden notes" (local notifications) under the rules in [notifications-2026-11-27.md](../../games/evergrove/docs/specs/proposals/notifications-2026-11-27.md). Each iteration is documented in `docs/improvements/I189` to `I288`.
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Pure C# tests (349,144 assertions) and simulator tours in portrait, landscape and 150% text for every merged batch. One real local notification delivered on the iOS simulator (I284). No physical device, no player aged 40+, no family group has played any of it |
+| Owner | Founder, through the iteration goal and in-session requests |
+| Delete | Notifications stay off until the player says yes; Android notes are not built; translations of new text wait for native review (consumer builds ship English only) |
+| User value | A daily loop with a horizon (seeds, nursery, river, seasons), eight puzzle kinds that teach themselves, family letters, help, gifts and playing together on one device, and a neighbour's true note at the player's own hour |
+| Audience fit | Unknown: none of it has been observed with adults 40+ |
+| Falsification | Uncoached adults 40+ (bands 40–49, 50–64, 65+) play three days: do they return without the note, choose puzzle kinds by the marks, understand the drops on the mist, and find any note pressuring? |
+| Stop | Notes: more than one in four who turn them on turn them off within a week, or any note called pressure. Puzzles: a kind skipped by most players moves to later editions or is cut |
+| Evidence | The research diary and session notes; per-iteration docs |
+
+**Never claim** from this run: retention, wellbeing, memory or connection effects; that families play together; that the 29 non-English catalogs cover the new text.

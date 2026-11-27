@@ -231,6 +231,9 @@ namespace Evergrove.UnityClient
 #endif
             RecordInAlmanac();
             NotesLifecycle(false); // a cold start is an opening too (I275)
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (!qaInMemoryOnly) GardenNotes.DevTest(world); // I284: see a real note delivered
+#endif
             PaintedVillage.ItemSprite = (family, nth) =>
             {
                 // The nth tree (or build, or flowers) in the village is the one
@@ -1738,6 +1741,7 @@ namespace Evergrove.UnityClient
                     if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                     HubChrome();
                     MaybeAskNotes();
+                    FollowNote();
                     titleScreen.transform.SetAsLastSibling();
                     return;
                 }
@@ -1755,6 +1759,7 @@ namespace Evergrove.UnityClient
                 LetterBox();
                 HubChrome();
                 MaybeAskNotes();
+                FollowNote();
                 titleScreen.transform.SetAsLastSibling();
                 return;
             }
@@ -7491,11 +7496,39 @@ namespace Evergrove.UnityClient
                 return;
             }
 #endif
-            if (leaving) GardenNotes.Schedule(world, UnreadLetters());
-            else GardenNotes.Opened();
+            if (leaving) { GardenNotes.Schedule(world, UnreadLetters()); return; }
+            noteCame = GardenNotes.Opened(); // shown once home is built (I283)
+            if (noteCame != null && titleScreen != null) FollowNote(); // resumed onto home already built
         }
 
         private bool UnreadLetters() { return PlayerPrefs.GetInt(LettersReadKey, 0) < world.Letters.Length; }
+
+        // I283: the note came while you were away; home shows what it pointed at, once.
+        private GardenNote noteCame;
+
+        private void FollowNote()
+        {
+            GardenNote note = noteCame;
+            noteCame = null;
+            if (note == null || titleScreen == null || world.Mode != PlayMode.Living) return;
+            switch (note.Target)
+            {
+                case NoteTarget.Letterbox:
+                    if (world.Letters.Length > 0) ShowLetter(0);
+                    break;
+                case NoteTarget.Basket:
+                    if (world.Gifts.Length > 0) { basketOpen = true; giftPick = world.Gifts.Length - 1; RefreshMaps(); }
+                    break;
+                case NoteTarget.Thing:
+                    // The thing it named is picked up: its puzzle is one tap away.
+                    if (note.Thing >= BoughtIndex && note.Thing - BoughtIndex < world.BoughtCount) { heldBought = note.Thing - BoughtIndex; RefreshMaps(); }
+                    else if (note.Thing >= 0 && note.Thing < world.Choices.Length) { mapInHand = note.Thing; RefreshMaps(); }
+                    break;
+                case NoteTarget.River:
+                    if (hubMapView != null) hubMapView.KeepAt(new Vector2(0.5f, 0f)); // the mist and its drops
+                    break;
+            }
+        }
 
         // ---- I278-I281: light that follows the player's day. Cosmetic only, never saved.
         private const string DayLightKey = "evergrove:daylight";
@@ -7591,6 +7624,9 @@ namespace Evergrove.UnityClient
                 int pick = hour;
                 // Each hour stands under its sun in ink (b293: white-on-paper hours were unreadable).
                 var hourColumn = Node("Hour " + hour, times);
+                // Wide enough for "15:00" at 150% text, so each hour stays under its own sun (I287).
+                var columnWidth = hourColumn.AddComponent<LayoutElement>();
+                columnWidth.minWidth = columnWidth.preferredWidth = Mathf.Max(72f, 58f * TextScale.Percent / 100f);
                 var stack = hourColumn.AddComponent<VerticalLayoutGroup>();
                 stack.spacing = 4;
                 stack.childAlignment = TextAnchor.UpperCenter;
