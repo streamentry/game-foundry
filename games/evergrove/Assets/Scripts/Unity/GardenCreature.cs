@@ -21,7 +21,8 @@ namespace Evergrove.UnityClient
             clock = Random.Range(0f, 6f);
             if (Kind == 0) Heron();
             else if (Kind == 1) Hedgehog();
-            else Owl();
+            else if (Kind == 2) Owl();
+            else Kingfisher();
             if (moving != null) home = moving.anchoredPosition;
         }
 
@@ -52,6 +53,22 @@ namespace Evergrove.UnityClient
             Part("Face", new Vector2(11f, 8f), new Vector2(-10f, -2f), 0f, face, 4, moving);
             Part("Nose", new Vector2(3f, 3f), new Vector2(-15f, -2f), 0f, new Color(0.15f, 0.12f, 0.1f, 1f), 1, moving);
             Part("Eye", new Vector2(2f, 2f), new Vector2(-10f, 0f), 0f, new Color(0.15f, 0.12f, 0.1f, 1f), 1, moving);
+        }
+
+        // I382: small and bright, perched on a reed over the water; now and then it bobs.
+        private void Kingfisher()
+        {
+            Color blue = new Color(0.13f, 0.56f, 0.80f, 1f), deep = new Color(0.08f, 0.33f, 0.55f, 1f);
+            Color orange = new Color(0.93f, 0.52f, 0.20f, 1f);
+            Part("Reed", new Vector2(2f, 22f), new Vector2(2f, -10f), 6f, new Color(0.45f, 0.55f, 0.30f, 1f), 1);
+            Part("Ripple", new Vector2(18f, 4f), new Vector2(2f, -20f), 0f, new Color(1f, 1f, 1f, 0.4f), 2);
+            moving = Part("Kingfisher", new Vector2(4f, 4f), new Vector2(0f, 2f), 0f, new Color(0f, 0f, 0f, 0f), 1);
+            Part("Tail", new Vector2(8f, 3.5f), new Vector2(7f, -3f), -25f, deep, 1, moving);
+            Part("Back", new Vector2(13f, 8f), new Vector2(2f, 1f), -10f, blue, 4, moving);
+            Part("Breast", new Vector2(9f, 6f), new Vector2(-1f, -2f), 0f, orange, 3, moving);
+            Part("Head", new Vector2(8f, 7f), new Vector2(-4f, 5f), 0f, blue, 3, moving);
+            Part("Cheek", new Vector2(3f, 2.5f), new Vector2(-5f, 4f), 0f, orange, 1, moving);
+            Part("Beak", new Vector2(8f, 1.8f), new Vector2(-11f, 5f), 0f, new Color(0.15f, 0.12f, 0.1f, 1f), 1, moving);
         }
 
         private void Owl()
@@ -103,6 +120,12 @@ namespace Evergrove.UnityClient
                 float dip = t > 6f ? Mathf.Sin((t - 6f) * Mathf.PI) : 0f;
                 moving.anchoredPosition = home + new Vector2(-3f * dip, -9f * dip);
                 moving.localRotation = Quaternion.Euler(0f, 0f, 35f * dip);
+            }
+            else if (Kind == 3 && moving != null)
+            {
+                // A quick bob every few seconds, then still.
+                float t = clock % 3.2f;
+                moving.anchoredPosition = home + new Vector2(0f, t < 0.3f ? -2.5f * Mathf.Sin(t / 0.3f * Mathf.PI) : 0f);
             }
             else if (Kind == 1 && moving != null)
             {

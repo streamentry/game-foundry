@@ -2027,6 +2027,7 @@ namespace Evergrove.UnityClient
             int reward = WorldModel.TreeReward(TreePuzzles.TierFor(item), !world.TreeSolved(item));
             bool replay = world.TreeSolved(item);
             Func<int> solved = () => { int earned = world.SolveTree(item); if (replay) CountReplay(item);
+                NotePollinated(item); // I378
                 SaveWorld(); PlayChime(); return earned; };
             OpenThingPuzzle(seed, tier, ThingPuzzle.ForStory(item, (VillageChoice)made[item]), ItemArt(item, made[item]),
                 thing.Name, reward, item, solved);
@@ -2055,6 +2056,7 @@ namespace Evergrove.UnityClient
                 ThingPuzzle.ForNursery(kind),
                 MosseloraArt.Load(plant.Art), plant.Name, reward, k * 5 + kind,
                 () => { int earned = world.SolveBought(k); if (replay) CountReplay(BoughtIndex + k);
+                    NotePollinated(world.Choices.Length + world.PlantingCount + k); // I378
                     SaveWorld(); PlayChime(); return earned; });
         }
 
@@ -2671,18 +2673,30 @@ namespace Evergrove.UnityClient
                 things.Add(new PlacedThing(-1, Nursery.Family(nurseryKind), Nursery.Item(nurseryKind).Art));
                 moving = things.Count - 1;
             }
-            if (moving < 0 || moving >= things.Count || world.PairingsFound == (1 << 4) - 1) return null;
+            int open = Pairings.Open(world); // I380: deeper pairings glow only once open
+            if (moving < 0 || moving >= things.Count || (open & ~world.PairingsFound) == 0) return null;
             var taken = new System.Collections.Generic.HashSet<int>();
             foreach (PlacedThing t in things) taken.Add(t.Cell);
             var spots = new System.Collections.Generic.List<int>();
             for (int c = 0; c < map.CellCount && spots.Count < 40; c++)
-                if (map.IsLand(c) && !taken.Contains(c) && Pairings.NewAt(map, things, moving, c, world.PairingsFound) != 0)
+                if (map.IsLand(c) && !taken.Contains(c) && Pairings.NewAt(map, things, moving, c, world.PairingsFound | ~open) != 0)
                     spots.Add(c);
             return spots.ToArray();
         }
 
         // I368: good neighbours found in the garden as it stands: each pays once, with a word.
+        // (Also carries I378's word about the bees: whatever the hub should say once, on return.)
         private string pairingFound;
+
+        // I378: a tended tree with a flower beside it, while the bees are about, gives one more fruit.
+        private void NotePollinated(int thingIndex)
+        {
+            GardenMap map = LoadGardenMap();
+            if (map == null) return;
+            var things = Pairings.Things(world, map);
+            if (world.PickPollinatedFruit(Pairings.Pollinated(map, things, thingIndex), GardenSeason.For(world)))
+                pairingFound = "The bees carried pollen from the flower beside it: one more fruit.";
+        }
 
         private void NotePairings(GardenMap map)
         {
@@ -2692,7 +2706,7 @@ namespace Evergrove.UnityClient
                 if ((found & PairingMask.Of(pairing)) != 0 && world.DiscoverPairing(pairing) > 0)
                 {
                     pairingFound = "Good neighbours: " + Pairings.Hint(pairing).ToLowerInvariant().TrimEnd('.') +
-                        ". +" + Pairings.Reward + " seeds.";
+                        ". +" + Pairings.RewardFor(pairing) + " seeds.";
                     SaveWorld();
                     PlayChime();
                 }
@@ -2719,6 +2733,7 @@ namespace Evergrove.UnityClient
                 GardenMapView.HeronAtNext = VisitorSpot(map, things, Visitor.Heron, Pairing.ByTheWater, season, phase);
                 GardenMapView.HedgehogAtNext = VisitorSpot(map, things, Visitor.Hedgehog, Pairing.Sheltered, season, phase);
                 GardenMapView.OwlAtNext = VisitorSpot(map, things, Visitor.Owl, Pairing.Grove, season, phase);
+                GardenMapView.KingfisherAtNext = VisitorSpot(map, things, Visitor.Kingfisher, Pairing.Waterside, season, phase); // I382
                 owlInGrove = Pairings.SpotFor(map, things, Pairing.Grove) >= 0; // I376: heard only while a grove stands
             }
             if (plot == null || map == null) return false;
@@ -3350,10 +3365,11 @@ namespace Evergrove.UnityClient
             // I370: a keeper's hint at a good neighbour not yet found (their own kind's).
             if (world.Mode == PlayMode.Living)
             {
-                Pairing[] theirs = villager == 0 ? new[] { Pairing.Grove } : villager == 1 ? new[] { Pairing.ByTheWater }
-                    : new[] { Pairing.Sheltered, Pairing.FlowerBed };
+                Pairing[] theirs = villager == 0 ? new[] { Pairing.Grove, Pairing.Orchard }
+                    : villager == 1 ? new[] { Pairing.ByTheWater, Pairing.ShadySeat }
+                    : new[] { Pairing.Sheltered, Pairing.FlowerBed, Pairing.Waterside };
                 foreach (Pairing p in theirs)
-                    if (!world.HasPairing(p)) return PairingHint(p);
+                    if (!world.HasPairing(p) && (Pairings.Open(world) & PairingMask.Of(p)) != 0) return PairingHint(p);
                 // I377: once their hint is followed, the visitor it brought, now and then.
                 string visitorLine = Visitors.KeeperRemark(world, villager, (int)(DateTime.Now.Date - new DateTime(2000, 1, 1)).TotalDays);
                 if (visitorLine != null) return visitorLine;
@@ -6333,6 +6349,9 @@ namespace Evergrove.UnityClient
                 case Pairing.Grove: return "Two trees side by side keep each other company. A grove, my grandmother called it.";
                 case Pairing.ByTheWater: return "Things built beside the water last. The river keeps an eye on them.";
                 case Pairing.Sheltered: return "Flowers love a little shade. Try one beside a tree.";
+                case Pairing.Orchard: return "Three trees together and it's an orchard. They'd crop better for the company.";
+                case Pairing.ShadySeat: return "A seat's no good in full sun. Build something beside a tree and you'll see.";
+                case Pairing.Waterside: return "Some flowers like their feet wet. Try one right by the water.";
                 default: return "Two different flowers side by side make a bed. They show each other off.";
             }
         }
@@ -6341,8 +6360,10 @@ namespace Evergrove.UnityClient
         private void PairingRows(Transform page)
         {
             if (world == null || world.Mode != PlayMode.Living) return;
+            bool deeperOpen = (Pairings.Open(world) & ~Pairings.FirstFour) != 0;
             foreach (Pairing pairing in Enum.GetValues(typeof(Pairing)))
             {
+                if (Pairings.Deeper(pairing) && !deeperOpen) continue; // I381: revealed once the four are found
                 bool found = world.HasPairing(pairing);
                 Transform row = CenteredRowIn(page, "Good neighbours " + pairing);
                 var layout = row.GetComponent<HorizontalLayoutGroup>();
@@ -6353,13 +6374,20 @@ namespace Evergrove.UnityClient
                 markLayout.preferredWidth = markLayout.minWidth = markLayout.preferredHeight = 36f;
                 var markImage = mark.AddComponent<Image>();
                 markImage.sprite = MosseloraArt.Load(pairing == Pairing.Sheltered ? "flower-05" : pairing == Pairing.ByTheWater
-                    ? "build-00" : pairing == Pairing.FlowerBed ? "flower-12" : "tree-00");
+                    ? "build-00" : pairing == Pairing.FlowerBed ? "flower-12" : pairing == Pairing.Waterside ? "flower-08"
+                    : pairing == Pairing.ShadySeat ? "build-03" : pairing == Pairing.Orchard ? "tree-05" : "tree-00");
                 markImage.preserveAspect = true;
                 markImage.color = found ? Color.white : new Color(0.33f, 0.30f, 0.25f, 0.18f);
                 markImage.raycastTarget = false;
                 Text words = Label(row, "Hint", Pairings.Hint(pairing), 16, 0, found ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f),
                     TextAnchor.MiddleLeft);
                 words.GetComponent<LayoutElement>().flexibleWidth = 1f;
+            }
+            // I381: a promise, not a list: the deeper three show themselves once the four are found.
+            if (!deeperOpen)
+            {
+                Transform more = CenteredRowIn(page, "Good neighbours still to come");
+                Label(more, "More", "Three more, once these four are found.", 15, 0, new Color(0.4f, 0.36f, 0.3f, 0.6f), TextAnchor.MiddleCenter);
             }
         }
 
@@ -6385,7 +6413,8 @@ namespace Evergrove.UnityClient
                     : visitor == Visitor.Birds ? new Color(0.45f, 0.38f, 0.30f, 1f)
                     : visitor == Visitor.Heron ? new Color(0.62f, 0.68f, 0.74f, 1f)
                     : visitor == Visitor.Hedgehog ? new Color(0.55f, 0.42f, 0.30f, 1f)
-                    : visitor == Visitor.Owl ? new Color(0.50f, 0.40f, 0.28f, 1f) : new Color(0.93f, 0.62f, 0.72f, 1f);
+                    : visitor == Visitor.Owl ? new Color(0.50f, 0.40f, 0.28f, 1f)
+                    : visitor == Visitor.Kingfisher ? new Color(0.16f, 0.55f, 0.78f, 1f) : new Color(0.93f, 0.62f, 0.72f, 1f);
                 markImage.raycastTarget = false;
                 Text why = Label(row, "Why", Visitors.Why(visitor), 16, 0, come ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f),
                     TextAnchor.MiddleLeft);
