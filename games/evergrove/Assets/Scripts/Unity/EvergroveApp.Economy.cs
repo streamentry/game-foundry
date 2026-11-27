@@ -24,6 +24,7 @@ namespace Evergrove.UnityClient
         /// </summary>
         private void NotePlayedToday()
         {
+            EnsureWeekStart(); // v1 #58: the weekly diary counts the whole week (EvergroveApp.Almanac.cs)
             if (world == null || !world.MarkPlayed(LocalDayStamp())) return;
             SaveWorld();
         }
