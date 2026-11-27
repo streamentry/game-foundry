@@ -38,6 +38,22 @@ namespace Evergrove.Core
         /// <summary>Always 1 now that beds are drawn from the picture library (kept for callers).</summary>
         public int Attempts { get; private set; }
 
+        /// <summary>
+        /// Raw difficulty: how many sweeps (every row, then every column) of line-by-line
+        /// reasoning change something before the bed is settled. Each sweep leans on what the
+        /// last one learned, so more sweeps mean longer chains between rows and columns.
+        /// </summary>
+        public int LineSweeps { get; private set; }
+
+        /// <summary>Depth leaves 1..3, from LineSweeps (see LeavesFor).</summary>
+        public int Leaves { get; private set; }
+
+        // Cut points chosen from seeds 1..300 over all tiers.
+        private const int LeafCut1 = 1, LeafCut2 = 2;
+
+        /// <summary>The leaves a raw sweep count earns.</summary>
+        public static int LeavesFor(int sweeps) { return sweeps <= LeafCut1 ? 1 : sweeps <= LeafCut2 ? 2 : 3; }
+
         /// <summary>Cells per side by tier: 5, 6, 8.</summary>
         public static int SizeFor(int tier)
         {
@@ -65,6 +81,8 @@ namespace Evergrove.Core
                     solution[r * n + c] = rows[r][Mirrored ? n - 1 - c : c] == '#';
             BuildClues();
             Attempts = 1;
+            LineSweeps = CountSweeps();
+            Leaves = LeavesFor(LineSweeps);
         }
 
         private void BuildClues()
@@ -140,6 +158,36 @@ namespace Evergrove.Core
                 if (end < n) { cur[end] = Bare; next = end + 1; }
                 Place(clue, k + 1, next, line, cur, canPlant, canBare, ref any);
             }
+        }
+
+        // Sweeps (all rows, then all columns) from a blank bed that still fix at least one cell.
+        private int CountSweeps()
+        {
+            int n = Size;
+            var known = new int[n * n];
+            var line = new int[n];
+            int sweeps = 0;
+            bool changed = true;
+            while (changed)
+            {
+                changed = false;
+                for (int pass = 0; pass < 2 * n; pass++)
+                {
+                    bool isRow = pass < n;
+                    int idx = isRow ? pass : pass - n;
+                    for (int k = 0; k < n; k++) line[k] = known[isRow ? idx * n + k : k * n + idx];
+                    var before = (int[])line.Clone();
+                    if (!SolveLine(isRow ? RowClues[idx] : ColumnClues[idx], line)) return sweeps;
+                    for (int k = 0; k < n; k++)
+                    {
+                        if (line[k] == before[k]) continue;
+                        known[isRow ? idx * n + k : k * n + idx] = line[k];
+                        changed = true;
+                    }
+                }
+                if (changed) sweeps++;
+            }
+            return sweeps;
         }
 
         // Row/column passes to a fixpoint. If firstFound is non-null, stops at the

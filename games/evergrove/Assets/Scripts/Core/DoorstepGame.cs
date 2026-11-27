@@ -42,6 +42,26 @@ namespace Evergrove.Core
         public int Size { get { return size; } }
         public int Moves { get; private set; }
 
+        /// <summary>
+        /// Raw difficulty: the percentage of cells to decide that a nearer given of the opposite
+        /// kind would mislead. Reading the reflection is the whole puzzle, but every orbit sits
+        /// the same distance from its own given whatever the seed (a given is as far from the
+        /// other cells of its orbit as any member is), so that reach cannot tell boards apart.
+        /// What does differ is the decoys: a cell whose closest given, strictly nearer than its
+        /// own orbit's given, shows the opposite kind (drawn or bare) tempts a "copy the
+        /// neighbour" guess, so the player must trust the mirror and not the eye.
+        /// </summary>
+        public int DecoyPercent { get; private set; }
+
+        /// <summary>Depth leaves 1..3, from DecoyPercent (see LeavesFor).</summary>
+        public int Leaves { get; private set; }
+
+        // Cut points chosen from seeds 1..300 over all tiers.
+        private const int LeafCut1 = 27, LeafCut2 = 39;
+
+        /// <summary>The leaves a decoy percentage earns.</summary>
+        public static int LeavesFor(int decoyPercent) { return decoyPercent <= LeafCut1 ? 1 : decoyPercent <= LeafCut2 ? 2 : 3; }
+
         public DoorstepGame(int seed, int tier)
         {
             size = SizeFor(tier);
@@ -66,6 +86,8 @@ namespace Evergrove.Core
             marks = new CellMark[n];
             DrawPattern();
             PickGivens();
+            DecoyPercent = MeasureDecoys();
+            Leaves = LeavesFor(DecoyPercent);
             for (int c = 0; c < n; c++)
                 if (given[c]) marks[c] = drawn[c] ? CellMark.Drawn : CellMark.Bare;
         }
@@ -188,6 +210,30 @@ namespace Evergrove.Core
                 return;
             }
             throw new InvalidOperationException("no spread of givens found");
+        }
+
+        // Percent (rounded) of the non-given cells whose strictly nearer foreign givens, by grid
+        // distance (columns plus rows), all show the opposite kind to the cell's own answer.
+        private int MeasureDecoys()
+        {
+            int decoys = 0, unknown = 0;
+            for (int c = 0; c < drawn.Length; c++)
+            {
+                if (given[c]) continue;
+                unknown++;
+                int own = int.MaxValue, near = int.MaxValue;
+                bool allOpposite = true;
+                for (int g = 0; g < drawn.Length; g++)
+                {
+                    if (!given[g]) continue;
+                    int d = Math.Abs(c % size - g % size) + Math.Abs(c / size - g / size);
+                    if (orbitOf[g] == orbitOf[c]) { own = d; continue; }
+                    if (d < near) { near = d; allOpposite = true; }
+                    if (d == near && drawn[g] == drawn[c]) allOpposite = false;
+                }
+                if (near < own && allOpposite) decoys++;
+            }
+            return unknown == 0 ? 0 : (decoys * 100 + unknown / 2) / unknown;
         }
 
         // ---- play ----
