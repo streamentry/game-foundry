@@ -788,6 +788,7 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 8; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng(seasons[turn]);
+                LogAtmosphere(seasons[turn]); // I433
                 app.QaShowHub(false);
                 // I354–I357: a day of each season's own weather: hot summer, windy autumn,
                 // snowy winter, rainy spring.
@@ -819,6 +820,7 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.4f);
                 yield return new WaitForEndOfFrame();
                 SavePng("20-light-" + hour.ToString("00") + ".png");
+                LogAtmosphere("20-light-" + hour.ToString("00")); // I433
                 app.QaShowHub(false);
             }
             app.QaTalk(2);
@@ -850,6 +852,7 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.9f);
                 yield return new WaitForEndOfFrame();
                 SavePng(moments[pass]);
+                LogAtmosphere(moments[pass]); // I436: is the news toast there?
                 app.QaShowHub(false);
             }
             foreach (int hour in new[] { 11, 18, 23 })
@@ -896,6 +899,38 @@ namespace Evergrove.UnityClient
         {
             return FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
                 .Any(t => t.name == name);
+        }
+
+        // I433: ground truth for the atmosphere, not just a picture: how many of each named
+        // effect object stand in the scene at this shot (faint ones can hide in a screenshot).
+        private void LogAtmosphere(string shot)
+        {
+            string[] names = { "Morning mist", "Dew", "Frost", "Chimney smoke", "Footprint in the snow", "The river's life",
+                "Ring on the water", "Glitter on the water", "Moonlight on the water", "A leaf on the water", "A lantern by the seat", "Rule toast" };
+            var counts = new System.Text.StringBuilder("MOSSELORA_ATMOSPHERE " + shot);
+            var all = UnityEngine.Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            foreach (string name in names)
+            {
+                int n = 0;
+                RectTransform first = null;
+                foreach (RectTransform t in all) if (t.name == name) { n++; if (first == null) first = t; }
+                counts.Append(" | ").Append(name).Append('=').Append(n);
+                if (first != null)
+                {
+                    // Where it is on screen, how visible its parents leave it, and who holds it.
+                    Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, first.position);
+                    float alpha = 1f;
+                    foreach (CanvasGroup g in first.GetComponentsInParent<CanvasGroup>()) alpha *= g.alpha;
+                    var graphic = first.GetComponent<UnityEngine.UI.Graphic>();
+                    counts.Append(" @").Append(Mathf.RoundToInt(screen.x)).Append(',').Append(Mathf.RoundToInt(screen.y))
+                        .Append(" of ").Append(Screen.width).Append('x').Append(Screen.height)
+                        .Append(" a=").Append((alpha * (graphic != null ? graphic.color.a : 1f)).ToString("0.00"))
+                        .Append(" scale=").Append(first.lossyScale.x.ToString("0.00"))
+                        .Append(" in ").Append(first.parent != null ? first.parent.name : "-")
+                        .Append(" #").Append(first.GetSiblingIndex()).Append('/').Append(first.parent != null ? first.parent.childCount : 0);
+                }
+            }
+            Debug.Log(counts.ToString());
         }
 
         private void SavePng(string fileName)

@@ -3497,6 +3497,18 @@ namespace Evergrove.UnityClient
                 {
                     int[] byDoor = { 2 * map.Columns + 7, 3 * map.Columns + 8, 2 * map.Columns + 5 };
                     int spot = byDoor[villager % byDoor.Length];
+                    // I434 (P27, b324: Fen stood on the wisteria at dusk): a spot where a thing
+                    // stands moves to the nearest free one beside it.
+                    var thingCells = new System.Collections.Generic.HashSet<int>();
+                    foreach (PlacedThing t in Pairings.Things(world, map)) thingCells.Add(t.Cell);
+                    int[] steps = { 0, 1, -1, map.Columns, -map.Columns, 2, -2 };
+                    foreach (int d in steps)
+                    {
+                        int tryCell = spot + d;
+                        if (tryCell < 0 || tryCell >= map.CellCount || thingCells.Contains(tryCell) || !map.IsLand(tryCell)) continue;
+                        spot = tryCell;
+                        break;
+                    }
                     if (spot < map.CellCount) at = point(spot);
                 }
                 // Never stand on another neighbour (I184): step down a row and a half
