@@ -1,5 +1,5 @@
 {
-  "about": "Rules every Mosselora companion line must pass (smart companion SC03/SC04). Read by tools/evergrove_line_bank_check.py and by the C# LineBankTests. Per kind: the slots its facts fill, the voices that speak it (and, for a qualified kind, which qualifier values each voice needs, keyed \"Kind.Value\" in the bank), the minimum lines per voice, and per qualifier value. Change only with the spec: docs/specs/proposals/smart-companion-2026-11-27.md. A kind marked \"pending\" has draft lines in review; the English bank need not cover it yet, and it speaks its fixed sentence until approved.",
+  "about": "Rules every Mosselora companion line must pass (smart companion SC03/SC04). Read by tools/evergrove_line_bank_check.py and by the C# LineBankTests. Per kind: the slots its facts fill, the voices that speak it (and, for a qualified kind, which qualifier values each voice needs, keyed \"Kind.Value\" in the bank), the minimum lines per voice, and per qualifier value. Change only with the spec: docs/specs/proposals/smart-companion-2026-11-27.md. A kind marked \"pending\" has draft lines in review; the English bank need not cover it yet, and it speaks its fixed sentence until approved. Banks other than en.json may use only localizedSlots (a typed name needs no translation; an English item name would be wrong), need not cover every kind, and ship only after a native speaker's review.",
   "maxChars": 140,
   "kinds": {
     "FruitGiven": {
@@ -305,8 +305,7 @@
       "voices": {
         "1": null
       },
-      "min": 20,
-      "pending": true
+      "min": 20
     }
   },
   "longest": {
@@ -412,5 +411,8 @@
     "goes",
     "went",
     "got"
+  ],
+  "localizedSlots": [
+    "name"
   ]
 }

@@ -1011,3 +1011,40 @@ In-run requests added seasons (snow, autumn, spring, summer) and weather days (r
 **Fixed on main along the way:** release builds failed to compile (`qaRainbow` was declared inside the dev-only block; #118). The docs contract counted 124 keys after the privacy link added a 125th (#111).
 
 **Never claim** from this run: retention, wellbeing, memory or connection effects; that families play together; that adults 40+ find the pairings, visitors or seasons understandable.
+
+## 2026-11-27 — Mosselora smart companion SC01–SC07: true facts, one ranker, reviewed lines
+
+**Decision (founder goal):** make the neighbours "smart without trying too hard", as specified in [smart-companion-2026-11-27.md](../../games/evergrove/docs/specs/proposals/smart-companion-2026-11-27.md):
+
+- a fact feed reads true facts from the save;
+- a deterministic ranker picks the one worth saying, with memory kept on the phone only;
+- a hand-written line bank supplies the words, and the founder reviewed every line before it shipped.
+
+No model runs on the phone; nothing is generated at runtime.
+
+**Built** (logs `docs/improvements/SC01`–`SC07`):
+
+| Iteration | What |
+| --- | --- |
+| SC01 | The feed. Proven to reproduce the old `NeighborSays` word for word over 17,487 cases |
+| SC02 | The ranker and memory (3-day key rule, one remark per visit, anyone-facts shared out) |
+| SC03–SC04 | 912 English lines, with 20 wordings per kind and voice and never the same wording within 14 days, and four new kinds said once (a hope's progress, the season turning, the season's yield, a pairing found) |
+| SC05 | The home arrow, the cottage card's order and one soft mark follow the same ranker |
+| SC06 | Another language speaks only a reviewed bank and its own slots, else its story lines, unchanged |
+| SC07 | The [companion week kit](../../games/evergrove/docs/playtest/companion-week-kit.md) |
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Pure C# tests, more than 2.2M assertions in all. Line rules are enforced twice (`tools/evergrove_line_bank_check.py` and `LineBankTests`). iOS simulator builds and tours in portrait, landscape and 150% text, with a scripted week of each neighbour talking. No physical device; no adult 40+; no family pair |
+| Owner | Founder: "a real AI companion in subtle ways", "smart without trying too hard"; every shipped line approved by the founder |
+| Delete | No runtime model, backend, account, network, new save fields or free text. Machine translations are never shipped; no locale bank exists yet |
+| User value | Neighbours who notice what you did, in many true wordings, without repeating themselves; the home screen points at what is waiting for you |
+| Audience fit | Unknown: `age fit not validated`. Lines are written for adults and kept suitable for a 7-year-old co-player (checked by rule and by the founder) |
+| Falsification | The companion week kit: 5–10 adults 40+ for a week, by band. Ask what the neighbours said |
+| Stop | Testers can't recall any remark, call the neighbours repetitive within the week, or prefer the old lines. Any report of pressure or surveillance removes or softens that kind |
+| Evidence | Day-7 call notes, verbatim, by band, with denominators; recorded here when run |
+
+**Not yet run.** Thresholds are `TO PREDECLARE` and must be fixed here before recruiting.
+
+**Never claim** from this work: that the companion improves wellbeing, memory, connection or loneliness; that adults 40+ remember or like the remarks; that it works in other languages.
+

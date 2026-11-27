@@ -167,6 +167,14 @@ def main() -> int:
             problems.append(f"{bank_path.name}: not an object")
             continue
         problems += check_bank(bank_path.name, bank, rules, args.complete and bank_path.name == "en.json")
+        if bank_path.name != "en.json":
+            # SC06: another language may only use slots that need no translation.
+            for key, voices in bank.items():
+                for voice, lines in voices.items():
+                    for line in lines:
+                        for slot in SLOT.findall(line):
+                            if slot not in rules.get("localizedSlots", []):
+                                problems.append(f"{bank_path.name}: {key}/{voice} uses {{{slot}}}, whose value is English: {line}")
         counted += sum(len(v) for voices in bank.values() for v in voices.values())
     if args.review:
         for review in sorted(REVIEW.glob("companion-lines-*.md")):
