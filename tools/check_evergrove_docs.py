@@ -77,7 +77,7 @@ def main() -> int:
     keys = re.search(
         r"private static readonly string\[\] Ids = \{([\s\S]*?)\};", locale
     )
-    if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 125:
+    if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 127:
         fail("Localization key count changed; update documentation and catalog validator")
 
     # Compare the legacy build handbook against the actual dependency manifest.
