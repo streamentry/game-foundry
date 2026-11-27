@@ -70,6 +70,10 @@ namespace Evergrove.Core
         public int fruit;
         public int[] fruitGiven = Array.Empty<int>();
         public int lastFruitTo = -1;
+        // Optional, additive (I263; absent in older JSON). Things solved together on one device
+        // ("take turns"): grown things by Choices index, bought plant k as 2000 + k. Sorted,
+        // no duplicates, at most 200. Only Living gardens hold any. Never counts as a solve.
+        public int[] together = Array.Empty<int>();
     }
 
     /// <summary>
@@ -387,7 +391,8 @@ namespace Evergrove.Core
                 gifts = Array.Empty<int>(), parcelIds = Array.Empty<string>(),
                 letters = Array.Empty<string>(), letterFrom = Array.Empty<string>(),
                 helped = Array.Empty<int>(), helpedFrom = Array.Empty<string>(),
-                fruit = 0, fruitGiven = new int[Neighbours], lastFruitTo = -1
+                fruit = 0, fruitGiven = new int[Neighbours], lastFruitTo = -1,
+                together = Array.Empty<int>()
             });
         }
 
@@ -408,7 +413,8 @@ namespace Evergrove.Core
                 gifts = (int[])state.gifts.Clone(), parcelIds = (string[])state.parcelIds.Clone(),
                 letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone(),
                 helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone(),
-                fruit = state.fruit, fruitGiven = (int[])state.fruitGiven.Clone(), lastFruitTo = state.lastFruitTo
+                fruit = state.fruit, fruitGiven = (int[])state.fruitGiven.Clone(), lastFruitTo = state.lastFruitTo,
+                together = (int[])state.together.Clone()
             };
         }
 
@@ -480,6 +486,8 @@ namespace Evergrove.Core
             if (!ReadHelped(source, out helped, out helpedFrom)) return false;
             int[] fruitGiven;
             if (!ReadFruit(source, out fruitGiven)) return false;
+            int[] together;
+            if (!ReadTogether(source, out together)) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -545,7 +553,8 @@ namespace Evergrove.Core
                 bought = (int[])bought.Clone(), boughtSolved = (int[])boughtSolved.Clone(),
                 gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom,
                 helped = helped, helpedFrom = helpedFrom,
-                fruit = source.fruit, fruitGiven = fruitGiven, lastFruitTo = source.lastFruitTo
+                fruit = source.fruit, fruitGiven = fruitGiven, lastFruitTo = source.lastFruitTo,
+                together = together
             });
             return true;
         }

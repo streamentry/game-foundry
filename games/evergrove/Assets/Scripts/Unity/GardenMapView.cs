@@ -30,6 +30,7 @@ namespace Evergrove.UnityClient
             public bool BloomNow;        // just solved (I212): the ring grows in while you watch
             public bool HoldsPuzzle;     // has a puzzle not yet solved (I221): a small play mark
             public int Kind;             // I255: PuzzleKind + 1 drawn in the mark (0: a plain play arrow)
+            public bool Together;        // I265: solved taking turns: two small discs, sage and honey
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -521,6 +522,31 @@ namespace Evergrove.UnityClient
                     }
                 }
                 else if (growNewest && item.Newest) node.AddComponent<GrowUp>();
+                if (item.Together && !held)
+                {
+                    // Two players' colours, overlapping, at the other shoulder (I265).
+                    var pair = new GameObject("Solved together", typeof(RectTransform));
+                    pair.transform.SetParent(land, false);
+                    var pairRect = (RectTransform)pair.transform;
+                    pairRect.anchorMin = pairRect.anchorMax = new Vector2(0f, 1f);
+                    float pd = Mathf.Clamp(cellW * 0.3f, 16f, 22f);
+                    pairRect.sizeDelta = new Vector2(pd * 1.6f, pd);
+                    pairRect.anchoredPosition = at + new Vector2(-rect.sizeDelta.x * 0.36f, rect.sizeDelta.y * 0.78f);
+                    for (int p = 0; p < 2; p++)
+                    {
+                        var dot = new GameObject(p == 0 ? "Sage" : "Honey", typeof(RectTransform));
+                        dot.transform.SetParent(pair.transform, false);
+                        var dotRect = (RectTransform)dot.transform;
+                        dotRect.sizeDelta = new Vector2(pd, pd);
+                        dotRect.anchoredPosition = new Vector2((p - 0.5f) * pd * 0.6f, 0f);
+                        var dotImage = dot.AddComponent<Image>();
+                        dotImage.sprite = MosseloraArt.Rounded(12);
+                        dotImage.color = p == 0 ? new Color(0.55f, 0.72f, 0.55f, 1f) : new Color(0.93f, 0.76f, 0.40f, 1f);
+                        dotImage.raycastTarget = false;
+                        MosseloraArt.Lift(dotImage, 1f, 0.2f);
+                    }
+                    nodes.Add(pairRect);
+                }
                 if (item.HoldsPuzzle && !held && onItem != null)
                 {
                     // A small round play mark at the thing's shoulder: "there's a puzzle here".

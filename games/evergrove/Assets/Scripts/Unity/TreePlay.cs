@@ -62,6 +62,56 @@ namespace Evergrove.UnityClient
 
         internal bool Gentle { get { return gentle; } }
 
+        // ---- I264: play together on one device, taking turns. Two soft colours, no names
+        // (nothing about who is playing is stored, least of all a child's).
+        private static readonly Color TurnSage = new Color(0.55f, 0.72f, 0.55f, 1f);
+        private static readonly Color TurnHoney = new Color(0.93f, 0.76f, 0.40f, 1f);
+        private bool together;
+        private int turn;
+        private Image[] turnDiscs;
+        private Transform togetherRow;
+
+        /// <summary>True when this puzzle was played taking turns (I263 records it on a solve).</summary>
+        internal bool PlayedTogether { get { return together; } }
+
+        private void TogetherRow()
+        {
+            // The token lives in the top row (beside the hint): no extra height for the board.
+            Transform top = transform.Find("Tree puzzle card/Tree puzzle top");
+            if (top == null) return;
+            Token(top, "Take turns with someone", MosseloraArt.Load(MosseloraArt.IconNeighbors), 52f,
+                MosseloraTheme.QuietAction, ToggleTogether, true);
+            togetherRow = top.GetChild(top.childCount - 1);
+            // Before the hint and the seeds: close, thing, together, hint, seeds.
+            togetherRow.SetSiblingIndex(Mathf.Max(0, top.childCount - 3));
+            turnDiscs = new[] { togetherRow.GetComponent<Image>() };
+            PaintTurn();
+        }
+
+        private void ToggleTogether()
+        {
+            if (solved) return;
+            together = !together;
+            turn = 0;
+            PaintTurn();
+        }
+
+        private void FlipTurn()
+        {
+            if (!together || solved) return;
+            turn = 1 - turn;
+            PaintTurn();
+        }
+
+        private void PaintTurn()
+        {
+            // Playing alone: a quiet token. Together: the token wears whose turn it is.
+            Image disc = turnDiscs != null && turnDiscs.Length > 0 ? turnDiscs[0] : null;
+            if (disc == null) return;
+            disc.color = !together ? MosseloraTheme.QuietAction : turn == 0 ? TurnSage : TurnHoney;
+            if (together && gentle) BloomPulse.Add(disc.gameObject, 0f, 0.12f);
+        }
+
         private float ClassicRule(Transform card)
         {
             if (pairs != null)
@@ -134,6 +184,7 @@ namespace Evergrove.UnityClient
         internal void Moved() { if (!solved) onTurn?.Invoke(); }
         internal void Done() { if (!solved) Finish(); }
         internal void QaHint() { Hint(); }
+        internal void QaTogether() { if (!together) ToggleTogether(); }
 
         // I256: the classic three get the same two-tap hint as the newer kinds.
         private int hintA = -1, hintB = -1;
@@ -242,6 +293,10 @@ namespace Evergrove.UnityClient
             play.onSolved = solved;
             play.onClose = closed;
             play.Build(rect, art, name, reward, font);
+            // Take turns (I264): every move flips whose turn it is.
+            Action inner = play.onTurn;
+            play.onTurn = () => { inner?.Invoke(); play.FlipTurn(); };
+            play.TogetherRow();
             return play;
         }
 
@@ -370,6 +425,7 @@ namespace Evergrove.UnityClient
             solved = true;
             int earned = onSolved != null ? onSolved() : 0;
             rewardText.text = "+" + earned;
+            if (together && turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
             if (board != null)
             {
                 board.Lock();
