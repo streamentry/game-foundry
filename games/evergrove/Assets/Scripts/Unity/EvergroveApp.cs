@@ -5804,6 +5804,8 @@ namespace Evergrove.UnityClient
             Text promise = Label(content, "Respectful play", GameLocalization.Text("offline"),
                 15, 36, Ink, TextAnchor.MiddleCenter);
             Emphasize(promise);
+            Button(content, "Privacy policy", GameLocalization.Text("privacy_policy"),
+                () => Application.OpenURL("https://mosselora.com/privacy/"));
             content = page;
             BuildChrome(living);
             UpdateCreekSound();
