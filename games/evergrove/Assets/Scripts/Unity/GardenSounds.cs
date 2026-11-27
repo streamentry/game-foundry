@@ -46,6 +46,72 @@ namespace Evergrove.UnityClient
             return clip;
         }
 
+        // ---- I316: the soundscape's voices, a few variants each, quiet and short.
+        private static readonly Dictionary<int, AudioClip> AmbientCache = new Dictionary<int, AudioClip>();
+
+        public static AudioClip Ambient(AmbientVoice voice, int variant)
+        {
+            int key = (int)voice * 10 + ((variant % 3) + 3) % 3;
+            if (AmbientCache.TryGetValue(key, out AudioClip clip) && clip != null) return clip;
+            var rng = new System.Random(101 + key);
+            float seconds = voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
+                : voice == AmbientVoice.Birds ? 0.6f : 0.18f;
+            int length = Mathf.RoundToInt(SampleRate * seconds);
+            var samples = new float[length];
+            float brown = 0f, smooth = 0f;
+            float pitch = 2800f + (float)rng.NextDouble() * 1400f;
+            int chirps = 2 + rng.Next(3);
+            for (int i = 0; i < length; i++)
+            {
+                float t = (float)i / SampleRate;
+                float white = (float)(rng.NextDouble() * 2.0 - 1.0);
+                switch (voice)
+                {
+                    case AmbientVoice.Birds:
+                    {
+                        // Two to four quick rising chirps.
+                        float slot = 0.14f, local = t % slot;
+                        int n = (int)(t / slot);
+                        float on = n < chirps && local < 0.07f ? Mathf.Sin(local / 0.07f * Mathf.PI) : 0f;
+                        float hz = pitch * (1f + 0.35f * local / 0.07f) * (1f + 0.04f * n);
+                        samples[i] = on * 0.05f * Sine(hz, t);
+                        break;
+                    }
+                    case AmbientVoice.Crickets:
+                    {
+                        float pulse = Mathf.Max(0f, Mathf.Sin(t * 2f * Mathf.PI * 28f));
+                        float swell = Mathf.Sin(t / seconds * Mathf.PI);
+                        samples[i] = 0.03f * pulse * pulse * swell * Sine(4600f, t);
+                        break;
+                    }
+                    case AmbientVoice.Wind:
+                    {
+                        brown = Mathf.Clamp(brown + white * 0.05f, -1f, 1f);
+                        smooth += (brown - smooth) * 0.05f;
+                        float swell = Mathf.Sin(t / seconds * Mathf.PI);
+                        samples[i] = 0.22f * smooth * swell * swell;
+                        break;
+                    }
+                    default:
+                    {
+                        // A single soft drop into the stream.
+                        float hz = 620f + 420f * Mathf.Min(1f, t * 9f);
+                        samples[i] = Mathf.Exp(-t * 28f) * 0.06f * Sine(hz, t);
+                        break;
+                    }
+                }
+            }
+            for (int i = 0; i < 128 && i < length; i++)
+            {
+                samples[i] *= i / 128f;
+                samples[length - 1 - i] *= i / 128f;
+            }
+            clip = AudioClip.Create("Mosselora " + voice + " " + key, length, 1, SampleRate, false);
+            clip.SetData(samples, 0);
+            AmbientCache[key] = clip;
+            return clip;
+        }
+
         private static float Sine(float hz, float t) { return Mathf.Sin(t * 2f * Mathf.PI * hz); }
 
         private static float Sample(PuzzleKind kind, float hz, float t, float white)

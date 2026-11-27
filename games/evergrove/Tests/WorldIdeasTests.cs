@@ -327,6 +327,33 @@ internal static class WorldIdeasTests
         Expect(giving.Gifts.Length == before + 1 && giving.Seeds == seedsBefore, "a cutting, and nothing else changes");
         Expect(!giving.ReceiveNeighbourCutting(-1) && !giving.ReceiveNeighbourCutting(Nursery.Kinds), "only real kinds");
         Expect(!WorldModel.New(PlayMode.PuzzleOnly).ReceiveNeighbourCutting(0), "only in a living garden");
+        // Idea 49 (sound as a place): what you hear over home follows the season and the hour,
+        // sparsely; there is always something, and never a crowd.
+        foreach (Season season in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
+            foreach (DayPhase phase in new[] { DayPhase.Dawn, DayPhase.Morning, DayPhase.Day, DayPhase.Golden, DayPhase.Dusk, DayPhase.Night })
+            {
+                AmbientVoice[] voices = Soundscape.For(season, phase);
+                Expect(voices.Length >= 1 && voices.Length <= 2, "one or two voices: " + season + " " + phase);
+                bool dark = phase == DayPhase.Dusk || phase == DayPhase.Night;
+                Expect(Array.IndexOf(voices, AmbientVoice.Birds) < 0 || !dark, "no birdsong in the dark");
+                Expect(Array.IndexOf(voices, AmbientVoice.Crickets) < 0 || (dark && (season == Season.Summer || season == Season.Autumn)),
+                    "crickets only on summer and autumn evenings");
+                Expect(season != Season.Winter || Array.IndexOf(voices, AmbientVoice.Wind) >= 0, "winter always has its wind");
+            }
+        Expect(Array.IndexOf(Soundscape.For(Season.Spring, DayPhase.Dawn), AmbientVoice.Birds) >= 0, "a spring dawn chorus");
+        Expect(Soundscape.SecondsBetween(AmbientVoice.Birds) >= 4f && Soundscape.SecondsBetween(AmbientVoice.Wind) >= 6f, "sparse, never busy");
+        // Idea 25 (festivals mark the year): after the story, each spring is a new year, and
+        // the garden keeps a festival through it; never during the story, never by the clock.
+        int spring = -1;
+        for (int solved = 0; solved < 200 && spring < 0; solved++)
+            if (GardenSeason.AfterStory(solved) == Season.Spring) spring = solved;
+        Expect(spring > 0, "the year turns to spring after some tending");
+        Expect(GardenSeason.FestivalAfterStory(spring) && !GardenSeason.FestivalAfterStory(0), "a festival through spring only");
+        for (int solved = 0; solved < 120; solved++)
+            Expect(GardenSeason.FestivalAfterStory(solved) == (GardenSeason.AfterStory(solved) == Season.Spring), "festival is the spring");
+        Expect(GardenSeason.YearAfterStory(0) == 0 && GardenSeason.YearAfterStory(spring) == 1, "the first spring begins year one");
+        Expect(!GardenSeason.Festival(WorldModel.New(PlayMode.Living)), "never during the story");
+        Expect(FamilyParcel.ValidLetter(GardenSeason.FestivalNote(1)) && !GardenSeason.FestivalNote(2).Contains("!"), "a calm note");
         return assertions;
     }
 

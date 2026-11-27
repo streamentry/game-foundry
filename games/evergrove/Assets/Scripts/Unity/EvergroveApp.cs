@@ -390,6 +390,7 @@ namespace Evergrove.UnityClient
 
         private void Update()
         {
+            TickSoundscape();
             if (scrollArea == null) return;
             Rect safe = Screen.safeArea;
             var size = new Vector2Int(Screen.width, Screen.height);
@@ -2438,6 +2439,9 @@ namespace Evergrove.UnityClient
                 int turn = PlayerPrefs.GetInt(turnsKey, 0);
                 SeasonNote note = SeasonTales.For(GardenSeason.For(world), turn);
                 if (world.KeepNote(note.From, note.Body)) { letterArrived = true; SaveWorld(); }
+                if (GardenSeason.Festival(world) &&
+                    world.KeepNote("Orin", GardenSeason.FestivalNote(GardenSeason.YearAfterStory(world.PuzzlesSolved))))
+                { letterArrived = true; SaveWorld(); }
                 PlayerPrefs.SetInt(turnsKey, turn + 1);
             }
             PlayerPrefs.Save();
@@ -7826,6 +7830,7 @@ namespace Evergrove.UnityClient
             GardenMapView.Fireflies = on && DayLight.Fireflies(DayLight.PhaseAt(hour, minute), GardenSeason.For(garden));
             GardenMapView.FirefliesMove = gentleMotion;
             GardenMapView.LampLit = on && DayLight.LampLit(DayLight.PhaseAt(hour, minute)); // I296
+            GardenMapView.FestivalNow = GardenSeason.Festival(garden); // I317
             // I295: the season's drift by day; it follows the season even with the light switch off.
             bool living = garden != null && garden.Mode == PlayMode.Living;
             GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),
@@ -8381,6 +8386,24 @@ namespace Evergrove.UnityClient
             float reach = world.Solved ? 1f : VillageScenePlan.From(world).WaterReachPercent / 100f;
             creek.volume = reach <= 0f ? 0f : 0.05f + 0.20f * reach;
             if (!creek.isPlaying) creek.Play();
+        }
+
+        // I316: now and then, over home, a voice of the season and the hour.
+        private float nextAmbient;
+        private readonly System.Random ambientDice = new System.Random();
+
+        private void TickSoundscape()
+        {
+            if (!soundOn || sound == null || titleScreen == null || world == null || world.Mode != PlayMode.Living) return;
+            if (familySheet != null || openCard != null) return; // quiet while a card is open
+            float now = Time.unscaledTime;
+            if (now < nextAmbient) return;
+            Now(out int hour, out int minute);
+            DayPhase phase = DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day;
+            AmbientVoice[] voices = Soundscape.For(GardenSeason.For(world), phase);
+            AmbientVoice voice = voices[ambientDice.Next(voices.Length)];
+            if (nextAmbient > 0f) sound.PlayOneShot(GardenSounds.Ambient(voice, ambientDice.Next(3)), 0.55f);
+            nextAmbient = now + Soundscape.SecondsBetween(voice) * (0.6f + 0.8f * (float)ambientDice.NextDouble());
         }
 
         // I305/I306: a move on a thing's puzzle sounds in its kind's own voice, at the next

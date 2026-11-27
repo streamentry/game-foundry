@@ -187,6 +187,19 @@ namespace Evergrove.UnityClient
                 fliesRect.offsetMin = fliesRect.offsetMax = Vector2.zero;
                 flies.AddComponent<FireflyDrift>().Moving = FirefliesMove;
             }
+            // I317: through the festival spring, a garland of paper lanterns hangs across the view.
+            if (FestivalNow)
+            {
+                var garland = new GameObject("Festival lanterns", typeof(RectTransform));
+                garland.transform.SetParent(host.transform, false);
+                var garlandRect = (RectTransform)garland.transform;
+                garlandRect.anchorMin = new Vector2(0f, 1f);
+                garlandRect.anchorMax = Vector2.one;
+                garlandRect.pivot = new Vector2(0.5f, 1f);
+                garlandRect.sizeDelta = new Vector2(0f, 110f);
+                garlandRect.anchoredPosition = new Vector2(0f, -86f);
+                garland.AddComponent<FestivalGarland>().Lit = LampLit;
+            }
             // I295: the season's own drift over home by day (petals, leaves, snow); motion only.
             if (DriftNow != Drift.None && FirefliesMove)
             {
@@ -1024,6 +1037,63 @@ namespace Evergrove.UnityClient
 
         public static Drift DriftNow = Drift.None;
         public static bool LampLit; // I296
+        public static bool FestivalNow; // I317
+
+        /// <summary>Paper lanterns on a sagging string across the top of the view, swaying a little.</summary>
+        private sealed class FestivalGarland : MonoBehaviour
+        {
+            public bool Lit;
+            private RectTransform[] lanterns;
+            private float clock;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                float wide = Mathf.Max(1f, rect.rect.width);
+                int count = Mathf.Clamp(Mathf.RoundToInt(wide / 70f), 4, 9);
+                lanterns = new RectTransform[count];
+                Sprite art = MosseloraArt.Load(FamilySheet.LanternArt);
+                for (int i = 0; i < count; i++)
+                {
+                    float x = (i + 0.5f) / count;
+                    float sag = 4f * x * (1f - x) * 26f; // the string dips toward the middle
+                    var node = new GameObject("Paper lantern", typeof(RectTransform));
+                    node.transform.SetParent(transform, false);
+                    var nodeRect = (RectTransform)node.transform;
+                    nodeRect.anchorMin = nodeRect.anchorMax = new Vector2(x, 1f);
+                    nodeRect.pivot = new Vector2(0.5f, 1f);
+                    nodeRect.sizeDelta = new Vector2(40f, 40f);
+                    nodeRect.anchoredPosition = new Vector2(0f, -sag);
+                    if (Lit)
+                    {
+                        var glow = new GameObject("Glow", typeof(RectTransform)).AddComponent<Image>();
+                        glow.transform.SetParent(node.transform, false);
+                        glow.rectTransform.sizeDelta = new Vector2(70f, 70f);
+                        glow.rectTransform.anchoredPosition = new Vector2(0f, -20f);
+                        glow.sprite = MosseloraArt.SoftGlow();
+                        glow.color = new Color(1f, 0.8f, 0.42f, 0.55f);
+                        glow.raycastTarget = false;
+                    }
+                    var image = new GameObject("Lantern", typeof(RectTransform)).AddComponent<Image>();
+                    image.transform.SetParent(node.transform, false);
+                    image.rectTransform.anchorMin = Vector2.zero;
+                    image.rectTransform.anchorMax = Vector2.one;
+                    image.rectTransform.offsetMin = image.rectTransform.offsetMax = Vector2.zero;
+                    image.sprite = art;
+                    image.preserveAspect = true;
+                    image.raycastTarget = false;
+                    lanterns[i] = nodeRect;
+                }
+            }
+
+            private void Update()
+            {
+                if (lanterns == null || !FirefliesMove) return;
+                clock += Time.unscaledDeltaTime;
+                for (int i = 0; i < lanterns.Length; i++)
+                    lanterns[i].localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 0.9f + i * 1.3f) * 4f);
+            }
+        }
 
         /// <summary>
         /// A few petals, leaves or flakes falling slowly across the view, swaying as they go,
