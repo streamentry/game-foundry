@@ -209,6 +209,9 @@ namespace Evergrove.Core
             string welcome = Companion.WelcomeBack(days);
             var slots = new List<string> { "weather", weather, "days", Num(days) };
             if (welcome != null) { slots.Add("welcome"); slots.Add(welcome); }
+            // v1 #90: after 90 days or more, a short letter about this garden replaces the weather report.
+            string[] letter = Companion.AbsenceLetter(world, days);
+            if (letter != null) { slots.Add("letter"); slots.Add(string.Join(" ", letter)); }
             facts.Add(Make(FactKind.WeatherWhileAway, 0, "away:" + last.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
                 RareWeight, false, false, 2 * Step, slots.ToArray()));
         }

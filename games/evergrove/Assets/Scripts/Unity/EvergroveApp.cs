@@ -3550,6 +3550,9 @@ namespace Evergrove.UnityClient
         // outside English, their authored lines (LocalizedVillage).
         private string NeighborSays(int villager)
         {
+            if (SpeakLessSilences(villager)) return ""; // idea 85: speak less keeps half the remarks
+            string arc = ArcRemark(villager); // idea 83: a neighbour's project, when its step is news
+            if (arc != null) return arc;
             Fact pick = CompanionPick(villager);
             return pick != null ? CompanionSpeech.Legacy(pick, villager) : LocalizedVillage.Speak(world, villager);
         }
@@ -6141,6 +6144,7 @@ namespace Evergrove.UnityClient
             BuildPostcard();
             BuildStallEntries(); // EvergroveApp.Market.cs: the stall and deeper boards (v1 #74 #79 #35)
             BuildNameEntry(); // EvergroveApp.Name.cs: "Name your garden" (checklist 3)
+            BuildDatesEntry(); // EvergroveApp.Dates.cs: "Dates to remember" (checklist 87)
             BuildGardenFileSection();
             if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
@@ -7607,6 +7611,7 @@ namespace Evergrove.UnityClient
                     Rebuild();
                 }, SettingToken, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
+            SpeakLessButton(row.transform);
             IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
@@ -7787,7 +7792,9 @@ namespace Evergrove.UnityClient
         private bool HasNews(int villager)
         {
             if (world.Mode != PlayMode.Living) return false;
-            return NeighborSays(villager) != PlayerPrefs.GetString(HeardKey + villager, "");
+            string says = NeighborSays(villager);
+            // v1 #85: a remark quietened by "speak less" is not news; no badge for silence.
+            return says.Length > 0 && says != PlayerPrefs.GetString(HeardKey + villager, "");
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
