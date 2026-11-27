@@ -2645,6 +2645,13 @@ namespace Evergrove.UnityClient
             }
         }
 
+        private int VisitorSpot(GardenMap map, System.Collections.Generic.List<PlacedThing> things, Visitor visitor,
+            Pairing pairing, Season season, DayPhase phase)
+        {
+            if (!Visitors.Welcomes(world, visitor) || !Visitors.Out(visitor, season, phase)) return -1;
+            return Pairings.SpotFor(map, things, pairing);
+        }
+
         // I372: holding something to place, the free spots where it would make a good-neighbour
         // pairing not yet found. Nothing is held: no spots.
         private int[] PairingSpots(GardenMap map, System.Collections.Generic.List<PlacedThing> things)
@@ -2706,6 +2713,13 @@ namespace Evergrove.UnityClient
                 var things = Pairings.Things(world, map);
                 GardenMapView.PairLinksNext = Pairings.Links(map, things); // I371
                 GardenMapView.PairSpotsNext = PairingSpots(map, things);    // I372
+                // I374: the visitors good neighbours bring, where they'd stand, when they're out.
+                DayPhase phase = DayLightOn ? CurrentPhase() : DayPhase.Day;
+                Season season = GardenSeason.For(world);
+                GardenMapView.HeronAtNext = VisitorSpot(map, things, Visitor.Heron, Pairing.ByTheWater, season, phase);
+                GardenMapView.HedgehogAtNext = VisitorSpot(map, things, Visitor.Hedgehog, Pairing.Sheltered, season, phase);
+                GardenMapView.OwlAtNext = VisitorSpot(map, things, Visitor.Owl, Pairing.Grove, season, phase);
+                owlInGrove = Pairings.SpotFor(map, things, Pairing.Grove) >= 0; // I376: heard only while a grove stands
             }
             if (plot == null || map == null) return false;
             float zoom = hubZoom[landscape ? 1 : 0];
@@ -3340,6 +3354,9 @@ namespace Evergrove.UnityClient
                     : new[] { Pairing.Sheltered, Pairing.FlowerBed };
                 foreach (Pairing p in theirs)
                     if (!world.HasPairing(p)) return PairingHint(p);
+                // I377: once their hint is followed, the visitor it brought, now and then.
+                string visitorLine = Visitors.KeeperRemark(world, villager, (int)(DateTime.Now.Date - new DateTime(2000, 1, 1)).TotalDays);
+                if (visitorLine != null) return visitorLine;
             }
             // Nothing new and true to tell: they may notice the light instead (I281).
             string hourLine = HourRemark(villager);
@@ -6351,7 +6368,7 @@ namespace Evergrove.UnityClient
         private void VisitorsRows(Transform page)
         {
             if (world == null || world.Mode != PlayMode.Living) return;
-            foreach (Visitor visitor in new[] { Visitor.Bees, Visitor.Birds, Visitor.Butterflies })
+            foreach (Visitor visitor in Enum.GetValues(typeof(Visitor)))
             {
                 bool come = Visitors.Welcomes(world, visitor);
                 Transform row = CenteredRowIn(page, "Visitor " + visitor);
@@ -6365,7 +6382,10 @@ namespace Evergrove.UnityClient
                 markImage.sprite = MosseloraArt.Rounded(12);
                 markImage.color = !come ? new Color(0.33f, 0.30f, 0.25f, 0.16f)
                     : visitor == Visitor.Bees ? new Color(0.98f, 0.78f, 0.18f, 1f)
-                    : visitor == Visitor.Birds ? new Color(0.45f, 0.38f, 0.30f, 1f) : new Color(0.93f, 0.62f, 0.72f, 1f);
+                    : visitor == Visitor.Birds ? new Color(0.45f, 0.38f, 0.30f, 1f)
+                    : visitor == Visitor.Heron ? new Color(0.62f, 0.68f, 0.74f, 1f)
+                    : visitor == Visitor.Hedgehog ? new Color(0.55f, 0.42f, 0.30f, 1f)
+                    : visitor == Visitor.Owl ? new Color(0.50f, 0.40f, 0.28f, 1f) : new Color(0.93f, 0.62f, 0.72f, 1f);
                 markImage.raycastTarget = false;
                 Text why = Label(row, "Why", Visitors.Why(visitor), 16, 0, come ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f),
                     TextAnchor.MiddleLeft);
@@ -9018,6 +9038,7 @@ namespace Evergrove.UnityClient
 
         // I316: now and then, over home, a voice of the season and the hour.
         private float nextAmbient;
+        private bool owlInGrove; // I376
         private readonly System.Random ambientDice = new System.Random();
 
         private void TickSoundscape()
@@ -9032,6 +9053,10 @@ namespace Evergrove.UnityClient
             AmbientVoice voice = voices[ambientDice.Next(voices.Length)];
             AmbientVoice? weatherVoice = Soundscape.WeatherVoice(TodayWeather(world), phase); // I354–I356
             if (weatherVoice.HasValue && ambientDice.NextDouble() < 0.6) voice = weatherVoice.Value;
+            // I376: an owl a grove has brought calls now and then in the night.
+            AmbientVoice? owl = owlInGrove && Visitors.Welcomes(world, Visitor.Owl)
+                ? Soundscape.VisitorVoice(Visitor.Owl, GardenSeason.For(world), phase) : null;
+            if (owl.HasValue && ambientDice.NextDouble() < 0.3) voice = owl.Value;
             if (nextAmbient > 0f) sound.PlayOneShot(GardenSounds.Ambient(voice, ambientDice.Next(3)), 0.55f);
             nextAmbient = now + Soundscape.SecondsBetween(voice) * (0.6f + 0.8f * (float)ambientDice.NextDouble());
         }

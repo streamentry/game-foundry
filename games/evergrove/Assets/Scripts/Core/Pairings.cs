@@ -143,6 +143,48 @@ namespace Evergrove.Core
             return a != b && Math.Abs(ax - bx) <= 1 && Math.Abs(ay - by) <= 1;
         }
 
+        /// <summary>
+        /// I374: where a pairing's visitor stands: for by-the-water, a water square beside the
+        /// built thing (the heron's); for sheltered, the flower (the hedgehog's); for a grove, a
+        /// tree (the owl's). -1 when the garden doesn't have the pairing as it stands.
+        /// </summary>
+        public static int SpotFor(GardenMap map, IList<PlacedThing> things, Pairing pairing)
+        {
+            for (int i = 0; i < things.Count; i++)
+            {
+                PlacedThing a = things[i];
+                if (a.Cell < 0 || a.Cell >= map.CellCount) continue;
+                if (pairing == Pairing.ByTheWater)
+                {
+                    if (a.Family != VillageChoice.Bridge) continue;
+                    int water = WaterBeside(map, a.Cell);
+                    if (water >= 0) return water;
+                    continue;
+                }
+                for (int j = 0; j < things.Count; j++)
+                {
+                    PlacedThing b = things[j];
+                    if (j == i || b.Cell < 0 || b.Cell >= map.CellCount || !Beside(map, a.Cell, b.Cell)) continue;
+                    if (pairing == Pairing.Sheltered && a.Family == VillageChoice.Flowers && b.Family == VillageChoice.ShadeTree) return a.Cell;
+                    if (pairing == Pairing.Grove && a.Family == VillageChoice.ShadeTree && b.Family == VillageChoice.ShadeTree) return a.Cell;
+                }
+            }
+            return -1;
+        }
+
+        private static int WaterBeside(GardenMap map, int cell)
+        {
+            int x = cell % map.Columns, y = cell / map.Columns;
+            for (int dy = -1; dy <= 1; dy++)
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    int nx = x + dx, ny = y + dy;
+                    if ((dx == 0 && dy == 0) || nx < 0 || nx >= map.Columns || ny < 0 || ny >= map.Rows) continue;
+                    if (map.At(ny * map.Columns + nx) == GardenMap.Water) return ny * map.Columns + nx;
+                }
+            return -1;
+        }
+
         private static bool BesideWater(GardenMap map, int cell)
         {
             int x = cell % map.Columns, y = cell / map.Columns;

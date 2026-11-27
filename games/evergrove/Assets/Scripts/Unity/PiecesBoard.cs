@@ -115,24 +115,13 @@ namespace Evergrove.UnityClient
             if (game.Solved) play.Done();
         }
 
-        // I352 (run 3, P10): the squares the chosen piece could cover as it's turned now, in a
-        // soft green, so turning shows at once where it would fit. Asked, never moved.
+        // I352 (run 3, P10), narrowed by I373 (P14): the snug fits for the chosen piece as it's
+        // turned now, in a soft green: where it would press against the edge or the pieces
+        // already down, leaving no pocket too small to fill. Asked, never moved.
         private bool[] FitsChosen()
         {
-            var fits = new bool[cells.Length];
-            if (locked || selected < 0 || game.Placed(selected)) return fits;
-            int[] offsets = game.PieceCells(selected);
-            for (int anchor = 0; anchor < cells.Length; anchor++)
-            {
-                if (!game.CanPlace(selected, anchor)) continue;
-                int ax = anchor % game.Width, ay = anchor / game.Width;
-                for (int k = 0; k + 1 < offsets.Length; k += 2)
-                {
-                    int x = ax + offsets[k], y = ay + offsets[k + 1];
-                    if (x >= 0 && y >= 0 && x < game.Width && y < game.Height) fits[y * game.Width + x] = true;
-                }
-            }
-            return fits;
+            if (locked || selected < 0 || game.Placed(selected)) return new bool[cells.Length];
+            return GardenPiecesFit.Snug(game, selected);
         }
 
         // The tapped square may be any of the piece's squares: try each as the one tapped.
@@ -162,7 +151,7 @@ namespace Evergrove.UnityClient
                 if (cells[c] == null) continue;
                 int owner = game.Owner(c);
                 cells[c].color = owner >= 0 ? Colours[owner % Colours.Length]
-                    : fits[c] ? new Color(0.86f, 0.93f, 0.80f, 1f) : BoardKit.Soil;
+                    : fits[c] ? new Color(0.80f, 0.91f, 0.72f, 1f) : BoardKit.Soil;
             }
             for (int p = 0; p < slots.Length; p++)
             {

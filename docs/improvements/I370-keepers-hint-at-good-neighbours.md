@@ -6,9 +6,9 @@ Run 3, batch 7.
 
 Each keeper hints only at the pairing in their own line of work, and only until it's found. This uses the "AI companion in subtle ways" idea: the neighbours notice what you haven't tried yet.
 
-- Orin (trees) talks about a grove.
-- Fen (builds) talks about building by the water.
-- Mira (flowers) talks about shelter and then a bed.
+- Mira (trees) talks about a grove.
+- Orin (builds) talks about building by the water.
+- Fen (flowers) talks about shelter and then a bed.
 
 ## Dev
 

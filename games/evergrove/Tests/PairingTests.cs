@@ -60,6 +60,34 @@ internal static class PairingTests
                back.HasPairing(Pairing.Sheltered), "found pairings travel in the garden file");
         foreach (Pairing p in Enum.GetValues(typeof(Pairing)))
             Expect(Pairings.Hint(p).Length > 0 && !Pairings.Hint(p).Contains("!"), "each has a calm hint");
+        // I374: where each pairing's visitor stands, and when it is out.
+        WorldModel owlGarden = WorldModel.New(PlayMode.Living);
+        Expect(!Visitors.Welcomes(owlGarden, Visitor.Owl), "no grove yet, no owl");
+        owlGarden.DiscoverPairing(Pairing.Grove);
+        Expect(Visitors.Welcomes(owlGarden, Visitor.Owl) && !Visitors.Welcomes(owlGarden, Visitor.Heron), "a grove found welcomes the owl, only");
+        Expect(Pairings.SpotFor(map, new[] { bridge }, Pairing.ByTheWater) == 2, "the heron stands in the water beside the built thing");
+        Expect(Pairings.SpotFor(map, new[] { tree, flower }, Pairing.Sheltered) == 7, "the hedgehog comes to the sheltered flower");
+        Expect(Pairings.SpotFor(map, new[] { tree, tree2 }, Pairing.Grove) >= 0, "the owl comes to the grove");
+        Expect(Pairings.SpotFor(map, new[] { tree, far }, Pairing.Sheltered) == -1, "no pairing, no spot");
+        Expect(Visitors.Out(Visitor.Hedgehog, Season.Summer, DayPhase.Dusk) && !Visitors.Out(Visitor.Hedgehog, Season.Summer, DayPhase.Day),
+            "the hedgehog comes at dusk, not by day");
+        Expect(!Visitors.Out(Visitor.Hedgehog, Season.Winter, DayPhase.Night), "the hedgehog sleeps the winter through");
+        Expect(Visitors.Out(Visitor.Owl, Season.Winter, DayPhase.Night) && !Visitors.Out(Visitor.Owl, Season.Summer, DayPhase.Dusk),
+            "the owl only at night, any season");
+        Expect(Visitors.Out(Visitor.Heron, Season.Autumn, DayPhase.Day) && !Visitors.Out(Visitor.Heron, Season.Winter, DayPhase.Day)
+            && !Visitors.Out(Visitor.Heron, Season.Summer, DayPhase.Night), "the heron by day, not on a frozen river");
+        // I377: a keeper's remark about their visitor, once it has come, one day in three.
+        Expect(Visitors.KeeperRemark(WorldModel.New(PlayMode.Living), 0, 0) == null, "no owl yet, nothing to say");
+        int said = 0;
+        for (int day = 0; day < 30; day++) if (Visitors.KeeperRemark(owlGarden, 0, day) != null) said++;
+        Expect(said == 10, "Mira mentions the owl one day in three");
+        Expect(Visitors.KeeperRemark(owlGarden, 1, 2) == null, "Orin has no heron to speak of");
+        Expect(Visitors.KeeperVisitor(2) == Visitor.Hedgehog, "Fen's flowers bring the hedgehog");
+        // I376: the owl heard at night, only.
+        Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Night) == AmbientVoice.Owl, "the owl calls at night");
+        Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Day) == null, "never by day");
+        Expect(Soundscape.VisitorVoice(Visitor.Heron, Season.Summer, DayPhase.Day) == null, "the heron fishes quietly");
+        Expect(Soundscape.SecondsBetween(AmbientVoice.Owl) > Soundscape.SecondsBetween(AmbientVoice.Birds), "the owl is rarer than birds");
         return assertions;
     }
 }
