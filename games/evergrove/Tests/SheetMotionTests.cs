@@ -212,6 +212,7 @@ internal static class SheetMotionTests
 
     private static string ReadUnity(string name)
     {
+        if (name == "EvergroveApp.cs") return UnityAppSource.ReadAll(); // the partial class, all its files
         return File.ReadAllText(Path.Combine(EvergroveRoot(), "Assets", "Scripts", "Unity", name));
     }
 

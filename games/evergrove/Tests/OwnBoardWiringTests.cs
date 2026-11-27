@@ -211,7 +211,7 @@ internal static class OwnBoardWiringTests
             }
 
         // 6. Source wiring in the Unity app (the app itself does not compile in the core tests).
-        string app = ReadSource("Assets/Scripts/Unity/EvergroveApp.cs");
+        string app = UnityAppSource.ReadAll();
         Expect(app.Contains("ownDealing && world != null ? OwnGardenBoards.NonogramFor(world, seed, tier)"),
             "PuzzleCard draws the own nonogram only when the own flag is set");
         Expect(app.Contains(": new NonogramGame(seed, tier);"), "PuzzleCard keeps the standard nonogram for other boards");

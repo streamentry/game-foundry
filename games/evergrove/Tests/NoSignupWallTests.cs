@@ -71,7 +71,7 @@ internal static class NoSignupWallTests
     private static void FamilyEntryPointsGated()
     {
         string root = FindGameRoot();
-        string app = Read(root, "Assets/Scripts/Unity/EvergroveApp.cs");
+        string app = UnityAppSource.ReadAll();
 
         // The gate itself.
         Expect(app.Contains("private bool FamilyShown()"), "EvergroveApp defines FamilyShown");

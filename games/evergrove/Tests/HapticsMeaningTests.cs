@@ -57,7 +57,7 @@ internal static class HapticsMeaningTests
     {
         string game = GameRoot();
         string haptics = File.ReadAllText(Path.Combine(game, "Assets", "Scripts", "Unity", "Haptics.cs"));
-        string app = File.ReadAllText(Path.Combine(game, "Assets", "Scripts", "Unity", "EvergroveApp.cs"));
+        string app = UnityAppSource.ReadAll();
         string[] unitySources = Directory.GetFiles(Path.Combine(game, "Assets"), "*.cs", SearchOption.AllDirectories);
 
         // 1. Exactly three public cue methods (the switch is a property, not a method).

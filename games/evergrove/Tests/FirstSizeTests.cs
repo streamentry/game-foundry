@@ -27,7 +27,7 @@ internal static class FirstSizeTests
         string root = EvergroveRoot();
         string unity = Path.Combine(root, "Assets", "Scripts", "Unity");
         string firstSize = File.ReadAllText(Path.Combine(unity, "EvergroveApp.FirstSize.cs"));
-        string app = File.ReadAllText(Path.Combine(unity, "EvergroveApp.cs"));
+        string app = UnityAppSource.ReadAll();
         string textScale = File.ReadAllText(Path.Combine(unity, "TextScale.cs"));
 
         OnceFlagLivesOnlyInFirstSize(unity);

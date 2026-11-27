@@ -294,7 +294,9 @@ internal static class DailyRhythmAuditTests
             {
                 string file = Path.Combine(EvergroveRoot(), reference.Groups[1].Value);
                 Expect(File.Exists(file), "referenced file exists: " + reference.Groups[1].Value);
-                Expect(File.ReadAllText(file).Contains(reference.Groups[2].Value),
+                // EvergroveApp.cs is one partial class with its EvergroveApp*.cs files (checklist 20).
+                string source = Path.GetFileName(file) == "EvergroveApp.cs" ? UnityAppSource.ReadAll() : File.ReadAllText(file);
+                Expect(source.Contains(reference.Groups[2].Value),
                     "referenced symbol exists: " + reference.Groups[2].Value + " in " + reference.Groups[1].Value);
             }
         }

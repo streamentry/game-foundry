@@ -136,11 +136,21 @@ internal static class TouchTargetTests
             Expect(dynamicHits.Contains(dynamic.File + "|" + dynamic.Expr),
                 "audited dynamic size " + dynamic.File + " '" + dynamic.Expr + "' is no longer used");
 
-        int raw = 0;
+        // The EvergroveApp partials are audited together as "EvergroveApp.cs" (checklist 20), except
+        // files with their own RawSites entry.
+        var rawCounts = new Dictionary<string, int>();
         foreach (var pair in texts)
         {
+            string group = !RawSites.ContainsKey(pair.Key) && IsAppPartial(pair.Key) ? "EvergroveApp.cs" : pair.Key;
+            int seen;
+            rawCounts.TryGetValue(group, out seen);
+            rawCounts[group] = seen + RawBuilder.Matches(pair.Value).Count;
+        }
+        int raw = 0;
+        foreach (var pair in rawCounts)
+        {
             string file = pair.Key;
-            int count = RawBuilder.Matches(pair.Value).Count;
+            int count = pair.Value;
             string[] reasons;
             bool known = RawSites.TryGetValue(file, out reasons);
             Expect(count == (known ? reasons.Length : 0),
@@ -170,6 +180,11 @@ internal static class TouchTargetTests
 
         Console.WriteLine("Touch targets: " + (checkedBuilders + raw) + " builders checked, " + exceptions + " exceptions");
         return assertions;
+    }
+
+    private static bool IsAppPartial(string file)
+    {
+        return file.StartsWith("EvergroveApp", StringComparison.Ordinal) && file.EndsWith(".cs", StringComparison.Ordinal);
     }
 
     // Literal, ternary of literals, or a const/var declared from literals. Null means computed.

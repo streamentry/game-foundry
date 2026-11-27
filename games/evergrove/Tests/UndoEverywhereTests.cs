@@ -84,7 +84,7 @@ internal static class UndoEverywhereTests
     {
         string root = FindRepoRoot();
         Expect(root != null, "could not locate games/evergrove from the working or base directory");
-        string app = File.ReadAllText(Path.Combine(root, "games", "evergrove", "Assets", "Scripts", "Unity", "EvergroveApp.cs"));
+        string app = UnityAppSource.ReadAll();
         Expect(app.Contains("world.Redo()"), "water controls: the Redo token calls WorldModel.Redo()");
         Expect(app.Contains("world.RedoDepth") || app.Contains("world.CanRedo"),
             "water controls: the Redo token is enabled from WorldModel's redo depth");
