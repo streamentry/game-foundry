@@ -1,0 +1,334 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+namespace Evergrove.Core
+{
+    /// <summary>
+    /// Smart companion (spec: docs/specs/proposals/smart-companion-2026-11-27.md): the kinds of
+    /// true thing a neighbour can say. Every kind is built only from the save and the context.
+    /// </summary>
+    public enum FactKind
+    {
+        FruitGiven,       // you gave this neighbour fruit (I228/I231)
+        SolvedTogether,   // a puzzle of their kind solved taking turns (I266)
+        WeatherWhileAway, // the weather since your last visit (I359, Mira)
+        LetterWaiting,    // a letter in the box, unread on this device (I236, Orin)
+        GiftWaiting,      // a cutting from family waiting in the basket (I222)
+        HelpedBy,         // a relative helped with one of their kind's puzzles (I226)
+        NewArrival,       // a nursery plant of their kind, puzzle still unsolved
+        RiverClose,       // one more thing tended and the mist lifts (I225, Mira)
+        RiverFurther,     // the river runs further than ever, and the season it brought (I250)
+        KindSolved,       // how many puzzles of their kind you have solved (I257)
+        WeatherToday,     // rain, wind, heat or snow today (I357/I358)
+        PairingToFind,    // a good-neighbour pairing of their kind not yet found (I370)
+        Hour,             // the light at dawn, golden hour, dusk or night (I281)
+        NewestThing,      // the newest thing of their kind and where it stands (I184)
+    }
+
+    /// <summary>
+    /// One true fact a neighbour could mention. Immutable. <see cref="Keeper"/> is 0 Mira (trees),
+    /// 1 Orin (built things), 2 Fen (flowers) or -1 for anyone. <see cref="Key"/> is a stable
+    /// identity for the device-local memory; <see cref="Slots"/> are the values the words use.
+    /// </summary>
+    public sealed class Fact
+    {
+        public const int AnyKeeper = -1;
+
+        public FactKind Kind { get; }
+        public int Keeper { get; }
+        public string Key { get; }
+        public IReadOnlyDictionary<string, string> Slots { get; }
+        /// <summary>Base weight from the spec's table, before the ranker adds "new" and "their own line".</summary>
+        public int Weight { get; }
+        /// <summary>Still waiting for the player (an unread letter, a cutting in the basket): the 3-day rule doesn't hide it.</summary>
+        public bool Waiting { get; }
+        /// <summary>Caused just now, this visit (fruit handed over, a puzzle solved together): said straight away.</summary>
+        public bool Fresh { get; }
+        /// <summary>Where today's hand-ordered chain (EvergroveApp.NeighborSays before SC01) put it: lower first.</summary>
+        public int LegacyOrder { get; }
+
+        public Fact(FactKind kind, int keeper, string key, IReadOnlyDictionary<string, string> slots, int weight,
+            bool waiting, bool fresh, int legacyOrder)
+        {
+            if (keeper < AnyKeeper || keeper > 2) throw new ArgumentOutOfRangeException(nameof(keeper));
+            if (string.IsNullOrEmpty(key)) throw new ArgumentException("A fact needs a key.", nameof(key));
+            Kind = kind;
+            Keeper = keeper;
+            Key = key;
+            Slots = slots ?? new Dictionary<string, string>();
+            Weight = weight;
+            Waiting = waiting;
+            Fresh = fresh;
+            LegacyOrder = legacyOrder;
+        }
+
+        public string Slot(string name)
+        {
+            return Slots.TryGetValue(name, out string value) ? value : null;
+        }
+
+        public int IntSlot(string name)
+        {
+            string value = Slot(name);
+            return value != null && int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int n) ? n : 0;
+        }
+
+        public T EnumSlot<T>(string name) where T : struct
+        {
+            return Enum.TryParse(Slot(name), out T value) ? value : default(T);
+        }
+
+        public bool For(int speaker)
+        {
+            return Keeper == AnyKeeper || Keeper == speaker;
+        }
+
+        public override string ToString()
+        {
+            return Kind + "(" + Keeper + "," + Key + ")";
+        }
+    }
+
+    /// <summary>
+    /// What the save doesn't hold: the local day, today's weather and light, the last return,
+    /// letters read on this device, and what just happened this visit. Immutable.
+    /// </summary>
+    public sealed class CompanionContext
+    {
+        public DateTime Today { get; }
+        /// <summary>The last day this garden was opened before today, while Mira hasn't yet said what the weather did. Null otherwise.</summary>
+        public DateTime? LastSeen { get; }
+        public int LettersRead { get; }
+        public Weather Weather { get; }
+        public bool LightOn { get; }
+        public DayPhase Phase { get; }
+        /// <summary>The neighbour just handed fruit this visit, or -1.</summary>
+        public int FruitJustGivenTo { get; }
+        /// <summary>The keeper of a puzzle just solved taking turns, or -1.</summary>
+        public int TogetherKeeper { get; }
+        public PuzzleKind TogetherKind { get; }
+        /// <summary>The painted map, for where things stand; null when unavailable.</summary>
+        public GardenMap Map { get; }
+
+        public CompanionContext(DateTime today, DateTime? lastSeen = null, int lettersRead = 0,
+            Weather weather = Weather.Fair, bool lightOn = false, DayPhase phase = DayPhase.Day,
+            int fruitJustGivenTo = -1, int togetherKeeper = -1, PuzzleKind togetherKind = PuzzleKind.Water,
+            GardenMap map = null)
+        {
+            Today = today.Date;
+            LastSeen = lastSeen;
+            LettersRead = Math.Max(0, lettersRead);
+            Weather = weather;
+            LightOn = lightOn;
+            Phase = phase;
+            FruitJustGivenTo = fruitJustGivenTo;
+            TogetherKeeper = togetherKeeper;
+            TogetherKind = togetherKind;
+            Map = map;
+        }
+
+        /// <summary>Days since 2000-01-01 for the local date: the ranker's and memory's day number.</summary>
+        public int DayNumber { get { return DayNumberOf(Today); } }
+
+        public static int DayNumberOf(DateTime date)
+        {
+            return (int)(date.Date - new DateTime(2000, 1, 1)).TotalDays;
+        }
+    }
+
+    /// <summary>
+    /// The fact feed (SC01): every true thing the neighbours could say right now, from the save and
+    /// the context only. Pure, deterministic, no clock and no randomness. Ordering and wording are
+    /// left to <see cref="CompanionRanker"/> and <see cref="CompanionSpeech"/>.
+    /// </summary>
+    public static class CompanionFacts
+    {
+        // Base weights (spec §2). "New" (+30) and "their own line of work" (+10) are the ranker's.
+        public const int WaitingWeight = 50;
+        public const int RareWeight = 20;
+        public const int OwnDoingWeight = 15;
+        public const int AmbientWeight = 5;
+
+        // The old chain's order, kept so SC01 can prove nothing visible changed.
+        private const int Step = 100000; // room for an order within a step (KindSolved: up to 10,000)
+
+        public static IReadOnlyList<Fact> For(WorldModel world, CompanionContext context)
+        {
+            var facts = new List<Fact>();
+            if (world == null || context == null || world.Mode != PlayMode.Living) return facts;
+            for (int v = 0; v < 3; v++)
+            {
+                FruitGiven(world, context, v, facts);
+                if (context.TogetherKeeper == v)
+                    facts.Add(Make(FactKind.SolvedTogether, v, "together:" + context.TogetherKind + ":" + world.PuzzlesSolved,
+                        OwnDoingWeight + WaitingWeight, false, true, 1 * Step, "puzzle", context.TogetherKind.ToString()));
+                Gifts(world, v, facts);
+                Arrival(world, v, facts);
+                Solved(world, v, facts);
+                Pairings(world, v, facts);
+                Newest(world, context, v, facts);
+            }
+            WhileAway(world, context, facts);
+            Letter(world, context, facts);
+            Helped(world, facts);
+            River(world, facts);
+            if (context.Weather != Weather.Fair)
+                facts.Add(Make(FactKind.WeatherToday, Fact.AnyKeeper,
+                    "weather:" + context.Weather, AmbientWeight, false, false, 10 * Step,
+                    "weather", context.Weather.ToString()));
+            if (context.LightOn && DayLight.Remark(0, context.Phase, GardenSeason.For(world)) != null)
+                facts.Add(Make(FactKind.Hour, Fact.AnyKeeper, "hour:" + context.Phase, AmbientWeight, false, false, 12 * Step,
+                    "phase", context.Phase.ToString(), "season", GardenSeason.For(world).ToString()));
+            return facts;
+        }
+
+        private static void FruitGiven(WorldModel world, CompanionContext context, int v, List<Fact> facts)
+        {
+            if (world.LastFruitTo != v || world.FruitGivenTo(v) <= 0) return;
+            bool fresh = context.FruitJustGivenTo == v;
+            facts.Add(Make(FactKind.FruitGiven, v, "fruit:" + v + ":" + world.FruitGivenTo(v),
+                OwnDoingWeight + (fresh ? WaitingWeight : 0), false, fresh, fresh ? 0 : 8 * Step));
+        }
+
+        private static void WhileAway(WorldModel world, CompanionContext context, List<Fact> facts)
+        {
+            if (context.LastSeen == null || world.Choices.Length == 0) return;
+            DateTime last = context.LastSeen.Value.Date;
+            string weather = DayWeather.WhileAway(last, context.Today, GardenSeason.For(world), world.Garden, out int days);
+            if (weather == null) return;
+            facts.Add(Make(FactKind.WeatherWhileAway, 0, "away:" + last.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
+                RareWeight, false, false, 2 * Step, "weather", weather, "days", Num(days)));
+        }
+
+        private static void Letter(WorldModel world, CompanionContext context, List<Fact> facts)
+        {
+            string[] mail = world.Letters;
+            if (mail.Length == 0 || context.LettersRead >= mail.Length) return;
+            string name = world.LetterFrom[mail.Length - 1];
+            facts.Add(Make(FactKind.LetterWaiting, 1, "letter:" + name + ":" + mail.Length, WaitingWeight, true, false,
+                3 * Step, "name", name));
+        }
+
+        private static void Gifts(WorldModel world, int v, List<Fact> facts)
+        {
+            int[] gifts = world.Gifts;
+            var said = new HashSet<int>();
+            for (int i = 0; i < gifts.Length; i++)
+            {
+                int kind = gifts[i];
+                if ((int)Nursery.Family(kind) != v || !said.Add(kind)) continue;
+                facts.Add(Make(FactKind.GiftWaiting, v, "gift:" + kind, WaitingWeight, true, false, 4 * Step + i,
+                    "thing", Nursery.Item(kind).Name));
+            }
+        }
+
+        private static void Helped(WorldModel world, List<Fact> facts)
+        {
+            int[] helped = world.Helped;
+            if (helped.Length == 0) return;
+            int item = helped[helped.Length - 1];
+            int[] made = world.Choices;
+            if (item >= made.Length || world.TreeSolved(item)) return;
+            PuzzleKind kind = ThingPuzzle.ForStory(item, (VillageChoice)Math.Max(0, Math.Min(2, made[item])));
+            facts.Add(Make(FactKind.HelpedBy, NeighbourNotice.OwnerOf(kind), "helped:" + item, WaitingWeight, true, false,
+                5 * Step, "name", world.HelpedBy(item), "puzzle", kind.ToString()));
+        }
+
+        private static void Arrival(WorldModel world, int v, List<Fact> facts)
+        {
+            int[] bought = world.Bought;
+            for (int k = bought.Length / 2 - 1; k >= 0; k--)
+            {
+                int kind = bought[k * 2];
+                if ((int)Nursery.Family(kind) != v) continue;
+                if (!world.BoughtSolved(k))
+                    facts.Add(Make(FactKind.NewArrival, v, "arrival:" + k, OwnDoingWeight, false, false, 6 * Step,
+                        "thing", Nursery.Item(kind).Name));
+                return;
+            }
+        }
+
+        private static void River(WorldModel world, List<Fact> facts)
+        {
+            if (!world.Completed) return;
+            int all = world.PuzzlesSolved;
+            int reaches = GardenMap.ReachesFor(world.Choices.Length, true, all);
+            if (GardenMap.TowardNext(world.Choices.Length, true, all, out int have, out int need) && have == need - 1)
+                facts.Add(Make(FactKind.RiverClose, 0, "mist:" + reaches, RareWeight, false, false, 7 * Step));
+            else if (have == 0 && reaches > GardenMap.MaxReaches)
+            {
+                Season season = GardenSeason.AfterStory(all);
+                facts.Add(Make(FactKind.RiverFurther, 0, "river:" + reaches, RareWeight, false, false, 7 * Step,
+                    "season", season.ToString()));
+            }
+        }
+
+        // I257: by puzzle kind. The old chain said only the kind with most solves (first on ties).
+        private static void Solved(WorldModel world, int v, List<Fact> facts)
+        {
+            PuzzleKind[] kept = NeighbourNotice.KeptBy(v);
+            for (int i = 0; i < kept.Length; i++)
+            {
+                int n = NeighbourNotice.SolvedOf(world, kept[i]);
+                if (n <= 0) continue;
+                int rank = (Math.Max(0, 499 - Math.Min(n, 499))) * 20 + i;
+                facts.Add(Make(FactKind.KindSolved, v, "solved:" + kept[i] + ":" + n, OwnDoingWeight, false, false,
+                    9 * Step + rank, "puzzle", kept[i].ToString(), "count", Num(n)));
+            }
+        }
+
+        // I370: their own kind's good neighbours not yet found, in the old order.
+        private static readonly Pairing[][] PairingsOf = {
+            new[] { Pairing.Grove }, new[] { Pairing.ByTheWater }, new[] { Pairing.Sheltered, Pairing.FlowerBed },
+        };
+
+        private static void Pairings(WorldModel world, int v, List<Fact> facts)
+        {
+            Pairing[] theirs = PairingsOf[v];
+            for (int i = 0; i < theirs.Length; i++)
+                if (!world.HasPairing(theirs[i]))
+                    facts.Add(Make(FactKind.PairingToFind, v, "pairing-hint:" + theirs[i], AmbientWeight, false, false,
+                        11 * Step + i, "pairing", theirs[i].ToString()));
+        }
+
+        private static void Newest(WorldModel world, CompanionContext context, int v, List<Fact> facts)
+        {
+            int[] made = world.Choices;
+            int newest = -1, count = 0;
+            for (int i = 0; i < made.Length; i++)
+                if (made[i] == v) { newest = i; count++; }
+            if (newest < 0) return;
+            int chapter = Math.Max(0, Math.Min(GardenCatalog.ChaptersPerGarden - 1, newest));
+            string thing = GardenCatalog.For(world.Garden, chapter, (VillageChoice)v).Name;
+            facts.Add(Make(FactKind.NewestThing, v, "newest:" + newest + ":" + count, 0, false, false, 13 * Step,
+                "thing", thing, "where", Where(context.Map, world, newest), "count", Num(count)));
+        }
+
+        /// <summary>Where a grown thing stands on the painted map (I184): "by the creek", "by the cottage", ...; "" when unknown.</summary>
+        public static string Where(GardenMap map, WorldModel world, int index)
+        {
+            if (map == null) return "";
+            int[] cells = map.Layout(world.Choices, world.Placements);
+            if (index < 0 || index >= cells.Length || cells[index] < 0) return "";
+            int cell = cells[index];
+            int row = cell / map.Columns, column = cell % map.Columns;
+            return map.DistanceToWater(cell) <= 1 ? "by the creek"
+                : row <= 3 && column >= 5 ? "by the cottage"
+                : row >= map.Rows - 4 ? "down the valley" : "in the meadow";
+        }
+
+        private static string Num(int n)
+        {
+            return n.ToString(CultureInfo.InvariantCulture);
+        }
+
+        private static Fact Make(FactKind kind, int keeper, string key, int weight, bool waiting, bool fresh, int legacy,
+            params string[] slots)
+        {
+            var map = new Dictionary<string, string>();
+            for (int i = 0; i + 1 < slots.Length; i += 2) map[slots[i]] = slots[i + 1];
+            return new Fact(kind, keeper, key, map, weight, waiting, fresh, legacy);
+        }
+    }
+}

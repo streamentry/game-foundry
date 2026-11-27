@@ -1929,6 +1929,7 @@ internal static class Program
             assertions += LivingValleyTests.Run();
             assertions += PairingTests.Run();
             assertions += NoticeTests.Run();
+            assertions += CompanionFactsTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
             assertions += FamilyHelpTests.Run();
