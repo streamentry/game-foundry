@@ -214,7 +214,7 @@ namespace Evergrove.UnityClient
         /// <summary>A gentle "not like that" nudge: a quick sideways shiver, no sound, no penalty.</summary>
         public static void Shiver(GameObject node)
         {
-            if (node != null) node.AddComponent<ShiverOnce>();
+            if (node != null && node.GetComponent<ShiverOnce>() == null) node.AddComponent<ShiverOnce>(); // never stacks
         }
 
         private sealed class ShiverOnce : MonoBehaviour

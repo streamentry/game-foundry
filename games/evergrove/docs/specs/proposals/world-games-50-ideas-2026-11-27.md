@@ -110,3 +110,31 @@ Value first, then dependencies.
 ## Never claim
 
 That any idea improves wellbeing, memory or connection; that it raises retention (unmeasured until the [daily-loop kit](../../playtest/daily-loop-kit.md) runs).
+
+## Built
+
+Each idea and the iteration that built it. The docs live in `docs/improvements/` at the repository root.
+
+| Idea | Iteration | Idea | Iteration | Idea | Iteration |
+| --- | --- | --- | --- | --- | --- |
+| 1 | I321 | 18 | I325, I326 | 35 | I298 |
+| 2 | I291 | 19 | I327 | 36 | I299 |
+| 3 | I290 | 20 | I335 | 37 | I329 |
+| 4 | I305 | 21 | I300 | 38 | I312 |
+| 5 | I323 | 22 | I301 | 39 | I303 |
+| 6 | I322 | 23 | I319 | 40 | I334 |
+| 7 | I292 | 24 | I320 | 41 | I308 |
+| 8 | I318 | 25 | I317 | 42 | I309 |
+| 9 | I331 | 26 | I311 | 43 | I310 |
+| 10 | I324 | 27 | I295 | 44 | I332 |
+| 11 | I333 | 28 | I296 | 45 | I328 |
+| 12 | I309 (folded into 42) | 29 | I307 | 46 | I293 |
+| 13 | I336 | 30 | I297 | 47 | I306 |
+| 14 | I330 | 31 | I313 | 48 | I302 |
+| 15 | I319 (with 23) | 32 | I315 | 49 | I316 |
+| 16 | I330 | 33 | I304 | 50 | I294 |
+| 17 | I325, I326 | 34 | I314 | | |
+
+Still to do after the build:
+- **Art:** the visitors and the cat are drawn in simple shapes until painted art can be made (the image tool is out of credits).
+- **Players:** nothing here has been tried by adults 40+ yet. The [daily-loop kit](../../playtest/daily-loop-kit.md) is the next real test.

@@ -187,6 +187,30 @@ namespace Evergrove.UnityClient
                 fliesRect.offsetMin = fliesRect.offsetMax = Vector2.zero;
                 flies.AddComponent<FireflyDrift>().Moving = FirefliesMove;
             }
+            // I317: through the festival spring, a garland of paper lanterns hangs across the view.
+            if (FestivalNow)
+            {
+                var garland = new GameObject("Festival lanterns", typeof(RectTransform));
+                garland.transform.SetParent(host.transform, false);
+                var garlandRect = (RectTransform)garland.transform;
+                garlandRect.anchorMin = new Vector2(0f, 1f);
+                garlandRect.anchorMax = Vector2.one;
+                garlandRect.pivot = new Vector2(0.5f, 1f);
+                garlandRect.sizeDelta = new Vector2(0f, 110f);
+                garlandRect.anchoredPosition = new Vector2(0f, -86f);
+                garland.AddComponent<FestivalGarland>().Lit = LampLit;
+            }
+            // I326: a pair of birds glides over now and then, once trees are tended.
+            if (BirdsOut && FirefliesMove)
+            {
+                var sky = new GameObject("Birds passing", typeof(RectTransform));
+                sky.transform.SetParent(host.transform, false);
+                var skyRect = (RectTransform)sky.transform;
+                skyRect.anchorMin = Vector2.zero;
+                skyRect.anchorMax = Vector2.one;
+                skyRect.offsetMin = skyRect.offsetMax = Vector2.zero;
+                sky.AddComponent<BirdsPass>();
+            }
             // I295: the season's own drift over home by day (petals, leaves, snow); motion only.
             if (DriftNow != Drift.None && FirefliesMove)
             {
@@ -245,6 +269,8 @@ namespace Evergrove.UnityClient
             view.greenedFrom = greenedBefore < 0f ? view.greened : Mathf.Clamp01(greenedBefore);
             view.decorate = decorate;
             view.BuildDryLand();
+            view.lanterns = Mathf.Max(0, LanternsNext); // review fix: known before the first layout
+            LanternsNext = 0;
             view.Layout();
             return view;
         }
@@ -316,6 +342,7 @@ namespace Evergrove.UnityClient
         private float apron, teaser;
         private int reaches = 1;
         private int lanterns; // I310
+        public static int LanternsNext; // set by the app just before building home's map
 
         /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
         public void SetLanterns(int count)
@@ -379,6 +406,28 @@ namespace Evergrove.UnityClient
         // between them; one relayout when they lift. The zoom is reported so the
         // caller can keep it across rebuilds.
         public float MinZoom = 1f, MaxZoom = 3f;
+        private float beforeLookout = -1f;
+
+        /// <summary>
+        /// I319 (ideas 23 and 15, after the lookouts of hiking games and always knowing your way
+        /// home): the whole river at once, cottage at the top, the newest stretch at the foot.
+        /// The map's own width rule fits the river's height when asked for the least width.
+        /// </summary>
+        public void LookOut(bool on)
+        {
+            if (on == (beforeLookout > 0f)) return;
+            if (on) { beforeLookout = widthScale; widthScale = 0.01f; }
+            else { widthScale = beforeLookout; beforeLookout = -1f; }
+            keep = new Vector2(-1f, -1f);
+            growNewest = false;
+            Layout();
+            if (on && land != null)
+            {
+                // The whole river, centred in the view (b307: it sat to one side).
+                if (scroll != null) scroll.StopMovement();
+                land.anchoredPosition = Vector2.zero;
+            }
+        }
         public float Zoom { get { return widthScale; } }
         public Action<float> Zoomed;
         private bool pinching;
@@ -416,6 +465,7 @@ namespace Evergrove.UnityClient
 
         private void Pinch()
         {
+            if (beforeLookout > 0f) return; // review fix: no pinching while looking out over the whole river
             if (land == null || window == null || map == null) return;
             bool two = TwoFingers(out Vector2 a, out Vector2 b);
             var host = (RectTransform)land.parent;
@@ -520,6 +570,30 @@ namespace Evergrove.UnityClient
                     nodes.Add(lampRect);
                 }
             }
+            // I335: the garden cat, asleep beside the newest tended thing, or by the door after dusk.
+            if (CatBy != -1)
+            {
+                Vector2 catAt = new Vector2(-1f, 1f);
+                if (CatBy == -2) catAt = new Vector2(width * 0.80f, -reachHeight * 0.175f);
+                else foreach (Placed item in items)
+                    if (item.Index == CatBy && item.Cell >= 0 && item.Cell < map.CellCount)
+                    {
+                        int column = item.Cell % map.Columns, row = item.Cell / map.Columns;
+                        catAt = new Vector2((column + 0.5f) * cellW + cellW * (column < map.Columns / 2 ? 0.75f : -0.75f),
+                            -(row + 0.85f) * cellH);
+                    }
+                if (catAt.x >= 0f)
+                {
+                    var cat = new GameObject("The garden cat, asleep", typeof(RectTransform));
+                    cat.transform.SetParent(land, false);
+                    var catRect = (RectTransform)cat.transform;
+                    catRect.anchorMin = catRect.anchorMax = new Vector2(0f, 1f);
+                    catRect.sizeDelta = new Vector2(40f, 24f);
+                    catRect.anchoredPosition = catAt;
+                    cat.AddComponent<SleepingCat>();
+                    nodes.Add(catRect);
+                }
+            }
             // I310 (idea 43, leaving a light for another): lanterns family left stand along the
             // path below your cottage door, the newest nearest; lit after dusk.
             for (int l = 0; l < Mathf.Min(lanterns, 3); l++)
@@ -557,6 +631,7 @@ namespace Evergrove.UnityClient
             }
             Vector2 focus = Vector2.zero;
             bool focused = false;
+            int beesPlaced = 0;
             foreach (Placed item in order)
             {
                 if (item.Art == null || item.Cell < 0 || item.Cell >= map.CellCount) continue;
@@ -676,6 +751,19 @@ namespace Evergrove.UnityClient
                 }
                 if (!held && FirefliesMove && item.Family != VillageChoice.Bridge)
                     node.AddComponent<Sway>().Phase = item.Cell * 0.73f;
+                // I325: bees at the flowers, when they come (three flowers grown) and are out.
+                if (BeesOut && FirefliesMove && !held && item.Family == VillageChoice.Flowers && beesPlaced < 3)
+                {
+                    beesPlaced++;
+                    var bee = new GameObject("A bee", typeof(RectTransform));
+                    bee.transform.SetParent(land, false);
+                    var beeRect = (RectTransform)bee.transform;
+                    beeRect.anchorMin = beeRect.anchorMax = new Vector2(0f, 1f);
+                    beeRect.sizeDelta = new Vector2(12f, 9f);
+                    beeRect.anchoredPosition = at + new Vector2(0f, rect.sizeDelta.y * 0.6f);
+                    bee.AddComponent<BeeBuzz>().Phase = item.Cell;
+                    nodes.Add(beeRect);
+                }
                 if (item.Together && !held)
                 {
                     // Two players' colours, overlapping, at the other shoulder (I265).
@@ -933,6 +1021,23 @@ namespace Evergrove.UnityClient
                     Block(root.transform, 1.6f * u, 1.3f * u, 2.2f * u, 2.4f * u, 0.75f);
                     Block(root.transform, 1.6f * u, -1.3f * u, 2.2f * u, 2.4f * u, 0.5f);
                     break;
+                case PuzzleKind.Sowing: // beds of one, two and three seeds, filling toward the basket
+                    for (int b = 0; b < 3; b++)
+                        Block(root.transform, (b - 1) * 1.9f * u, (b - 1) * 0.9f * u - 0.4f * u, 1.5f * u, (1.4f + b * 0.9f) * u, 0.55f + b * 0.22f);
+                    break;
+                case PuzzleKind.Sums: // a plus: rows and columns that add up
+                    Block(root.transform, 0f, 0f, 4.6f * u, 1.4f * u, 1f);
+                    Block(root.transform, 0f, 0f, 1.4f * u, 4.6f * u, 1f);
+                    break;
+                case PuzzleKind.Pieces: // two pieces fitting together
+                    Block(root.transform, -1f * u, 0.9f * u, 3.6f * u, 1.6f * u, 1f);
+                    Block(root.transform, 0.9f * u, -0.9f * u, 3.6f * u, 1.6f * u, 0.6f);
+                    break;
+                case PuzzleKind.Doorstep: // four petals, mirrored about the centre
+                    foreach (Vector2 d in new[] { new Vector2(-1f, 1f), new Vector2(1f, 1f), new Vector2(-1f, -1f), new Vector2(1f, -1f) })
+                        Block(root.transform, d.x * 1.3f * u, d.y * 1.3f * u, 1.6f * u, 1.6f * u, 1f);
+                    Block(root.transform, 0f, 0f, 1.2f * u, 1.2f * u, 0.6f);
+                    break;
                 case PuzzleKind.Mahjong: // a small terrace of tiles
                     Block(root.transform, -1.3f * u, -0.8f * u, 2.2f * u, 3f * u, 0.75f);
                     Block(root.transform, 1.3f * u, -0.8f * u, 2.2f * u, 3f * u, 0.75f);
@@ -1024,6 +1129,201 @@ namespace Evergrove.UnityClient
 
         public static Drift DriftNow = Drift.None;
         public static bool LampLit; // I296
+        public static bool FestivalNow; // I317
+        public static bool BeesOut, BirdsOut; // I325, I326
+        public static int CatBy = -1;          // I335: a thing's index, -2 by the door, -1 none
+
+        /// <summary>A small cat asleep, curled: body, head, ears and tail, breathing slowly (I335).</summary>
+        private sealed class SleepingCat : MonoBehaviour
+        {
+            private RectTransform body;
+            private float clock;
+
+            private void Start()
+            {
+                Color fur = new Color(0.86f, 0.60f, 0.36f, 1f), dark = new Color(0.62f, 0.40f, 0.22f, 1f);
+                Part("Tail", new Vector2(18f, 5f), new Vector2(10f, -4f), 20f, dark);
+                body = Part("Body", new Vector2(28f, 15f), Vector2.zero, 0f, fur);
+                Part("Head", new Vector2(13f, 12f), new Vector2(-12f, 3f), 0f, fur);
+                Part("Ear", new Vector2(5f, 5f), new Vector2(-16f, 9f), 45f, dark);
+                Part("Ear", new Vector2(5f, 5f), new Vector2(-9f, 9f), 45f, dark);
+                Part("Stripe", new Vector2(3f, 11f), new Vector2(2f, 1f), 0f, dark);
+            }
+
+            private RectTransform Part(string name, Vector2 size, Vector2 at, float angle, Color colour)
+            {
+                var node = new GameObject(name, typeof(RectTransform));
+                node.transform.SetParent(transform, false);
+                var rect = (RectTransform)node.transform;
+                rect.sizeDelta = size;
+                rect.anchoredPosition = at;
+                rect.localRotation = Quaternion.Euler(0f, 0f, angle);
+                var image = node.AddComponent<Image>();
+                image.sprite = MosseloraArt.Rounded(8);
+                image.color = colour;
+                image.raycastTarget = false;
+                return rect;
+            }
+
+            private void Update()
+            {
+                if (body == null || !FirefliesMove) return;
+                clock += Time.unscaledDeltaTime;
+                body.localScale = new Vector3(1f, 1f + 0.05f * Mathf.Sin(clock * 1.6f), 1f); // asleep, breathing
+            }
+        }
+
+        /// <summary>A small bee: a striped body and two pale wings, buzzing in loops (I325).</summary>
+        private sealed class BeeBuzz : MonoBehaviour
+        {
+            public float Phase;
+            private Vector2 home;
+            private float clock;
+            private RectTransform wings;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                home = rect.anchoredPosition;
+                Part("Wings", new Vector2(10f, 6f), new Vector2(0f, 4f), new Color(1f, 1f, 1f, 0.75f), out wings);
+                Part("Body", new Vector2(11f, 8f), Vector2.zero, new Color(0.98f, 0.78f, 0.18f, 1f), out _);
+                Part("Stripe", new Vector2(2.5f, 8f), Vector2.zero, new Color(0.22f, 0.17f, 0.1f, 1f), out _);
+            }
+
+            private void Part(string name, Vector2 size, Vector2 at, Color colour, out RectTransform made)
+            {
+                var node = new GameObject(name, typeof(RectTransform));
+                node.transform.SetParent(transform, false);
+                made = (RectTransform)node.transform;
+                made.sizeDelta = size;
+                made.anchoredPosition = at;
+                var image = node.AddComponent<Image>();
+                image.sprite = MosseloraArt.Rounded(4);
+                image.color = colour;
+                image.raycastTarget = false;
+            }
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float t = clock * 1.6f + Phase;
+                ((RectTransform)transform).anchoredPosition = home + new Vector2(Mathf.Sin(t) * 22f, Mathf.Sin(t * 2.3f) * 9f);
+                if (wings != null) wings.localScale = new Vector3(1f, 0.5f + 0.5f * Mathf.Abs(Mathf.Sin(clock * 40f)), 1f);
+            }
+        }
+
+        /// <summary>Two small birds crossing high over the garden, wings beating then gliding (I326).</summary>
+        private sealed class BirdsPass : MonoBehaviour
+        {
+            private RectTransform[] birds;
+            private RectTransform[][] wings;
+            private float clock, wait = 3f;
+
+            private void Start()
+            {
+                birds = new RectTransform[2];
+                wings = new RectTransform[2][];
+                for (int b = 0; b < 2; b++)
+                {
+                    var bird = new GameObject("A bird", typeof(RectTransform));
+                    bird.transform.SetParent(transform, false);
+                    birds[b] = (RectTransform)bird.transform;
+                    birds[b].anchorMin = birds[b].anchorMax = new Vector2(0f, 1f);
+                    birds[b].sizeDelta = new Vector2(18f, 8f);
+                    wings[b] = new RectTransform[2];
+                    for (int side = 0; side < 2; side++)
+                    {
+                        var wing = new GameObject(side == 0 ? "Left wing" : "Right wing", typeof(RectTransform));
+                        wing.transform.SetParent(bird.transform, false);
+                        wings[b][side] = (RectTransform)wing.transform;
+                        wings[b][side].sizeDelta = new Vector2(10f, 2.6f);
+                        wings[b][side].pivot = new Vector2(side == 0 ? 1f : 0f, 0.5f);
+                        var image = wing.AddComponent<Image>();
+                        image.sprite = MosseloraArt.Rounded(2);
+                        image.color = new Color(0.2f, 0.18f, 0.16f, 0.85f);
+                        image.raycastTarget = false;
+                    }
+                    bird.SetActive(false);
+                }
+            }
+
+            private void Update()
+            {
+                if (birds == null) return;
+                clock += Time.unscaledDeltaTime;
+                var rect = (RectTransform)transform;
+                float wide = Mathf.Max(1f, rect.rect.width), across = 6f;
+                float t = clock - wait;
+                bool flying = t >= 0f && t < across;
+                for (int b = 0; b < 2; b++)
+                {
+                    birds[b].gameObject.SetActive(flying);
+                    if (!flying) continue;
+                    float k = t / across;
+                    birds[b].anchoredPosition = new Vector2(-30f + (wide + 60f) * k - b * 26f, -90f - b * 14f - Mathf.Sin(k * 3f) * 18f);
+                    float beat = (k * 8f) % 2f < 1.2f ? Mathf.Sin(clock * 14f + b) * 28f : 8f; // beat, then glide
+                    wings[b][0].localRotation = Quaternion.Euler(0f, 0f, -20f - beat);
+                    wings[b][1].localRotation = Quaternion.Euler(0f, 0f, 20f + beat);
+                }
+                if (t >= across) { clock = 0f; wait = 9f + Mathf.Repeat(Time.unscaledTime * 7.3f, 8f); }
+            }
+        }
+
+        /// <summary>Paper lanterns on a sagging string across the top of the view, swaying a little.</summary>
+        private sealed class FestivalGarland : MonoBehaviour
+        {
+            public bool Lit;
+            private RectTransform[] lanterns;
+            private float clock;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                float wide = Mathf.Max(1f, rect.rect.width);
+                int count = Mathf.Clamp(Mathf.RoundToInt(wide / 70f), 4, 9);
+                lanterns = new RectTransform[count];
+                Sprite art = MosseloraArt.Load(FamilySheet.LanternArt);
+                for (int i = 0; i < count; i++)
+                {
+                    float x = (i + 0.5f) / count;
+                    float sag = 4f * x * (1f - x) * 26f; // the string dips toward the middle
+                    var node = new GameObject("Paper lantern", typeof(RectTransform));
+                    node.transform.SetParent(transform, false);
+                    var nodeRect = (RectTransform)node.transform;
+                    nodeRect.anchorMin = nodeRect.anchorMax = new Vector2(x, 1f);
+                    nodeRect.pivot = new Vector2(0.5f, 1f);
+                    nodeRect.sizeDelta = new Vector2(40f, 40f);
+                    nodeRect.anchoredPosition = new Vector2(0f, -sag);
+                    if (Lit)
+                    {
+                        var glow = new GameObject("Glow", typeof(RectTransform)).AddComponent<Image>();
+                        glow.transform.SetParent(node.transform, false);
+                        glow.rectTransform.sizeDelta = new Vector2(70f, 70f);
+                        glow.rectTransform.anchoredPosition = new Vector2(0f, -20f);
+                        glow.sprite = MosseloraArt.SoftGlow();
+                        glow.color = new Color(1f, 0.8f, 0.42f, 0.55f);
+                        glow.raycastTarget = false;
+                    }
+                    var image = new GameObject("Lantern", typeof(RectTransform)).AddComponent<Image>();
+                    image.transform.SetParent(node.transform, false);
+                    image.rectTransform.anchorMin = Vector2.zero;
+                    image.rectTransform.anchorMax = Vector2.one;
+                    image.rectTransform.offsetMin = image.rectTransform.offsetMax = Vector2.zero;
+                    image.sprite = art;
+                    image.preserveAspect = true;
+                    image.raycastTarget = false;
+                    lanterns[i] = nodeRect;
+                }
+            }
+
+            private void Update()
+            {
+                if (lanterns == null || !FirefliesMove) return;
+                clock += Time.unscaledDeltaTime;
+                for (int i = 0; i < lanterns.Length; i++)
+                    lanterns[i].localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 0.9f + i * 1.3f) * 4f);
+            }
+        }
 
         /// <summary>
         /// A few petals, leaves or flakes falling slowly across the view, swaying as they go,

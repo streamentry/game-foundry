@@ -3,7 +3,7 @@ using System;
 namespace Evergrove.Core
 {
     /// <summary>The kinds of puzzle a garden thing can hold.</summary>
-    public enum PuzzleKind { Water, Pairs, Mosaic, Nonogram, Mahjong, Sudoku, Plots, StreamPath }
+    public enum PuzzleKind { Water, Pairs, Mosaic, Nonogram, Mahjong, Sudoku, Plots, StreamPath, Sowing, Sums, Pieces, Doorstep }
 
     /// <summary>
     /// I243: which puzzle a thing holds. The story's first four things teach the classic
@@ -17,15 +17,18 @@ namespace Evergrove.Core
 
         // Later story chapters (5 to 12) cycle through the new kinds by chapter, so whatever
         // you choose, one garden's eight later things show all five.
+        // I318/I324: sowing and seed sums (ideas 8 and 10) join the cycle, so chapters 5 to 12
+        // (eight things) meet all seven newer kinds in every garden.
         private static readonly PuzzleKind[] Cycle = {
-            PuzzleKind.StreamPath, PuzzleKind.Nonogram, PuzzleKind.Plots, PuzzleKind.Sudoku, PuzzleKind.Mahjong
+            PuzzleKind.StreamPath, PuzzleKind.Nonogram, PuzzleKind.Plots, PuzzleKind.Sudoku, PuzzleKind.Mahjong,
+            PuzzleKind.Sowing, PuzzleKind.Sums
         };
 
         // Nursery editions 1..4 per family (each new kind grows in at least two families).
         private static readonly PuzzleKind[][] ByEdition = {
             new[] { PuzzleKind.StreamPath, PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots },   // trees
-            new[] { PuzzleKind.Plots, PuzzleKind.Mahjong, PuzzleKind.StreamPath, PuzzleKind.Nonogram },  // buildings
-            new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Mahjong, PuzzleKind.StreamPath }, // flowers
+            new[] { PuzzleKind.Plots, PuzzleKind.Mahjong, PuzzleKind.StreamPath, PuzzleKind.Pieces },    // buildings (I331)
+            new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Mahjong, PuzzleKind.Doorstep },  // flowers (I332)
         };
 
         public static PuzzleKind Classic(VillageChoice family)

@@ -1910,8 +1910,11 @@ internal static class Program
             assertions += MosaicTests.Run();
             assertions += NonogramTests.Run();
             assertions += SeedSudokuTests.Run();
+            assertions += SeedSumsTests.Run();
             assertions += PlotsTests.Run();
+            assertions += SowingTests.Run();
             assertions += StreamPathTests.Run();
+            assertions += GardenPiecesTests.Run();
             assertions += MahjongTests.Run();
             assertions += ThingPuzzleTests.Run();
             assertions += SeasonTests.Run();
@@ -1927,6 +1930,11 @@ internal static class Program
             assertions += FruitTests.Run();
             assertions += TogetherTests.Run();
             assertions += FamilyGiftsTests.Run();
+            assertions += KitchenTests.Run();
+            assertions += LetterStampTests.Run();
+            assertions += DecorTests.Run();
+            assertions += DoorstepTests.Run();
+            assertions += DifficultyTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

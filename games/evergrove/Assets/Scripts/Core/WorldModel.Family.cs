@@ -130,6 +130,49 @@ namespace Evergrove.Core
         public string[] LetterFrom { get { return (string[])state.letterFrom.Clone(); } }
 
         /// <summary>
+        /// The picture stamp (1..<see cref="FamilyParcel.StampCount"/>, 0 none) of each kept letter, a copy
+        /// parallel to <see cref="Letters"/>. A stamp is only a picture: it moves and costs nothing.
+        /// </summary>
+        public int[] LetterStamps
+        {
+            get
+            {
+                var stamps = new int[state.letters.Length];
+                Array.Copy(state.letterStamps, stamps, state.letterStamps.Length);
+                return stamps;
+            }
+        }
+
+        /// <summary>Keeps a letter with its sender and stamp, oldest leaving first. An all-zero stamp list is stored as empty.</summary>
+        private void KeepLetter(string words, string from, int stamp)
+        {
+            int[] stamps = state.letterStamps.Length == 0 ? new int[state.letters.Length] : state.letterStamps;
+            int keep = Math.Min(stamps.Length, MaxLetters - 1);
+            var next = new int[keep + 1];
+            Array.Copy(stamps, stamps.Length - keep, next, 0, keep);
+            next[keep] = stamp;
+            state.letters = AppendCapped(state.letters, words, MaxLetters);
+            state.letterFrom = AppendCapped(state.letterFrom, from, MaxLetters);
+            state.letterStamps = Array.Exists(next, s => s != 0) ? next : Array.Empty<int>();
+        }
+
+        /// <summary>
+        /// Fail-closed validation of the letter stamps; empty or null means "no stamps" (an older save).
+        /// Returns the canonical form: empty when every letter is unstamped, else one entry per letter.
+        /// </summary>
+        private static bool ReadLetterStamps(WorldSnapshot source, out int[] stamps)
+        {
+            stamps = null;
+            int[] list = source.letterStamps ?? Array.Empty<int>();
+            int letters = (source.letters ?? Array.Empty<string>()).Length;
+            if (list.Length != 0 && (list.Length != letters || source.mode != "living")) return false;
+            foreach (int stamp in list)
+                if (stamp < 0 || stamp > FamilyParcel.StampCount) return false;
+            stamps = Array.Exists(list, s => s != 0) ? (int[])list.Clone() : Array.Empty<int>();
+            return true;
+        }
+
+        /// <summary>
         /// I271: a neighbour's note, kept in the letterbox beside family letters (same cap,
         /// oldest leave first). Same rules as a letter's words and sender; moves nothing.
         /// </summary>
@@ -138,8 +181,7 @@ namespace Evergrove.Core
             if (Mode != PlayMode.Living || !FamilyParcel.ValidName(from)) return false;
             string words = text == null ? "" : text.Replace("\r\n", "\n").Trim();
             if (words.Length == 0 || !FamilyParcel.ValidLetter(words)) return false;
-            state.letters = AppendCapped(state.letters, words, MaxLetters);
-            state.letterFrom = AppendCapped(state.letterFrom, from, MaxLetters);
+            KeepLetter(words, from, 0);
             return true;
         }
 
@@ -147,6 +189,18 @@ namespace Evergrove.Core
         /// I315: a neighbour's cutting (NeighbourGifts) goes in the basket, like a parcel's. Only in
         /// a living garden, only a real kind, only while the basket has room. Nothing else changes.
         /// </summary>
+        public bool TakeKeepsake(int kind)
+        {
+            // I334 (idea 40, omiyage): a cutting of a relative's plant, copied, never taken from
+            // them; it costs its nursery price, like buying, so the economy stays logical.
+            if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds || state.gifts.Length >= MaxGifts) return false;
+            int price = Nursery.Price(kind);
+            if (state.seeds < price) return false;
+            state.seeds -= price;
+            state.gifts = Append(state.gifts, kind);
+            return true;
+        }
+
         public bool ReceiveNeighbourCutting(int kind)
         {
             if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds || state.gifts.Length >= MaxGifts) return false;
@@ -163,14 +217,14 @@ namespace Evergrove.Core
         /// nursery price and needs that kind's row open; it removes no plant. A letter costs nothing.
         /// </summary>
         public ParcelSendResult SendParcel(string from, string letter, ParcelGift gift, int value, string nonce,
-                                           int blessing = 0, int boardSeed = 0)
+                                           int blessing = 0, int boardSeed = 0, int stamp = 0)
         {
             var result = new ParcelSendResult();
             if (Mode != PlayMode.Living) return Fail(result, ParcelError.NotLiving);
             string text;
             ParcelContents contents;
             ParcelError error;
-            if (!FamilyParcel.TryCreate(from, letter, gift, value, nonce, out text, out contents, out error, blessing, boardSeed))
+            if (!FamilyParcel.TryCreate(from, letter, gift, value, nonce, out text, out contents, out error, blessing, boardSeed, stamp))
                 return Fail(result, error);
             if (HasSeenParcel(contents.Id)) return Fail(result, ParcelError.AlreadyUsed);
             int cost = 0;
@@ -182,8 +236,10 @@ namespace Evergrove.Core
             }
             if (state.seeds < cost) return Fail(result, ParcelError.NotEnoughSeeds);
             if (gift == ParcelGift.Fruit && state.fruit < contents.Amount) return Fail(result, ParcelError.NotEnoughFruit);
+            if (gift == ParcelGift.Jam && state.jam < contents.Amount) return Fail(result, ParcelError.NotEnoughJam);
             state.seeds -= cost;
             if (gift == ParcelGift.Fruit) state.fruit -= contents.Amount;
+            if (gift == ParcelGift.Jam) state.jam -= contents.Amount;
             RememberParcel(contents.Id);
             result.Ok = true;
             result.Error = ParcelError.None;
@@ -228,6 +284,12 @@ namespace Evergrove.Core
                 state.fruit += gained;
                 result.FruitGained = gained;
             }
+            else if (contents.Gift == ParcelGift.Jam)
+            {
+                int gained = Math.Min(contents.Amount, MaxJam - state.jam);
+                state.jam += gained;
+                result.JamGained = gained;
+            }
             else if (contents.Gift == ParcelGift.Cutting)
             {
                 state.gifts = Append(state.gifts, contents.Kind);
@@ -250,8 +312,7 @@ namespace Evergrove.Core
             }
             if (contents.Letter.Length > 0)
             {
-                state.letters = AppendCapped(state.letters, contents.Letter, MaxLetters);
-                state.letterFrom = AppendCapped(state.letterFrom, contents.From, MaxLetters);
+                KeepLetter(contents.Letter, contents.From, contents.Stamp);
             }
             RememberParcel(contents.Id);
             result.Ok = true;
@@ -264,7 +325,7 @@ namespace Evergrove.Core
         public bool PlantGift(int i, int cell)
         {
             if (Mode != PlayMode.Living || i < 0 || i >= state.gifts.Length ||
-                cell < 0 || cell >= MaxMapCell || BoughtCount >= MaxBought)
+                cell < 0 || cell >= MaxMapCell || BoughtCount >= MaxBought || DecorAt(cell) >= 0)
                 return false;
             int kind = state.gifts[i];
             var rest = new int[state.gifts.Length - 1];

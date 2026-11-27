@@ -327,6 +327,180 @@ internal static class WorldIdeasTests
         Expect(giving.Gifts.Length == before + 1 && giving.Seeds == seedsBefore, "a cutting, and nothing else changes");
         Expect(!giving.ReceiveNeighbourCutting(-1) && !giving.ReceiveNeighbourCutting(Nursery.Kinds), "only real kinds");
         Expect(!WorldModel.New(PlayMode.PuzzleOnly).ReceiveNeighbourCutting(0), "only in a living garden");
+        // Idea 49 (sound as a place): what you hear over home follows the season and the hour,
+        // sparsely; there is always something, and never a crowd.
+        foreach (Season season in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
+            foreach (DayPhase phase in new[] { DayPhase.Dawn, DayPhase.Morning, DayPhase.Day, DayPhase.Golden, DayPhase.Dusk, DayPhase.Night })
+            {
+                AmbientVoice[] voices = Soundscape.For(season, phase);
+                Expect(voices.Length >= 1 && voices.Length <= 2, "one or two voices: " + season + " " + phase);
+                bool dark = phase == DayPhase.Dusk || phase == DayPhase.Night;
+                Expect(Array.IndexOf(voices, AmbientVoice.Birds) < 0 || !dark, "no birdsong in the dark");
+                Expect(Array.IndexOf(voices, AmbientVoice.Crickets) < 0 || (dark && (season == Season.Summer || season == Season.Autumn)),
+                    "crickets only on summer and autumn evenings");
+                Expect(season != Season.Winter || Array.IndexOf(voices, AmbientVoice.Wind) >= 0, "winter always has its wind");
+            }
+        Expect(Array.IndexOf(Soundscape.For(Season.Spring, DayPhase.Dawn), AmbientVoice.Birds) >= 0, "a spring dawn chorus");
+        Expect(Soundscape.SecondsBetween(AmbientVoice.Birds) >= 4f && Soundscape.SecondsBetween(AmbientVoice.Wind) >= 6f, "sparse, never busy");
+        // Idea 25 (festivals mark the year): after the story, each spring is a new year, and
+        // the garden keeps a festival through it; never during the story, never by the clock.
+        int spring = -1;
+        for (int solved = 0; solved < 200 && spring < 0; solved++)
+            if (GardenSeason.AfterStory(solved) == Season.Spring) spring = solved;
+        Expect(spring > 0, "the year turns to spring after some tending");
+        Expect(GardenSeason.FestivalAfterStory(spring) && !GardenSeason.FestivalAfterStory(0), "a festival through spring only");
+        for (int solved = 0; solved < 120; solved++)
+            Expect(GardenSeason.FestivalAfterStory(solved) == (GardenSeason.AfterStory(solved) == Season.Spring), "festival is the spring");
+        Expect(GardenSeason.YearAfterStory(0) == 0 && GardenSeason.YearAfterStory(spring) == 1, "the first spring begins year one");
+        Expect(!GardenSeason.Festival(WorldModel.New(PlayMode.Living)), "never during the story");
+        Expect(FamilyParcel.ValidLetter(GardenSeason.FestivalNote(1)) && !GardenSeason.FestivalNote(2).Contains("!"), "a calm note");
+        // Idea 24 (secrets under stones): each stretch after the first hides one mossy stone on
+        // its bank; it sits on free land, beside the water, never on a thing.
+        var long3 = GardenMap.River(10, 15, Mask(), 4);
+        Expect(RiverSecrets.CellFor(long3, 0, new int[0]) < 0, "the first stretch keeps no secret");
+        var usedSecrets = new HashSet<int>();
+        for (int reach = 1; reach < long3.Reaches; reach++)
+        {
+            int cell = RiverSecrets.CellFor(long3, reach, new int[0]);
+            Expect(cell >= 0 && long3.IsLand(cell), "a stone on land in stretch " + reach);
+            Expect(cell / long3.Columns / 15 == reach, "inside its own stretch");
+            bool bank = false;
+            int col = cell % long3.Columns;
+            foreach (int d in new[] { -1, 1, -long3.Columns, long3.Columns })
+            {
+                int next = cell + d;
+                if (next < 0 || next >= long3.CellCount) continue;
+                if ((d == -1 && col == 0) || (d == 1 && col == long3.Columns - 1)) continue;
+                if (long3.At(next) == GardenMap.Water) bank = true;
+            }
+            Expect(bank, "on the river bank");
+            Expect(RiverSecrets.CellFor(long3, reach, new int[0]) == cell, "always the same stone");
+            int moved = RiverSecrets.CellFor(long3, reach, new[] { cell });
+            Expect(moved >= 0 && moved != cell && long3.IsLand(moved), "never under a thing: it moves along the bank");
+            usedSecrets.Add(cell);
+        }
+        Expect(usedSecrets.Count == long3.Reaches - 1, "one per stretch");
+        WorldModel finder = WorldModel.New(PlayMode.Living);
+        int found = RiverSecrets.CuttingFor(finder, 1);
+        Expect(found >= 0 && finder.RowOpen(Nursery.Row(found)), "the secret is a cutting from an open row");
+        Expect(RiverSecrets.CuttingFor(finder, 2) != found || Nursery.Kinds < 2, "stretch by stretch, a different plant");
+        // Idea 6 (go's handicap stones): after hints were needed on a kind, its next board
+        // starts with a small head start; never on the smallest boards, never a solve.
+        for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
+            for (int hints = 0; hints < 12; hints++)
+            {
+                int given = HeadStart.Moves(hints, tier);
+                Expect(given >= 0 && given <= HeadStart.MaxMoves, "a small head start: " + given);
+                Expect(hints >= 2 || given == 0, "only after hints were really needed");
+                Expect(tier > 0 || given == 0, "never on the smallest boards");
+                if (hints > 0) Expect(given >= HeadStart.Moves(hints - 1, tier), "more help needed, a little more given");
+            }
+        Expect(HeadStart.Moves(2, 1) == 1 && HeadStart.Moves(5, 2) == HeadStart.MaxMoves, "one stone, up to a few");
+        // Ideas 8 and 10 join the garden: sowing and seed sums are kinds of their own, with
+        // their own keeper, words, together line and melody; never borrowed from another kind.
+        var words = new HashSet<string>();
+        var togetherLines = new HashSet<string>();
+        foreach (PuzzleKind kind in Enum.GetValues(typeof(PuzzleKind)))
+        {
+            Expect(words.Add(NeighbourNotice.KindWord(kind)), "a word of its own: " + kind);
+            Expect(togetherLines.Add(NeighbourNotice.TogetherLine(kind)), "a together line of its own: " + kind);
+        }
+        Expect(NeighbourNotice.OwnerOf(PuzzleKind.Sowing) == 2 && NeighbourNotice.OwnerOf(PuzzleKind.Sums) == 1,
+            "Fen keeps sowing, Orin keeps the sums");
+        var storyKinds = new HashSet<PuzzleKind>();
+        for (int chapter = ThingPuzzle.ClassicChapters; chapter < GardenCatalog.ChaptersPerGarden; chapter++)
+            storyKinds.Add(ThingPuzzle.ForStory(chapter, VillageChoice.ShadeTree));
+        Expect(storyKinds.Contains(PuzzleKind.Sowing) && storyKinds.Contains(PuzzleKind.Sums), "every garden's story meets both");
+        // Ideas 17 to 19 (visitors come to what you grow, for logical reasons): bees need
+        // three flowers visitedGarden, birds need two trees tended (fruit), butterflies any flower in
+        // a warm season; none come in the dark or, but birds, in winter.
+        WorldModel bareGarden = WorldModel.New(PlayMode.Living);
+        foreach (Visitor v in Enum.GetValues(typeof(Visitor)))
+        {
+            Expect(!Visitors.Welcomes(bareGarden, v), "a bare garden: no " + v + " yet");
+            Expect(Visitors.Why(v).Length > 0 && !Visitors.Why(v).Contains("!"), "each says why it comes");
+        }
+        WorldModel visitedGarden = WorldModel.New(PlayMode.Living);
+        for (int chapter = 0; chapter < 12; chapter++)
+        {
+            Puzzle board = visitedGarden.CurrentPuzzle;
+            for (int i = 0; i < board.CellCount; i++)
+                while (visitedGarden.Rotations[i] != board.Solution[i]) visitedGarden.Rotate(i);
+            visitedGarden.Choose((VillageChoice)(chapter % 3));
+        }
+        Expect(Visitors.Welcomes(visitedGarden, Visitor.Bees), "four flowers visitedGarden welcome the bees");
+        Expect(!Visitors.Welcomes(visitedGarden, Visitor.Birds), "birds wait for trees tended");
+        for (int i = 0; i < visitedGarden.Choices.Length; i++) if (visitedGarden.Choices[i] == (int)VillageChoice.ShadeTree) visitedGarden.SolveTree(i);
+        Expect(Visitors.Welcomes(visitedGarden, Visitor.Birds), "fruit trees tended bring the birds");
+        Expect(Visitors.Out(Visitor.Bees, Season.Summer, DayPhase.Day) && !Visitors.Out(Visitor.Bees, Season.Winter, DayPhase.Day) &&
+               !Visitors.Out(Visitor.Bees, Season.Summer, DayPhase.Night), "bees by warm day only");
+        Expect(Visitors.Out(Visitor.Birds, Season.Winter, DayPhase.Morning) && !Visitors.Out(Visitor.Birds, Season.Spring, DayPhase.Night),
+            "birds stay through winter, sleep at night");
+        Expect(!Visitors.Out(Visitor.Butterflies, Season.Autumn, DayPhase.Day) && Visitors.Out(Visitor.Butterflies, Season.Spring, DayPhase.Golden),
+            "butterflies in spring and summer");
+        // Ideas 9 and 44 join the nursery: garden pieces with Orin's made things, the doorstep
+        // pattern with Fen's flowers, in the last edition of each.
+        var nurseryKinds = new HashSet<PuzzleKind>();
+        for (int kind = 0; kind < Nursery.Kinds; kind++) nurseryKinds.Add(ThingPuzzle.ForNursery(kind));
+        Expect(nurseryKinds.Contains(PuzzleKind.Pieces) && nurseryKinds.Contains(PuzzleKind.Doorstep), "the nursery grows both");
+        Expect(NeighbourNotice.OwnerOf(PuzzleKind.Pieces) == 1 && NeighbourNotice.OwnerOf(PuzzleKind.Doorstep) == 2,
+            "Orin keeps the pieces, Fen the doorstep");
+        // Idea 11 (puzzles found in the world): the old well at the river's head holds the
+        // deepest boards, one per stretch of river opened; each pays two fruit, once.
+        WorldModel welled = WorldModel.New(PlayMode.Living);
+        Expect(welled.WellSolved == 0 && OldWell.Waiting(welled) == 1, "a new garden: the well holds one board");
+        int fruitBefore = welled.Fruit;
+        Expect(welled.TendWell() == OldWell.FruitPerBoard && welled.Fruit == fruitBefore + OldWell.FruitPerBoard, "two fruit, once");
+        Expect(welled.WellSolved == 1 && OldWell.Waiting(welled) == 0 && welled.TendWell() < 0, "then it waits for more river");
+        Expect(!GardenTransfer.Export(WorldModel.New(PlayMode.Living), "2026-11-27T00:00:00Z").Contains("\"well\""),
+            "older gardens' files are unchanged");
+        Expect(GardenTransfer.TryImport(GardenTransfer.Export(welled, "2026-11-27T00:00:00Z"), out WorldModel wellBack, out _) &&
+               wellBack.WellSolved == 1 && wellBack.Fruit == welled.Fruit, "the well's count travels in the garden file");
+        var kindsAtWell = new HashSet<PuzzleKind>();
+        for (int i = 0; i < 40; i++) kindsAtWell.Add(OldWell.KindFor(i));
+        Expect(kindsAtWell.Count == Enum.GetValues(typeof(PuzzleKind)).Length, "the well deals every kind in turn");
+        Expect(OldWell.Tier == TreePuzzles.Tiers - 1, "always the deepest");
+        Expect(OldWell.SeedFor(3, 2) != OldWell.SeedFor(3, 3) && OldWell.SeedFor(3, 2) == OldWell.SeedFor(3, 2), "its own board each time");
+        Expect(WorldModel.New(PlayMode.PuzzleOnly).TendWell() < 0, "only in a living garden");
+        // Idea 40 (omiyage, a keepsake brought home): from a relative's garden you may take a
+        // cutting home, copied, never taken from them, paid at its nursery price like buying.
+        WorldModel guest = WorldModel.New(PlayMode.Living);
+        WorldSnapshot rich = guest.Export();
+        rich.seeds = 200;
+        Expect(WorldModel.TryRestore(rich, out guest), "a guest with seeds");
+        int keepsakeKind = Nursery.Kinds - 1;
+        int keepsakeSeedsBefore = guest.Seeds, giftsBefore = guest.Gifts.Length;
+        Expect(guest.TakeKeepsake(keepsakeKind), "a keepsake is taken home");
+        Expect(guest.Seeds == keepsakeSeedsBefore - Nursery.Price(keepsakeKind) && guest.Gifts.Length == giftsBefore + 1,
+            "it costs its nursery price and lands in the basket");
+        WorldModel poor = WorldModel.New(PlayMode.Living);
+        Expect(!poor.TakeKeepsake(keepsakeKind) && poor.Gifts.Length == 0, "not without the seeds for it");
+        Expect(!guest.TakeKeepsake(-1) && !guest.TakeKeepsake(Nursery.Kinds), "only real plants");
+        Expect(!WorldModel.New(PlayMode.PuzzleOnly).TakeKeepsake(0), "only in a living garden");
+        // Idea 20 (a small life glad to see you, without neglect): the garden cat naps by the
+        // thing you most recently solved by day, by the cottage door after dusk. It has no
+        // needs: nothing to feed, nothing that can go wrong.
+        WorldModel catless = WorldModel.New(PlayMode.Living);
+        Expect(GardenCat.NapBy(catless, DayPhase.Day) == GardenCat.NotHere, "no cat before anything is tended");
+        WorldModel catGarden = WorldModel.New(PlayMode.Living);
+        for (int chapter = 0; chapter < 4; chapter++)
+        {
+            Puzzle board = catGarden.CurrentPuzzle;
+            for (int i = 0; i < board.CellCount; i++)
+                while (catGarden.Rotations[i] != board.Solution[i]) catGarden.Rotate(i);
+            catGarden.Choose((VillageChoice)(chapter % 3));
+        }
+        catGarden.SolveTree(1);
+        catGarden.SolveTree(3);
+        Expect(GardenCat.NapBy(catGarden, DayPhase.Day) == 3, "by day, beside the last solved thing (" + GardenCat.NapBy(catGarden, DayPhase.Day) + ")");
+        Expect(GardenCat.NapBy(catGarden, DayPhase.Night) == GardenCat.ByTheDoor && GardenCat.NapBy(catGarden, DayPhase.Dusk) == GardenCat.ByTheDoor,
+            "after dusk, by the cottage door");
+        Expect(GardenCat.NapBy(WorldModel.New(PlayMode.PuzzleOnly), DayPhase.Day) == GardenCat.NotHere, "only in a living garden");
+        // b309: seed sudoku promises logic only. An honest singles solver must finish every
+        // board (the generator's own check returned v + 1 for a naked single).
+        for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
+            for (int seed = 1; seed <= 300; seed++)
+                Expect(!new SeedSudokuGame(seed, tier).NeedsMoreThanSingles, "sudoku solvable by singles: tier " + tier + " seed " + seed);
         return assertions;
     }
 
