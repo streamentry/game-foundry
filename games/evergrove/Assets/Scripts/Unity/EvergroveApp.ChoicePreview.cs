@@ -74,10 +74,12 @@ namespace Evergrove.UnityClient
             int generation = rebuildGeneration;
             var preview = Card(content, "Choice preview", MosseloraTheme.CardFill);
             choicePreviewPanel = preview.GetComponent<RectTransform>();
-            Label(preview.transform, "Choice preview heading", GameLocalization.Text("preview_title"),
-                16, 0, Moss, TextAnchor.MiddleCenter);
+            // I394 (run 3, P20): the thing you tapped, by its own name ("Weathervane"), as on its
+            // card; "Before you choose" is spoken only, the open card already says it.
+            SpokenOnly(Label(preview.transform, "Choice preview heading", GameLocalization.Text("preview_title"),
+                16, 0, Moss, TextAnchor.MiddleCenter));
             Text choiceName = Label(preview.transform, "Choice preview name",
-                LocalizedVillage.Choice(choicePreview.Choice), 19, 0, Ink, TextAnchor.MiddleCenter);
+                ChoiceName(choicePreview.Choice), 19, 0, Ink, TextAnchor.MiddleCenter);
             Emphasize(choiceName);
             Label(preview.transform, "Choice preview consequence",
                 LocalizedVillage.Consequence(choicePreview.WorldAfter),
@@ -93,10 +95,11 @@ namespace Evergrove.UnityClient
                 stack.childControlWidth = stack.childControlHeight = true;
                 stack.childForceExpandWidth = true;
                 stack.childForceExpandHeight = false;
-                Label(nextStream.transform, "Next stream preview heading",
+                // I394 (P19): the stepping stones already count the streams; spoken only.
+                SpokenOnly(Label(nextStream.transform, "Next stream preview heading",
                     GameLocalization.Text("next") + " · " +
                     GameLocalization.Text("stream", choicePreview.WorldAfter.Round + 1, PuzzleCatalog.Count),
-                    15, 0, Ink, TextAnchor.MiddleCenter);
+                    15, 0, Ink, TextAnchor.MiddleCenter));
                 BuildPreviewAnchor(nextStream.transform, choicePreview);
                 Label(nextStream.transform, "Next stream preview rule",
                     LocalizedVillage.EnvironmentalRule(choicePreview.WorldAfter),

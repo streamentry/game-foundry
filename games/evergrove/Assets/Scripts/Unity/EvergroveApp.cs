@@ -3336,7 +3336,9 @@ namespace Evergrove.UnityClient
                     for (int i = made.Length - 1; i >= 0 && cell < 0; i--)
                         if (made[i] == villager) cell = cells[i];
                 Vector2 at = cell >= 0
-                    ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns / 2 ? 0.95f : -0.95f), 0f)
+                    // I397 (b320 tour: Fen stood half on her birch): a painting is wider than its
+                    // cell, so they stand a step and a quarter beside it, toward the middle.
+                    ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns / 2 ? 1.25f : -1.25f), 0f)
                     : point(Mathf.Min(byCottage[villager], map.CellCount - 1));
                 // Nothing of their own yet: they come to see the newest thing you made,
                 // which the map always opens on, so they are in view (I187).
@@ -4808,6 +4810,16 @@ namespace Evergrove.UnityClient
             MosseloraArt.Lift(disc, 2f, 0.25f);
             MosseloraArt.Ornament(disc.transform, "Item", art, new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f), new Vector2(58f, 58f), Vector2.zero);
+        }
+
+        // I393: text a screen reader still speaks but the screen no longer shows (the picture
+        // or an earlier lesson already says it).
+        private static void SpokenOnly(Text text)
+        {
+            if (text == null) return;
+            text.color = new Color(0f, 0f, 0f, 0f);
+            LayoutElement layout = text.GetComponent<LayoutElement>() ?? text.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
         }
 
         // The card's visible label (I196): the thing itself, "Silver birch", not the
@@ -6989,8 +7001,11 @@ namespace Evergrove.UnityClient
                         24, 56, Ink, TextAnchor.MiddleCenter);
                     Emphasize(chooseTitle);
                     decisionHeading = chooseTitle.rectTransform;
-                    Label(content, "Choice preview help", GameLocalization.Text("preview_help"),
+                    Text chooseHelp = Label(content, "Choice preview help", GameLocalization.Text("preview_help"),
                         16, 0, Ink, TextAnchor.MiddleCenter);
+                    // I393 (run 3, P18): said once, at the first choice; after that it is known,
+                    // and still spoken to a screen reader.
+                    if (world.Round > 0) SpokenOnly(chooseHelp);
                     // Three tall painted cards side by side, like cards on a table.
                     // With larger text they stack as wide cards so no word breaks.
                     bool stacked = TextScale.Percent > 100;
@@ -9085,9 +9100,10 @@ namespace Evergrove.UnityClient
             int w = map.Columns;
             int[][] shapes =
             {
-                new[] { 0, 1, 1 + w, w, -1, 2 }, new[] { 0, -1, -1 + w, w, 1, -2 },
+                // Upward first: home opens with the newest thing (f1) low in view, so the rest shows above it.
                 new[] { 0, 1, 1 - w, -w, -1, 2 }, new[] { 0, -1, -1 - w, -w, 1, -2 },
-                new[] { 0, 1, 1 + w, w, -w, 1 - w }, new[] { 0, -1, -1 + w, w, -w, -1 - w },
+                new[] { 0, 1, 1 - w, -w, -1 - w, 2 - w }, new[] { 0, -1, -1 - w, -w, 1 - w, -2 - w },
+                new[] { 0, 1, 1 + w, w, -1, 2 }, new[] { 0, -1, -1 + w, w, 1, -2 },
             };
             for (int c0 = 0; c0 < map.CellCount; c0++)
                 foreach (int[] shape in shapes)
