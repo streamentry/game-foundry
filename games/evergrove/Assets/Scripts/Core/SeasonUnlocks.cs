@@ -22,7 +22,7 @@ namespace Evergrove.Core
         /// <summary>The season turn this chapter opens on: 0 spring, 1 summer, 2 autumn, 3 winter.</summary>
         public int Turn { get; }
         public Season Season { get; }
-        /// <summary>Plain words for the almanac: "spring brought &lt;Brings&gt;".</summary>
+        /// <summary>Plain words for the almanac: "spring can bring &lt;Brings&gt;".</summary>
         public string Brings { get; }
         public SeasonYield Gives { get; }
         /// <summary>The good neighbour the season's gift needs standing in the garden; null for winter.</summary>
@@ -67,14 +67,16 @@ namespace Evergrove.Core
             return open;
         }
 
-        /// <summary>The almanac's line, "This year: spring brought ..., summer brought ...", or null before any chapter.</summary>
+        /// <summary>The almanac's line, "This year: spring can bring ..., summer can bring ...", or null before any chapter.</summary>
         public static string YearLine(WorldModel world)
         {
             SeasonUnlock[] open = Unlocked(world);
             if (open.Length == 0) return null;
             var parts = new List<string>(open.Length);
+            // "can bring", not "brought": a chapter is open, but its gift still needs its pairing standing
+            // (a tour showed "spring brought …" beside "Nothing paired up yet").
             foreach (SeasonUnlock chapter in open)
-                parts.Add(chapter.Season.ToString().ToLowerInvariant() + " brought " + chapter.Brings);
+                parts.Add(chapter.Season.ToString().ToLowerInvariant() + " can bring " + chapter.Brings);
             return "This year: " + string.Join(", ", parts.ToArray()) + ".";
         }
     }
