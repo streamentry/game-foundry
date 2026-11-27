@@ -20,6 +20,9 @@ On an iPhone held sideways, the cottage summary card (`EvergroveApp.OpenCottage`
 | Landscape (`tour-k2l`) | k2 | 2 (top, then the end) | yes |
 | Portrait 100% (`tour-k2p`) | k2 | 1 (no scrolling needed) | yes |
 | Portrait 150% (`tour-k2x`) | k2 | 2 | yes |
+| Landscape after merging main (`tour-k3l`) | k3 | 2 | yes |
+
+After main split `EvergroveApp.cs` into area partials, the change lives in `EvergroveApp.Cottage.cs` (card) and `EvergroveApp.Qa.cs` (`QaGardenName`). The tour's cottage shots moved to `DevQaTour.Cottage.cs`, because `FileSizeTests` only lets `DevQaTour.cs` shrink. Build k3 had 0 `error CS` and an Info.plist. Main's newer lines (the season's yield, the nearest hope) still fit across the two landscape shots.
 
 - Unity iOS-simulator builds k1 and k2: 0 `error CS`, and the built `.app/Info.plist` exists.
 - `games/evergrove/Tests` (`dotnet run`) passed, including `LongPressCaptionTests` (the cottage backdrop is still the only raw button in `OpenCottage`).
