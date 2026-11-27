@@ -35,7 +35,7 @@ internal static class LineBankTests
         int shipped = ShippedBanks(rules);
         EnglishSpeaks(rules);
         int drafts = ReviewDrafts(rules);
-        Console.WriteLine("Line bank SC03: " + shipped + " shipped lines and " + drafts + " draft lines pass every rule.");
+        Console.WriteLine("Line bank SC03/SC04: " + shipped + " shipped lines and " + drafts + " draft lines pass every rule.");
         return assertions;
     }
 
@@ -209,14 +209,14 @@ internal static class LineBankTests
             foreach (CompanionContext context in CompanionFactsTests.Contexts(map).Where(c => c.Map != null)) // without the map, {where} is unknown and today's sentence speaks
                 foreach (Fact fact in CompanionFacts.For(world, context))
                 {
-                    if (!en.Kinds.Contains(fact.Kind)) continue;
                     int speaker = fact.Keeper < 0 ? 0 : fact.Keeper;
                     string text = en.Speak(fact, speaker, world.Garden, context.DayNumber, CompanionMemory.Empty, out int variant);
                     Expect(text != null && variant >= 0 && !text.Contains("{") && !text.Contains("}"), "English speaks " + fact + ": " + text);
                     Expect(text.Length <= rules.MaxChars, "within " + rules.MaxChars + " characters: " + text);
                     spoken.Add(fact.Kind);
                 }
-        foreach (FactKind kind in en.Kinds) Expect(spoken.Contains(kind), "the English bank speaks for " + kind);
+        foreach (FactKind kind in Enum.GetValues(typeof(FactKind)))
+            Expect(spoken.Contains(kind), "the English bank speaks for every fact kind: " + kind);
     }
 
     private static IEnumerable<WorldModel> KindsSaves()
@@ -245,7 +245,8 @@ internal static class LineBankTests
         {
             LineBank bank = LineBank.Parse(File.ReadAllText(path));
             count += CheckBank(Path.GetFileName(path), rules, bank.Keys.ToDictionary(k => k,
-                k => bank.Voices(k).ToDictionary(v => v, v => bank.Lines(k, v).ToList())));
+                k => bank.Voices(k).ToDictionary(v => v, v => bank.Lines(k, v).ToList())),
+                complete: Path.GetFileName(path) == "en.json"); // SC04: English covers every kind
         }
         return count;
     }

@@ -1,6 +1,6 @@
 # Companion lines: YieldGiven
 
-**Status: draft, not reviewed.** Written by hand (no script) on 2026-11-27 for smart companion SC04. Nothing here ships until a person has read every line; accepted lines move into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`, rejected ones are deleted.
+**Status: approved by the founder on 2026-11-27 (every line), and moved into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`.** Written by hand (no script) for smart companion SC04. This file stays as the review record; `en.json` is what ships.
 
 **The fact:** this season's yield was taken (the save records it): spring, a flower bed sowed itself into a seedling in your basket (Fen). Summer, the grove gave seeds, and autumn, the orchard gave fruit (Mira). Winter, a jar of jam came for the fruit you gave (anyone, because the save doesn't keep who brought it). Said once.
 

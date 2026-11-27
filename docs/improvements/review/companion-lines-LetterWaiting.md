@@ -1,6 +1,6 @@
 # Companion lines: LetterWaiting
 
-**Status: draft, not reviewed.** Written by hand (no script) on 2026-11-27 for smart companion SC04. Nothing here ships until a person has read every line; accepted lines move into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`, rejected ones are deleted.
+**Status: approved by the founder on 2026-11-27 (every line), and moved into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`.** Written by hand (no script) for smart companion SC04. This file stays as the review record; `en.json` is what ships.
 
 **The fact:** a letter or note is in your letterbox, unread on this device. Orin keeps an eye on the lane, so only he says it.
 

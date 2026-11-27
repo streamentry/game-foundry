@@ -338,5 +338,873 @@
       "The two of you finished {work}. A flower would be proud to be planted by either of you.",
       "You did {work} as a pair. Even the snails would have stopped to watch."
     ]
+  },
+  "NewArrival": {
+    "0": [
+      "There's a new {thing} in the garden. Give it a season and it will have opinions about the wind.",
+      "Your new {thing}. I always think a young tree looks a little surprised to be planted.",
+      "A new {thing}. My grandmother would have walked round it three times, for luck.",
+      "I see there's a new {thing}. Trees take their time settling; so should we.",
+      "There's a whole life ahead for your new {thing}. That's a lovely thing to stand next to.",
+      "I'll have to tell all my old stories from the beginning, for your new {thing}.",
+      "When there's a moment, there's a puzzle waiting under your new {thing}. No hurry at all.",
+      "A new {thing}, and the garden's a little older and a little younger at once.",
+      "I said hello to your new {thing}. Young trees like to be spoken to, my mother said.",
+      "Your new {thing}: plant a tree and you plant a bit of the future. My father said that, and he planted plenty.",
+      "There's a new {thing} in the garden. I'll keep it company until it's tall enough to keep me company.",
+      "A new {thing}. The birds will have something to argue about.",
+      "Your new {thing} put a smile on me. Trees do that, new ones especially.",
+      "I counted the trees in your garden and got a different answer. That's the new {thing}.",
+      "A young {thing}, new in the garden. I'll show it where the water runs.",
+      "There's a new {thing}, and it's yours. I like that every tree here has a story of who planted it.",
+      "My grandmother named every tree she had. Your new {thing} could do with a name.",
+      "New trees are shy for a while. I'll stand near your {thing} and let it get used to faces.",
+      "A new {thing} in the garden. That's how a grove begins, one tree at a time.",
+      "Not a single ring in your new {thing} yet. Everything starts somewhere."
+    ],
+    "1": [
+      "There's a new {thing} in the garden. I'll want a look at how it's put together.",
+      "A new {thing}. Fresh wood has a smell to it. Best smell there is, after bread.",
+      "Your new {thing}. I always go round a new build twice: once to admire it, once to check it.",
+      "I saw the new {thing}. Somebody chose well.",
+      "A new {thing} in the garden. When you've a moment, there's a puzzle tucked under it.",
+      "Your new {thing}: I'll bring my level by, if you don't mind. Professional curiosity.",
+      "New work in the valley. Your {thing} gives me something to think about.",
+      "A new {thing}. Good. A garden needs things built in it, not just grown.",
+      "I like a new {thing}. Clean edges, nothing worn yet. Give it a few years and it'll have stories.",
+      "Your new {thing} caught my eye from the lane.",
+      "There's a new {thing}. I'll keep an eye on it through its first winter. First winters tell you everything.",
+      "A new {thing}. Nothing pleases a builder like somebody else's good work.",
+      "Your new {thing}: whoever joined it knew their trade.",
+      "New {thing} in the garden, I see. That's the sort of news I like.",
+      "I walked round your new {thing} with my hands behind my back. That's how my father inspected things.",
+      "A new {thing}. Every built thing in a garden is a little promise that someone will use it.",
+      "Sound work, your new {thing}. I can tell from here.",
+      "A new {thing}. I'll not say anything clever; I'll just say it's good.",
+      "When you've time, there's a puzzle waiting under your new {thing}. It'll keep until you're ready.",
+      "Your new {thing}. I've thought of three things I'd build beside it. I'll keep them to myself."
+    ],
+    "2": [
+      "A new {thing} in the garden. I had to come and look straight away.",
+      "Your new {thing}. The bees will be round to inspect it before long.",
+      "Oh, there's a new {thing}. I've been grinning about it since I saw.",
+      "A new {thing}. I always wonder what a new flower thinks of its first view.",
+      "Your new {thing}: I knelt down to say hello properly.",
+      "A new {thing}. Ladybirds like a fresh flower to explore. I'll watch for them.",
+      "When you've a minute, there's a puzzle under your new {thing}. No rush; flowers are patient.",
+      "Your new {thing}. Somewhere a butterfly is already planning a visit, I'm sure.",
+      "A new {thing} in the garden. That's the best kind of news.",
+      "I found your new {thing}. I walked straight past it at first, then turned round for a proper look.",
+      "Your new {thing}. My grandmother said every new flower brings its own weather. I'm not sure what she meant, but I like it.",
+      "There's a new {thing}. I'll sketch it in my notebook later.",
+      "A new {thing}. Hoverflies love a fresh flower. They hover, then decide, then dive.",
+      "I leaned in close to your new {thing}. Flowers always look different up close.",
+      "A new {thing}. Bumblebees can't resist a new flower. Neither can I.",
+      "Your new {thing}: I'd like to sit beside it with a cup of tea and do nothing at all.",
+      "A new {thing} in the garden. Every flower here has a little story. This one's is just beginning.",
+      "Your new {thing}. Even the worms will be pleased; they like a new root to work around.",
+      "A new {thing}. I did a little skip when I saw. Nobody was watching, I hope.",
+      "Your new {thing}. Flowers make friends faster than people. It'll be part of the garden in no time."
+    ]
+  },
+  "LetterWaiting": {
+    "1": [
+      "There's a letter in your box from {name}. I saw the flag up as I passed.",
+      "Letter for you, from {name}. It's in your box, waiting.",
+      "Your letterbox has something in it: a letter from {name}.",
+      "I noticed the flag on your letterbox. A letter from {name}, by the look of it.",
+      "There's post for you. A letter from {name}, in your box by the gate.",
+      "A letter from {name} is waiting in your box.",
+      "You've a letter in your box, from {name}. Letters keep; take your time.",
+      "I don't read other people's post, but I do notice flags. There's one up for {name}'s letter.",
+      "Something from {name} in your letterbox. I'd read it sitting down, with a cup of tea.",
+      "A letter from {name} for you. A letter is worth two of anything else, I always say.",
+      "Your box has a letter from {name} in it. I gave the hinge a drop of oil while I was there.",
+      "The flag's up on your letterbox. A letter from {name}.",
+      "There's a letter from {name} waiting in your box. It'll keep as long as you like.",
+      "Post for you: one letter, from {name}.",
+      "I straightened your letterbox flag. It's up for a letter from {name}.",
+      "A letter from {name} came. It's in your box, safe and dry.",
+      "There's a letter from {name} in your box. Somebody's thinking of you.",
+      "You'll find a letter from {name} in your letterbox, whenever you're ready.",
+      "A letter's arrived from {name}. Your box has it, safe.",
+      "Letters are good things. There's one from {name} in your box."
+    ]
+  },
+  "HelpedBy": {
+    "0": [
+      "I hear {name} helped you with {work}. Help like that is worth keeping.",
+      "Help from {name} with {work}. A garden tended by more than one pair of hands grows differently.",
+      "So {name} gave you a hand with {work}. How kind.",
+      "It looks like {name} did {work} for you. Some help arrives without being asked for.",
+      "My grandmother said help is a gift you pass on. Now {name} has passed some to you, with {work}.",
+      "I saw what {name} did with {work}. Careful work, and kindly meant.",
+      "Thanks to {name}, {work} is done. That's a kindness worth remembering.",
+      "You'd never know {name} was far away: {work} is done, and well.",
+      "A helping hand from {name}, on {work}. The garden doesn't forget that sort of thing.",
+      "I like to think of {name} working on {work} for you, wherever they were.",
+      "Look at that: {work}, done by {name}. Help is the best kind of present.",
+      "Did you see that {name} did {work} for you? It's a lovely thing to find.",
+      "When {name} helped with {work}, the whole garden got a little kinder.",
+      "You've good people about you. It was {name} who did {work}, I see.",
+      "My mother always said, accept help gladly and give it freely. That's what {name} did with {work}.",
+      "There's {name}'s help in {work}. I can always tell when something was done for someone else.",
+      "So that's {work} done, with help from {name}. Nothing grows quite like shared work.",
+      "I heard {name} lent a hand with {work}. Some help is worth a letter back, I always think.",
+      "It was {name} who did {work}. I'd know a kind hand anywhere.",
+      "Help with {work}, from {name}. My grandmother would have called that a good omen for the garden."
+    ],
+    "1": [
+      "I see {name} had a go at {work} for you. Tidy job.",
+      "Help from {name} on {work}. Good. Many hands, light work.",
+      "So {name} did {work}. I'd shake their hand if they were here.",
+      "That's {work} done by {name}. Can't fault the work.",
+      "It was {name} who did {work}, I hear. A useful person to know.",
+      "You had help with {work}, from {name}. Nothing wrong with help. I've never built anything big alone.",
+      "I had a look at what {name} did with {work}. Neat, no shortcuts.",
+      "Whoever taught {name} to do {work} taught them well.",
+      "Good of {name} to take on {work}. That's real help, the kind you can see.",
+      "Help that turns up without being asked for is the best kind. I see {name} did {work}.",
+      "With {name} on {work}, that's one job you can tick off.",
+      "I didn't think {work} could be done from far away. Then {name} managed it.",
+      "I'd put {name} to work in my shed any day, after {work}.",
+      "Help from {name} on {work}. Plain and useful, the best kind.",
+      "When {name} did {work}, they saved you a job and gave you a story.",
+      "I'll say this for {name}: {work} was done properly.",
+      "A good neighbour does what's needed. Here, {name} did {work}.",
+      "Help on {work}, from {name}. I'd have charged for that. Joking. Mostly.",
+      "I see the hand of {name} in {work}. Steady hand, too.",
+      "So {name} came through with {work}. That's worth a thank-you note, if you're the writing kind."
+    ],
+    "2": [
+      "Oh, {name} did {work} for you. That's the loveliest kind of surprise.",
+      "Look what {name} did: {work}. I'm so pleased.",
+      "Help from {name}, with {work}. Ants are like that: they share the work without a fuss.",
+      "I heard {name} did {work}. That made me smile all the way down the lane.",
+      "It was {name} who did {work}. Some people just know when to help.",
+      "So {name} took care of {work}. I'd like to send them a flower for that.",
+      "There's love in {work}, from {name}. I can tell.",
+      "You've got a helper in {name}; just look at {work}.",
+      "Thanks to {name}, {work} is done. I'd give them the best seat in my garden.",
+      "How kind of {name} to do {work}. Kindness spreads like seeds on the wind.",
+      "I'd love to know how {name} did {work}. Ask them, if you're writing back.",
+      "Somebody special did {work} for you. It was {name}, I believe.",
+      "A helping hand from {name}, on {work}. That's like finding a flower you didn't plant.",
+      "I saw {work}, all done, and it was {name} who did it. I did a little dance.",
+      "With help from {name} on {work}, the garden feels bigger somehow.",
+      "Help from {name} with {work}. My grandmother said a helped garden blooms brighter. I think she was right.",
+      "So {name} did {work} for you. That's the sort of thing worth remembering.",
+      "It was kind of {name} to do {work}. I'm adding them to my list of good people.",
+      "What a nice thing for {name} to do, {work}. It's put a song in my head.",
+      "Help came with {work}, from {name}. I hope it made you smile too."
+    ]
+  },
+  "RiverClose": {
+    "0": [
+      "The mist down the river is thin as muslin now. Tend one more thing and it'll lift.",
+      "I can almost see through the mist downstream. One more thing tended, I'd say.",
+      "The river's holding its breath. One more thing tended, and the mist will clear.",
+      "My grandmother could read mist like a letter. This one says: one more thing tended.",
+      "One more thing tended and the mist downstream will go. I can feel it thinning from here.",
+      "The mist is lifting at the edges. Tend one more thing, whenever you like, and there'll be new river.",
+      "There's new river waiting under that mist. One more thing tended will show it.",
+      "I walked down to the mist. It's thin now; one more tended thing will see it off.",
+      "The far bank is nearly showing through. One more thing tended, and we'll see it.",
+      "You're close. One more thing tended and the river runs on.",
+      "The mist knows you're nearly there. One more thing tended.",
+      "I keep looking downstream. The mist won't last past one more tended thing.",
+      "Just one more thing tended, and the mist down the valley will lift.",
+      "The river's been patient, and so have you. One more thing tended and it opens.",
+      "The mist downstream has gone pale and thin. That means one more thing tended will do it.",
+      "Something's waiting under the mist. One more tended thing and we'll find out what.",
+      "My mother said mist is just the river thinking. It's nearly done thinking: one more thing tended.",
+      "I can hear water past the mist now. Tend one more thing and you'll see it too.",
+      "The mist is only a veil now. One more thing tended will draw it back.",
+      "One more. That's all the mist is waiting for: one more thing tended."
+    ]
+  },
+  "RiverFurther.Spring": {
+    "0": [
+      "The river runs further than it ever has, and spring came down with it. The new bank is all blossom.",
+      "New river, and it brought spring. The new bank is soft and green.",
+      "The river's opened further, and the new stretch is pure spring. Buds on everything.",
+      "Further than ever, the river runs now. Spring came with the new water.",
+      "There's new river down the valley, and it's spring there. My grandmother loved the first green of a new bank."
+    ]
+  },
+  "RiverFurther.Summer": {
+    "0": [
+      "The river runs further than it ever has. Summer came with it, warm and green.",
+      "New river, and it's summer on the new bank. The water's warm enough for paddling.",
+      "The river's opened down the valley. It brought summer: long grass, slow water.",
+      "Further than ever now. The new stretch came with summer, and the dragonflies found it first.",
+      "There's new river, and summer with it. The new bank's just waiting for roots."
+    ]
+  },
+  "RiverFurther.Autumn": {
+    "0": [
+      "The river runs further than ever, and autumn came with it. The new bank is gold already.",
+      "New river, and it brought autumn. Leaves are riding the water down.",
+      "The river's opened further. The new stretch is all autumn, gold and quiet.",
+      "Further than it ever ran, the river. Autumn came down with it, red and gold.",
+      "There's new river, and the new bank is autumn-coloured. My father loved this kind of light."
+    ]
+  },
+  "RiverFurther.Winter": {
+    "0": [
+      "The river runs further than ever, and winter came with it. Even the new bank is frosted.",
+      "New river, and it brought winter. The new bank is white and quiet.",
+      "The river's opened further. Winter came with it; the new stretch sparkles with frost.",
+      "Further than ever now. The new bank is wintry, and the water's clear as glass.",
+      "There's new river under the frost. Come spring, it'll want roots."
+    ]
+  },
+  "WeatherToday.Rainy": {
+    "0": [
+      "Rain today. The trees are standing very still and drinking.",
+      "Rain on the river today. It makes the water sound like it's whispering.",
+      "A rainy one. My grandmother said rain is the trees' favourite song.",
+      "Rain today. The bark goes dark and the moss goes bright. Trees look their best wet.",
+      "It's raining. A good day to stand under a tree and listen."
+    ],
+    "1": [
+      "Rain today. I've cleared the drains on the bridge. Water likes a way out.",
+      "Raining. Good day for the workshop; I'll mend what needs mending.",
+      "Rain today. Wood darkens when it's wet, and you can see the grain properly.",
+      "A wet one. The lane's puddled, but the bridge stones are holding fine.",
+      "Rain today. A roof shows its worth in weather like this."
+    ],
+    "2": [
+      "Rain today. The soil's drinking deep; the roots will be glad of it.",
+      "Raining. Worms come up to feel the rain, and the blackbirds are very pleased about that.",
+      "Rain today. Puddles in the paths, and the beds are dark and soft.",
+      "A rainy one. Raindrops sit on every stem like tiny glass beads.",
+      "Rain today. The bees are staying home. Sensible bees."
+    ]
+  },
+  "WeatherToday.Windy": {
+    "0": [
+      "Windy today. The branches are talking to each other.",
+      "A windy one. Listen to the trees; they sound like the sea.",
+      "The wind's up today. Young trees bend so they don't break. Wise of them.",
+      "Windy today. My mother hung washing in this sort of wind; dry in an hour.",
+      "The wind's in the branches today. Every tree has its own voice in a wind."
+    ],
+    "1": [
+      "Windy today. I've tied down anything that might wander off.",
+      "A windy one. You learn which joints are sound on a day like this.",
+      "The wind's up. I checked the shed door; it's latched.",
+      "Windy today. Good drying weather for timber.",
+      "A blustery day. Everything's creaking, but nothing's moving that shouldn't."
+    ],
+    "2": [
+      "Windy today. The birds are sheltering in the hedge, feathers puffed up.",
+      "A windy one. The flowers are dancing whether they want to or not.",
+      "Windy today. I've staked the tallest stems so they don't snap.",
+      "The wind's up. Everything small is tucked away somewhere snug.",
+      "Windy today. Leaves and bits of straw blowing about like confetti."
+    ]
+  },
+  "WeatherToday.Hot": {
+    "0": [
+      "Hot today. The best place in the garden is under a tree, and the trees know it.",
+      "A hot one. The river's slow and lazy, and so am I.",
+      "Hot today. Trees give shade without being asked. I've always loved that about them.",
+      "A warm day. The leaves turn their edges to the sun, to keep cool.",
+      "Hot today. Sit in the shade a while, if you like. The trees won't mind."
+    ],
+    "1": [
+      "Hot today. Wood swells in the heat and doors stick. I'll leave the shed open.",
+      "A hot one. I've put my tools in the shade. Metal gets too warm to hold.",
+      "Hot today. Good weather for paint to dry. Not for the painter, mind.",
+      "Hot today. The water under the bridge is the coolest thing in the valley.",
+      "A scorcher. I'll do my sawing early and my sitting late."
+    ],
+    "2": [
+      "Hot today. The bees are drinking at the edge of the water, little sips.",
+      "A hot one. The flowers smell strongest in the heat. Breathe in.",
+      "Hot today. The butterflies love it. They open their wings to soak up the sun.",
+      "Hot today. I've filled a saucer with water for the bees, with pebbles so they don't fall in.",
+      "A warm day. The ladybirds are out sunning themselves."
+    ]
+  },
+  "WeatherToday.Snowy": {
+    "0": [
+      "Snow today. The trees are wearing white and standing very proud.",
+      "Snowing. The river's gone quiet under the snow, the way a house goes quiet when everyone's asleep.",
+      "Snow on the branches today. My grandmother said snow is a blanket the sky lends the trees.",
+      "A snowy day. Every branch has a white line along it, neat as stitching.",
+      "Snow today. The trees don't mind; they've been through more winters than any of us."
+    ],
+    "1": [
+      "Snow today. I've swept the path so nobody slips.",
+      "Snowing. Snow shows you every footstep. I can see where the birds have been.",
+      "Snow today. A good roof holds it; a poor one tells you soon enough.",
+      "A snowy day. I've got the stove lit in the workshop. Warm your hands there if you like.",
+      "Snow on the rails today. I'll put a bit of grit on the bridge."
+    ],
+    "2": [
+      "Snow today. The hedgehogs are fast asleep, and quite right too.",
+      "Snowing. Under the snow, the bulbs are waiting. They know what they're doing.",
+      "Snow today. I scattered seed for the birds by my gate.",
+      "Robins follow gardeners in the snow, hoping for a worm. Mine's been at my heels.",
+      "Snow today. Ladybirds sleep through it, tucked together in a crack in the bark."
+    ]
+  },
+  "PairingToFind.Grove": {
+    "0": [
+      "Two trees side by side make a grove. They keep each other company.",
+      "Plant two trees next to each other and you've a grove. My grandmother's had seven.",
+      "A tree on its own is fine. Two side by side is a grove, and that's better.",
+      "Trees like a neighbour. Put two side by side and see what happens.",
+      "Two trees together, touching: that's a grove. Owls like groves, I hear.",
+      "If you ever plant two trees side by side, you'll have made a grove.",
+      "A grove is just two trees that stand together. Simple as that.",
+      "My father always planted trees in pairs. A grove, he said, never one alone.",
+      "Two trees side by side share their shade. That's a grove.",
+      "Try two trees next to each other sometime. A grove changes how a garden feels."
+    ]
+  },
+  "PairingToFind.Orchard": {
+    "0": [
+      "A tree touching two others makes an orchard. They'd crop better for the company.",
+      "Three trees together, one in the middle touching both: that's an orchard.",
+      "An orchard is a tree with a neighbour on each side. My grandmother's was full of plums.",
+      "Put a tree between two others and you'll have an orchard. They like it that way.",
+      "A tree that touches two others: that's what makes an orchard. Fruit in autumn, too.",
+      "If one tree stands touching two more, you've an orchard. It's worth trying.",
+      "Orchards are just trees that like a crowd. One in the middle, one each side.",
+      "My mother said an orchard is a family of trees. One tree touching two others will start one.",
+      "Three trees close together, one touching the other two: an orchard. They'd fruit for you in autumn.",
+      "Try a tree with a neighbour on two sides. That's an orchard, and orchards are generous."
+    ]
+  },
+  "PairingToFind.ByTheWater": {
+    "1": [
+      "Build something beside the water. The river and good work get along.",
+      "Anything built right by the water does well. I've always liked a bit of craft by a river.",
+      "Put something built at the water's edge. Herons like that sort of spot, I'm told.",
+      "A built thing beside the water: that's a pairing worth finding.",
+      "Water and woodwork, side by side. Try something built by the river.",
+      "My father built everything near water. Beside it, never in it, he'd say.",
+      "Something built beside the water. It's where the best bridges and benches live.",
+      "If you've a built thing to place, try it right by the water.",
+      "The river likes company. Something built beside it would suit.",
+      "Built things by the water get noticed. By herons, mostly."
+    ]
+  },
+  "PairingToFind.ShadySeat": {
+    "1": [
+      "Something built beside a tree makes a shady seat. Best place to rest your legs.",
+      "Put a built thing next to a tree. Shade and a seat: that's all a body needs.",
+      "A shady seat is just something built beside a tree. Simple, and it works.",
+      "My workbench has always stood beside a tree. Try something built next to one of yours.",
+      "Try building beside a tree. The shade does half the work of a good seat.",
+      "A tree and something built, side by side: a shady seat. Worth finding.",
+      "If you build next to a tree, you get shade for free. Can't argue with free.",
+      "Something built beside a tree. That's where I'd put a bench, and I've put a few.",
+      "A built thing in a tree's shade lasts longer. The sun's hard on wood.",
+      "Next time you place something built, try it beside a tree."
+    ]
+  },
+  "PairingToFind.Sheltered": {
+    "2": [
+      "A flower beside a tree is sheltered. The tree keeps the worst of the wind off.",
+      "Try a flower next to a tree. Hedgehogs like a sheltered flower to visit at dusk.",
+      "Some flowers like a tree to lean on. Plant one beside a tree.",
+      "A sheltered flower, beside a tree: it's cosier than it sounds.",
+      "My grandmother always planted primroses at the foot of a tree. Try a flower beside one of yours.",
+      "A flower next to a tree gets shade in the heat and shelter in the wind.",
+      "Plant a flower beside a tree and you've made somewhere sheltered. The small creatures notice."
+    ]
+  },
+  "PairingToFind.FlowerBed": {
+    "2": [
+      "Two different flowers side by side make a flower bed. They show each other off.",
+      "Put two different flowers next to each other. A bed is twice as pretty as two flowers apart.",
+      "A flower bed is just two different flowers side by side. The bees love a choice.",
+      "Try two kinds of flower together. Different ones; that's the trick.",
+      "Two different flowers side by side: a bed. Butterflies go from one to the other like visitors.",
+      "My mother never planted one flower alone. Two different ones, side by side, she'd say.",
+      "Different flowers next to each other make a bed. Come spring, a bed sows itself."
+    ]
+  },
+  "PairingToFind.Waterside": {
+    "2": [
+      "A flower right beside the water is a waterside flower. Some love it there.",
+      "Try a flower at the water's edge. Kingfishers like to perch near one.",
+      "Plant a flower beside the water. Its reflection's half the pleasure.",
+      "Flowers by the water drink whenever they like. Try one right at the edge.",
+      "A flower beside the river: that's a pairing worth finding.",
+      "My aunt grew flowers along the stream bank. Try one of yours right by the water."
+    ]
+  },
+  "Hour.Dawn": {
+    "0": [
+      "First light on the river. It's the quietest hour there is.",
+      "Dawn. The trees are waking up slowly, the way old friends do.",
+      "Early light. My grandmother was always up at this hour, listening to the river.",
+      "The light's only just come. Everything looks freshly made.",
+      "Dawn on the water. If you're very still, the whole valley seems to breathe."
+    ],
+    "1": [
+      "First light. Best hour for work: cool, quiet, and nobody asking questions.",
+      "Dawn. The light's low enough to show every crack in the old stones.",
+      "Early. I've had my tea and I'm ready to start.",
+      "First light on the lane. Everything still and waiting.",
+      "Dawn. My father was always at his bench by this hour."
+    ],
+    "2": [
+      "Dawn. The flowers are still folded, waiting for the sun.",
+      "First light over the beds. Everything's grey and gentle, waiting for colour.",
+      "Early light. Spiders have been busy hanging webs between the stems.",
+      "Dawn. I like to walk the beds before anyone else is about.",
+      "First light on the flower beds. Everything smells new."
+    ]
+  },
+  "Hour.Golden": {
+    "0": [
+      "Golden light through the branches. This is the hour trees look their best.",
+      "The light's gone gold. My mother called this the honey hour.",
+      "Long shadows from the trees now. The day's winding down gently.",
+      "Gold on the water. I like to sit by the river at this hour and do nothing.",
+      "This light makes the bark look warm, even on the oldest trees."
+    ],
+    "1": [
+      "Golden light. Wood glows at this hour, every grain of it.",
+      "The light's gone low and warm. Good time to stand back and look at the day's work.",
+      "Golden hour. The bridge throws a long shadow over the water.",
+      "Late gold on the lane. I'm putting my tools away.",
+      "This light flatters everything, even my old shed."
+    ],
+    "2": [
+      "Golden hour. Even the plainest leaf looks precious in this light.",
+      "Golden light. The whole garden looks like it's glowing.",
+      "The light's gone gold. The small creatures are finding somewhere to settle.",
+      "Late gold over the beds. I'd paint this light, if I could paint.",
+      "Golden hour. My favourite time to just sit and watch."
+    ]
+  },
+  "Hour.Dusk": {
+    "0": [
+      "Dusk. The river goes silver, then grey, then dark.",
+      "The light's going. The trees turn into shapes against the sky.",
+      "Dusk. My grandmother said this is when trees tell each other the day's news.",
+      "Evening's coming down the valley. The river sounds louder at dusk.",
+      "Dusk. A good time to walk slowly by the water."
+    ],
+    "1": [
+      "Dusk. Time to light the lamp by the bridge.",
+      "The light's going. I'll finish this joint tomorrow.",
+      "Dusk. Shapes get soft at this hour. Even straight lines look kind.",
+      "Evening. The lane's quiet and the workshop smells of shavings.",
+      "Dusk. I like to check the gate latches before dark. Habit."
+    ],
+    "2": [
+      "Dusk. Some flowers are folding up for the night.",
+      "The light's going. Colours fade first, then shapes.",
+      "Dusk. The garden goes quiet, one creature at a time.",
+      "Evening. The beds look softer in this light, like a painting.",
+      "Dusk. The garden's going blue and soft."
+    ]
+  },
+  "Hour.Night": {
+    "0": [
+      "Night in the garden. You can hear the river better in the dark.",
+      "It's night. The trees are resting, the way we should be.",
+      "Night on the river. Water sounds different when you can't see it.",
+      "A quiet night. My mother used to say the trees keep watch while we sleep.",
+      "Night-time. The garden belongs to the night creatures now."
+    ],
+    "1": [
+      "Night. The garden looks bigger in the dark.",
+      "Night-time. I've hung my lantern on the hook by the door.",
+      "It's late. The tools are away and the shed's locked.",
+      "Night. You can hear the timbers settle when it goes quiet.",
+      "A quiet night. Good for thinking, bad for sawing."
+    ],
+    "2": [
+      "Night. The flowers are asleep, petals closed tight.",
+      "Night-time. The garden smells different in the dark. Earthier.",
+      "It's night. The small creatures have the garden now.",
+      "Night. Mind the steps by the creek in the dark.",
+      "A quiet night. Even the bees are dreaming, I expect."
+    ]
+  },
+  "VisitorCame": {
+    "0": [
+      "An owl has found your grove. It comes at night, when the garden's quiet.",
+      "There's an owl that visits your grove after dark. Two trees side by side were all it needed.",
+      "Your grove has an owl now. My grandmother said an owl in the trees means the trees are content.",
+      "An owl's taken to your grove. You might hear it calling, after dark.",
+      "Owls like a grove to perch in, and yours suits one.",
+      "Your grove has a night visitor: an owl. It keeps the mice honest.",
+      "An owl comes to your trees at night. Owls are very good at being quiet; you have to listen.",
+      "I'm glad the owl found your grove. Owls choose carefully.",
+      "There's an owl in your grove some nights. Its feathers are so soft it flies without a sound.",
+      "Your grove brought an owl. Two trees together, and the night creatures notice.",
+      "The owl in your grove can turn its head almost all the way round. I tried once. I couldn't.",
+      "An owl visits your grove. My mother would leave the window open to hear one.",
+      "Your trees have an owl now, after dark. It's a good sign for a garden.",
+      "If you're ever here at night, listen for the owl in your grove.",
+      "An owl calls from your grove at night. Low and soft, like someone asking a question.",
+      "The owl in your grove sleeps through the day, tucked against a trunk.",
+      "Your grove has become an owl's place. That takes trees that stand together.",
+      "There's an owl that thinks your grove is the best spot in the valley. I agree with it.",
+      "An owl visiting your grove: my grandmother would have called that luck.",
+      "Owls hunt by listening. Your grove must be a good place to listen from."
+    ],
+    "1": [
+      "A heron fishes by what you built at the water. Patient bird.",
+      "There's a heron that stands by your build at the water. Still as a post, for ages.",
+      "A heron's found your work by the water. It knows a good spot when it sees one.",
+      "The heron by your build at the water stands on one leg. I've tried. Not for long.",
+      "Herons like something built beside the water to stand near. Yours suits one.",
+      "A heron comes by day to fish beside what you built. Better company than most.",
+      "Your build by the water has a regular: a grey heron, very serious.",
+      "That heron by your waterside work is the most patient creature in the valley.",
+      "A heron fishes near your build at the water. It doesn't hurry, and it rarely misses.",
+      "Your work by the water has a heron for a neighbour. Good neighbours, herons. Quiet.",
+      "The heron that fishes by your build flies with its neck folded back, like a coat on a hook.",
+      "A heron stands guard by what you built at the water. I'd hire it.",
+      "There's a heron by your build at the water. When the river freezes it goes elsewhere. Sensible bird.",
+      "Herons need still water and a quiet place to stand. Your build by the river gives them both.",
+      "A heron's made your waterside build part of its round. That's an honour, in heron terms.",
+      "The heron by your build is up and fishing early. Earlier than me.",
+      "A heron fishes beside your work at the water. It treats the place with respect.",
+      "You've a heron by your waterside build. My father used to call a heron the river's foreman.",
+      "That heron by your build at the water: grey, tall, and never in a rush.",
+      "A heron comes to your build by the water. Good work makes a good perch."
+    ],
+    "2": [
+      "A hedgehog comes to your sheltered flower at dusk. They know a safe spot.",
+      "There's a hedgehog that visits the flower you put beside a tree. At dusk, mostly.",
+      "A hedgehog's found your sheltered flower. They snuffle about like little grumbling bears.",
+      "Your flower beside the tree has a visitor at dusk: a hedgehog.",
+      "Hedgehogs like a flower with a tree beside it. Yours suits one perfectly.",
+      "A hedgehog comes snuffling round your sheltered flower in the evenings.",
+      "There's a hedgehog that thinks your sheltered flower is the best spot in the garden.",
+      "A hedgehog visits your flower by the tree. In winter it sleeps the cold away, somewhere snug.",
+      "Your sheltered flower brought a hedgehog. They eat the slugs, so the flowers are grateful.",
+      "A hedgehog comes at dusk to your flower beside the tree. I leave a shallow dish of water out for it.",
+      "Hedgehogs have thousands of spines. The one by your sheltered flower wears every one of them.",
+      "A hedgehog has made your sheltered flower part of its evening walk.",
+      "There's a hedgehog by your flower near the tree. It rolls into a ball if you get too close.",
+      "Your flower beside the tree has a prickly friend. A hedgehog, at dusk.",
+      "A hedgehog by your sheltered flower. They walk a long way of an evening, and yours is on the route.",
+      "I watched the hedgehog by your sheltered flower for ages. So busy, for something so small.",
+      "Your sheltered flower is a hedgehog's stopping place. They like a bit of cover overhead.",
+      "A hedgehog visits at dusk, right by your flower and its tree. Quiet as you like.",
+      "There's a hedgehog in your garden. It comes to the flower you sheltered with a tree.",
+      "Hedgehogs snuffle and snort as they go. You can hear the one by your sheltered flower before you see it."
+    ]
+  },
+  "HourHabit.Dawn": {
+    "0": [
+      "You often come at first light. It's the garden's quietest hour; you've chosen well.",
+      "Early riser, I think. You and the river are up before the rest of us.",
+      "You like the garden at dawn. So did my grandmother; she said it's when the day's still deciding.",
+      "You come early, I've noticed. The trees are at their stillest then.",
+      "Dawn suits you. The light's soft and nobody's in a hurry.",
+      "You're often here at first light. That's when the river sounds most like itself.",
+      "I've noticed you like the dawn. There's no better hour for thinking.",
+      "An early visitor. The garden's glad of company before the bees are up.",
+      "You often come with the first light. My father did his best work at that hour.",
+      "You like it early. I do too. The day feels new and nobody's used it yet."
+    ]
+  },
+  "HourHabit.Morning": {
+    "0": [
+      "Mornings suit you. You catch the garden while it's fresh.",
+      "You often come in the morning. That's when the trees stretch, I always think.",
+      "A morning visitor. My mother said mornings are for gardens and afternoons for people.",
+      "I've noticed you come in the mornings. The light's kind then.",
+      "You like the morning garden. So do the birds.",
+      "Morning seems to be your hour. Everything's still a little sleepy and soft.",
+      "You're often here in the morning. That's when the river's at its clearest.",
+      "Mornings, mostly, for you. A good habit, my grandmother would say.",
+      "You come in the mornings, I've noticed. The garden gets the best of you.",
+      "You like a morning visit. There's a freshness then that doesn't last."
+    ]
+  },
+  "HourHabit.Golden": {
+    "1": [
+      "You often come as the light goes gold. Best light for looking at work, I always say.",
+      "Golden hour seems to be yours. It's when the stones look their best.",
+      "You like the late gold light, I've noticed. So do I. It makes everything look finished.",
+      "You're often here as the sun gets low. A good time to look back on the day.",
+      "Golden hour, mostly, for you. My father called it the builder's reward.",
+      "I've noticed you come in the late light. It flatters the garden, and the garden deserves it.",
+      "You like the golden hour. Long shadows, warm stone. Can't beat it.",
+      "As the light goes gold, that's when I tend to see you about.",
+      "You come late in the day, in the gold. The bridge looks its best then.",
+      "Golden light seems to suit you. It suits the garden too."
+    ]
+  },
+  "HourHabit.Dusk": {
+    "1": [
+      "You often come at dusk. I light the lamp by the bridge about then.",
+      "Dusk is your hour, I've noticed. The day's work is done and the garden's quiet.",
+      "You like the garden at dusk. It's a good time to look at things without fussing.",
+      "You come in the evening, mostly. A sensible hour; the day's done its worst.",
+      "A dusk visitor. My father liked to walk the lane at this hour, checking the gates.",
+      "I've noticed you come as the light goes. The garden looks softer then.",
+      "Evenings seem to be yours. The workshop smells of shavings and it's all put away.",
+      "You often come at dusk. That's when the river goes grey and calm.",
+      "You like the evening garden. So do I; it's the best hour for sitting.",
+      "Dusk suits you. I always think the garden's at its friendliest then."
+    ]
+  },
+  "HourHabit.Day": {
+    "2": [
+      "You like the garden in the full of the day, when everything can be seen properly.",
+      "You often come in the middle of the day, when the light's at its best.",
+      "A daytime visitor. You see the garden at its clearest.",
+      "You come in the bright of the day, I've noticed. That's when I do my weeding.",
+      "The middle of the day seems to be your time. The whole garden's awake.",
+      "You like the garden in full light. Every colour where you can see it.",
+      "You're often here when the sun's high. The flowers love an audience.",
+      "I've noticed you come in the day. That's when the colours are brightest.",
+      "You come when I'm out working. Good company.",
+      "Daytime is yours. The garden's wide awake, and so are you."
+    ]
+  },
+  "HourHabit.Night": {
+    "2": [
+      "You often come at night. The flowers are asleep, but the garden's still here for you.",
+      "A night visitor. The night creatures will be glad of the company.",
+      "You like the garden at night, I've noticed. It smells different in the dark.",
+      "Night seems to be your hour. Quiet, and nobody needs anything.",
+      "You come late, mostly. The garden's restful then.",
+      "You're often here after dark. Mind the steps by the creek.",
+      "A night-time gardener. My grandmother said those are the dreamers.",
+      "I've noticed you come at night. The garden's a different place then; gentler.",
+      "You like the night garden. The flowers keep their secrets better in the dark.",
+      "Night visits, mostly, for you. The petals are closed, but the garden's glad of you."
+    ]
+  },
+  "WeatherWhileAway": {
+    "0": [
+      "Since you were last here: {weather}. The garden kept itself.",
+      "While you were away we had {weather}. The trees didn't mind.",
+      "The garden saw {weather} since your last visit, and kept itself well.",
+      "Since your last visit there's been {weather}. All's as you left it.",
+      "We've had {weather} since you were here. The river took it in its stride.",
+      "In the days between, {weather}. The garden looked after itself.",
+      "Since you were here: {weather}. Nothing's lost; gardens wait well.",
+      "A quick report: {weather} while you were away. All's well.",
+      "The weather since your last visit: {weather}. The roots are glad of it.",
+      "While you were away the valley had {weather}. Your garden's fine.",
+      "Since you were last here: {weather}. I kept an eye on things.",
+      "There's been {weather} since your last visit. The river's full of it.",
+      "We had {weather} in between. The garden rested, the way gardens do.",
+      "Since you came last: {weather}. Nothing needs doing that can't wait.",
+      "The days between brought {weather}. Your trees stood through it all.",
+      "While you were away: {weather}. The garden had a good long think.",
+      "Since you were here we've had {weather}. It all comes out in the green.",
+      "The garden had {weather} while you were away. It's none the worse.",
+      "The valley had {weather} since your last visit. Your garden took it calmly.",
+      "A little news: {weather} since you were last here. The garden's fine."
+    ]
+  },
+  "WishProgress": {
+    "0": [
+      "That's {have} of the {need} trees I hoped to see tended. Each one's a small joy.",
+      "Trees tended so far: {have} of the {need} I hoped for. No hurry; trees aren't.",
+      "I'm counting quietly: {have} of the {need} trees tended. I hope you don't mind me counting.",
+      "You've tended {have} of the {need} trees I wished for. My grandmother would be smiling.",
+      "Now {have} of the {need} trees I hoped for are tended. Each one makes the garden more itself.",
+      "My little wish is coming along: {have} of the {need} trees, tended.",
+      "That's {have} tended, of the {need} trees I'd love to see. There's no rush at all.",
+      "I keep a note of it: {have} of {need} trees tended. A slow wish is the best kind.",
+      "With {have} of the {need} trees tended, I'm happier than I expected.",
+      "Tended trees: {have} of the {need} I hoped for. Thank you for each of them."
+    ],
+    "1": [
+      "That's {have} of the {need} stretches of new river I hoped to see. I walked the new one end to end.",
+      "The river's run on {have} of the {need} stretches I wished for. A builder likes a tally.",
+      "Of the {need} new stretches of river I hoped for, we've {have}. Good going.",
+      "I've been keeping count: {have} of the {need} stretches of new river. No hurry.",
+      "New river: {have} of the {need} stretches I wished for. I like to see water go somewhere new.",
+      "The river's further by {have} of the {need} stretches I was hoping for. My boots are pleased.",
+      "Counting stretches of new river: {have} of {need}. Steady progress.",
+      "Of my {need} hoped-for stretches of river, {have} has come.",
+      "We're {have} of {need} on the new river. I'll be glad of every yard of it.",
+      "So far, {have} of the {need} stretches of new river I hoped for. The rest will come in its own time."
+    ],
+    "2": [
+      "That's {have} of the {need} kinds of flower I hoped to see growing. I'm so pleased.",
+      "Kinds of flower growing: {have} of the {need} I'd love to see. Every new one's a party.",
+      "I counted: {have} of the {need} kinds of flower I wished for. Then I counted twice more, for fun.",
+      "My flower wish is coming along: {have} of {need} kinds.",
+      "With {have} of the {need} kinds of flower I hoped for, the bees are spoilt for choice.",
+      "Of the {need} kinds of flower I dreamed of, we've {have} so far.",
+      "That makes {have} of {need} kinds of flower. I keep a pressed petal of each.",
+      "I've been keeping count: {have} of the {need} kinds of flower. Flowers set their own pace.",
+      "Flower kinds so far: {have} of the {need} I hoped for. Each one makes me happy.",
+      "The garden has {have} of the {need} kinds of flower I wished for. The butterflies have noticed."
+    ]
+  },
+  "SeasonTurned.Spring": {
+    "0": [
+      "Spring's come to the garden. The trees are thinking about leaves.",
+      "It's spring. The sap's rising; you can almost hear it.",
+      "Spring has turned the corner into the garden. Everything's waking slowly."
+    ],
+    "1": [
+      "Spring's here. Time to check what the winter loosened.",
+      "It's spring now. The lane's soft underfoot.",
+      "Spring. I'll be out mending fences while the ground's kind."
+    ],
+    "2": [
+      "Spring's here. The first shoots are up and the bees are waking.",
+      "It's spring now. I've been counting buds; I've lost count.",
+      "Spring. Every bed's full of little green beginnings."
+    ]
+  },
+  "SeasonTurned.Summer": {
+    "0": [
+      "Summer's here, and the trees have their full shade.",
+      "It's summer now. The river's slow and warm.",
+      "Summer in the garden. Long days, long shadows, and the trees at their fullest."
+    ],
+    "1": [
+      "Summer's come. Long days for long jobs.",
+      "It's summer now. Wood dries fast; good for building.",
+      "Summer. The bridge stones are warm by noon."
+    ],
+    "2": [
+      "Summer's here. The flowers are wide open and the butterflies are out.",
+      "It's summer now. The bees are busier than I've ever been.",
+      "Summer in the garden. Everything's buzzing."
+    ]
+  },
+  "SeasonTurned.Autumn": {
+    "0": [
+      "Autumn's come. The leaves are thinking about gold.",
+      "It's autumn now. My father always said autumn is the trees letting go gracefully.",
+      "Autumn in the garden. The river carries the first leaves down."
+    ],
+    "1": [
+      "Autumn's here. I'll be sweeping leaves off the bridge till winter.",
+      "It's autumn now. Good weather for oiling hinges and stacking wood.",
+      "Autumn. The lane's full of leaves and the shed smells of woodsmoke."
+    ],
+    "2": [
+      "Autumn's come. Time to save seeds for next year.",
+      "It's autumn now. The last flowers are the bravest.",
+      "Autumn. The spiders are spinning big webs between the stems."
+    ]
+  },
+  "SeasonTurned.Winter": {
+    "0": [
+      "Winter's here. The trees are resting, and they've earned it.",
+      "It's winter now. Bare branches show you the shape of a tree.",
+      "Winter in the garden. The river runs clear and cold."
+    ],
+    "1": [
+      "Winter's come. I've got the stove going in the workshop.",
+      "It's winter now. Frost shows you which joints were done right.",
+      "Winter. I'll be gritting the bridge on cold mornings."
+    ],
+    "2": [
+      "Winter's here. The beds are resting under their blankets.",
+      "It's winter now. The hedgehogs are asleep and the snowdrops are thinking.",
+      "Winter. I'm feeding the birds and dreaming about spring."
+    ]
+  },
+  "YieldGiven.Summer": {
+    "0": [
+      "Your grove let fall its seeds this summer. That's what groves do when they're content.",
+      "The grove gave its seeds this summer. Trees share without being asked.",
+      "Summer seeds from your grove. My grandmother saved hers in a tin by the door."
+    ]
+  },
+  "YieldGiven.Autumn": {
+    "0": [
+      "Your orchard gave its fruit this autumn. Picking from your own trees is a fine thing.",
+      "Fruit from your orchard this autumn. My mother would have had every jar in the house out.",
+      "The orchard was ready this autumn, and you have its fruit. That's the year come round."
+    ]
+  },
+  "YieldGiven.Winter": {
+    "0": [
+      "A jar of jam came to your larder this winter, for the fruit you shared. Kindness goes round.",
+      "There's jam in your larder this winter, for the fruit you gave this year. That's how neighbours are.",
+      "Jam for winter, in return for your fruit. My grandmother called that the slow way of saying thank you."
+    ],
+    "1": [
+      "Jam in your larder this winter, for the fruit you gave. Fair exchange.",
+      "A jar of jam for you this winter. Fruit given turns into jam received. Good arithmetic.",
+      "There's a jar of jam for you, this winter. Payment in kind for your fruit."
+    ],
+    "2": [
+      "There's jam for you this winter, for the fruit you shared. Sweet things travel in circles.",
+      "Winter jam, for the fruit you gave this year. I love how kindness keeps going.",
+      "A jar of jam came your way this winter, in thanks for your fruit."
+    ]
+  },
+  "YieldGiven.Spring": {
+    "2": [
+      "Your flower bed sowed itself this spring. A seedling came to your basket.",
+      "This spring your flower bed did its own sowing, and sent a seedling your way.",
+      "A self-sown seedling from your flower bed, this spring. Flowers love to spread."
+    ]
+  },
+  "PairingFound.Grove": {
+    "0": [
+      "You've found a grove: two trees side by side. They'll keep each other company.",
+      "A grove in your garden now. My grandmother said trees are happiest in pairs.",
+      "Two trees together: you've made a grove. I'm so pleased.",
+      "Your grove is found. An owl may come to see it, after dark."
+    ]
+  },
+  "PairingFound.Orchard": {
+    "0": [
+      "You've an orchard now: a tree touching two others. They'll crop well together.",
+      "An orchard, found. Come autumn, it may have fruit for you.",
+      "A tree with a neighbour on each side: that's your orchard. My mother would have loved it.",
+      "You found the orchard. Trees that stand together are a family."
+    ]
+  },
+  "PairingFound.ByTheWater": {
+    "1": [
+      "Something built beside the water: you've found that pairing. Built things last there.",
+      "Your build by the water is a good match. The river approves, and so do I.",
+      "You've put something built right by the water. A heron may come to look.",
+      "Built beside the water. That's a pairing done properly."
+    ]
+  },
+  "PairingFound.ShadySeat": {
+    "1": [
+      "A shady seat: something built beside a tree. You've found it.",
+      "You've built beside a tree. Shade and a seat; can't ask for more.",
+      "That's a shady seat you've made, building by a tree. I'd sit there.",
+      "Something built in a tree's shade. A good pairing, and a sensible one."
+    ]
+  },
+  "PairingFound.Sheltered": {
+    "2": [
+      "A flower beside a tree: you've found sheltered. The small creatures will love it.",
+      "Your flower has a tree to lean on now. That's sheltered.",
+      "Sheltered, found. A hedgehog may come by at dusk.",
+      "A flower tucked by a tree. Cosy. I'm so glad."
+    ]
+  },
+  "PairingFound.FlowerBed": {
+    "2": [
+      "Two different flowers side by side: you've made a bed. They show each other off.",
+      "A flower bed, found. The bees will be spoilt for choice.",
+      "Your flower bed is made. Come spring, it may sow itself.",
+      "Two kinds of flower together. That's a bed, and it's lovely."
+    ]
+  },
+  "PairingFound.Waterside": {
+    "2": [
+      "A flower right by the water: you've found waterside. Its reflection's half the fun.",
+      "Your waterside flower is found. A kingfisher may perch nearby.",
+      "A flower with its feet by the river. I love that.",
+      "Waterside, found. Flowers by water always look a little brighter."
+    ]
   }
 }

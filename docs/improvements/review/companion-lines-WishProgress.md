@@ -1,6 +1,6 @@
 # Companion lines: WishProgress
 
-**Status: draft, not reviewed.** Written by hand (no script) on 2026-11-27 for smart companion SC04. Nothing here ships until a person has read every line; accepted lines move into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`, rejected ones are deleted.
+**Status: approved by the founder on 2026-11-27 (every line), and moved into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`.** Written by hand (no script) for smart companion SC04. This file stays as the review record; `en.json` is what ships.
 
 **The fact:** a neighbour's hope (I313) has partly come true, with its true count: Mira, five trees tended; Orin, the river two stretches past the story; Fen, six kinds of flower growing. Said once for each new count. When the hope comes true, the existing thank-you letter takes over.
 

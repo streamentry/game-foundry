@@ -1,6 +1,6 @@
 # Companion lines: HourHabit
 
-**Status: draft, not reviewed.** Written by hand (no script) on 2026-11-27 for smart companion SC04. Nothing here ships until a person has read every line; accepted lines move into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`, rejected ones are deleted.
+**Status: approved by the founder on 2026-11-27 (every line), and moved into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`.** Written by hand (no script) for smart companion SC04. This file stays as the review record; `en.json` is what ships.
 
 **The fact:** from this device's own count of when you come, one hour of the day is clearly yours (at least six returns, most of them at that hour). Only the neighbour who'd notice that hour says it: Mira dawn and morning, Orin golden hour and dusk, Fen midday and night.
 
