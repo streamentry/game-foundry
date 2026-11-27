@@ -8,11 +8,11 @@ namespace Evergrove.Core
     /// tiles are sized by the height left after the stream stones, board rim,
     /// water drops, spacing and margins. While the board is unsolved, Undo and
     /// Hint stand in a rail beside it, which frees height but takes width.
-    /// Never below a 44-point touch target.
+    /// Never below a 48-point touch target (v1 #91).
     /// </summary>
     public static class BoardFit
     {
-        public const int MinTouch = 44;
+        public const int MinTouch = 48; // v1 #91: at least 48 pt everywhere (was 44)
         public const float RailWidth = 84f;
         public const float RailGap = 12f;
         /// <summary>Height taken by everything but the tiles, tools in the rail.</summary>

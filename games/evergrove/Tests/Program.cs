@@ -1795,7 +1795,7 @@ internal static class Program
                     foreach (bool done in new[] { false, true })
                     {
                         int tile = BoardFit.Landscape(height, width, size, gap, done);
-                        Expect(tile >= BoardFit.MinTouch, "sideways tiles keep a 44 pt touch target");
+                        Expect(tile >= BoardFit.MinTouch, "sideways tiles keep a 48 pt touch target");
                         Expect(tile <= BoardFit.MaxTile(size), "sideways tiles respect the size cap");
                         int span = BoardFit.Span(tile, size, gap);
                         float below = done ? BoardFit.BelowSolved : BoardFit.BelowUnsolved;
@@ -1941,6 +1941,9 @@ internal static class Program
             assertions += TogetherTests.Run();
             assertions += FamilyGiftsTests.Run();
             assertions += KitchenTests.Run();
+            assertions += NoSignupWallTests.Run();
+            assertions += SheetMotionTests.Run();
+            assertions += TouchTargetTests.Run();
             assertions += HapticsMeaningTests.Run();
             assertions += SeasonContrastTests.Run();
             assertions += SharedFoodTests.Run();

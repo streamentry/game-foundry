@@ -32,6 +32,7 @@ namespace Evergrove.UnityClient
             public Action Closed;
             public Func<string> Name;
             public Action<string> SaveName;
+            public Func<bool> ReducedMotion;       // the Gentle motion setting turned off
         }
 
         private static readonly int[] SeedChoices = { 10, 50, 100 };
@@ -68,6 +69,7 @@ namespace Evergrove.UnityClient
             sheet.hooks = hooks;
             sheet.font = font;
             sheet.Build(rect);
+            sheet.Enter();
             return sheet;
         }
 
@@ -477,8 +479,26 @@ namespace Evergrove.UnityClient
         private void Close()
         {
             Action closed = hooks.Closed;
-            Destroy(gameObject);
+            Dismiss();
             closed?.Invoke();
+        }
+
+        // Slides the card back toward its edge, then removes the sheet.
+        internal void Dismiss()
+        {
+            GameObject self = gameObject;
+            SheetMotion.Hide(self, SheetEdge.For("Family"), ReducedMotion(), () => { if (self != null) Destroy(self); }, card);
+        }
+
+        // Slides the card in from the bottom edge, once it is built.
+        private void Enter()
+        {
+            SheetMotion.Show(gameObject, SheetEdge.For("Family"), ReducedMotion(), card);
+        }
+
+        private bool ReducedMotion()
+        {
+            return hooks.ReducedMotion != null && hooks.ReducedMotion();
         }
 
         // ---- builders

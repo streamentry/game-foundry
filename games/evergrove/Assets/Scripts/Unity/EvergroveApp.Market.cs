@@ -39,9 +39,11 @@ namespace Evergrove.UnityClient
             BuildMarketSheet();
         }
 
-        internal void CloseMarketSheet()
+        internal void CloseMarketSheet() { RetireMarket(false); }
+
+        private void RetireMarket(bool replacing)
         {
-            if (marketSheet != null) Destroy(marketSheet);
+            RetireSheet(marketSheet, "The stall", replacing);
             marketSheet = null;
             semanticsDirty = true;
         }
@@ -50,7 +52,8 @@ namespace Evergrove.UnityClient
         private void BuildMarketSheet()
         {
             if (titleScreen == null || world == null) return;
-            CloseMarketSheet();
+            bool replacing = marketSheet != null;
+            RetireMarket(replacing);
             marketSheet = BuildSheet(titleScreen.transform, "The stall", CloseMarketSheet,
                 out RectTransform content, out ScrollRect scroll);
             SheetClose(content, "Close the stall", CloseMarketSheet);
@@ -122,7 +125,7 @@ namespace Evergrove.UnityClient
                 note.GetComponent<LayoutElement>().flexibleWidth = 1f;
             }
 
-            marketSheet.SetActive(true);
+            SheetMotion.Show(marketSheet, SheetEdge.For("The stall"), ReducedMotion, null, replacing);
             marketSheet.transform.SetAsLastSibling(); // over the garden
             FitSheet(marketSheet, "The stall panel");
             Canvas.ForceUpdateCanvases();
@@ -292,7 +295,7 @@ namespace Evergrove.UnityClient
                 none.GetComponent<LayoutElement>().flexibleWidth = 1f;
             }
 
-            weeklySheet.SetActive(true);
+            SheetMotion.Show(weeklySheet, SheetEdge.For("Deeper boards"), ReducedMotion);
             weeklySheet.transform.SetAsLastSibling();
             FitSheet(weeklySheet, "Deeper boards panel");
             Canvas.ForceUpdateCanvases();
@@ -304,7 +307,7 @@ namespace Evergrove.UnityClient
 
         internal void CloseWeeklyBoardSheet()
         {
-            if (weeklySheet != null) Destroy(weeklySheet);
+            RetireSheet(weeklySheet, "Deeper boards", false);
             weeklySheet = null;
             semanticsDirty = true;
         }

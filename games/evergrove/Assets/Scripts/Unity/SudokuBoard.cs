@@ -38,6 +38,10 @@ namespace Evergrove.UnityClient
             ruleFont = font;
             int n = game.Size;
             const float trayHeight = 64f;
+            // v1 #91: plant tokens stay at least 48 pt. When one row would be narrower than that, the
+            // tray wraps into two rows (and the board is given room for the second row).
+            int perRow = TrayToken(width, n) >= 48f ? n : (n + 1) / 2;
+            int trayRows = perRow == n ? 1 : 2;
             float rule = BoardKit.FirstTimeRule(card, "sudoku", row =>
             {
                 for (int k = 0; k < Mathf.Min(4, plants != null ? plants.Length : 0); k++)
@@ -45,7 +49,7 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + 12f + rule + BoardKit.UndoRowSpace);
+            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight * trayRows + 8f * (trayRows - 1) + 12f + rule + BoardKit.UndoRowSpace);
             float cell = Mathf.Floor(Mathf.Min(room.x, room.y) / n);
             cell = Mathf.Min(cell, 72f);
             float boxGap = 6f, gap = 3f;
@@ -66,12 +70,16 @@ namespace Evergrove.UnityClient
             }
             // The tray: one big token per plant. Tapping the plant a bed already holds clears it,
             // so no separate eraser takes room from the plants (I244 tune: 46 pt tokens, not 40).
-            Transform tray = TreePlay.Row(card, "Plant tray", trayHeight);
-            tray.GetComponent<HorizontalLayoutGroup>().spacing = 8f;
-            float token = Mathf.Floor(Mathf.Min(60f, (width - BoardKit.CardPadding - 8f * (n - 1)) / n));
+            float token = TrayToken(width, perRow);
+            Transform tray = null;
             trayDiscs = new Image[n + 1];
             for (int v = 1; v <= n; v++)
             {
+                if ((v - 1) % perRow == 0)
+                {
+                    tray = TreePlay.Row(card, (v == 1 ? "Plant tray" : "Plant tray 2"), trayHeight);
+                    tray.GetComponent<HorizontalLayoutGroup>().spacing = 8f;
+                }
                 int value = v;
                 TreePlay.Token(tray, "Plant " + v, plants != null && v - 1 < plants.Length ? plants[v - 1] : null,
                     token, MosseloraTheme.QuietAction, () => Put(value), true);
@@ -84,6 +92,12 @@ namespace Evergrove.UnityClient
             BoardKit.ClashLens(card.Find("Tree puzzle top"), Paint);
             undo = BoardKit.UndoRow.Build(card, font, history, () => { shown = -1; Paint(); });
             Paint();
+        }
+
+        // One tray token's size for a row of count plants: up to 60 pt, shrinking with the card width.
+        private static float TrayToken(float width, int count)
+        {
+            return Mathf.Floor(Mathf.Min(60f, (width - BoardKit.CardPadding - 8f * (count - 1)) / count));
         }
 
         private void Select(int cell)
