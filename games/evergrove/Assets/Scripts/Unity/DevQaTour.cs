@@ -824,6 +824,35 @@ namespace Evergrove.UnityClient
             app.QaTalk(-1);
             app.QaSetClock(13);
 
+            // I383: good neighbours and the visitors they bring, by day and by night, on a
+            // finished summer garden arranged so every pairing stands.
+            WorldModel neighbourly = WorldModel.New(PlayMode.Living);
+            for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+            {
+                Puzzle stream = neighbourly.CurrentPuzzle;
+                for (int i = 0; i < stream.CellCount; i++)
+                    while (neighbourly.Rotations[i] != stream.Solution[i]) neighbourly.Rotate(i);
+                neighbourly.Choose((VillageChoice)(chapter % 3));
+            }
+            app.QaReplaceWorld(neighbourly);
+            if (!app.QaArrangeGoodNeighbours()) throw new InvalidOperationException("No bank holds every good neighbour");
+            for (int pass = 0; pass < 2; pass++) // the first four are found, then the deeper three open
+            {
+                app.QaShowHub(true);
+                for (int f = 0; f < 8; f++) yield return null;
+                app.QaShowHub(false);
+            }
+            foreach (int hour in new[] { 11, 23 })
+            {
+                app.QaSetClock(hour);
+                app.QaShowHub(true);
+                for (int f = 0; f < 10; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.8f);
+                yield return new WaitForEndOfFrame();
+                SavePng(hour == 11 ? "21-good-neighbours-day.png" : "21-good-neighbours-night.png");
+                app.QaShowHub(false);
+            }
+
             // Smart companion (SC02): a scripted week. Nine things grown, two tended, a letter from
             // Anh; one visit a day, each neighbour spoken to once; then each neighbour on day eight.
             WorldModel week = WorldModel.New(PlayMode.Living);

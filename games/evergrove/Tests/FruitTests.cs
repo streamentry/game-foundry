@@ -45,6 +45,7 @@ internal static class FruitTests
     public static int Run()
     {
         Picking();
+        FullReplays();
         Bought();
         Capping();
         Sending();
@@ -103,6 +104,38 @@ internal static class FruitTests
         int fruit = buyer.Fruit;
         Expect(buyer.Buy(0, 40) && buyer.Fruit == fruit, "buying a plant does not touch fruit");
         Expect(buyer.GiveFruit(0) && buyer.Seeds == 450, "giving fruit does not touch seeds");
+    }
+
+    // v1 #76: fruit follows the day's full-paid replays, so a tree cannot be farmed past the daily cap.
+    private static void FullReplays()
+    {
+        const int Day1 = 20260101, Day2 = 20260102;
+        WorldModel w = Grown(1);
+        Expect(w.SolveTree(0, Day1) > 0 && w.Fruit == 1, "a first solve picks one fruit, whatever the day");
+        int afterFirst = w.Fruit;
+        for (int i = 0; i < 10; i++) w.SolveTree(0, Day1);
+        Expect(w.Fruit == afterFirst + WorldModel.FullReplaysPerDay, "ten replays on one day pick only the three full-paid ones");
+        for (int i = 0; i < 4; i++) w.SolveTree(0, Day2);
+        Expect(w.Fruit == afterFirst + 2 * WorldModel.FullReplaysPerDay, "a new day picks again, three replays' worth");
+        WorldModel zero = Grown(1);
+        zero.SolveTree(0);
+        for (int i = 0; i < 10; i++) zero.SolveTree(0);
+        Expect(zero.Fruit == 11, "day 0 (old callers) picks on every replay");
+        // Bought tree plants share the same day count, so the three full replays are shared too.
+        WorldModel bought = Grown(3);
+        WorldSnapshot rich = bought.Export();
+        rich.seeds = 1000;
+        WorldModel.TryRestore(rich, out bought);
+        Expect(bought.Buy(0, 50), "bought a tree plant");
+        bought.SolveBought(0, Day1);
+        int boughtAfterFirst = bought.Fruit;
+        for (int i = 0; i < 10; i++) bought.SolveBought(0, Day1);
+        Expect(bought.Fruit == boughtAfterFirst + WorldModel.FullReplaysPerDay, "bought tree replays pick only the full-paid ones");
+        // Fruit still stops at the cap on a full-paid replay.
+        WorldModel capped = WithFruit(Grown(1), WorldModel.MaxFruit);
+        capped.SolveTree(0, Day1);
+        capped.SolveTree(0, Day1);
+        Expect(capped.Fruit == WorldModel.MaxFruit, "a full-paid replay at the cap picks nothing more");
     }
 
     private static void Bought()
@@ -215,13 +248,17 @@ internal static class FruitTests
         Expect(!o.Ok && o.Error == ParcelError.AlreadyOpened && o.FruitGained == 0 && State(to) == before, "opening twice is refused");
         o = sender.Open(text);
         Expect(!o.Ok && o.Error == ParcelError.AlreadyOpened, "a garden cannot open what it sent");
-        // Capped.
+        // Larder full (v1 #76): a parcel that would not fit in full is refused, changing nothing, and is not remembered.
         WorldModel full = Gardener(97);
-        o = full.Open(Parcel(Gardener(10), 5, "o2"));
-        Expect(o.Ok && o.FruitGained == 2 && full.Fruit == 99, "capped at 99, reports what arrived");
-        o = full.Open(Parcel(Gardener(10), 5, "o3"));
-        Expect(o.Ok && o.FruitGained == 0 && full.Fruit == 99, "a full garden gains none but the parcel is spent");
-        Expect(full.HasSeenParcel(o.Contents.Id), "it is remembered");
+        string overflow = Parcel(Gardener(10), 3, "o2");
+        string fullBefore = State(full);
+        o = full.Open(overflow);
+        Expect(!o.Ok && o.Error == ParcelError.LarderFull && o.FruitGained == 0 && State(full) == fullBefore,
+            "one fruit too many: refused with LarderFull, nothing changes");
+        Expect(full.GiveFruit(0) && full.GiveFruit(1), "giving two away makes room");
+        o = full.Open(overflow);
+        Expect(o.Ok && o.FruitGained == 3 && full.Fruit == 98, "the same parcel opens once there is room");
+        Expect(full.HasSeenParcel(o.Contents.Id), "it is remembered only once opened");
         // Other gifts report no fruit.
         WorldModel seedSender = WithFruit(Grown(3), 0);
         WorldSnapshot ss = seedSender.Export(); ss.seeds = 50; WorldModel.TryRestore(ss, out seedSender);
@@ -241,20 +278,17 @@ internal static class FruitTests
     {
         WorldModel a = Gardener(20), b = Gardener(95);
         int total = a.Fruit + b.Fruit;
-        int lost = 0;
-        for (int i = 0; i < 4; i++)
-        {
-            int send = Math.Min(6, a.Fruit);
-            if (send == 0) break;
-            ParcelOpenResult o = b.Open(Parcel(a, send, "c" + i));
-            Expect(o.Ok, "opened");
-            lost += send - o.FruitGained;
-            Expect(a.Fruit + b.Fruit == total - lost, "sum conserved minus cap losses after parcel " + i);
-        }
-        Expect(b.Fruit == 99 && lost > 0, "the cap lost some");
+        string inFlight = Parcel(a, 6, "c0");
+        ParcelOpenResult refused = b.Open(inFlight);
+        Expect(!refused.Ok && refused.Error == ParcelError.LarderFull && b.Fruit == 95, "six does not fit in four: refused, nothing opened");
+        Expect(a.Fruit + b.Fruit + 6 == total, "the parcel carries the six until it is opened");
+        Expect(b.GiveFruit(0) && b.GiveFruit(1), "giving two away makes room");
+        ParcelOpenResult later = b.Open(inFlight);
+        Expect(later.Ok && later.FruitGained == 6 && b.Fruit == 99, "the parcel opens once it fits");
+        Expect(a.Fruit + b.Fruit == total - 2, "sum conserved minus the two given away");
         // Back the other way.
         ParcelOpenResult back = a.Open(Parcel(b, 10, "c-back"));
-        Expect(back.Ok && back.FruitGained == 10 && a.Fruit + b.Fruit == total - lost, "it moves back too");
+        Expect(back.Ok && back.FruitGained == 10 && a.Fruit + b.Fruit == total - 2, "it moves back too");
         // Fruit never converts to seeds.
         Expect(a.Seeds == 0 && b.Seeds == 0, "no seeds appeared");
     }

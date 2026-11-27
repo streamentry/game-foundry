@@ -35,6 +35,7 @@ namespace Evergrove.Core
                 case FactKind.Hour:
                     return DayLight.Remark(speaker, fact.EnumSlot<DayPhase>("phase"), fact.EnumSlot<Season>("season"));
                 case FactKind.NewestThing: return Newest(fact, speaker);
+                case FactKind.VisitorCame: return VisitorRemark(fact.Slot("visitor"));
                 default: return null;
             }
         }
@@ -48,7 +49,8 @@ namespace Evergrove.Core
             Fact best = null;
             if (facts == null) return null;
             foreach (Fact fact in facts)
-                if (fact.For(speaker) && (best == null || fact.LegacyOrder < best.LegacyOrder) && Legacy(fact, speaker) != null)
+                if (fact.For(speaker) && fact.Slot(CompanionFacts.LegacyOffSlot) == null &&
+                    (best == null || fact.LegacyOrder < best.LegacyOrder) && Legacy(fact, speaker) != null)
                     best = fact;
             return best;
         }
@@ -61,7 +63,22 @@ namespace Evergrove.Core
                 case Pairing.Grove: return "Two trees side by side keep each other company. A grove, my grandmother called it.";
                 case Pairing.ByTheWater: return "Things built beside the water last. The river keeps an eye on them.";
                 case Pairing.Sheltered: return "Flowers love a little shade. Try one beside a tree.";
+                case Pairing.Orchard: return "Three trees together and it's an orchard. They'd crop better for the company.";
+                case Pairing.ShadySeat: return "A seat's no good in full sun. Build something beside a tree and you'll see.";
+                case Pairing.Waterside: return "Some flowers like their feet wet. Try one right by the water.";
                 default: return "Two different flowers side by side make a bed. They show each other off.";
+            }
+        }
+
+        // I377 (Visitors.KeeperRemark), the same words.
+        private static string VisitorRemark(string visitor)
+        {
+            switch (visitor)
+            {
+                case "owl": return "There's an owl in your grove. I heard it last night, calling to the far trees.";
+                case "heron": return "A heron's taken to fishing by what we built at the water. Patient bird. Good sign.";
+                case "hedgehog": return "Something snuffles round your sheltered flowers at dusk. A hedgehog, I'd say. They know a safe spot.";
+                default: return null;
             }
         }
 

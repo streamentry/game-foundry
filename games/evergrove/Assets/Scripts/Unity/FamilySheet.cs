@@ -229,7 +229,7 @@ namespace Evergrove.UnityClient
                     hooks.Seeds() >= amount);
             GiftToken(gifts, LetterOnly, MosseloraArt.Load(MosseloraArt.IconChat), "", true);
             // A basket of fruit from your trees (I230), then a cutting of a plant you
-            // have grown from the nursery (it costs its price).
+            // have grown from the nursery (it costs its gift price, half the nursery price).
             int[] owned = hooks.OwnedKinds();
             int fruit = hooks.Fruit != null ? hooks.Fruit() : 0;
             Transform cuttings = Row(body, "Lantern, fruit and cuttings", 82f, 10f);
@@ -243,7 +243,7 @@ namespace Evergrove.UnityClient
             }
             for (int i = 0; i < owned.Length && i < (fruit > 0 ? 2 : 3); i++)
                 GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
-                    Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
+                    Nursery.GiftPrice(owned[i]).ToString(), hooks.Seeds() >= Nursery.GiftPrice(owned[i])); // v1 #73: sending costs half
             StepTokens(() => { sendStep = 1; outcome = ""; Rebuild(); }, "On to wrapping it", MosseloraArt.IconContinue,
                 MosseloraTheme.ForestAction);
         }
@@ -450,6 +450,7 @@ namespace Evergrove.UnityClient
                 case ParcelError.NotEnoughFruit: return "You don't have that much fruit yet. Tend your trees to pick more.";
                 case ParcelError.NotEnoughJam: return "Your pantry has no jam yet. Make some from fruit at your cottage.";
                 case ParcelError.NotInThisGarden: return "This help is for something your garden hasn't grown yet.";
+                case ParcelError.LarderFull: return "Your larder is full. Make jam or give some fruit away, then open this one.";
                 case ParcelError.ChecksumMismatch:
                 case ParcelError.Malformed:
                 case ParcelError.Invalid: return "This parcel was changed on the way and can't be opened. Ask them to send it again.";

@@ -54,7 +54,7 @@ namespace Evergrove.UnityClient
             int key = (int)voice * 10 + ((variant % 3) + 3) % 3;
             if (AmbientCache.TryGetValue(key, out AudioClip clip) && clip != null) return clip;
             var rng = new System.Random(101 + key);
-            float seconds = voice == AmbientVoice.Rain ? 2.4f : voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
+            float seconds = voice == AmbientVoice.Owl ? 1.5f : voice == AmbientVoice.Rain ? 2.4f : voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
                 : voice == AmbientVoice.Birds ? 0.6f : 0.18f;
             int length = Mathf.RoundToInt(SampleRate * seconds);
             var samples = new float[length];
@@ -92,6 +92,23 @@ namespace Evergrove.UnityClient
                         patter = rng.NextDouble() < 0.0035 ? 1f : patter * 0.9965f; // each drop, then its decay
                         float swell = Mathf.Sin(t / seconds * Mathf.PI);
                         samples[i] = swell * (0.05f * smooth + 0.05f * white * patter);
+                        break;
+                    }
+                    case AmbientVoice.Owl:
+                    {
+                        // I376: hoo... hoo-hoo, low and soft, each note gliding down a little.
+                        float[] starts = { 0f, 0.62f, 0.92f };
+                        float[] lengths = { 0.42f, 0.24f, 0.46f };
+                        float value = 0f;
+                        for (int n = 0; n < starts.Length; n++)
+                        {
+                            float local = t - starts[n];
+                            if (local < 0f || local > lengths[n]) continue;
+                            float env = Mathf.Sin(local / lengths[n] * Mathf.PI);
+                            float hz = (n == 0 ? 410f : 380f) * (1f - 0.06f * local / lengths[n]);
+                            value = env * env * (0.09f * Sine(hz, t) + 0.02f * Sine(hz * 2f, t) + 0.006f * white);
+                        }
+                        samples[i] = value;
                         break;
                     }
                     case AmbientVoice.Wind:

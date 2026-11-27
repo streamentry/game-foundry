@@ -305,6 +305,13 @@ internal static class WorldIdeasTests
         int keptCount = 0;
         foreach (Keepsake k in MemoryShelf.For(shelfWorld)) if (k.Kept) keptCount++;
         Expect(keptCount == 1, "only what truly happened: " + keptCount);
+        // I386: good neighbours on the shelf: the first, then all seven.
+        shelfWorld.DiscoverPairing(Pairing.Grove);
+        Expect(Array.Find(MemoryShelf.For(shelfWorld), k => k.Label == "Your first good neighbours").Kept, "first good neighbours kept");
+        Expect(!Array.Find(MemoryShelf.For(shelfWorld), k => k.Art == "tree-05").Kept, "not all seven yet");
+        foreach (Pairing p in Enum.GetValues(typeof(Pairing))) shelfWorld.DiscoverPairing(p);
+        foreach (Pairing p in Enum.GetValues(typeof(Pairing))) shelfWorld.DiscoverPairing(p); // the deeper three, now open
+        Expect(Array.Find(MemoryShelf.For(shelfWorld), k => k.Art == "tree-05").Kept, "all seven kept");
         // Idea 32 (neighbours give back): at a few true milestones of puzzles solved, a
         // neighbour leaves a cutting of their own kind, from a nursery row you have open.
         Expect(NeighbourGifts.Due(0, 0) == 0 && NeighbourGifts.Due(NeighbourGifts.Milestones[0] - 1, 0) == 0,
@@ -432,6 +439,11 @@ internal static class WorldIdeasTests
         Expect(!Visitors.Welcomes(visitedGarden, Visitor.Birds), "birds wait for trees tended");
         for (int i = 0; i < visitedGarden.Choices.Length; i++) if (visitedGarden.Choices[i] == (int)VillageChoice.ShadeTree) visitedGarden.SolveTree(i);
         Expect(Visitors.Welcomes(visitedGarden, Visitor.Birds), "fruit trees tended bring the birds");
+        // I378: with bees about, a tree with a flower beside it gives one more fruit; not in winter.
+        int fruitBeforeBees = visitedGarden.Fruit;
+        Expect(visitedGarden.PickPollinatedFruit(true, Season.Summer) && visitedGarden.Fruit == fruitBeforeBees + 1, "the bees' fruit");
+        Expect(!visitedGarden.PickPollinatedFruit(false, Season.Summer), "no flower beside: no extra");
+        Expect(!visitedGarden.PickPollinatedFruit(true, Season.Winter), "no bees in winter");
         Expect(Visitors.Out(Visitor.Bees, Season.Summer, DayPhase.Day) && !Visitors.Out(Visitor.Bees, Season.Winter, DayPhase.Day) &&
                !Visitors.Out(Visitor.Bees, Season.Summer, DayPhase.Night), "bees by warm day only");
         Expect(Visitors.Out(Visitor.Birds, Season.Winter, DayPhase.Morning) && !Visitors.Out(Visitor.Birds, Season.Spring, DayPhase.Night),

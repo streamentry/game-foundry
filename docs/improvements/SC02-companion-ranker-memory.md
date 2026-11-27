@@ -19,6 +19,8 @@ Neighbours now pick the one thing worth saying, remember what they've said on th
 | Their own line of work | +10 |
 | Ambient (today's weather, the hour, a pairing hint) | +5 |
 
+The visitor remark (I377) used to come one day in three. Now it weighs +20 as rare, and the 3-day rule keeps it from becoming a refrain. The old day gate is kept only for SC01's parity check.
+
 Three choices the spec left open:
 
 - **A visit** starts when the app comes back to the foreground, on a new day, or in another garden. Once a neighbour has spoken, their remark stays the same for the rest of the visit, so reopening the card or rebuilding the page never changes it. One exception: something you just did for them, such as handing over fruit, is answered at once.
@@ -52,9 +54,9 @@ Three choices the spec left open:
   - the 14-day wording rule (no repeat across 14 days of 20 wordings, least-recently-heard when all are used);
   - memory round-trip, pruning and the cap;
   - a scripted week over a real garden: 21 remarks, none repeated within 3 days, and no two neighbours saying the same fact on one visit.
-- `dotnet run --project games/evergrove/Tests`: passed, 1,196,208 assertions. The SC01 parity test still passes: `LegacyPick` is unchanged and kept as the reference.
-- Unity iOS simulator build `c1`: 0 `error CS`, and `Info.plist` present (`com.streamentry.evergrove.playtest`).
-- Tours on the "Mosselora QA iPhone" simulator, all reaching `MOSSELORA_QA_TOUR_DONE 121`: portrait `c1p`, landscape `c1l`, and 150% text `c1x`. The week shots read cleanly in all three. At 150% Mira's line wraps to four lines inside the card.
+- `dotnet run --project games/evergrove/Tests`: passed, 1,282,311 assertions, after merging main at `66d7f6b`. The SC01 parity test still passes: `LegacyPick` is unchanged and kept as the reference.
+- Unity iOS simulator builds `c1` (before merging main) and `c2` (after): 0 `error CS` each, and `Info.plist` present (`com.streamentry.evergrove.playtest`).
+- Tours on the "Mosselora QA iPhone" simulator: `c1p`, `c1l` and `c1x` reached `MOSSELORA_QA_TOUR_DONE 121`; after the merge, `c2p` (portrait), `c2l` (landscape) and `c2x` (150% text) reached `MOSSELORA_QA_TOUR_DONE 123`. The week shots read cleanly in all three. At 150% Mira's line wraps to four lines inside the card.
 - The week as logged: day 1 Mira on the water she freed, Orin on the old painting, Fen with a shade hint. By days 4 and 8 the same facts come back in the same old wording. That is the repetition SC03's variants are for.
 
 ## Not verified

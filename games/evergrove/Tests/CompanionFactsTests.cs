@@ -6,7 +6,7 @@ using Evergrove.Core;
 /// <summary>
 /// Smart companion SC01: the fact feed reproduces exactly what the neighbours said before it.
 /// <see cref="LegacySays"/> is a verbatim port of EvergroveApp.NeighborSays as it stood on main at
-/// 0dcabc9 (English, living garden), calling the same Core functions. For many constructed saves and
+/// 66d7f6b (English, living garden; run 3's deeper pairings and visitor remarks included), calling the same Core functions. For many constructed saves and
 /// contexts, feed → old chain → old sentence must equal it, word for word.
 /// </summary>
 internal static class CompanionFactsTests
@@ -164,12 +164,12 @@ internal static class CompanionFactsTests
             for (int i = 0; i < letters; i++) Expect(w.KeepNote(i == 0 ? "Anh" : "Ruth", "A note, number " + (i + 1) + "."), "note kept");
             yield return w;
         }
-        foreach (int mask in new[] { 1, 2, 4, 8, 5, 15 })
+        foreach (int mask in new[] { 1, 2, 4, 8, 5, 15, 31, 63, 127 })
             yield return Restore(Grown(7), s => s.pairings = mask);
         // Every good neighbour found and little grown: some neighbours have nothing true to say.
-        yield return Restore(WorldModel.New(PlayMode.Living), s => s.pairings = 15);
-        yield return Restore(Grown(1), s => s.pairings = 15);
-        yield return Restore(Grown(2), s => s.pairings = 15);
+        yield return Restore(WorldModel.New(PlayMode.Living), s => s.pairings = 127);
+        yield return Restore(Grown(1), s => s.pairings = 127);
+        yield return Restore(Grown(2), s => s.pairings = 127);
         WorldModel together = Grown(6);
         together.MarkTogether(0);
         yield return together;
@@ -194,6 +194,9 @@ internal static class CompanionFactsTests
         yield return new CompanionContext(today, togetherKeeper: 0, togetherKind: PuzzleKind.StreamPath, weather: Weather.Snowy,
             lightOn: true, phase: DayPhase.Night, map: map);
         yield return new CompanionContext(today, togetherKeeper: 2, togetherKind: PuzzleKind.Doorstep, lettersRead: 5);
+        // I377's "one day in three" falls on different days for each keeper.
+        yield return new CompanionContext(today.AddDays(1), map: map);
+        yield return new CompanionContext(today.AddDays(2), lightOn: true, phase: DayPhase.Dusk, map: map);
     }
 
     // ---- Today's NeighborSays (EvergroveApp at 0dcabc9), English and living; null = the story line.
@@ -213,10 +216,13 @@ internal static class CompanionFactsTests
         if (noticed != null) return noticed;
         string weatherLine = DayWeather.Remark(c.Weather, villager);
         if (weatherLine != null) return weatherLine;
-        Pairing[] theirs = villager == 0 ? new[] { Pairing.Grove } : villager == 1 ? new[] { Pairing.ByTheWater }
-            : new[] { Pairing.Sheltered, Pairing.FlowerBed };
+        Pairing[] theirs = villager == 0 ? new[] { Pairing.Grove, Pairing.Orchard }
+            : villager == 1 ? new[] { Pairing.ByTheWater, Pairing.ShadySeat }
+            : new[] { Pairing.Sheltered, Pairing.FlowerBed, Pairing.Waterside };
         foreach (Pairing p in theirs)
-            if (!world.HasPairing(p)) return OldPairingHint(p);
+            if (!world.HasPairing(p) && (Pairings.Open(world) & PairingMask.Of(p)) != 0) return OldPairingHint(p);
+        string visitorLine = Visitors.KeeperRemark(world, villager, (int)(c.Today - new DateTime(2000, 1, 1)).TotalDays);
+        if (visitorLine != null) return visitorLine;
         string hourLine = c.LightOn ? DayLight.Remark(villager, c.Phase, GardenSeason.For(world)) : null;
         if (hourLine != null) return hourLine;
         int[] made = world.Choices;
@@ -255,6 +261,9 @@ internal static class CompanionFactsTests
             case Pairing.Grove: return "Two trees side by side keep each other company. A grove, my grandmother called it.";
             case Pairing.ByTheWater: return "Things built beside the water last. The river keeps an eye on them.";
             case Pairing.Sheltered: return "Flowers love a little shade. Try one beside a tree.";
+            case Pairing.Orchard: return "Three trees together and it's an orchard. They'd crop better for the company.";
+            case Pairing.ShadySeat: return "A seat's no good in full sun. Build something beside a tree and you'll see.";
+            case Pairing.Waterside: return "Some flowers like their feet wet. Try one right by the water.";
             default: return "Two different flowers side by side make a bed. They show each other off.";
         }
     }

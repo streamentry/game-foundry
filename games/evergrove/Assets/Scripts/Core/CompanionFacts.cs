@@ -24,6 +24,7 @@ namespace Evergrove.Core
         PairingToFind,    // a good-neighbour pairing of their kind not yet found (I370)
         Hour,             // the light at dawn, golden hour, dusk or night (I281)
         NewestThing,      // the newest thing of their kind and where it stands (I184)
+        VisitorCame,      // the visitor their good neighbours brought: owl, heron, hedgehog (I377)
     }
 
     /// <summary>
@@ -168,6 +169,7 @@ namespace Evergrove.Core
                 Arrival(world, v, facts);
                 Solved(world, v, facts);
                 Pairings(world, v, facts);
+                Visitor(world, context, v, facts);
                 Newest(world, context, v, facts);
             }
             WhileAway(world, context, facts);
@@ -279,18 +281,51 @@ namespace Evergrove.Core
             }
         }
 
-        // I370: their own kind's good neighbours not yet found, in the old order.
+        // I370/I383: their own kind's good neighbours open and not yet found, in the old order.
         private static readonly Pairing[][] PairingsOf = {
-            new[] { Pairing.Grove }, new[] { Pairing.ByTheWater }, new[] { Pairing.Sheltered, Pairing.FlowerBed },
+            new[] { Pairing.Grove, Pairing.Orchard },
+            new[] { Pairing.ByTheWater, Pairing.ShadySeat },
+            new[] { Pairing.Sheltered, Pairing.FlowerBed, Pairing.Waterside },
         };
 
         private static void Pairings(WorldModel world, int v, List<Fact> facts)
         {
             Pairing[] theirs = PairingsOf[v];
+            int open = Evergrove.Core.Pairings.Open(world);
             for (int i = 0; i < theirs.Length; i++)
-                if (!world.HasPairing(theirs[i]))
+                if (!world.HasPairing(theirs[i]) && (open & PairingMask.Of(theirs[i])) != 0)
                     facts.Add(Make(FactKind.PairingToFind, v, "pairing-hint:" + theirs[i], AmbientWeight, false, false,
                         11 * Step + i, "pairing", theirs[i].ToString()));
+        }
+
+        /// <summary>Slot marking a fact the old chain would not have said today (it kept its own "one day in three").</summary>
+        public const string LegacyOffSlot = "_legacy-off";
+
+        // I377: their visitor has come. The old chain said it one day in three; the ranker's
+        // 3-day rule now keeps it from becoming a refrain.
+        private static void Visitor(WorldModel world, CompanionContext context, int v, List<Fact> facts)
+        {
+            Visitor visitor = Visitors.KeeperVisitor(v);
+            if (!Visitors.Welcomes(world, visitor)) return;
+            bool legacyDay = Visitors.KeeperRemark(world, v, context.DayNumber) != null;
+            var slots = new List<string> { "visitor", VisitorName(visitor) };
+            if (!legacyDay) { slots.Add(LegacyOffSlot); slots.Add("1"); }
+            facts.Add(Make(FactKind.VisitorCame, v, "visitor:" + visitor, RareWeight, false, false, 11 * Step + 50,
+                slots.ToArray()));
+        }
+
+        public static string VisitorName(Visitor visitor)
+        {
+            switch (visitor)
+            {
+                case Evergrove.Core.Visitor.Owl: return "owl";
+                case Evergrove.Core.Visitor.Heron: return "heron";
+                case Evergrove.Core.Visitor.Hedgehog: return "hedgehog";
+                case Evergrove.Core.Visitor.Kingfisher: return "kingfisher";
+                case Evergrove.Core.Visitor.Bees: return "bees";
+                case Evergrove.Core.Visitor.Birds: return "birds";
+                default: return "butterflies";
+            }
         }
 
         private static void Newest(WorldModel world, CompanionContext context, int v, List<Fact> facts)

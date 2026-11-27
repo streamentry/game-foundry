@@ -873,10 +873,19 @@ namespace Evergrove.UnityClient
     internal sealed class RuleToast : MonoBehaviour
     {
         private static RuleToast current;
-        private float elapsed;
+        private float elapsed, stay = 2.6f;
         private CanvasGroup group;
 
         public static void Show(RectTransform anchor, string message, Font font, Color ink, Color paper)
+        {
+            Show(anchor, message, font, ink, paper, null);
+        }
+
+        /// <summary>
+        /// I387: with a row of paintings above the words (two good neighbours side by side, a
+        /// flower and its fruit), so the picture says it first. Stays a little longer.
+        /// </summary>
+        public static void Show(RectTransform anchor, string message, Font font, Color ink, Color paper, Sprite[] marks)
         {
             if (anchor == null) return;
             if (current != null) Destroy(current.gameObject);
@@ -900,6 +909,32 @@ namespace Evergrove.UnityClient
             pad.childControlWidth = true;
             pad.childControlHeight = true;
             pad.childForceExpandWidth = true;
+            int shown = 0;
+            if (marks != null && marks.Length > 0)
+            {
+                var row = new GameObject("Toast paintings", typeof(RectTransform));
+                row.transform.SetParent(node.transform, false);
+                var rowLayout = row.AddComponent<HorizontalLayoutGroup>();
+                rowLayout.childAlignment = TextAnchor.MiddleCenter;
+                rowLayout.spacing = 6f;
+                rowLayout.childControlWidth = rowLayout.childControlHeight = true;
+                rowLayout.childForceExpandWidth = rowLayout.childForceExpandHeight = false;
+                row.AddComponent<LayoutElement>().preferredHeight = 48f;
+                foreach (Sprite mark in marks)
+                {
+                    if (mark == null) continue;
+                    var painting = new GameObject("Painting", typeof(RectTransform));
+                    painting.transform.SetParent(row.transform, false);
+                    var paintingLayout = painting.AddComponent<LayoutElement>();
+                    paintingLayout.preferredWidth = paintingLayout.preferredHeight = 46f;
+                    var image = painting.AddComponent<Image>();
+                    image.sprite = mark;
+                    image.preserveAspect = true;
+                    image.raycastTarget = false;
+                    shown++;
+                }
+                if (shown == 0) Destroy(row);
+            }
             var words = new GameObject("Toast words", typeof(RectTransform));
             words.transform.SetParent(node.transform, false);
             var text = words.AddComponent<Text>();
@@ -918,7 +953,13 @@ namespace Evergrove.UnityClient
             Vector3 local = root.InverseTransformPoint(rect.position);
             float half = rect.rect.width / 2f, limit = root.rect.width / 2f - 8f;
             rect.anchoredPosition += new Vector2(Mathf.Clamp(local.x, -limit + half, limit - half) - local.x, 0f);
+            // I398: anchored to a whole screen (home, a visit), "above it" would be off the top:
+            // keep the toast on screen, below the top chrome.
+            float maxTop = root.rect.yMax - 96f;
+            if (local.y + rect.rect.height > maxTop)
+                rect.anchoredPosition += new Vector2(0f, maxTop - (local.y + rect.rect.height));
             current = node.AddComponent<RuleToast>();
+            current.stay = shown > 0 ? 3.6f : 2.6f;
             current.group = node.AddComponent<CanvasGroup>();
             current.group.blocksRaycasts = false;
         }
@@ -926,8 +967,8 @@ namespace Evergrove.UnityClient
         private void Update()
         {
             elapsed += Time.unscaledDeltaTime;
-            if (elapsed > 2.6f) group.alpha = Mathf.Clamp01(1f - (elapsed - 2.6f) / 0.4f);
-            if (elapsed > 3.0f) Destroy(gameObject);
+            if (elapsed > stay) group.alpha = Mathf.Clamp01(1f - (elapsed - stay) / 0.4f);
+            if (elapsed > stay + 0.4f) Destroy(gameObject);
         }
 
         private void OnDestroy() { if (current == this) current = null; }
