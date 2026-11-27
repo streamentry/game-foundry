@@ -2413,13 +2413,10 @@ namespace Evergrove.UnityClient
             if (Pairings.GiftIdea(map, things, visited.PairingsFound, Pairings.Open(visited), out VillageChoice kind, out Pairing makes))
             {
                 FamilySheet.IdeaFamily = (int)kind; // I408: the send sheet remembers it
-                string thing = kind == VillageChoice.Flowers ? "a flower" : kind == VillageChoice.ShadeTree ? "a tree" : "something built";
-                string art = kind == VillageChoice.Flowers ? "flower-05" : kind == VillageChoice.ShadeTree ? "tree-00" : "build-03";
-                var marks = new System.Collections.Generic.List<Sprite> { MosseloraArt.Load(art), MosseloraArt.Load("glyph-sprig") };
-                foreach (Sprite s in PairingMarks(makes)) marks.Add(s);
+                // I418 (P25): the rule itself, and its two paintings, said once.
                 RuleToast.Show((RectTransform)visitLayer.transform,
-                    "A gift idea: " + thing + " would give them " + PairingName(makes) + "." + shared,
-                    font, Ink, MosseloraTheme.CardFill, marks.ToArray());
+                    "A gift idea for their garden: " + Pairings.Hint(makes).TrimEnd('.').ToLowerInvariant() + "." + shared,
+                    font, Ink, MosseloraTheme.CardFill, PairingMarks(makes));
             }
             else if (shared.Length > 0)
                 RuleToast.Show((RectTransform)visitLayer.transform, shared.Trim(), font, Ink, MosseloraTheme.CardFill);
@@ -2692,10 +2689,50 @@ namespace Evergrove.UnityClient
             {
                 if (seen.Length == 8 && DateTime.TryParseExact(seen, "yyyyMMdd", CultureInfo.InvariantCulture,
                         DateTimeStyles.None, out DateTime last))
+                {
                     sinceLine = DayWeather.SinceLastVisit(last, DateTime.Now.Date, GardenSeason.For(world), world.Garden);
+                    // I420: after a long time away, reassurance first, never guilt.
+                    string welcome = Companion.WelcomeBack((int)(DateTime.Now.Date - last.Date).TotalDays);
+                    if (welcome != null) sinceLine = welcome + (string.IsNullOrEmpty(sinceLine) ? "" : " " + sinceLine);
+                }
                 PlayerPrefs.SetString(key, today);
+                // I419: the hour of each day's first return, counted on this device only.
+                int[] hours = HourCounts();
+                Now(out int hour, out int minute);
+                hours[(int)DayLight.PhaseAt(hour, minute)]++;
+                PlayerPrefs.SetString(HoursKey, string.Join(",", Array.ConvertAll(hours, h => Mathf.Min(h, 999).ToString(CultureInfo.InvariantCulture))));
+                NoteAnniversary();
                 PlayerPrefs.Save();
             }
+        }
+
+        // I419: device-only counts of the hour you come (first return of each day), never in the
+        // garden file, which travels to family.
+        private string HoursKey { get { return "evergrove:hours:" + world.Garden; } }
+
+        private int[] HourCounts()
+        {
+            var counts = new int[Companion.PhaseCount];
+            string[] parts = PlayerPrefs.GetString(HoursKey, "").Split(',');
+            for (int i = 0; i < counts.Length && i < parts.Length; i++)
+                int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out counts[i]);
+            return counts;
+        }
+
+        // I421: the garden's anniversary (from the first day it was opened on this device):
+        // Orin keeps a note, once that day.
+        private void NoteAnniversary()
+        {
+            string firstKey = "evergrove:first-seen:" + world.Garden;
+            string today = DateTime.Now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            string first = PlayerPrefs.GetString(firstKey, "");
+            if (first.Length != 8) { PlayerPrefs.SetString(firstKey, today); return; }
+            if (!DateTime.TryParseExact(first, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime began)) return;
+            int years = Companion.Anniversary(began, DateTime.Now.Date);
+            string doneKey = "evergrove:anniversary:" + world.Garden;
+            if (years <= 0 || PlayerPrefs.GetInt(doneKey, 0) >= years) return;
+            if (world.KeepNote("Orin", Companion.AnniversaryNote(years))) { letterArrived = true; SaveWorld(); }
+            PlayerPrefs.SetInt(doneKey, years);
         }
 
         // I374/I382: the visitors a garden's good neighbours bring, where they'd stand, when
@@ -3506,6 +3543,9 @@ namespace Evergrove.UnityClient
                 string visitorLine = Visitors.KeeperRemark(world, villager, (int)(DateTime.Now.Date - new DateTime(2000, 1, 1)).TotalDays);
                 if (visitorLine != null) return visitorLine;
             }
+            // I419: now and then, the hour you usually come (its noticer only, one day in seven).
+            string habitLine = Companion.HabitLine(HourCounts(), villager, (int)(DateTime.Now.Date - new DateTime(2000, 1, 1)).TotalDays);
+            if (habitLine != null) return habitLine;
             // Nothing new and true to tell: they may notice the light instead (I281).
             string hourLine = HourRemark(villager);
             if (hourLine != null) return hourLine;
@@ -8605,6 +8645,8 @@ namespace Evergrove.UnityClient
         private void ApplyDayLight(WorldModel garden)
         {
             GardenCreature.Tapped = OnVisitorTapped; // I404
+            Now(out int quietHour, out int _);
+            AudioListener.volume = Companion.Volume(quietHour); // I422: softer late at night
             Now(out int hour, out int minute);
             DayTint tint = DayLight.TintAt(hour, minute);
             bool on = DayLightOn && garden != null && garden.Mode == PlayMode.Living;
