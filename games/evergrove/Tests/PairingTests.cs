@@ -148,6 +148,10 @@ internal static class PairingTests
         Expect(RiverMoments.Glitter(Season.Summer, DayPhase.Golden, Weather.Fair) && !RiverMoments.Glitter(Season.Summer, DayPhase.Golden, Weather.Rainy)
             && !RiverMoments.Glitter(Season.Summer, DayPhase.Day, Weather.Fair), "glitter in a clear golden hour");
         Expect(RiverMoments.LeavesAfloat(Season.Autumn) && !RiverMoments.LeavesAfloat(Season.Spring), "leaves float in autumn");
+        // I425/I426: moonlight on clear nights; bees a voice of their own, rarer than birds.
+        Expect(RiverMoments.Moonlight(DayPhase.Night, Weather.Fair) && !RiverMoments.Moonlight(DayPhase.Night, Weather.Rainy)
+            && !RiverMoments.Moonlight(DayPhase.Dusk, Weather.Fair), "moonlight on the water on a clear night");
+        Expect(Soundscape.SecondsBetween(AmbientVoice.Bees) > Soundscape.SecondsBetween(AmbientVoice.Birds), "bees heard less often than birds");
         // I376: the owl heard at night, only.
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Night) == AmbientVoice.Owl, "the owl calls at night");
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Day) == null, "never by day");
