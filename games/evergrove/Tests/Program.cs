@@ -1912,6 +1912,7 @@ internal static class Program
             assertions += SeedSudokuTests.Run();
             assertions += PlotsTests.Run();
             assertions += StreamPathTests.Run();
+            assertions += GardenPiecesTests.Run();
             assertions += MahjongTests.Run();
             assertions += ThingPuzzleTests.Run();
             assertions += SeasonTests.Run();
