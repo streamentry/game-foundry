@@ -954,7 +954,7 @@ namespace Evergrove.UnityClient
             app.QaShowHub(false);
             app.QaSetClock(13);
 
-            Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
+            ReportTouchScan(); Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
             Application.Quit();
         }
 
@@ -1028,7 +1028,7 @@ namespace Evergrove.UnityClient
             File.WriteAllBytes(Path.Combine(outputDir, fileName), frame.EncodeToPNG());
             Destroy(frame);
             saved++;
-            Debug.Log("MOSSELORA_QA_TOUR_SHOT " + fileName);
+            Debug.Log("MOSSELORA_QA_TOUR_SHOT " + fileName); ScanTouchTargets(fileName); // checklist 91: DevQaTour.Touch.cs
         }
 
         // Only active buttons: Rebuild deactivates the old hierarchy before Destroy.
