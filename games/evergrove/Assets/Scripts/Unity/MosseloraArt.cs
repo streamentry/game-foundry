@@ -842,7 +842,7 @@ namespace Evergrove.UnityClient
     internal sealed class SettleIn : MonoBehaviour
     {
         private float delay;
-        private float elapsed, stay = 2.6f;
+        private float elapsed;
         private CanvasGroup group;
 
         public static void Add(GameObject node, float startDelay)
@@ -873,7 +873,7 @@ namespace Evergrove.UnityClient
     internal sealed class RuleToast : MonoBehaviour
     {
         private static RuleToast current;
-        private float elapsed;
+        private float elapsed, stay = 2.6f;
         private CanvasGroup group;
 
         public static void Show(RectTransform anchor, string message, Font font, Color ink, Color paper)
