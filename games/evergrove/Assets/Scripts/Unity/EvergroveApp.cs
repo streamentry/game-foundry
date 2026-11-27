@@ -2645,6 +2645,52 @@ namespace Evergrove.UnityClient
             }
         }
 
+        // I372: holding something to place, the free spots where it would make a good-neighbour
+        // pairing not yet found. Nothing is held: no spots.
+        private int[] PairingSpots(GardenMap map, System.Collections.Generic.List<PlacedThing> things)
+        {
+            int[] made = world.Choices;
+            int moving = -1;
+            if (mapInHand >= 0 && mapInHand < made.Length) moving = mapInHand;
+            else if (heldPlanting >= 0) moving = made.Length + heldPlanting;
+            else if (heldBought >= 0) moving = made.Length + world.PlantingCount + heldBought;
+            else if (basketOpen && basketKind >= 0 && basketKind < made.Length)
+            {
+                things.Add(new PlacedThing(-1, (VillageChoice)Mathf.Clamp(made[basketKind], 0, 2), ItemAt(basketKind, made[basketKind]).Art));
+                moving = things.Count - 1;
+            }
+            else if (nurseryOpen && nurseryKind >= 0 && nurseryKind < Nursery.Kinds)
+            {
+                things.Add(new PlacedThing(-1, Nursery.Family(nurseryKind), Nursery.Item(nurseryKind).Art));
+                moving = things.Count - 1;
+            }
+            if (moving < 0 || moving >= things.Count || world.PairingsFound == (1 << 4) - 1) return null;
+            var taken = new System.Collections.Generic.HashSet<int>();
+            foreach (PlacedThing t in things) taken.Add(t.Cell);
+            var spots = new System.Collections.Generic.List<int>();
+            for (int c = 0; c < map.CellCount && spots.Count < 40; c++)
+                if (map.IsLand(c) && !taken.Contains(c) && Pairings.NewAt(map, things, moving, c, world.PairingsFound) != 0)
+                    spots.Add(c);
+            return spots.ToArray();
+        }
+
+        // I368: good neighbours found in the garden as it stands: each pays once, with a word.
+        private string pairingFound;
+
+        private void NotePairings(GardenMap map)
+        {
+            if (world == null || world.Mode != PlayMode.Living || map == null) return;
+            int found = Pairings.Found(world, map);
+            foreach (Pairing pairing in Enum.GetValues(typeof(Pairing)))
+                if ((found & PairingMask.Of(pairing)) != 0 && world.DiscoverPairing(pairing) > 0)
+                {
+                    pairingFound = "Good neighbours: " + Pairings.Hint(pairing).ToLowerInvariant().TrimEnd('.') +
+                        ". +" + Pairings.Reward + " seeds.";
+                    SaveWorld();
+                    PlayChime();
+                }
+        }
+
         private bool GardenMapOnHub(RectTransform window)
         {
             NoteReturn();
@@ -2654,6 +2700,13 @@ namespace Evergrove.UnityClient
             ApplyDayLight(world);
             Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
+            NotePairings(map); // I368
+            if (map != null && world.Mode == PlayMode.Living)
+            {
+                var things = Pairings.Things(world, map);
+                GardenMapView.PairLinksNext = Pairings.Links(map, things); // I371
+                GardenMapView.PairSpotsNext = PairingSpots(map, things);    // I372
+            }
             if (plot == null || map == null) return false;
             float zoom = hubZoom[landscape ? 1 : 0];
             // Only home marks things that hold a puzzle: only home plays them (I221).
@@ -2672,6 +2725,11 @@ namespace Evergrove.UnityClient
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;
+            if (pairingFound != null && titleScreen != null)
+            {
+                RuleToast.Show((RectTransform)titleScreen.transform, pairingFound, font, Ink, MosseloraTheme.CardFill);
+                pairingFound = null;
+            }
             // I310: lanterns are passed in before the build (LanternsNext), so nothing lays out twice.
             waveHello = false; // they waved (or would have) on this return; not on every rebuild
             // A solve opened more river (I223): its mist lifts, framed, with the chime.
@@ -3275,6 +3333,14 @@ namespace Evergrove.UnityClient
             // I357: nothing new to tell, but it's raining, snowing, windy or hot: they say so.
             string weatherLine = world.Mode == PlayMode.Living ? DayWeather.Remark(TodayWeather(world), villager) : null; // I358
             if (weatherLine != null) return weatherLine;
+            // I370: a keeper's hint at a good neighbour not yet found (their own kind's).
+            if (world.Mode == PlayMode.Living)
+            {
+                Pairing[] theirs = villager == 0 ? new[] { Pairing.Grove } : villager == 1 ? new[] { Pairing.ByTheWater }
+                    : new[] { Pairing.Sheltered, Pairing.FlowerBed };
+                foreach (Pairing p in theirs)
+                    if (!world.HasPairing(p)) return PairingHint(p);
+            }
             // Nothing new and true to tell: they may notice the light instead (I281).
             string hourLine = HourRemark(villager);
             if (hourLine != null) return hourLine;
@@ -6177,6 +6243,7 @@ namespace Evergrove.UnityClient
             var page = Card(journalContent, "The almanac", new Color(0f, 0f, 0f, 0f));
             MemoryShelfRow(page.transform);
             VisitorsRows(page.transform);
+            PairingRows(page.transform); // I369
             foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Flowers, VillageChoice.Bridge })
             {
                 Transform head = CenteredRowIn(page.transform, "Almanac family");
@@ -6241,6 +6308,43 @@ namespace Evergrove.UnityClient
                     name.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
                         said, font, Ink, MosseloraTheme.CardFill));
                 }
+            }
+        }
+
+        private static string PairingHint(Pairing pairing)
+        {
+            switch (pairing)
+            {
+                case Pairing.Grove: return "Two trees side by side keep each other company. A grove, my grandmother called it.";
+                case Pairing.ByTheWater: return "Things built beside the water last. The river keeps an eye on them.";
+                case Pairing.Sheltered: return "Flowers love a little shade. Try one beside a tree.";
+                default: return "Two different flowers side by side make a bed. They show each other off.";
+            }
+        }
+
+        // I369: the good neighbours a garden has found, and the ones still to find, as hints.
+        private void PairingRows(Transform page)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            foreach (Pairing pairing in Enum.GetValues(typeof(Pairing)))
+            {
+                bool found = world.HasPairing(pairing);
+                Transform row = CenteredRowIn(page, "Good neighbours " + pairing);
+                var layout = row.GetComponent<HorizontalLayoutGroup>();
+                layout.spacing = 10;
+                layout.childAlignment = TextAnchor.MiddleLeft;
+                var mark = Node(pairing.ToString(), row);
+                var markLayout = mark.AddComponent<LayoutElement>();
+                markLayout.preferredWidth = markLayout.minWidth = markLayout.preferredHeight = 36f;
+                var markImage = mark.AddComponent<Image>();
+                markImage.sprite = MosseloraArt.Load(pairing == Pairing.Sheltered ? "flower-05" : pairing == Pairing.ByTheWater
+                    ? "build-00" : pairing == Pairing.FlowerBed ? "flower-12" : "tree-00");
+                markImage.preserveAspect = true;
+                markImage.color = found ? Color.white : new Color(0.33f, 0.30f, 0.25f, 0.18f);
+                markImage.raycastTarget = false;
+                Text words = Label(row, "Hint", Pairings.Hint(pairing), 16, 0, found ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f),
+                    TextAnchor.MiddleLeft);
+                words.GetComponent<LayoutElement>().flexibleWidth = 1f;
             }
         }
 

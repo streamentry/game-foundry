@@ -352,6 +352,10 @@ namespace Evergrove.UnityClient
             view.lanterns = Mathf.Max(0, LanternsNext); // review fix: known before the first layout
             view.meadow = MeadowTufts; // I363: home's alone; kept for every re-layout (zoom, lookout)
             MeadowTufts = null;
+            view.pairLinks = PairLinksNext; // I371
+            PairLinksNext = null;
+            view.pairSpots = PairSpotsNext; // I372
+            PairSpotsNext = null;
             LanternsNext = 0;
             view.Layout();
             return view;
@@ -425,6 +429,8 @@ namespace Evergrove.UnityClient
         private int reaches = 1;
         private int lanterns; // I310
         private int[] meadow;  // I363
+        private int[] pairLinks; // I371
+        private int[] pairSpots; // I372
         public static int LanternsNext; // set by the app just before building home's map
 
         /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
@@ -826,6 +832,46 @@ namespace Evergrove.UnityClient
                 ThingLook tuftLook = SeasonLook.For(SeasonNow, VillageChoice.Flowers, (cell * 7 + 3) % 50);
                 tuftImage.color = tuftLook == ThingLook.Resting ? new Color(0.72f, 0.78f, 0.70f, 0.8f) : Color.white;
                 nodes.Add(tuftRect);
+            }
+            // I371: a small sprig between good neighbours (I368), so the pairing shows where it is.
+            Sprite sprig = pairLinks != null ? MosseloraArt.Load(MosseloraArt.Sprig) : null;
+            for (int l = 0; sprig != null && l + 1 < pairLinks.Length; l += 2)
+            {
+                int a = pairLinks[l], b = pairLinks[l + 1];
+                if (a < 0 || b < 0 || a >= map.CellCount || b >= map.CellCount) continue;
+                Vector2 pa = new Vector2((a % map.Columns + 0.5f) * cellW, -(a / map.Columns + 0.85f) * cellH);
+                Vector2 pb = new Vector2((b % map.Columns + 0.5f) * cellW, -(b / map.Columns + 0.85f) * cellH);
+                var link = new GameObject("Good neighbours", typeof(RectTransform));
+                link.transform.SetParent(land, false);
+                var linkRect = (RectTransform)link.transform;
+                linkRect.anchorMin = linkRect.anchorMax = new Vector2(0f, 1f);
+                float ls = Mathf.Max(16f, cellW * 0.32f);
+                linkRect.sizeDelta = new Vector2(ls, ls);
+                linkRect.anchoredPosition = (pa + pb) * 0.5f;
+                var linkImage = link.AddComponent<Image>();
+                linkImage.sprite = sprig;
+                linkImage.preserveAspect = true;
+                linkImage.color = new Color(0.36f, 0.62f, 0.38f, 0.9f);
+                linkImage.raycastTarget = false;
+                nodes.Add(linkRect);
+            }
+            // I372: where the thing in hand would make a new good neighbour, a soft green glow.
+            for (int sp = 0; pairSpots != null && sp < pairSpots.Length; sp++)
+            {
+                int cell = pairSpots[sp];
+                if (cell < 0 || cell >= map.CellCount) continue;
+                var spot = new GameObject("Would make good neighbours", typeof(RectTransform));
+                spot.transform.SetParent(land, false);
+                var spotRect = (RectTransform)spot.transform;
+                spotRect.anchorMin = spotRect.anchorMax = new Vector2(0f, 1f);
+                spotRect.sizeDelta = new Vector2(cellW * 0.9f, cellH * 0.6f);
+                spotRect.anchoredPosition = new Vector2((cell % map.Columns + 0.5f) * cellW, -(cell / map.Columns + 0.7f) * cellH);
+                var spotImage = spot.AddComponent<Image>();
+                spotImage.sprite = MosseloraArt.SoftGlow();
+                spotImage.color = new Color(0.55f, 0.85f, 0.50f, 0.55f);
+                spotImage.raycastTarget = false;
+                if (FirefliesMove) Breathe.Add(spotImage);
+                nodes.Add(spotRect);
             }
             // I366: dew glints on the grass in the morning; frost in winter.
             if (DewNow != Dew.None)
@@ -1381,6 +1427,8 @@ namespace Evergrove.UnityClient
         public static Weather WeatherNow = Weather.Fair; // I353: the day's weather, set before a build
         public static Font SignFont; // I360: the river-name signs' lettering
         public static int[] MeadowTufts; // I363: bank cells for wild flowers, set for home's map
+        public static int[] PairLinksNext; // I371: good-neighbour cell pairs, set for home's map
+        public static int[] PairSpotsNext; // I372: free cells that would make a new pairing
         public static bool RainbowNow;   // I364
         public static Dew DewNow;        // I366
 

@@ -1,0 +1,65 @@
+using System;
+using Evergrove.Core;
+
+/// <summary>
+/// I368 (run 3): good neighbours. Where you put things matters, logically: a flower beside a
+/// tree is sheltered, a built thing beside the water stands by the water, two different
+/// flowers make a bed, two trees a grove. Each pays a little, the first time only.
+/// </summary>
+internal static class PairingTests
+{
+    private static int assertions;
+
+    private static void Expect(bool ok, string message)
+    {
+        assertions++;
+        if (!ok) throw new Exception("Pairing test failed: " + message);
+    }
+
+    public static int Run()
+    {
+        var map = new GardenMap(5, 3, "..~..\n.....\n.....");
+        // cells: row 0: 0 1 [2 water] 3 4 ; row 1: 5..9 ; row 2: 10..14
+        var tree = new PlacedThing(6, VillageChoice.ShadeTree, "tree-01");
+        var flower = new PlacedThing(7, VillageChoice.Flowers, "flower-03");
+        Expect(Pairings.Between(map, new[] { tree, flower }) == PairingMask.Of(Pairing.Sheltered), "a flower beside a tree is sheltered");
+        var far = new PlacedThing(14, VillageChoice.Flowers, "flower-03");
+        Expect(Pairings.Between(map, new[] { tree, far }) == 0, "not beside: nothing");
+        var bridge = new PlacedThing(1, VillageChoice.Bridge, "build-00");
+        Expect(Pairings.Between(map, new[] { bridge }) == PairingMask.Of(Pairing.ByTheWater), "built beside the water");
+        var flower2 = new PlacedThing(8, VillageChoice.Flowers, "flower-09");
+        int bed = Pairings.Between(map, new[] { flower, flower2 });
+        Expect((bed & PairingMask.Of(Pairing.FlowerBed)) != 0, "two different flowers make a bed");
+        var same = new PlacedThing(8, VillageChoice.Flowers, "flower-03");
+        Expect((Pairings.Between(map, new[] { flower, same }) & PairingMask.Of(Pairing.FlowerBed)) == 0, "the same flower twice isn't a bed");
+        var tree2 = new PlacedThing(11, VillageChoice.ShadeTree, "tree-05");
+        Expect((Pairings.Between(map, new[] { tree, tree2 }) & PairingMask.Of(Pairing.Grove)) != 0, "two trees side by side make a grove");
+        Expect(Pairings.Between(map, new PlacedThing[0]) == 0, "nothing placed, nothing found");
+        // I372: holding a thing, which free spots would make a pairing not yet found.
+        var holding = new System.Collections.Generic.List<PlacedThing> { tree, new PlacedThing(14, VillageChoice.Flowers, "flower-03") };
+        int fresh = Pairings.NewAt(map, holding, 1, 7, 0);
+        Expect((fresh & PairingMask.Of(Pairing.Sheltered)) != 0, "moving the flower beside the tree would shelter it");
+        Expect(Pairings.NewAt(map, holding, 1, 13, 0) == 0, "far from the tree, nothing new");
+        Expect(Pairings.NewAt(map, holding, 1, 7, PairingMask.Of(Pairing.Sheltered)) == 0, "already found: not new");
+        // I371: the links drawn on the map: one per touching pair that makes a pairing.
+        int[] links = Pairings.Links(map, new[] { tree, flower, far });
+        Expect(links.Length == 2 && ((links[0] == 6 && links[1] == 7) || (links[0] == 7 && links[1] == 6)),
+            "one link, between the tree and the flower beside it");
+        Expect(Pairings.Links(map, new[] { tree, far }).Length == 0, "no link between things apart");
+
+        // Discovered once, paid once, kept in the save.
+        WorldModel world = WorldModel.New(PlayMode.Living);
+        int seeds = world.Seeds;
+        Expect(world.DiscoverPairing(Pairing.Sheltered) == Pairings.Reward && world.Seeds == seeds + Pairings.Reward, "first time pays");
+        Expect(world.DiscoverPairing(Pairing.Sheltered) == 0 && world.Seeds == seeds + Pairings.Reward, "never twice");
+        Expect(world.HasPairing(Pairing.Sheltered) && !world.HasPairing(Pairing.Grove), "remembered");
+        Expect(WorldModel.New(PlayMode.PuzzleOnly).DiscoverPairing(Pairing.Grove) == 0, "only in a living garden");
+        Expect(!GardenTransfer.Export(WorldModel.New(PlayMode.Living), "2026-11-27T00:00:00Z").Contains("\"pairings\""),
+            "older gardens' files are unchanged");
+        Expect(GardenTransfer.TryImport(GardenTransfer.Export(world, "2026-11-27T00:00:00Z"), out WorldModel back, out _) &&
+               back.HasPairing(Pairing.Sheltered), "found pairings travel in the garden file");
+        foreach (Pairing p in Enum.GetValues(typeof(Pairing)))
+            Expect(Pairings.Hint(p).Length > 0 && !Pairings.Hint(p).Contains("!"), "each has a calm hint");
+        return assertions;
+    }
+}

@@ -1927,6 +1927,7 @@ internal static class Program
             assertions += SeasonLookTests.Run();
             assertions += WeatherTests.Run();
             assertions += LivingValleyTests.Run();
+            assertions += PairingTests.Run();
             assertions += NoticeTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
