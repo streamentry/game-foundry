@@ -2080,7 +2080,13 @@ namespace Evergrove.UnityClient
         {
             // Item 34: only your own things follow your chosen level; a relative's shared board, the well
             // and the weekly deeper board stay exactly as dealt.
-            if (ownBoard) (seed, tier) = ChosenDeal(kind, seed, tier, solved, (s, t, sv) => () => OpenThingPuzzle(s, t, kind, art, name, reward, pictureStart, sv, ownBoard));
+            if (ownBoard)
+            {
+                Func<int, int, Func<int>, Action> reopenAt = (s, t, sv) => () => OpenThingPuzzle(s, t, kind, art, name, reward, pictureStart, sv, ownBoard);
+                // Own nonograms measure the chosen level on the garden's own bed (OwnGardenBoards.DealAt).
+                (seed, tier) = kind == PuzzleKind.Nonogram ? OwnNonogramDeal(seed, tier, solved, reopenAt)
+                    : ChosenDeal(kind, seed, tier, solved, reopenAt);
+            }
             moveNote = 0; // I305: each board starts its phrase from the top
             Action turned = () => { PlayMove(kind); Haptics.Placed(); };
             int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
@@ -2116,8 +2122,10 @@ namespace Evergrove.UnityClient
                 dropEarned = world.PuzzlesSolved > solvedBefore;
                 return earned;
             };
+            ownDealing = ownBoard; // own boards draw from the garden (nonogram beds, mosaic picture)
             PuzzleCard((RectTransform)titleScreen.transform, seed, tier, kind, art, name, reward,
                 count => PairsPictures(count, pictureStart, (c, f) => ItemArt(c, f)), turned, solved, closed);
+            ownDealing = false;
             TreePlay card = titleScreen.GetComponentInChildren<TreePlay>();
             openCard = card;
             // I261: how deep this board is, in leaves. I336 (idea 13, after Nikoli's honest
@@ -2129,8 +2137,34 @@ namespace Evergrove.UnityClient
             if (card != null) card.GiveHeadStart(HeadStart.Moves(PlayerPrefs.GetInt(hintsKey, 0), tier));
             // I309: a board of your own can be sent to family once solved. v1 #80: ownership is
             // explicit, because a capped replay of your own thing now pays 0 seeds.
+            // A nonogram of your garden is offered only when a relative can play the same clues (SharedSeedFor).
             if (card != null && ownBoard && world.Mode == PlayMode.Living && FamilyShown())
-                card.SendBoard = () => SendBoardToFamily(kind, tier, seed, name);
+            {
+                if (ShareSeedFor(kind, seed, tier) >= 0) card.SendBoard = () => SendBoardToFamily(kind, tier, seed, name);
+            }
+        }
+
+        // The seed a relative plays this board from: the board's own seed, or for a nonogram of your
+        // garden the standard seed with the same clues (-1 when none, so nothing is offered).
+        private int ShareSeedFor(PuzzleKind kind, int seed, int tier)
+        {
+            if (kind != PuzzleKind.Nonogram) return seed;
+            return world == null ? -1 : OwnGardenBoards.SharedSeedFor(OwnGardenBoards.NonogramFor(world, seed, tier), tier);
+        }
+
+        // Set only while OpenThingPuzzle deals one of your own things, so PuzzleCard draws from the garden.
+        private bool ownDealing;
+
+        // The own nonogram deal (item 34 for your things): same flow as ChosenDeal, measured on the own bed.
+        private (int, int) OwnNonogramDeal(int seed, int tier, Func<int> solved, Func<int, int, Func<int>, Action> reopenAt)
+        {
+            chooserKind = PuzzleKind.Nonogram;
+            chooserReopen = reopenAt(seed, tier, solved);
+            int level = ChosenLeaves(PuzzleKind.Nonogram);
+            (int, int) deal = level == 0 ? (seed, tier) : OwnGardenBoards.DealAt(world, seed, level);
+            chooserTier = deal.Item2;
+            StartCoroutine(AttachLeavesChooser());
+            return deal;
         }
 
         // The card itself, for your things and, visiting, for theirs (I227); eight kinds (I243).
@@ -2145,7 +2179,8 @@ namespace Evergrove.UnityClient
             {
                 case PuzzleKind.Nonogram:
                 {
-                    var nonogram = new NonogramGame(seed, tier);
+                    var nonogram = ownDealing && world != null ? OwnGardenBoards.NonogramFor(world, seed, tier)
+                        : new NonogramGame(seed, tier);
                     boardLeaves = nonogram.Leaves;
                     board = new NonogramBoard(nonogram);
                     break;
@@ -2194,7 +2229,8 @@ namespace Evergrove.UnityClient
                 // Buildings hold a Mosaic of one of the village's memory paintings.
                 string[] paintings = { MosseloraArt.VignetteBridge, MosseloraArt.VignetteTree,
                     MosseloraArt.VignetteFlowers, MosseloraArt.HeroVillage, MosseloraArt.EndingFestival };
-                Sprite picture = MosseloraArt.Load(paintings[Mathf.Abs(seed) % paintings.Length]);
+                // Your own things are mosaicked in their own picture (item 37); others keep a village painting.
+                Sprite picture = ownDealing && art != null ? art : MosseloraArt.Load(paintings[Mathf.Abs(seed) % paintings.Length]);
                 if (picture != null)
                 {
                     TreePlay.OpenMosaic(host, new MosaicGame(seed, tier), picture, art, name, reward, font,
@@ -2345,8 +2381,10 @@ namespace Evergrove.UnityClient
         {
             string from = PlayerPrefs.GetString(FamilyNameKey, "");
             if (!FamilyParcel.ValidName(from)) { OpenFamily(); return; } // your name first, on the family page
+            int shared = ShareSeedFor(kind, seed, tier); // an own nonogram sends the standard seed with the same clues
+            if (shared < 0) return;
             string nonce = Guid.NewGuid().ToString("N").Substring(0, 16);
-            ParcelSendResult sent = world.SendBoard(from, "", (int)kind, tier, seed, nonce);
+            ParcelSendResult sent = world.SendBoard(from, "", (int)kind, tier, shared, nonce);
             if (!sent.Ok) return;
             SaveWorld();
             string text = FamilyParcel.Wrap(sent.Text, from + " sent you the " + thing +
