@@ -1964,14 +1964,27 @@ namespace Evergrove.UnityClient
         {
             int[] made = world.Choices;
             if (titleScreen == null || item < 0 || item >= made.Length) return;
-            int tier = TreePuzzles.TierFor(item);
             GardenItem thing = ItemAt(item, made[item]);
-            // The same thing always holds the same board: seeded by garden and place in the story.
-            int seed = world.Garden * 1000 + item * 7 + 1;
-            int reward = WorldModel.TreeReward(tier, !world.TreeSolved(item));
-            Func<int> solved = () => { int earned = world.SolveTree(item); SaveWorld(); PlayChime(); return earned; };
+            // A thing's first board is its own (seeded by garden and place); replays deal fresh
+            // boards that deepen as you come back to it (I259/I260).
+            int replays = world.TreeSolved(item) ? Replays(item) : 0;
+            int tier = ReplayBoards.Tier(TreePuzzles.TierFor(item), replays);
+            int seed = ReplayBoards.Seed(world.Garden * 1000 + item * 7 + 1, world.TreeSolved(item) ? replays + 1 : 0);
+            int reward = WorldModel.TreeReward(TreePuzzles.TierFor(item), !world.TreeSolved(item));
+            bool replay = world.TreeSolved(item);
+            Func<int> solved = () => { int earned = world.SolveTree(item); if (replay) CountReplay(item);
+                SaveWorld(); PlayChime(); return earned; };
             OpenThingPuzzle(seed, tier, ThingPuzzle.ForStory(item, (VillageChoice)made[item]), ItemArt(item, made[item]),
                 thing.Name, reward, item, solved);
+        }
+
+        // Replays per thing, on this device (I259): only what boards to deal next, never progress.
+        private string ReplayKey(int index) { return "evergrove:replays:" + world.Garden + ":" + index; }
+        private int Replays(int index) { return Mathf.Max(0, PlayerPrefs.GetInt(ReplayKey(index), 0)); }
+        private void CountReplay(int index)
+        {
+            PlayerPrefs.SetInt(ReplayKey(index), Replays(index) + 1);
+            PlayerPrefs.Save();
         }
 
         // A nursery plant's puzzle (I208): its row is its tier; its own seed.
@@ -1980,11 +1993,15 @@ namespace Evergrove.UnityClient
             if (titleScreen == null || k < 0 || k >= world.BoughtCount) return;
             int kind = world.Bought[k * 2];
             GardenItem plant = Nursery.Item(kind);
-            int tier = Nursery.Row(kind);
-            int reward = WorldModel.TreeReward(tier, !world.BoughtSolved(k));
-            OpenThingPuzzle(world.Garden * 1000 + 500 + k * 7, tier, ThingPuzzle.ForNursery(kind),
+            bool replay = world.BoughtSolved(k);
+            int replays = replay ? Replays(BoughtIndex + k) : 0;
+            int tier = ReplayBoards.Tier(Nursery.Row(kind), replays);
+            int reward = WorldModel.TreeReward(Nursery.Row(kind), !replay);
+            OpenThingPuzzle(ReplayBoards.Seed(world.Garden * 1000 + 500 + k * 7, replay ? replays + 1 : 0), tier,
+                ThingPuzzle.ForNursery(kind),
                 MosseloraArt.Load(plant.Art), plant.Name, reward, k * 5 + kind,
-                () => { int earned = world.SolveBought(k); SaveWorld(); PlayChime(); return earned; });
+                () => { int earned = world.SolveBought(k); if (replay) CountReplay(BoughtIndex + k);
+                    SaveWorld(); PlayChime(); return earned; });
         }
 
         // Each thing holds one kind of puzzle (I243: ThingPuzzle).
@@ -2010,6 +2027,8 @@ namespace Evergrove.UnityClient
             };
             PuzzleCard((RectTransform)titleScreen.transform, seed, tier, kind, art, name, reward,
                 count => PairsPictures(count, pictureStart, (c, f) => ItemArt(c, f)), turned, solved, closed);
+            TreePlay card = titleScreen.GetComponentInChildren<TreePlay>();
+            if (card != null) card.ShowTier(tier); // I261: how deep this board is, in leaves
         }
 
         // The card itself, for your things and, visiting, for theirs (I227); eight kinds (I243).

@@ -65,7 +65,11 @@ namespace Evergrove.UnityClient
         private void Build(RectTransform root)
         {
             float screenWidth = root.rect.width > 1f ? root.rect.width : 390f;
-            width = Mathf.Min(screenWidth - 28f, 440f);
+            float screenHeight = root.rect.height > 1f ? root.rect.height : 844f;
+            // Sideways and short (I258): sending lays out in two columns instead of shrinking
+            // the words below a comfortable size.
+            wide = sending && screenWidth > screenHeight * 1.2f && screenHeight < 520f;
+            width = wide ? Mathf.Min(screenWidth - 40f, 760f) : Mathf.Min(screenWidth - 28f, 440f);
             var node = new GameObject("Family card", typeof(RectTransform));
             node.transform.SetParent(root, false);
             card = (RectTransform)node.transform;
@@ -98,14 +102,46 @@ namespace Evergrove.UnityClient
 
             var bodyNode = new GameObject("Family body", typeof(RectTransform));
             bodyNode.transform.SetParent(node.transform, false);
-            var bodyColumn = bodyNode.AddComponent<VerticalLayoutGroup>();
-            bodyColumn.spacing = 12;
-            bodyColumn.childAlignment = TextAnchor.UpperCenter;
-            bodyColumn.childControlWidth = bodyColumn.childControlHeight = true;
-            bodyColumn.childForceExpandWidth = true;
-            bodyColumn.childForceExpandHeight = false;
-            body = bodyNode.transform;
+            rightColumn = null;
+            if (wide)
+            {
+                var pair = bodyNode.AddComponent<HorizontalLayoutGroup>();
+                pair.spacing = 18;
+                pair.childAlignment = TextAnchor.UpperCenter;
+                pair.childControlWidth = pair.childControlHeight = true;
+                pair.childForceExpandWidth = true;
+                pair.childForceExpandHeight = false;
+                body = Column(bodyNode.transform, "Gifts side");
+                rightColumn = Column(bodyNode.transform, "Letter side");
+            }
+            else
+            {
+                var bodyColumn = bodyNode.AddComponent<VerticalLayoutGroup>();
+                bodyColumn.spacing = 12;
+                bodyColumn.childAlignment = TextAnchor.UpperCenter;
+                bodyColumn.childControlWidth = bodyColumn.childControlHeight = true;
+                bodyColumn.childForceExpandWidth = true;
+                bodyColumn.childForceExpandHeight = false;
+                body = bodyNode.transform;
+            }
             if (sending) BuildSend(); else BuildOpen();
+        }
+
+        private bool wide;
+        private Transform rightColumn;
+
+        private static Transform Column(Transform parent, string name)
+        {
+            var node = new GameObject(name, typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            node.AddComponent<LayoutElement>().flexibleWidth = 1f;
+            var column = node.AddComponent<VerticalLayoutGroup>();
+            column.spacing = 12;
+            column.childAlignment = TextAnchor.UpperCenter;
+            column.childControlWidth = column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            return node.transform;
         }
 
         // Sideways the card can be taller than the screen: once laid out, it shrinks
@@ -160,7 +196,8 @@ namespace Evergrove.UnityClient
                     GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
                         Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
             }
-            InputField words = Field(body, "A few words for them (optional)", letter, 104f, true,
+            if (rightColumn != null) body = rightColumn; // sideways: the letter has its own column
+            InputField words = Field(body, "A few words for them (optional)", letter, wide ? 150f : 104f, true,
                 FamilyParcel.MaxLetterLength);
             words.onValueChanged.AddListener(v => letter = v ?? "");
             Transform go = Row(body, "Send row", 76f, 12f);

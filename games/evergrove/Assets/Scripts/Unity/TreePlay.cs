@@ -61,6 +61,76 @@ namespace Evergrove.UnityClient
         }
 
         internal bool Gentle { get { return gentle; } }
+
+        private float ClassicRule(Transform card)
+        {
+            if (pairs != null)
+                return BoardKit.FirstTimeRule(card, "pairs", row =>
+                {
+                    Sprite face = pictures != null && pictures.Length > 0 ? pictures[0] : null;
+                    BoardKit.RuleSquare(row, new Color(0.62f, 0.72f, 0.58f, 1f), MosseloraArt.Load(MosseloraArt.Sprig), 34f);
+                    BoardKit.RuleArrow(row);
+                    BoardKit.RuleSquare(row, BoardKit.Soil, face, 34f);
+                    BoardKit.RuleSquare(row, BoardKit.Soil, face, 34f);
+                    BoardKit.RuleArrow(row);
+                    BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
+                });
+            if (mosaic != null)
+                return BoardKit.FirstTimeRule(card, "mosaic", row =>
+                {
+                    BoardKit.RuleSquare(row, BoardKit.Soil);
+                    BoardKit.RuleSquare(row, BoardKit.Picked);
+                    BoardKit.RuleArrow(row);
+                    BoardKit.RuleSquare(row, BoardKit.Picked);
+                    BoardKit.RuleSquare(row, BoardKit.Soil);
+                    BoardKit.RuleArrow(row);
+                    BoardKit.RulePicture(row, painting, 38f);
+                });
+            return BoardKit.FirstTimeRule(card, "water", row =>
+            {
+                BoardKit.RulePicture(row, MosseloraArt.Load("glyph-waves"), 30f, MosseloraTheme.WaterAction);
+                BoardKit.RuleArrow(row);
+                for (int k = 0; k < 3; k++) BoardKit.RuleSquare(row, BoardKit.Water);
+                BoardKit.RuleArrow(row);
+                BoardKit.RulePicture(row, MosseloraArt.Load(SeedIcon), 30f);
+            });
+        }
+
+        /// <summary>I261: the board's depth as leaves under the thing (one to three), no words.</summary>
+        internal void ShowTier(int tier)
+        {
+            Transform thing = transform.Find("Tree puzzle card/Tree puzzle top/The thing");
+            if (thing == null) return;
+            var row = new GameObject("How deep", typeof(RectTransform));
+            row.transform.SetParent(thing, false);
+            var rect = (RectTransform)row.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(72f, 24f);
+            rect.anchoredPosition = new Vector2(0f, -4f);
+            // On its own paper pill, so the leaves read against any painting (b287: they hid in the tree).
+            var pill = row.AddComponent<Image>();
+            MosseloraArt.Round(pill, new Color(0.98f, 0.95f, 0.86f, 0.96f), 12);
+            pill.raycastTarget = false;
+            Sprite leaf = MosseloraArt.Load(SeedIcon);
+            for (int i = 0; i < Tiers; i++)
+            {
+                var pip = new GameObject("Leaf " + (i + 1), typeof(RectTransform));
+                pip.transform.SetParent(row.transform, false);
+                var pipRect = (RectTransform)pip.transform;
+                pipRect.sizeDelta = new Vector2(18f, 18f);
+                pipRect.anchoredPosition = new Vector2((i - 1) * 21f, 0f);
+                var image = pip.AddComponent<Image>();
+                image.sprite = leaf;
+                image.preserveAspect = true;
+                image.raycastTarget = false;
+                image.color = i <= tier ? Color.white : new Color(0.35f, 0.33f, 0.28f, 0.45f); // dimmed, not gone
+            }
+            Hidden(transform, "Depth " + (tier + 1) + " of " + Tiers + ".", uiFont);
+        }
+
+        private const int Tiers = 3;
+        private Font uiFont;
         internal void Moved() { if (!solved) onTurn?.Invoke(); }
         internal void Done() { if (!solved) Finish(); }
         internal void QaHint() { Hint(); }
@@ -177,6 +247,7 @@ namespace Evergrove.UnityClient
 
         private void Build(RectTransform root, Sprite art, string name, int reward, Font font)
         {
+            uiFont = font;
             var card = new GameObject("Tree puzzle card", typeof(RectTransform));
             card.transform.SetParent(root, false);
             var cardRect = (RectTransform)card.transform;
@@ -226,6 +297,9 @@ namespace Evergrove.UnityClient
             Hidden(card.transform, name + (reward < 0 ? ". Help with it for them." : ". " + reward + " seeds."), font);
 
             if (board != null) { board.Build(card.transform, width, screenHeight, font, this); return; }
+            // The classic three get their picture rule too (I262), the first few times.
+            float rule = ClassicRule(card.transform);
+            screenHeight -= rule;
             if (pairs != null) { BuildPairs(card.transform, width, screenHeight); return; }
             if (mosaic != null) { BuildMosaic(card.transform, width, screenHeight); return; }
             // The board: the same paper tiles and channels as the streams.
