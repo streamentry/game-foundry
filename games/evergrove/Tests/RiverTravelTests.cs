@@ -78,7 +78,7 @@ internal static class RiverTravelTests
 
     private static void MenuHookExists()
     {
-        string menu = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.cs");
+        string menu = UnityAppSource.ReadAll();
         Expect(Regex.IsMatch(menu, @"BuildStallEntries\(\);[^\n]*\n\s*BuildTravelEntry\(\);"), "the menu build adds the travel entry after the stall");
         string boat = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Boat.cs");
         Expect(boat.Contains("RiverTravel.MenuLabel") && boat.Contains("RiverTravel.CanTravel(OpenReaches())"),

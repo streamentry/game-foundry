@@ -21,7 +21,11 @@ assert deps.get("com.unity.ugui") == "2.0.0", (
 assert deps.get("com.unity.inputsystem") == "1.20.1", (
     "Input System package must match the verified Unity 6.3-compatible release"
 )
-ui = (game / "Assets" / "Scripts" / "Unity" / "EvergroveApp.cs").read_text()
+# EvergroveApp is one partial class over EvergroveApp*.cs files (checklist 20); read them as one text.
+unity_dir = game / "Assets" / "Scripts" / "Unity"
+ui = "\n".join(
+    p.read_text() for p in [unity_dir / "EvergroveApp.cs", *sorted(unity_dir.glob("EvergroveApp.*.cs"))]
+)
 assert "ENABLE_INPUT_SYSTEM" in ui and "InputSystemUIInputModule" in ui
 assert "ENABLE_LEGACY_INPUT_MANAGER" in ui and "StandaloneInputModule" in ui
 scene_plan = (game / "Assets" / "Scripts" / "Core" / "VillageScenePlan.cs").read_text()

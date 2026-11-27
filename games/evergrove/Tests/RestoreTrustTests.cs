@@ -105,7 +105,7 @@ internal static class RestoreTrustTests
     // status is read first and stays visible while a replace warning is open.
     private static void TrustLineIsFirstInGardenFileSection()
     {
-        string app = ReadRepoFile(Path.Combine("games", "evergrove", "Assets", "Scripts", "Unity", "EvergroveApp.cs"));
+        string app = UnityAppSource.ReadAll();
         int start = app.IndexOf("private void BuildGardenFileSection()", StringComparison.Ordinal);
         Expect(start >= 0, "BuildGardenFileSection exists");
         int end = app.IndexOf("private void SetGardenNotice", start, StringComparison.Ordinal);

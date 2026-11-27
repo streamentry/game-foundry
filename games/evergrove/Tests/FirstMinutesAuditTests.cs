@@ -77,7 +77,7 @@ internal static class FirstMinutesAuditTests
     private static void FirstRunAudit()
     {
         string root = EvergroveRoot();
-        string app = File.ReadAllText(Path.Combine(root, "Assets", "Scripts", "Unity", "EvergroveApp.cs"));
+        string app = UnityAppSource.ReadAll();
 
         foreach (string canary in FirstRunSourceCanaries)
             Expect(app.Contains(canary), "first-run literal moved or removed: " + canary);
@@ -193,7 +193,7 @@ internal static class FirstMinutesAuditTests
 
         string root = EvergroveRoot();
         string unity = Path.Combine(root, "Assets", "Scripts", "Unity");
-        string app = File.ReadAllText(Path.Combine(unity, "EvergroveApp.cs"));
+        string app = UnityAppSource.ReadAll();
         string sources = AllUnitySource(unity);
 
         foreach (Badge badge in BadgeSources)

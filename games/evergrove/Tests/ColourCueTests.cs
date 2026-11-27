@@ -52,7 +52,7 @@ internal static class ColourCueTests
         ("TreePlay.cs", "PaintMosaic", "MarkRing("),                        // picked mosaic tile
         ("TreePlay.cs", "PaintMosaic", "StateMark("),                       // tile in place: check
         ("EvergroveApp.Difficulty.cs", "AddLevelButton", "StateMark("),     // chosen leaves level: check
-        ("EvergroveApp.cs", "IconButton", "StateMark("),                    // every settings token with a stateOn
+        ("EvergroveApp.Controls.cs", "IconButton", "StateMark("),                    // every settings token with a stateOn
     };
 
     // Settings on/off tokens: each must change its icon with the state, or carry a stateOn mark.

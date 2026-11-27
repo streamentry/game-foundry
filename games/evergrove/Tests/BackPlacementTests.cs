@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Evergrove.Core;
 
@@ -30,7 +31,7 @@ internal static class BackPlacementTests
     {
         ("FamilySheet.cs", "Close family"),
         ("TreePlay.cs", "Close tree puzzle"),
-        ("EvergroveApp.cs", "Close letter"),
+        ("EvergroveApp.Letters.cs", "Close letter"),
         ("EvergroveApp.ChoicePreview.cs", "Close choice preview"),
     };
 
@@ -75,11 +76,11 @@ internal static class BackPlacementTests
         Expect(BackPlacement.Reserve == BackPlacement.Size + BackPlacement.Inset, "reserve is size plus inset");
 
         var texts = LoadSources();
-        string evergrove = Get(texts, "EvergroveApp.cs");
+        string evergrove = AppPartials(texts);
 
         // Sheet sites share one helper, and it places the control with the rule.
         int defAt = evergrove.IndexOf("private void SheetClose(", StringComparison.Ordinal);
-        int endAt = evergrove.IndexOf("private void HandleBackGesture()", defAt, StringComparison.Ordinal);
+        int endAt = evergrove.IndexOf("\n        }", defAt, StringComparison.Ordinal) + "\n        }".Length;
         Expect(defAt >= 0 && endAt > defAt, "SheetClose helper found");
         string sheetBody = evergrove.Substring(defAt, endAt - defAt);
         Expect(sheetBody.Contains("MosseloraArt.IconCancel"), "SheetClose uses IconCancel");
@@ -108,13 +109,21 @@ internal static class BackPlacementTests
             Expect(!window.Contains("IconConfirm"), "card site has no confirm icon: " + site.Name);
         }
 
-        // No other close icon: every IconCancel use is counted per file.
+        // No other close icon: every IconCancel use is counted per file. The EvergroveApp partials
+        // count together as "EvergroveApp.cs" (checklist 20), except ChoicePreview, which has its own line.
+        var cancelCounts = new Dictionary<string, int>();
         foreach (var kv in texts)
         {
-            int n = CancelIcon.Matches(kv.Value).Count;
+            string group = IsMainAppPartial(kv.Key) ? "EvergroveApp.cs" : kv.Key;
+            int seen;
+            cancelCounts.TryGetValue(group, out seen);
+            cancelCounts[group] = seen + CancelIcon.Matches(kv.Value).Count;
+        }
+        foreach (var kv in cancelCounts)
+        {
             int want;
             CancelIcons.TryGetValue(kv.Key, out want);
-            Expect(n == want, "IconCancel uses in " + kv.Key + " = " + n + ", expected " + want);
+            Expect(kv.Value == want, "IconCancel uses in " + kv.Key + " = " + kv.Value + ", expected " + want);
         }
 
         // No other close-like name: every "Close ..." literal is a site or a named exception.
@@ -160,6 +169,23 @@ internal static class BackPlacementTests
         foreach (string file in Directory.GetFiles(unity, "*.cs", SearchOption.AllDirectories))
             texts[Path.GetFileName(file)] = StripComments(File.ReadAllText(file));
         return texts;
+    }
+
+    private static bool IsMainAppPartial(string file)
+    {
+        return file.StartsWith("EvergroveApp", StringComparison.Ordinal) && file.EndsWith(".cs", StringComparison.Ordinal)
+            && file != "EvergroveApp.ChoicePreview.cs";
+    }
+
+    // The EvergroveApp partial class, read as one text: the main file first, then the other partials in name order.
+    private static string AppPartials(Dictionary<string, string> texts)
+    {
+        var names = texts.Keys.Where(f => f.StartsWith("EvergroveApp", StringComparison.Ordinal) && f.EndsWith(".cs", StringComparison.Ordinal))
+            .OrderBy(f => f == "EvergroveApp.cs" ? 0 : 1).ThenBy(f => f, StringComparer.Ordinal);
+        var text = new StringBuilder();
+        foreach (string name in names) text.Append(texts[name]).Append('\n');
+        Expect(text.Length > 0, "EvergroveApp partials present");
+        return text.ToString();
     }
 
     private static string Get(Dictionary<string, string> texts, string file)
