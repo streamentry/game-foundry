@@ -115,6 +115,9 @@ namespace Evergrove.Core
         // mask over Recipes ids, and larder shelves bought (0..3). Only Living gardens hold any.
         public int recipes;
         public int larderShelves;
+        // Optional, additive (checklist 3; absent in older JSON, not written while empty). The garden's
+        // name, "" for none. Only Living gardens hold one.
+        public string gardenName = "";
     }
 
     /// <summary>
@@ -489,7 +492,7 @@ namespace Evergrove.Core
                 variantSchedule = (int[])schedule.Clone(), history = Array.Empty<int>(),
                 garden = 0, placements = Array.Empty<int>(), plantings = Array.Empty<int>(),
                 seeds = 0, treeSolved = Array.Empty<int>(), ledger = Array.Empty<int>(), payDay = 0, replaysPaid = 0,
-                marketStamp = 0, fruitSold = 0, jamSold = 0, tradesDone = 0, recipes = 0, larderShelves = 0,
+                marketStamp = 0, fruitSold = 0, jamSold = 0, tradesDone = 0, recipes = 0, larderShelves = 0, gardenName = "",
                 bought = Array.Empty<int>(), boughtSolved = Array.Empty<int>(),
                 gifts = Array.Empty<int>(), parcelIds = Array.Empty<string>(),
                 letters = Array.Empty<string>(), letterFrom = Array.Empty<string>(),
@@ -521,7 +524,7 @@ namespace Evergrove.Core
                 ledger = (int[])state.ledger.Clone(), payDay = state.payDay, replaysPaid = state.replaysPaid,
                 marketStamp = state.marketStamp, fruitSold = state.fruitSold, jamSold = state.jamSold, tradesDone = state.tradesDone,
                 daysPlayed = state.daysPlayed, lastPlayedDay = state.lastPlayedDay,
-                recipes = state.recipes, larderShelves = state.larderShelves
+                recipes = state.recipes, larderShelves = state.larderShelves, gardenName = state.gardenName
             };
         }
 
@@ -597,6 +600,8 @@ namespace Evergrove.Core
             if (!ReadTogether(source, out together)) return false;
             string[] lanterns;
             if (!ReadLanterns(source, out lanterns)) return false;
+            string gardenName;
+            if (!ReadGardenName(source, out gardenName)) return false;
             if (!ReadJam(source) || !ReadWell(source) || !ReadPairings(source) || !ReadYields(source)) return false;
             int[] letterStamps;
             if (!ReadLetterStamps(source, out letterStamps)) return false;
@@ -675,7 +680,7 @@ namespace Evergrove.Core
                 ledger = ledger, payDay = source.payDay, replaysPaid = source.replaysPaid,
                 marketStamp = source.marketStamp, fruitSold = source.fruitSold, jamSold = source.jamSold, tradesDone = source.tradesDone,
                 daysPlayed = source.daysPlayed, lastPlayedDay = source.lastPlayedDay,
-                recipes = source.recipes, larderShelves = source.larderShelves
+                recipes = source.recipes, larderShelves = source.larderShelves, gardenName = gardenName
             });
             return true;
         }

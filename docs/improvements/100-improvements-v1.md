@@ -56,7 +56,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **37. Boards drawn from the player's own garden.** Mosaic and pictures-by-numbers boards use shapes of things the player grew. *Test:* generated boards are unique and solvable.
 - [ ] **38. Chains between puzzles.** Finishing a stream path waters plots; finishing plots feeds the nursery. Each link is one visible, logical cause. *Test:* the cause shows on screen within 2 s.
 - [ ] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
-- [ ] **40. Mistakes shown kindly.** Show conflicts only on request (a lens icon), never automatically in red. *Test:* setting persists; no red anywhere.
+- [x] **40. Mistakes shown kindly.** Show conflicts only on request (a lens icon), never automatically in red. *Test:* setting persists; no red anywhere.
 
 ## E. The open world: the endless river
 

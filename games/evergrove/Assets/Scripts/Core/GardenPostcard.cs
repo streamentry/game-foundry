@@ -23,6 +23,8 @@ namespace Evergrove.Core
         {
             var text = new StringBuilder();
             text.Append("Mosselora\n");
+            // Checklist 3: a named garden says where it is from. Unnamed gardens are unchanged.
+            if (world.GardenName.Length > 0) text.Append("From ").Append(world.GardenName).Append('\n');
             int[] choices = world.Choices;
             for (int i = 0; i < choices.Length; i++)
             {

@@ -79,6 +79,7 @@ namespace Evergrove.UnityClient
             }
             // Start on the first empty bed, so the first tap on a plant does something.
             for (int c = 0; c < n * n && selected < 0; c++) if (!game.IsGiven(c)) selected = c;
+            BoardKit.ClashLens(card.Find("Tree puzzle top"), Paint);
             Paint();
         }
 
@@ -160,10 +161,12 @@ namespace Evergrove.UnityClient
             {
                 int value = game.Value(c);
                 bool given = game.IsGiven(c);
+                bool clash = !given && !(c == selected && !locked) && value > 0 && BoardKit.ShowClashes && game.Conflicts(c);
                 cells[c].color = given ? BoardKit.Given
                     : c == selected && !locked ? BoardKit.Picked
-                    : value > 0 && game.Conflicts(c) ? BoardKit.Clash
+                    : clash ? BoardKit.Clash
                     : value > 0 ? BoardKit.Leafy : BoardKit.Soil;
+                BoardKit.MarkClash(cells[c], clash);
                 cells[c].transform.localScale = c == selected && !locked ? new Vector3(1.05f, 1.05f, 1f) : Vector3.one;
                 Sprite plant = value > 0 && plants != null && value - 1 < plants.Length ? plants[value - 1] : null;
                 faces[c].sprite = plant;

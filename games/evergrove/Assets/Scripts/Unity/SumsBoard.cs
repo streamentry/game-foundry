@@ -80,6 +80,7 @@ namespace Evergrove.UnityClient
                 }
             }
             for (int c = 0; c < w * h && selected < 0; c++) if (game.IsOpen(c)) selected = c;
+            BoardKit.ClashLens(card.Find("Tree puzzle top"), Paint);
             Paint();
         }
 
@@ -127,9 +128,11 @@ namespace Evergrove.UnityClient
             {
                 if (!game.IsOpen(c)) continue;
                 int v = game.Value(c);
+                bool clash = v > 0 && c != shownCell && !(c == selected && !locked) && BoardKit.ShowClashes && game.Conflicts(c);
                 cells[c].color = c == shownCell ? BoardKit.Picked
                     : c == selected && !locked ? BoardKit.Picked
-                    : v > 0 && game.Conflicts(c) ? BoardKit.Clash : BoardKit.Soil;
+                    : clash ? BoardKit.Clash : BoardKit.Soil;
+                BoardKit.MarkClash(cells[c], clash);
                 values[c].text = v > 0 ? v.ToString() : c == shownCell ? shownDigit.ToString() : "";
                 values[c].color = c == shownCell && v == 0 ? new Color(0.46f, 0.37f, 0.27f, 0.45f) : MosseloraTheme.EarthInk;
             }
