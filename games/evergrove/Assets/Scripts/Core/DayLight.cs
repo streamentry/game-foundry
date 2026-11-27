@@ -103,6 +103,12 @@ namespace Evergrove.Core
         }
 
         /// <summary>Fireflies drift at dusk and night, but not in winter.</summary>
+        /// <summary>I296 (idea 28, hygge): the cottage lamp burns from dusk to dawn.</summary>
+        public static bool LampLit(DayPhase phase)
+        {
+            return phase == DayPhase.Dusk || phase == DayPhase.Night || phase == DayPhase.Dawn;
+        }
+
         public static bool Fireflies(DayPhase phase, Season season = Season.Summer)
         {
             return season != Season.Winter && (phase == DayPhase.Dusk || phase == DayPhase.Night);

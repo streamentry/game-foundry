@@ -12,6 +12,29 @@ namespace Evergrove.Core
     /// </summary>
     public static class NeighbourNotice
     {
+        /// <summary>
+        /// I301 (idea 22, after life simulations where people live in the world): the thing a
+        /// neighbour stands beside, the newest of their own kind. A nursery plant of theirs
+        /// (index into Bought pairs, fromNursery true) comes before a story thing (index into
+        /// Choices). -1 when they have none yet.
+        /// </summary>
+        public static int StandBy(WorldModel world, int villager, out bool fromNursery)
+        {
+            fromNursery = false;
+            if (world == null) return -1;
+            int[] bought = world.Bought;
+            for (int k = bought.Length / 2 - 1; k >= 0; k--)
+                if (bought[k * 2] >= 0 && bought[k * 2] < Nursery.Kinds && (int)Nursery.Family(bought[k * 2]) == villager)
+                {
+                    fromNursery = true;
+                    return k;
+                }
+            int[] made = world.Choices;
+            for (int i = made.Length - 1; i >= 0; i--)
+                if (made[i] == villager) return i;
+            return -1;
+        }
+
         public static string Line(int villager, WorldModel world)
         {
             if (world == null || world.Mode != PlayMode.Living || villager < 0 || villager > 2) return null;

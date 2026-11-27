@@ -32,6 +32,7 @@ namespace Evergrove.UnityClient
             public int Kind;             // I255: PuzzleKind + 1 drawn in the mark (0: a plain play arrow)
             public bool Together;        // I265: solved taking turns: two small discs, sage and honey
             public bool Crowned;         // I292: a replay solved at the deepest tier: a second, outer ring
+            public float Grown;          // I300: drawn this much larger as replays deepen it (0 or 1: its own size)
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -185,6 +186,17 @@ namespace Evergrove.UnityClient
                 fliesRect.anchorMax = Vector2.one;
                 fliesRect.offsetMin = fliesRect.offsetMax = Vector2.zero;
                 flies.AddComponent<FireflyDrift>().Moving = FirefliesMove;
+            }
+            // I295: the season's own drift over home by day (petals, leaves, snow); motion only.
+            if (DriftNow != Drift.None && FirefliesMove)
+            {
+                var drift = new GameObject("Season drift", typeof(RectTransform));
+                drift.transform.SetParent(host.transform, false);
+                var driftRect = (RectTransform)drift.transform;
+                driftRect.anchorMin = Vector2.zero;
+                driftRect.anchorMax = Vector2.one;
+                driftRect.offsetMin = driftRect.offsetMax = Vector2.zero;
+                drift.AddComponent<SeasonDrift>().Kind = DriftNow;
             }
             view.apron = teaser ? 0f : Mathf.Clamp(apron, 0f, 0.4f);
             if (view.apron > 0f && plot != null)
@@ -475,6 +487,28 @@ namespace Evergrove.UnityClient
             order.Sort((a, b) => a.Cell / map.Columns != b.Cell / map.Columns
                 ? (a.Cell / map.Columns).CompareTo(b.Cell / map.Columns)
                 : a.Cell.CompareTo(b.Cell));
+            // I296: from dusk to dawn, lamplight spills from the cottage door (painted in the
+            // first reach, top right): two soft warm discs, over the evening shade.
+            if (LampLit)
+            {
+                Vector2 door = new Vector2(width * 0.858f, -reachHeight * 0.148f);
+                float[] sizes = { 3.2f, 1.6f };
+                float[] alphas = { 0.55f, 0.85f };
+                for (int g = 0; g < sizes.Length; g++)
+                {
+                    var lamp = new GameObject(g == 0 ? "Lamplight" : "Lamp", typeof(RectTransform));
+                    lamp.transform.SetParent(land, false);
+                    var lampRect = (RectTransform)lamp.transform;
+                    lampRect.anchorMin = lampRect.anchorMax = new Vector2(0f, 1f);
+                    lampRect.sizeDelta = new Vector2(cellW * sizes[g], cellH * sizes[g] * 0.7f);
+                    lampRect.anchoredPosition = door;
+                    var lampImage = lamp.AddComponent<Image>();
+                    lampImage.sprite = MosseloraArt.SoftGlow();
+                    lampImage.color = new Color(1f, 0.80f, 0.42f, alphas[g]);
+                    lampImage.raycastTarget = false;
+                    nodes.Add(lampRect);
+                }
+            }
             Vector2 focus = Vector2.zero;
             bool focused = false;
             foreach (Placed item in order)
@@ -538,7 +572,7 @@ namespace Evergrove.UnityClient
                 var rect = (RectTransform)node.transform;
                 rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
                 rect.pivot = new Vector2(0.5f, 0.08f);
-                float tall = cellH * HeightInCells(item.Family) * (held ? 1.12f : 1f);
+                float tall = cellH * HeightInCells(item.Family) * (held ? 1.12f : 1f) * Mathf.Max(1f, item.Grown);
                 float aspectArt = item.Art.rect.width / Mathf.Max(1f, item.Art.rect.height);
                 rect.sizeDelta = new Vector2(tall * aspectArt, tall);
                 rect.anchoredPosition = at;
@@ -577,6 +611,11 @@ namespace Evergrove.UnityClient
                     }
                 }
                 else if (growNewest && item.Newest) node.AddComponent<GrowUp>();
+                // I297 (idea 30, the wind of hand-drawn film): living things lean in the breeze,
+                // each a little out of step with its neighbours. Built things stay put; still
+                // with reduced motion.
+                if (!held && FirefliesMove && item.Family != VillageChoice.Bridge)
+                    node.AddComponent<Sway>().Phase = item.Cell * 0.73f;
                 if (item.Together && !held)
                 {
                     // Two players' colours, overlapping, at the other shoulder (I265).
@@ -923,6 +962,72 @@ namespace Evergrove.UnityClient
             }
         }
 
+        public static Drift DriftNow = Drift.None;
+        public static bool LampLit; // I296
+
+        /// <summary>
+        /// A few petals, leaves or flakes falling slowly across the view, swaying as they go,
+        /// and coming round again at the top. Few and slow on purpose: weather, not confetti.
+        /// </summary>
+        private sealed class SeasonDrift : MonoBehaviour
+        {
+            public Drift Kind;
+            private RectTransform[] bits;
+            private float[] x0, speed, sway, phase;
+            private float clock, high, wide;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                wide = Mathf.Max(1f, rect.rect.width);
+                high = Mathf.Max(1f, rect.rect.height);
+                var rng = new System.Random(527);
+                int count = Kind == Drift.Snow ? 18 : 10;
+                bits = new RectTransform[count];
+                x0 = new float[count]; speed = new float[count]; sway = new float[count]; phase = new float[count];
+                for (int i = 0; i < count; i++)
+                {
+                    var bit = new GameObject(Kind.ToString(), typeof(RectTransform));
+                    bit.transform.SetParent(transform, false);
+                    var bitRect = (RectTransform)bit.transform;
+                    bitRect.anchorMin = bitRect.anchorMax = new Vector2(0f, 1f);
+                    float size = Kind == Drift.Snow ? 5f + (float)rng.NextDouble() * 4f : 9f + (float)rng.NextDouble() * 6f;
+                    bitRect.sizeDelta = Kind == Drift.Snow ? new Vector2(size, size) : new Vector2(size, size * 0.62f);
+                    var image = bit.AddComponent<Image>();
+                    image.sprite = MosseloraArt.Rounded(8);
+                    image.raycastTarget = false;
+                    image.color = Kind == Drift.Petals ? new Color(0.98f, 0.80f, 0.84f, 0.9f)
+                        : Kind == Drift.Leaves ? (i % 2 == 0 ? new Color(0.85f, 0.48f, 0.18f, 0.9f) : new Color(0.72f, 0.36f, 0.16f, 0.9f))
+                        : new Color(1f, 1f, 1f, 0.85f);
+                    x0[i] = (float)rng.NextDouble() * wide;
+                    speed[i] = (Kind == Drift.Snow ? 22f : 30f) + (float)rng.NextDouble() * 18f;
+                    sway[i] = 14f + (float)rng.NextDouble() * 16f;
+                    phase[i] = (float)rng.NextDouble() * high;
+                    bits[i] = bitRect;
+                }
+                Place();
+            }
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                Place();
+            }
+
+            private void Place()
+            {
+                if (bits == null) return;
+                for (int i = 0; i < bits.Length; i++)
+                {
+                    float fall = (phase[i] + clock * speed[i]) % (high + 40f) - 20f;
+                    float drift = clock * 8f; // a light breeze from the left
+                    float x = Mathf.Repeat(x0[i] + drift + Mathf.Sin(clock * 0.9f + i) * sway[i], wide);
+                    bits[i].anchoredPosition = new Vector2(x, -fall);
+                    if (Kind != Drift.Snow) bits[i].localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 1.3f + i * 2f) * 50f);
+                }
+            }
+        }
+
         /// <summary>A painting that is opaque at its top edge and clear at its foot (I252).</summary>
         private sealed class FadeDownRawImage : RawImage
         {
@@ -953,6 +1058,20 @@ namespace Evergrove.UnityClient
                 if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position,
                         eventData.pressEventCamera, out Vector2 local))
                     Tapped?.Invoke(local);
+            }
+        }
+
+        /// <summary>A slow lean back and forth about the foot, a degree or two (I297).</summary>
+        private sealed class Sway : MonoBehaviour
+        {
+            public float Phase;
+            private float clock;
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float gust = 0.6f + 0.4f * Mathf.Sin(clock * 0.21f + Phase * 0.3f); // the breeze rises and falls
+                transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 1.1f + Phase) * 1.8f * gust);
             }
         }
 

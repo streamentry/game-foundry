@@ -2407,6 +2407,7 @@ namespace Evergrove.UnityClient
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;
+            waveHello = false; // they waved (or would have) on this return; not on every rebuild
             // A solve opened more river (I223): its mist lifts, framed, with the chime.
             if (riverOpened && map.Reaches > 1)
             {
@@ -2551,6 +2552,7 @@ namespace Evergrove.UnityClient
                     Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, // I255
                     Together = world.SolvedTogether(i), // I265
                     Crowned = world.TreeSolved(i) && ReplayBoards.Crowned(TreePuzzles.TierFor(i), Replays(i)), // I292
+                    Grown = world.TreeSolved(i) ? ReplayBoards.Maturity(TreePuzzles.TierFor(i), Replays(i)) : 1f, // I300
                     BloomNow = i == justSolved && gentleMotion
                 });
             // More of what you grew, planted from the basket (I193).
@@ -2585,6 +2587,7 @@ namespace Evergrove.UnityClient
                     Kind = (int)ThingPuzzle.ForNursery(kind) + 1, // I255
                     Together = world.SolvedTogether(BoughtIndex + k), // I265
                     Crowned = world.BoughtSolved(k) && ReplayBoards.Crowned(Nursery.Row(kind), Replays(BoughtIndex + k)), // I292
+                    Grown = world.BoughtSolved(k) ? ReplayBoards.Maturity(Nursery.Row(kind), Replays(BoughtIndex + k)) : 1f, // I300
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
@@ -2783,9 +2786,15 @@ namespace Evergrove.UnityClient
                 ? (Array.IndexOf(made, b) >= 0).CompareTo(Array.IndexOf(made, a) >= 0) : a.CompareTo(b));
             foreach (int villager in order)
             {
+                // I301: beside the newest thing of their kind, a nursery plant of theirs first.
                 int cell = -1;
-                for (int i = made.Length - 1; i >= 0 && cell < 0; i--)
-                    if (made[i] == villager) cell = cells[i];
+                int beside = NeighbourNotice.StandBy(world, villager, out bool besideBought);
+                int[] boughtNow = world.Bought;
+                if (beside >= 0 && besideBought && beside * 2 + 1 < boughtNow.Length && map.IsLand(boughtNow[beside * 2 + 1]))
+                    cell = boughtNow[beside * 2 + 1];
+                else
+                    for (int i = made.Length - 1; i >= 0 && cell < 0; i--)
+                        if (made[i] == villager) cell = cells[i];
                 Vector2 at = cell >= 0
                     ? point(cell) + new Vector2(step.x * (cell % map.Columns < map.Columns / 2 ? 0.95f : -0.95f), 0f)
                     : point(Mathf.Min(byCottage[villager], map.CellCount - 1));
@@ -2838,6 +2847,10 @@ namespace Evergrove.UnityClient
                 stack.childForceExpandWidth = true;
                 stack.childForceExpandHeight = true;
                 PortraitButton(holder.transform, villager, true, fromTitle);
+                // I298 (idea 35, presence without words): when you come back, they look up and
+                // give a little hop, one after another. Once per return; never with reduced motion.
+                if (fromTitle && waveHello && gentleMotion)
+                    holder.AddComponent<HelloHop>().Delay = 0.35f + placed.Count * 0.28f;
                 placed.Add(rect);
             }
             return placed;
@@ -2991,6 +3004,12 @@ namespace Evergrove.UnityClient
                 if (!world.MovePlanting(heldPlanting, cell)) return;
                 heldPlanting = -1;
                 PlantDone();
+                return;
+            }
+            // I299: your cottage, tapped with nothing in hand: what's waiting, at a glance.
+            if (ItemInHand() < 0 && !basketOpen && titleScreen != null && map.IsCottage(cell))
+            {
+                OpenCottage();
                 return;
             }
             int target = ItemInHand();
@@ -5727,8 +5746,10 @@ namespace Evergrove.UnityClient
                     var name = slot.AddComponent<Button>();
                     name.transition = Selectable.Transition.None;
                     string label = item.Name;
+                    // I304: its name, then a line from its keeper (true things only).
+                    string said = char.ToUpperInvariant(label[0]) + label.Substring(1) + "\n" + Almanac.KeeperLine(item);
                     name.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
-                        char.ToUpperInvariant(label[0]) + label.Substring(1), font, Ink, MosseloraTheme.CardFill));
+                        said, font, Ink, MosseloraTheme.CardFill));
                 }
             }
         }
@@ -7560,8 +7581,33 @@ namespace Evergrove.UnityClient
 
         // Leaving or returning (I275): the one garden note is queued on the way out and
         // cleared on the way back in.
+        private bool waveHello = true; // I298: set on launch and on every return
+
+        private sealed class HelloHop : MonoBehaviour
+        {
+            public float Delay;
+            private float clock;
+            private Vector2 home;
+            private bool started;
+
+            private void Update()
+            {
+                var rect = (RectTransform)transform;
+                if (!started) { home = rect.anchoredPosition; started = true; }
+                clock += Time.unscaledDeltaTime;
+                float t = clock - Delay;
+                if (t < 0f) return;
+                const float hop = 0.42f;
+                if (t >= hop * 2f) { rect.anchoredPosition = home; rect.localRotation = Quaternion.identity; enabled = false; return; }
+                float k = (t % hop) / hop;
+                rect.anchoredPosition = home + new Vector2(0f, Mathf.Sin(k * Mathf.PI) * 9f);
+                rect.localRotation = Quaternion.Euler(0f, 0f, (t < hop ? 1f : -1f) * Mathf.Sin(k * Mathf.PI) * 4f);
+            }
+        }
+
         private void OnApplicationPause(bool paused)
         {
+            if (!paused) waveHello = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             ResearchPause(paused);
 #endif
@@ -7637,6 +7683,11 @@ namespace Evergrove.UnityClient
             GardenMapView.Dark = on ? tint.Dark : 0f;
             GardenMapView.Fireflies = on && DayLight.Fireflies(DayLight.PhaseAt(hour, minute), GardenSeason.For(garden));
             GardenMapView.FirefliesMove = gentleMotion;
+            GardenMapView.LampLit = on && DayLight.LampLit(DayLight.PhaseAt(hour, minute)); // I296
+            // I295: the season's drift by day; it follows the season even with the light switch off.
+            bool living = garden != null && garden.Mode == PlayMode.Living;
+            GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),
+                DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day) : Drift.None;
         }
 
         private string HourRemark(int villager)
@@ -7728,6 +7779,106 @@ namespace Evergrove.UnityClient
             IconButton(times, "Not now", "Not now", MosseloraArt.IconCancel,
                 () => { GardenNotes.NotNow(); CloseNotesAsk(); }, 64, MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
+            semanticsDirty = true;
+        }
+
+        // ---- I299 (idea 36): the cottage summary. Pictures and counts, true ones only.
+        private GameObject cottageCard;
+
+        private int UnreadLetterCount()
+        {
+            return Mathf.Max(0, world.Letters.Length - PlayerPrefs.GetInt(LettersReadKey, 0));
+        }
+
+        internal void OpenCottage()
+        {
+            CottageSummary summary = CottageSummary.For(world, UnreadLetterCount());
+            if (summary == null || titleScreen == null) return;
+            CloseCottage();
+            cottageCard = Node("Your cottage. Tap to close.", titleScreen.transform);
+            Fill(cottageCard.GetComponent<RectTransform>());
+            cottageCard.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.32f);
+            var backdrop = cottageCard.AddComponent<Button>();
+            backdrop.transition = Selectable.Transition.None;
+            backdrop.onClick.AddListener(CloseCottage);
+            var paper = Node("Cottage paper", cottageCard.transform);
+            var paperRect = paper.GetComponent<RectTransform>();
+            paperRect.anchorMin = paperRect.anchorMax = new Vector2(0.5f, 0.5f);
+            paperRect.sizeDelta = new Vector2(Mathf.Min(PageWidth() - 20f, 360f), 0f);
+            var paperImage = paper.AddComponent<Image>();
+            MosseloraArt.PaperTile(paperImage, 22);
+            paperImage.color = new Color(0.99f, 0.97f, 0.9f, 1f);
+            MosseloraArt.Lift(paperImage, 4f, 0.22f);
+            var column = paper.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(22, 22, 18, 18);
+            column.spacing = 10;
+            column.childControlWidth = column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            // The season, as its stone: the year at a glance.
+            string[] stones = { "stone-spring", "stone-summer", "stone-autumn", "stone-winter" };
+            CottageLine(paper.transform, MosseloraArt.Load(stones[(int)summary.Season]), summary.Season.ToString());
+            if (summary.Letters > 0)
+                CottageLine(paper.transform, MosseloraArt.Load("letter-sealed"),
+                    summary.Letters == 1 ? "A letter in your box" : summary.Letters + " letters in your box");
+            if (summary.Cuttings > 0)
+                CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.Sprig),
+                    summary.Cuttings == 1 ? "A cutting in your basket" : summary.Cuttings + " cuttings in your basket");
+            if (summary.Waiting > 0)
+                CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconContinue),
+                    summary.Waiting == 1 ? "One thing holds a new puzzle" : summary.Waiting + " things hold a new puzzle");
+            if (summary.DropsNeed > 0) CottageDrops(paper.transform, summary.DropsHave, summary.DropsNeed);
+            if (!summary.Anything)
+                CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconConfirm), "All tended. Replays wait whenever you like.");
+            if (gentleMotion) BloomPulse.Add(paper, 0.05f, 0.04f);
+            semanticsDirty = true;
+        }
+
+        private void CottageLine(Transform parent, Sprite icon, string words)
+        {
+            Transform row = CenteredRowIn(parent, "Cottage line");
+            var layout = row.GetComponent<HorizontalLayoutGroup>();
+            layout.spacing = 12;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            var mark = Node("Picture", row);
+            var markLayout = mark.AddComponent<LayoutElement>();
+            markLayout.preferredWidth = markLayout.preferredHeight = markLayout.minWidth = 44f;
+            var markImage = mark.AddComponent<Image>();
+            markImage.sprite = icon;
+            markImage.preserveAspect = true;
+            markImage.raycastTarget = false;
+            if (icon != null && icon.name.StartsWith("ui-")) markImage.color = MosseloraTheme.ForestAction;
+            Text text = Label(row, "Line", words, 19, 0, Ink, TextAnchor.MiddleLeft);
+            text.GetComponent<LayoutElement>().flexibleWidth = 1f;
+            Narrate(text, false);
+        }
+
+        // The drops toward the next stretch of river, as on the mist (I224).
+        private void CottageDrops(Transform parent, int have, int need)
+        {
+            Transform row = CenteredRowIn(parent, "Toward the next stretch, " + have + " of " + need);
+            var layout = row.GetComponent<HorizontalLayoutGroup>();
+            layout.spacing = 8;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            for (int d = 0; d < need; d++)
+            {
+                var drop = Node(d < have ? "Drop" : "Drop to come", row);
+                var dropLayout = drop.AddComponent<LayoutElement>();
+                dropLayout.preferredWidth = dropLayout.preferredHeight = dropLayout.minWidth = 24f;
+                var dropImage = drop.AddComponent<Image>();
+                dropImage.sprite = d < have ? MosseloraArt.Rounded(12) : MosseloraArt.Ring(12);
+                dropImage.color = MosseloraTheme.WaterAction;
+                dropImage.raycastTarget = false;
+            }
+            Text text = Label(row, "Line", "toward new river", 17, 0, Ink, TextAnchor.MiddleLeft);
+            text.GetComponent<LayoutElement>().flexibleWidth = 1f;
+        }
+
+        internal void CloseCottage()
+        {
+            if (cottageCard != null) Destroy(cottageCard);
+            cottageCard = null;
             semanticsDirty = true;
         }
 
@@ -7941,6 +8092,7 @@ namespace Evergrove.UnityClient
         internal void QaSetClock(int hour) { qaClockHour = hour; }
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }
         internal void QaTogetherTreePlay() { if (qaTreePlay != null) qaTreePlay.QaTogether(); }
+        internal void QaFourTurnsTreePlay() { if (qaTreePlay != null) qaTreePlay.QaFourTurns(); }
 
         internal void QaEndTreePlay()
         {

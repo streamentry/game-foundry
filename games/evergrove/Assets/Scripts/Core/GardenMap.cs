@@ -118,6 +118,15 @@ namespace Evergrove.Core
         public char At(int cell) { return cells[cell]; }
         public bool IsLand(int cell) { return cell >= 0 && cell < cells.Length && cells[cell] == Free; }
 
+        /// <summary>
+        /// I299 (idea 36): your cottage, the built block in the first two rows of the first
+        /// reach. The built path running down from it is not the cottage.
+        /// </summary>
+        public bool IsCottage(int cell)
+        {
+            return cell >= 0 && cell < cells.Length && cells[cell] == Built && cell / Columns < 2;
+        }
+
         /// <summary>True when an item may stand here: land, inside, and not under another item.</summary>
         public bool CanPlace(int[] placements, int cell, int movingIndex = -1)
         {
