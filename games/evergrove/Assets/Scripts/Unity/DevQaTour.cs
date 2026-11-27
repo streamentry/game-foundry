@@ -865,6 +865,44 @@ namespace Evergrove.UnityClient
                 SavePng(hour == 11 ? "21-good-neighbours-day.png" : hour == 18 ? "21-good-neighbours-golden.png" : "21-good-neighbours-night.png");
                 app.QaShowHub(false);
             }
+
+            // Smart companion (SC02): a scripted week. Nine things grown, two tended, a letter from
+            // Anh; one visit a day, each neighbour spoken to once; then each neighbour on day eight.
+            WorldModel week = WorldModel.New(PlayMode.Living);
+            for (int chapter = 0; chapter < 9; chapter++)
+            {
+                Puzzle stream = week.CurrentPuzzle;
+                for (int i = 0; i < stream.CellCount; i++)
+                    while (week.Rotations[i] != stream.Solution[i]) week.Rotate(i);
+                week.Choose((VillageChoice)(chapter % 3));
+            }
+            week.SolveTree(0);
+            week.SolveTree(1);
+            week.KeepNote("Anh", "The plums are early this year.");
+            app.QaReplaceWorld(week);
+            Weather[] weekWeather = { Weather.Rainy, Weather.Fair, Weather.Windy, Weather.Fair, Weather.Snowy, Weather.Fair, Weather.Hot, Weather.Fair };
+            string[] who = { "mira", "orin", "fen" };
+            for (int day = 0; day < 8; day++)
+            {
+                app.QaSetDay(day);
+                app.QaSetWeather((int)weekWeather[day]);
+                app.QaSetClock(day % 2 == 0 ? 18 : 13);
+                if (day == 2) week.SolveTree(2); // something new mid-week
+                for (int v = 0; v < 3; v++)
+                {
+                    Debug.Log("MOSSELORA_COMPANION day " + (day + 1) + " " + who[v] + ": " + app.QaNeighborSays(v));
+                    app.QaTalk(v);
+                    for (int f = 0; f < 4; f++) yield return null;
+                    if (day == 7)
+                    {
+                        yield return new WaitForEndOfFrame();
+                        SavePng("21-week-" + who[v] + ".png");
+                    }
+                    app.QaTalk(-1);
+                }
+            }
+            app.QaSetDay(0);
+            app.QaSetWeather((int)Weather.Fair);
             app.QaSetClock(13);
 
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);

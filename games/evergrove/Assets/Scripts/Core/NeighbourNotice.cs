@@ -97,6 +97,12 @@ namespace Evergrove.Core
             new[] { PuzzleKind.Pairs, PuzzleKind.Sudoku, PuzzleKind.Sowing, PuzzleKind.Doorstep },
         };
 
+        /// <summary>The puzzle kinds a neighbour speaks for, in their order (a copy).</summary>
+        public static PuzzleKind[] KeptBy(int villager)
+        {
+            return (PuzzleKind[])Kept[System.Math.Max(0, System.Math.Min(2, villager))].Clone();
+        }
+
         public static int OwnerOf(PuzzleKind kind)
         {
             for (int v = 0; v < Kept.Length; v++)
@@ -140,7 +146,7 @@ namespace Evergrove.Core
 
         // A nursery plant or a planted gift: both are simply new in the garden (the
         // save doesn't record which, so the line claims neither).
-        private static string Arrival(int villager, string name)
+        internal static string Arrival(int villager, string name)
         {
             switch (villager)
             {
@@ -151,7 +157,7 @@ namespace Evergrove.Core
         }
 
         // I250: the season the new stretch brought, said once, plainly (seasons turn by tending).
-        private static string SeasonCame(Season season)
+        internal static string SeasonCame(Season season)
         {
             switch (season)
             {
@@ -204,7 +210,7 @@ namespace Evergrove.Core
                 "\nThere's new bank waiting for roots, whenever you like.";
         }
 
-        private static string HelpedWith(PuzzleKind kind)
+        internal static string HelpedWith(PuzzleKind kind)
         {
             switch (kind)
             {
@@ -233,7 +239,7 @@ namespace Evergrove.Core
             return world.LastFruitTo == villager && world.FruitGivenTo(villager) > 0 ? Thanked(villager) : null;
         }
 
-        private static string Thanked(int villager)
+        internal static string Thanked(int villager)
         {
             switch (villager)
             {
@@ -243,7 +249,7 @@ namespace Evergrove.Core
             }
         }
 
-        private static string Waiting(int villager, string name)
+        internal static string Waiting(int villager, string name)
         {
             switch (villager)
             {
@@ -253,7 +259,7 @@ namespace Evergrove.Core
             }
         }
 
-        private static string Tended(PuzzleKind kind, int n)
+        internal static string Tended(PuzzleKind kind, int n)
         {
             bool one = n == 1;
             switch (kind)
