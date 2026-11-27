@@ -26,6 +26,44 @@ namespace Evergrove.Core
             return at < 0 ? null : state.helpedFrom[at];
         }
 
+        // ---- I228: fruit. Picked only by tending trees (see SolveTree/SolveBought), never by time.
+        public const int MaxFruit = 99;
+        public const int MaxFruitPerParcel = 10;
+        /// <summary>Neighbours who can be given fruit: Mira 0, Orin 1, Fen 2.</summary>
+        public const int Neighbours = 3;
+        private const int MaxFruitGiven = 100000;
+
+        /// <summary>Fruit in the garden, 0..<see cref="MaxFruit"/>.</summary>
+        public int Fruit { get { return state.fruit; } }
+        /// <summary>
+        /// How many a neighbour was given. A private memory so they can speak truthfully:
+        /// never show it as a score, a meter or a goal.
+        /// </summary>
+        public int FruitGivenTo(int villager)
+        {
+            return villager < 0 || villager >= Neighbours ? 0 : state.fruitGiven[villager];
+        }
+        /// <summary>The neighbour who got the latest fruit, or -1.</summary>
+        public int LastFruitTo { get { return state.lastFruitTo; } }
+
+        /// <summary>Gives one fruit to a neighbour (0 Mira, 1 Orin, 2 Fen). Needs a Living garden and some fruit.</summary>
+        public bool GiveFruit(int villager)
+        {
+            if (Mode != PlayMode.Living || villager < 0 || villager >= Neighbours || state.fruit < 1) return false;
+            int[] given = (int[])state.fruitGiven.Clone();
+            given[villager] = Math.Min(MaxFruitGiven, given[villager] + 1);
+            state.fruitGiven = given;
+            state.fruit--;
+            state.lastFruitTo = villager;
+            return true;
+        }
+
+        /// <summary>One fruit from tending a tree, up to the cap (extra is simply not picked).</summary>
+        private void PickFruit()
+        {
+            if (state.fruit < MaxFruit) state.fruit++;
+        }
+
         /// <summary>Cuttings waiting in the basket, as nursery kinds, oldest first.</summary>
         public int[] Gifts { get { return (int[])state.gifts.Clone(); } }
         /// <summary>The newest opened letters, oldest first; <see cref="LetterFrom"/> holds who wrote each.</summary>
@@ -58,7 +96,9 @@ namespace Evergrove.Core
                 cost = Nursery.Price(contents.Kind);
             }
             if (state.seeds < cost) return Fail(result, ParcelError.NotEnoughSeeds);
+            if (gift == ParcelGift.Fruit && state.fruit < contents.Amount) return Fail(result, ParcelError.NotEnoughFruit);
             state.seeds -= cost;
+            if (gift == ParcelGift.Fruit) state.fruit -= contents.Amount;
             RememberParcel(contents.Id);
             result.Ok = true;
             result.Error = ParcelError.None;
@@ -88,6 +128,12 @@ namespace Evergrove.Core
                 int gained = Math.Min(contents.Amount, MaxSeeds - state.seeds);
                 state.seeds += gained;
                 result.SeedsGained = gained;
+            }
+            else if (contents.Gift == ParcelGift.Fruit)
+            {
+                int gained = Math.Min(contents.Amount, MaxFruit - state.fruit);
+                state.fruit += gained;
+                result.FruitGained = gained;
             }
             else if (contents.Gift == ParcelGift.Cutting)
             {
@@ -187,6 +233,33 @@ namespace Evergrove.Core
             Array.Copy(items, items.Length - keep, next, 0, keep);
             next[keep] = value;
             return next;
+        }
+
+        /// <summary>
+        /// Fail-closed validation of the fruit fields (I228); a missing or empty count array means "absent in
+        /// an older save". Returns the counts normalised to exactly three.
+        /// </summary>
+        private static bool ReadFruit(WorldSnapshot source, out int[] fruitGiven)
+        {
+            fruitGiven = null;
+            int[] given = source.fruitGiven ?? Array.Empty<int>();
+            if (source.fruit < 0 || source.fruit > MaxFruit || (given.Length != 0 && given.Length != Neighbours) ||
+                source.lastFruitTo < -1 || source.lastFruitTo >= Neighbours)
+                return false;
+            var counts = new int[Neighbours];
+            int total = 0;
+            for (int i = 0; i < given.Length; i++)
+            {
+                if (given[i] < 0 || given[i] > MaxFruitGiven) return false;
+                counts[i] = given[i];
+                total += given[i];
+            }
+            // Truthful memory: the latest recipient must have been given something, and any gift names one.
+            if (total == 0 ? source.lastFruitTo != -1 : (source.lastFruitTo == -1 || counts[source.lastFruitTo] == 0))
+                return false;
+            if (source.mode != "living" && (source.fruit != 0 || total != 0)) return false;
+            fruitGiven = counts;
+            return true;
         }
 
         /// <summary>Fail-closed validation of the help fields (I226); null arrays mean "absent in an older save".</summary>

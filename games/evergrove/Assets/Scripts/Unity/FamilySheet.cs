@@ -18,6 +18,7 @@ namespace Evergrove.UnityClient
         internal sealed class Hooks
         {
             public Func<int> Seeds;
+            public Func<int> Fruit;                // fruit picked from your trees (I230)
             public Func<int, bool> RowOpen;
             public Func<int[]> OwnedKinds;          // nursery kinds you have bought, newest first
             public Func<string, string, ParcelGift, int, string, ParcelSendResult> Send;
@@ -32,7 +33,8 @@ namespace Evergrove.UnityClient
         }
 
         private static readonly int[] SeedChoices = { 10, 50, 100 };
-        private const int LetterOnly = -1, CuttingBase = 1000; // pick codes: seed amount, 1000+kind, or -1
+        private const int LetterOnly = -1, CuttingBase = 1000, FruitBase = 2000; // pick codes: seed amount, 1000+kind, 2000+fruit, or -1
+        private const int FruitPerBasket = 5;
 
         private Hooks hooks;
         private Font font;
@@ -142,12 +144,19 @@ namespace Evergrove.UnityClient
                 GiftToken(gifts, amount, MosseloraArt.Load(TreePlay.SeedIcon), amount.ToString(),
                     hooks.Seeds() >= amount);
             GiftToken(gifts, LetterOnly, MosseloraArt.Load(MosseloraArt.IconChat), "", true);
-            // A cutting of a plant you have grown from the nursery (it costs its price).
+            // A basket of fruit from your trees (I230), then a cutting of a plant you
+            // have grown from the nursery (it costs its price).
             int[] owned = hooks.OwnedKinds();
-            if (owned.Length > 0)
+            int fruit = hooks.Fruit != null ? hooks.Fruit() : 0;
+            if (owned.Length > 0 || fruit > 0)
             {
-                Transform cuttings = Row(body, "Cuttings", 82f, 10f);
-                for (int i = 0; i < owned.Length && i < 4; i++)
+                Transform cuttings = Row(body, "Fruit and cuttings", 82f, 10f);
+                if (fruit > 0)
+                {
+                    int basket = Math.Min(FruitPerBasket, fruit);
+                    GiftToken(cuttings, FruitBase + basket, MosseloraArt.Load("food-basket"), basket.ToString(), true);
+                }
+                for (int i = 0; i < owned.Length && i < (fruit > 0 ? 3 : 4); i++)
                     GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
                         Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
             }
@@ -163,8 +172,8 @@ namespace Evergrove.UnityClient
         private void GiftToken(Transform row, int code, Sprite art, string price, bool can)
         {
             bool chosen = pick == code;
-            TreePlay.Token(row, code == LetterOnly ? "Just a letter" : code >= CuttingBase
-                    ? "A cutting of " + Nursery.Item(code - CuttingBase).Name : code + " seeds",
+            TreePlay.Token(row, code == LetterOnly ? "Just a letter" : code >= FruitBase ? (code - FruitBase) + " fruit"
+                    : code >= CuttingBase ? "A cutting of " + Nursery.Item(code - CuttingBase).Name : code + " seeds",
                 art, 66f, chosen ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 () => { if (can) { pick = code; Rebuild(); } }, true);
             Transform token = row.GetChild(row.childCount - 1);
@@ -197,12 +206,14 @@ namespace Evergrove.UnityClient
             string from = (name ?? "").Trim();
             if (!FamilyParcel.ValidName(from)) { outcome = "Write your name first, so they know who it's from."; Rebuild(); return; }
             hooks.SaveName(from);
-            ParcelGift gift = pick == LetterOnly ? ParcelGift.None : pick >= CuttingBase ? ParcelGift.Cutting : ParcelGift.Seeds;
-            int value = pick >= CuttingBase ? pick - CuttingBase : pick;
+            ParcelGift gift = pick == LetterOnly ? ParcelGift.None : pick >= FruitBase ? ParcelGift.Fruit
+                : pick >= CuttingBase ? ParcelGift.Cutting : ParcelGift.Seeds;
+            int value = pick >= FruitBase ? pick - FruitBase : pick >= CuttingBase ? pick - CuttingBase : pick;
             string nonce = Guid.NewGuid().ToString("N").Substring(0, 16);
             ParcelSendResult sent = hooks.Send(from, letter.Trim(), gift, value, nonce);
             if (!sent.Ok) { outcome = Explain(sent.Error); Rebuild(); return; }
             string what = gift == ParcelGift.Seeds ? value + " seeds"
+                : gift == ParcelGift.Fruit ? "a basket of " + value + " fruit from their trees"
                 : gift == ParcelGift.Cutting ? "a cutting of " + Nursery.Item(value).Name : "a letter";
             hooks.Share(FamilyParcel.Wrap(sent.Text, from + " sent you " + what + " in Mosselora. Open it in the game: Family, then Open."));
             letter = "";
@@ -229,6 +240,8 @@ namespace Evergrove.UnityClient
             ParcelContents c = opened.Contents;
             string gift = c.Gift == ParcelGift.Seeds ? opened.SeedsGained + " seeds are in your purse."
                 : c.Gift == ParcelGift.Cutting ? "A cutting of " + Nursery.Item(c.Kind).Name + " is waiting in your basket."
+                : c.Gift == ParcelGift.Fruit ? (opened.FruitGained > 0 ? opened.FruitGained + " fruit, picked from their trees, are in your basket."
+                    : "Your fruit basket is already full.")
                 : c.Gift == ParcelGift.Help ? c.From + " solved a puzzle in your garden for you. Look for the bloom."
                 : "";
             outcome = "From " + c.From + "." + (c.Letter.Length > 0 ? "\n“" + c.Letter + "”" : "") +
@@ -262,6 +275,7 @@ namespace Evergrove.UnityClient
                 case ParcelError.NotEnoughSeeds: return "You don't have enough seeds for that gift yet.";
                 case ParcelError.BasketFull: return "Your basket is full. Plant a gift first, then open this one.";
                 case ParcelError.CuttingNotAvailable: return "That plant isn't open in your nursery yet.";
+                case ParcelError.NotEnoughFruit: return "You don't have that much fruit yet. Tend your trees to pick more.";
                 case ParcelError.NotInThisGarden: return "This help is for something your garden hasn't grown yet.";
                 case ParcelError.ChecksumMismatch:
                 case ParcelError.Malformed:

@@ -38,7 +38,8 @@ namespace Evergrove.Core
             "version", "mode", "round", "solved", "rotations", "previous", "choices",
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
             "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
-            "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom"
+            "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
+            "fruit", "fruitGiven", "lastFruitTo"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -138,7 +139,9 @@ namespace Evergrove.Core
             // Gardens exported before E4 (I177) have no "garden"/"placements" keys.
             // Gardens exported before I213 have no "gifts"/"parcelIds"/"letters"/"letterFrom" keys.
             // Gardens exported before I226 have no "helped"/"helpedFrom" keys.
-            bool noHelpYet = snapshot.helped.Length == 0 && snapshot.helpedFrom.Length == 0;
+            // Gardens exported before I228 have no "fruit"/"fruitGiven"/"lastFruitTo" keys.
+            bool noFruitYet = snapshot.fruit == 0 && snapshot.lastFruitTo == -1 && AllZero(snapshot.fruitGiven);
+            bool noHelpYet = snapshot.helped.Length == 0 && snapshot.helpedFrom.Length == 0 && noFruitYet;
             bool noFamilyYet = snapshot.gifts.Length == 0 && snapshot.parcelIds.Length == 0 &&
                 snapshot.letters.Length == 0 && snapshot.letterFrom.Length == 0 && noHelpYet;
             bool noNurseryYet = snapshot.bought.Length == 0 && snapshot.boughtSolved.Length == 0 && noFamilyYet;
@@ -147,6 +150,8 @@ namespace Evergrove.Core
             // Gardens exported before I193 have no "plantings" key.
             bool matchesPrePlantings = snapshot.plantings.Length == 0 && noTreesYet &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, false, false, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreFruit = noFruitYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreHelp = noHelpYet &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreFamily = noFamilyYet &&
@@ -161,7 +166,7 @@ namespace Evergrove.Core
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreHistory = noMapYet && snapshot.history.Length == 0 &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, false, false)), checksum, StringComparison.Ordinal);
-            if (!matchesCurrent && !matchesPreHelp && !matchesPreFamily && !matchesPreNursery && !matchesPreTrees && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
+            if (!matchesCurrent && !matchesPreFruit && !matchesPreHelp && !matchesPreFamily && !matchesPreNursery && !matchesPreTrees && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
             {
                 error = GardenImportError.ChecksumMismatch;
                 return false;
@@ -188,7 +193,7 @@ namespace Evergrove.Core
         /// </summary>
         private static string SnapshotJson(WorldSnapshot s, bool includeHistory, bool includeMap, bool includePlantings = true,
                                            bool includeTrees = true, bool includeNursery = true, bool includeFamily = true,
-                                           bool includeHelp = true)
+                                           bool includeHelp = true, bool includeFruit = true)
         {
             var sb = new StringBuilder(256);
             sb.Append("{\"version\":").Append(Int(s.version))
@@ -224,6 +229,10 @@ namespace Evergrove.Core
             if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp)
                 sb.Append(",\"helped\":").Append(IntArray(s.helped))
                   .Append(",\"helpedFrom\":").Append(StringArray(s.helpedFrom));
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit)
+                sb.Append(",\"fruit\":").Append(Int(s.fruit))
+                  .Append(",\"fruitGiven\":").Append(IntArray(s.fruitGiven))
+                  .Append(",\"lastFruitTo\":").Append(Int(s.lastFruitTo));
             return sb.Append('}').ToString();
         }
 
@@ -249,6 +258,13 @@ namespace Evergrove.Core
                 sb.Append(Quote(values[i]));
             }
             return sb.Append(']').ToString();
+        }
+
+        private static bool AllZero(int[] values)
+        {
+            if (values == null) return true;
+            foreach (int v in values) if (v != 0) return false;
+            return true;
         }
 
         internal static string Int(int value)
@@ -324,7 +340,10 @@ namespace Evergrove.Core
                    ReadStrings(fields, "letters", ref snapshot.letters) &&
                    ReadStrings(fields, "letterFrom", ref snapshot.letterFrom) &&
                    ReadInts(fields, "helped", ref snapshot.helped) &&
-                   ReadStrings(fields, "helpedFrom", ref snapshot.helpedFrom);
+                   ReadStrings(fields, "helpedFrom", ref snapshot.helpedFrom) &&
+                   ReadInt(fields, "fruit", ref snapshot.fruit) &&
+                   ReadInts(fields, "fruitGiven", ref snapshot.fruitGiven) &&
+                   ReadInt(fields, "lastFruitTo", ref snapshot.lastFruitTo);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)

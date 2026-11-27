@@ -64,6 +64,12 @@ namespace Evergrove.Core
         // (item indices, newest last) and who helped (parallel). Never counts as a solve.
         public int[] helped = Array.Empty<int>();
         public string[] helpedFrom = Array.Empty<string>();
+        // Optional, additive (I228; absent in older JSON). Fruit picked by tending trees (0..99),
+        // how much of it each neighbour (Mira, Orin, Fen) was given (a private memory, never a
+        // meter), and which neighbour got the latest (-1 none). Only Living gardens hold any.
+        public int fruit;
+        public int[] fruitGiven = Array.Empty<int>();
+        public int lastFruitTo = -1;
     }
 
     /// <summary>
@@ -155,6 +161,7 @@ namespace Evergrove.Core
                 state.treeSolved = next;
             }
             state.seeds = Math.Min(MaxSeeds, state.seeds + reward);
+            if (state.choices[item] == (int)VillageChoice.ShadeTree) PickFruit();
             return reward;
         }
 
@@ -214,6 +221,7 @@ namespace Evergrove.Core
                 state.boughtSolved = next;
             }
             state.seeds = Math.Min(MaxSeeds, state.seeds + reward);
+            if (Nursery.Family(state.bought[k * 2]) == VillageChoice.ShadeTree) PickFruit();
             return reward;
         }
 
@@ -368,7 +376,8 @@ namespace Evergrove.Core
                 bought = Array.Empty<int>(), boughtSolved = Array.Empty<int>(),
                 gifts = Array.Empty<int>(), parcelIds = Array.Empty<string>(),
                 letters = Array.Empty<string>(), letterFrom = Array.Empty<string>(),
-                helped = Array.Empty<int>(), helpedFrom = Array.Empty<string>()
+                helped = Array.Empty<int>(), helpedFrom = Array.Empty<string>(),
+                fruit = 0, fruitGiven = new int[Neighbours], lastFruitTo = -1
             });
         }
 
@@ -388,7 +397,8 @@ namespace Evergrove.Core
                 bought = (int[])state.bought.Clone(), boughtSolved = (int[])state.boughtSolved.Clone(),
                 gifts = (int[])state.gifts.Clone(), parcelIds = (string[])state.parcelIds.Clone(),
                 letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone(),
-                helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone()
+                helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone(),
+                fruit = state.fruit, fruitGiven = (int[])state.fruitGiven.Clone(), lastFruitTo = state.lastFruitTo
             };
         }
 
@@ -458,6 +468,8 @@ namespace Evergrove.Core
             int[] helped;
             string[] helpedFrom;
             if (!ReadHelped(source, out helped, out helpedFrom)) return false;
+            int[] fruitGiven;
+            if (!ReadFruit(source, out fruitGiven)) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -522,7 +534,8 @@ namespace Evergrove.Core
                 seeds = source.seeds, treeSolved = (int[])treeSolved.Clone(),
                 bought = (int[])bought.Clone(), boughtSolved = (int[])boughtSolved.Clone(),
                 gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom,
-                helped = helped, helpedFrom = helpedFrom
+                helped = helped, helpedFrom = helpedFrom,
+                fruit = source.fruit, fruitGiven = fruitGiven, lastFruitTo = source.lastFruitTo
             });
             return true;
         }

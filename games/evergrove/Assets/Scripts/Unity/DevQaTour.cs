@@ -395,6 +395,17 @@ namespace Evergrove.UnityClient
             yield return new WaitForSecondsRealtime(0.6f);
             yield return new WaitForEndOfFrame();
             SavePng("17z-orin-help.png");
+            // I231: hand Fen a fruit from your trees; she thanks you at once.
+            Debug.Log("MOSSELORA_QA_FRUIT " + app.QaFruit());
+            app.QaTalk(2);
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17za-give-fruit.png");
+            app.QaGiveFruit(2);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17zb-fen-thanks.png");
             app.QaTalk(-1);
             // Settings as round tokens (I194).
             Press("Open menu");

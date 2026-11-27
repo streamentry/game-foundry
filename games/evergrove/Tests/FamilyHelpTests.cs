@@ -157,6 +157,8 @@ internal static class FamilyHelpTests
         int start = text.IndexOf(",\"helped\":", StringComparison.Ordinal);
         if (start < 0) return text;
         int end = text.IndexOf(']', text.IndexOf(",\"helpedFrom\":", start, StringComparison.Ordinal));
+        int fruitKeys = text.IndexOf(",\"fruit\":", start, StringComparison.Ordinal);
+        if (fruitKeys >= 0) end = text.IndexOf('}', fruitKeys) - 1; // I228 fruit keys come last
         return text.Substring(0, start) + text.Substring(end + 1);
     }
 

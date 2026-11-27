@@ -1911,6 +1911,7 @@ internal static class Program
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
             assertions += FamilyHelpTests.Run();
+            assertions += FruitTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
