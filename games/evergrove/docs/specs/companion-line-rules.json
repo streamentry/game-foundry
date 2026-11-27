@@ -1,0 +1,416 @@
+{
+  "about": "Rules every Mosselora companion line must pass (smart companion SC03/SC04). Read by tools/evergrove_line_bank_check.py and by the C# LineBankTests. Per kind: the slots its facts fill, the voices that speak it (and, for a qualified kind, which qualifier values each voice needs, keyed \"Kind.Value\" in the bank), the minimum lines per voice, and per qualifier value. Change only with the spec: docs/specs/proposals/smart-companion-2026-11-27.md. A kind marked \"pending\" has draft lines in review; the English bank need not cover it yet, and it speaks its fixed sentence until approved.",
+  "maxChars": 140,
+  "kinds": {
+    "FruitGiven": {
+      "slots": [],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 20
+    },
+    "NewestThing": {
+      "slots": [
+        "thing",
+        "where"
+      ],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 20
+    },
+    "KindSolved": {
+      "slots": [
+        "work"
+      ],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 20
+    },
+    "GiftWaiting": {
+      "slots": [
+        "thing"
+      ],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 20
+    },
+    "SolvedTogether": {
+      "slots": [
+        "work"
+      ],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 20
+    },
+    "NewArrival": {
+      "slots": [
+        "thing"
+      ],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 20
+    },
+    "LetterWaiting": {
+      "slots": [
+        "name"
+      ],
+      "voices": {
+        "1": null
+      },
+      "min": 20
+    },
+    "HelpedBy": {
+      "slots": [
+        "name",
+        "work"
+      ],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 20
+    },
+    "RiverClose": {
+      "slots": [],
+      "voices": {
+        "0": null
+      },
+      "min": 20
+    },
+    "RiverFurther": {
+      "slots": [],
+      "voices": {
+        "0": [
+          "Spring",
+          "Summer",
+          "Autumn",
+          "Winter"
+        ]
+      },
+      "min": 20,
+      "qualifier": "season",
+      "minEach": 5
+    },
+    "WeatherToday": {
+      "slots": [],
+      "voices": {
+        "0": [
+          "Rainy",
+          "Windy",
+          "Hot",
+          "Snowy"
+        ],
+        "1": [
+          "Rainy",
+          "Windy",
+          "Hot",
+          "Snowy"
+        ],
+        "2": [
+          "Rainy",
+          "Windy",
+          "Hot",
+          "Snowy"
+        ]
+      },
+      "min": 20,
+      "qualifier": "weather",
+      "minEach": 5
+    },
+    "PairingToFind": {
+      "slots": [],
+      "voices": {
+        "0": [
+          "Grove",
+          "Orchard"
+        ],
+        "1": [
+          "ByTheWater",
+          "ShadySeat"
+        ],
+        "2": [
+          "Sheltered",
+          "FlowerBed",
+          "Waterside"
+        ]
+      },
+      "min": 20,
+      "qualifier": "pairing",
+      "minEach": 6
+    },
+    "Hour": {
+      "slots": [],
+      "voices": {
+        "0": [
+          "Dawn",
+          "Golden",
+          "Dusk",
+          "Night"
+        ],
+        "1": [
+          "Dawn",
+          "Golden",
+          "Dusk",
+          "Night"
+        ],
+        "2": [
+          "Dawn",
+          "Golden",
+          "Dusk",
+          "Night"
+        ]
+      },
+      "min": 20,
+      "qualifier": "phase",
+      "minEach": 5
+    },
+    "VisitorCame": {
+      "slots": [],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 20
+    },
+    "HourHabit": {
+      "slots": [],
+      "voices": {
+        "0": [
+          "Dawn",
+          "Morning"
+        ],
+        "1": [
+          "Golden",
+          "Dusk"
+        ],
+        "2": [
+          "Day",
+          "Night"
+        ]
+      },
+      "min": 20,
+      "qualifier": "phase",
+      "minEach": 10
+    },
+    "WeatherWhileAway": {
+      "slots": [
+        "weather"
+      ],
+      "voices": {
+        "0": null
+      },
+      "min": 20,
+      "allowTimeClaims": true
+    },
+    "WishProgress": {
+      "slots": [
+        "have",
+        "need"
+      ],
+      "voices": {
+        "0": null,
+        "1": null,
+        "2": null
+      },
+      "min": 10
+    },
+    "SeasonTurned": {
+      "slots": [],
+      "voices": {
+        "0": [
+          "Spring",
+          "Summer",
+          "Autumn",
+          "Winter"
+        ],
+        "1": [
+          "Spring",
+          "Summer",
+          "Autumn",
+          "Winter"
+        ],
+        "2": [
+          "Spring",
+          "Summer",
+          "Autumn",
+          "Winter"
+        ]
+      },
+      "min": 12,
+      "qualifier": "season",
+      "minEach": 3
+    },
+    "YieldGiven": {
+      "slots": [],
+      "voices": {
+        "0": [
+          "Summer",
+          "Autumn",
+          "Winter"
+        ],
+        "1": [
+          "Winter"
+        ],
+        "2": [
+          "Spring",
+          "Winter"
+        ]
+      },
+      "min": 3,
+      "qualifier": "season",
+      "minEach": 3
+    },
+    "PairingFound": {
+      "slots": [],
+      "voices": {
+        "0": [
+          "Grove",
+          "Orchard"
+        ],
+        "1": [
+          "ByTheWater",
+          "ShadySeat"
+        ],
+        "2": [
+          "Sheltered",
+          "FlowerBed",
+          "Waterside"
+        ]
+      },
+      "min": 8,
+      "qualifier": "pairing",
+      "minEach": 4
+    },
+    "RainComing": {
+      "slots": [],
+      "voices": {
+        "1": null
+      },
+      "min": 20,
+      "pending": true
+    }
+  },
+  "longest": {
+    "thing": "lily of the valley",
+    "where": "down the valley",
+    "work": "the doorstep pattern",
+    "name": "Great-Grandma Rosalind M",
+    "weather": "seven rainy days, seven snowy days, seven windy days and seven hot days",
+    "have": "three",
+    "need": "five"
+  },
+  "banned": [
+    "missed you",
+    "miss you",
+    "where have you been",
+    "don't forget",
+    "do not forget",
+    "streak",
+    "in a row",
+    "come back",
+    "every day",
+    "lonely",
+    "loneliness",
+    "waiting for you",
+    "love you",
+    "hurry up",
+    "only today",
+    "health",
+    "healthy",
+    "wellbeing",
+    "well-being",
+    "brain",
+    "cognitive",
+    "memory loss",
+    "dementia",
+    "therapy",
+    "therapeutic",
+    "medicine",
+    "doctor",
+    "good for your",
+    "good for you",
+    "keeps you sharp",
+    "stay sharp",
+    "exercise your",
+    "anxiety",
+    "stress",
+    "depress"
+  ],
+  "childSafe": [
+    "kill",
+    "dead",
+    "death",
+    "die",
+    "dying",
+    "blood",
+    "drunk",
+    "beer",
+    "wine",
+    "hell",
+    "damn",
+    "stupid",
+    "hate",
+    "ugly",
+    "shut up",
+    "idiot",
+    "gun",
+    "knife"
+  ],
+  "timeClaims": [
+    "yesterday",
+    "last night",
+    "last week",
+    "this morning",
+    "tonight",
+    "days ago",
+    "weeks ago",
+    "since you",
+    "while you were",
+    "for days",
+    "for weeks",
+    "all week",
+    "again"
+  ],
+  "subjectVerbs": [
+    "is",
+    "was",
+    "has",
+    "looks",
+    "seems",
+    "sits",
+    "stands",
+    "grows",
+    "needs",
+    "says",
+    "gets",
+    "keeps",
+    "makes",
+    "does",
+    "holds",
+    "takes",
+    "came",
+    "comes",
+    "goes",
+    "went",
+    "got"
+  ]
+}

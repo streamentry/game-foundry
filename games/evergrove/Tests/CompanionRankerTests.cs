@@ -84,6 +84,14 @@ internal static class CompanionRankerTests
         Expect(CompanionRanker.Pick(facts, memory, 1, 101, garden) == letter, "a letter still waiting may be mentioned again");
         Expect(!CompanionRanker.Eligible(solved, memory, 102) && CompanionRanker.Eligible(solved, memory, 103), "the 3-day window");
         Expect(CompanionRanker.Eligible(solved, memory, 99), "a clock set back doesn't hide anything");
+        // SC04: once-facts (a season turned, a pairing found) are said once, then never again.
+        Fact grove = new Fact(FactKind.PairingFound, 0, "pairing-found:Grove", new Dictionary<string, string>(), 20, false, false, 0, true);
+        Expect(CompanionRanker.Pick(new List<Fact> { grove }, CompanionMemory.Empty, 0, 200, garden) == grove, "a once-fact, never heard: said");
+        CompanionMemory heardGrove = CompanionMemory.Empty.With(new Heard(200, 0, FactKind.PairingFound, 0, grove.Key));
+        for (int day = 200; day < 260; day += 7)
+            Expect(CompanionRanker.Pick(new List<Fact> { grove }, heardGrove, 0, day, garden) == null, "heard once, not again (day " + day + ")");
+        Expect(CompanionRanker.Pick(new List<Fact> { grove }, heardGrove, 0, 200, garden, grove.Key) == grove,
+            "but it stays their remark for the rest of the visit");
     }
 
     private static void Visits()
