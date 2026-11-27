@@ -4,6 +4,9 @@ namespace Evergrove.Core
 {
     public enum DayPhase { Dawn, Morning, Day, Golden, Dusk, Night }
 
+    /// <summary>I366: what the grass holds in the morning.</summary>
+    public enum Dew { None, Dew, Frost }
+
     /// <summary>
     /// The light laid over the garden painting: a colour wash (RGB, strength A) and, under it,
     /// a darkening (Dark, I282 tune: a wash alone barely read as night).
@@ -113,5 +116,15 @@ namespace Evergrove.Core
         {
             return season != Season.Winter && (phase == DayPhase.Dusk || phase == DayPhase.Night);
         }
+
+        /// <summary>I366: dew glints on the grass at dawn and in the morning; in winter, frost.</summary>
+        public static Dew Dew(DayPhase phase, Season season)
+        {
+            if (phase != DayPhase.Dawn && phase != DayPhase.Morning) return Core.Dew.None;
+            return season == Season.Winter ? Core.Dew.Frost : Core.Dew.Dew;
+        }
+
+        /// <summary>I367: from dusk, the neighbours gather by the lamplit cottage door (I296).</summary>
+        public static bool NeighboursGather(DayPhase phase) { return phase == DayPhase.Dusk || phase == DayPhase.Night; }
     }
 }

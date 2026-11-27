@@ -227,6 +227,35 @@ namespace Evergrove.UnityClient
                 weatherRect.offsetMin = weatherRect.offsetMax = Vector2.zero;
                 weather.AddComponent<WeatherLayer>().Kind = WeatherNow;
             }
+            // I364: a rainbow on the first fair day after rain, soft, over the top of the view.
+            if (RainbowNow)
+            {
+                var bow = new GameObject("Rainbow", typeof(RectTransform), typeof(RectMask2D));
+                bow.transform.SetParent(host.transform, false);
+                var bowRect = (RectTransform)bow.transform;
+                bowRect.anchorMin = new Vector2(0f, 1f);
+                bowRect.anchorMax = Vector2.one;
+                bowRect.pivot = new Vector2(0.5f, 1f);
+                bowRect.sizeDelta = new Vector2(0f, 260f);
+                bowRect.anchoredPosition = new Vector2(0f, -40f);
+                Color[] bands = {
+                    new Color(0.95f, 0.45f, 0.42f), new Color(0.98f, 0.70f, 0.38f), new Color(0.98f, 0.90f, 0.45f),
+                    new Color(0.55f, 0.82f, 0.55f), new Color(0.48f, 0.68f, 0.92f), new Color(0.68f, 0.55f, 0.88f) };
+                for (int b = 0; b < bands.Length; b++)
+                {
+                    var arc = new GameObject("Band", typeof(RectTransform));
+                    arc.transform.SetParent(bow.transform, false);
+                    var arcRect = (RectTransform)arc.transform;
+                    arcRect.anchorMin = arcRect.anchorMax = new Vector2(0.5f, 0f);
+                    float size = 620f - b * 18f;
+                    arcRect.sizeDelta = new Vector2(size, size);
+                    arcRect.anchoredPosition = new Vector2(0f, -size * 0.18f);
+                    var arcImage = arc.AddComponent<Image>();
+                    arcImage.sprite = MosseloraArt.Halo();
+                    arcImage.color = new Color(bands[b].r, bands[b].g, bands[b].b, 0.30f);
+                    arcImage.raycastTarget = false;
+                }
+            }
             // I341: summer by day: dappled sunlight drifts slowly over the garden.
             if (SeasonNow == Season.Summer && Dark < 0.005f && FirefliesMove)
             {
@@ -321,6 +350,8 @@ namespace Evergrove.UnityClient
             view.decorate = decorate;
             view.BuildDryLand();
             view.lanterns = Mathf.Max(0, LanternsNext); // review fix: known before the first layout
+            view.meadow = MeadowTufts; // I363: home's alone; kept for every re-layout (zoom, lookout)
+            MeadowTufts = null;
             LanternsNext = 0;
             view.Layout();
             return view;
@@ -393,6 +424,7 @@ namespace Evergrove.UnityClient
         private float apron, teaser;
         private int reaches = 1;
         private int lanterns; // I310
+        private int[] meadow;  // I363
         public static int LanternsNext; // set by the app just before building home's map
 
         /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
@@ -769,6 +801,55 @@ namespace Evergrove.UnityClient
                 lanternImage.preserveAspect = true;
                 lanternImage.raycastTarget = false;
                 nodes.Add(lanternRect);
+            }
+            // I363: wild flowers along the banks, small and behind the things (home's map only).
+            int[] tuftCells = meadow;
+            for (int t = 0; tuftCells != null && t < tuftCells.Length; t++)
+            {
+                int cell = tuftCells[t];
+                if (cell < 0 || cell >= map.CellCount) continue;
+                Sprite wild = MosseloraArt.Load("flower-" + ((cell * 7 + 3) % 50).ToString("00"));
+                if (wild == null) continue;
+                var tuft = new GameObject("Wild flowers", typeof(RectTransform));
+                tuft.transform.SetParent(land, false);
+                var tuftRect = (RectTransform)tuft.transform;
+                tuftRect.anchorMin = tuftRect.anchorMax = new Vector2(0f, 1f);
+                tuftRect.pivot = new Vector2(0.5f, 0.1f);
+                float th = cellH * 0.55f;
+                tuftRect.sizeDelta = new Vector2(th * wild.rect.width / Mathf.Max(1f, wild.rect.height), th);
+                int tc = cell % map.Columns, tr = cell / map.Columns;
+                tuftRect.anchoredPosition = new Vector2((tc + 0.5f + ((cell * 13) % 5 - 2) * 0.08f) * cellW, -(tr + 0.8f) * cellH);
+                var tuftImage = tuft.AddComponent<Image>();
+                tuftImage.sprite = wild;
+                tuftImage.preserveAspect = true;
+                tuftImage.raycastTarget = false;
+                ThingLook tuftLook = SeasonLook.For(SeasonNow, VillageChoice.Flowers, (cell * 7 + 3) % 50);
+                tuftImage.color = tuftLook == ThingLook.Resting ? new Color(0.72f, 0.78f, 0.70f, 0.8f) : Color.white;
+                nodes.Add(tuftRect);
+            }
+            // I366: dew glints on the grass in the morning; frost in winter.
+            if (DewNow != Dew.None)
+            {
+                var rng = new System.Random(366);
+                for (int g = 0; g < 36; g++)
+                {
+                    int cell = rng.Next(map.CellCount);
+                    if (!map.IsLand(cell)) continue;
+                    var glint = new GameObject(DewNow == Dew.Frost ? "Frost" : "Dew", typeof(RectTransform));
+                    glint.transform.SetParent(land, false);
+                    var glintRect = (RectTransform)glint.transform;
+                    glintRect.anchorMin = glintRect.anchorMax = new Vector2(0f, 1f);
+                    float gd = DewNow == Dew.Frost ? 14f : 9f;
+                    glintRect.sizeDelta = new Vector2(gd, gd);
+                    glintRect.anchoredPosition = new Vector2(((cell % map.Columns) + (float)rng.NextDouble()) * cellW,
+                        -((cell / map.Columns) + (float)rng.NextDouble()) * cellH);
+                    var glintImage = glint.AddComponent<Image>();
+                    glintImage.sprite = MosseloraArt.SoftGlow();
+                    glintImage.color = DewNow == Dew.Frost ? new Color(1f, 1f, 1f, 0.8f) : new Color(0.85f, 0.95f, 1f, 0.9f);
+                    glintImage.raycastTarget = false;
+                    if (FirefliesMove && DewNow == Dew.Dew) glint.AddComponent<Twinkle>().Phase = g;
+                    nodes.Add(glintRect);
+                }
             }
             Vector2 focus = Vector2.zero;
             bool focused = false;
@@ -1299,6 +1380,9 @@ namespace Evergrove.UnityClient
         public static Season SeasonNow = Season.Summer; // I338: the garden's season, set before a build
         public static Weather WeatherNow = Weather.Fair; // I353: the day's weather, set before a build
         public static Font SignFont; // I360: the river-name signs' lettering
+        public static int[] MeadowTufts; // I363: bank cells for wild flowers, set for home's map
+        public static bool RainbowNow;   // I364
+        public static Dew DewNow;        // I366
 
         /// <summary>
         /// I354–I356: rain falling on a slant; faint gusts of wind sweeping across; or heat

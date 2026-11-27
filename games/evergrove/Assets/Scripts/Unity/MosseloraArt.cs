@@ -224,6 +224,30 @@ namespace Evergrove.UnityClient
             image.color = Color.white;
         }
 
+        private static Sprite halo;
+
+        /// <summary>A thin, soft-edged circle (a ring of light): a rainbow's band (I364).</summary>
+        public static Sprite Halo()
+        {
+            if (halo != null) return halo;
+            const int n = 256;
+            var texture = new Texture2D(n, n, TextureFormat.RGBA32, false)
+            { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "Mosselora halo" };
+            var pixels = new Color32[n * n];
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float dx = (x + 0.5f) / n * 2f - 1f, dy = (y + 0.5f) / n * 2f - 1f;
+                    float r = Mathf.Sqrt(dx * dx + dy * dy);
+                    float a = Mathf.Clamp01(1f - Mathf.Abs(r - 0.93f) / 0.035f);
+                    pixels[y * n + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(255f * a * a));
+                }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            halo = Sprite.Create(texture, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+            return halo;
+        }
+
         private static Sprite softGlow;
 
         /// <summary>White, opaque at the centre and fading to clear at the rim: lamplight, a halo (I296).</summary>

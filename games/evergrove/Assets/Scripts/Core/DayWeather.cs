@@ -119,6 +119,12 @@ namespace Evergrove.Core
 
         public static bool Rain(Weather weather) { return weather == Weather.Rainy; }
 
+        /// <summary>I364: a rainbow on a fair day that follows a rainy one.</summary>
+        public static bool Rainbow(DateTime localDay, Season season, int garden)
+        {
+            return For(localDay, season, garden) == Weather.Fair && For(localDay.Date.AddDays(-1), season, garden) == Weather.Rainy;
+        }
+
         /// <summary>How hard things lean and drift is blown: 1 is the usual breeze.</summary>
         public static float WindStrength(Weather weather)
         {
