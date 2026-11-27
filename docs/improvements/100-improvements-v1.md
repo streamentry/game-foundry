@@ -25,7 +25,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **12. Icons that need no word.** Replace each remaining text button with a painted icon. Keep the word only as an accessibility label and a long-press caption. *Test:* icon-recognition card sort with 8 players aged 40+; any icon below 80% recognition gets redrawn.
 - [ ] **13. Context buttons appear where the thumb is.** A tapped thing shows its two actions beside it (play, move) and nothing else. *Test:* taps per action before and after.
 - [x] **14. Back is always the same place.** One back gesture and one back icon position across all sheets (FamilySheet, almanac, nursery). *Test:* tour shot audit of every sheet.
-- [ ] **15. The menu remembers.** The fan opens with the last-used item nearest the thumb. *Test:* second-tap distance in a logged session.
+- [x] **15. The menu remembers.** The fan opens with the last-used item nearest the thumb. *Test:* second-tap distance in a logged session.
 - [x] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
 - [x] **17. Sheets slide, never pop.** Every panel enters from the edge it belongs to (letters from the letterbox, nursery from the gate), with motion limited to transform and opacity. *Test:* reduced-motion setting replaces each slide with a fade.
 - [x] **18. Hide the HUD while looking.** After 6 s with no touch, the menu and purse fade to 20% so the garden fills the screen. Any touch brings them back. *Test:* screenshot pairs at rest and in use.
