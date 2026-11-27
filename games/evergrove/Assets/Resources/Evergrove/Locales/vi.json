@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "Thực hiện thay đổi này"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Chính sách quyền riêng tư"
     }
   ]
 }
