@@ -91,7 +91,7 @@ namespace Evergrove.UnityClient
             // The endless river (I192): one copy of the painting per open reach,
             // every other one mirrored so the creek runs on without a seam.
             int reaches = map != null ? Mathf.Max(1, map.Reaches) : 1;
-            view.reaches = reaches;
+            view.reaches = reaches; StretchWindow.Attach(hostRect, landRect, plotRect, reaches); // checklist 50
             if (reaches == 1) ground.sprite = plot;
             else
             {
