@@ -46,6 +46,33 @@ namespace Evergrove.UnityClient
             return clip;
         }
 
+        // ---- I406: good neighbours found: three soft bell notes rising (C, E, G), a little
+        // apart, so a discovery has a sound of its own, distinct from the everyday chime.
+        private static AudioClip neighbours;
+
+        public static AudioClip Neighbours()
+        {
+            if (neighbours != null) return neighbours;
+            float[] hz = { 523.25f, 659.25f, 783.99f };
+            const float gap = 0.17f, ring = 0.9f;
+            int length = Mathf.RoundToInt(SampleRate * (gap * 2f + ring));
+            var samples = new float[length];
+            for (int n = 0; n < hz.Length; n++)
+            {
+                int start = Mathf.RoundToInt(SampleRate * gap * n);
+                for (int i = start; i < length; i++)
+                {
+                    float t = (float)(i - start) / SampleRate;
+                    if (t > ring) break;
+                    float env = Mathf.Exp(-t * 5.5f) * Mathf.Min(1f, t * 400f);
+                    samples[i] += env * 0.07f * (Mathf.Sin(t * 2f * Mathf.PI * hz[n]) + 0.3f * Mathf.Sin(t * 2f * Mathf.PI * hz[n] * 2.01f));
+                }
+            }
+            neighbours = AudioClip.Create("Mosselora good neighbours", length, 1, SampleRate, false);
+            neighbours.SetData(samples, 0);
+            return neighbours;
+        }
+
         // ---- I316: the soundscape's voices, a few variants each, quiet and short.
         private static readonly Dictionary<int, AudioClip> AmbientCache = new Dictionary<int, AudioClip>();
 
