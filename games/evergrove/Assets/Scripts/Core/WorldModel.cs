@@ -74,6 +74,9 @@ namespace Evergrove.Core
         // ("take turns"): grown things by Choices index, bought plant k as 2000 + k. Sorted,
         // no duplicates, at most 200. Only Living gardens hold any. Never counts as a solve.
         public int[] together = Array.Empty<int>();
+        // Optional, additive (lantern parcels; absent in older JSON). Names of those who left a
+        // lantern, newest last, at most 12. Only Living gardens hold any.
+        public string[] lanterns = Array.Empty<string>();
     }
 
     /// <summary>
@@ -392,7 +395,7 @@ namespace Evergrove.Core
                 letters = Array.Empty<string>(), letterFrom = Array.Empty<string>(),
                 helped = Array.Empty<int>(), helpedFrom = Array.Empty<string>(),
                 fruit = 0, fruitGiven = new int[Neighbours], lastFruitTo = -1,
-                together = Array.Empty<int>()
+                together = Array.Empty<int>(), lanterns = Array.Empty<string>()
             });
         }
 
@@ -414,7 +417,7 @@ namespace Evergrove.Core
                 letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone(),
                 helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone(),
                 fruit = state.fruit, fruitGiven = (int[])state.fruitGiven.Clone(), lastFruitTo = state.lastFruitTo,
-                together = (int[])state.together.Clone()
+                together = (int[])state.together.Clone(), lanterns = (string[])state.lanterns.Clone()
             };
         }
 
@@ -488,6 +491,8 @@ namespace Evergrove.Core
             if (!ReadFruit(source, out fruitGiven)) return false;
             int[] together;
             if (!ReadTogether(source, out together)) return false;
+            string[] lanterns;
+            if (!ReadLanterns(source, out lanterns)) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -554,7 +559,7 @@ namespace Evergrove.Core
                 gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom,
                 helped = helped, helpedFrom = helpedFrom,
                 fruit = source.fruit, fruitGiven = fruitGiven, lastFruitTo = source.lastFruitTo,
-                together = together
+                together = together, lanterns = lanterns
             });
             return true;
         }
