@@ -2683,7 +2683,7 @@ namespace Evergrove.UnityClient
 
         // I359: when you come back after two days or more, Mira's next words say, truly, what
         // the weather did meanwhile, and that the garden looked after itself. Said once.
-        private string sinceLine;
+        private DateTime? sinceSeen; // the last day seen before this return, until Mira has said it (SC01)
 
         private void NoteReturn()
         {
@@ -2695,12 +2695,8 @@ namespace Evergrove.UnityClient
             {
                 if (seen.Length == 8 && DateTime.TryParseExact(seen, "yyyyMMdd", CultureInfo.InvariantCulture,
                         DateTimeStyles.None, out DateTime last))
-                {
-                    sinceLine = DayWeather.SinceLastVisit(last, DateTime.Now.Date, GardenSeason.For(world), world.Garden);
-                    // I420: after a long time away, reassurance first, never guilt.
-                    string welcome = Companion.WelcomeBack((int)(DateTime.Now.Date - last.Date).TotalDays);
-                    if (welcome != null) sinceLine = welcome + (string.IsNullOrEmpty(sinceLine) ? "" : " " + sinceLine);
-                }
+                    sinceSeen = last;
+                spokenThisVisit.Clear(); // SC02: a new day is a new visit
                 PlayerPrefs.SetString(key, today);
                 // I419: the hour of each day's first return, counted on this device only.
                 int[] hours = HourCounts();
@@ -3548,76 +3544,62 @@ namespace Evergrove.UnityClient
             return placed;
         }
 
-        // What a neighbour says (I184): about the newest thing of their own family
-        // and where it stands on your map, from the save alone. Before they have
-        // one, or outside English, their authored lines (LocalizedVillage) as before.
+        // What a neighbour says. Smart companion: the true facts of the save and the day
+        // (CompanionFacts, SC01), the one worth saying now (CompanionRanker, SC02), in today's
+        // words (I184, I210, I236, I266, I281, I357–I359, I370). With nothing worth saying, or
+        // outside English, their authored lines (LocalizedVillage).
         private string NeighborSays(int villager)
         {
-            if (world.Mode != PlayMode.Living || GameLocalization.Current != "en")
-                return LocalizedVillage.Speak(world, villager);
-            // I210: what they noticed you do since (a nursery plant of their kind, the
-            // puzzles you solved under their kind of thing) comes first, when true.
-            string thanks = fruitThanks == villager ? NeighbourNotice.ThanksFor(villager, world) : null;
-            if (thanks != null) return thanks;
-            if (villager == togetherKeeper) return NeighbourNotice.TogetherLine(togetherKind);
-            // I359: back after a while: Mira says what the weather did, once.
-            if (villager == 0 && sinceLine != null && world.Mode == PlayMode.Living)
-                return sinceLine; // cleared when her conversation closes, so rebuilds keep the same words
-            // Orin keeps an eye on the lane (I236): a letter waiting unread, by name, until you read it.
-            string[] mail = world.Letters;
-            if (villager == 1 && world.Mode == PlayMode.Living && mail.Length > 0 &&
-                PlayerPrefs.GetInt(LettersReadKey, 0) < mail.Length)
-                return "There's a letter in your box from " + world.LetterFrom[mail.Length - 1] +
-                    ". I saw the flag go up this morning.";
-            string noticed = NeighbourNotice.Line(villager, world);
-            if (noticed != null) return noticed;
-            // I357: nothing new to tell, but it's raining, snowing, windy or hot: they say so.
-            string weatherLine = world.Mode == PlayMode.Living ? DayWeather.Remark(TodayWeather(world), villager) : null; // I358
-            if (weatherLine != null) return weatherLine;
-            // I370: a keeper's hint at a good neighbour not yet found (their own kind's).
-            if (world.Mode == PlayMode.Living)
-            {
-                Pairing[] theirs = villager == 0 ? new[] { Pairing.Grove, Pairing.Orchard }
-                    : villager == 1 ? new[] { Pairing.ByTheWater, Pairing.ShadySeat }
-                    : new[] { Pairing.Sheltered, Pairing.FlowerBed, Pairing.Waterside };
-                foreach (Pairing p in theirs)
-                    if (!world.HasPairing(p) && (Pairings.Open(world) & PairingMask.Of(p)) != 0) return PairingHint(p);
-                // I377: once their hint is followed, the visitor it brought, now and then.
-                string visitorLine = Visitors.KeeperRemark(world, villager, (int)(DateTime.Now.Date - new DateTime(2000, 1, 1)).TotalDays);
-                if (visitorLine != null) return visitorLine;
-            }
-            // I419: now and then, the hour you usually come (its noticer only, one day in seven).
-            string habitLine = Companion.HabitLine(HourCounts(), villager, (int)(DateTime.Now.Date - new DateTime(2000, 1, 1)).TotalDays);
-            if (habitLine != null) return habitLine;
-            // Nothing new and true to tell: they may notice the light instead (I281).
-            string hourLine = HourRemark(villager);
-            if (hourLine != null) return hourLine;
-            int[] made = world.Choices;
-            int newest = -1, count = 0;
-            for (int i = 0; i < made.Length; i++)
-                if (made[i] == villager) { newest = i; count++; }
-            if (newest < 0) return LocalizedVillage.Speak(world, villager);
-            string thing = ItemAt(newest, villager).Name;
-            string where = "";
-            GardenMap map = LoadGardenMap();
-            if (map != null)
-            {
-                int cell = map.Layout(made, world.Placements)[newest];
-                if (cell >= 0)
-                {
-                    int row = cell / map.Columns, column = cell % map.Columns;
-                    where = map.DistanceToWater(cell) <= 1 ? " by the creek"
-                        : row <= 3 && column >= 5 ? " by the cottage"
-                        : row >= map.Rows - 4 ? " down the valley" : " in the meadow";
-                }
-            }
-            string more = count >= 3 ? " That makes " + count + " now." : "";
-            switch (villager)
-            {
-                case 0: return "Your " + thing + where + " is taking root nicely." + more;
-                case 1: return "I walked past your " + thing + where + " this morning. Good, sturdy work." + more;
-                default: return "The bees found your " + thing + where + " before I did." + more;
-            }
+            Fact pick = CompanionPick(villager);
+            return pick != null ? CompanionSpeech.Legacy(pick, villager) : LocalizedVillage.Speak(world, villager);
+        }
+
+        // ---- SC02: device-local memory of what was said (PlayerPrefs; never the save or the garden file).
+        private const string CompanionMemoryKey = "evergrove:companion-heard:";
+        private readonly System.Collections.Generic.Dictionary<int, string> spokenThisVisit =
+            new System.Collections.Generic.Dictionary<int, string>();
+        private int visitGarden = int.MinValue;
+
+        private Fact CompanionPick(int villager)
+        {
+            if (world == null || world.Mode != PlayMode.Living || GameLocalization.Current != "en") return null;
+            if (visitGarden != world.Garden) { spokenThisVisit.Clear(); visitGarden = world.Garden; }
+            CompanionContext context = CompanionNow();
+            spokenThisVisit.TryGetValue(villager, out string spoken);
+            return CompanionRanker.Pick(CompanionFacts.For(world, context), CompanionMemoryNow(), villager,
+                context.DayNumber, world.Garden, spoken, (fact, who) => CompanionSpeech.Legacy(fact, who) != null);
+        }
+
+        private CompanionMemory CompanionMemoryNow()
+        {
+            return CompanionMemory.Parse(PlayerPrefs.GetString(CompanionMemoryKey + world.Garden, ""));
+        }
+
+        // Called when a conversation opens: the remark is now heard, and is theirs for this visit.
+        private void CompanionHeard(int villager, Fact said)
+        {
+            if (said == null || world == null) return;
+            spokenThisVisit[villager] = said.Key;
+            CompanionMemory memory = CompanionMemoryNow().With(
+                new Heard(CompanionContext.DayNumberOf(CompanionToday()), villager, said.Kind, -1, said.Key));
+            PlayerPrefs.SetString(CompanionMemoryKey + world.Garden, memory.Serialize());
+        }
+
+        // What the companion needs that the save doesn't hold (SC01).
+        private CompanionContext CompanionNow()
+        {
+            bool living = world != null && world.Mode == PlayMode.Living;
+            return new CompanionContext(CompanionToday(),
+                lastSeen: sinceSeen,
+                lettersRead: PlayerPrefs.GetInt(LettersReadKey, 0),
+                weather: TodayWeather(world),
+                lightOn: DayLightOn && living,
+                phase: CurrentPhase(),
+                fruitJustGivenTo: fruitThanks,
+                hourCounts: living ? HourCounts() : null,
+                togetherKeeper: togetherKeeper,
+                togetherKind: togetherKind,
+                map: living ? LoadGardenMap() : null);
         }
 
         // How much of the valley the restored water has greened (I180): the
@@ -5146,7 +5128,7 @@ namespace Evergrove.UnityClient
             veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.36f);
             // A tap anywhere else ends the conversation, as the check does.
             neighborLayer.AddComponent<TapCatcher>().Tapped = () => {
-                if (speakingWith == 0) sinceLine = null; // I359: said once
+                // I359 "said once" is now the companion memory's 3-day rule (SC02).
                 speakingWith = -1;
                 Rebuild();
             };
@@ -5196,7 +5178,7 @@ namespace Evergrove.UnityClient
             Narrate(Label(bubble.transform, "What they say",
                 NeighborSays(speakingWith), 20, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
-                MosseloraArt.IconConfirm, () => { if (speakingWith == 0) sinceLine = null; speakingWith = -1; Rebuild(); }, 44,
+                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
                 MosseloraTheme.ForestAction);
             // Tucked into the bubble's lower-right corner, outside the text flow.
             thanks.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
@@ -6638,19 +6620,6 @@ namespace Evergrove.UnityClient
             }
         }
 
-        private static string PairingHint(Pairing pairing)
-        {
-            switch (pairing)
-            {
-                case Pairing.Grove: return "Two trees side by side keep each other company. A grove, my grandmother called it.";
-                case Pairing.ByTheWater: return "Things built beside the water last. The river keeps an eye on them.";
-                case Pairing.Sheltered: return "Flowers love a little shade. Try one beside a tree.";
-                case Pairing.Orchard: return "Three trees together and it's an orchard. They'd crop better for the company.";
-                case Pairing.ShadySeat: return "A seat's no good in full sun. Build something beside a tree and you'll see.";
-                case Pairing.Waterside: return "Some flowers like their feet wet. Try one right by the water.";
-                default: return "Two different flowers side by side make a bed. They show each other off.";
-            }
-        }
 
         // I392: the garden's year: what each season gives and why, the season now in ink.
         private void YearRows(Transform page)
@@ -7992,7 +7961,9 @@ namespace Evergrove.UnityClient
             speakingWith = villagerIndex;
             if (world.Mode == PlayMode.Living)
             {
+                Fact said = CompanionPick(villagerIndex);
                 PlayerPrefs.SetString(HeardKey + villagerIndex, NeighborSays(villagerIndex));
+                CompanionHeard(villagerIndex, said); // SC02: after the line is taken, so rebuilds keep it
                 PlayerPrefs.Save();
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -8646,7 +8617,7 @@ namespace Evergrove.UnityClient
 
         private void OnApplicationPause(bool paused)
         {
-            if (!paused) waveHello = true;
+            if (!paused) { waveHello = true; spokenThisVisit.Clear(); } // SC02: a new visit
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             ResearchPause(paused);
 #endif
@@ -8705,6 +8676,10 @@ namespace Evergrove.UnityClient
         private const string DayLightKey = "evergrove:daylight";
         private static bool DayLightOn { get { return PlayerPrefs.GetInt(DayLightKey, 1) == 1; } }
         private int qaClockHour = -1; // the tour's fixed clock (I282)
+        private int qaDayOffset; // SC02: the tour's scripted week moves the companion's day; 0 outside the tour
+
+        // The companion's local day (SC02): today, or the tour's scripted day.
+        private DateTime CompanionToday() { return DateTime.Now.Date.AddDays(qaDayOffset); }
 
         private void Now(out int hour, out int minute)
         {
@@ -8779,13 +8754,6 @@ namespace Evergrove.UnityClient
             bool living = garden != null && garden.Mode == PlayMode.Living;
             GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),
                 DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day) : Drift.None;
-        }
-
-        private string HourRemark(int villager)
-        {
-            if (!DayLightOn || world.Mode != PlayMode.Living) return null;
-            Now(out int hour, out int minute);
-            return DayLight.Remark(villager, DayLight.PhaseAt(hour, minute), GardenSeason.For(world));
         }
 
         // A painted picture in a token keeps its colours (not tinted like a glyph).
@@ -9258,6 +9226,8 @@ namespace Evergrove.UnityClient
         internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
         internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
         internal void QaSetClock(int hour) { qaClockHour = hour; }
+        internal void QaSetDay(int offset) { qaDayOffset = offset; spokenThisVisit.Clear(); } // SC02 tour: a new day, a new visit
+        internal string QaNeighborSays(int villager) { return NeighborSays(villager); }
         internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
         internal void QaRainbow(bool on) { qaRainbow = on; } // I364 tour
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }

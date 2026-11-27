@@ -88,9 +88,21 @@ namespace Evergrove.Core
         /// </summary>
         public static string SinceLastVisit(DateTime lastDay, DateTime today, Season season, int garden)
         {
-            int days = (today.Date - lastDay.Date).Days;
+            string weather = WhileAway(lastDay, today, season, garden, out int days);
+            if (weather == null) return null;
+            return SinceSentence(weather, days);
+        }
+
+        /// <summary>
+        /// The companion's fact (smart companion, SC01): the weather of the days in between, as a
+        /// phrase ("two rainy days and a windy day"), and how many days have passed. Null for today
+        /// or yesterday and for a clock set back.
+        /// </summary>
+        public static string WhileAway(DateTime lastDay, DateTime today, Season season, int garden, out int days)
+        {
+            days = (today.Date - lastDay.Date).Days;
             if (days < 2) return null;
-            if (days > 30) return "A good while has passed, with all sorts of weather. The garden looked after itself.";
+            if (days > 30) return "all sorts of weather";
             int rainy = 0, windy = 0, hot = 0, snowy = 0;
             for (int d = 1; d < days; d++)
                 switch (For(lastDay.Date.AddDays(d), season, garden))
@@ -105,9 +117,15 @@ namespace Evergrove.Core
             if (snowy > 0) parts.Add(Days(snowy, "snowy"));
             if (windy > 0) parts.Add(Days(windy, "windy"));
             if (hot > 0) parts.Add(Days(hot, "hot"));
-            string weather = parts.Count == 0 ? "fine weather all the while"
+            return parts.Count == 0 ? "fine weather all the while"
                 : parts.Count == 1 ? parts[0]
                 : string.Join(", ", parts.GetRange(0, parts.Count - 1).ToArray()) + " and " + parts[parts.Count - 1];
+        }
+
+        /// <summary>Mira's sentence for <see cref="WhileAway"/> (I359), unchanged.</summary>
+        public static string SinceSentence(string weather, int days)
+        {
+            if (days > 30) return "A good while has passed, with all sorts of weather. The garden looked after itself.";
             return "Since you were last here: " + weather + ". The garden looked after itself.";
         }
 
