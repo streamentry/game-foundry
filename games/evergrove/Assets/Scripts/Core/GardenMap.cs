@@ -37,22 +37,27 @@ namespace Evergrove.Core
         }
 
         // ---- I220: after the story, the river keeps opening downstream as you tend
-        // what you've grown. Derived from the save (puzzles solved), never stored, so
-        // the ceiling can be raised later without touching any garden.
+        // what you've grown. Derived from the save (puzzles solved): no stretch count is
+        // ever stored, so the format has no gameplay maximum (I363).
         public const int SolvesPerReach = 4;
-        public const int ReachesCeiling = 20;
+
+        /// <summary>
+        /// A safety bound for ints, arrays and the map's cell range only (I363), never a
+        /// gameplay cap: reaching it takes 400,000 solves and a 15-million-cell map.
+        /// </summary>
+        public const int SafetyReachBound = 100000;
 
         public static int ReachesFor(int restored, bool completed, int puzzlesSolved)
         {
             if (!completed) return ReachesFor(restored, false);
             int open = MaxReaches + Math.Max(0, puzzlesSolved) / SolvesPerReach;
-            return open > ReachesCeiling ? ReachesCeiling : open;
+            return open > SafetyReachBound ? SafetyReachBound : open;
         }
 
         /// <summary>
         /// How close the next stretch is (I224), for the drops on its mist: streams
-        /// restored during the story, first solves after it. False once no more
-        /// river can open (the ceiling), so the mist shows no drops.
+        /// restored during the story, first solves after it. False only at the safety
+        /// bound, where no more river can open, so the mist shows no drops.
         /// </summary>
         public static bool TowardNext(int restored, bool completed, int puzzlesSolved, out int have, out int need)
         {
@@ -65,7 +70,7 @@ namespace Evergrove.Core
             int solved = Math.Max(0, puzzlesSolved);
             need = SolvesPerReach;
             have = solved % SolvesPerReach;
-            return ReachesFor(restored, true, solved) < ReachesCeiling;
+            return ReachesFor(restored, true, solved) < SafetyReachBound;
         }
 
         /// <summary>
@@ -75,7 +80,7 @@ namespace Evergrove.Core
         /// </summary>
         public static GardenMap River(int columns, int reachRows, string reachMask, int reaches)
         {
-            if (reaches < 1) throw new ArgumentOutOfRangeException(nameof(reaches));
+            if (reaches < 1 || reaches > SafetyReachBound) throw new ArgumentOutOfRangeException(nameof(reaches));
             if (reachMask == null) throw new ArgumentNullException(nameof(reachMask));
             string flat = reachMask.Replace("\n", "").Replace("\r", "");
             if (flat.Length != columns * reachRows)
@@ -140,15 +145,48 @@ namespace Evergrove.Core
         /// <summary>Steps (4-way) from this cell to the nearest water cell; large when there is none.</summary>
         public int DistanceToWater(int cell)
         {
-            int best = int.MaxValue;
-            int x = cell % Columns, y = cell / Columns;
-            for (int i = 0; i < cells.Length; i++)
+            if (waterDistance == null) waterDistance = ComputeWaterDistance();
+            return waterDistance[cell];
+        }
+
+        // Filled once per map (I363): a multi-source breadth-first search from every water
+        // cell over the whole grid. On an open grid that equals the nearest Manhattan
+        // distance, so the answers match the old per-cell scan while a 200-reach map stays fast.
+        private int[] waterDistance;
+
+        private int[] ComputeWaterDistance()
+        {
+            int n = cells.Length;
+            var distance = new int[n];
+            var queue = new int[n];
+            int head = 0, tail = 0;
+            for (int i = 0; i < n; i++)
             {
+                distance[i] = -1;
                 if (cells[i] != Water) continue;
-                int d = Math.Abs(i % Columns - x) + Math.Abs(i / Columns - y);
-                if (d < best) best = d;
+                distance[i] = 0;
+                queue[tail++] = i;
             }
-            return best == int.MaxValue ? 99 : best;
+            while (head < tail)
+            {
+                int c = queue[head++];
+                int x = c % Columns, y = c / Columns;
+                int next = distance[c] + 1;
+                if (x > 0) Visit(c - 1, next, distance, queue, ref tail);
+                if (x < Columns - 1) Visit(c + 1, next, distance, queue, ref tail);
+                if (y > 0) Visit(c - Columns, next, distance, queue, ref tail);
+                if (y < Rows - 1) Visit(c + Columns, next, distance, queue, ref tail);
+            }
+            for (int i = 0; i < n; i++)
+                if (distance[i] < 0) distance[i] = 99; // no water on the map
+            return distance;
+        }
+
+        private static void Visit(int cell, int distance, int[] values, int[] queue, ref int tail)
+        {
+            if (values[cell] >= 0) return;
+            values[cell] = distance;
+            queue[tail++] = cell;
         }
 
         /// <summary>

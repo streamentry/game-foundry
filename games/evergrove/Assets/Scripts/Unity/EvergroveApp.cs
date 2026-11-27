@@ -136,6 +136,10 @@ namespace Evergrove.UnityClient
         private CanvasGroup pageFade; // one-shot: the rebuild after the solving tap blooms
         private Image[] waterDrops; // one painted droplet per tile the water can reach
         private Button undoButton;
+        // Water's Undo | step count | Redo row (BoardKit.UndoRow's look): the row, its redo token and count.
+        private GameObject undoRowNode;
+        private Button redoButton;
+        private Text undoStepCount;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private static readonly bool srLogEveryScreen = DevArgs.Read("-mosseloraSrLog") == "1";
 #endif
@@ -262,6 +266,7 @@ namespace Evergrove.UnityClient
 #endif
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
+            LongPressCaption.DefaultFont = baseFont; // static helpers (TreePlay.Token, BoardKit.Cell) explain with it
             displayFont = RoundedDisplayFont();
             bookFont = BookFont();
             LocaleRuntime.Initialize();
@@ -1101,6 +1106,7 @@ namespace Evergrove.UnityClient
                     text.text = shownCaption;
             }
             button.onClick.AddListener(() => action());
+            LongPressCaption.Attach(node, text.text, text.font); // Checklist 19: hold to hear what it is
             return button;
         }
 
@@ -1242,8 +1248,8 @@ namespace Evergrove.UnityClient
                 textNode.AddComponent<LayoutElement>().ignoreLayout = true;
                 Fill(textNode.GetComponent<RectTransform>());
                 // Shown on press-and-hold, never on a plain tap.
-                IconTip.Add(node, text, Ink, MosseloraTheme.CardFill);
             }
+            LongPressCaption.Attach(node, text.text, text.font); // Checklist 19: replaces IconTip for every icon
             return button;
         }
 
@@ -2009,7 +2015,7 @@ namespace Evergrove.UnityClient
         }
 
         // The next reach shows in mist below the open river until it opens.
-        private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.ReachesCeiling; }
+        private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.SafetyReachBound; }
 
         private readonly float[] hubZoom = { 0f, 0f };
         private bool markPuzzles;
@@ -3275,6 +3281,7 @@ namespace Evergrove.UnityClient
             MosseloraArt.Lift(box, 2f, 0.22f);
             var button = node.AddComponent<Button>();
             button.targetGraphic = box;
+            LongPressCaption.Attach(node, "Your letterbox. Tap to read the letters waiting for you.", font);
             button.onClick.AddListener(() => ShowLetter(0));
             PressSquash.Add(node);
             letterboxRect = rect;
@@ -4797,13 +4804,44 @@ namespace Evergrove.UnityClient
             if (fade != null) fade.alpha = 0f;
         }
 
+        private const float WaterUndoGap = 6f;
+        private const float WaterUndoCountWidth = 36f;
+        private const float WaterUndoCountHeight = 24f; // the count, stacked in the rail
+
+        // Undo | step count | Redo: counts and token names say how far each way goes, as
+        // BoardKit's undo row does ("Undo, 3 steps" / "Redo, 1 step"). A token that cannot
+        // act is faded and refuses taps; it stays in place so the row keeps its shape.
+        private void RefreshUndoRow()
+        {
+            if (undoButton == null || redoButton == null || undoStepCount == null) return;
+            int undoSteps = world.UndoDepth, redoSteps = world.RedoDepth;
+            undoButton.name = "Undo, " + StepWords(undoSteps, "nothing to undo");
+            redoButton.name = "Redo, " + StepWords(redoSteps, "nothing to redo");
+            undoStepCount.text = undoSteps.ToString();
+            FadeToken(undoButton, undoSteps > 0);
+            FadeToken(redoButton, redoSteps > 0);
+        }
+
+        private static string StepWords(int n, string none)
+        {
+            return n == 0 ? none : n == 1 ? "1 step" : n + " steps";
+        }
+
+        private static void FadeToken(Button token, bool on)
+        {
+            token.interactable = on;
+            var group = token.GetComponent<CanvasGroup>();
+            if (group == null) group = token.gameObject.AddComponent<CanvasGroup>();
+            group.alpha = on ? 1f : 0.35f;
+        }
+
         // Undo appears only once there is something to undo: before the first
         // move its place stays empty (no layout shift), then it fades in (I155).
         private void ShowUndo(bool available, bool animate)
         {
-            if (undoButton == null) return;
-            var group = undoButton.GetComponent<CanvasGroup>();
-            if (group == null) group = undoButton.gameObject.AddComponent<CanvasGroup>();
+            if (undoRowNode == null) return;
+            var group = undoRowNode.GetComponent<CanvasGroup>();
+            if (group == null) group = undoRowNode.AddComponent<CanvasGroup>();
             group.blocksRaycasts = available;
             float target = available ? 1f : 0f;
             if (Mathf.Approximately(group.alpha, target)) return;
@@ -5267,6 +5305,7 @@ namespace Evergrove.UnityClient
             hit.color = new Color(1f, 1f, 1f, 0f); // whole medallion and name are the target
             var button = node.AddComponent<Button>();
             button.targetGraphic = hit;
+            LongPressCaption.Attach(node, label, font);
             button.transition = Selectable.Transition.None;
             button.onClick.AddListener(() => {
                 if (fromTitle) CloseTitle(); // step from the village straight into their memory
@@ -5818,6 +5857,9 @@ namespace Evergrove.UnityClient
             feedbackText = null;
             waterDrops = null;
             undoButton = null;
+            undoRowNode = null;
+            redoButton = null;
+            undoStepCount = null;
             decisionHeading = null;
             decisionCards = null;
             solvedBoard = null;
@@ -6330,6 +6372,7 @@ namespace Evergrove.UnityClient
                     pageButton.targetGraphic = pageImage;
                     pageButton.colors = PressTint();
                     pageButton.onClick.AddListener(() => { journalOpenPage = pageIndex; Rebuild(); });
+                    LongPressCaption.Attach(page, "Memory " + (pageIndex + 1) + ". Tap to open it.", font);
                     PressSquash.Add(page);
                     DogEar(page.transform);
                 }
@@ -6641,6 +6684,7 @@ namespace Evergrove.UnityClient
                         hint.transition = Selectable.Transition.None;
                         hint.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
                             where, font, Ink, MosseloraTheme.CardFill));
+                        LongPressCaption.Attach(slot, where, font);
                         continue;
                     }
                     var name = slot.AddComponent<Button>();
@@ -6650,6 +6694,7 @@ namespace Evergrove.UnityClient
                     string said = char.ToUpperInvariant(label[0]) + label.Substring(1) + "\n" + Almanac.KeeperLine(item);
                     name.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
                         said, font, Ink, MosseloraTheme.CardFill));
+                    LongPressCaption.Attach(slot, said, font);
                 }
             }
         }
@@ -6770,6 +6815,7 @@ namespace Evergrove.UnityClient
                 tap.transition = Selectable.Transition.None;
                 string said = keepsake.Kept ? keepsake.Label : "Not yet";
                 tap.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(), said, font, Ink, MosseloraTheme.CardFill));
+                LongPressCaption.Attach(slot, said, font);
             }
         }
 
@@ -7003,6 +7049,7 @@ namespace Evergrove.UnityClient
                 MosseloraArt.Lift(image, 2f, 0.14f);
                 MosseloraArt.Edge(tileNode.transform, MosseloraTheme.TileEdge, 12);
                 var tile = tileNode.AddComponent<Button>();
+                LongPressCaption.Attach(tileNode, GameLocalization.Display(puzzle.IsAnchored(index) ? "This tile stays where it is." : "Turn this tile"), font);
                 tile.targetGraphic = image;
                 // Protected tiles stay tappable: a tap explains them without a move.
                 tile.interactable = !world.Solved;
@@ -7269,11 +7316,30 @@ namespace Evergrove.UnityClient
                 // A cold read preferred the tokens but asked for them bigger: 76pt upright.
                 bool roundTools = true;
                 int toolHeight = landscape ? 72 : 76;
-                undoButton = IconButton(tools.transform, "Undo", GameLocalization.Text("undo"),
+                // Undo | step count | Redo, one row (BoardKit.UndoRow's look). The row is a single
+                // child of the tools, so the drops and Hint keep their places.
+                undoRowNode = Node("Undo and redo", tools.transform);
+                var undoRowGroup = undoRowNode.AddComponent<HorizontalLayoutGroup>();
+                undoRowGroup.spacing = WaterUndoGap;
+                undoRowGroup.childAlignment = TextAnchor.MiddleCenter;
+                undoRowGroup.childControlWidth = undoRowGroup.childControlHeight = true;
+                undoRowGroup.childForceExpandWidth = undoRowGroup.childForceExpandHeight = false;
+                undoButton = IconButton(undoRowNode.transform, "Undo", GameLocalization.Text("undo"),
                     MosseloraArt.IconUndo, () => Act(() => world.Undo(), "undo"),
                     toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
-                undoButton.interactable = world.CanUndo;
-                ShowUndo(world.CanUndo, false);
+                var steps = Node("Undo steps", undoRowNode.transform);
+                var stepsLayout = steps.AddComponent<LayoutElement>();
+                stepsLayout.minWidth = stepsLayout.preferredWidth = WaterUndoCountWidth;
+                stepsLayout.minHeight = stepsLayout.preferredHeight = toolHeight;
+                undoStepCount = BoardKit.Number(steps.transform, "Step count", "0", font, 24, MosseloraTheme.EarthInk);
+                redoButton = IconButton(undoRowNode.transform, "Redo", "Redo",
+                    MosseloraArt.IconUndo, () => Act(() => world.Redo(), "redo"),
+                    toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
+                // The redo arrow is the undo arrow turned round: one glyph, two jobs (as in BoardKit).
+                Transform redoIcon = redoButton.transform.Find("Icon");
+                if (redoIcon != null) redoIcon.localScale = new Vector3(-1f, 1f, 1f);
+                RefreshUndoRow();
+                ShowUndo(world.CanUndo || world.CanRedo, false);
                 // Hint depth is the button's own words (Guide me, Show a closer clue, Fix one
                 // connection). No level dots here: a dot means something new, and nothing else (I16).
                 Button hintButton = IconButton(tools.transform, "Hint",
@@ -7345,7 +7411,9 @@ namespace Evergrove.UnityClient
             across.spacing = 10;
             MinHeight(tools, toolHeight);
             Transform meter = waterDrops != null && waterDrops.Length > 0 ? waterDrops[0].transform.parent : null;
-            float room = PageWidth() - 2f * toolHeight - 2f * across.spacing - 8f;
+            // Undo | count | Redo takes two tokens and the count; Hint takes one.
+            float undoSide = 2f * toolHeight + 2f * WaterUndoGap + WaterUndoCountWidth;
+            float room = PageWidth() - undoSide - toolHeight - 2f * across.spacing - 8f;
             if (meter != null)
             {
                 LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)meter);
@@ -7404,7 +7472,8 @@ namespace Evergrove.UnityClient
             gap.transform.SetSiblingIndex(1);
         }
 
-        // Undo above Hint, standing right of the board (landscape, unsolved).
+        // Undo above Hint, standing right of the board (landscape, unsolved). The undo row
+        // stacks Undo, its count and Redo down the rail, since three across would not fit it.
         private void DockToolRail(GameObject tools, int toolHeight)
         {
             var across = tools.GetComponent<HorizontalLayoutGroup>();
@@ -7416,6 +7485,20 @@ namespace Evergrove.UnityClient
             down.childControlHeight = true;
             down.childForceExpandWidth = true;
             down.childForceExpandHeight = false;
+            if (undoRowNode != null)
+            {
+                var stack = undoRowNode.GetComponent<HorizontalLayoutGroup>();
+                if (stack != null) DestroyImmediate(stack);
+                var column = undoRowNode.AddComponent<VerticalLayoutGroup>();
+                column.spacing = WaterUndoGap;
+                column.childAlignment = TextAnchor.MiddleCenter;
+                column.childControlWidth = true;
+                column.childControlHeight = true;
+                column.childForceExpandWidth = true;
+                column.childForceExpandHeight = false;
+                var countLayout = undoStepCount.transform.parent.GetComponent<LayoutElement>();
+                if (countLayout != null) countLayout.minHeight = countLayout.preferredHeight = WaterUndoCountHeight;
+            }
             tools.transform.SetParent(solvedBoard, false);
             var place = tools.GetComponent<LayoutElement>();
             if (place == null) place = tools.AddComponent<LayoutElement>();
@@ -7423,7 +7506,8 @@ namespace Evergrove.UnityClient
             var rect = tools.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
             rect.pivot = new Vector2(1f, 0.5f);
-            rect.sizeDelta = new Vector2(ToolRailWidth, toolHeight * 2f + ToolRailGap);
+            float undoStack = 2f * toolHeight + WaterUndoCountHeight + 2f * WaterUndoGap;
+            rect.sizeDelta = new Vector2(ToolRailWidth, undoStack + ToolRailGap + toolHeight);
             rect.anchoredPosition = Vector2.zero;
         }
 
@@ -7548,6 +7632,7 @@ namespace Evergrove.UnityClient
             button.targetGraphic = image;
             button.colors = PressTint();
             button.onClick.AddListener(() => action());
+            LongPressCaption.Attach(node, LocalizedVillage.Choice(choice), font);
             PressSquash.Add(node);
             HorizontalOrVerticalLayoutGroup stack = wide
                 ? (HorizontalOrVerticalLayoutGroup)node.AddComponent<HorizontalLayoutGroup>()
@@ -8197,8 +8282,8 @@ namespace Evergrove.UnityClient
                     insight.ConnectedCount, puzzle.CellCount, insight.LeakCount));
             if (undoButton != null)
             {
-                undoButton.interactable = world.CanUndo;
-                ShowUndo(world.CanUndo, true);
+                RefreshUndoRow();
+                ShowUndo(world.CanUndo || world.CanRedo, true);
             }
             if (activeIllustration != null || activePainting != null)
             {

@@ -29,7 +29,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
 - [ ] **17. Sheets slide, never pop.** Every panel enters from the edge it belongs to (letters from the letterbox, nursery from the gate), with motion limited to transform and opacity. *Test:* reduced-motion setting replaces each slide with a fade.
 - [ ] **18. Hide the HUD while looking.** After 6 s with no touch, the menu and purse fade to 20% so the garden fills the screen. Any touch brings them back. *Test:* screenshot pairs at rest and in use.
-- [ ] **19. Long-press explains anything.** Any icon or thing, long-pressed, shows its name and one line. This replaces help pages. *Test:* coverage script lists every raycast target without a caption.
+- [x] **19. Long-press explains anything.** Any icon or thing, long-pressed, shows its name and one line. This replaces help pages. *Test:* coverage script lists every raycast target without a caption.
 - [ ] **20. Split `EvergroveApp.cs`.** Break the monolith into Hub, Sheets, Map and Notes partials so navigation changes stop colliding. *Test:* no file over 800 lines; build and tours unchanged.
 
 ## C. Immersion: art, light, sound
@@ -55,7 +55,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **36. Technique names.** When a player uses a known technique (a naked pair in seed sudoku), the almanac names it the first time. *Test:* the detector agrees with the solver on 1,000 boards.
 - [ ] **37. Boards drawn from the player's own garden.** Mosaic and pictures-by-numbers boards use shapes of things the player grew. *Test:* generated boards are unique and solvable.
 - [ ] **38. Chains between puzzles.** Finishing a stream path waters plots; finishing plots feeds the nursery. Each link is one visible, logical cause. *Test:* the cause shows on screen within 2 s.
-- [ ] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
+- [x] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
 - [x] **40. Mistakes shown kindly.** Show conflicts only on request (a lens icon), never automatically in red. *Test:* setting persists; no red anywhere.
 
 ## E. The open world: the endless river

@@ -13,7 +13,9 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal sealed class SudokuBoard : TreePlay.IPuzzleBoard
     {
-        private readonly SeedSudokuGame game;
+        private readonly BoardHistory<SeedSudokuGame> history; // step 39: undo and redo
+        private SeedSudokuGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private readonly Sprite[] plants;
         private TreePlay play;
         private Image[] cells;
@@ -26,7 +28,7 @@ namespace Evergrove.UnityClient
 
         public SudokuBoard(SeedSudokuGame game, Sprite[] plants)
         {
-            this.game = game;
+            history = new BoardHistory<SeedSudokuGame>(game, () => new SeedSudokuGame(game.Seed, game.Tier));
             this.plants = plants;
         }
 
@@ -43,7 +45,7 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + 12f + rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + 12f + rule + BoardKit.UndoRowSpace);
             float cell = Mathf.Floor(Mathf.Min(room.x, room.y) / n);
             cell = Mathf.Min(cell, 72f);
             float boxGap = 6f, gap = 3f;
@@ -80,6 +82,7 @@ namespace Evergrove.UnityClient
             // Start on the first empty bed, so the first tap on a plant does something.
             for (int c = 0; c < n * n && selected < 0; c++) if (!game.IsGiven(c)) selected = c;
             BoardKit.ClashLens(card.Find("Tree puzzle top"), Paint);
+            undo = BoardKit.UndoRow.Build(card, font, history, () => { shown = -1; Paint(); });
             Paint();
         }
 
@@ -97,7 +100,8 @@ namespace Evergrove.UnityClient
             // v1 #36: name the technique from the board as the player sees it, before the placement.
             SudokuTechnique.Technique technique = value > 0 && game.Solution(selected) == value
                 ? SudokuTechnique.Classify(game, selected, value) : SudokuTechnique.Technique.None;
-            SudokuMove move = game.Place(selected, value);
+            int at = selected; // copied now: a replay runs the same move later, after the selection may have moved
+            SudokuMove move = history.Play(g => g.Place(at, value), m => m != SudokuMove.Ignored);
             if (move == SudokuMove.Ignored) return;
             play.Moved();
             if (technique != SudokuTechnique.Technique.None && game.Value(selected) == value) NoteTechnique(technique);
@@ -172,6 +176,7 @@ namespace Evergrove.UnityClient
                 faces[c].sprite = plant;
                 faces[c].enabled = plant != null;
             }
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()

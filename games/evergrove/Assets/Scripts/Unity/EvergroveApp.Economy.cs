@@ -43,6 +43,7 @@ namespace Evergrove.UnityClient
             tap.targetGraphic = body;
             tap.colors = PressTint();
             tap.onClick.AddListener(OpenSeedBook);
+            LongPressCaption.Attach(purse, "Seeds you have, " + world.Seeds + ". Opens the seed book.", font);
             // A hidden "Caption" child is what screen readers speak (ScreenReaderBridge.CaptionOf).
             var spoken = new GameObject("Caption", typeof(RectTransform));
             spoken.transform.SetParent(purse.transform, false);

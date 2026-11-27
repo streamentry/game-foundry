@@ -61,8 +61,14 @@ namespace Evergrove.Core
             return tier == 0 ? 5 : tier == 1 ? 6 : 8;
         }
 
+        /// <summary>The seed and tier this board was dealt from; undo rebuilds it from them.</summary>
+        public int Seed { get; private set; }
+        public int Tier { get; private set; }
+
         public NonogramGame(int seed, int tier)
         {
+            Seed = seed;
+            Tier = tier;
             Size = SizeFor(tier);
             int n = Size;
             solution = new bool[n * n];

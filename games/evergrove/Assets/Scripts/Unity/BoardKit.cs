@@ -1,4 +1,5 @@
 using System;
+using Evergrove.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -102,6 +103,99 @@ namespace Evergrove.UnityClient
             mark.gameObject.SetActive(on);
         }
 
+        // ---- Step 39: undo and redo, in a row under the board (the top row is full on a narrow
+        // phone). Between the two tokens, the number of undo steps left. Session only, never saved.
+        public const float UndoRowHeight = 52f;
+        public const float UndoRowSpace = UndoRowHeight + 12f; // the row and the card's spacing
+
+        /// <summary>The two tokens and their count, kept up to date by <see cref="UndoRow.Refresh"/>.</summary>
+        internal sealed class UndoRow
+        {
+            private readonly IBoardHistory history;
+            private readonly Action changed;
+            private readonly Color tone = MosseloraTheme.QuietAction;
+            private Transform undoToken, redoToken;
+            private Text count;
+
+            internal UndoRow(IBoardHistory history, Action changed)
+            {
+                this.history = history;
+                this.changed = changed;
+            }
+
+            /// <summary>Builds the row at the foot of the card. <paramref name="changed"/> repaints the board.</summary>
+            internal static UndoRow Build(Transform card, Font font, IBoardHistory history, Action changed)
+            {
+                var row = new GameObject("Undo and redo", typeof(RectTransform));
+                row.transform.SetParent(card, false);
+                var layout = row.AddComponent<LayoutElement>();
+                layout.preferredHeight = layout.minHeight = UndoRowHeight;
+                var group = row.AddComponent<HorizontalLayoutGroup>();
+                group.spacing = 10f;
+                group.childAlignment = TextAnchor.MiddleCenter;
+                group.childControlWidth = group.childControlHeight = true;
+                group.childForceExpandWidth = group.childForceExpandHeight = false;
+
+                var ui = new UndoRow(history, changed);
+                Sprite glyph = MosseloraArt.Load(MosseloraArt.IconUndo);
+                TreePlay.Token(row.transform, "Undo", glyph, UndoRowHeight, ui.tone, () => ui.DoUndo(), true);
+
+                var steps = new GameObject("Undo steps", typeof(RectTransform));
+                steps.transform.SetParent(row.transform, false);
+                var stepsLayout = steps.AddComponent<LayoutElement>();
+                stepsLayout.minWidth = stepsLayout.preferredWidth = 36f;
+                stepsLayout.minHeight = stepsLayout.preferredHeight = UndoRowHeight;
+                ui.count = Number(steps.transform, "Step count", "0", font, 24, MosseloraTheme.EarthInk);
+
+                TreePlay.Token(row.transform, "Redo", glyph, UndoRowHeight, ui.tone, () => ui.DoRedo(), true);
+                // The redo arrow is the undo arrow turned round: one glyph, two jobs.
+                Transform redoIcon = row.transform.GetChild(2).Find("Icon");
+                if (redoIcon != null) redoIcon.localScale = new Vector3(-1f, 1f, 1f);
+
+                ui.undoToken = row.transform.GetChild(0);
+                ui.redoToken = row.transform.GetChild(2);
+                return ui;
+            }
+
+            /// <summary>Spoken captions are the token names: "Undo, 3 steps", "Redo, 1 step".</summary>
+            internal void Refresh(bool locked)
+            {
+                if (undoToken == null || count == null) return;
+                int undoSteps = history.UndoSteps, redoSteps = history.RedoSteps;
+                undoToken.name = "Undo, " + Steps(undoSteps, "nothing to undo");
+                redoToken.name = "Redo, " + Steps(redoSteps, "nothing to redo");
+                count.text = undoSteps.ToString();
+                Style(undoToken, !locked && undoSteps > 0);
+                Style(redoToken, !locked && redoSteps > 0);
+            }
+
+            private static string Steps(int n, string none)
+            {
+                return n == 0 ? none : n == 1 ? "1 step" : n + " steps";
+            }
+
+            // A token that cannot act looks faded and refuses taps; it is never hidden, so the row keeps its place.
+            private void Style(Transform token, bool on)
+            {
+                var button = token.GetComponent<Button>();
+                if (button != null) button.interactable = on;
+                var image = token.GetComponent<Image>();
+                if (image != null) image.color = on ? tone : new Color(tone.r, tone.g, tone.b, tone.a * 0.35f);
+                Transform icon = token.Find("Icon");
+                if (icon != null) icon.GetComponent<Image>().color = on ? Color.white : new Color(1f, 1f, 1f, 0.4f);
+            }
+
+            private void DoUndo()
+            {
+                if (history.Undo()) changed();
+            }
+
+            private void DoRedo()
+            {
+                if (history.Redo()) changed();
+            }
+        }
+
         /// <summary>Room for a board under the card's top row: width and height in points.</summary>
         public static Vector2 Room(float width, float screenHeight, float below = 0f)
         {
@@ -148,6 +242,7 @@ namespace Evergrove.UnityClient
                 button.transition = Selectable.Transition.None;
                 button.onClick.AddListener(() => tap());
                 PressSquash.Add(node);
+                LongPressCaption.Attach(node, name, LongPressCaption.DefaultFont);
             }
             else image.raycastTarget = false;
             return image;

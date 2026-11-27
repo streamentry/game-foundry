@@ -27,9 +27,11 @@ internal static class RiverGrowsTests
         Expect(GardenMap.ReachesFor(12, true, GardenMap.SolvesPerReach - 1) == GardenMap.MaxReaches, "not yet");
         Expect(GardenMap.ReachesFor(12, true, GardenMap.SolvesPerReach) == GardenMap.MaxReaches + 1,
             "every few puzzles solved opens one more stretch");
-        Expect(GardenMap.ReachesFor(12, true, 1000) == GardenMap.ReachesCeiling, "up to today's ceiling");
-        Expect(GardenMap.ReachesCeiling * 10 * 15 <= WorldModel.MaxMapCell,
-            "every stretch up to the ceiling fits the cell range saves already accept");
+        Expect(GardenMap.ReachesFor(12, true, 1000) == GardenMap.MaxReaches + 1000 / GardenMap.SolvesPerReach,
+            "no gameplay ceiling: stretches keep opening with solves (I363)");
+        Expect(GardenMap.ReachesFor(12, true, 4000) > 20, "well past the old twenty");
+        Expect(GardenMap.SafetyReachBound * 10 * 15 <= WorldModel.MaxMapCell,
+            "every stretch up to the safety bound fits the cell range saves accept");
 
         // A grown river keeps every default place of the story where it was.
         string mask = Mask();
@@ -67,7 +69,7 @@ internal static class RiverGrowsTests
         for (int solved = 0; solved < 80; solved++)
         {
             bool more = GardenMap.TowardNext(12, true, solved, out int have, out int need);
-            bool open = GardenMap.ReachesFor(12, true, solved) < GardenMap.ReachesCeiling;
+            bool open = GardenMap.ReachesFor(12, true, solved) < GardenMap.SafetyReachBound;
             Expect(more == open, "drops show only while more river can come (" + solved + ")");
             if (!more) continue;
             Expect(need == GardenMap.SolvesPerReach && have == solved % GardenMap.SolvesPerReach,

@@ -64,8 +64,14 @@ namespace Evergrove.Core
         /// <summary>The leaves a raw pass count earns.</summary>
         public static int LeavesFor(int passes) { return passes <= LeafCut1 ? 1 : passes <= LeafCut2 ? 2 : 3; }
 
+        /// <summary>The seed and tier this board was dealt from; undo rebuilds it from them.</summary>
+        public int Seed { get; private set; }
+        public int Tier { get; private set; }
+
         public SeedSumsGame(int seed, int tier)
         {
+            Seed = seed;
+            Tier = tier;
             if (tier < 0 || tier >= TreePuzzles.Tiers) throw new ArgumentOutOfRangeException(nameof(tier));
             int area = 3 + tier;
             width = height = area + 1;

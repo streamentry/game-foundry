@@ -19,14 +19,19 @@ namespace Evergrove.UnityClient
             new Color(0.90f, 0.78f, 0.80f, 1f), new Color(0.84f, 0.82f, 0.92f, 1f), new Color(0.96f, 0.92f, 0.72f, 1f),
         };
 
-        private readonly PlotsGame game;
+        private readonly BoardHistory<PlotsGame> history; // step 39: undo and redo
+        private PlotsGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private TreePlay play;
         private Image[] cells;
         private int corner = -1;
         private bool locked;
         private int[] shown; // I253: the hinted bed, waiting for a second tap
 
-        public PlotsBoard(PlotsGame game) { this.game = game; }
+        public PlotsBoard(PlotsGame game)
+        {
+            history = new BoardHistory<PlotsGame>(game, () => new PlotsGame(game.Seed, game.Tier));
+        }
 
         public void Build(Transform card, float width, float screenHeight, Font font, TreePlay host)
         {
@@ -41,7 +46,7 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 for (int k = 0; k < 2; k++) BoardKit.RuleSquare(row, BedTones[1]);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, rule + BoardKit.UndoRowSpace);
             float cell = Mathf.Min(Mathf.Floor(Mathf.Min(room.x, room.y) / n), 64f);
             const float gap = 2f;
             RectTransform board = BoardKit.Bed(card, "Garden plots", new Vector2(n * cell, n * cell));
@@ -57,6 +62,7 @@ namespace Evergrove.UnityClient
                     BoardKit.Number(cells[c].transform, "Marker", game.Clue(c).ToString(), font, numberSize,
                         MosseloraTheme.EarthInk);
             }
+            undo = BoardKit.UndoRow.Build(card, font, history, () => { corner = -1; shown = null; Paint(); });
             Paint();
         }
 
@@ -66,14 +72,24 @@ namespace Evergrove.UnityClient
             if (corner < 0)
             {
                 // A staked bed lifts with one tap; anywhere else starts a new bed.
-                if (game.BedAt(cell) >= 0 && game.Draw(cell, cell) == PlotMove.Removed) { play.Moved(); Paint(); return; }
+                if (game.BedAt(cell) >= 0 && history.Play(g => g.Draw(cell, cell), m => m == PlotMove.Removed) == PlotMove.Removed)
+                {
+                    play.Moved();
+                    Paint();
+                    return;
+                }
                 corner = cell;
                 Paint();
                 return;
             }
             int from = corner;
             corner = -1;
-            if (game.Draw(from, cell) == PlotMove.Invalid) { BoardKit.Shiver(cells[cell].gameObject); Paint(); return; }
+            if (history.Play(g => g.Draw(from, cell), m => m != PlotMove.Invalid) == PlotMove.Invalid)
+            {
+                BoardKit.Shiver(cells[cell].gameObject);
+                Paint();
+                return;
+            }
             play.Moved();
             Paint();
             if (game.Solved) play.Done();
@@ -117,6 +133,7 @@ namespace Evergrove.UnityClient
                     : bed >= 0 ? BedTones[tones[bed]] : BoardKit.Soil;
                 cells[c].transform.localScale = c == corner ? new Vector3(1.08f, 1.08f, 1f) : Vector3.one;
             }
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()

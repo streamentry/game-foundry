@@ -88,6 +88,7 @@ namespace Evergrove.UnityClient
             button.targetGraphic = image;
             int picked = level;
             button.onClick.AddListener(() => ChooseLeaves(kind, picked));
+            LongPressCaption.Attach(node, "Leaves " + level + (chosen ? ". Chosen now." : ". Tap to choose it."), font);
             PressSquash.Add(node);
 
             var label = new GameObject("Number", typeof(RectTransform));

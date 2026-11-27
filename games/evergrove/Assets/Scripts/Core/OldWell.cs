@@ -49,9 +49,16 @@ namespace Evergrove.Core
             return state.fruit - before;
         }
 
+        /// <summary>
+        /// Fail closed (I363): the well can hold no more solved boards than stretches the
+        /// saved progress has opened. Scales with the save, never a fixed count.
+        /// </summary>
         private static bool ReadWell(WorldSnapshot source)
         {
-            return source.well >= 0 && source.well <= GardenMap.ReachesCeiling && (source.mode == "living" || source.well == 0);
+            if (source.well < 0 || (source.mode != "living" && source.well != 0)) return false;
+            int solved = (source.treeSolved ?? Array.Empty<int>()).Length + (source.boughtSolved ?? Array.Empty<int>()).Length;
+            int open = GardenMap.ReachesFor(source.choices.Length, source.round == PuzzleCatalog.Count, solved);
+            return source.well <= open;
         }
     }
 }

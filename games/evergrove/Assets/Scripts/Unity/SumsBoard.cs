@@ -12,7 +12,9 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal sealed class SumsBoard : TreePlay.IPuzzleBoard
     {
-        private readonly SeedSumsGame game;
+        private readonly BoardHistory<SeedSumsGame> history; // step 39: undo and redo
+        private SeedSumsGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private TreePlay play;
         private Font font;
         private Image[] cells;
@@ -21,7 +23,10 @@ namespace Evergrove.UnityClient
         private bool locked;
         private int shownCell = -1, shownDigit;
 
-        public SumsBoard(SeedSumsGame game) { this.game = game; }
+        public SumsBoard(SeedSumsGame game)
+        {
+            history = new BoardHistory<SeedSumsGame>(game, () => new SeedSumsGame(game.Seed, game.Tier));
+        }
 
         public void Build(Transform card, float width, float screenHeight, Font uiFont, TreePlay host)
         {
@@ -41,7 +46,7 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + 12f + rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + 12f + rule + BoardKit.UndoRowSpace);
             float cell = Mathf.Min(Mathf.Floor(Mathf.Min(room.x / w, room.y / h)), 70f);
             const float gap = 3f;
             RectTransform board = BoardKit.Bed(card, "Seed sums", new Vector2(w * cell, h * cell));
@@ -81,6 +86,7 @@ namespace Evergrove.UnityClient
             }
             for (int c = 0; c < w * h && selected < 0; c++) if (game.IsOpen(c)) selected = c;
             BoardKit.ClashLens(card.Find("Tree puzzle top"), Paint);
+            undo = BoardKit.UndoRow.Build(card, uiFont, history, () => { shownCell = -1; Paint(); });
             Paint();
         }
 
@@ -107,7 +113,8 @@ namespace Evergrove.UnityClient
         {
             if (locked || selected < 0) return;
             if (game.Value(selected) == digit) digit = 0; // the same number again lifts it
-            SumMove move = game.Place(selected, digit);
+            int at = selected; // copied now: a replay runs the same move later, after the selection may have moved
+            SumMove move = history.Play(g => g.Place(at, digit), m => m != SumMove.Ignored);
             if (move == SumMove.Ignored) return;
             shownCell = -1;
             play.Moved();
@@ -136,6 +143,7 @@ namespace Evergrove.UnityClient
                 values[c].text = v > 0 ? v.ToString() : c == shownCell ? shownDigit.ToString() : "";
                 values[c].color = c == shownCell && v == 0 ? new Color(0.46f, 0.37f, 0.27f, 0.45f) : MosseloraTheme.EarthInk;
             }
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()
@@ -153,7 +161,7 @@ namespace Evergrove.UnityClient
             shownCell = -1;
             selected = cell;
             if (game.Value(cell) == digit) return;
-            game.Place(cell, digit);
+            history.Play(g => g.Place(cell, digit), m => m != SumMove.Ignored);
             play.Moved();
             Paint();
             if (game.Solved) play.Done();

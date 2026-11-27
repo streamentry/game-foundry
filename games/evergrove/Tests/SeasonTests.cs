@@ -33,9 +33,9 @@ internal static class SeasonTests
         Expect(GardenSeason.AfterStory(step * 3) == Season.Spring, "then spring");
         Expect(GardenSeason.AfterStory(step * 4) == Season.Summer, "and round again");
         Expect(GardenSeason.AfterStory(-5) == Season.Summer, "a bad count reads as none");
-        // It never stops turning, even past the river's ceiling (the year isn't capped).
-        int past = GardenMap.ReachesCeiling * step * 3;
-        Expect(GardenSeason.AfterStory(past + step) != GardenSeason.AfterStory(past), "still turning past the ceiling");
+        // It never stops turning, far past the first twenty stretches (the year isn't capped).
+        int past = 60 * step;
+        Expect(GardenSeason.AfterStory(past + step) != GardenSeason.AfterStory(past), "still turning far past twenty stretches");
         for (int s = 0; s < 400; s++)
             Expect(GardenSeason.AfterStory(s) == (Season)(((int)Season.Summer + s / step) % 4), "steady cycle " + s);
 
