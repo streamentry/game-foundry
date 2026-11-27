@@ -128,6 +128,79 @@ namespace Evergrove.UnityClient
             return text;
         }
 
+        // ---- I254: the first-time picture rule, in icons, above a board the first few times.
+        public const float RuleHeight = 52f;
+        private const int RuleShows = 3;
+
+        /// <summary>
+        /// Draws the kind's picture rule the first <c>RuleShows</c> times it's met; returns the
+        /// height it took (0 once it's familiar). Counted per kind on the device, not in the save.
+        /// </summary>
+        public static float FirstTimeRule(Transform card, string kind, Action<Transform> parts)
+        {
+            string key = "evergrove:rule-seen-" + kind;
+            int seen = PlayerPrefs.GetInt(key, 0);
+            if (seen >= RuleShows || parts == null) return 0f;
+            PlayerPrefs.SetInt(key, seen + 1);
+            PlayerPrefs.Save();
+            var strip = new GameObject("How it works", typeof(RectTransform));
+            strip.transform.SetParent(card, false);
+            var layout = strip.AddComponent<LayoutElement>();
+            layout.preferredHeight = layout.minHeight = RuleHeight;
+            var image = strip.AddComponent<Image>();
+            MosseloraArt.Round(image, new Color(0.98f, 0.95f, 0.86f, 1f), 18);
+            image.raycastTarget = false;
+            var row = strip.AddComponent<HorizontalLayoutGroup>();
+            row.padding = new RectOffset(12, 12, 6, 6);
+            row.spacing = 6f;
+            row.childAlignment = TextAnchor.MiddleCenter;
+            row.childControlWidth = row.childControlHeight = true;
+            row.childForceExpandWidth = row.childForceExpandHeight = false;
+            parts(strip.transform);
+            return RuleHeight + 12f; // the card's spacing too
+        }
+
+        public static void RulePicture(Transform row, Sprite sprite, float size = 34f, Color? tint = null)
+        {
+            var node = new GameObject("Picture", typeof(RectTransform));
+            node.transform.SetParent(row, false);
+            var layout = node.AddComponent<LayoutElement>();
+            layout.preferredWidth = layout.preferredHeight = size;
+            var image = node.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            image.color = tint ?? Color.white;
+        }
+
+        public static void RuleSquare(Transform row, Color color, Sprite inside = null, float size = 30f)
+        {
+            var node = new GameObject("Square", typeof(RectTransform));
+            node.transform.SetParent(row, false);
+            var layout = node.AddComponent<LayoutElement>();
+            layout.preferredWidth = layout.preferredHeight = size;
+            var image = node.AddComponent<Image>();
+            MosseloraArt.PaperTile(image, 6);
+            image.color = color;
+            image.raycastTarget = false;
+            if (inside != null) Glyph(node.transform, "Inside", inside, size * 0.12f);
+        }
+
+        public static void RuleNumber(Transform row, string words, Font font)
+        {
+            var node = new GameObject("Number", typeof(RectTransform));
+            node.transform.SetParent(row, false);
+            var layout = node.AddComponent<LayoutElement>();
+            layout.preferredWidth = 30f;
+            layout.preferredHeight = 34f;
+            Number(node.transform, "Words", words, font, 22, MosseloraTheme.EarthInk);
+        }
+
+        public static void RuleArrow(Transform row)
+        {
+            RulePicture(row, MosseloraArt.Load(MosseloraArt.IconContinue), 24f, MosseloraTheme.EarthInk);
+        }
+
         /// <summary>A gentle "not like that" nudge: a quick sideways shiver, no sound, no penalty.</summary>
         public static void Shiver(GameObject node)
         {

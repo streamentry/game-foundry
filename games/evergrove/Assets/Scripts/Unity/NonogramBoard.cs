@@ -20,6 +20,7 @@ namespace Evergrove.UnityClient
         private Text[] rowClues, columnClues;
         private Sprite sprout, mark;
         private bool locked;
+        private int shown = -1; // the hinted cell, waiting for a second tap (I253)
 
         public NonogramBoard(NonogramGame game) { this.game = game; }
 
@@ -33,7 +34,15 @@ namespace Evergrove.UnityClient
                 rowRuns = Mathf.Max(rowRuns, game.RowClues[i].Length);
                 columnRuns = Mathf.Max(columnRuns, game.ColumnClues[i].Length);
             }
-            Vector2 room = BoardKit.Room(width, screenHeight);
+            Sprite sproutArt = MosseloraArt.Load(TreePlay.SeedIcon);
+            float rule = BoardKit.FirstTimeRule(card, "nonogram", row =>
+            {
+                BoardKit.RuleNumber(row, "3", font);
+                BoardKit.RuleArrow(row);
+                for (int k = 0; k < 3; k++) BoardKit.RuleSquare(row, BoardKit.Leafy, sproutArt);
+                BoardKit.RuleSquare(row, BoardKit.Soil);
+            });
+            Vector2 room = BoardKit.Room(width, screenHeight, rule);
             // Clues get about 0.55 of a cell per number; cells take the rest.
             float cell = Mathf.Floor(Mathf.Min(room.x / (n + rowRuns * 0.55f), room.y / (n + columnRuns * 0.6f)));
             cell = Mathf.Min(cell, 56f);
@@ -83,6 +92,7 @@ namespace Evergrove.UnityClient
         {
             if (locked) return;
             if (game.Tap(cell) == NonogramMove.Ignored) return;
+            shown = -1;
             play.Moved();
             Paint();
             if (game.Solved) play.Done();
@@ -105,6 +115,25 @@ namespace Evergrove.UnityClient
                 rowClues[i].color = game.RowDone(i) ? new Color(0.36f, 0.33f, 0.26f, 0.35f) : MosseloraTheme.EarthInk;
                 columnClues[i].color = game.ColumnDone(i) ? new Color(0.36f, 0.33f, 0.26f, 0.35f) : MosseloraTheme.EarthInk;
             }
+        }
+
+        public void Hint()
+        {
+            if (locked) return;
+            int cell = game.HintCell();
+            if (cell < 0) return;
+            if (cell != shown)
+            {
+                shown = cell;
+                cells[cell].color = BoardKit.Picked;
+                BloomPulse.Add(cells[cell].gameObject, 0f, 0.18f);
+                return;
+            }
+            shown = -1;
+            game.Set(cell, game.Solution(cell) ? CellState.Filled : CellState.Marked);
+            play.Moved();
+            Paint();
+            if (game.Solved) play.Done();
         }
 
         public void Lock()

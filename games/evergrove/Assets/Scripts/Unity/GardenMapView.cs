@@ -29,6 +29,7 @@ namespace Evergrove.UnityClient
             public bool Bloomed;         // its puzzle has been solved (I204): a warm ring of light
             public bool BloomNow;        // just solved (I212): the ring grows in while you watch
             public bool HoldsPuzzle;     // has a puzzle not yet solved (I221): a small play mark
+            public int Kind;             // I255: PuzzleKind + 1 drawn in the mark (0: a plain play arrow)
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -536,7 +537,8 @@ namespace Evergrove.UnityClient
                     disc.raycastTarget = false;
                     MosseloraArt.Lift(disc, 1.5f, 0.25f);
                     Sprite arrow = MosseloraArt.Load(MosseloraArt.IconContinue);
-                    if (arrow != null)
+                    if (item.Kind > 0) KindBadge(mark.transform, (PuzzleKind)(item.Kind - 1), d * 0.62f);
+                    else if (arrow != null)
                     {
                         var glyph = new GameObject("Play", typeof(RectTransform));
                         glyph.transform.SetParent(mark.transform, false);
@@ -714,6 +716,74 @@ namespace Evergrove.UnityClient
                 transform.localScale = new Vector3(1f, 1f + 0.06f * t, 1f);
                 if (t >= 1f) Destroy(gameObject);
             }
+        }
+
+        // I255: which puzzle a thing holds, drawn small in white on the play mark, from
+        // shapes the game already uses: choose today's puzzle at a glance.
+        private static void KindBadge(Transform mark, PuzzleKind kind, float box)
+        {
+            var root = new GameObject("Puzzle kind " + kind, typeof(RectTransform));
+            root.transform.SetParent(mark, false);
+            var rect = (RectTransform)root.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(box, box);
+            float u = box / 6f; // a sixth of the badge
+            switch (kind)
+            {
+                case PuzzleKind.Water: Pic(root.transform, "glyph-waves", box); break;
+                case PuzzleKind.StreamPath: Pic(root.transform, MosseloraArt.Droplet, box); break;
+                case PuzzleKind.Sudoku: Pic(root.transform, "glyph-sprout", box); break;
+                case PuzzleKind.Pairs: // two cards
+                    Block(root.transform, -1.4f * u, 0f, 2.2f * u, 3.4f * u, 1f);
+                    Block(root.transform, 1.4f * u, 0f, 2.2f * u, 3.4f * u, 0.6f);
+                    break;
+                case PuzzleKind.Mosaic: // four tiles, one lifted
+                    Block(root.transform, -1.2f * u, 1.2f * u, 2f * u, 2f * u, 1f);
+                    Block(root.transform, 1.2f * u, 1.2f * u, 2f * u, 2f * u, 1f);
+                    Block(root.transform, -1.2f * u, -1.2f * u, 2f * u, 2f * u, 1f);
+                    Block(root.transform, 1.6f * u, -1.6f * u, 2f * u, 2f * u, 0.6f);
+                    break;
+                case PuzzleKind.Nonogram: // a row planted, the rest empty
+                    for (int r = -1; r <= 1; r++)
+                        for (int c = -1; c <= 1; c++)
+                            Block(root.transform, c * 1.9f * u, r * 1.9f * u, 1.5f * u, 1.5f * u, r == 0 ? 1f : 0.4f);
+                    break;
+                case PuzzleKind.Plots: // a field in three beds
+                    Block(root.transform, -1.1f * u, 0f, 2.6f * u, 5f * u, 1f);
+                    Block(root.transform, 1.6f * u, 1.3f * u, 2.2f * u, 2.4f * u, 0.75f);
+                    Block(root.transform, 1.6f * u, -1.3f * u, 2.2f * u, 2.4f * u, 0.5f);
+                    break;
+                case PuzzleKind.Mahjong: // a small terrace of tiles
+                    Block(root.transform, -1.3f * u, -0.8f * u, 2.2f * u, 3f * u, 0.75f);
+                    Block(root.transform, 1.3f * u, -0.8f * u, 2.2f * u, 3f * u, 0.75f);
+                    Block(root.transform, 0f, 0.9f * u, 2.2f * u, 3f * u, 1f);
+                    break;
+            }
+        }
+
+        private static void Pic(Transform parent, string art, float size)
+        {
+            var node = new GameObject("Glyph", typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            ((RectTransform)node.transform).sizeDelta = new Vector2(size, size);
+            var image = node.AddComponent<Image>();
+            image.sprite = MosseloraArt.Load(art);
+            image.preserveAspect = true;
+            image.color = Color.white;
+            image.raycastTarget = false;
+        }
+
+        private static void Block(Transform parent, float x, float y, float w, float h, float alpha)
+        {
+            var node = new GameObject("Shape", typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            var rect = (RectTransform)node.transform;
+            rect.sizeDelta = new Vector2(w, h);
+            rect.anchoredPosition = new Vector2(x, y);
+            var image = node.AddComponent<Image>();
+            image.sprite = MosseloraArt.Rounded(3);
+            image.color = new Color(1f, 1f, 1f, alpha);
+            image.raycastTarget = false;
         }
 
         /// <summary>A painting that is opaque at its top edge and clear at its foot (I252).</summary>

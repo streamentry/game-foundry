@@ -26,8 +26,12 @@ namespace Evergrove.Core
             {
                 int item = helped[helped.Length - 1];
                 int[] made = world.Choices;
-                if (item < made.Length && made[item] == villager && !world.TreeSolved(item))
-                    return Helped(villager, world.HelpedBy(item));
+                PuzzleKind kind = item < made.Length
+                    ? ThingPuzzle.ForStory(item, (VillageChoice)System.Math.Max(0, System.Math.Min(2, made[item])))
+                    : PuzzleKind.Water;
+                // The keeper of the puzzle's kind tells you, in words true to that kind (I257).
+                if (item < made.Length && OwnerOf(kind) == villager && !world.TreeSolved(item))
+                    return world.HelpedBy(item) + " came by and " + HelpedWith(kind) + " Look how it blooms.";
             }
             // A new arrival from the nursery is the freshest news: the newest one of
             // their kind, while its puzzle is still unsolved.
@@ -52,21 +56,59 @@ namespace Evergrove.Core
             // Fruit you gave (I228): one true thank-you, only from the neighbour who got the
             // latest, so the tended count is never hidden for good. The count itself is never said.
             if (world.LastFruitTo == villager && world.FruitGivenTo(villager) > 0) return Thanked(villager);
-            int solved = SolvedOfKind(villager, world);
-            return solved > 0 ? Tended(villager, solved) : null;
+            // I257: by puzzle kind, not by family: since I243 a tree may hold a nonogram.
+            PuzzleKind best = PuzzleKind.Water;
+            int most = 0;
+            foreach (PuzzleKind kind in Kept[villager])
+            {
+                int n = SolvedOf(world, kind);
+                if (n > most) { most = n; best = kind; }
+            }
+            return most > 0 ? Tended(best, most) : null;
         }
 
-        /// <summary>Puzzles solved under things of this neighbour's kind: grown and bought.</summary>
-        public static int SolvedOfKind(int villager, WorldModel world)
+        // Who speaks for which kind of puzzle: Mira the water, Orin the made things, Fen the flowers.
+        private static readonly PuzzleKind[][] Kept = {
+            new[] { PuzzleKind.Water, PuzzleKind.StreamPath, PuzzleKind.Nonogram },
+            new[] { PuzzleKind.Mosaic, PuzzleKind.Plots, PuzzleKind.Mahjong },
+            new[] { PuzzleKind.Pairs, PuzzleKind.Sudoku },
+        };
+
+        public static int OwnerOf(PuzzleKind kind)
+        {
+            for (int v = 0; v < Kept.Length; v++)
+                if (System.Array.IndexOf(Kept[v], kind) >= 0) return v;
+            return 0;
+        }
+
+        /// <summary>First solves of things holding this kind of puzzle: grown and bought.</summary>
+        public static int SolvedOf(WorldModel world, PuzzleKind kind)
         {
             int count = 0;
             int[] made = world.Choices;
             for (int i = 0; i < made.Length; i++)
-                if (made[i] == villager && world.TreeSolved(i)) count++;
+                if (world.TreeSolved(i) &&
+                    ThingPuzzle.ForStory(i, (VillageChoice)System.Math.Max(0, System.Math.Min(2, made[i]))) == kind) count++;
             int[] bought = world.Bought;
             for (int k = 0; k * 2 < bought.Length; k++)
-                if ((int)Nursery.Family(bought[k * 2]) == villager && world.BoughtSolved(k)) count++;
+                if (world.BoughtSolved(k) && ThingPuzzle.ForNursery(bought[k * 2]) == kind) count++;
             return count;
+        }
+
+        /// <summary>The words a neighbour uses for a kind (tests check only its keeper says them).</summary>
+        public static string KindWord(PuzzleKind kind)
+        {
+            switch (kind)
+            {
+                case PuzzleKind.Water: return "freed the water";
+                case PuzzleKind.StreamPath: return "led the stream";
+                case PuzzleKind.Nonogram: return "by the numbers";
+                case PuzzleKind.Mosaic: return "old paintings";
+                case PuzzleKind.Plots: return "plots";
+                case PuzzleKind.Mahjong: return "garden tiles";
+                case PuzzleKind.Pairs: return "flower beds";
+                default: return "seed squares";
+            }
         }
 
         // A nursery plant or a planted gift: both are simply new in the garden (the
@@ -93,13 +135,18 @@ namespace Evergrove.Core
             }
         }
 
-        private static string Helped(int villager, string helper)
+        private static string HelpedWith(PuzzleKind kind)
         {
-            switch (villager)
+            switch (kind)
             {
-                case 0: return helper + " came by and freed the water under one of your trees. Look how it blooms.";
-                case 1: return helper + " was here and mended one of the old paintings with you in mind.";
-                default: return helper + " matched a flower bed of yours. The bees approve.";
+                case PuzzleKind.Water: return "freed the water under one of your things.";
+                case PuzzleKind.StreamPath: return "led the stream through one of your meadows.";
+                case PuzzleKind.Nonogram: return "planted one of your beds by the numbers.";
+                case PuzzleKind.Mosaic: return "mended one of the old paintings with you in mind.";
+                case PuzzleKind.Plots: return "staked out a field of plots for you.";
+                case PuzzleKind.Mahjong: return "cleared a table of garden tiles for you.";
+                case PuzzleKind.Pairs: return "matched one of your flower beds.";
+                default: return "sowed a bed of seed squares for you.";
             }
         }
 
@@ -133,20 +180,35 @@ namespace Evergrove.Core
             }
         }
 
-        private static string Tended(int villager, int n)
+        private static string Tended(PuzzleKind kind, int n)
         {
             bool one = n == 1;
-            switch (villager)
+            switch (kind)
             {
-                case 0:
-                    return one ? "You freed the water under one of your trees. It is drinking deeply."
-                        : "You have freed the water under " + n + " of your trees. They are drinking deeply.";
-                case 1:
+                case PuzzleKind.Water:
+                    return one ? "You freed the water under one of your things. It is drinking deeply."
+                        : "You have freed the water under " + n + " of your things. They are drinking deeply.";
+                case PuzzleKind.StreamPath:
+                    return one ? "You led the stream through a whole meadow. I could hear it from my door."
+                        : "You have led the stream through " + n + " meadows. I can hear them from my door.";
+                case PuzzleKind.Nonogram:
+                    return one ? "You planted a bed by the numbers. Not one sprout out of place."
+                        : "You have planted " + n + " beds by the numbers. Not one sprout out of place.";
+                case PuzzleKind.Mosaic:
                     return one ? "One of the old paintings is whole again. I had forgotten that day."
                         : n + " of the old paintings are whole again. I had forgotten some of those days.";
-                default:
+                case PuzzleKind.Plots:
+                    return one ? "You staked out a field of plots. Tidy work, every bed its own size."
+                        : "You have staked out " + n + " fields of plots. Tidy work, every bed its own size.";
+                case PuzzleKind.Mahjong:
+                    return one ? "You cleared a table of garden tiles. My mother played those on winter evenings."
+                        : "You have cleared " + n + " tables of garden tiles. My mother played those on winter evenings.";
+                case PuzzleKind.Pairs:
                     return one ? "You matched one flower bed. I am saving its seeds for you."
                         : "You have matched " + n + " flower beds. I am saving their seeds for you.";
+                default:
+                    return one ? "You sowed a bed of seed squares, not one plant twice in a row."
+                        : "You have sown " + n + " beds of seed squares, not one plant twice in a row.";
             }
         }
     }

@@ -18,6 +18,7 @@ namespace Evergrove.UnityClient
         private Image[][] channels; // per cell: up, right, down, left water bars
         private Image head;
         private bool locked;
+        private int shown = -1; // I253
 
         public StreamBoard(StreamPathGame game) { this.game = game; }
 
@@ -25,7 +26,15 @@ namespace Evergrove.UnityClient
         {
             play = host;
             int n = game.Size;
-            Vector2 room = BoardKit.Room(width, screenHeight);
+            float rule = BoardKit.FirstTimeRule(card, "streampath", row =>
+            {
+                BoardKit.RulePicture(row, MosseloraArt.Load("glyph-waves"), 30f, MosseloraTheme.WaterAction);
+                BoardKit.RuleArrow(row);
+                for (int k = 0; k < 3; k++) BoardKit.RuleSquare(row, BoardKit.Water);
+                BoardKit.RuleArrow(row);
+                BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.Droplet), 30f);
+            });
+            Vector2 room = BoardKit.Room(width, screenHeight, rule);
             float cell = Mathf.Min(Mathf.Floor(Mathf.Min(room.x, room.y) / n), 76f);
             const float gap = 4f;
             RectTransform board = BoardKit.Bed(card, "Lead the stream", new Vector2(n * cell, n * cell));
@@ -109,6 +118,22 @@ namespace Evergrove.UnityClient
             head.transform.SetParent(cells[tip].transform, false);
             head.enabled = !locked && tip != game.Pond;
             head.color = new Color(1f, 1f, 1f, 0.9f);
+        }
+
+        public void Hint()
+        {
+            if (locked) return;
+            int next = game.NextHint();
+            if (next < 0) return;
+            if (next != shown)
+            {
+                shown = next;
+                cells[next].color = BoardKit.Picked;
+                BloomPulse.Add(cells[next].gameObject, 0f, 0.18f);
+                return;
+            }
+            shown = -1;
+            Tap(next);
         }
 
         public void Lock()

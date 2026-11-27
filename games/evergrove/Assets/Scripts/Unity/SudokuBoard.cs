@@ -20,6 +20,7 @@ namespace Evergrove.UnityClient
         private Image[] trayDiscs;
         private int selected = -1;
         private bool locked;
+        private int shown = -1; // I253
 
         public SudokuBoard(SeedSudokuGame game, Sprite[] plants)
         {
@@ -32,7 +33,14 @@ namespace Evergrove.UnityClient
             play = host;
             int n = game.Size;
             const float trayHeight = 64f;
-            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + 12f);
+            float rule = BoardKit.FirstTimeRule(card, "sudoku", row =>
+            {
+                for (int k = 0; k < Mathf.Min(4, plants != null ? plants.Length : 0); k++)
+                    BoardKit.RuleSquare(row, BoardKit.Leafy, plants[k]);
+                BoardKit.RuleArrow(row);
+                BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
+            });
+            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + 12f + rule);
             float cell = Mathf.Floor(Mathf.Min(room.x, room.y) / n);
             cell = Mathf.Min(cell, 72f);
             float boxGap = 6f, gap = 3f;
@@ -116,6 +124,24 @@ namespace Evergrove.UnityClient
                 faces[c].sprite = plant;
                 faces[c].enabled = plant != null;
             }
+        }
+
+        public void Hint()
+        {
+            if (locked) return;
+            int cell = game.HintCell();
+            if (cell < 0) return;
+            if (cell != shown)
+            {
+                shown = cell;
+                selected = cell;
+                Paint();
+                BloomPulse.Add(cells[cell].gameObject, 0f, 0.18f);
+                return;
+            }
+            shown = -1;
+            selected = cell;
+            Put(game.Solution(cell));
         }
 
         public void Lock()
