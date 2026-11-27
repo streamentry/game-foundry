@@ -77,6 +77,16 @@ namespace Evergrove.Core
         // Optional, additive (lantern parcels; absent in older JSON). Names of those who left a
         // lantern, newest last, at most 12. Only Living gardens hold any.
         public string[] lanterns = Array.Empty<string>();
+        // Optional, additive (jam kitchen; absent in older JSON, and not written while 0). Jars of
+        // jam (0..10), cooked from fruit. Only Living gardens hold any.
+        public int jam;
+        // Optional, additive (picture stamps; absent in older JSON, and not written while empty).
+        // The stamp (1..12, 0 none) of each kept letter, parallel to `letters`. Empty means every
+        // letter is unstamped; otherwise exactly one entry per letter.
+        public int[] letterStamps = Array.Empty<int>();
+        // Optional, additive (free decorations; absent in older JSON, and not written while empty).
+        // Pieces as pairs [kind 0..3, map cell, ...], at most 60, no two on one cell. Living gardens only.
+        public int[] decor = Array.Empty<int>();
     }
 
     /// <summary>
@@ -202,7 +212,8 @@ namespace Evergrove.Core
         {
             if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds ||
                 NurseryStock(Nursery.Slot(kind)) != kind || !RowOpen(Nursery.Row(kind)) ||
-                state.seeds < Nursery.Price(kind) || cell < 0 || cell >= MaxMapCell || BoughtCount >= MaxBought)
+                state.seeds < Nursery.Price(kind) || cell < 0 || cell >= MaxMapCell || BoughtCount >= MaxBought ||
+                DecorAt(cell) >= 0)
                 return false;
             int[] next = new int[state.bought.Length + 2];
             Array.Copy(state.bought, next, state.bought.Length);
@@ -215,7 +226,7 @@ namespace Evergrove.Core
 
         public bool MoveBought(int k, int cell)
         {
-            if (k < 0 || k >= BoughtCount || cell < 0 || cell >= MaxMapCell) return false;
+            if (k < 0 || k >= BoughtCount || cell < 0 || cell >= MaxMapCell || DecorAt(cell) >= 0) return false;
             int[] next = (int[])state.bought.Clone();
             next[k * 2 + 1] = cell;
             state.bought = next;
@@ -246,7 +257,7 @@ namespace Evergrove.Core
         public bool Plant(int source, int cell)
         {
             if (Mode != PlayMode.Living || source < 0 || source >= state.choices.Length ||
-                cell < 0 || cell >= MaxMapCell || PlantingCount >= MaxPlantings) return false;
+                cell < 0 || cell >= MaxMapCell || PlantingCount >= MaxPlantings || DecorAt(cell) >= 0) return false;
             int[] next = new int[state.plantings.Length + 2];
             Array.Copy(state.plantings, next, state.plantings.Length);
             next[next.Length - 2] = source;
@@ -258,7 +269,7 @@ namespace Evergrove.Core
         /// <summary>Moves planting <paramref name="k"/> to another cell.</summary>
         public bool MovePlanting(int k, int cell)
         {
-            if (k < 0 || k >= PlantingCount || cell < 0 || cell >= MaxMapCell) return false;
+            if (k < 0 || k >= PlantingCount || cell < 0 || cell >= MaxMapCell || DecorAt(cell) >= 0) return false;
             int[] next = (int[])state.plantings.Clone();
             next[k * 2 + 1] = cell;
             state.plantings = next;
@@ -288,7 +299,7 @@ namespace Evergrove.Core
         public bool PlaceAt(int index, int cell)
         {
             if (Mode != PlayMode.Living || index < 0 || index >= state.choices.Length ||
-                cell < -1 || cell >= MaxMapCell) return false;
+                cell < -1 || cell >= MaxMapCell || (cell >= 0 && DecorAt(cell) >= 0)) return false;
             int[] next = new int[state.choices.Length];
             for (int i = 0; i < next.Length; i++)
                 next[i] = i < state.placements.Length ? state.placements[i] : -1;
@@ -395,7 +406,7 @@ namespace Evergrove.Core
                 letters = Array.Empty<string>(), letterFrom = Array.Empty<string>(),
                 helped = Array.Empty<int>(), helpedFrom = Array.Empty<string>(),
                 fruit = 0, fruitGiven = new int[Neighbours], lastFruitTo = -1,
-                together = Array.Empty<int>(), lanterns = Array.Empty<string>()
+                together = Array.Empty<int>(), lanterns = Array.Empty<string>(), jam = 0, letterStamps = Array.Empty<int>(), decor = Array.Empty<int>()
             });
         }
 
@@ -417,7 +428,7 @@ namespace Evergrove.Core
                 letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone(),
                 helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone(),
                 fruit = state.fruit, fruitGiven = (int[])state.fruitGiven.Clone(), lastFruitTo = state.lastFruitTo,
-                together = (int[])state.together.Clone(), lanterns = (string[])state.lanterns.Clone()
+                together = (int[])state.together.Clone(), lanterns = (string[])state.lanterns.Clone(), jam = state.jam, letterStamps = (int[])state.letterStamps.Clone(), decor = (int[])state.decor.Clone()
             };
         }
 
@@ -493,6 +504,11 @@ namespace Evergrove.Core
             if (!ReadTogether(source, out together)) return false;
             string[] lanterns;
             if (!ReadLanterns(source, out lanterns)) return false;
+            if (!ReadJam(source)) return false;
+            int[] letterStamps;
+            if (!ReadLetterStamps(source, out letterStamps)) return false;
+            int[] decor;
+            if (!ReadDecor(source, out decor)) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -559,7 +575,7 @@ namespace Evergrove.Core
                 gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom,
                 helped = helped, helpedFrom = helpedFrom,
                 fruit = source.fruit, fruitGiven = fruitGiven, lastFruitTo = source.lastFruitTo,
-                together = together, lanterns = lanterns
+                together = together, lanterns = lanterns, jam = source.jam, letterStamps = letterStamps, decor = decor
             });
             return true;
         }
