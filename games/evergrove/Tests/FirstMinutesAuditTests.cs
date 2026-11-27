@@ -40,7 +40,11 @@ internal static class FirstMinutesAuditTests
         "title",    // EvergroveApp.cs GardenHeader: painted wordmark; spoken text beside it. Name counted once.
         "subtitle", // EvergroveApp.cs title screen tagline (line ~1716). Hidden on puzzle screens since I160.
         "first",    // EvergroveApp.cs BuildPuzzle -> CoachBubble: Mira's one opening line (I16). Words show at >100% text (I163).
+        "text_size", // EvergroveApp.FirstSize.cs chooser heading (checklist 6): "Text size", shown before the first puzzle.
     };
+
+    // Checklist 6: one visible "A" per TextScale step (100, 125, 150), each a one-word glyph.
+    private const int FirstSizeGlyphs = 3;
 
     // Core keys spoken only (transparent Text or screen-reader hint), not shown. Not counted.
     private static readonly string[] FirstRunSpokenOnlyKeys =
@@ -50,6 +54,7 @@ internal static class FirstMinutesAuditTests
         "menu",   // EvergroveApp.cs chrome buttons: icon-first, caption kept hidden for screen readers.
         "undo",   // EvergroveApp.cs BuildPuzzle tools: icon-first, caption hidden.
         "hint",   // EvergroveApp.cs BuildPuzzle tools: icon-first, caption hidden.
+        "close",  // EvergroveApp.FirstSize.cs chooser Done: icon-first (tick), caption hidden.
     };
 
     // Unity literal lines in source that must still exist, so moved copy fails until listed again.
@@ -58,6 +63,7 @@ internal static class FirstMinutesAuditTests
         "GameLocalization.Text(\"title\")",
         "GameLocalization.Text(\"subtitle\")",
         "CoachBubble(GameLocalization.Text(\"first\"))",
+        "OfferFirstSize(firstPuzzle);",
         "GameLocalization.Text(\"stream\", world.Round + 1",
         "GameLocalization.Text(\"how\")",
         "world.CurrentPuzzle.Name",
@@ -92,6 +98,11 @@ internal static class FirstMinutesAuditTests
             string puzzleName = PuzzleCatalog.Get(0).Name;
             Expect(puzzleName == "First Bend", "stream 1 name changed; update the first-run list: " + puzzleName);
             words += FirstPuzzleNameShownCount * CountWords(puzzleName);
+
+            // Checklist 6: the text-size chooser shows one "A" glyph per size step before the first puzzle.
+            string firstSize = File.ReadAllText(Path.Combine(root, "Assets", "Scripts", "Unity", "EvergroveApp.FirstSize.cs"));
+            Expect(firstSize.Contains("\"A\""), "text-size chooser glyph literal missing from EvergroveApp.FirstSize.cs");
+            words += FirstSizeGlyphs * CountWords("A");
 
             Expect(words < WordBudget,
                 "first-run words shown before the first puzzle must be under " + WordBudget + ", counted " + words);
