@@ -2070,6 +2070,9 @@ namespace Evergrove.UnityClient
         private void OpenThingPuzzle(int seed, int tier, PuzzleKind kind, Sprite art, string name, int reward,
                                      int pictureStart, Func<int> solved, bool ownBoard = false)
         {
+            // Item 34: only your own things follow your chosen level; a relative's shared board, the well
+            // and the weekly deeper board stay exactly as dealt.
+            if (ownBoard) (seed, tier) = ChosenDeal(kind, seed, tier, solved, (s, t, sv) => () => OpenThingPuzzle(s, t, kind, art, name, reward, pictureStart, sv, ownBoard));
             moveNote = 0; // I305: each board starts its phrase from the top
             Action turned = () => { PlayMove(kind); if (gentleMotion) Haptics.Tick(); };
             int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;

@@ -26,6 +26,7 @@ namespace Evergrove.Core
         NewestThing,      // the newest thing of their kind and where it stands (I184)
         VisitorCame,      // the visitor their good neighbours brought: owl, heron, hedgehog (I377)
         HourHabit,        // the hour you usually come, by its noticer (I419)
+        RainComing,       // rain upstream today, reaching the garden tomorrow: Orin (checklist 48)
     }
 
     /// <summary>
@@ -185,6 +186,9 @@ namespace Evergrove.Core
                 facts.Add(Make(FactKind.WeatherToday, Fact.AnyKeeper,
                     "weather:" + context.Weather, AmbientWeight, false, false, 10 * Step,
                     "weather", context.Weather.ToString()));
+            if (RiverWeather.RainComing(context.Today, world.Garden, GardenSeason.For(world)))
+                facts.Add(Make(FactKind.RainComing, 1, "rain-coming:" + context.Today.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
+                    AmbientWeight, false, false, 10 * Step + 60, LegacyOffSlot, "1"));
             if (context.LightOn && DayLight.Remark(0, context.Phase, GardenSeason.For(world)) != null)
                 facts.Add(Make(FactKind.Hour, Fact.AnyKeeper, "hour:" + context.Phase, AmbientWeight, false, false, 12 * Step,
                     "phase", context.Phase.ToString(), "season", GardenSeason.For(world).ToString()));
