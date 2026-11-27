@@ -384,6 +384,18 @@ internal static class WorldIdeasTests
         int found = RiverSecrets.CuttingFor(finder, 1);
         Expect(found >= 0 && finder.RowOpen(Nursery.Row(found)), "the secret is a cutting from an open row");
         Expect(RiverSecrets.CuttingFor(finder, 2) != found || Nursery.Kinds < 2, "stretch by stretch, a different plant");
+        // Idea 6 (go's handicap stones): after hints were needed on a kind, its next board
+        // starts with a small head start; never on the smallest boards, never a solve.
+        for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
+            for (int hints = 0; hints < 12; hints++)
+            {
+                int given = HeadStart.Moves(hints, tier);
+                Expect(given >= 0 && given <= HeadStart.MaxMoves, "a small head start: " + given);
+                Expect(hints >= 2 || given == 0, "only after hints were really needed");
+                Expect(tier > 0 || given == 0, "never on the smallest boards");
+                if (hints > 0) Expect(given >= HeadStart.Moves(hints - 1, tier), "more help needed, a little more given");
+            }
+        Expect(HeadStart.Moves(2, 1) == 1 && HeadStart.Moves(5, 2) == HeadStart.MaxMoves, "one stone, up to a few");
         return assertions;
     }
 

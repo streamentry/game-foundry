@@ -24,9 +24,12 @@ namespace Evergrove.UnityClient
 
         public NonogramBoard(NonogramGame game) { this.game = game; }
 
+        private Font uiFont; // I321
+
         public void Build(Transform card, float width, float screenHeight, Font font, TreePlay host)
         {
             play = host;
+            uiFont = font;
             int n = game.Size;
             int rowRuns = 1, columnRuns = 1;
             for (int i = 0; i < n; i++)
@@ -140,6 +143,11 @@ namespace Evergrove.UnityClient
         {
             locked = true;
             Paint();
+            // I321 (idea 1): the answer is a picture; say what was drawn.
+            int middle = (game.Size / 2) * game.Size + game.Size / 2;
+            if (!string.IsNullOrEmpty(game.PictureName) && cells != null && middle < cells.Length)
+                RuleToast.Show(cells[middle].rectTransform, "It's " + game.PictureName + ".", uiFont,
+                    MosseloraTheme.EarthInk, MosseloraTheme.CardFill);
             if (!play.Gentle) return;
             int n = game.Size;
             for (int c = 0; c < n * n; c++)

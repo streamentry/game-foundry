@@ -2024,7 +2024,9 @@ namespace Evergrove.UnityClient
             Action turned = () => { PlayMove(kind); if (gentleMotion) Haptics.Tick(); };
             int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
             // Back home, the view returns to the thing and its ring grows in (I212).
-            Action closed = () => { justSolved = solvedHere ? shown : -1; solvedHere = false;
+            string hintsKey = "evergrove:hints:" + (int)kind; // I322: per kind, on this device
+            Action closed = () => { if (openCard != null) { PlayerPrefs.SetInt(hintsKey, openCard.HintsUsed); PlayerPrefs.Save(); }
+                justSolved = solvedHere ? shown : -1; solvedHere = false;
                 mapInHand = -1; heldBought = -1; keepHubAt = new Vector2(-1f, -1f); RefreshMapsFresh(); };
             Func<int> solvedOnce = solved;
             solved = () =>
@@ -2057,6 +2059,10 @@ namespace Evergrove.UnityClient
             TreePlay card = titleScreen.GetComponentInChildren<TreePlay>();
             openCard = card;
             if (card != null) card.ShowTier(tier); // I261: how deep this board is, in leaves
+            // I323: each kind's flourish when solved.
+            if (card != null) { card.Flourish = FlourishArt(kind, out Color tint); card.FlourishTint = tint; }
+            // I322: a kind that needed hints last time starts with a move or two made.
+            if (card != null) card.GiveHeadStart(HeadStart.Moves(PlayerPrefs.GetInt(hintsKey, 0), tier));
             // I309: a board of your own can be sent to family once solved.
             if (card != null && reward > 0 && world.Mode == PlayMode.Living)
                 card.SendBoard = () => SendBoardToFamily(kind, tier, seed, name);
@@ -2195,6 +2201,28 @@ namespace Evergrove.UnityClient
             if (titleScreen == null || kind < 0 || kind > (int)PuzzleKind.StreamPath) return;
             OpenThingPuzzle(seed, Mathf.Clamp(tier, 0, TreePuzzles.Tiers - 1), (PuzzleKind)kind,
                 MosseloraArt.Load("letter-sealed"), from + "'s board", 0, Mathf.Abs(seed % 97), () => 0);
+        }
+
+        private Sprite FlourishArt(PuzzleKind kind, out Color tint)
+        {
+            tint = Color.white;
+            switch (kind)
+            {
+                case PuzzleKind.Water: case PuzzleKind.StreamPath:
+                    return MosseloraArt.Load(MosseloraArt.Droplet);
+                case PuzzleKind.Pairs:
+                    Sprite[] bloom = PairsPictures(1, 0, (c, f) => ItemArt(c, f));
+                    return bloom.Length > 0 ? bloom[0] : MosseloraArt.Load(MosseloraArt.Sprig);
+                case PuzzleKind.Mosaic:
+                    tint = new Color(1f, 0.86f, 0.45f, 1f);
+                    return MosseloraArt.Rounded(6);
+                case PuzzleKind.Mahjong:
+                    return MosseloraArt.Load("stone-spring");
+                case PuzzleKind.Plots:
+                    return MosseloraArt.Load(MosseloraArt.Sprig);
+                default:
+                    return MosseloraArt.Load(TreePlay.SeedIcon);
+            }
         }
 
         private void SendBoardToFamily(PuzzleKind kind, int tier, int seed, string thing)

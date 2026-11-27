@@ -229,9 +229,21 @@ namespace Evergrove.UnityClient
 
         private const int Tiers = 3;
         private Font uiFont;
-        internal void Moved() { if (!solved) onTurn?.Invoke(); }
+        internal void Moved() { if (!solved && !givingHeadStart) onTurn?.Invoke(); }
         internal void Done() { if (!solved) Finish(); }
-        internal void QaHint() { Hint(); }
+        internal void QaHint() { HintsUsed++; Hint(); }
+
+        // ---- I322: hint taps on this board, and a head start made by the hint's own moves.
+        internal int HintsUsed { get; private set; }
+        private bool givingHeadStart;
+
+        internal void GiveHeadStart(int moves)
+        {
+            givingHeadStart = true;
+            for (int m = 0; m < moves && !solved; m++) { Hint(); Hint(); }
+            givingHeadStart = false;
+            hintA = hintB = -1;
+        }
         internal void QaTogether() { if (!together) ToggleTogether(); }
         // I302/I303 tour: four players, then one move along so the hint's offer shows.
         internal void QaFourTurns() { players = TakeTurns.MaxPlayers; turn = 1; PaintTurn(); }
@@ -395,7 +407,7 @@ namespace Evergrove.UnityClient
             if (gentle) BloomPulse.Add(thing, 0.2f, 0.05f);
             // A hint on every kind (I253, I256): shown, then made, never a penalty.
             Token(top, "Hint: show the next move", MosseloraArt.Load(MosseloraArt.IconHint), 52f,
-                MosseloraTheme.QuietAction, Hint, true);
+                MosseloraTheme.QuietAction, () => { HintsUsed++; Hint(); }, true);
             Transform hintNode = top.Find("Hint: show the next move");
             hintToken = hintNode != null ? hintNode.GetComponent<Image>() : null;
             rewardPill = Pill(top, "+" + reward, font, out rewardText);
@@ -466,7 +478,7 @@ namespace Evergrove.UnityClient
         {
             if (solved || index < 0 || index >= rotations.Length) return;
             rotations[index] = rotations[index] % PipeRules.OrientationCount(puzzle.Kinds[index]) + 1;
-            onTurn?.Invoke();
+            if (!givingHeadStart) onTurn?.Invoke();
             Paint();
             if (!PipeRules.IsComplete(puzzle, rotations)) return;
             Finish();
@@ -477,6 +489,7 @@ namespace Evergrove.UnityClient
         {
             solved = true;
             int earned = onSolved != null ? onSolved() : 0;
+            if (gentle && Flourish != null) RiseFlourish();
             SettleIntoThing();
             OfferToSend();
             rewardText.text = "+" + earned;
@@ -561,6 +574,84 @@ namespace Evergrove.UnityClient
             Transform glyph = send.Find("Icon");
             if (glyph != null) glyph.GetComponent<Image>().color = Color.white;
             if (gentle) BloomPulse.Add(send.gameObject, 0.6f, 0.12f);
+        }
+
+        // ---- I323 (idea 5, after patience's win cascade): each kind's own flourish. A dozen
+        // of its motif (drops, petals, sprouts, stones) rise from the board and fade, just
+        // before it settles into the thing. Motion only.
+        internal Sprite Flourish;
+        internal Color FlourishTint = Color.white;
+
+        private void RiseFlourish()
+        {
+            if (cardRect == null) return;
+            var burst = new GameObject("Flourish", typeof(RectTransform), typeof(LayoutElement));
+            burst.transform.SetParent(cardRect, false);
+            burst.GetComponent<LayoutElement>().ignoreLayout = true;
+            var rect = (RectTransform)burst.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(20f, 20f);
+            rect.offsetMax = new Vector2(-20f, -110f);
+            burst.AddComponent<FlourishRise>().Begin(Flourish, FlourishTint);
+        }
+
+        private sealed class FlourishRise : MonoBehaviour
+        {
+            private RectTransform[] bits;
+            private Image[] images;
+            private Vector2[] from, drift;
+            private float clock;
+            private Color tint;
+            private const float Lasts = 1.0f;
+
+            public void Begin(Sprite sprite, Color colour)
+            {
+                tint = colour;
+                var rect = (RectTransform)transform;
+                Vector2 size = rect.rect.size;
+                if (size.x < 1f) size = new Vector2(300f, 300f);
+                var rng = new System.Random(5);
+                bits = new RectTransform[12];
+                images = new Image[bits.Length];
+                from = new Vector2[bits.Length];
+                drift = new Vector2[bits.Length];
+                for (int i = 0; i < bits.Length; i++)
+                {
+                    var node = new GameObject("Rising", typeof(RectTransform));
+                    node.transform.SetParent(transform, false);
+                    bits[i] = (RectTransform)node.transform;
+                    bits[i].anchorMin = bits[i].anchorMax = new Vector2(0.5f, 0.5f);
+                    float d = 22f + (float)rng.NextDouble() * 14f;
+                    bits[i].sizeDelta = new Vector2(d, d);
+                    from[i] = new Vector2(((float)rng.NextDouble() - 0.5f) * size.x * 0.8f, ((float)rng.NextDouble() - 0.5f) * size.y * 0.5f);
+                    drift[i] = new Vector2(((float)rng.NextDouble() - 0.5f) * 60f, 90f + (float)rng.NextDouble() * 80f);
+                    images[i] = node.AddComponent<Image>();
+                    images[i].sprite = sprite;
+                    images[i].preserveAspect = true;
+                    images[i].raycastTarget = false;
+                }
+                Place();
+            }
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                Place();
+                if (clock >= Lasts) Destroy(gameObject);
+            }
+
+            private void Place()
+            {
+                if (bits == null) return;
+                float k = Mathf.Clamp01(clock / Lasts), ease = 1f - (1f - k) * (1f - k);
+                for (int i = 0; i < bits.Length; i++)
+                {
+                    bits[i].anchoredPosition = from[i] + drift[i] * ease;
+                    bits[i].localScale = Vector3.one * (0.6f + 0.6f * Mathf.Sin(Mathf.Min(1f, k * 1.5f) * Mathf.PI * 0.5f));
+                    images[i].color = new Color(tint.r, tint.g, tint.b, Mathf.Sin(k * Mathf.PI));
+                }
+            }
         }
 
         private sealed class SettleIn : MonoBehaviour
@@ -656,7 +747,7 @@ namespace Evergrove.UnityClient
             if (solved) return;
             PairsGame.Turn turn = pairs.Flip(index);
             if (turn == PairsGame.Turn.Ignored) return;
-            onTurn?.Invoke();
+            if (!givingHeadStart) onTurn?.Invoke();
             PaintPairs();
             if (turn == PairsGame.Turn.Match && gentle)
                 for (int i = 0; i < pairs.Count; i++)
@@ -747,7 +838,7 @@ namespace Evergrove.UnityClient
             if (solved) return;
             MosaicGame.Step step = mosaic.Select(slot);
             if (step == MosaicGame.Step.Ignored) return;
-            onTurn?.Invoke();
+            if (!givingHeadStart) onTurn?.Invoke();
             PaintMosaic();
             if (step == MosaicGame.Step.Swapped && gentle)
                 for (int i = 0; i < mosaic.Count; i++)
