@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Kebijakan privasi"
+    },
+    {
+      "key": "garden_save",
+      "value": "Simpan file kebun…"
+    },
+    {
+      "key": "saved",
+      "value": "Tersimpan"
     }
   ]
 }

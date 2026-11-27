@@ -1010,7 +1010,7 @@ internal static class Program
                LocaleShippingPolicy.Resolve("ja", true) == "ja" &&
                LocaleShippingPolicy.Resolve("invalid", true) == "en",
             "old research preferences and auto-detected draft locales safely fall back");
-        Expect(GameLocalization.Keys.Count == 125,"authoritative localization keys");
+        Expect(GameLocalization.Keys.Count == 127,"authoritative localization keys");
         Expect(GameLocalization.Normalize("zh-Hant-TW") == "zh-Hant", "traditional Chinese script");
         Expect(GameLocalization.Normalize("zh-TW") == "zh-Hant", "Taiwan defaults traditional");
         Expect(GameLocalization.Normalize("zh-HK") == "zh-Hant", "Hong Kong defaults traditional");
@@ -1938,6 +1938,8 @@ internal static class Program
             assertions += TogetherTests.Run();
             assertions += FamilyGiftsTests.Run();
             assertions += KitchenTests.Run();
+            assertions += TechniqueTests.Run();
+            assertions += DailyRhythmAuditTests.Run();
             assertions += LetterStampTests.Run();
             assertions += DecorTests.Run();
             assertions += DoorstepTests.Run();

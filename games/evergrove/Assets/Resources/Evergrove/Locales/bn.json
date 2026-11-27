@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "গোপনীয়তা নীতি"
+    },
+    {
+      "key": "garden_save",
+      "value": "বাগানের ফাইল সংরক্ষণ করুন…"
+    },
+    {
+      "key": "saved",
+      "value": "সংরক্ষিত"
     }
   ]
 }

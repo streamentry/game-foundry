@@ -8317,6 +8317,7 @@ namespace Evergrove.UnityClient
             IconButton(files.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
                 MosseloraArt.IconCopyFile, CopyGardenFile, 78, MosseloraTheme.ForestAction,
                 false, null, true);
+            BuildSaveGardenFileButton(files.transform); // EvergroveApp.Saving.cs (item 96)
             if (!WorldStore.RecoveryBlocked)
             {
                 if (!gardenRestoreConfirm)
@@ -8889,6 +8890,7 @@ namespace Evergrove.UnityClient
 #endif
             saveFailed = !WorldStore.Save(world);
             UpdateSaveWarning(); // toggles immediately even without a full UI rebuild
+            if (!saveFailed) NoteSaved(); // EvergroveApp.Saving.cs: the quiet "Saved" mark (item 96)
             if (saveFailed)
                 Debug.LogWarning("Evergrove is playable but cannot persist this change.");
         }

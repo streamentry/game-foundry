@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Gizlilik politikası"
+    },
+    {
+      "key": "garden_save",
+      "value": "Bahçe dosyasını kaydet…"
+    },
+    {
+      "key": "saved",
+      "value": "Kaydedildi"
     }
   ]
 }

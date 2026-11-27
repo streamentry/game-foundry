@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Integritetspolicy"
+    },
+    {
+      "key": "garden_save",
+      "value": "Spara trädgårdsfil…"
+    },
+    {
+      "key": "saved",
+      "value": "Sparat"
     }
   ]
 }

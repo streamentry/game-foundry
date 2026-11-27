@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "隐私政策"
+    },
+    {
+      "key": "garden_save",
+      "value": "保存花园文件…"
+    },
+    {
+      "key": "saved",
+      "value": "已保存"
     }
   ]
 }

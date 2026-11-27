@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Політика конфіденційності"
+    },
+    {
+      "key": "garden_save",
+      "value": "Зберегти файл саду…"
+    },
+    {
+      "key": "saved",
+      "value": "Збережено"
     }
   ]
 }
