@@ -7,6 +7,8 @@
 
 - **Family co-play (founder goal, 2026-11-25):** 5 family groups, an adult 40+ and a child on one device, no instructions. See [family-coplay-session.md](family-coplay-session.md). Runs alongside M3, not in place of it.
 
+- **Daily loop (I189–I288 build):** 9–12 adults across bands 40–49, 50–64, 65+ over three days: puzzle kinds and hints, the river's drops, garden notes, return without reminders, and optional co-play pairs. See [daily-loop-kit.md](daily-loop-kit.md).
+
 Results are captured in [results-template.md](results-template.md).
 
 **Start here for M3:** [m3-run-plan.md](m3-run-plan.md) orders the steps, gives a recommended default for every open decision, and records the facilitator dry run of 2026-11-24, including blocker B1 (the development build showed the experiment controls to participants), now fixed with a participant view.
