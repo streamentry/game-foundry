@@ -16,7 +16,7 @@ namespace Evergrove.Core
         public const int PhraseLength = 8;
 
         // Each phrase as positions in Scale, in PuzzleKind order (Water, Pairs, Mosaic,
-        // Nonogram, Mahjong, Sudoku, Plots, StreamPath). Wrapping round stays within a fifth.
+        // Nonogram, Mahjong, Sudoku, Plots, StreamPath, Sowing, Sums). Wrapping stays within a fifth.
         private static readonly int[][] Phrases =
         {
             new[] { 0, 1, 2, 3, 4, 3, 2, 1 },
@@ -26,7 +26,9 @@ namespace Evergrove.Core
             new[] { 1, 3, 2, 4, 3, 5, 4, 3 },
             new[] { 4, 5, 6, 5, 4, 3, 4, 5 },
             new[] { 0, 2, 1, 3, 2, 4, 3, 1 },
-            new[] { 3, 2, 3, 4, 5, 4, 3, 2 }
+            new[] { 3, 2, 3, 4, 5, 4, 3, 2 },
+            new[] { 0, 1, 2, 1, 0, 1, 2, 3 }, // Sowing (I318)
+            new[] { 4, 3, 4, 5, 6, 5, 4, 3 }  // Sums (I324)
         };
 
         /// <summary>The note (semitones above middle C) for a kind's nth move.</summary>

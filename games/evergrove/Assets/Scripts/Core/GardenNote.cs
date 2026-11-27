@@ -90,6 +90,8 @@ namespace Evergrove.Core
                 case PuzzleKind.Plots: return "garden plots";
                 case PuzzleKind.Mahjong: return "garden tiles";
                 case PuzzleKind.Pairs: return "flower pairs";
+                case PuzzleKind.Sowing: return "beds to sow";
+                case PuzzleKind.Sums: return "seed sums";
                 default: return "seed squares";
             }
         }

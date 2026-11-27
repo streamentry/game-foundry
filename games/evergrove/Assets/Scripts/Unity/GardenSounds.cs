@@ -25,7 +25,7 @@ namespace Evergrove.UnityClient
             int key = (int)kind * 100 + note;
             if (Cache.TryGetValue(key, out AudioClip clip) && clip != null) return clip;
             float hz = (float)Melody.Hertz(note);
-            float seconds = kind == PuzzleKind.Mahjong || kind == PuzzleKind.Pairs ? 0.16f : 0.26f;
+            float seconds = kind == PuzzleKind.Mahjong || kind == PuzzleKind.Pairs || kind == PuzzleKind.Sums ? 0.16f : 0.26f;
             int length = Mathf.RoundToInt(SampleRate * seconds);
             var samples = new float[length];
             var noise = new System.Random(17 + key);
@@ -130,6 +130,10 @@ namespace Evergrove.UnityClient
                     return 0.09f * white * Mathf.Exp(-t * 260f) + Mathf.Exp(-t * 45f) * 0.10f * Sine(hz, t);
                 case PuzzleKind.Sudoku: // a little wooden marimba
                     return Mathf.Exp(-t * 26f) * 0.12f * (Sine(hz, t) + 0.2f * Sine(hz * 4f, t));
+                case PuzzleKind.Sowing: // a seed dropped into soft earth: a short, round pluck
+                    return Mathf.Exp(-t * 30f) * 0.13f * (Sine(hz, t) + 0.15f * Sine(hz * 3f, t)) + 0.03f * white * Mathf.Exp(-t * 300f);
+                case PuzzleKind.Sums: // a bead slid on a counting frame
+                    return Mathf.Exp(-t * 34f) * 0.11f * (Sine(hz, t) + 0.35f * Sine(hz * 2.01f, t)) + 0.05f * white * Mathf.Exp(-t * 500f);
                 case PuzzleKind.Plots: // a bed raked: a low, warm note
                     return Mathf.Exp(-t * 16f) * 0.14f * Sine(hz * 0.5f, t) + 0.02f * white * Mathf.Exp(-t * 60f);
                 default: // StreamPath: a drop of water, its pitch rising as it falls in

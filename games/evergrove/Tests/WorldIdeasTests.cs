@@ -396,6 +396,48 @@ internal static class WorldIdeasTests
                 if (hints > 0) Expect(given >= HeadStart.Moves(hints - 1, tier), "more help needed, a little more given");
             }
         Expect(HeadStart.Moves(2, 1) == 1 && HeadStart.Moves(5, 2) == HeadStart.MaxMoves, "one stone, up to a few");
+        // Ideas 8 and 10 join the garden: sowing and seed sums are kinds of their own, with
+        // their own keeper, words, together line and melody; never borrowed from another kind.
+        var words = new HashSet<string>();
+        var togetherLines = new HashSet<string>();
+        foreach (PuzzleKind kind in Enum.GetValues(typeof(PuzzleKind)))
+        {
+            Expect(words.Add(NeighbourNotice.KindWord(kind)), "a word of its own: " + kind);
+            Expect(togetherLines.Add(NeighbourNotice.TogetherLine(kind)), "a together line of its own: " + kind);
+        }
+        Expect(NeighbourNotice.OwnerOf(PuzzleKind.Sowing) == 2 && NeighbourNotice.OwnerOf(PuzzleKind.Sums) == 1,
+            "Fen keeps sowing, Orin keeps the sums");
+        var storyKinds = new HashSet<PuzzleKind>();
+        for (int chapter = ThingPuzzle.ClassicChapters; chapter < GardenCatalog.ChaptersPerGarden; chapter++)
+            storyKinds.Add(ThingPuzzle.ForStory(chapter, VillageChoice.ShadeTree));
+        Expect(storyKinds.Contains(PuzzleKind.Sowing) && storyKinds.Contains(PuzzleKind.Sums), "every garden's story meets both");
+        // Ideas 17 to 19 (visitors come to what you grow, for logical reasons): bees need
+        // three flowers visitedGarden, birds need two trees tended (fruit), butterflies any flower in
+        // a warm season; none come in the dark or, but birds, in winter.
+        WorldModel bareGarden = WorldModel.New(PlayMode.Living);
+        foreach (Visitor v in Enum.GetValues(typeof(Visitor)))
+        {
+            Expect(!Visitors.Welcomes(bareGarden, v), "a bare garden: no " + v + " yet");
+            Expect(Visitors.Why(v).Length > 0 && !Visitors.Why(v).Contains("!"), "each says why it comes");
+        }
+        WorldModel visitedGarden = WorldModel.New(PlayMode.Living);
+        for (int chapter = 0; chapter < 12; chapter++)
+        {
+            Puzzle board = visitedGarden.CurrentPuzzle;
+            for (int i = 0; i < board.CellCount; i++)
+                while (visitedGarden.Rotations[i] != board.Solution[i]) visitedGarden.Rotate(i);
+            visitedGarden.Choose((VillageChoice)(chapter % 3));
+        }
+        Expect(Visitors.Welcomes(visitedGarden, Visitor.Bees), "four flowers visitedGarden welcome the bees");
+        Expect(!Visitors.Welcomes(visitedGarden, Visitor.Birds), "birds wait for trees tended");
+        for (int i = 0; i < visitedGarden.Choices.Length; i++) if (visitedGarden.Choices[i] == (int)VillageChoice.ShadeTree) visitedGarden.SolveTree(i);
+        Expect(Visitors.Welcomes(visitedGarden, Visitor.Birds), "fruit trees tended bring the birds");
+        Expect(Visitors.Out(Visitor.Bees, Season.Summer, DayPhase.Day) && !Visitors.Out(Visitor.Bees, Season.Winter, DayPhase.Day) &&
+               !Visitors.Out(Visitor.Bees, Season.Summer, DayPhase.Night), "bees by warm day only");
+        Expect(Visitors.Out(Visitor.Birds, Season.Winter, DayPhase.Morning) && !Visitors.Out(Visitor.Birds, Season.Spring, DayPhase.Night),
+            "birds stay through winter, sleep at night");
+        Expect(!Visitors.Out(Visitor.Butterflies, Season.Autumn, DayPhase.Day) && Visitors.Out(Visitor.Butterflies, Season.Spring, DayPhase.Golden),
+            "butterflies in spring and summer");
         return assertions;
     }
 

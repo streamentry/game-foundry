@@ -20,6 +20,12 @@ internal static class ThingPuzzleTests
         PuzzleKind.Nonogram, PuzzleKind.Mahjong, PuzzleKind.Sudoku, PuzzleKind.Plots, PuzzleKind.StreamPath
     };
 
+    // I318/I324: the story's later things also bring sowing and seed sums.
+    private static readonly PuzzleKind[] StoryKinds = {
+        PuzzleKind.Nonogram, PuzzleKind.Mahjong, PuzzleKind.Sudoku, PuzzleKind.Plots, PuzzleKind.StreamPath,
+        PuzzleKind.Sowing, PuzzleKind.Sums
+    };
+
     public static int Run()
     {
         // The classic three by family, for the first four story things and edition 0.
@@ -42,10 +48,10 @@ internal static class ThingPuzzleTests
             for (int chapter = ThingPuzzle.ClassicChapters; chapter < GardenCatalog.ChaptersPerGarden; chapter++)
             {
                 PuzzleKind k = ThingPuzzle.ForStory(chapter, (VillageChoice)((chapter + start) % 3));
-                Expect(Array.IndexOf(NewKinds, k) >= 0, "a later story thing holds a new kind: " + k);
+                Expect(Array.IndexOf(StoryKinds, k) >= 0, "a later story thing holds a new kind: " + k);
                 seen.Add(k);
             }
-            Expect(seen.Count == NewKinds.Length, "a garden's later things show all five new kinds (start " + start + ")");
+            Expect(seen.Count == StoryKinds.Length, "a garden's later things show all seven newer kinds (start " + start + ")");
         }
         // The nursery's restocked editions: new kinds only, and each new kind in at least two families.
         var families = new Dictionary<PuzzleKind, HashSet<VillageChoice>>();

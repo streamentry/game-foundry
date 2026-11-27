@@ -200,6 +200,17 @@ namespace Evergrove.UnityClient
                 garlandRect.anchoredPosition = new Vector2(0f, -86f);
                 garland.AddComponent<FestivalGarland>().Lit = LampLit;
             }
+            // I326: a pair of birds glides over now and then, once trees are tended.
+            if (BirdsOut && FirefliesMove)
+            {
+                var sky = new GameObject("Birds passing", typeof(RectTransform));
+                sky.transform.SetParent(host.transform, false);
+                var skyRect = (RectTransform)sky.transform;
+                skyRect.anchorMin = Vector2.zero;
+                skyRect.anchorMax = Vector2.one;
+                skyRect.offsetMin = skyRect.offsetMax = Vector2.zero;
+                sky.AddComponent<BirdsPass>();
+            }
             // I295: the season's own drift over home by day (petals, leaves, snow); motion only.
             if (DriftNow != Drift.None && FirefliesMove)
             {
@@ -586,6 +597,7 @@ namespace Evergrove.UnityClient
             }
             Vector2 focus = Vector2.zero;
             bool focused = false;
+            int beesPlaced = 0;
             foreach (Placed item in order)
             {
                 if (item.Art == null || item.Cell < 0 || item.Cell >= map.CellCount) continue;
@@ -705,6 +717,19 @@ namespace Evergrove.UnityClient
                 }
                 if (!held && FirefliesMove && item.Family != VillageChoice.Bridge)
                     node.AddComponent<Sway>().Phase = item.Cell * 0.73f;
+                // I325: bees at the flowers, when they come (three flowers grown) and are out.
+                if (BeesOut && FirefliesMove && !held && item.Family == VillageChoice.Flowers && beesPlaced < 3)
+                {
+                    beesPlaced++;
+                    var bee = new GameObject("A bee", typeof(RectTransform));
+                    bee.transform.SetParent(land, false);
+                    var beeRect = (RectTransform)bee.transform;
+                    beeRect.anchorMin = beeRect.anchorMax = new Vector2(0f, 1f);
+                    beeRect.sizeDelta = new Vector2(12f, 9f);
+                    beeRect.anchoredPosition = at + new Vector2(0f, rect.sizeDelta.y * 0.6f);
+                    bee.AddComponent<BeeBuzz>().Phase = item.Cell;
+                    nodes.Add(beeRect);
+                }
                 if (item.Together && !held)
                 {
                     // Two players' colours, overlapping, at the other shoulder (I265).
@@ -962,6 +987,14 @@ namespace Evergrove.UnityClient
                     Block(root.transform, 1.6f * u, 1.3f * u, 2.2f * u, 2.4f * u, 0.75f);
                     Block(root.transform, 1.6f * u, -1.3f * u, 2.2f * u, 2.4f * u, 0.5f);
                     break;
+                case PuzzleKind.Sowing: // beds of one, two and three seeds, filling toward the basket
+                    for (int b = 0; b < 3; b++)
+                        Block(root.transform, (b - 1) * 1.9f * u, (b - 1) * 0.9f * u - 0.4f * u, 1.5f * u, (1.4f + b * 0.9f) * u, 0.55f + b * 0.22f);
+                    break;
+                case PuzzleKind.Sums: // a plus: rows and columns that add up
+                    Block(root.transform, 0f, 0f, 4.6f * u, 1.4f * u, 1f);
+                    Block(root.transform, 0f, 0f, 1.4f * u, 4.6f * u, 1f);
+                    break;
                 case PuzzleKind.Mahjong: // a small terrace of tiles
                     Block(root.transform, -1.3f * u, -0.8f * u, 2.2f * u, 3f * u, 0.75f);
                     Block(root.transform, 1.3f * u, -0.8f * u, 2.2f * u, 3f * u, 0.75f);
@@ -1054,6 +1087,103 @@ namespace Evergrove.UnityClient
         public static Drift DriftNow = Drift.None;
         public static bool LampLit; // I296
         public static bool FestivalNow; // I317
+        public static bool BeesOut, BirdsOut; // I325, I326
+
+        /// <summary>A small bee: a striped body and two pale wings, buzzing in loops (I325).</summary>
+        private sealed class BeeBuzz : MonoBehaviour
+        {
+            public float Phase;
+            private Vector2 home;
+            private float clock;
+            private RectTransform wings;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                home = rect.anchoredPosition;
+                Part("Wings", new Vector2(10f, 6f), new Vector2(0f, 4f), new Color(1f, 1f, 1f, 0.75f), out wings);
+                Part("Body", new Vector2(11f, 8f), Vector2.zero, new Color(0.98f, 0.78f, 0.18f, 1f), out _);
+                Part("Stripe", new Vector2(2.5f, 8f), Vector2.zero, new Color(0.22f, 0.17f, 0.1f, 1f), out _);
+            }
+
+            private void Part(string name, Vector2 size, Vector2 at, Color colour, out RectTransform made)
+            {
+                var node = new GameObject(name, typeof(RectTransform));
+                node.transform.SetParent(transform, false);
+                made = (RectTransform)node.transform;
+                made.sizeDelta = size;
+                made.anchoredPosition = at;
+                var image = node.AddComponent<Image>();
+                image.sprite = MosseloraArt.Rounded(4);
+                image.color = colour;
+                image.raycastTarget = false;
+            }
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float t = clock * 1.6f + Phase;
+                ((RectTransform)transform).anchoredPosition = home + new Vector2(Mathf.Sin(t) * 22f, Mathf.Sin(t * 2.3f) * 9f);
+                if (wings != null) wings.localScale = new Vector3(1f, 0.5f + 0.5f * Mathf.Abs(Mathf.Sin(clock * 40f)), 1f);
+            }
+        }
+
+        /// <summary>Two small birds crossing high over the garden, wings beating then gliding (I326).</summary>
+        private sealed class BirdsPass : MonoBehaviour
+        {
+            private RectTransform[] birds;
+            private RectTransform[][] wings;
+            private float clock, wait = 3f;
+
+            private void Start()
+            {
+                birds = new RectTransform[2];
+                wings = new RectTransform[2][];
+                for (int b = 0; b < 2; b++)
+                {
+                    var bird = new GameObject("A bird", typeof(RectTransform));
+                    bird.transform.SetParent(transform, false);
+                    birds[b] = (RectTransform)bird.transform;
+                    birds[b].anchorMin = birds[b].anchorMax = new Vector2(0f, 1f);
+                    birds[b].sizeDelta = new Vector2(18f, 8f);
+                    wings[b] = new RectTransform[2];
+                    for (int side = 0; side < 2; side++)
+                    {
+                        var wing = new GameObject(side == 0 ? "Left wing" : "Right wing", typeof(RectTransform));
+                        wing.transform.SetParent(bird.transform, false);
+                        wings[b][side] = (RectTransform)wing.transform;
+                        wings[b][side].sizeDelta = new Vector2(10f, 2.6f);
+                        wings[b][side].pivot = new Vector2(side == 0 ? 1f : 0f, 0.5f);
+                        var image = wing.AddComponent<Image>();
+                        image.sprite = MosseloraArt.Rounded(2);
+                        image.color = new Color(0.2f, 0.18f, 0.16f, 0.85f);
+                        image.raycastTarget = false;
+                    }
+                    bird.SetActive(false);
+                }
+            }
+
+            private void Update()
+            {
+                if (birds == null) return;
+                clock += Time.unscaledDeltaTime;
+                var rect = (RectTransform)transform;
+                float wide = Mathf.Max(1f, rect.rect.width), across = 6f;
+                float t = clock - wait;
+                bool flying = t >= 0f && t < across;
+                for (int b = 0; b < 2; b++)
+                {
+                    birds[b].gameObject.SetActive(flying);
+                    if (!flying) continue;
+                    float k = t / across;
+                    birds[b].anchoredPosition = new Vector2(-30f + (wide + 60f) * k - b * 26f, -90f - b * 14f - Mathf.Sin(k * 3f) * 18f);
+                    float beat = (k * 8f) % 2f < 1.2f ? Mathf.Sin(clock * 14f + b) * 28f : 8f; // beat, then glide
+                    wings[b][0].localRotation = Quaternion.Euler(0f, 0f, -20f - beat);
+                    wings[b][1].localRotation = Quaternion.Euler(0f, 0f, 20f + beat);
+                }
+                if (t >= across) { clock = 0f; wait = 9f + Mathf.Repeat(Time.unscaledTime * 7.3f, 8f); }
+            }
+        }
 
         /// <summary>Paper lanterns on a sagging string across the top of the view, swaying a little.</summary>
         private sealed class FestivalGarland : MonoBehaviour

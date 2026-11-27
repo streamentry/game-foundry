@@ -1596,7 +1596,11 @@ namespace Evergrove.UnityClient
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (qaInMemoryOnly) lively = false;
 #endif
-            if (lively) window.AddComponent<HubButterflies>();
+            // I325: butterflies come to flowers in spring and summer (before I325 they always flew).
+            bool livingGarden = world != null && world.Mode == PlayMode.Living;
+            if (lively && (!livingGarden || (Visitors.Welcomes(world, Visitor.Butterflies) &&
+                Visitors.Out(Visitor.Butterflies, GardenSeason.For(world), DayLightOn ? CurrentPhase() : DayPhase.Day))))
+                window.AddComponent<HubButterflies>();
             // The living garden opens on its own map (E3, I176): everything you made
             // standing where it grew. Otherwise, the painting as before.
             bool mapShown = world.Mode == PlayMode.Living && GardenMapOnHub(windowRect);
@@ -2084,6 +2088,8 @@ namespace Evergrove.UnityClient
                 }
                 case PuzzleKind.Plots: board = new PlotsBoard(new PlotsGame(seed, tier)); break;
                 case PuzzleKind.StreamPath: board = new StreamBoard(new StreamPathGame(seed, tier)); break;
+                case PuzzleKind.Sowing: board = new SowBoard(seed, tier); break;            // I318
+                case PuzzleKind.Sums: board = new SumsBoard(new SeedSumsGame(seed, tier)); break; // I324
                 case PuzzleKind.Mahjong: board = new MahjongBoard(new MahjongGame(seed, tier), tier, pictures(MahjongGame.FacesFor(tier))); break;
             }
             if (board != null)
@@ -2198,7 +2204,7 @@ namespace Evergrove.UnityClient
         // changes nothing in your garden; it's simply the same puzzle, shared.
         private void PlayTheirBoard(int kind, int tier, int seed, string from)
         {
-            if (titleScreen == null || kind < 0 || kind > (int)PuzzleKind.StreamPath) return;
+            if (titleScreen == null || kind < 0 || kind > (int)PuzzleKind.Sums) return;
             OpenThingPuzzle(seed, Mathf.Clamp(tier, 0, TreePuzzles.Tiers - 1), (PuzzleKind)kind,
                 MosseloraArt.Load("letter-sealed"), from + "'s board", 0, Mathf.Abs(seed % 97), () => 0);
         }
@@ -7890,6 +7896,8 @@ namespace Evergrove.UnityClient
             minute = qaClockHour >= 0 ? 0 : now.Minute;
         }
 
+        private DayPhase CurrentPhase() { Now(out int hour, out int minute); return DayLight.PhaseAt(hour, minute); }
+
         private void ApplyDayLight(WorldModel garden)
         {
             Now(out int hour, out int minute);
@@ -7901,6 +7909,11 @@ namespace Evergrove.UnityClient
             GardenMapView.FirefliesMove = gentleMotion;
             GardenMapView.LampLit = on && DayLight.LampLit(DayLight.PhaseAt(hour, minute)); // I296
             GardenMapView.FestivalNow = GardenSeason.Festival(garden); // I317
+            // I325/I326: visitors come for logical reasons, and are out by season and hour.
+            DayPhase visitPhase = DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day;
+            Season visitSeason = GardenSeason.For(garden);
+            GardenMapView.BeesOut = Visitors.Welcomes(garden, Visitor.Bees) && Visitors.Out(Visitor.Bees, visitSeason, visitPhase);
+            GardenMapView.BirdsOut = Visitors.Welcomes(garden, Visitor.Birds) && Visitors.Out(Visitor.Birds, visitSeason, visitPhase);
             // I295: the season's drift by day; it follows the season even with the light switch off.
             bool living = garden != null && garden.Mode == PlayMode.Living;
             GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),

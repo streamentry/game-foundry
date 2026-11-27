@@ -383,7 +383,7 @@ namespace Evergrove.UnityClient
             }
             // I243-I247: the five newer kinds, each unsolved and then solved.
             foreach (PuzzleKind kind in new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots,
-                         PuzzleKind.StreamPath, PuzzleKind.Mahjong })
+                         PuzzleKind.StreamPath, PuzzleKind.Mahjong, PuzzleKind.Sowing, PuzzleKind.Sums })
             {
                 app.QaOpenKind(kind, 1);
                 for (int f = 0; f < 8; f++) yield return null;

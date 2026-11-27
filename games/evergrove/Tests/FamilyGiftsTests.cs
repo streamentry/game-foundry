@@ -79,7 +79,7 @@ internal static class FamilyGiftsTests
         Expect(FamilyParcel.TryRead(text, out ParcelContents read, out _) && read.Kind == kind && read.Amount == 123456 && read.Id == made.Id,
             "it reads back");
         Expect(FamilyParcel.TryCreate("Nan", "", ParcelGift.Board, 0, "b2", out _, out _, out _, 0, 0), "kind 0 tier 0 seed 0 is allowed");
-        Expect(FamilyParcel.TryCreate("Nan", "", ParcelGift.Board, 8 * TreePuzzles.Tiers - 1, "b3", out _, out _, out _, 0, int.MaxValue),
+        Expect(FamilyParcel.TryCreate("Nan", "", ParcelGift.Board, Enum.GetValues(typeof(PuzzleKind)).Length * TreePuzzles.Tiers - 1, "b3", out _, out _, out _, 0, int.MaxValue),
             "the last kind and tier with the largest seed is allowed");
 
         WorldModel sender = Rich(100, 7);
@@ -89,7 +89,7 @@ internal static class FamilyGiftsTests
         Expect(sender.HasSeenParcel(sent.Id) && State(sender) != before, "only the parcel memory changed");
         Expect(sender.SendParcel("Anh", "I just solved this", ParcelGift.Board, (int)PuzzleKind.Nonogram * TreePuzzles.Tiers + 1, "bs1", 0, 777).Error
                == ParcelError.AlreadyUsed, "the same board and nonce is already used");
-        Expect(!sender.SendBoard("Anh", "", 8, 0, 1, "bs2").Ok && !sender.SendBoard("Anh", "", 0, TreePuzzles.Tiers, 1, "bs3").Ok &&
+        Expect(!sender.SendBoard("Anh", "", Enum.GetValues(typeof(PuzzleKind)).Length, 0, 1, "bs2").Ok && !sender.SendBoard("Anh", "", 0, TreePuzzles.Tiers, 1, "bs3").Ok &&
                !sender.SendBoard("Anh", "", -1, 0, 1, "bs4").Ok && !sender.SendBoard("Anh", "", 0, -1, 1, "bs5").Ok &&
                !sender.SendBoard("Anh", "", 0, 0, -1, "bs6").Ok, "a bad kind, tier or seed is not sent");
         Expect(!WorldModel.New(PlayMode.PuzzleOnly).SendBoard("Anh", "", 0, 0, 1, "x").Ok, "only a living garden sends");
@@ -119,12 +119,12 @@ internal static class FamilyGiftsTests
     private static void BoardForgeries()
     {
         int tiers = TreePuzzles.Tiers;
-        Invalid("board kind too large", Raw(ParcelGift.Board, 5, 8 * tiers, "bf1"));
+        Invalid("board kind too large", Raw(ParcelGift.Board, 5, Enum.GetValues(typeof(PuzzleKind)).Length * tiers, "bf1"));
         Invalid("board kind negative", Raw(ParcelGift.Board, 5, -1, "bf2"));
         Invalid("board with a negative seed", Raw(ParcelGift.Board, -1, 3, "bf3"));
         Invalid("board with a hugely negative seed", Raw(ParcelGift.Board, int.MinValue, 3, "bf4"));
         Invalid("board with a blessing", Raw(ParcelGift.Board, 5, 3, "bf5", 2));
-        Expect(!FamilyParcel.TryCreate("A", "", ParcelGift.Board, 8 * tiers, "z", out _, out _, out _, 0, 5), "TryCreate refuses a bad kind");
+        Expect(!FamilyParcel.TryCreate("A", "", ParcelGift.Board, Enum.GetValues(typeof(PuzzleKind)).Length * tiers, "z", out _, out _, out _, 0, 5), "TryCreate refuses a bad kind");
         Expect(!FamilyParcel.TryCreate("A", "", ParcelGift.Board, 3, "z", out _, out _, out _, 0, -5), "TryCreate refuses a negative seed");
     }
 
