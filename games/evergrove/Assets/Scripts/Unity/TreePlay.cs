@@ -415,8 +415,12 @@ namespace Evergrove.UnityClient
 
             // Top row: close token, the thing itself, the seeds it pays.
             var top = Row(card.transform, "Tree puzzle top", 84f);
-            Token(top, "Close tree puzzle", MosseloraArt.Load(MosseloraArt.IconCancel), 56f, MosseloraTheme.QuietAction,
-                Close, true);
+            top.GetComponent<HorizontalLayoutGroup>().padding.right = (int)BackPlacement.Reserve - 18; // 18: the card's side padding
+            // The one back control: top-right of the card (BackPlacement), drawn over the top row.
+            Token(card.transform, "Close tree puzzle", MosseloraArt.Load(MosseloraArt.IconCancel), 56f, // 56: BackPlacement.Size, enforced by PlaceBack
+                
+                MosseloraTheme.QuietAction, Close, true);
+            EvergroveApp.PlaceBack(card.transform.Find("Close tree puzzle").GetComponent<RectTransform>());
             var thing = new GameObject("The thing", typeof(RectTransform));
             thing.transform.SetParent(top, false);
             var thingLayout = thing.AddComponent<LayoutElement>();
@@ -981,7 +985,7 @@ namespace Evergrove.UnityClient
             return open;
         }
 
-        private void Close()
+        internal void Close()
         {
             closeAt = -1f;
             Action closed = onClose;

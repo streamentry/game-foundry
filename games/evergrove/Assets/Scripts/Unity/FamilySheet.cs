@@ -100,8 +100,7 @@ namespace Evergrove.UnityClient
 
             // Top: close, send / open, the postcard, and the seeds you have.
             Transform top = Row(node.transform, "Family top", 60f, 8f);
-            TreePlay.Token(top, "Close family", MosseloraArt.Load(MosseloraArt.IconCancel), 52f,
-                MosseloraTheme.QuietAction, Close, true);
+            top.GetComponent<HorizontalLayoutGroup>().padding.right = (int)BackPlacement.Reserve - 18; // 18: the card's side padding
             TreePlay.Token(top, "Send a parcel", MosseloraArt.Load(MosseloraArt.IconCopyFile), 56f,
                 sending ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, () => Switch(true), true);
             TreePlay.Token(top, "Open a parcel", MosseloraArt.Load(MosseloraArt.IconRestoreFile), 56f,
@@ -110,6 +109,11 @@ namespace Evergrove.UnityClient
                 MosseloraTheme.QuietAction, () => hooks.Postcard?.Invoke(), true);
             TreePlay.Token(top, "Visit their garden", MosseloraArt.Load(MosseloraArt.IconHome), 52f,
                 MosseloraTheme.QuietAction, DoVisit, true);
+            // The one back control: top-right of the card (BackPlacement), drawn over the top row.
+            TreePlay.Token(node.transform, "Close family", MosseloraArt.Load(MosseloraArt.IconCancel), 56f, // 56: BackPlacement.Size, enforced by PlaceBack
+                
+                MosseloraTheme.QuietAction, Close, true);
+            EvergroveApp.PlaceBack(node.transform.Find("Close family").GetComponent<RectTransform>());
 
             var bodyNode = new GameObject("Family body", typeof(RectTransform));
             bodyNode.transform.SetParent(node.transform, false);
@@ -476,7 +480,7 @@ namespace Evergrove.UnityClient
             }
         }
 
-        private void Close()
+        internal void Close()
         {
             Action closed = hooks.Closed;
             Dismiss();

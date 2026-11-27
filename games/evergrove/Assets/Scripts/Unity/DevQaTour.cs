@@ -107,6 +107,13 @@ namespace Evergrove.UnityClient
             Puzzle first = app.QaWorld.CurrentPuzzle;
             yield return new WaitForEndOfFrame();
             SavePng("01-chapter1-start.png");
+            // v1 #6: the first-launch text size chooser, shown over the first board.
+            app.QaFirstSize(true);
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("01a-first-size.png");
+            app.QaFirstSize(false);
+            for (int f = 0; f < 4; f++) yield return null;
 
             SolvePartially(first, 3);
             for (int f = 0; f < 6; f++) yield return null;
@@ -246,6 +253,15 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 8; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("17-hub-map.png");
+            // v1 #18: the same hub at rest (corner chrome faded) and back in use.
+            app.QaIdle(true);
+            for (int f = 0; f < 4; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17-hub-idle.png");
+            app.QaIdle(false);
+            for (int f = 0; f < 4; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17-hub-awake.png");
             // The one corner button's fan (I191), with a whole year of memories.
             Press("Open menu");
             for (int f = 0; f < 12; f++) yield return null;

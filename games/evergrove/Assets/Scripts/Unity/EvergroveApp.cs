@@ -398,7 +398,9 @@ namespace Evergrove.UnityClient
 
         private void Update()
         {
+            HandleBackGesture();
             TickSoundscape();
+            TickIdleFade(); // EvergroveApp.Idle.cs: the corner chrome fades after 6 s with no touch
             if (scrollArea == null) return;
             Rect safe = Screen.safeArea;
             var size = new Vector2Int(Screen.width, Screen.height);
@@ -3422,7 +3424,7 @@ namespace Evergrove.UnityClient
             // Taps on the letter itself don't reach the backdrop (which closes it).
             paper.AddComponent<Button>().transition = Selectable.Transition.None;
             var column = paper.AddComponent<VerticalLayoutGroup>();
-            column.padding = new RectOffset(22, 22, 20, 18);
+            column.padding = new RectOffset(22, 22, (int)BackPlacement.Reserve, 18); // top clear of the corner close
             column.spacing = 12;
             column.childControlWidth = column.childControlHeight = true;
             column.childForceExpandWidth = true;
@@ -3458,8 +3460,11 @@ namespace Evergrove.UnityClient
             if (fromNewest < letters.Length - 1)
                 IconButton(row, "Older letter", "Older letter", MosseloraArt.IconUndo, () => ShowLetter(letterShown + 1),
                     56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
-            IconButton(row, "Close letter", GameLocalization.Text("close"), MosseloraArt.IconConfirm, CloseLetter,
-                56, MosseloraTheme.ForestAction, false, null, false, 0, 0, true);
+            // The one back control: top-right of the paper, as on every sheet and card (BackPlacement).
+            Button closeLetter = IconButton(paper.transform, "Close letter", GameLocalization.Text("close"),
+                MosseloraArt.IconCancel, CloseLetter, 56, // 56: BackPlacement.Size, enforced by PlaceBack
+                MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            PlaceBack(closeLetter.GetComponent<RectTransform>());
             // Write back (I235): the family card opens with "Dear <name>," begun.
             if (world.Mode == PlayMode.Living)
             {
@@ -4375,10 +4380,7 @@ namespace Evergrove.UnityClient
         private void BuildMenuSheet(Transform host)
         {
             menuSheet = BuildSheet(host, "Menu", () => SetMenu(false), out menuContent, out menuScroll);
-            journalSheet = BuildSheet(host, "Journal", () => {
-                showJournal = false;
-                Rebuild();
-            }, out journalContent, out journalScroll);
+            journalSheet = BuildSheet(host, "Journal", CloseJournal, out journalContent, out journalScroll);
         }
 
         // A parchment sheet that rises over the dimmed garden; tapping the
@@ -4560,12 +4562,68 @@ namespace Evergrove.UnityClient
             Transform old = panel.Find(name);
             if (old != null) { old.gameObject.SetActive(false); Destroy(old.gameObject); }
             Button button = IconButton(panel, name, GameLocalization.Text("close"), MosseloraArt.IconCancel,
-                () => close(), 52, MosseloraTheme.QuietAction);
-            Width(button, 60);
-            button.GetComponent<LayoutElement>().ignoreLayout = true;
-            PlaceChrome(button, new Vector2(1f, 1f), new Vector2(-12f, -9f));
+                () => close(), 56, MosseloraTheme.QuietAction); // 56: BackPlacement.Size, enforced by PlaceBack
+            PlaceBack(button.GetComponent<RectTransform>());
             // After the paper grain, before the pages: read first, drawn clear of the pages.
             button.transform.SetSiblingIndex(Mathf.Min(1, panel.childCount - 1));
+        }
+
+        // The one back gesture: Android back or the keyboard's Escape closes the topmost open
+        // layer, and only that one. Each layer keeps its own close method; this picks which.
+        // Top to bottom: the letter, the family sheet, the sheets (seed book, stall, name,
+        // dates, deeper boards), the menu, the journal, the choice preview, the puzzle card.
+        private void HandleBackGesture()
+        {
+            if (!BackKeyPressed()) return;
+            if (letterCard != null) CloseLetter();
+            else if (familySheet != null) familySheet.Close();
+            else if (seedBookSheet != null) CloseSeedBook();
+            else if (marketSheet != null) CloseMarketSheet();
+            else if (nameSheet != null) CloseNameSheet();
+            else if (datesSheet != null) CloseDatesSheet();
+            else if (weeklySheet != null) CloseWeeklyBoardSheet();
+            else if (menuOpen) SetMenu(false);
+            else if (showJournal) CloseJournal();
+            else if (choicePreview != null) CloseChoicePreview();
+            else if (openCard != null) openCard.Close();
+        }
+
+        // Android back and a keyboard's Escape arrive as the same key press.
+        private static bool BackKeyPressed()
+        {
+#if !ENABLE_LEGACY_INPUT_MANAGER && ENABLE_INPUT_SYSTEM
+            var keyboard = UnityEngine.InputSystem.Keyboard.current;
+            return keyboard != null && keyboard.escapeKey.wasPressedThisFrame;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetKeyDown(KeyCode.Escape);
+#else
+            return false;
+#endif
+        }
+
+        // Shuts the journal and forgets its page and tab. The close button and the veil both use it.
+        internal void CloseJournal()
+        {
+            showJournal = false;
+            journalOpenPage = -1;
+            almanacTab = false;
+            familyTab = false;
+            waysTab = false;
+            Rebuild();
+        }
+
+        // The one back control's placement (BackPlacement): its top corner, inset and size.
+        // Shared by every sheet, card and panel that has a close or back control.
+        internal static void PlaceBack(RectTransform control)
+        {
+            bool right = BackPlacement.Corner == BackCorner.TopRight;
+            control.anchorMin = control.anchorMax = control.pivot = new Vector2(right ? 1f : 0f, 1f);
+            control.anchoredPosition = new Vector2(right ? -BackPlacement.Inset : BackPlacement.Inset, -BackPlacement.Inset);
+            control.sizeDelta = new Vector2(BackPlacement.Size, BackPlacement.Size);
+            var layout = control.GetComponent<LayoutElement>();
+            if (layout == null) layout = control.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+            layout.minWidth = layout.preferredWidth = layout.minHeight = layout.preferredHeight = BackPlacement.Size;
         }
 
         private void SetMenu(bool open)
@@ -6006,6 +6064,7 @@ namespace Evergrove.UnityClient
             // Keep the first playable board in the first visible viewport,
             // rather than putting language/settings and a giant hero above it.
             bool firstPuzzle = world.Round == 0 && !world.Solved && !showingMemory;
+            OfferFirstSize(firstPuzzle); // checklist 6: text size first, before the first puzzle (EvergroveApp.FirstSize.cs)
             // The post-choice screen leads with the changed world and the new
             // memory; its settings move below the primary actions.
             bool memoryScreen = living && showingMemory && world.Choices.Length > 0;
@@ -6426,7 +6485,7 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
             RectTransform pageRoot = content;
             content = journalContent;
-            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; waysTab = false; Rebuild(); });
+            SheetClose(journalContent, "Close journal", CloseJournal);
             content = pageRoot;
             JournalTabs();
             if (familyTab)
