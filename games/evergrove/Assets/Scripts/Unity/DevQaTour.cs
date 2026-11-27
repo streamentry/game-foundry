@@ -288,6 +288,23 @@ namespace Evergrove.UnityClient
                 SavePng("17x-river-opened.png");
                 app.QaEndTreePlay();
             }
+            // I243-I247: the five newer kinds, each unsolved and then solved.
+            foreach (PuzzleKind kind in new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots,
+                         PuzzleKind.StreamPath, PuzzleKind.Mahjong })
+            {
+                app.QaOpenKind(kind, 1);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("18-" + kind.ToString().ToLowerInvariant() + ".png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("18-" + kind.ToString().ToLowerInvariant() + "-solved.png");
+                yield return new WaitForSecondsRealtime(2.4f);
+                for (int f = 0; f < 4; f++) yield return null;
+                app.QaEndTreePlay();
+            }
             // The nursery (I208): seeds buy a new plant that holds its own puzzle.
             app.QaOpenNursery();
             for (int f = 0; f < 6; f++) yield return null;

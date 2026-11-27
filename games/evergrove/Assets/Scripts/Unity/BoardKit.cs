@@ -1,0 +1,151 @@
+using System;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Evergrove.UnityClient
+{
+    /// <summary>
+    /// Shared pieces for the newer puzzle boards (I243 on): the earth-toned bed every
+    /// table sits in, paper cells that take a tap, painted glyphs and numbers. One look
+    /// for all eight kinds, the same as the Pairs table.
+    /// </summary>
+    internal static class BoardKit
+    {
+        public const float CardPadding = 36f;   // the card's side padding, both sides
+        public const float BedPadding = 8f;
+        public static readonly Color BedFill = new Color(0.55f, 0.5f, 0.36f, 0.55f);
+        public static readonly Color Soil = new Color(0.93f, 0.91f, 0.86f, 1f);
+        public static readonly Color Leafy = new Color(0.80f, 0.90f, 0.74f, 1f);
+        public static readonly Color Water = new Color(0.62f, 0.83f, 0.88f, 1f);
+        public static readonly Color Given = new Color(0.90f, 0.86f, 0.74f, 1f);
+        public static readonly Color Picked = new Color(0.98f, 0.93f, 0.74f, 1f);
+        public static readonly Color Clash = new Color(0.96f, 0.80f, 0.78f, 1f);
+
+        /// <summary>Room for a board under the card's top row: width and height in points.</summary>
+        public static Vector2 Room(float width, float screenHeight, float below = 0f)
+        {
+            return new Vector2(width - CardPadding - BedPadding * 2f,
+                Mathf.Max(160f, screenHeight - 176f - below - BedPadding * 2f));
+        }
+
+        /// <summary>The earth-toned bed, sized exactly; children are placed by hand (top-left origin).</summary>
+        public static RectTransform Bed(Transform card, string name, Vector2 inner)
+        {
+            var bed = new GameObject(name, typeof(RectTransform));
+            bed.transform.SetParent(card, false);
+            var layout = bed.AddComponent<LayoutElement>();
+            layout.preferredHeight = layout.minHeight = inner.y + BedPadding * 2f;
+            var image = bed.AddComponent<Image>();
+            MosseloraArt.Round(image, BedFill, 18);
+            image.raycastTarget = false;
+            var holder = new GameObject("Board", typeof(RectTransform));
+            holder.transform.SetParent(bed.transform, false);
+            var rect = (RectTransform)holder.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = inner;
+            return rect;
+        }
+
+        /// <summary>A paper cell at (x, y) from the board's top-left, that calls <paramref name="tap"/>.</summary>
+        public static Image Cell(RectTransform board, string name, Vector2 at, Vector2 size, Action tap, int radius = 8)
+        {
+            var node = new GameObject(name, typeof(RectTransform));
+            node.transform.SetParent(board, false);
+            var rect = (RectTransform)node.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = size;
+            rect.anchoredPosition = new Vector2(at.x + size.x / 2f, -at.y - size.y / 2f);
+            var image = node.AddComponent<Image>();
+            MosseloraArt.PaperTile(image, radius);
+            image.color = Soil;
+            if (tap != null)
+            {
+                var button = node.AddComponent<Button>();
+                button.targetGraphic = image;
+                button.transition = Selectable.Transition.None;
+                button.onClick.AddListener(() => tap());
+                PressSquash.Add(node);
+            }
+            else image.raycastTarget = false;
+            return image;
+        }
+
+        /// <summary>A picture inside a cell, inset; null sprite hides it.</summary>
+        public static Image Glyph(Transform cell, string name, Sprite sprite, float inset)
+        {
+            var node = new GameObject(name, typeof(RectTransform));
+            node.transform.SetParent(cell, false);
+            var rect = (RectTransform)node.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(inset, inset);
+            rect.offsetMax = new Vector2(-inset, -inset);
+            var image = node.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            image.enabled = sprite != null;
+            return image;
+        }
+
+        /// <summary>Bold numbers for clues: digits read in every language.</summary>
+        public static Text Number(Transform parent, string name, string words, Font font, int size, Color color,
+                                  TextAnchor anchor = TextAnchor.MiddleCenter)
+        {
+            var node = new GameObject(name, typeof(RectTransform));
+            node.transform.SetParent(parent, false);
+            var rect = (RectTransform)node.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var text = node.AddComponent<Text>();
+            text.font = font;
+            text.fontSize = size;
+            text.fontStyle = FontStyle.Bold;
+            text.color = color;
+            text.alignment = anchor;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.text = words;
+            return text;
+        }
+
+        /// <summary>A free-standing label at a spot on the board (clues sit outside cells).</summary>
+        public static Text Label(RectTransform board, string name, string words, Vector2 at, Vector2 size, Font font,
+                                 int fontSize, Color color, TextAnchor anchor)
+        {
+            var node = new GameObject(name, typeof(RectTransform));
+            node.transform.SetParent(board, false);
+            var rect = (RectTransform)node.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = size;
+            rect.anchoredPosition = new Vector2(at.x + size.x / 2f, -at.y - size.y / 2f);
+            Text text = Number(node.transform, "Words", words, font, fontSize, color, anchor);
+            return text;
+        }
+
+        /// <summary>A gentle "not like that" nudge: a quick sideways shiver, no sound, no penalty.</summary>
+        public static void Shiver(GameObject node)
+        {
+            if (node != null) node.AddComponent<ShiverOnce>();
+        }
+
+        private sealed class ShiverOnce : MonoBehaviour
+        {
+            private float clock;
+            private Vector3 home;
+            private void Start() { home = transform.localPosition; }
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float t = clock / 0.35f;
+                if (t >= 1f) { transform.localPosition = home; Destroy(this); return; }
+                transform.localPosition = home + new Vector3(Mathf.Sin(t * Mathf.PI * 4f) * 5f * (1f - t), 0f, 0f);
+            }
+        }
+    }
+}

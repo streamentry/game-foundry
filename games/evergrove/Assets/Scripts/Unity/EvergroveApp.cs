@@ -1960,8 +1960,8 @@ namespace Evergrove.UnityClient
             int seed = world.Garden * 1000 + item * 7 + 1;
             int reward = WorldModel.TreeReward(tier, !world.TreeSolved(item));
             Func<int> solved = () => { int earned = world.SolveTree(item); SaveWorld(); PlayChime(); return earned; };
-            OpenThingPuzzle(seed, tier, (VillageChoice)made[item], ItemArt(item, made[item]), thing.Name, reward,
-                item, solved);
+            OpenThingPuzzle(seed, tier, ThingPuzzle.ForStory(item, (VillageChoice)made[item]), ItemArt(item, made[item]),
+                thing.Name, reward, item, solved);
         }
 
         // A nursery plant's puzzle (I208): its row is its tier; its own seed.
@@ -1972,13 +1972,13 @@ namespace Evergrove.UnityClient
             GardenItem plant = Nursery.Item(kind);
             int tier = Nursery.Row(kind);
             int reward = WorldModel.TreeReward(tier, !world.BoughtSolved(k));
-            OpenThingPuzzle(world.Garden * 1000 + 500 + k * 7, tier, Nursery.Family(kind),
+            OpenThingPuzzle(world.Garden * 1000 + 500 + k * 7, tier, ThingPuzzle.ForNursery(kind),
                 MosseloraArt.Load(plant.Art), plant.Name, reward, k * 5 + kind,
                 () => { int earned = world.SolveBought(k); SaveWorld(); PlayChime(); return earned; });
         }
 
-        // Puzzle kind follows the family (depth spine): flowers hold Pairs, the rest water.
-        private void OpenThingPuzzle(int seed, int tier, VillageChoice family, Sprite art, string name, int reward,
+        // Each thing holds one kind of puzzle (I243: ThingPuzzle).
+        private void OpenThingPuzzle(int seed, int tier, PuzzleKind kind, Sprite art, string name, int reward,
                                      int pictureStart, Func<int> solved)
         {
             Action turned = () => { PlayTock(); if (gentleMotion) Haptics.Tick(); };
@@ -1998,22 +1998,41 @@ namespace Evergrove.UnityClient
                 dropEarned = world.PuzzlesSolved > solvedBefore;
                 return earned;
             };
-            PuzzleCard((RectTransform)titleScreen.transform, seed, tier, family, art, name, reward,
+            PuzzleCard((RectTransform)titleScreen.transform, seed, tier, kind, art, name, reward,
                 count => PairsPictures(count, pictureStart, (c, f) => ItemArt(c, f)), turned, solved, closed);
         }
 
-        // The card itself (kind by family), for your things and, visiting, for theirs (I227).
-        private void PuzzleCard(RectTransform host, int seed, int tier, VillageChoice family, Sprite art, string name,
+        // The card itself, for your things and, visiting, for theirs (I227); eight kinds (I243).
+        private void PuzzleCard(RectTransform host, int seed, int tier, PuzzleKind kind, Sprite art, string name,
                                 int reward, Func<int, Sprite[]> pictures, Action turned, Func<int> solved, Action closed)
         {
-            if (family == VillageChoice.Flowers)
+            TreePlay.IPuzzleBoard board = null;
+            switch (kind)
+            {
+                case PuzzleKind.Nonogram: board = new NonogramBoard(new NonogramGame(seed, tier)); break;
+                case PuzzleKind.Sudoku:
+                {
+                    var sudoku = new SeedSudokuGame(seed, tier);
+                    board = new SudokuBoard(sudoku, pictures(sudoku.Size));
+                    break;
+                }
+                case PuzzleKind.Plots: board = new PlotsBoard(new PlotsGame(seed, tier)); break;
+                case PuzzleKind.StreamPath: board = new StreamBoard(new StreamPathGame(seed, tier)); break;
+                case PuzzleKind.Mahjong: board = new MahjongBoard(new MahjongGame(seed, tier), tier, pictures(MahjongGame.FacesFor(tier))); break;
+            }
+            if (board != null)
+            {
+                TreePlay.OpenBoard(host, board, art, name, reward, font, gentleMotion, turned, solved, closed);
+                return;
+            }
+            if (kind == PuzzleKind.Pairs)
             {
                 var game = new PairsGame(seed, tier);
                 TreePlay.OpenPairs(host, game, pictures(game.Pairs), art, name, reward, font,
                     gentleMotion, turned, solved, closed);
                 return;
             }
-            if (family == VillageChoice.Bridge)
+            if (kind == PuzzleKind.Mosaic)
             {
                 // Buildings hold a Mosaic of one of the village's memory paintings.
                 string[] paintings = { MosseloraArt.VignetteBridge, MosseloraArt.VignetteTree,
@@ -2247,7 +2266,7 @@ namespace Evergrove.UnityClient
                 if (share != null && !NativeShare.Text(share, "Mosselora")) GUIUtility.systemCopyBuffer = share;
             };
             PuzzleCard((RectTransform)visitLayer.transform, theirs.Garden * 1000 + item * 7 + 1, tier,
-                (VillageChoice)made[item], artOf(item, made[item]), thing.Name, -1,
+                ThingPuzzle.ForStory(item, (VillageChoice)made[item]), artOf(item, made[item]), thing.Name, -1,
                 count => PairsPictures(count, item, artOf), turned, solved, closed);
         }
         private string helpShare;
@@ -7432,6 +7451,21 @@ namespace Evergrove.UnityClient
             qaShowHub = true;
             if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
             if (hubMapView != null) hubMapView.KeepAt(new Vector2(0.5f, 0f));
+        }
+
+        // I243 tour: open one of the newer kinds as a grown thing would hold it.
+        internal void QaOpenKind(PuzzleKind kind, int tier)
+        {
+            qaShowHub = true;
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            int item = Mathf.Min(5, world.Choices.Length - 1);
+            if (titleScreen == null || item < 0) return;
+            int[] made = world.Choices;
+            PuzzleCard((RectTransform)titleScreen.transform, world.Garden * 1000 + 77 + (int)kind, tier, kind,
+                ItemArt(item, made[item]), ItemAt(item, made[item]).Name, 0,
+                count => PairsPictures(count, item, (c, f) => ItemArt(c, f)), () => PlayTock(), () => 0,
+                () => { qaShowHub = false; });
+            qaTreePlay = titleScreen.GetComponentInChildren<TreePlay>();
         }
 
         internal void QaOpenTreePlay(int item)

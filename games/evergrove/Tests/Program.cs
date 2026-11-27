@@ -1908,6 +1908,12 @@ internal static class Program
             assertions += NurseryRestockTests.Run();
             assertions += PairsTests.Run();
             assertions += MosaicTests.Run();
+            assertions += NonogramTests.Run();
+            assertions += SeedSudokuTests.Run();
+            assertions += PlotsTests.Run();
+            assertions += StreamPathTests.Run();
+            assertions += MahjongTests.Run();
+            assertions += ThingPuzzleTests.Run();
             assertions += NoticeTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
