@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Evergrove.Core
 {
-    public enum ParcelGift { None = 0, Seeds = 1, Cutting = 2, Help = 3, Fruit = 4, Board = 5, Lantern = 6 }
+    public enum ParcelGift { None = 0, Seeds = 1, Cutting = 2, Help = 3, Fruit = 4, Board = 5, Lantern = 6, Jam = 7 }
 
     public enum ParcelError
     {
@@ -28,7 +28,9 @@ namespace Evergrove.Core
         /// <summary>Opening a Help parcel: this garden has no grown thing with that index.</summary>
         NotInThisGarden,
         /// <summary>Sending fruit: the garden holds fewer than the parcel would carry.</summary>
-        NotEnoughFruit
+        NotEnoughFruit,
+        /// <summary>Sending jam: the garden holds fewer jars than the parcel would carry.</summary>
+        NotEnoughJam
     }
 
     public sealed class ParcelContents
@@ -70,6 +72,8 @@ namespace Evergrove.Core
         public int BoardKind = -1;
         public int BoardTier = -1;
         public int BoardSeed = -1;
+        /// <summary>Jars that actually arrived (less than sent only when the pantry is nearly full).</summary>
+        public int JamGained;
     }
 
     /// <summary>
@@ -116,7 +120,7 @@ namespace Evergrove.Core
                 From = from == null ? null : from.Trim(),
                 Letter = letter == null ? "" : letter.Replace("\r\n", "\n").Trim(),
                 Gift = gift,
-                Amount = gift == ParcelGift.Seeds || gift == ParcelGift.Fruit ? value : gift == ParcelGift.Board ? boardSeed : 0,
+                Amount = gift == ParcelGift.Seeds || gift == ParcelGift.Fruit || gift == ParcelGift.Jam ? value : gift == ParcelGift.Board ? boardSeed : 0,
                 Kind = gift == ParcelGift.Cutting || gift == ParcelGift.Help || gift == ParcelGift.Board ? value : -1,
                 Blessing = blessing,
                 Nonce = nonce
@@ -259,7 +263,7 @@ namespace Evergrove.Core
         {
             if (!ValidName(c.From) || !ValidLetter(c.Letter)) return false;
             if (c.Blessing < 0 || c.Blessing > MaxBlessing) return false;
-            if (c.Blessing != 0 && c.Gift != ParcelGift.Seeds && c.Gift != ParcelGift.Fruit) return false;
+            if (c.Blessing != 0 && c.Gift != ParcelGift.Seeds && c.Gift != ParcelGift.Fruit && c.Gift != ParcelGift.Jam) return false;
             switch (c.Gift)
             {
                 case ParcelGift.None:
@@ -268,6 +272,8 @@ namespace Evergrove.Core
                     return c.Amount >= 1 && c.Amount <= MaxSeedsPerParcel && c.Kind == -1;
                 case ParcelGift.Fruit:
                     return c.Amount >= 1 && c.Amount <= WorldModel.MaxFruitPerParcel && c.Kind == -1;
+                case ParcelGift.Jam:
+                    return c.Amount >= 1 && c.Amount <= WorldModel.MaxJarsPerParcel && c.Kind == -1;
                 case ParcelGift.Cutting:
                     return c.Amount == 0 && c.Kind >= 0 && c.Kind < Nursery.Kinds;
                 case ParcelGift.Help:
@@ -343,6 +349,7 @@ namespace Evergrove.Core
                 case "fruit": c.Gift = ParcelGift.Fruit; break;
                 case "board": c.Gift = ParcelGift.Board; break;
                 case "lantern": c.Gift = ParcelGift.Lantern; break;
+                case "jam": c.Gift = ParcelGift.Jam; break;
                 default: c.Gift = (ParcelGift)(-1); break; // fails ValidShape, so the parcel is Invalid
             }
             return true;
@@ -358,6 +365,7 @@ namespace Evergrove.Core
                 case ParcelGift.Fruit: return "fruit";
                 case ParcelGift.Board: return "board";
                 case ParcelGift.Lantern: return "lantern";
+                case ParcelGift.Jam: return "jam";
                 case ParcelGift.None: return "none";
                 default: return "unknown";
             }

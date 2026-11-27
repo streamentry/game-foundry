@@ -182,8 +182,10 @@ namespace Evergrove.Core
             }
             if (state.seeds < cost) return Fail(result, ParcelError.NotEnoughSeeds);
             if (gift == ParcelGift.Fruit && state.fruit < contents.Amount) return Fail(result, ParcelError.NotEnoughFruit);
+            if (gift == ParcelGift.Jam && state.jam < contents.Amount) return Fail(result, ParcelError.NotEnoughJam);
             state.seeds -= cost;
             if (gift == ParcelGift.Fruit) state.fruit -= contents.Amount;
+            if (gift == ParcelGift.Jam) state.jam -= contents.Amount;
             RememberParcel(contents.Id);
             result.Ok = true;
             result.Error = ParcelError.None;
@@ -227,6 +229,12 @@ namespace Evergrove.Core
                 int gained = Math.Min(contents.Amount, MaxFruit - state.fruit);
                 state.fruit += gained;
                 result.FruitGained = gained;
+            }
+            else if (contents.Gift == ParcelGift.Jam)
+            {
+                int gained = Math.Min(contents.Amount, MaxJam - state.jam);
+                state.jam += gained;
+                result.JamGained = gained;
             }
             else if (contents.Gift == ParcelGift.Cutting)
             {

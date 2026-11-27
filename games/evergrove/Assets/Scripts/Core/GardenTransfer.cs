@@ -39,7 +39,7 @@ namespace Evergrove.Core
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
             "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
             "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
-            "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns"
+            "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -246,6 +246,12 @@ namespace Evergrove.Core
                 sb.Append(",\"together\":").Append(IntArray(s.together));
             if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit && includeTogether && includeLanterns)
                 sb.Append(",\"lanterns\":").Append(StringArray(s.lanterns));
+            // Newer keys are written only when they hold something, so every older garden's text and checksum
+            // stay byte-identical and no explicit "pre" step is needed for them.
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit && includeTogether && includeLanterns)
+            {
+                if (s.jam != 0) sb.Append(",\"jam\":").Append(Int(s.jam));
+            }
             return sb.Append('}').ToString();
         }
 
@@ -358,7 +364,8 @@ namespace Evergrove.Core
                    ReadInts(fields, "fruitGiven", ref snapshot.fruitGiven) &&
                    ReadInt(fields, "lastFruitTo", ref snapshot.lastFruitTo) &&
                    ReadInts(fields, "together", ref snapshot.together) &&
-                   ReadStrings(fields, "lanterns", ref snapshot.lanterns);
+                   ReadStrings(fields, "lanterns", ref snapshot.lanterns) &&
+                   ReadInt(fields, "jam", ref snapshot.jam);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)
