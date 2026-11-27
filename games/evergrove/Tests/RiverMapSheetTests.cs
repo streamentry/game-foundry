@@ -175,8 +175,11 @@ internal static class RiverMapSheetTests
         int boat = tour.IndexOf("SavePng(\"17zd-boat-arrived.png\")", StringComparison.Ordinal);
         int shot = tour.IndexOf("SavePng(\"17ze-river-map.png\")", StringComparison.Ordinal);
         Expect(boat >= 0 && shot > boat, "the river map shot follows the boat shots");
-        Expect(tour.Contains("Press(\"River map\");") && tour.Contains("Press(\"Close river map\");"),
-            "the tour opens the map through its menu entry and closes it again");
+        Expect(tour.Contains("app.QaOpenRiverMap();") && tour.Contains("Press(\"Close river map\");"),
+            "the tour opens the map over the hub and closes it with its own button");
+        string sheet = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.RiverMap.cs");
+        Expect(sheet.Contains("internal void QaOpenRiverMap()") && sheet.Contains("OpenRiverMap();"),
+            "the QA hook opens the map through the same OpenRiverMap the menu entry calls");
     }
 
     private static void RegisteredInTheRunner()

@@ -22,9 +22,13 @@ namespace Evergrove.UnityClient
             yield return new WaitForSecondsRealtime(1.5f);
             yield return new WaitForEndOfFrame();
             SavePng("17zd-boat-arrived.png");
-            // Checklist 45: the river map, opened from the menu's own entry, then closed.
-            Press("River map"); yield return new WaitForSecondsRealtime(0.5f);
-            yield return new WaitForEndOfFrame(); SavePng("17ze-river-map.png"); Press("Close river map");
+            // Checklist 45: the river map over the hub (the menu entry's own action), then closed by its button.
+            app.QaOpenRiverMap();
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.5f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17ze-river-map.png");
+            Press("Close river map");
         }
     }
 }

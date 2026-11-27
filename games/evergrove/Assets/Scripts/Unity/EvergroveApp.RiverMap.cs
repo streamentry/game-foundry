@@ -110,6 +110,16 @@ namespace Evergrove.UnityClient
 
         internal void CloseRiverMap() { RetireRiverMapSheet(false); }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // ---- Dev QA tour hook (checklist 45 screenshot): opens the map over the hub, as the menu entry does.
+        internal void QaOpenRiverMap()
+        {
+            qaShowHub = true;
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            OpenRiverMap();
+        }
+#endif
+
         private void RetireRiverMapSheet(bool replacing)
         {
             RetireSheet(riverMapSheet, "River map", replacing);
