@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "এই পরিবর্তন করুন"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "গোপনীয়তা নীতি"
     }
   ]
 }

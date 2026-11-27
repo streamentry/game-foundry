@@ -28,4 +28,4 @@ Known upstream issues left as they are (not reached by app input, which contains
 
 - `Assets/Scripts/Core/RtlText.cs` calls `Bidi.LogicalToVisual` after `ArabicShaper.Shape`.
 - Tests: `games/evergrove/Tests/Program.cs` (`RtlTextTests`); the test project compiles these files through `Tests/Evergrove.Core.Tests.csproj`.
-- Shipping status: not on the shipping allowlist. Research and development builds only.
+- Build 4 inspection found BidiSharp compiled into the release binary. The required MIT notice is packaged from `Assets/StreamingAssets/BidiSharp-LICENSE.txt` in subsequent builds. This does not change the locale release allowlist.

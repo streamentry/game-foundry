@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "இந்த மாற்றத்தைச் செய்யவும்"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "தனியுரிமைக் கொள்கை"
     }
   ]
 }
