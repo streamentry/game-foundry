@@ -494,6 +494,15 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng("17p-family-send.png");
+                // I343/I344: the wrapping step (a wish and a picture stamp), then the words step.
+                family.QaStep(1, 50, 2, 3);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17p1-family-wrap.png");
+                family.QaStep(2, 50, 2, 3);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17p2-family-words.png");
                 family.QaSend("Grandma Lan", 50, "The pear tree is in flower. Come and see it soon.");
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
