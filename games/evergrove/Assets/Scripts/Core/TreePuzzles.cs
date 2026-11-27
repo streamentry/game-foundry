@@ -159,4 +159,40 @@ namespace Evergrove.Core
             }
         }
     }
+
+    /// <summary>
+    /// A thing's water board in play (step 39, undo everywhere). It is dealt from the
+    /// <see cref="Puzzle"/> itself, so <see cref="BoardHistory{TGame}"/> can rebuild it
+    /// from the same start and replay every recorded turn. A turn is one move; a board
+    /// that is solved takes no more turns.
+    /// </summary>
+    public sealed class TreeWaterGame
+    {
+        private readonly int[] rotations;
+
+        public TreeWaterGame(Puzzle board)
+        {
+            if (board == null) throw new ArgumentNullException(nameof(board));
+            Puzzle = board;
+            rotations = (int[])board.Initial.Clone();
+        }
+
+        /// <summary>The board's channels and answer. Only the turns change.</summary>
+        public Puzzle Puzzle { get; private set; }
+
+        public int Rotation(int index) { return rotations[index]; }
+
+        /// <summary>A copy of every tile's turn, in cell order.</summary>
+        public int[] Rotations { get { return (int[])rotations.Clone(); } }
+
+        public bool Solved { get { return PipeRules.IsComplete(Puzzle, rotations); } }
+
+        /// <summary>Turns one tile a quarter turn. False when the index is off the board or the board is solved.</summary>
+        public bool Turn(int index)
+        {
+            if (index < 0 || index >= rotations.Length || Solved) return false;
+            rotations[index] = rotations[index] % PipeRules.OrientationCount(Puzzle.Kinds[index]) + 1;
+            return true;
+        }
+    }
 }

@@ -7859,6 +7859,8 @@ namespace Evergrove.UnityClient
                     Rebuild();
                 }, SettingToken, Haptics.Enabled ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
+            // At most three tiles to a row: five in one row ran off a 375 pt phone (v1 tour, 2026-11-28).
+            row = Row(panel.transform, "Settings row 2b");
             IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,

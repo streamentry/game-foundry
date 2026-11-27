@@ -18,7 +18,6 @@ namespace Evergrove.UnityClient
         public const string SeedIcon = "glyph-sprout";
 
         private Puzzle puzzle;
-        private int[] rotations;
         private Image[] tiles;
         private PipeGraphic[] pipes;
         private Button[] buttons;
@@ -58,6 +57,10 @@ namespace Evergrove.UnityClient
         private MosaicGame mosaic { get { return mosaicHistory == null ? null : mosaicHistory.Current; } }
         private BoardKit.UndoRow mosaicUndo;
         private Sprite painting;
+        // The water board (a thing's puzzle): every tile turn is a recorded move (step 39).
+        private BoardHistory<TreeWaterGame> waterHistory;
+        private TreeWaterGame water { get { return waterHistory == null ? null : waterHistory.Current; } }
+        private BoardKit.UndoRow waterUndo;
         private RawImage[] pieces;
         // The five newer kinds (I243 on) each draw their own board.
         private IPuzzleBoard board;
@@ -295,7 +298,7 @@ namespace Evergrove.UnityClient
             {
                 // A tile turned the wrong way.
                 for (int i = 0; i < puzzle.CellCount && a < 0; i++)
-                    if (rotations[i] != puzzle.Solution[i] && PipeRules.OrientationCount(puzzle.Kinds[i]) > 1) a = i;
+                    if (water.Rotation(i) != puzzle.Solution[i] && PipeRules.OrientationCount(puzzle.Kinds[i]) > 1) a = i;
             }
             if (a < 0) return;
             if (a != hintA || b != hintB)
@@ -319,7 +322,7 @@ namespace Evergrove.UnityClient
                 TapPiece(b);
                 return;
             }
-            for (int guard = 0; guard < 4 && rotations[a] != puzzle.Solution[a] && !solved; guard++) Turn(a);
+            for (int guard = 0; guard < 4 && water.Rotation(a) != puzzle.Solution[a] && !solved; guard++) Turn(a);
         }
 
         public static TreePlay Open(RectTransform host, Puzzle puzzle, Sprite art, string name, int reward,
@@ -359,7 +362,8 @@ namespace Evergrove.UnityClient
             veil.color = new Color(0.08f, 0.14f, 0.11f, 0.38f); // the garden stays in view, dimmed
             var play = root.AddComponent<TreePlay>();
             play.puzzle = puzzle;
-            play.rotations = puzzle != null ? (int[])puzzle.Initial.Clone() : null;
+            play.waterHistory = puzzle == null ? null
+                : new BoardHistory<TreeWaterGame>(new TreeWaterGame(puzzle), () => new TreeWaterGame(puzzle));
             play.pairsHistory = game == null ? null
                 : new BoardHistory<PairsGame>(game, () => new PairsGame(game.Seed, game.Tier));
             play.pictures = faces;
@@ -407,6 +411,7 @@ namespace Evergrove.UnityClient
             // The card is about its width plus 100 pt tall: sideways, the height decides (I204).
             float width = Mathf.Min(screenWidth - 28f, 440f, screenHeight - 112f);
             cardRect.sizeDelta = new Vector2(width, 0f);
+            StartCoroutine(KeepCardOnScreen(root));
 
             // Top row: close token, the thing itself, the seeds it pays.
             var top = Row(card.transform, "Tree puzzle top", 84f);
@@ -445,6 +450,13 @@ namespace Evergrove.UnityClient
             float boardWidth = width - 36f;
             float gap = 8f;
             float cell = Mathf.Floor((boardWidth - gap * (size - 1) - 16f) / size);
+            // Fit the height too, like pairs and mosaic: the top row, the Size chooser (item 34) and the
+            // undo row (item 39) all sit on this card, and sideways the board ran off the screen (v1 tour).
+            // Never below a 48 pt touch target (item 91); a very short screen scrolls instead.
+            const float chooserSpace = 64f;
+            float byHeight = Mathf.Floor((screenHeight - 176f - chooserSpace - BoardKit.UndoRowSpace
+                - gap * (size - 1) - 16f) / size);
+            cell = Mathf.Max(BoardFit.MinTouch, Mathf.Min(cell, byHeight));
             var bed = new GameObject("Tree puzzle board", typeof(RectTransform));
             bed.transform.SetParent(card.transform, false);
             var bedLayout = bed.AddComponent<LayoutElement>();
@@ -490,16 +502,17 @@ namespace Evergrove.UnityClient
                 pipes[i] = pipe;
                 buttons[i] = button;
             }
+            waterUndo = BoardKit.UndoRow.Build(card.transform, font, waterHistory, () => { hintA = hintB = -1; Paint(); });
             Paint();
         }
 
         private void Turn(int index)
         {
-            if (solved || index < 0 || index >= rotations.Length) return;
-            rotations[index] = rotations[index] % PipeRules.OrientationCount(puzzle.Kinds[index]) + 1;
+            if (solved || water == null || index < 0 || index >= puzzle.CellCount) return;
+            if (!waterHistory.Play(g => g.Turn(index), turned => turned)) return;
             if (!givingHeadStart) onTurn?.Invoke();
             Paint();
-            if (!PipeRules.IsComplete(puzzle, rotations)) return;
+            if (!water.Solved) return;
             Finish();
         }
 
@@ -703,6 +716,21 @@ namespace Evergrove.UnityClient
         }
 
         // ---- Pairs: a 4-wide table of painted cards, face down on paper.
+        // Sideways, the top row, the Size chooser (added a frame later), the board and the undo row can
+        // be taller than the screen, and the card doesn't scroll: the close button would be out of reach.
+        // Once laid out, a card taller than the screen is scaled down to fit, so every control stays
+        // reachable (v1 tour, 2026-11-28). Scale only: no layout change, nothing animates.
+        internal System.Collections.IEnumerator KeepCardOnScreen(RectTransform root)
+        {
+            yield return null;
+            yield return null; // after the leaves chooser attaches (EvergroveApp.Difficulty.cs)
+            if (cardRect == null || root == null) yield break;
+            Canvas.ForceUpdateCanvases();
+            float room = root.rect.height - 16f;
+            float tall = cardRect.rect.height;
+            cardRect.localScale = tall > room && tall > 1f ? Vector3.one * Mathf.Max(0.6f, room / tall) : Vector3.one;
+        }
+
         private void BuildPairs(Transform card, float width, float screenHeight, Font font)
         {
             int columns = 4, rows = pairs.Count / columns;
@@ -914,10 +942,13 @@ namespace Evergrove.UnityClient
                 }
                 return;
             }
+            // The last tile first, one turn short; every other tile to its answer; then the last tap.
             int last = puzzle.CellCount - 1;
-            rotations = (int[])puzzle.Solution.Clone();
             int turns = PipeRules.OrientationCount(puzzle.Kinds[last]);
-            rotations[last] = (puzzle.Solution[last] - 2 + turns) % turns + 1; // one turn short
+            int oneShort = (puzzle.Solution[last] - 2 + turns) % turns + 1;
+            for (int guard = 0; guard < 4 && water.Rotation(last) != oneShort && !solved; guard++) Turn(last);
+            for (int i = 0; i < last && !solved; i++)
+                for (int guard = 0; guard < 4 && water.Rotation(i) != puzzle.Solution[i] && !solved; guard++) Turn(i);
             Turn(last);
         }
 
@@ -928,22 +959,24 @@ namespace Evergrove.UnityClient
 
         private void Paint()
         {
-            PipeInsight insight = PipeRules.Inspect(puzzle, rotations);
+            int[] now = water.Rotations;
+            PipeInsight insight = PipeRules.Inspect(puzzle, now);
             for (int i = 0; i < tiles.Length; i++)
             {
                 tiles[i].color = MosseloraTheme.TileFill(solved, insight.Flowing[i], false, 0, -1, i, puzzle.Size);
-                pipes[i].Configure(puzzle.Kinds[i], rotations[i], insight.Flowing[i], solved, OpenPorts(i));
+                pipes[i].Configure(puzzle.Kinds[i], now[i], insight.Flowing[i], solved, OpenPorts(now, i));
             }
+            if (waterUndo != null) waterUndo.Refresh(solved);
         }
 
-        private int OpenPorts(int i)
+        private int OpenPorts(int[] now, int i)
         {
             int open = 0;
             for (int d = 0; d < 4; d++)
             {
-                if (!PipeRules.HasPort(puzzle.Kinds[i], rotations[i], d)) continue;
+                if (!PipeRules.HasPort(puzzle.Kinds[i], now[i], d)) continue;
                 int j = PipeRules.Neighbor(i, d, puzzle.Size);
-                if (j < 0 || !PipeRules.HasPort(puzzle.Kinds[j], rotations[j], (d + 2) % 4)) open++;
+                if (j < 0 || !PipeRules.HasPort(puzzle.Kinds[j], now[j], (d + 2) % 4)) open++;
             }
             return open;
         }
