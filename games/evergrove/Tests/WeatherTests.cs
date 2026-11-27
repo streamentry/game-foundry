@@ -86,15 +86,16 @@ internal static class WeatherTests
         Expect(DayWeather.SinceLastVisit(last.AddDays(3), last, Season.Spring, 3) == null, "a clock set back: nothing");
         // I360: every stretch of river has its own name, the first being home's.
         var names = new HashSet<string>();
-        for (int reach = 0; reach < GardenMap.ReachesCeiling; reach++)
+        for (int reach = 0; reach < 20; reach++) // the first lap of the authored list (I363)
         {
             string name = RiverNames.For(reach);
             Expect(!string.IsNullOrEmpty(name) && name.Length <= 18 && !name.Contains("!"), "a short name: " + name);
             Expect(names.Add(name), "each stretch its own name: " + name);
             Expect(RiverNames.For(reach) == name, "always the same name");
         }
-        Expect(RiverNames.For(GardenMap.ReachesCeiling + 5) == RiverNames.For(GardenMap.ReachesCeiling - 1) &&
-               RiverNames.For(-3) == RiverNames.For(0), "out of range keeps to the ends");
+        Expect(RiverNames.For(20) == "Cottage Reach II" && RiverNames.For(40) == "Cottage Reach III",
+            "past the list, a lap numeral: " + RiverNames.For(20) + ", " + RiverNames.For(40));
+        Expect(RiverNames.For(-3) == RiverNames.For(0), "negative stretches keep to the first name");
         // I362: Mira's note when the river opens names the new stretch, and stays a letter.
         string note = NeighbourNotice.RiverNote(Season.Spring, RiverNames.For(5));
         Expect(note.Contains(RiverNames.For(5)) && FamilyParcel.ValidLetter(note), "the new stretch by name: " + note);

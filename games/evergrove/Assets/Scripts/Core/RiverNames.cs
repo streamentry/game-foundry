@@ -18,9 +18,33 @@ namespace Evergrove.Core
             "Bluebell Bank", "Dipper Falls", "Long Meadow", "Lantern Pool", "Far Reach"
         };
 
+        /// <summary>
+        /// The name of any stretch (I363). The authored list is cycled, and each lap adds a
+        /// Roman numeral: reach 0 is "Cottage Reach", reach 20 is "Cottage Reach II", reach 40
+        /// is "Cottage Reach III". Deterministic, and adjacent stretches always differ.
+        /// Negative indices keep to the first name.
+        /// </summary>
         public static string For(int reach)
         {
-            return Names[Math.Max(0, Math.Min(Names.Length - 1, reach))];
+            int index = Math.Max(0, reach);
+            string name = Names[index % Names.Length];
+            int lap = index / Names.Length;
+            return lap == 0 ? name : name + " " + Roman(lap + 1);
+        }
+
+        private static string Roman(int number)
+        {
+            int[] values = { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
+            string[] symbols = { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I" };
+            var text = new System.Text.StringBuilder();
+            int rest = number;
+            for (int i = 0; i < values.Length; i++)
+                while (rest >= values[i])
+                {
+                    text.Append(symbols[i]);
+                    rest -= values[i];
+                }
+            return text.ToString();
         }
 
         /// <summary>

@@ -56,8 +56,14 @@ namespace Evergrove.Core
         /// <summary>True when plain deduction alone solves the field, with no guessing.</summary>
         public bool SolvableByDeduction { get; private set; }
 
+        /// <summary>The seed and tier this board was dealt from; undo rebuilds it from them.</summary>
+        public int Seed { get; private set; }
+        public int Tier { get; private set; }
+
         public PlotsGame(int seed, int tier)
         {
+            Seed = seed;
+            Tier = tier;
             size = SizeFor(tier);
             uint state = unchecked((uint)seed * 0x9E3779B1u + (uint)tier * 0x85EBCA6Bu + 0x27D4EB2Fu);
             if (state == 0) state = 0x6d2b79f5u;
@@ -140,9 +146,10 @@ namespace Evergrove.Core
         /// <summary>Drag a rectangle between two corner cells; a tap on a placed bed lifts it.</summary>
         public PlotMove Draw(int fromCell, int toCell)
         {
-            LastReplaced = 0;
+            // A refused draw changes nothing, LastReplaced included (undo replays only changing moves).
             if (fromCell == toCell && BedAt(fromCell) >= 0)
             {
+                LastReplaced = 0;
                 beds.RemoveAt(BedAt(fromCell));
                 bedMarkers.RemoveAt(BedAt(fromCell));
                 Reindex();
@@ -151,6 +158,7 @@ namespace Evergrove.Core
             }
             Rect rect; int marker;
             if (!TryRect(fromCell, toCell, out rect, out marker)) return PlotMove.Invalid;
+            LastReplaced = 0;
             for (int i = beds.Count - 1; i >= 0; i--)
             {
                 if (!beds[i].Overlaps(rect)) continue;

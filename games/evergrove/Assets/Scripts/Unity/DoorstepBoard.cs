@@ -13,7 +13,9 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal sealed class DoorstepBoard : TreePlay.IPuzzleBoard
     {
-        private readonly DoorstepGame game;
+        private readonly BoardHistory<DoorstepGame> history; // step 39: undo and redo
+        private DoorstepGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private readonly bool diagonals;
         private TreePlay play;
         private Image[] cells, petals;
@@ -24,7 +26,7 @@ namespace Evergrove.UnityClient
 
         public DoorstepBoard(DoorstepGame game, int tier)
         {
-            this.game = game;
+            history = new BoardHistory<DoorstepGame>(game, () => new DoorstepGame(game.Seed, game.Tier));
             diagonals = tier >= 2;
         }
 
@@ -41,7 +43,7 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, rule + BoardKit.UndoRowSpace);
             float cell = Mathf.Min(Mathf.Floor(Mathf.Min(room.x, room.y) / n), 64f);
             const float gap = 3f;
             RectTransform board = BoardKit.Bed(card, "Doorstep pattern", new Vector2(n * cell, n * cell));
@@ -62,6 +64,7 @@ namespace Evergrove.UnityClient
             Line(board, n * cell, false, 0f);
             if (diagonals) { Line(board, n * cell, true, 45f); Line(board, n * cell, true, -45f); }
             BoardKit.ClashLens(card.Find("Tree puzzle top"), Paint);
+            undo = BoardKit.UndoRow.Build(card, font, history, () => { shownCell = -1; Paint(); });
             Paint();
         }
 
@@ -82,7 +85,7 @@ namespace Evergrove.UnityClient
         private void Tap(int cell)
         {
             if (locked) return;
-            DoorMove move = game.Tap(cell);
+            DoorMove move = history.Play(g => g.Tap(cell), m => m == DoorMove.Changed);
             if (move == DoorMove.Given) { BoardKit.Shiver(cells[cell].gameObject); return; }
             if (move != DoorMove.Changed) return;
             shownCell = -1;
@@ -103,6 +106,7 @@ namespace Evergrove.UnityClient
                 BoardKit.MarkClash(cells[c], clash);
                 petals[c].enabled = mark == CellMark.Drawn;
             }
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()
@@ -116,7 +120,8 @@ namespace Evergrove.UnityClient
                 return;
             }
             shownCell = -1;
-            for (int guard = 0; guard < 3 && game.State(cell) != mark; guard++) game.Tap(cell);
+            for (int guard = 0; guard < 3 && game.State(cell) != mark; guard++)
+                history.Play(g => g.Tap(cell), m => m == DoorMove.Changed);
             play.Moved();
             Paint();
             if (game.Solved) play.Done();

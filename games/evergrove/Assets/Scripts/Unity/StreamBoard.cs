@@ -12,7 +12,9 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal sealed class StreamBoard : TreePlay.IPuzzleBoard
     {
-        private readonly StreamPathGame game;
+        private readonly BoardHistory<StreamPathGame> history; // step 39: undo and redo
+        private StreamPathGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private TreePlay play;
         private Image[] cells;
         private Image[][] channels; // per cell: up, right, down, left water bars
@@ -20,7 +22,10 @@ namespace Evergrove.UnityClient
         private bool locked;
         private int shown = -1; // I253
 
-        public StreamBoard(StreamPathGame game) { this.game = game; }
+        public StreamBoard(StreamPathGame game)
+        {
+            history = new BoardHistory<StreamPathGame>(game, () => new StreamPathGame(game.Seed, game.Tier));
+        }
 
         public void Build(Transform card, float width, float screenHeight, Font font, TreePlay host)
         {
@@ -34,7 +39,7 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.Droplet), 30f);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, rule + BoardKit.UndoRowSpace);
             float cell = Mathf.Min(Mathf.Floor(Mathf.Min(room.x, room.y) / n), 76f);
             const float gap = 4f;
             RectTransform board = BoardKit.Bed(card, "Lead the stream", new Vector2(n * cell, n * cell));
@@ -63,6 +68,7 @@ namespace Evergrove.UnityClient
                 if (c == game.Pond) BoardKit.Glyph(cells[c].transform, "Pond", pond, cell * 0.18f);
             }
             head = BoardKit.Glyph(cells[game.Spring].transform, "Stream head", pond, cell * 0.32f);
+            undo = BoardKit.UndoRow.Build(card, font, history, () => { shown = -1; Paint(); });
             Paint();
         }
 
@@ -89,7 +95,8 @@ namespace Evergrove.UnityClient
         private void Tap(int cell)
         {
             if (locked) return;
-            StreamPathGame.PathMove move = game.Step(cell);
+            StreamPathGame.PathMove move = history.Play(g => g.Step(cell),
+                m => m == StreamPathGame.PathMove.Extended || m == StreamPathGame.PathMove.Trimmed);
             if (move == StreamPathGame.PathMove.TooSoon) { BoardKit.Shiver(cells[cell].gameObject); return; }
             if (move == StreamPathGame.PathMove.Ignored) return;
             play.Moved();
@@ -118,6 +125,7 @@ namespace Evergrove.UnityClient
             head.transform.SetParent(cells[tip].transform, false);
             head.enabled = !locked && tip != game.Pond;
             head.color = new Color(1f, 1f, 1f, 0.9f);
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()

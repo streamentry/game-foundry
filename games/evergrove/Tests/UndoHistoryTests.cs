@@ -107,13 +107,14 @@ internal static class UndoHistoryTests
         Expect(world.Export().previous.Length == 0, "legacy previous mirror empty when history is empty");
     }
 
-    private static void EleventhRotationDropsOldest()
+    // Step 39: undo within a session is not capped; only the saved history is (see the next test).
+    private static void EleventhRotationStaysInSession()
     {
         WorldModel world = WorldModel.New();
         List<int[]> states = RotateSteps(world, 11);
-        Expect(world.UndoDepth == WorldModel.UndoLimit, "eleventh rotation keeps exactly ten steps");
-        ExpectUndoes(world, states, 11, 10, "eleven-rotation");
-        Expect(!world.CanUndo, "the oldest step (starting board) was dropped, not restored");
+        Expect(world.UndoDepth == 11, "eleventh rotation is still an undo step in this session");
+        ExpectUndoes(world, states, 11, 11, "eleven-rotation");
+        Expect(!world.CanUndo, "the starting board is reached after every step is taken back");
     }
 
     private static void UndoSurvivesSaveAndRestore()
@@ -326,7 +327,7 @@ internal static class UndoHistoryTests
     {
         assertions = 0;
         TenStepsUndoExactly();
-        EleventhRotationDropsOldest();
+        EleventhRotationStaysInSession();
         UndoSurvivesSaveAndRestore();
         HintAndGuideInteractions();
         RestartAndNextBoardClearHistory();

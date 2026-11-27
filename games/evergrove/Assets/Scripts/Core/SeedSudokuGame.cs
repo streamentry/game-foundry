@@ -64,8 +64,14 @@ namespace Evergrove.Core
             return leaves;
         }
 
+        /// <summary>The seed and tier this board was dealt from; undo rebuilds it from them.</summary>
+        public int Seed { get; private set; }
+        public int Tier { get; private set; }
+
         public SeedSudokuGame(int seed, int tier)
         {
+            Seed = seed;
+            Tier = tier;
             if (tier < 0 || tier >= TreePuzzles.Tiers) throw new ArgumentOutOfRangeException(nameof(tier));
             size = tier == 0 ? 4 : 6;
             boxRows = 2;

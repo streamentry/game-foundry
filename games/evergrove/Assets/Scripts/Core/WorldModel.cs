@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Evergrove.Core
 {
@@ -127,9 +128,14 @@ namespace Evergrove.Core
     public sealed partial class WorldModel
     {
         public const int Version = 4;
-        /// <summary>Maximum number of tile-rotation undo steps kept for one board (EG-111).</summary>
+        /// <summary>
+        /// Most tile-rotation undo steps a save keeps for one board (EG-111). Undo within one
+        /// session is not limited (step 39); saves stay this small.
+        /// </summary>
         public const int UndoLimit = 10;
         private readonly WorldSnapshot state;
+        // Session only, never saved: boards taken back by Undo, newest last, for Redo.
+        private readonly List<int[]> redoBoards = new List<int[]>();
 
         private WorldModel(WorldSnapshot snapshot) { state = snapshot; }
 
@@ -145,13 +151,16 @@ namespace Evergrove.Core
         public int Round { get { return state.round; } }
         public bool Solved { get { return state.solved; } }
         public bool Completed { get { return state.round == PuzzleCatalog.Count; } }
-        /// <summary>Number of undo steps available on the current board, 0..UndoLimit.</summary>
+        /// <summary>Number of undo steps available on the current board in this session.</summary>
         public int UndoDepth {
             get {
                 return Completed || state.history.Length == 0 ? 0 : state.history.Length / CurrentPuzzle.CellCount;
             }
         }
         public bool CanUndo { get { return UndoDepth > 0; } }
+        /// <summary>Steps Redo can put back on the current board (cleared by any new tile move).</summary>
+        public int RedoDepth { get { return Completed ? 0 : redoBoards.Count; } }
+        public bool CanRedo { get { return RedoDepth > 0; } }
         public int HintsUsed { get { return state.hintsUsed; } }
         public int HintStep { get { return state.hintStep; } }
         public int HintTile { get { return state.hintTile; } }
@@ -167,7 +176,8 @@ namespace Evergrove.Core
         }
 
         public const int MaxGarden = 1000000;
-        public const int MaxMapCell = 10000;
+        // I363: the cell range covers every reach up to the safety bound (10 columns x 15 rows each).
+        public const int MaxMapCell = GardenMap.SafetyReachBound * 10 * 15;
 
         public int Garden { get { return state.garden; } }
         public int[] Placements { get { return (int[])state.placements.Clone(); } }
@@ -511,7 +521,7 @@ namespace Evergrove.Core
                 boardVariant = state.boardVariant, lastSolvedVariant = state.lastSolvedVariant,
                 hintStep = state.hintStep, hintTile = state.hintTile,
                 variantSchedule = (int[])state.variantSchedule.Clone(),
-                history = (int[])state.history.Clone(),
+                history = SavedHistory(),
                 garden = state.garden, placements = (int[])state.placements.Clone(),
                 plantings = (int[])state.plantings.Clone(),
                 seeds = state.seeds, treeSolved = (int[])state.treeSolved.Clone(),
@@ -750,14 +760,25 @@ namespace Evergrove.Core
             Array.Copy(flat, flat.Length - cells, state.previous, 0, cells);
         }
 
-        /// <summary>Pushes the board as it was before a mutation, dropping the oldest step past the limit.</summary>
+        /// <summary>The newest UndoLimit boards of the undo history: what a save keeps.</summary>
+        private int[] SavedHistory()
+        {
+            if (state.history.Length == 0 || Completed) return Array.Empty<int>();
+            int cells = CurrentPuzzle.CellCount;
+            int keep = Math.Min(state.history.Length / cells, UndoLimit) * cells;
+            var saved = new int[keep];
+            Array.Copy(state.history, state.history.Length - keep, saved, 0, keep);
+            return saved;
+        }
+
+        /// <summary>Pushes the board as it was before a new move; a new move ends any redo.</summary>
         private void PushHistory(int[] before)
         {
             int cells = before.Length;
-            int keep = Math.Min(state.history.Length / cells, UndoLimit - 1) * cells;
-            int[] next = new int[keep + cells];
-            Array.Copy(state.history, state.history.Length - keep, next, 0, keep);
-            Array.Copy(before, 0, next, keep, cells);
+            int[] next = new int[state.history.Length + cells];
+            Array.Copy(state.history, next, state.history.Length);
+            Array.Copy(before, 0, next, state.history.Length, cells);
+            redoBoards.Clear();
             SetHistory(next, cells);
         }
 
@@ -839,8 +860,27 @@ namespace Evergrove.Core
             Array.Copy(state.history, remaining, remaining.Length);
             int[] restored = new int[cells];
             Array.Copy(state.history, remaining.Length, restored, 0, cells);
+            redoBoards.Add((int[])state.rotations.Clone());
             SetHistory(remaining, cells);
             state.rotations = restored;
+            ClearHint();
+            state.solved = PipeRules.IsComplete(CurrentPuzzle, state.rotations);
+            return true;
+        }
+
+        /// <summary>Puts back the board the last Undo took away (the move it undid, again).</summary>
+        public bool Redo()
+        {
+            if (!CanRedo) return false;
+            int cells = CurrentPuzzle.CellCount;
+            int last = redoBoards.Count - 1;
+            int[] redone = redoBoards[last];
+            redoBoards.RemoveAt(last);
+            int[] next = new int[state.history.Length + cells];
+            Array.Copy(state.history, next, state.history.Length);
+            Array.Copy(state.rotations, 0, next, state.history.Length, cells);
+            SetHistory(next, cells);
+            state.rotations = redone;
             ClearHint();
             state.solved = PipeRules.IsComplete(CurrentPuzzle, state.rotations);
             return true;
@@ -850,6 +890,7 @@ namespace Evergrove.Core
         {
             if (Completed) return false;
             state.rotations = (int[])CurrentPuzzle.Initial.Clone();
+            redoBoards.Clear();
             SetHistory(Array.Empty<int>(), 0);
             ClearHint();
             state.solved = PipeRules.IsComplete(CurrentPuzzle, state.rotations);
@@ -862,6 +903,7 @@ namespace Evergrove.Core
             ClearHint();
             state.round++;
             state.solved = false;
+            redoBoards.Clear();
             SetHistory(Array.Empty<int>(), 0);
             state.boardVariant = Completed ? 0 : NextVariant();
             state.rotations = Completed ? Array.Empty<int>() : (int[])CurrentPuzzle.Initial.Clone();

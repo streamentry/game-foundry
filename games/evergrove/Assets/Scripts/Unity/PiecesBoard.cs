@@ -12,7 +12,9 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal sealed class PiecesBoard : TreePlay.IPuzzleBoard
     {
-        private readonly GardenPiecesGame game;
+        private readonly BoardHistory<GardenPiecesGame> history; // step 39: undo and redo
+        private GardenPiecesGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private readonly bool canMirror;
         private TreePlay play;
         private Image[] cells;
@@ -29,7 +31,7 @@ namespace Evergrove.UnityClient
 
         public PiecesBoard(GardenPiecesGame game, int tier)
         {
-            this.game = game;
+            history = new BoardHistory<GardenPiecesGame>(game, () => new GardenPiecesGame(game.Seed, game.Tier));
             canMirror = tier >= 1;
         }
 
@@ -50,7 +52,7 @@ namespace Evergrove.UnityClient
             // b308: thumbnails were too small to read; up to four a row, each a good size.
             thumb = Mathf.Floor(Mathf.Min(20f, (width - BoardKit.CardPadding - 10f * perRow) / (perRow * 4.4f)));
             float trayHeight = trayRows * (thumb * 4f + 14f) + 66f;
-            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + rule + BoardKit.UndoRowSpace);
             float cell = Mathf.Min(Mathf.Floor(Mathf.Min(room.x / game.Width, room.y / game.Height)), 58f);
             const float gap = 2f;
             RectTransform board = BoardKit.Bed(card, "Garden pieces", new Vector2(game.Width * cell, game.Height * cell));
@@ -84,15 +86,17 @@ namespace Evergrove.UnityClient
                 var button = slot.AddComponent<Button>();
                 button.transition = Selectable.Transition.None;
                 button.onClick.AddListener(() => { if (!locked && !game.Placed(piece)) { selected = piece; shownPiece = -1; Paint(); } });
+                LongPressCaption.Attach(slot, "Piece " + (p + 1) + ". Tap to pick it up.", font);
                 slots[p] = (RectTransform)slot.transform;
             }
             Transform tools = TreePlay.Row(card, "Turn and mirror", 60f);
             tools.GetComponent<HorizontalLayoutGroup>().spacing = 12f;
             TreePlay.Token(tools, "Turn the piece", MosseloraArt.Load(MosseloraArt.IconTurn), 56f, MosseloraTheme.QuietAction,
-                () => { if (!locked && game.Rotate(selected) == PieceMove.Done) { shownPiece = -1; Paint(); } }, true);
+                () => TurnSelected(), true);
             if (canMirror)
                 TreePlay.Token(tools, "Mirror the piece", MosseloraArt.Load(MosseloraArt.IconChange), 56f, MosseloraTheme.QuietAction,
-                    () => { if (!locked && game.Mirror(selected) == PieceMove.Done) { shownPiece = -1; Paint(); } }, true);
+                    () => MirrorSelected(), true);
+            undo = BoardKit.UndoRow.Build(card, font, history, () => { shownPiece = -1; AfterHistoryMove(); });
             Paint();
         }
 
@@ -103,7 +107,7 @@ namespace Evergrove.UnityClient
             int owner = game.Owner(cell);
             if (owner >= 0)
             {
-                if (game.Lift(owner) == PieceMove.Done) { selected = owner; shownPiece = -1; Paint(); } // lifting isn't a turn
+                if (history.Play(g => g.Lift(owner), m => m == PieceMove.Done) == PieceMove.Done) { selected = owner; shownPiece = -1; Paint(); } // lifting isn't a turn
                 return;
             }
             if (selected < 0 || game.Placed(selected)) return;
@@ -133,9 +137,33 @@ namespace Evergrove.UnityClient
             {
                 int ax = x - offsets[k], ay = y - offsets[k + 1];
                 if (ax < 0 || ay < 0 || ax >= game.Width || ay >= game.Height) continue;
-                if (game.Place(piece, ay * game.Width + ax) == PieceMove.Done) return true;
+                int at = ay * game.Width + ax;
+                if (history.Play(g => g.Place(piece, at), m => m == PieceMove.Done) == PieceMove.Done) return true;
             }
             return false;
+        }
+
+        // Turn and mirror act on the chosen piece as it is now; each is one undoable step.
+        private void TurnSelected()
+        {
+            if (locked) return;
+            int piece = selected;
+            if (history.Play(g => g.Rotate(piece), m => m == PieceMove.Done) == PieceMove.Done) { shownPiece = -1; Paint(); }
+        }
+
+        private void MirrorSelected()
+        {
+            if (locked) return;
+            int piece = selected;
+            if (history.Play(g => g.Mirror(piece), m => m == PieceMove.Done) == PieceMove.Done) { shownPiece = -1; Paint(); }
+        }
+
+        // After Undo or Redo the chosen piece may be down again: choose the first one still in the tray.
+        private void AfterHistoryMove()
+        {
+            shownPiece = -1;
+            if (selected < 0 || game.Placed(selected)) NextInTray();
+            Paint();
         }
 
         private void NextInTray()
@@ -177,6 +205,7 @@ namespace Evergrove.UnityClient
                     image.raycastTarget = false;
                 }
             }
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()
@@ -193,10 +222,13 @@ namespace Evergrove.UnityClient
                 return;
             }
             shownPiece = -1;
-            if (hint.Misplaced) { game.Lift(hint.Piece); play.Moved(); Paint(); return; }
-            for (int guard = 0; guard < 2 && game.Mirrored(hint.Piece) != hint.Mirrored; guard++) game.Mirror(hint.Piece);
-            for (int guard = 0; guard < 4 && game.Turn(hint.Piece) != hint.Turn; guard++) game.Rotate(hint.Piece);
-            game.Place(hint.Piece, hint.Cell);
+            int piece = hint.Piece, cell = hint.Cell;
+            if (hint.Misplaced) { history.Play(g => g.Lift(piece), m => m == PieceMove.Done); play.Moved(); Paint(); return; }
+            for (int guard = 0; guard < 2 && game.Mirrored(piece) != hint.Mirrored; guard++)
+                history.Play(g => g.Mirror(piece), m => m == PieceMove.Done);
+            for (int guard = 0; guard < 4 && game.Turn(piece) != hint.Turn; guard++)
+                history.Play(g => g.Rotate(piece), m => m == PieceMove.Done);
+            history.Play(g => g.Place(piece, cell), m => m == PieceMove.Done);
             play.Moved();
             NextInTray();
             Paint();
