@@ -127,6 +127,9 @@ namespace Evergrove.Core
 
         public bool TreeSolved(int item) { return Array.IndexOf(state.treeSolved, item) >= 0; }
 
+        /// <summary>Things whose puzzle you have solved at least once, grown and bought (I220).</summary>
+        public int PuzzlesSolved { get { return state.treeSolved.Length + state.boughtSolved.Length; } }
+
         /// <summary>Seeds for solving a tier's puzzle: most the first time, a little on every replay.</summary>
         public static int TreeReward(int tier, bool first)
         {

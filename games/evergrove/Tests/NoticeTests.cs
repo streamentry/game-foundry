@@ -77,6 +77,18 @@ internal static class NoticeTests
                 Kind(line, "count " + solved);
             }
         }
+        // I222: a cutting from family waiting in the basket: its neighbour mentions it, by name.
+        WorldSnapshot gifted = world.Export();
+        gifted.gifts = new[] { 2 }; // a clover cutting (flowers: Fen)
+        Expect(WorldModel.TryRestore(gifted, out WorldModel withGift), "restore with a gift waiting");
+        string fenGift = NeighbourNotice.Line(2, withGift);
+        Expect(fenGift != null && fenGift.Contains(Nursery.Item(2).Name) && fenGift.ToLowerInvariant().Contains("basket"),
+            "Fen mentions the clover waiting in the basket: " + fenGift);
+        Kind(fenGift, "gift");
+        Expect(NeighbourNotice.Line(0, withGift) == NeighbourNotice.Line(0, world), "Mira isn't told about Fen's flowers");
+        Expect(withGift.PlantGift(0, 41) && NeighbourNotice.Line(2, withGift) != fenGift,
+            "once planted, the gift line gives way");
+
         Expect(NeighbourNotice.Line(5, world) == null && NeighbourNotice.Line(-1, world) == null, "only our three neighbours");
         Expect(NeighbourNotice.Line(0, WorldModel.New(PlayMode.PuzzleOnly)) == null, "no neighbours in puzzle-only mode");
         return assertions;

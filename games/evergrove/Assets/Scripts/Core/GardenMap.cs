@@ -36,6 +36,19 @@ namespace Evergrove.Core
             return open < 1 ? 1 : open > MaxReaches ? MaxReaches : open;
         }
 
+        // ---- I220: after the story, the river keeps opening downstream as you tend
+        // what you've grown. Derived from the save (puzzles solved), never stored, so
+        // the ceiling can be raised later without touching any garden.
+        public const int SolvesPerReach = 4;
+        public const int ReachesCeiling = 20;
+
+        public static int ReachesFor(int restored, bool completed, int puzzlesSolved)
+        {
+            if (!completed) return ReachesFor(restored, false);
+            int open = MaxReaches + Math.Max(0, puzzlesSolved) / SolvesPerReach;
+            return open > ReachesCeiling ? ReachesCeiling : open;
+        }
+
         /// <summary>
         /// The endless river (I192): one reach's mask repeated down the map, every
         /// other reach mirrored top to bottom, exactly as the painting is drawn, so

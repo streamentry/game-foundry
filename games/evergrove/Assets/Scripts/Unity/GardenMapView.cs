@@ -28,6 +28,7 @@ namespace Evergrove.UnityClient
             public bool Newest;
             public bool Bloomed;         // its puzzle has been solved (I204): a warm ring of light
             public bool BloomNow;        // just solved (I212): the ring grows in while you watch
+            public bool HoldsPuzzle;     // has a puzzle not yet solved (I221): a small play mark
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -502,20 +503,53 @@ namespace Evergrove.UnityClient
                     }
                 }
                 else if (growNewest && item.Newest) node.AddComponent<GrowUp>();
+                if (item.HoldsPuzzle && !held && !item.Bloomed && onItem != null)
+                {
+                    // A small round play mark at the thing's shoulder: "there's a puzzle here".
+                    var mark = new GameObject("Holds a puzzle", typeof(RectTransform));
+                    mark.transform.SetParent(land, false);
+                    var markRect = (RectTransform)mark.transform;
+                    markRect.anchorMin = markRect.anchorMax = new Vector2(0f, 1f);
+                    float d = Mathf.Clamp(cellW * 0.42f, 22f, 30f);
+                    markRect.sizeDelta = new Vector2(d, d);
+                    markRect.anchoredPosition = at + new Vector2(rect.sizeDelta.x * 0.36f, rect.sizeDelta.y * 0.78f);
+                    var disc = mark.AddComponent<Image>();
+                    disc.sprite = MosseloraArt.Rounded(16);
+                    disc.color = MosseloraTheme.WaterAction;
+                    disc.raycastTarget = false;
+                    MosseloraArt.Lift(disc, 1.5f, 0.25f);
+                    Sprite arrow = MosseloraArt.Load(MosseloraArt.IconContinue);
+                    if (arrow != null)
+                    {
+                        var glyph = new GameObject("Play", typeof(RectTransform));
+                        glyph.transform.SetParent(mark.transform, false);
+                        var glyphRect = (RectTransform)glyph.transform;
+                        glyphRect.anchorMin = glyphRect.anchorMax = new Vector2(0.5f, 0.5f);
+                        glyphRect.sizeDelta = new Vector2(d * 0.58f, d * 0.58f);
+                        var glyphImage = glyph.AddComponent<Image>();
+                        glyphImage.sprite = arrow;
+                        glyphImage.preserveAspect = true;
+                        glyphImage.color = Color.white;
+                        glyphImage.raycastTarget = false;
+                    }
+                    nodes.Add(markRect);
+                }
                 nodes.Add(rect);
                 if (held || (inHand < 0 && item.Newest)) { focus = at; focused = true; }
             }
             // Others standing on the map (neighbours, I181), laid out with it.
+            List<RectTransform> standing = null;
             if (decorate != null)
             {
-                List<RectTransform> extra = decorate(land, cell =>
+                standing = decorate(land, cell =>
                     new Vector2((cell % map.Columns + 0.5f) * cellW, -(cell / map.Columns + 0.78f) * cellH));
-                if (extra != null) nodes.AddRange(extra);
+                if (standing != null) nodes.AddRange(standing);
             }
             if (keep.x >= 0f)
             {
                 scroll.StopMovement();
                 scroll.normalizedPosition = keep;
+                KeepClear(standing);
                 return;
             }
             if (liftFocus > 0)
@@ -529,6 +563,67 @@ namespace Evergrove.UnityClient
             float ny = focused ? 1f - Mathf.Clamp01((-focus.y - view.y * FocusFromTop) / spanY) : 1f;
             scroll.StopMovement();
             scroll.normalizedPosition = new Vector2(nx, ny);
+            KeepClear(standing);
+        }
+
+        /// <summary>Height at the window's foot kept clear of neighbours (the play row).</summary>
+        public float ClearBottom
+        {
+            get { return clearBottom; }
+            set { if (Mathf.Approximately(clearBottom, value)) return; clearBottom = value; Layout(); }
+        }
+        private float clearBottom;
+
+        /// <summary>Height at the window's top kept clear (the menu button, the purse, the letterbox).</summary>
+        public float ClearTop
+        {
+            get { return clearTop; }
+            set { if (Mathf.Approximately(clearTop, value)) return; clearTop = value; Layout(); }
+        }
+        private float clearTop;
+
+        // Neighbours standing in the bottom band, where the round play token and the
+        // basket sit, step up out of it (I218: Fen stood behind the play token).
+        private void KeepClear(List<RectTransform> standing)
+        {
+            if (standing == null || (clearBottom <= 0f && clearTop <= 0f) || window == null) return;
+            Canvas.ForceUpdateCanvases();
+            Rect frame = window.rect;
+            var corners = new Vector3[4];
+            foreach (RectTransform person in standing)
+            {
+                if (person == null) continue;
+                person.GetWorldCorners(corners);
+                float scale = Mathf.Max(0.001f, land.lossyScale.y / window.lossyScale.y);
+                float bottom = window.InverseTransformPoint(corners[0]).y;
+                float top = window.InverseTransformPoint(corners[1]).y;
+                float low = frame.yMin + clearBottom, high = frame.yMax - clearTop;
+                float direction = 0f;
+                if (clearBottom > 0f && bottom < low)
+                {
+                    person.anchoredPosition += new Vector2(0f, (low - bottom + 8f) / scale);
+                    direction = 1f;
+                }
+                else if (clearTop > 0f && top > high && bottom > low)
+                {
+                    person.anchoredPosition -= new Vector2(0f, (top - high + 8f) / scale);
+                    direction = -1f;
+                }
+                if (direction == 0f) continue;
+                // Moved: keep clear of everyone else too, stepping on the same way.
+                Vector2 size = person.rect.size;
+                for (int tries = 0; tries < 4; tries++)
+                {
+                    bool clash = false;
+                    foreach (RectTransform other in standing)
+                        if (other != null && other != person &&
+                            Mathf.Abs(other.anchoredPosition.x - person.anchoredPosition.x) < size.x * 0.9f &&
+                            Mathf.Abs(other.anchoredPosition.y - person.anchoredPosition.y) < size.y * 1.7f) clash = true;
+                    if (!clash) break;
+                    // A figure is its portrait and its name below it: step a whole figure.
+                    person.anchoredPosition += new Vector2(0f, direction * size.y * 1.7f);
+                }
+            }
         }
 
         /// <summary>

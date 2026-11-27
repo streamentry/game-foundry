@@ -330,6 +330,13 @@ namespace Evergrove.UnityClient
             yield return new WaitForEndOfFrame();
             SavePng("17o-mira-notices.png");
             app.QaTalk(-1);
+            // I222: Fen points to the clover cutting Nan sent, still in the basket.
+            app.QaTalk(2);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17v-fen-gift.png");
+            app.QaTalk(-1);
             // Settings as round tokens (I194).
             Press("Open menu");
             for (int f = 0; f < 4; f++) yield return null;
