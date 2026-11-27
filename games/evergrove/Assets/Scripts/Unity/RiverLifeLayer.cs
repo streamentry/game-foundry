@@ -16,6 +16,7 @@ namespace Evergrove.UnityClient
         public List<Vector2> Course = new List<Vector2>(); // one point per row, top to bottom: the river's line
         public float Cell = 40f;
         public bool Rain, Glitter, Leaves, Moving = true;
+        public bool Moon; // I425: the glitter is moonlight: fewer, paler, slower
         public float FishEvery;
 
         private readonly List<Ring> rings = new List<Ring>();
@@ -36,10 +37,10 @@ namespace Evergrove.UnityClient
         {
             dice = new System.Random(Water.Count * 31 + Course.Count);
             if (Glitter)
-                for (int i = 0; i < Mathf.Min(14, Water.Count); i++)
+                for (int i = 0; i < Mathf.Min(Moon ? 9 : 14, Water.Count); i++)
                 {
-                    Image spark = Dot("Glitter on the water", Water[dice.Next(Water.Count)] + Jitter(0.3f), new Vector2(5f, 5f),
-                        new Color(1f, 0.96f, 0.80f, 0.9f), MosseloraArt.SoftGlow());
+                    Image spark = Dot(Moon ? "Moonlight on the water" : "Glitter on the water", Water[dice.Next(Water.Count)] + Jitter(0.3f),
+                        new Vector2(5f, 5f), Moon ? new Color(0.85f, 0.92f, 1f, 0.8f) : new Color(1f, 0.96f, 0.80f, 0.9f), MosseloraArt.SoftGlow());
                     sparkles.Add(spark);
                 }
             if (Leaves && Moving && Course.Count > 2)
@@ -64,7 +65,7 @@ namespace Evergrove.UnityClient
             clock += dt;
             for (int i = 0; i < sparkles.Count; i++)
             {
-                float twinkle = Moving ? 0.35f + 0.65f * Mathf.Abs(Mathf.Sin(clock * 1.7f + i * 1.3f)) : 0.7f;
+                float twinkle = Moving ? 0.35f + 0.65f * Mathf.Abs(Mathf.Sin(clock * (Moon ? 0.8f : 1.7f) + i * 1.3f)) : 0.7f;
                 Color c = sparkles[i].color;
                 sparkles[i].color = new Color(c.r, c.g, c.b, twinkle);
             }
