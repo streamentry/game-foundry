@@ -501,6 +501,28 @@ internal static class WorldIdeasTests
         for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
             for (int seed = 1; seed <= 300; seed++)
                 Expect(!new SeedSudokuGame(seed, tier).NeedsMoreThanSingles, "sudoku solvable by singles: tier " + tier + " seed " + seed);
+        // I352 (run 3, P10): where the chosen garden piece would fit, asked without moving it.
+        for (int seed = 1; seed <= 40; seed++)
+        {
+            var pieces = new GardenPiecesGame(seed, 1);
+            int movesBefore = pieces.Moves;
+            for (int cell = 0; cell < pieces.Width * pieces.Height; cell++)
+            {
+                bool can = pieces.CanPlace(0, cell);
+                Expect(pieces.Moves == movesBefore && !pieces.Placed(0), "asking never moves a piece");
+                if (!can) continue;
+                Expect(pieces.Place(0, cell) == PieceMove.Done, "where it says it fits, it fits");
+                pieces.Lift(0);
+                movesBefore = pieces.Moves;
+            }
+            GardenHint hint = pieces.Hint();
+            if (hint.Has && !hint.Misplaced)
+            {
+                for (int guard = 0; guard < 2 && pieces.Mirrored(hint.Piece) != hint.Mirrored; guard++) pieces.Mirror(hint.Piece);
+                for (int guard = 0; guard < 4 && pieces.Turn(hint.Piece) != hint.Turn; guard++) pieces.Rotate(hint.Piece);
+                Expect(pieces.CanPlace(hint.Piece, hint.Cell), "the hint's spot is always a fit");
+            }
+        }
         return assertions;
     }
 

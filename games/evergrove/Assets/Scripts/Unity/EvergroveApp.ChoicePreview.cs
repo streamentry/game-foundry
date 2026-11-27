@@ -103,15 +103,18 @@ namespace Evergrove.UnityClient
                     16, 0, Ink, TextAnchor.MiddleCenter);
             }
 
-            // Both actions keep their full, readable labels. At large text they
-            // grow with the content instead of shrinking or truncating.
-            Button(preview.transform, "Apply garden choice", GameLocalization.Text("preview_apply"),
-                () => ApplyChoicePreview(cards, expected, generation), 52, MosseloraTheme.ForestAction);
-            Button(preview.transform, "Close choice preview", GameLocalization.Text("close"),
+            // I348 (run 3, P11): a tick to make it so and a cross to step back, as round
+            // tokens like every other decision in the garden. Their names stay spoken.
+            Transform decide = CenteredRowIn(preview.transform, "Choice preview decision");
+            decide.GetComponent<HorizontalLayoutGroup>().spacing = 28;
+            IconButton(decide, "Close choice preview", GameLocalization.Text("close"), MosseloraArt.IconCancel,
                 () => {
                     if (generation == rebuildGeneration && ReferenceEquals(choicePreview, expected))
                         CloseChoicePreview();
-                }, 48, MosseloraTheme.QuietAction);
+                }, 64, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            IconButton(decide, "Apply garden choice", GameLocalization.Text("preview_apply"), MosseloraArt.IconConfirm,
+                () => ApplyChoicePreview(cards, expected, generation), 80, MosseloraTheme.ForestAction,
+                false, null, false, 0, 0, true);
         }
 
         private void BuildPreviewAnchor(Transform parent, VillageChoicePreview preview)
@@ -144,10 +147,12 @@ namespace Evergrove.UnityClient
 
             string kind = GameLocalization.Text(next.Kinds[anchor] == PipeKind.Corner
                 ? "sr_corner" : "sr_straight");
-            Label(parent, "Next stream landmark position",
+            // I348: "row 1, column 1: corner pipe, dry" is for screen readers; the tile shows it.
+            Text position = Label(parent, "Next stream landmark position",
                 GameLocalization.Text(insight.Flowing[anchor] ? "sr_tile_wet" : "sr_tile_dry",
                     anchor / next.Size + 1, anchor % next.Size + 1, kind),
-                15, 0, Ink, TextAnchor.MiddleCenter);
+                15, 0, new Color(0f, 0f, 0f, 0f), TextAnchor.MiddleCenter);
+            position.GetComponent<LayoutElement>().ignoreLayout = true;
         }
 
         private void RevealChoicePreview()

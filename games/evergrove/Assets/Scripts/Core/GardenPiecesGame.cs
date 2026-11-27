@@ -189,6 +189,24 @@ namespace Evergrove.Core
             return PieceMove.Done;
         }
 
+        /// <summary>
+        /// I352: would the piece, in its current turn and mirror, lie with its anchor on this
+        /// cell? Asked without moving anything (the board shows where it fits).
+        /// </summary>
+        public bool CanPlace(int piece, int cell)
+        {
+            if (!Valid(piece) || Placed(piece) || cell < 0 || cell >= owner.Length) return false;
+            int[] cells = PieceCells(piece);
+            int ax = cell % width, ay = cell / width;
+            for (int i = 0; i < cells.Length; i += 2)
+            {
+                int x = ax + cells[i], y = ay + cells[i + 1];
+                if (x < 0 || x >= width || y < 0 || y >= height || !shape[y * width + x]) return false;
+                if (owner[y * width + x] >= 0) return false;
+            }
+            return true;
+        }
+
         public PieceMove Place(int piece, int cell)
         {
             if (!Valid(piece) || Placed(piece)) return PieceMove.Ignored;
