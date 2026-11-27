@@ -47,6 +47,23 @@ namespace Evergrove.Core
         /// <summary>True when simple deduction alone reaches the solution (always, for dealt boards).</summary>
         public bool SolvableByDeduction { get; private set; }
 
+        /// <summary>
+        /// Raw difficulty: how many rounds of deduction (every clue run processed in turn) change
+        /// something before the board is settled. A round settles what the last one exposed, so a
+        /// board that needs more rounds needs a longer chain of reasoning from run to run.
+        /// </summary>
+        public int DeductionPasses { get; private set; }
+
+        /// <summary>Depth leaves 1..3, from DeductionPasses (see LeavesFor).</summary>
+        public int Leaves { get; private set; }
+
+        // Cut points chosen from seeds 1..300 over all tiers: rounds up to LeafCut1 are 1 leaf,
+        // up to LeafCut2 are 2 leaves, more are 3.
+        private const int LeafCut1 = 3, LeafCut2 = 5;
+
+        /// <summary>The leaves a raw pass count earns.</summary>
+        public static int LeavesFor(int passes) { return passes <= LeafCut1 ? 1 : passes <= LeafCut2 ? 2 : 3; }
+
         public SeedSumsGame(int seed, int tier)
         {
             if (tier < 0 || tier >= TreePuzzles.Tiers) throw new ArgumentOutOfRangeException(nameof(tier));
@@ -70,6 +87,8 @@ namespace Evergrove.Core
                 break;
             }
             SolvableByDeduction = true;
+            DeductionPasses = CountPasses();
+            Leaves = LeavesFor(DeductionPasses);
             values = new int[cells];
             clueAcross = new int[cells];
             clueDown = new int[cells];
@@ -372,6 +391,21 @@ namespace Evergrove.Core
                 if (count == 1 && cand[holder] != (1 << d)) { cand[holder] = 1 << d; changed = true; }
             }
             return changed ? 1 : 0;
+        }
+
+        // Rounds of Process over every run, from no knowledge, that still changed something.
+        private int CountPasses()
+        {
+            var cand = StartCandidates();
+            int passes = 0;
+            bool progress = true;
+            while (progress)
+            {
+                progress = false;
+                foreach (var run in runs) if (Process(run, cand) > 0) progress = true;
+                if (progress) passes++;
+            }
+            return passes;
         }
 
         private static bool IsSingle(int mask) { return mask != 0 && (mask & (mask - 1)) == 0; }

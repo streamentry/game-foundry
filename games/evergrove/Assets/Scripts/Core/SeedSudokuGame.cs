@@ -28,6 +28,42 @@ namespace Evergrove.Core
         public int Cells { get { return solution.Length; } }
         public int Moves { get; private set; }
 
+        /// <summary>
+        /// Raw difficulty: solving rounds a singles solver needs. A round settles every cell that
+        /// is a naked single (one plant left) at the start of the round; when there is none, a
+        /// round settles one hidden single (the only place for a plant in a row, column or box).
+        /// More rounds mean longer chains where one answer opens the next.
+        /// </summary>
+        public int SolveRounds { get; private set; }
+
+        /// <summary>
+        /// How many rounds had to be a hidden single, because no cell had a single candidate.
+        /// 0 means naked singles alone finish the bed.
+        /// </summary>
+        public int HiddenSinglesNeeded { get; private set; }
+
+        /// <summary>True when even hidden singles leave cells open (a harder technique is needed).</summary>
+        public bool NeedsMoreThanSingles { get; private set; }
+
+        /// <summary>
+        /// Depth leaves 1..3: a bed that naked singles finish in few rounds is 1, a longer
+        /// naked-single chain or any hidden single is 2, a long chain with hidden singles, or a
+        /// bed beyond singles, is 3 (see LeavesFor).
+        /// </summary>
+        public int Leaves { get; private set; }
+
+        // Cut points chosen from seeds 1..300 over all tiers, on SolveRounds.
+        private const int LeafCut1 = 3, LeafCut2 = 5;
+
+        /// <summary>The leaves a solve needing this many rounds earns (hidden singles lift it one leaf).</summary>
+        public static int LeavesFor(int rounds, int hiddenSingles, bool beyondSingles)
+        {
+            if (beyondSingles) return 3;
+            int leaves = rounds <= LeafCut1 ? 1 : rounds <= LeafCut2 ? 2 : 3;
+            if (hiddenSingles > 0) leaves = Math.Max(2, leaves);
+            return leaves;
+        }
+
         public SeedSudokuGame(int seed, int tier)
         {
             if (tier < 0 || tier >= TreePuzzles.Tiers) throw new ArgumentOutOfRangeException(nameof(tier));
@@ -59,6 +95,8 @@ namespace Evergrove.Core
             }
             givens = best;
             values = (int[])givens.Clone();
+            AnalyseSingles(givens);
+            Leaves = LeavesFor(SolveRounds, HiddenSinglesNeeded, NeedsMoreThanSingles);
         }
 
         public int Given(int cell) { return InRange(cell) ? givens[cell] : 0; }
@@ -187,6 +225,73 @@ namespace Evergrove.Core
             }
             for (int i = 0; i < grid.Length; i++) if (grid[i] == 0) return false;
             return true;
+        }
+
+        // Solve by singles, naked ones first, and record the rounds, the hidden singles used and
+        // whether singles run out before the bed is full.
+        private void AnalyseSingles(int[] puzzle)
+        {
+            var grid = (int[])puzzle.Clone();
+            int rounds = 0, hidden = 0;
+            while (true)
+            {
+                int empty = 0;
+                var masks = new int[grid.Length];
+                var settle = new List<int>();
+                for (int i = 0; i < grid.Length; i++)
+                {
+                    if (grid[i] != 0) continue;
+                    empty++;
+                    masks[i] = CandidateMask(grid, i);
+                    if (masks[i] != 0 && (masks[i] & (masks[i] - 1)) == 0) settle.Add(i);
+                }
+                if (empty == 0) break;
+                if (settle.Count > 0)
+                {
+                    foreach (int cell in settle)
+                    {
+                        int value = 1;
+                        while ((masks[cell] >> value) != 1) value++;
+                        grid[cell] = value;
+                    }
+                }
+                else
+                {
+                    int cell, value;
+                    FindHidden(grid, masks, out cell, out value);
+                    if (cell < 0) { NeedsMoreThanSingles = true; break; }
+                    grid[cell] = value;
+                    hidden++;
+                }
+                rounds++;
+            }
+            SolveRounds = rounds;
+            HiddenSinglesNeeded = hidden;
+        }
+
+        // The first empty cell that is the only place for some value in its row, column or box.
+        private void FindHidden(int[] grid, int[] masks, out int cell, out int value)
+        {
+            cell = -1; value = 0;
+            for (int i = 0; i < grid.Length && cell < 0; i++)
+            {
+                if (grid[i] != 0) continue;
+                int r = i / size, c = i % size;
+                for (int v = 1; v <= size && cell < 0; v++)
+                {
+                    if ((masks[i] & (1 << v)) == 0) continue;
+                    bool row = true, col = true, box = true;
+                    for (int o = 0; o < grid.Length; o++)
+                    {
+                        if (o == i || grid[o] != 0 || (masks[o] & (1 << v)) == 0) continue;
+                        int orow = o / size, ocol = o % size;
+                        if (orow == r) row = false;
+                        if (ocol == c) col = false;
+                        if (orow / boxRows == r / boxRows && ocol / boxColumns == c / boxColumns) box = false;
+                    }
+                    if (row || col || box) { cell = i; value = v; }
+                }
+            }
         }
 
         private int CountSolutions(int[] puzzle, int limit)
