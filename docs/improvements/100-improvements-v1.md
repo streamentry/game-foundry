@@ -47,8 +47,8 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 ## D. Depth: simple to play, more to discover
 
-- [ ] **31. Snug fits in Garden Pieces.** Glow only snug placements that leave no unfillable pocket (I373 in progress), so the hint teaches corners-first play. *Test:* snug glow covers under half of the plain-fit squares.
-- [ ] **32. More good-neighbour pairings.** Extend I368 with second-order pairings, such as a bed beside a grove. Each is a rule you can say out loud. *Test:* every pairing has a one-line rule and a test.
+- [x] **31. Snug fits in Garden Pieces.** Glow only snug placements that leave no unfillable pocket (I373 in progress), so the hint teaches corners-first play. *Test:* snug glow covers under half of the plain-fit squares.
+- [x] **32. More good-neighbour pairings.** Extend I368 with second-order pairings, such as a bed beside a grove. Each is a rule you can say out loud. *Test:* every pairing has a one-line rule and a test.
 - [ ] **33. Garden layouts that remember.** Pairings found per garden layout give a gentle almanac page called "how my garden grew". *Test:* save round-trip.
 - [ ] **34. Difficulty the player chooses, honestly labelled.** Leaves 1–3 (I336) on every puzzle kind, with the chosen level remembered per kind. *Test:* no kind lacks a gentle level.
 - [x] **35. A weekly deeper board.** One harder board each week per favourite kind, with no timer, and no penalty for skipping it. *Test:* generator proves uniqueness at the top tier.
@@ -104,7 +104,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **73. Giving is always cheaper than buying.** Gifts to family cost less than buying the same thing for yourself, which makes generosity the rational choice. *Test:* economy table check.
 - [x] **74. A market stall.** Sell surplus fruit and jam to neighbours at prices that move with the season. *Test:* prices are deterministic by date.
 - [ ] **75. Recipes.** Two harvests combine into a new food (apple and honey, for example) and recipes are found by trying them. *Test:* every recipe is listed in the almanac once found.
-- [ ] **76. Storage has a limit you can grow.** A larder with shelves gives a reason to cook, give or sell. *Test:* a full larder never loses items silently.
+- [x] **76. Storage has a limit you can grow.** A larder with shelves gives a reason to cook, give or sell. *Test:* a full larder never loses items silently.
 - [x] **77. No currency for sale that buys power.** If the game is ever monetised, use a one-time unlock or cosmetic season packs only. *Test:* monetisation spec reviewed against the vision's §7.
 - [x] **78. Visible ledger.** A small book shows the last 20 seed movements, so nothing in the purse is a mystery. *Test:* every change of `seeds` writes a ledger line.
 - [x] **79. Neighbours trade too.** Orin trades wood for fruit and Fen trades stone for jam, at stable, sensible rates. *Test:* no trade loop yields profit.

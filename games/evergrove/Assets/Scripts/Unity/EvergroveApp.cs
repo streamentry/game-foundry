@@ -8953,7 +8953,7 @@ namespace Evergrove.UnityClient
             Transform look = CenteredRowIn(paper.transform, "Look out");
             TreePlay.Token(look, "Look out over the whole river", MosseloraArt.Load(MosseloraArt.IconPath), 56f,
                 MosseloraTheme.WaterAction, () => { CloseCottage(); EnterQuiet(true); }, true);
-            if (world.Fruit >= WorldModel.JamPerJar && world.Jam < WorldModel.MaxJam)
+            if (world.Fruit >= WorldModel.JamPerJar && world.Jam < world.JamCapacity)
             {
                 TreePlay.Token(look, "Make a jar of jam from three fruit", MosseloraArt.Load("food-jam"), 56f,
                     MosseloraTheme.QuietAction, () => {

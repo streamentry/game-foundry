@@ -314,7 +314,7 @@ namespace Evergrove.Core
         public bool PickPollinatedFruit(bool flowerBeside, Season season)
         {
             if (Mode != PlayMode.Living || !flowerBeside || season == Season.Winter || !Visitors.Welcomes(this, Visitor.Bees)
-                || state.fruit >= MaxFruit) return false;
+                || state.fruit >= FruitCapacity) return false;
             state.fruit++;
             return true;
         }

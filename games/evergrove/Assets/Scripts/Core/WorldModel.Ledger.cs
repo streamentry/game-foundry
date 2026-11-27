@@ -20,7 +20,9 @@ namespace Evergrove.Core
         /// <summary>Items 74 and 79: jam sold to the market stall (WorldModel.Market.cs: SellJam).</summary>
         MarketJam = 10,
         /// <summary>Item 79: seeds from, or paid for, a neighbour trade (WorldModel.Market.cs: Trade).</summary>
-        Trade = 11
+        Trade = 11,
+        /// <summary>Item 76: seeds paid for a larder shelf (WorldModel.Larder.cs: BuyShelf).</summary>
+        Larder = 12
     }
 
     /// <summary>One line of the seed ledger: a change to the seed count and why it happened.</summary>

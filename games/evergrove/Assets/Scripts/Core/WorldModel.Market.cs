@@ -118,8 +118,8 @@ namespace Evergrove.Core
         {
             switch (good)
             {
-                case Good.Fruit: return state.fruit + amount <= MaxFruit;
-                case Good.Jam: return state.jam + amount <= MaxJam;
+                case Good.Fruit: return state.fruit + amount <= FruitCapacity;
+                case Good.Jam: return state.jam + amount <= JamCapacity;
                 default: return (long)state.seeds + amount <= MaxSeeds;
             }
         }
