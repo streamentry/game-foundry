@@ -450,6 +450,7 @@ namespace Evergrove.UnityClient
                 case ParcelError.NotEnoughFruit: return "You don't have that much fruit yet. Tend your trees to pick more.";
                 case ParcelError.NotEnoughJam: return "Your pantry has no jam yet. Make some from fruit at your cottage.";
                 case ParcelError.NotInThisGarden: return "This help is for something your garden hasn't grown yet.";
+                case ParcelError.LarderFull: return "Your larder is full. Make jam or give some fruit away, then open this one.";
                 case ParcelError.ChecksumMismatch:
                 case ParcelError.Malformed:
                 case ParcelError.Invalid: return "This parcel was changed on the way and can't be opened. Ask them to send it again.";

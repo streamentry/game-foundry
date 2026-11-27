@@ -2537,7 +2537,7 @@ namespace Evergrove.UnityClient
             var body = purse.AddComponent<Image>();
             MosseloraArt.Round(body, new Color(0.98f, 0.95f, 0.86f, 0.96f), 24);
             MosseloraArt.Lift(body, 2f, 0.2f);
-            body.raycastTarget = false;
+            SeedPurseTap(purse, body); // tap opens the seed book (EvergroveApp.Economy.cs)
             var row = purse.AddComponent<HorizontalLayoutGroup>();
             row.padding = new RectOffset(8, 12, 4, 4);
             row.spacing = 4;
@@ -3827,7 +3827,7 @@ namespace Evergrove.UnityClient
                 int price = Nursery.Price(kind);
                 bool open = world.RowOpen(Nursery.Row(kind));
                 bool affordable = open && world.Seeds >= price;
-                Button token = IconButton(row, "Nursery " + kind, plant.Name + ", " + price + " seeds",
+                Button token = IconButton(row, "Nursery " + kind, plant.Name + ", " + price + " seeds. " + PriceReason(Nursery.Row(kind)),
                     MosseloraArt.IconRooted, () => {
                         if (!affordable) return; // gently refused: the faded look already says why
                         nurseryKind = nurseryKind == pick ? -1 : pick;
