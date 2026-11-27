@@ -2,9 +2,11 @@ using System;
 
 namespace Evergrove.Core
 {
-    public enum Visitor { Bees, Birds, Butterflies }
+    public enum Visitor { Bees, Birds, Butterflies, Heron, Hedgehog, Owl }
 
     /// <summary>
+    /// I374 adds three drawn by good neighbours (I368): a heron to something built by the water,
+    /// a hedgehog to a sheltered flower, an owl to a grove. Nature answers where you put things.
     /// I325 to I327 (ideas 17, 18 and 19, after Japanese cat-collecting games where visitors come
     /// to what you put out, and British creature-garden games where each has a logical reason):
     /// bees come once three flowers are grown, birds once two trees are tended (they bear
@@ -35,6 +37,9 @@ namespace Evergrove.Core
             }
             switch (visitor)
             {
+                case Visitor.Heron: return world.HasPairing(Pairing.ByTheWater);   // I374
+                case Visitor.Hedgehog: return world.HasPairing(Pairing.Sheltered); // I374
+                case Visitor.Owl: return world.HasPairing(Pairing.Grove);          // I374
                 case Visitor.Bees: return flowers >= BeesNeedFlowers;
                 case Visitor.Birds: return trees >= BirdsNeedTrees;
                 default: return flowers >= 1;
@@ -44,7 +49,13 @@ namespace Evergrove.Core
         /// <summary>Whether a welcome visitor is out now: by season and hour, never in the dark.</summary>
         public static bool Out(Visitor visitor, Season season, DayPhase phase)
         {
-            if (phase == DayPhase.Dusk || phase == DayPhase.Night) return false;
+            bool dark = phase == DayPhase.Dusk || phase == DayPhase.Night;
+            // I374: the evening's own visitors. The hedgehog sleeps the winter through; the owl
+            // hunts only at night; the heron fishes by day, but not on a frozen river.
+            if (visitor == Visitor.Hedgehog) return dark && season != Season.Winter;
+            if (visitor == Visitor.Owl) return phase == DayPhase.Night;
+            if (dark) return false;
+            if (visitor == Visitor.Heron) return season != Season.Winter && phase != DayPhase.Dawn;
             switch (visitor)
             {
                 case Visitor.Bees: return season == Season.Spring || season == Season.Summer;
@@ -53,11 +64,36 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>I377: the visitor each keeper's own work brings: Mira's grove the owl, Orin's builds the heron, Fen's flowers the hedgehog.</summary>
+        public static Visitor KeeperVisitor(int villager)
+        {
+            return villager == 0 ? Visitor.Owl : villager == 1 ? Visitor.Heron : Visitor.Hedgehog;
+        }
+
+        /// <summary>
+        /// I377: what a keeper says about their visitor once it has come, on one day in three
+        /// (by the day and the keeper), so it is a remark, not a refrain. Null otherwise.
+        /// </summary>
+        public static string KeeperRemark(WorldModel world, int villager, int dayNumber)
+        {
+            Visitor visitor = KeeperVisitor(villager);
+            if (!Welcomes(world, visitor) || ((dayNumber + villager) % 3 + 3) % 3 != 0) return null;
+            switch (visitor)
+            {
+                case Visitor.Owl: return "There's an owl in your grove. I heard it last night, calling to the far trees.";
+                case Visitor.Heron: return "A heron's taken to fishing by what we built at the water. Patient bird. Good sign.";
+                default: return "Something snuffles round your sheltered flowers at dusk. A hedgehog, I'd say. They know a safe spot.";
+            }
+        }
+
         /// <summary>Why it comes, as the almanac's visitors page says it.</summary>
         public static string Why(Visitor visitor)
         {
             switch (visitor)
             {
+                case Visitor.Heron: return "A heron fishes by something built beside the water, by day, unless the river is frozen.";
+                case Visitor.Hedgehog: return "A hedgehog comes at dusk to a flower sheltered by a tree. It sleeps the winter through.";
+                case Visitor.Owl: return "An owl comes at night to a grove of two trees.";
                 case Visitor.Bees: return "Bees come once three flowers are growing, on warm days.";
                 case Visitor.Birds: return "Birds come once two trees are tended, for the fruit, even in winter.";
                 default: return "Butterflies come to any flower in spring and summer.";

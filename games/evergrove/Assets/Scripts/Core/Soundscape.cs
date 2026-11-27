@@ -1,6 +1,6 @@
 namespace Evergrove.Core
 {
-    public enum AmbientVoice { Birds, Crickets, Wind, Water, Rain }
+    public enum AmbientVoice { Birds, Crickets, Wind, Water, Rain, Owl }
 
     /// <summary>
     /// I316 (idea 49, after ambient Japanese puzzle games where sound is a place): what you
@@ -38,6 +38,16 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>
+        /// I376: a visitor heard as well as seen. The owl (I374), once a grove has brought it
+        /// and it is out, calls now and then at night. Null for a visitor with no call here.
+        /// </summary>
+        public static AmbientVoice? VisitorVoice(Visitor visitor, Season season, DayPhase phase)
+        {
+            if (visitor == Visitor.Owl && Visitors.Out(visitor, season, phase)) return AmbientVoice.Owl;
+            return null;
+        }
+
         public static float SecondsBetween(AmbientVoice voice)
         {
             switch (voice)
@@ -46,6 +56,7 @@ namespace Evergrove.Core
                 case AmbientVoice.Crickets: return 4f;
                 case AmbientVoice.Wind: return 11f;
                 case AmbientVoice.Rain: return 2.6f; // I354: patter, close together
+                case AmbientVoice.Owl: return 16f;   // I376: rare, so it is noticed
                 default: return 9f;
             }
         }

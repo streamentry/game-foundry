@@ -1916,6 +1916,7 @@ internal static class Program
             assertions += SowingTests.Run();
             assertions += StreamPathTests.Run();
             assertions += GardenPiecesTests.Run();
+            assertions += GardenPiecesFitTests.Run(); // I373
             assertions += MahjongTests.Run();
             assertions += ThingPuzzleTests.Run();
             assertions += SeasonTests.Run();

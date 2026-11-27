@@ -356,6 +356,8 @@ namespace Evergrove.UnityClient
             PairLinksNext = null;
             view.pairSpots = PairSpotsNext; // I372
             PairSpotsNext = null;
+            view.creatureCells = new[] { HeronAtNext, HedgehogAtNext, OwlAtNext }; // I374
+            HeronAtNext = HedgehogAtNext = OwlAtNext = -1;
             LanternsNext = 0;
             view.Layout();
             return view;
@@ -431,6 +433,7 @@ namespace Evergrove.UnityClient
         private int[] meadow;  // I363
         private int[] pairLinks; // I371
         private int[] pairSpots; // I372
+        private int[] creatureCells; // I374: heron, hedgehog, owl
         public static int LanternsNext; // set by the app just before building home's map
 
         /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
@@ -855,6 +858,23 @@ namespace Evergrove.UnityClient
                 linkImage.raycastTarget = false;
                 nodes.Add(linkRect);
             }
+            // I374: the visitors good neighbours bring.
+            for (int k = 0; creatureCells != null && k < creatureCells.Length; k++)
+            {
+                int cell = creatureCells[k];
+                if (cell < 0 || cell >= map.CellCount) continue;
+                var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling" : "An owl, watching",
+                    typeof(RectTransform));
+                creature.transform.SetParent(land, false);
+                var creatureRect = (RectTransform)creature.transform;
+                creatureRect.anchorMin = creatureRect.anchorMax = new Vector2(0f, 1f);
+                creatureRect.sizeDelta = new Vector2(40f, 40f);
+                float lift = k == 2 ? 0.25f : k == 1 ? 0.95f : 0.6f; // the owl up in the tree, the hedgehog at its foot
+                float side = k == 1 ? 0.35f : 0f;
+                creatureRect.anchoredPosition = new Vector2((cell % map.Columns + 0.5f + side) * cellW, -(cell / map.Columns + lift) * cellH);
+                creature.AddComponent<GardenCreature>().Kind = k;
+                nodes.Add(creatureRect);
+            }
             // I372: where the thing in hand would make a new good neighbour, a soft green glow.
             for (int sp = 0; pairSpots != null && sp < pairSpots.Length; sp++)
             {
@@ -1104,6 +1124,7 @@ namespace Evergrove.UnityClient
                 standing = decorate(land, cell =>
                     new Vector2((cell % map.Columns + 0.5f) * cellW, -(cell / map.Columns + 0.78f) * cellH));
                 if (standing != null) nodes.AddRange(standing);
+                if (SignFont != null) KeepOffSigns(standing, width, reachHeight, reaches); // I375
             }
             if (keep.x >= 0f)
             {
@@ -1426,9 +1447,33 @@ namespace Evergrove.UnityClient
         public static Season SeasonNow = Season.Summer; // I338: the garden's season, set before a build
         public static Weather WeatherNow = Weather.Fair; // I353: the day's weather, set before a build
         public static Font SignFont; // I360: the river-name signs' lettering
+
+        // I375 (P15: Orin stood on "Kingfisher Run" and hid half of it): a neighbour standing on
+        // a river's name plank steps aside, toward the roomier side, so the name always reads.
+        private static void KeepOffSigns(List<RectTransform> standing, float width, float reachHeight, int reaches)
+        {
+            if (standing == null) return;
+            float signW = Mathf.Clamp(width * 0.34f, 120f, 170f), signH = signW * 0.28f, signX = width * 0.58f;
+            foreach (RectTransform person in standing)
+            {
+                if (person == null) continue;
+                Vector2 at = person.anchoredPosition, size = person.sizeDelta;
+                for (int reach = 0; reach < reaches; reach++)
+                {
+                    float signTop = -(reach * reachHeight + reachHeight * 0.012f), signBottom = signTop - signH;
+                    bool overlapsY = at.y < signTop && at.y + size.y * 0.8f > signBottom;
+                    bool overlapsX = Mathf.Abs(at.x - signX) < (signW + size.x * 0.6f) / 2f;
+                    if (!overlapsY || !overlapsX) continue;
+                    float left = signX - signW / 2f - size.x * 0.32f, right = signX + signW / 2f + size.x * 0.32f;
+                    at.x = left >= size.x * 0.5f && (at.x < signX || right > width - size.x * 0.5f) ? left : right;
+                    person.anchoredPosition = at;
+                }
+            }
+        }
         public static int[] MeadowTufts; // I363: bank cells for wild flowers, set for home's map
         public static int[] PairLinksNext; // I371: good-neighbour cell pairs, set for home's map
         public static int[] PairSpotsNext; // I372: free cells that would make a new pairing
+        public static int HeronAtNext = -1, HedgehogAtNext = -1, OwlAtNext = -1; // I374: cells, -1 none
         public static bool RainbowNow;   // I364
         public static Dew DewNow;        // I366
 
