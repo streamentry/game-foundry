@@ -45,6 +45,7 @@ internal static class TouchTargetTests
         ["EvergroveApp.Economy.cs"] = new[] { "seed purse: 104 x 48 literal sizeDelta" },
         ["EvergroveApp.Name.cs"] = new[] { "name text field: height from NameField layout (verify in tour)" },
         ["FamilySheet.cs"] = new[] { "text field: height from the Field helper's callers (48f)" },
+        ["GardenNightCreatures.cs"] = new[] { "night creature (GardenCreature): its 48 x 48 tap area is asserted in GardenCreature.cs" },
         ["GardenMapView.cs"] = new[]
         {
             "map item Button: size from the item's art rect (verify in tour)",
@@ -62,6 +63,7 @@ internal static class TouchTargetTests
         ["EvergroveApp.cs"] = new[]
         {
             "Button helper: height from callers (default 52)",
+            "dew board / lantern letter token (EvergroveApp.DayRhythm.cs): 52 x 52 literal sizeDelta",
             "IconButton helper: height from callers",
             "letter box: 60 x 80 literal",
             "reading paper: page-sized",

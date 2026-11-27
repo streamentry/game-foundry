@@ -28,7 +28,9 @@ namespace Evergrove.UnityClient
             if (Kind == 0) Heron();
             else if (Kind == 1) Hedgehog();
             else if (Kind == 2) Owl();
-            else Kingfisher();
+            else if (Kind == 3) Kingfisher();
+            else if (Kind == 4) Moth(); // checklist 49: night creatures, drawn in shapes
+            else Frog();
             if (moving != null) home = moving.anchoredPosition;
             group = gameObject.AddComponent<CanvasGroup>();
             // I404: a small tap area on the body (not the whole square), so the tree or flower
@@ -87,6 +89,35 @@ namespace Evergrove.UnityClient
         }
 
         // I382: small and bright, perched on a reed over the water; now and then it bobs.
+        // Checklist 49: no moth or frog art exists, so both are drawn in soft shapes like the others.
+        // A moth flutters round a lamp-warm spot (its wings beat while it is in motion, Update).
+        private void Moth()
+        {
+            Color wing = new Color(0.86f, 0.82f, 0.72f, 1f), dust = new Color(0.55f, 0.48f, 0.38f, 1f);
+            Color glow = new Color(1f, 0.90f, 0.60f, 0.35f);
+            Part("Lamp halo", new Vector2(30f, 30f), new Vector2(0f, 4f), 0f, glow, 14);
+            moving = Part("Moth", new Vector2(4f, 4f), Vector2.zero, 0f, new Color(0f, 0f, 0f, 0f), 1);
+            Part("Left wing", new Vector2(12f, 9f), new Vector2(-7f, 3f), 18f, wing, 4, moving);
+            Part("Right wing", new Vector2(12f, 9f), new Vector2(7f, 3f), -18f, wing, 4, moving);
+            Part("Body", new Vector2(3f, 12f), new Vector2(0f, 0f), 0f, dust, 2, moving);
+        }
+
+        // Checklist 49: a frog sits at the river's edge in the evening, one leg tucked under.
+        private void Frog()
+        {
+            Color green = new Color(0.36f, 0.56f, 0.32f, 1f), pale = new Color(0.66f, 0.80f, 0.52f, 1f);
+            Color eye = new Color(0.96f, 0.92f, 0.60f, 1f), pupil = new Color(0.10f, 0.12f, 0.08f, 1f);
+            Part("Lily pad", new Vector2(26f, 8f), new Vector2(0f, -12f), 0f, new Color(0.30f, 0.52f, 0.36f, 1f), 4);
+            Part("Back leg", new Vector2(12f, 6f), new Vector2(-9f, -6f), 25f, green, 3);
+            Part("Back leg", new Vector2(12f, 6f), new Vector2(9f, -6f), -25f, green, 3);
+            Part("Body", new Vector2(20f, 14f), new Vector2(0f, -1f), 0f, green, 6);
+            Part("Belly", new Vector2(14f, 6f), new Vector2(0f, -4f), 0f, pale, 3);
+            Part("Eye", new Vector2(6f, 6f), new Vector2(-5f, 8f), 0f, eye, 3);
+            Part("Eye", new Vector2(6f, 6f), new Vector2(5f, 8f), 0f, eye, 3);
+            Part("Pupil", new Vector2(2.5f, 2.5f), new Vector2(-5f, 8f), 0f, pupil, 1);
+            Part("Pupil", new Vector2(2.5f, 2.5f), new Vector2(5f, 8f), 0f, pupil, 1);
+        }
+
         private void Kingfisher()
         {
             Color blue = new Color(0.13f, 0.56f, 0.80f, 1f), deep = new Color(0.08f, 0.33f, 0.55f, 1f);
@@ -186,7 +217,14 @@ namespace Evergrove.UnityClient
             float since = clock - reactAt;
             if (React(since)) return;
             if (!GardenMapView.FirefliesMove) return;
-            if (Kind == 0 && moving != null)
+            if (Kind == 4 && moving != null)
+            {
+                // Checklist 49: a moth's slow flutter round the lamp.
+                float flutter = Mathf.Sin(clock * 3.1f);
+                moving.anchoredPosition = home + new Vector2(4f * flutter, 3f * Mathf.Cos(clock * 1.7f));
+                moving.localRotation = Quaternion.Euler(0f, 0f, 12f * flutter);
+            }
+            else if (Kind == 0 && moving != null)
             {
                 // Still for a long while, then a quick dip to the water and back.
                 float t = clock % 7f;

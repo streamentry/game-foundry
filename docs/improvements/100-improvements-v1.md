@@ -64,11 +64,11 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **42. Each stretch has a character.** Water meadow, mill, heron pool. Each has its own palette, its own neighbour and its own puzzle flavour. *Test:* three stretches recognisable from a single screenshot.
 - [x] **43. A boat to travel.** A small boat ride between stretches replaces scrolling for long distances. *Test:* any stretch is reachable in 2 taps.
 - [ ] **44. Landmarks for wayfinding.** One tall landmark per stretch (mill, bridge, willow) is visible from the next, so players can't get lost. *Test:* a "where are you" test with 5 players.
-- [ ] **45. A river map.** A painted scroll map of opened stretches, with your family's gardens pinned on it. *Test:* the map opens from the menu with one tap.
+- [x] **45. A river map.** A painted scroll map of opened stretches, with your family's gardens pinned on it. *Test:* the map opens from the menu with one tap.
 - [x] **46. Things grow outside the garden.** Wild places along the river where planted things spread on their own over days. *Test:* growth is deterministic by date and seed.
 - [x] **47. Build simple paths and bridges.** Place stepping stones that join areas, with Minecraft-like freedom kept at a gentle scale. *Test:* placement is grid-snapped and undoable.
 - [x] **48. Weather moves down the river.** Rain upstream today reaches you tomorrow, said by a neighbour. *Test:* same seed, same forecast.
-- [ ] **49. Night creatures per stretch.** Owls, moths and frogs, visible only in the evening. Each is logged in "who visits" (I327). *Test:* a night tour shot per stretch.
+- [x] **49. Night creatures per stretch.** Owls, moths and frogs, visible only in the evening. Each is logged in "who visits" (I327). *Test:* a night tour shot per stretch.
 - [ ] **50. Performance budget for an endless world.** Only the visible stretch plus one on either side is built, and the rest is pooled. *Test:* memory flat after 30 stretches of scrolling.
 
 ## F. A daily rhythm that is not a chore
@@ -76,7 +76,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **51. One small thing each day.** The garden always has one thing waiting (a ripe fruit, a letter, a board), and it's done in under five minutes. *Test:* logged day-2 to day-7 sessions.
 - [x] **52. No streak that can break.** Count days played as a growing total, never a streak that resets. *Test:* skipping 3 days costs nothing.
 - [x] **53. Missing days are made kind.** On return, the garden shows what grew while you were away (I359), never what died. *Test:* returning after 14 days shows only gains.
-- [ ] **54. A morning and an evening.** Different small things wait by local time of day (dew boards in the morning, lantern letters in the evening). *Test:* clock QA hook tours.
+- [x] **54. A morning and an evening.** Different small things wait by local time of day (dew boards in the morning, lantern letters in the evening). *Test:* clock QA hook tours.
 - [ ] **55. Calendar of the river.** Real seasonal days per locale (first frost, longest day) become small festivals, not cultural events the game can't do justice to. *Test:* each festival line reviewed per locale.
 - [ ] **56. An end to each session.** After the day's thing, a neighbour says goodnight and the garden quietens. This invites stopping, not more play. *Test:* players report a natural ending point.
 - [x] **57. Notifications only for real arrivals.** Notifications fire only for a family letter or a parcel, at most one a day, and are opt-in (I273–I277). *Test:* a week's log shows no more than 7.

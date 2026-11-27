@@ -192,6 +192,8 @@ namespace Evergrove.UnityClient
             GardenMapView.HedgehogAtNext = VisitorSpot(garden, map, things, Visitor.Hedgehog, Pairing.Sheltered, season, phase);
             GardenMapView.OwlAtNext = VisitorSpot(garden, map, things, Visitor.Owl, Pairing.Grove, season, phase);
             GardenMapView.KingfisherAtNext = VisitorSpot(garden, map, things, Visitor.Kingfisher, Pairing.Waterside, season, phase);
+            GardenNightCreatures.Cells = NightSpots(map, things, phase); // checklist 49: moths and frogs, evening only
+            NoteNightsSeen(garden, GardenNightCreatures.Cells); // who visits (I327): logged the first time they are out
         }
 
         private int VisitorSpot(WorldModel garden, GardenMap map, System.Collections.Generic.List<PlacedThing> things,

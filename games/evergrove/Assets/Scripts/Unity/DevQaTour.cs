@@ -18,7 +18,7 @@ namespace Evergrove.UnityClient
     /// <c>MOSSELORA_QA_TOUR_DONE &lt;count&gt;</c> and quits.
     /// Inactive in release builds, in the Editor and when the argument is absent.
     /// </summary>
-    public sealed class DevQaTour : MonoBehaviour
+    public sealed partial class DevQaTour : MonoBehaviour
     {
         private const string TourArg = "-mosseloraQaTour";
         private const int JournalAfterChapter = 3; // zero-based: choice made on chapter 4
@@ -461,16 +461,7 @@ namespace Evergrove.UnityClient
                 yield return new WaitForEndOfFrame();
                 SavePng("17x-river-opened.png");
                 app.QaEndTreePlay();
-                // Checklist 43: travel by boat, from the hub, to the furthest open stretch.
-                for (int f = 0; f < 8; f++) yield return null;
-                app.QaOpenTravel();
-                yield return new WaitForSecondsRealtime(0.5f);
-                yield return new WaitForEndOfFrame();
-                SavePng("17zc-boat-travel.png");
-                app.QaTravel(app.QaOpenReaches() - 1);
-                yield return new WaitForSecondsRealtime(1.5f);
-                yield return new WaitForEndOfFrame();
-                SavePng("17zd-boat-arrived.png");
+                yield return BoatAndMapShots(); // DevQaTour.Travel.cs: checklists 43 and 45
             }
             // I243-I247: the five newer kinds, each unsolved and then solved.
             foreach (PuzzleKind kind in new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots,
@@ -538,8 +529,7 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng("17q-family-sent.png");
-                FamilyParcel.TryCreate("Nan", "Planted one of these for you. Love, Nan", ParcelGift.Cutting, 2,
-                    "qatour1", out string parcel, out _, out _);
+                FamilyParcel.TryCreate("Nan", "Planted one of these for you. Love, Nan", ParcelGift.Cutting, 2, "qatour1", out string parcel, out _, out _);
                 GUIUtility.systemCopyBuffer = "Look what I sent!\n" + FamilyParcel.Wrap(parcel, "Nan sent you a gift.");
                 family.QaOpen();
                 for (int f = 0; f < 6; f++) yield return null;
@@ -892,6 +882,7 @@ namespace Evergrove.UnityClient
                 app.QaShowHub(false);
             }
 
+            yield return DayRhythmShots(); // checklists 49 and 54: night, dew and lantern shots (DevQaTour.DayRhythm.cs)
             // Smart companion (SC02): a scripted week. Nine things grown, two tended, a letter from
             // Anh; one visit a day, each neighbour spoken to once; then each neighbour on day eight.
             WorldModel week = WorldModel.New(PlayMode.Living);

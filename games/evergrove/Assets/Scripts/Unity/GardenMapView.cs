@@ -369,7 +369,7 @@ namespace Evergrove.UnityClient
             view.pairSpots = PairSpotsNext; // I372
             PairSpotsNext = null;
             view.creatureCells = new[] { HeronAtNext, HedgehogAtNext, OwlAtNext, KingfisherAtNext }; // I374, I382
-            HeronAtNext = HedgehogAtNext = OwlAtNext = KingfisherAtNext = -1;
+            HeronAtNext = HedgehogAtNext = OwlAtNext = KingfisherAtNext = -1; view.nightCells = GardenNightCreatures.Take(); // checklist 49: kept for rebuilds
             view.seatLantern = SeatLanternNext; // I430
             SeatLanternNext = -1;
             LanternsNext = 0;
@@ -447,7 +447,7 @@ namespace Evergrove.UnityClient
         private int[] meadow;  // I363
         private int[] pairLinks; // I371
         private int[] pairSpots; // I372
-        private int[] creatureCells; // I374: heron, hedgehog, owl
+        private int[] creatureCells, nightCells; // I374: heron, hedgehog, owl; checklist 49: moths and frogs
         public static int LanternsNext; // set by the app just before building home's map
 
         /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
@@ -981,9 +981,7 @@ namespace Evergrove.UnityClient
             {
                 int cell = creatureCells[k];
                 if (cell < 0 || cell >= map.CellCount) continue;
-                var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling"
-                    : k == 2 ? "An owl, watching" : "A kingfisher, perched",
-                    typeof(RectTransform));
+                var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling" : k == 2 ? "An owl, watching" : "A kingfisher, perched", typeof(RectTransform));
                 creature.transform.SetParent(land, false);
                 var creatureRect = (RectTransform)creature.transform;
                 creatureRect.anchorMin = creatureRect.anchorMax = new Vector2(0f, 1f);
@@ -997,6 +995,7 @@ namespace Evergrove.UnityClient
                 creatureRect.localScale = Vector3.one * Mathf.Clamp(cellW / 30f, 1f, 2.4f);
                 nodes.Add(creatureRect);
             }
+            GardenNightCreatures.Place(land, nodes, map, cellW, cellH, nightCells); // checklist 49: moths and frogs, evening only
             // I372: where the thing in hand would make a new good neighbour, a soft green glow.
             for (int sp = 0; pairSpots != null && sp < pairSpots.Length; sp++)
             {

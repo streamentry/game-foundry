@@ -428,6 +428,8 @@ namespace Evergrove.Core
                 case Evergrove.Core.Visitor.Kingfisher: return "kingfisher";
                 case Evergrove.Core.Visitor.Bees: return "bees";
                 case Evergrove.Core.Visitor.Birds: return "birds";
+                case Evergrove.Core.Visitor.Moths: return "moths";
+                case Evergrove.Core.Visitor.Frogs: return "frogs";
                 default: return "butterflies";
             }
         }

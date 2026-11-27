@@ -23,7 +23,7 @@ internal static class BackPlacementTests
     private static readonly string[] SheetSites =
     {
         "Close seed book", "Close the stall", "Close naming", "Close dates", "Close deeper boards",
-        "Close menu", "Close journal", "Close travel",
+        "Close menu", "Close journal", "Close travel", "Close river map",
     };
 
     // Card and panel sites: each builds its own token and places it with BackPlacement.
@@ -59,7 +59,7 @@ internal static class BackPlacementTests
     private static readonly string[] BackOrder =
     {
         "CloseLetter()", "familySheet.Close()", "CloseSeedBook()", "CloseMarketSheet()",
-        "CloseNameSheet()", "CloseDatesSheet()", "CloseWeeklyBoardSheet()", "CloseTravelSheet()", "SetMenu(false)",
+        "CloseNameSheet()", "CloseDatesSheet()", "CloseWeeklyBoardSheet()", "CloseTravelSheet()", "CloseRiverMap()", "SetMenu(false)",
         "CloseJournal()", "CloseChoicePreview()", "openCard.Close()",
     };
 
