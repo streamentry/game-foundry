@@ -1948,6 +1948,7 @@ internal static class Program
             assertions += RiverMapSheetTests.Run();
             assertions += ReplyChipsTests.Run(); // checklist 81
             assertions += SunShadowTests.Run(); // checklist 22
+            assertions += NeighbourWalkTests.Run(); // checklist 24
             assertions += FileSizeTests.Run();
             assertions += RiverTravelTests.Run();
             assertions += ColourCueTests.Run();

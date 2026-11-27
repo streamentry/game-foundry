@@ -37,7 +37,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **21. Parallax depth on the map.** Three layers (far hills, garden, near grass) shift a few points on pan. *Test:* 60 fps on the oldest supported iPhone.
 - [x] **22. Cast shadows that follow the sun.** Things cast one soft shadow whose angle follows `DayLight`. *Test:* dawn, noon and dusk tour shots.
 - [ ] **23. Water that reflects.** The river mirrors the trees beside it, a faint flipped copy with a ripple shader. *Test:* GPU frame time on device.
-- [ ] **24. Footsteps for neighbours.** Neighbours walk between spots with a short step animation instead of appearing. *Test:* tour video at 0.5× speed.
+- [x] **24. Footsteps for neighbours.** Neighbours walk between spots with a short step animation instead of appearing. *Test:* tour video at 0.5× speed.
 - [ ] **25. A painted transition between board and garden.** The board folds into the thing it came from (extending I293). *Test:* a side-by-side clip reviewed for one continuous motion.
 - [x] **26. Seasonal palette grading.** One colour-grade table per season over the whole scene, not per object (I338–I341). *Test:* grayscale check that contrast stays above 4.5:1 for text in every season.
 - [ ] **27. A composed score.** Replace the synthesized ambience with short composed loops per season and hour, plus stingers for finishing a board. *Test:* volume and mute persist; no loop seam audible in 10 minutes.
