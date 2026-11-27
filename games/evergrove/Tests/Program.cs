@@ -1944,6 +1944,7 @@ internal static class Program
             assertions += TogetherTests.Run();
             assertions += FamilyGiftsTests.Run();
             assertions += KitchenTests.Run();
+            assertions += OwnBoardWiringTests.Run();
             assertions += NoSignupWallTests.Run();
             assertions += SheetMotionTests.Run();
             assertions += TouchTargetTests.Run();
