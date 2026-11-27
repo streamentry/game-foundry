@@ -9112,21 +9112,43 @@ namespace Evergrove.UnityClient
             var backdrop = cottageCard.AddComponent<Button>();
             backdrop.transition = Selectable.Transition.None;
             backdrop.onClick.AddListener(CloseCottage);
-            var paper = Node("Cottage paper", cottageCard.transform);
-            var paperRect = paper.GetComponent<RectTransform>();
-            paperRect.anchorMin = paperRect.anchorMax = new Vector2(0.5f, 0.5f);
-            paperRect.sizeDelta = new Vector2(Mathf.Min(PageWidth() - 20f, 360f), 0f);
-            var paperImage = paper.AddComponent<Image>();
+            // I299 (fit, 2026-11-28): the paper never reaches past the safe area. Its lines sit in a
+            // scroll view inside it and scroll only when there are more than fit (landscape,
+            // 150% text); sideways it is wider and a little tighter so fewer lines wrap.
+            var card = Node("Cottage paper", cottageCard.transform);
+            var cardRect = card.GetComponent<RectTransform>();
+            cardRect.anchorMin = cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRect.sizeDelta = new Vector2(CottageCardWidth(), 0f);
+            var paperImage = card.AddComponent<Image>();
             MosseloraArt.PaperTile(paperImage, 22);
             paperImage.color = new Color(0.99f, 0.97f, 0.9f, 1f);
             MosseloraArt.Lift(paperImage, 4f, 0.22f);
+            float cardInset = landscape ? 12f : 18f;
+            var cardScroll = card.AddComponent<ScrollRect>();
+            cardScroll.horizontal = false;
+            cardScroll.movementType = ScrollRect.MovementType.Clamped;
+            cardScroll.scrollSensitivity = 28f;
+            var view = Node("Cottage view", card.transform);
+            var viewRect = view.GetComponent<RectTransform>();
+            Fill(viewRect);
+            viewRect.offsetMin = new Vector2(0f, cardInset);
+            viewRect.offsetMax = new Vector2(0f, -cardInset);
+            view.AddComponent<RectMask2D>();
+            var paper = Node("Cottage lines", view.transform);
+            var linesRect = paper.GetComponent<RectTransform>();
+            linesRect.anchorMin = new Vector2(0f, 1f);
+            linesRect.anchorMax = new Vector2(1f, 1f);
+            linesRect.pivot = new Vector2(0.5f, 1f);
+            linesRect.sizeDelta = Vector2.zero;
             var column = paper.AddComponent<VerticalLayoutGroup>();
-            column.padding = new RectOffset(22, 22, 18, 18);
-            column.spacing = 10;
+            column.padding = new RectOffset(22, 22, 0, 0);
+            column.spacing = landscape ? 6 : 10;
             column.childControlWidth = column.childControlHeight = true;
             column.childForceExpandWidth = true;
             column.childForceExpandHeight = false;
             paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            cardScroll.viewport = viewRect;
+            cardScroll.content = linesRect;
             GardenNameLine(paper.transform); // EvergroveApp.Name.cs: the garden's name, as the sign's title (checklist 3)
             // The season, as its stone: the year at a glance.
             string[] stones = { "stone-spring", "stone-summer", "stone-autumn", "stone-winter" };
@@ -9234,8 +9256,48 @@ namespace Evergrove.UnityClient
                 Transform jamGlyph = look.GetChild(look.childCount - 1).Find("Icon");
                 if (jamGlyph != null) { ((RectTransform)jamGlyph).sizeDelta = new Vector2(44f, 44f); jamGlyph.GetComponent<Image>().color = Color.white; }
             }
-            if (gentleMotion) BloomPulse.Add(paper, 0.05f, 0.04f);
+            FitCottageCard(cardRect, linesRect, cardScroll, cardInset);
+            if (gentleMotion) BloomPulse.Add(card, 0.05f, 0.04f);
             semanticsDirty = true;
+        }
+
+        private const float CottageMargin = 12f; // paper to the safe area's edge, top and bottom
+
+        // Upright: the page width, as before. Sideways: wider (the screen has the room), so
+        // long lines wrap less and the decorate row's five tokens fit inside the paper.
+        private float CottageCardWidth()
+        {
+            if (!landscape) return Mathf.Min(PageWidth() - 20f, 360f);
+            float safeWidth = Screen.safeArea.width / CottageCanvasScale();
+            return Mathf.Clamp(safeWidth - 40f, 300f, 460f);
+        }
+
+        // Canvas units per screen pixel, from the full-screen card itself (it fills the
+        // title screen, which fills the overlay canvas); the scaler formula is the fallback.
+        private float CottageCanvasScale()
+        {
+            var host = cottageCard != null ? cottageCard.GetComponent<RectTransform>() : null;
+            if (host != null && host.rect.height > 1f && Screen.height > 0) return Screen.height / host.rect.height;
+            return LiveCanvasScale();
+        }
+
+        // As tall as its lines, but never past the safe area; centred in the safe area (not
+        // the whole screen) so the notch and home bar never cover the name or the last row.
+        private void FitCottageCard(RectTransform card, RectTransform lines, ScrollRect scroll, float inset)
+        {
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(lines);
+            float scale = CottageCanvasScale();
+            Rect safe = Screen.safeArea;
+            float room = Mathf.Max(160f, safe.height / scale - 2f * CottageMargin);
+            float wanted = lines.rect.height + 2f * inset;
+            float height = Mathf.Min(wanted, room);
+            card.sizeDelta = new Vector2(card.sizeDelta.x, height);
+            card.anchoredPosition = new Vector2((safe.center.x - Screen.width * 0.5f) / scale,
+                (safe.center.y - Screen.height * 0.5f) / scale);
+            scroll.vertical = wanted > height + 0.5f;
+            scroll.StopMovement();
+            scroll.verticalNormalizedPosition = 1f; // the garden's name first
         }
 
         private void CottageLine(Transform parent, Sprite icon, string words)
@@ -9246,7 +9308,7 @@ namespace Evergrove.UnityClient
             layout.childAlignment = TextAnchor.MiddleLeft;
             var mark = Node("Picture", row);
             var markLayout = mark.AddComponent<LayoutElement>();
-            markLayout.preferredWidth = markLayout.preferredHeight = markLayout.minWidth = 44f;
+            markLayout.preferredWidth = markLayout.preferredHeight = markLayout.minWidth = landscape ? 36f : 44f;
             var markImage = mark.AddComponent<Image>();
             markImage.sprite = icon;
             markImage.preserveAspect = true;
@@ -9552,6 +9614,13 @@ namespace Evergrove.UnityClient
             if (FamilyParcel.TryCreate("Nan", "", ParcelGift.Lantern, 0, "qa-lantern-" + world.Lanterns.Length,
                     out string text, out ParcelContents _, out ParcelError _))
                 world.Open(text);
+        }
+
+        // I299 (fit): the cottage shots carry a name, so the tour shows the card's title line too.
+        internal void QaGardenName(string name)
+        {
+            if (!qaInMemoryOnly) return;
+            world.SetGardenName(name);
         }
 
         internal void QaQuiet(bool on, bool wholeRiver = false)
