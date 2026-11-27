@@ -1,0 +1,37 @@
+{
+  "about": "Rules every Mosselora companion line must pass (smart companion SC03). Read by tools/evergrove_line_bank_check.py and by the C# LineBankTests. Change only with the spec: docs/specs/proposals/smart-companion-2026-11-27.md.",
+  "maxChars": 140,
+  "minVariants": 20,
+  "voices": ["0", "1", "2"],
+  "kinds": {
+    "FruitGiven": [],
+    "NewestThing": ["thing", "where"],
+    "KindSolved": ["work"],
+    "GiftWaiting": ["thing"],
+    "SolvedTogether": ["work"]
+  },
+  "longest": {
+    "thing": "lily of the valley",
+    "where": "down the valley",
+    "work": "the doorstep pattern"
+  },
+  "banned": [
+    "missed you", "miss you", "where have you been", "don't forget", "do not forget", "streak", "in a row", "come back",
+    "every day", "lonely", "loneliness", "waiting for you", "love you", "hurry up", "only today",
+    "health", "healthy", "wellbeing", "well-being", "brain", "cognitive", "memory loss", "dementia",
+    "therapy", "therapeutic", "medicine", "doctor", "good for your", "good for you", "keeps you sharp",
+    "stay sharp", "exercise your", "anxiety", "stress", "depress"
+  ],
+  "childSafe": [
+    "kill", "dead", "death", "die", "dying", "blood", "drunk", "beer", "wine", "hell", "damn", "stupid",
+    "hate", "ugly", "shut up", "idiot", "gun", "knife"
+  ],
+  "timeClaims": [
+    "yesterday", "last night", "last week", "this morning", "tonight", "days ago", "weeks ago",
+    "since you", "while you were", "for days", "for weeks", "all week", "again"
+  ],
+  "subjectVerbs": [
+    "is", "was", "has", "looks", "seems", "sits", "stands", "grows", "needs", "says", "gets", "keeps",
+    "makes", "does", "holds", "takes", "came", "comes", "goes", "went", "got"
+  ]
+}

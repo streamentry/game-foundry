@@ -1933,6 +1933,7 @@ internal static class Program
             assertions += NoticeTests.Run();
             assertions += CompanionFactsTests.Run();
             assertions += CompanionRankerTests.Run();
+            assertions += LineBankTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
             assertions += FamilyHelpTests.Run();

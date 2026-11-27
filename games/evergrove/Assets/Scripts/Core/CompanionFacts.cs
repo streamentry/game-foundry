@@ -277,7 +277,7 @@ namespace Evergrove.Core
                 if (n <= 0) continue;
                 int rank = (Math.Max(0, 499 - Math.Min(n, 499))) * 20 + i;
                 facts.Add(Make(FactKind.KindSolved, v, "solved:" + kept[i] + ":" + n, OwnDoingWeight, false, false,
-                    9 * Step + rank, "puzzle", kept[i].ToString(), "count", Num(n)));
+                    9 * Step + rank, "puzzle", kept[i].ToString(), "count", Num(n), "work", WorkOf(kept[i])));
             }
         }
 

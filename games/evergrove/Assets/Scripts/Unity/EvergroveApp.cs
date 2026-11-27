@@ -2696,7 +2696,7 @@ namespace Evergrove.UnityClient
                 if (seen.Length == 8 && DateTime.TryParseExact(seen, "yyyyMMdd", CultureInfo.InvariantCulture,
                         DateTimeStyles.None, out DateTime last))
                     sinceSeen = last;
-                spokenThisVisit.Clear(); // SC02: a new day is a new visit
+                spokenThisVisit.Clear(); spokenVariant.Clear(); // SC02: a new day is a new visit
                 PlayerPrefs.SetString(key, today);
                 PlayerPrefs.Save();
             }
@@ -3475,19 +3475,55 @@ namespace Evergrove.UnityClient
         private string NeighborSays(int villager)
         {
             Fact pick = CompanionPick(villager);
-            return pick != null ? CompanionSpeech.Legacy(pick, villager) : LocalizedVillage.Speak(world, villager);
+            if (pick == null) return LocalizedVillage.Speak(world, villager);
+            return CompanionWords(pick, villager, out _);
+        }
+
+        // SC03: the reviewed line bank's words where it has them (a wording not heard in 14 days,
+        // kept for the rest of the visit), else today's sentence.
+        private string CompanionWords(Fact pick, int villager, out int variant)
+        {
+            int keep = spokenThisVisit.TryGetValue(villager, out string key) && key == pick.Key &&
+                spokenVariant.TryGetValue(villager, out int kept) ? kept : -1;
+            string banked = LineBankNow().Speak(pick, villager, world.Garden,
+                CompanionContext.DayNumberOf(CompanionToday()), CompanionMemoryNow(), keep, out variant);
+            if (banked != null) return banked;
+            variant = -1;
+            return CompanionSpeech.Legacy(pick, villager);
+        }
+
+        // SC03: one bank per locale (Resources/Evergrove/Lines/<locale>.json), kept apart from
+        // GameLocalization's catalogue. A missing or unreadable bank is an empty one.
+        private LineBank lineBank;
+        private string lineBankLocale;
+
+        private LineBank LineBankNow()
+        {
+            string locale = GameLocalization.Current;
+            if (lineBank != null && lineBankLocale == locale) return lineBank;
+            lineBankLocale = locale;
+            lineBank = LineBank.Empty;
+            var asset = Resources.Load<TextAsset>("Evergrove/Lines/" + locale);
+            if (asset != null)
+            {
+                try { lineBank = LineBank.Parse(asset.text); }
+                catch (FormatException error) { Debug.LogWarning("Evergrove line bank " + locale + " unreadable: " + error.Message); }
+            }
+            return lineBank;
         }
 
         // ---- SC02: device-local memory of what was said (PlayerPrefs; never the save or the garden file).
         private const string CompanionMemoryKey = "evergrove:companion-heard:";
         private readonly System.Collections.Generic.Dictionary<int, string> spokenThisVisit =
             new System.Collections.Generic.Dictionary<int, string>();
+        private readonly System.Collections.Generic.Dictionary<int, int> spokenVariant =
+            new System.Collections.Generic.Dictionary<int, int>(); // SC03: the wording said this visit
         private int visitGarden = int.MinValue;
 
         private Fact CompanionPick(int villager)
         {
             if (world == null || world.Mode != PlayMode.Living || GameLocalization.Current != "en") return null;
-            if (visitGarden != world.Garden) { spokenThisVisit.Clear(); visitGarden = world.Garden; }
+            if (visitGarden != world.Garden) { spokenThisVisit.Clear(); spokenVariant.Clear(); visitGarden = world.Garden; }
             CompanionContext context = CompanionNow();
             spokenThisVisit.TryGetValue(villager, out string spoken);
             return CompanionRanker.Pick(CompanionFacts.For(world, context), CompanionMemoryNow(), villager,
@@ -3503,9 +3539,11 @@ namespace Evergrove.UnityClient
         private void CompanionHeard(int villager, Fact said)
         {
             if (said == null || world == null) return;
+            CompanionWords(said, villager, out int variant);
             spokenThisVisit[villager] = said.Key;
+            spokenVariant[villager] = variant;
             CompanionMemory memory = CompanionMemoryNow().With(
-                new Heard(CompanionContext.DayNumberOf(CompanionToday()), villager, said.Kind, -1, said.Key));
+                new Heard(CompanionContext.DayNumberOf(CompanionToday()), villager, said.Kind, variant, said.Key));
             PlayerPrefs.SetString(CompanionMemoryKey + world.Garden, memory.Serialize());
         }
 
@@ -8477,7 +8515,7 @@ namespace Evergrove.UnityClient
 
         private void OnApplicationPause(bool paused)
         {
-            if (!paused) { waveHello = true; spokenThisVisit.Clear(); } // SC02: a new visit
+            if (!paused) { waveHello = true; spokenThisVisit.Clear(); spokenVariant.Clear(); } // SC02: a new visit
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             ResearchPause(paused);
 #endif
@@ -9059,7 +9097,7 @@ namespace Evergrove.UnityClient
         internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
         internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
         internal void QaSetClock(int hour) { qaClockHour = hour; }
-        internal void QaSetDay(int offset) { qaDayOffset = offset; spokenThisVisit.Clear(); } // SC02 tour: a new day, a new visit
+        internal void QaSetDay(int offset) { qaDayOffset = offset; spokenThisVisit.Clear(); spokenVariant.Clear(); } // SC02 tour: a new day, a new visit
         internal string QaNeighborSays(int villager) { return NeighborSays(villager); }
         internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
         internal void QaRainbow(bool on) { qaRainbow = on; } // I364 tour
