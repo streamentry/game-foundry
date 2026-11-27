@@ -30,6 +30,8 @@ namespace Evergrove.UnityClient
         private Text rewardText;
         private GameObject rewardPill;
         private float closeAt = -1f;
+        private RectTransform cardRect; // I293: the card the solved board fades out of
+        private Sprite thingArt;
         // Pairs (flowers): the table, its pictures and the card images.
         private PairsGame pairs;
         private Sprite[] pictures;
@@ -309,7 +311,8 @@ namespace Evergrove.UnityClient
             uiFont = font;
             var card = new GameObject("Tree puzzle card", typeof(RectTransform));
             card.transform.SetParent(root, false);
-            var cardRect = (RectTransform)card.transform;
+            cardRect = (RectTransform)card.transform;
+            thingArt = art;
             cardRect.anchorMin = cardRect.anchorMax = new Vector2(0.5f, 0.5f);
             cardRect.pivot = new Vector2(0.5f, 0.5f);
             var cardImage = card.AddComponent<Image>();
@@ -428,13 +431,14 @@ namespace Evergrove.UnityClient
         {
             solved = true;
             int earned = onSolved != null ? onSolved() : 0;
+            SettleIntoThing();
             rewardText.text = "+" + earned;
             if (together && turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
             if (board != null)
             {
                 board.Lock();
                 if (gentle && rewardPill.activeSelf) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
-                closeAt = Time.unscaledTime + 2.2f;
+                closeAt = Time.unscaledTime + SettleClose;
                 return;
             }
             if (pairs != null || mosaic != null)
@@ -446,7 +450,7 @@ namespace Evergrove.UnityClient
                     if (gentle) BloomPulse.Add(tiles[i].gameObject, 0.08f + i * 0.03f);
                 }
                 if (gentle) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
-                closeAt = Time.unscaledTime + 2.2f;
+                closeAt = Time.unscaledTime + SettleClose;
                 return;
             }
             Paint();
@@ -458,7 +462,69 @@ namespace Evergrove.UnityClient
                 if (gentle) BloomPulse.Add(tiles[i].gameObject, 0.08f + steps * 0.07f);
             }
             if (gentle) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
-            closeAt = Time.unscaledTime + 2.2f; // long enough to see the water run and the seeds
+            closeAt = Time.unscaledTime + SettleClose; // long enough to see the water run and the seeds
+        }
+
+        // I293 (idea 46, after puzzles whose solved world transforms): once the board has
+        // bloomed, it fades into the thing it belongs to, which grows in its place. With
+        // reduced motion the thing simply appears. Then the card closes as before.
+        private const float SettleAfter = 1.0f, SettleClose = 2.9f;
+
+        private void SettleIntoThing()
+        {
+            if (cardRect == null || thingArt == null) return;
+            var veil = new GameObject("Becomes the thing", typeof(RectTransform), typeof(CanvasGroup), typeof(LayoutElement));
+            veil.transform.SetParent(cardRect, false);
+            veil.GetComponent<LayoutElement>().ignoreLayout = true;
+            var veilRect = (RectTransform)veil.transform;
+            veilRect.anchorMin = Vector2.zero;
+            veilRect.anchorMax = Vector2.one;
+            veilRect.offsetMin = new Vector2(10f, 10f);
+            veilRect.offsetMax = new Vector2(-10f, -108f); // the top row stays: close, thing, seeds
+            var fill = veil.AddComponent<Image>();
+            MosseloraArt.Round(fill, MosseloraTheme.CardFill, 22);
+            fill.raycastTarget = false;
+            var thing = new GameObject("The thing, whole", typeof(RectTransform));
+            thing.transform.SetParent(veil.transform, false);
+            var thingRect = (RectTransform)thing.transform;
+            thingRect.anchorMin = new Vector2(0.12f, 0.1f);
+            thingRect.anchorMax = new Vector2(0.88f, 0.9f);
+            thingRect.offsetMin = thingRect.offsetMax = Vector2.zero;
+            var image = thing.AddComponent<Image>();
+            image.sprite = thingArt;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            var settle = veil.AddComponent<SettleIn>();
+            settle.Begin(thingRect, SettleAfter, gentle);
+        }
+
+        private sealed class SettleIn : MonoBehaviour
+        {
+            private CanvasGroup group;
+            private RectTransform thing;
+            private float start;
+            private bool moving;
+
+            public void Begin(RectTransform grows, float after, bool motion)
+            {
+                group = GetComponent<CanvasGroup>();
+                group.alpha = 0f;
+                group.blocksRaycasts = false;
+                thing = grows;
+                moving = motion;
+                start = Time.unscaledTime + after;
+            }
+
+            private void Update()
+            {
+                float t = Time.unscaledTime - start;
+                if (t < 0f) return;
+                if (!moving) { group.alpha = 1f; thing.localScale = Vector3.one; enabled = false; return; }
+                float k = Mathf.Clamp01(t / 0.7f), ease = 1f - (1f - k) * (1f - k) * (1f - k);
+                group.alpha = ease;
+                thing.localScale = Vector3.one * Mathf.Lerp(0.7f, 1f, ease);
+                if (k >= 1f) enabled = false;
+            }
         }
 
         // ---- Pairs: a 4-wide table of painted cards, face down on paper.

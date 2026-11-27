@@ -234,7 +234,11 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.9f);
                 yield return new WaitForEndOfFrame();
                 SavePng("17g-tree-solved.png");
-                yield return new WaitForSecondsRealtime(2.2f);
+                // I293: the solved board settles into the thing it belongs to.
+                yield return new WaitForSecondsRealtime(1.0f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17g2-becomes-the-thing.png");
+                yield return new WaitForSecondsRealtime(1.4f);
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng("17h-tree-bloomed.png");
@@ -247,7 +251,7 @@ namespace Evergrove.UnityClient
                 yield return new WaitForEndOfFrame();
                 SavePng("17h2-replay-fresh-board.png");
                 app.QaSolveTreePlay();
-                yield return new WaitForSecondsRealtime(2.6f);
+                yield return new WaitForSecondsRealtime(3.2f);
                 for (int f = 0; f < 6; f++) yield return null;
                 app.QaEndTreePlay();
             }
@@ -276,6 +280,18 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng("17j2-solved-together-mark.png");
+                // I292: a thing replayed to its deepest tier wears a crown ring.
+                app.QaCrown(flower);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j3-crowned.png");
+                // I294: quiet mode, just the garden; a tap brings everything back.
+                app.QaQuiet(true);
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j4-quiet-garden.png");
+                app.QaQuiet(false);
+                for (int f = 0; f < 4; f++) yield return null;
                 app.QaShowHub(false);
                 app.QaTalk(2);
                 for (int f = 0; f < 8; f++) yield return null;
@@ -314,7 +330,7 @@ namespace Evergrove.UnityClient
                 app.QaOpenTreePlay(extra);
                 for (int f = 0; f < 6; f++) yield return null;
                 app.QaSolveTreePlay();
-                yield return new WaitForSecondsRealtime(2.6f);
+                yield return new WaitForSecondsRealtime(3.2f);
                 for (int f = 0; f < 4; f++) yield return null;
                 app.QaEndTreePlay();
             }
@@ -337,7 +353,7 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.9f);
                 yield return new WaitForEndOfFrame();
                 SavePng("17w-river-opens.png");
-                yield return new WaitForSecondsRealtime(2.6f);
+                yield return new WaitForSecondsRealtime(3.2f);
                 yield return new WaitForEndOfFrame();
                 SavePng("17x-river-opened.png");
                 app.QaEndTreePlay();
@@ -429,7 +445,7 @@ namespace Evergrove.UnityClient
                     yield return new WaitForEndOfFrame();
                     SavePng("17s2-helping.png");
                     app.QaSolveTreePlay();
-                    yield return new WaitForSecondsRealtime(2.6f);
+                    yield return new WaitForSecondsRealtime(3.2f);
                     for (int f = 0; f < 8; f++) yield return null;
                     yield return new WaitForSecondsRealtime(0.8f);
                     yield return new WaitForEndOfFrame();

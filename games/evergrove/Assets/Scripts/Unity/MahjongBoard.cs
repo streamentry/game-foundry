@@ -22,6 +22,22 @@ namespace Evergrove.UnityClient
         private bool locked;
         private int[] shown; // I253
 
+        // I291: the four season stones, drawn on the season set's tiles in order.
+        private static readonly string[] SeasonArt = { "stone-spring", "stone-summer", "stone-autumn", "stone-winter" };
+        private int[] seasonTiles;
+
+        private Sprite PictureOf(int t)
+        {
+            int face = game.Face(t);
+            if (face == MahjongGame.SeasonFace && seasonTiles != null)
+            {
+                int k = System.Array.IndexOf(seasonTiles, t);
+                Sprite stone = k >= 0 ? MosseloraArt.Load(SeasonArt[k % SeasonArt.Length]) : null;
+                if (stone != null) return stone;
+            }
+            return pictures != null && face < pictures.Length ? pictures[face] : null;
+        }
+
         public MahjongBoard(MahjongGame game, int tier, Sprite[] pictures)
         {
             this.game = game;
@@ -32,6 +48,7 @@ namespace Evergrove.UnityClient
         public void Build(Transform card, float width, float screenHeight, Font font, TreePlay host)
         {
             play = host;
+            seasonTiles = MahjongGame.SeasonTiles(game);
             int count = game.TileCount, maxX = 0, maxY = 0, maxZ = 0;
             for (int t = 0; t < count; t++)
             {
@@ -45,6 +62,12 @@ namespace Evergrove.UnityClient
                 Sprite face = pictures != null && pictures.Length > 0 ? pictures[0] : null;
                 BoardKit.RuleSquare(row, BoardKit.Soil, face, 34f);
                 BoardKit.RuleSquare(row, BoardKit.Soil, face, 34f);
+                BoardKit.RuleArrow(row);
+                BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
+                // The season stones differ, and still match one another.
+                BoardKit.RuleGap(row);
+                BoardKit.RuleSquare(row, BoardKit.Soil, MosseloraArt.Load(SeasonArt[0]), 34f);
+                BoardKit.RuleSquare(row, BoardKit.Soil, MosseloraArt.Load(SeasonArt[2]), 34f);
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
             });
@@ -69,9 +92,7 @@ namespace Evergrove.UnityClient
                 tiles[t] = BoardKit.Cell(board, "Tile " + (t + 1), at, new Vector2(tileW - 3f, tileH - 3f), () => Tap(tile), 8);
                 MosseloraArt.Lift(tiles[t], 2f, 0.22f);
                 MosseloraArt.Edge(tiles[t].transform, MosseloraTheme.TileEdge, 8);
-                int face = game.Face(t);
-                BoardKit.Glyph(tiles[t].transform, "Picture",
-                    pictures != null && face < pictures.Length ? pictures[face] : null, half * 0.22f);
+                BoardKit.Glyph(tiles[t].transform, "Picture", PictureOf(t), half * 0.22f);
             }
             Paint();
         }
@@ -102,8 +123,7 @@ namespace Evergrove.UnityClient
                 tiles[t].transform.localScale = t == game.Selected ? new Vector3(1.06f, 1.06f, 1f) : Vector3.one;
                 Image picture = tiles[t].transform.Find("Picture").GetComponent<Image>();
                 picture.color = free ? Color.white : new Color(1f, 1f, 1f, 0.75f);
-                int face = game.Face(t);
-                picture.sprite = pictures != null && face < pictures.Length ? pictures[face] : null;
+                picture.sprite = PictureOf(t);
             }
         }
 
@@ -151,7 +171,8 @@ namespace Evergrove.UnityClient
                 rect.anchoredPosition = new Vector2((column - (inRow - 1) / 2f) * size / 0.86f,
                     ((down - 1) / 2f - row) * size / 0.86f);
                 var image = node.AddComponent<Image>();
-                image.sprite = pictures[f];
+                image.sprite = f == MahjongGame.SeasonFace && MosseloraArt.Load(SeasonArt[0]) != null
+                    ? MosseloraArt.Load(SeasonArt[0]) : pictures[f];
                 image.preserveAspect = true;
                 image.raycastTarget = false;
                 if (play.Gentle) BloomPulse.Add(node, 0.1f + f * 0.08f);

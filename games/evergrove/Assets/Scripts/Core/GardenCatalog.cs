@@ -116,6 +116,20 @@ namespace Evergrove.Core
             { "Lay", "laid", "cascade steps" }, { "Build", "built", "rain shelter" }
         };
 
+        // I290 (idea 3, after the month flowers of hanafuda): each flower's season, by
+        // when it flowers in a temperate garden. P spring, S summer, A autumn, W winter.
+        private const string FlowerSeasons = "SSSSPPPPSSSSSASPSSPWWWWAAAAASSWSWPWPSSAWSSPPSPASPP";
+
+        /// <summary>The flowers of a season, as catalogue indexes, so Pairs can deal them.</summary>
+        public static int[] FlowersOf(Season season)
+        {
+            char mark = "PSAW"[(int)season];
+            var found = new System.Collections.Generic.List<int>();
+            for (int i = 0; i < FlowerSeasons.Length; i++)
+                if (FlowerSeasons[i] == mark) found.Add(i);
+            return found.ToArray();
+        }
+
         public const int TreeCount = 50;
         public const int FlowerCount = 50;
         public const int BuildCount = 100;

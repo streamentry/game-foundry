@@ -196,6 +196,16 @@ namespace Evergrove.UnityClient
             Number(node.transform, "Words", words, font, 22, MosseloraTheme.EarthInk);
         }
 
+        /// <summary>A wider pause between two parts of one picture rule.</summary>
+        public static void RuleGap(Transform row, float width = 22f)
+        {
+            var gap = new GameObject("Gap", typeof(RectTransform), typeof(LayoutElement));
+            gap.transform.SetParent(row, false);
+            var layout = gap.GetComponent<LayoutElement>();
+            layout.minWidth = width;
+            layout.preferredWidth = width;
+        }
+
         public static void RuleArrow(Transform row)
         {
             RulePicture(row, MosseloraArt.Load(MosseloraArt.IconContinue), 24f, MosseloraTheme.EarthInk);
