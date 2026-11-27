@@ -313,7 +313,7 @@ namespace Evergrove.Core
         public bool PlantGift(int i, int cell)
         {
             if (Mode != PlayMode.Living || i < 0 || i >= state.gifts.Length ||
-                cell < 0 || cell >= MaxMapCell || BoughtCount >= MaxBought)
+                cell < 0 || cell >= MaxMapCell || BoughtCount >= MaxBought || DecorAt(cell) >= 0)
                 return false;
             int kind = state.gifts[i];
             var rest = new int[state.gifts.Length - 1];
