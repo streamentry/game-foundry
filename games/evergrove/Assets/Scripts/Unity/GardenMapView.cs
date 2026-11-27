@@ -193,6 +193,18 @@ namespace Evergrove.UnityClient
                 veil.color = new Color(0.97f, 0.98f, 1f, SeasonLook.SnowLying(SeasonNow) + (WeatherNow == Weather.Snowy ? 0.12f : 0f));
                 veil.raycastTarget = false;
             }
+            // SeasonGrade: one whole-scene grade per season, laid over the painting as a single
+            // overlay (the same blend as SeasonGrade.Apply), under every thing and sign.
+            var seasonGrade = SeasonGrade.For(SeasonNow);
+            var gradeLayer = new GameObject("Season grade", typeof(RectTransform));
+            gradeLayer.transform.SetParent(land.transform, false);
+            var gradeRect = (RectTransform)gradeLayer.transform;
+            gradeRect.anchorMin = Vector2.zero;
+            gradeRect.anchorMax = Vector2.one;
+            gradeRect.offsetMin = gradeRect.offsetMax = Vector2.zero;
+            var grade = gradeLayer.AddComponent<Image>();
+            grade.color = new Color(seasonGrade.Tint.R, seasonGrade.Tint.G, seasonGrade.Tint.B, seasonGrade.Strength);
+            grade.raycastTarget = false;
             if (Tint.a > 0.005f)
             {
                 var light = new GameObject("Day light", typeof(RectTransform));
@@ -845,7 +857,7 @@ namespace Evergrove.UnityClient
                 label.fontSize = 15;
                 label.fontStyle = FontStyle.Bold;
                 label.alignment = TextAnchor.MiddleCenter;
-                label.color = MosseloraTheme.EarthInk;
+                label.color = MosseloraTheme.Ink; // was EarthInk: 4.15:1 on the painted plank, Ink 8.2:1
                 label.resizeTextForBestFit = true;
                 label.resizeTextMinSize = 10;
                 label.resizeTextMaxSize = 15;
@@ -1374,7 +1386,7 @@ namespace Evergrove.UnityClient
                 beyond.fontSize = 17;
                 beyond.fontStyle = FontStyle.Italic;
                 beyond.alignment = TextAnchor.MiddleCenter;
-                beyond.color = new Color(0.30f, 0.34f, 0.32f, 0.75f);
+                beyond.color = new Color(0.30f, 0.34f, 0.32f, 0.90f); // was 0.75: 3.5:1 on the grade, now 4.9:1 worst season
                 beyond.raycastTarget = false;
                 beyond.text = RiverNames.For(reaches);
             }

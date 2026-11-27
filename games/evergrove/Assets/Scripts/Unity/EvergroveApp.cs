@@ -2080,7 +2080,7 @@ namespace Evergrove.UnityClient
             // and the weekly deeper board stay exactly as dealt.
             if (ownBoard) (seed, tier) = ChosenDeal(kind, seed, tier, solved, (s, t, sv) => () => OpenThingPuzzle(s, t, kind, art, name, reward, pictureStart, sv, ownBoard));
             moveNote = 0; // I305: each board starts its phrase from the top
-            Action turned = () => { PlayMove(kind); if (gentleMotion) Haptics.Tick(); };
+            Action turned = () => { PlayMove(kind); Haptics.Placed(); };
             int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
             // Back home, the view returns to the thing and its ring grows in (I212).
             string hintsKey = "evergrove:hints:" + (int)kind; // I322: per kind, on this device
@@ -2550,7 +2550,7 @@ namespace Evergrove.UnityClient
                 Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)Mathf.Clamp(family, 0, 2)).Art);
             moveNote = 0;
             PuzzleKind helpKind = ThingPuzzle.ForStory(item, (VillageChoice)made[item]);
-            Action turned = () => { PlayMove(helpKind); if (gentleMotion) Haptics.Tick(); };
+            Action turned = () => { PlayMove(helpKind); Haptics.Placed(); };
             Func<int> solved = () =>
             {
                 string from = PlayerPrefs.GetString(FamilyNameKey, "");
@@ -3291,6 +3291,7 @@ namespace Evergrove.UnityClient
                     new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(44f, 34f), new Vector2(-4f, -8f));
                 if (sealedLetter != null && gentleMotion) BloomPulse.Add(sealedLetter.gameObject, 0.6f, 0.08f);
             }
+            if (letterArrived) Haptics.Arrived();
             if (letterArrived && gentleMotion) StartCoroutine(FlyInto(rect, "letter-sealed", new Vector2(64f, 50f)));
             letterArrived = false;
             var caption = Node("Caption", node.transform);
@@ -3778,7 +3779,7 @@ namespace Evergrove.UnityClient
             SaveWorld();
             mapInHand = -1;
             PlayTock();
-            if (gentleMotion) Haptics.Tick();
+            Haptics.Placed();
             RefreshMaps();
         }
 
@@ -3786,7 +3787,7 @@ namespace Evergrove.UnityClient
         {
             SaveWorld();
             PlayTock();
-            if (gentleMotion) Haptics.Tick();
+            Haptics.Placed();
             RefreshMaps();
         }
 
@@ -7727,6 +7728,13 @@ namespace Evergrove.UnityClient
                 }, SettingToken, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
             SpeakLessButton(row.transform);
+            IconButton(row.transform, "Haptics setting",
+                Haptics.Enabled ? "Light touch feedback: on" : "Light touch feedback: off",
+                MosseloraArt.IconTap, () => {
+                    Haptics.Enabled = !Haptics.Enabled;
+                    Rebuild();
+                }, SettingToken, Haptics.Enabled ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
             IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
@@ -8071,7 +8079,6 @@ namespace Evergrove.UnityClient
             if (!world.GiveFruit(villager)) return;
             SaveWorld();
             PlayChime();
-            if (gentleMotion) Haptics.Tick();
             OpenConversation(villager, true); // their next line is the thank-you
         }
         private int fruitThanks = -1; // the neighbour just given fruit: thanks come first (I231)
@@ -8316,7 +8323,7 @@ namespace Evergrove.UnityClient
                     if (localPlaytest != null) localPlaytest.Solve(Time.unscaledTime);
 #endif
                     PlayChime();
-                    if (gentleMotion) Haptics.Success();
+                    Haptics.Finished();
                     StartCoroutine(ScrollToDecision());
                 }
             }
@@ -8365,7 +8372,7 @@ namespace Evergrove.UnityClient
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
             PlayTock();
-            if (gentleMotion) Haptics.Tick(); // felt with the turn (I140)
+            Haptics.Placed(); // felt with the turn (I140)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
 #endif
@@ -8830,7 +8837,6 @@ namespace Evergrove.UnityClient
             if (!soundOn || sound == null) return;
             if (kind == 2) sound.PlayOneShot(GardenSounds.Ambient(AmbientVoice.Owl, ambientDice.Next(3)), 0.7f);
             else if (kind == 0 || kind == 3) sound.PlayOneShot(GardenSounds.Ambient(AmbientVoice.Water, ambientDice.Next(3)), 0.8f);
-            if (gentleMotion) Haptics.Tick();
         }
 
         private void ApplyDayLight(WorldModel garden)
@@ -9054,6 +9060,7 @@ namespace Evergrove.UnityClient
             if (world.Jam > 0)
                 CottageLine(paper.transform, MosseloraArt.Load("food-jam"),
                     world.Jam == 1 ? "A jar of jam in the pantry" : world.Jam + " jars of jam in the pantry");
+            CottageTableRow(paper.transform); // I328/I228: the fruit and jars, as objects on the table
             // I330 (ideas 14 and 16, after block-building sandboxes): decorate anywhere, for free.
             Transform decorRow = CenteredRowIn(paper.transform, "Decorate");
             decorRow.gameObject.SetActive(world.DecorCount < WorldModel.MaxDecor || world.CanUndoDecor);

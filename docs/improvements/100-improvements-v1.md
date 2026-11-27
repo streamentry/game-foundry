@@ -39,10 +39,10 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **23. Water that reflects.** The river mirrors the trees beside it, a faint flipped copy with a ripple shader. *Test:* GPU frame time on device.
 - [ ] **24. Footsteps for neighbours.** Neighbours walk between spots with a short step animation instead of appearing. *Test:* tour video at 0.5× speed.
 - [ ] **25. A painted transition between board and garden.** The board folds into the thing it came from (extending I293). *Test:* a side-by-side clip reviewed for one continuous motion.
-- [ ] **26. Seasonal palette grading.** One colour-grade table per season over the whole scene, not per object (I338–I341). *Test:* grayscale check that contrast stays above 4.5:1 for text in every season.
+- [x] **26. Seasonal palette grading.** One colour-grade table per season over the whole scene, not per object (I338–I341). *Test:* grayscale check that contrast stays above 4.5:1 for text in every season.
 - [ ] **27. A composed score.** Replace the synthesized ambience with short composed loops per season and hour, plus stingers for finishing a board. *Test:* volume and mute persist; no loop seam audible in 10 minutes.
 - [ ] **28. Sound in space.** Pan the river, birds and neighbours' voices by where they are on screen. *Test:* headphone check.
-- [ ] **29. Haptics with meaning.** Three haptics only: placed, finished, and something arrived. *Test:* the haptics switch turns all three off.
+- [x] **29. Haptics with meaning.** Three haptics only: placed, finished, and something arrived. *Test:* the haptics switch turns all three off.
 - [ ] **30. Art consistency pass.** Hold one brush and one line weight across all sprites, and redraw any outlier. *Test:* contact sheet of every sprite at one scale, reviewed for outliers.
 
 ## D. Depth: simple to play, more to discover
@@ -90,7 +90,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **62. Invite by a link or QR code.** A grandparent shows a QR; the grandchild scans it and joins. No usernames to type. *Test:* 3 families join in under 2 minutes each.
 - [ ] **63. Visit a relative's garden live.** See their garden as it is now, leave one gift and one note (extending I216). *Test:* a visit works on a slow 3G connection profile.
 - [ ] **64. Help with their board.** A visitor can place one move on a family member's board, which they see as "Lan helped here." *Test:* the move survives conflict resolution.
-- [ ] **65. Share food.** Jam, fruit and baskets sent to family appear on their table as real objects (extending I228–I232 and I328). *Test:* a send-and-receive round trip.
+- [x] **65. Share food.** Jam, fruit and baskets sent to family appear on their table as real objects (extending I228–I232 and I328). *Test:* a send-and-receive round trip.
 - [ ] **66. Plant a tree together.** A shared tree grows only when both gardens tend it during the same week. *Test:* the rule holds with clocks in two time zones.
 - [ ] **67. Voice notes in letters.** Optional voice notes up to 30 s for players who don't like typing, with an auto-caption shown under each one. *Test:* recording works with VoiceOver on.
 - [ ] **68. Child-safe co-play.** Before any build designed for children: the store age declaration, no free text from strangers, and a family-only circle. *Test:* review against the store's child-audience rules.
