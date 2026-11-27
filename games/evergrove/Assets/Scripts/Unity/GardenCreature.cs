@@ -65,7 +65,12 @@ namespace Evergrove.UnityClient
             Part("Crest", new Vector2(8f, 2f), new Vector2(3f, 15f), 18f, dark, 1, moving);
             Part("Eye", new Vector2(1.8f, 1.8f), new Vector2(-4.5f, 14f), 0f, dark, 1, moving);
             Part("Beak", new Vector2(12f, 2.6f), new Vector2(-12f, 12.5f), -4f, beak, 1, moving);
+            // I427: now and then a dip comes up with a small silver fish.
+            catchFish = Part("A fish caught", new Vector2(6f, 2.6f), new Vector2(-15f, 11f), 20f, new Color(0.82f, 0.86f, 0.90f, 1f), 1, moving);
+            catchFish.gameObject.SetActive(false);
         }
+
+        private RectTransform catchFish;
 
         private void Hedgehog()
         {
@@ -185,6 +190,7 @@ namespace Evergrove.UnityClient
                 // Still for a long while, then a quick dip to the water and back.
                 float t = clock % 7f;
                 float dip = t > 6f ? Mathf.Sin((t - 6f) * Mathf.PI) : 0f;
+                if (catchFish != null) catchFish.gameObject.SetActive(t > 6.45f && Mathf.FloorToInt(clock / 7f) % 3 == 2); // I427
                 moving.anchoredPosition = home + new Vector2(-3f * dip, -9f * dip);
                 moving.localRotation = Quaternion.Euler(0f, 0f, 35f * dip);
             }

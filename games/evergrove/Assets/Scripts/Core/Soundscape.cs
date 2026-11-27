@@ -1,6 +1,6 @@
 namespace Evergrove.Core
 {
-    public enum AmbientVoice { Birds, Crickets, Wind, Water, Rain, Owl, Frogs }
+    public enum AmbientVoice { Birds, Crickets, Wind, Water, Rain, Owl, Frogs, Bees }
 
     /// <summary>
     /// I316 (idea 49, after ambient Japanese puzzle games where sound is a place): what you
@@ -59,6 +59,7 @@ namespace Evergrove.Core
                 case AmbientVoice.Rain: return 2.6f; // I354: patter, close together
                 case AmbientVoice.Owl: return 16f;   // I376: rare, so it is noticed
                 case AmbientVoice.Frogs: return 8f;  // I411
+                case AmbientVoice.Bees: return 10f;  // I426
                 default: return 9f;
             }
         }

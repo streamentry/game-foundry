@@ -705,7 +705,8 @@ namespace Evergrove.UnityClient
                 riverLife = lifeNode.AddComponent<RiverLifeLayer>();
                 riverLife.Cell = cellW;
                 riverLife.Rain = RiverRainNow;
-                riverLife.Glitter = RiverGlitterNow;
+                riverLife.Glitter = RiverGlitterNow || MoonlightNow;
+                riverLife.Moon = MoonlightNow;
                 riverLife.Leaves = RiverLeavesNow;
                 riverLife.FishEvery = FishEveryNow;
                 riverLife.Moving = FirefliesMove;
@@ -1594,7 +1595,7 @@ namespace Evergrove.UnityClient
         public static int HeronAtNext = -1, HedgehogAtNext = -1, OwlAtNext = -1; // I374: cells, -1 none
         public static int KingfisherAtNext = -1; // I382
         public static bool MistNow, SmokeNow, FootprintsNow; // I409, I410, I412
-        public static bool RiverRainNow, RiverGlitterNow, RiverLeavesNow; // I413, I415, I417
+        public static bool RiverRainNow, RiverGlitterNow, RiverLeavesNow, MoonlightNow; // I413, I415, I417, I425
         public static float FishEveryNow; // I416: seconds between fish rising, 0 none
         public static Action WaterTapped; // I414: the app's soft drop
         private RiverLifeLayer riverLife;

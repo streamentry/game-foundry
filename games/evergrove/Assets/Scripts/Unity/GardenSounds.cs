@@ -81,7 +81,7 @@ namespace Evergrove.UnityClient
             int key = (int)voice * 10 + ((variant % 3) + 3) % 3;
             if (AmbientCache.TryGetValue(key, out AudioClip clip) && clip != null) return clip;
             var rng = new System.Random(101 + key);
-            float seconds = voice == AmbientVoice.Frogs ? 1.1f : voice == AmbientVoice.Owl ? 1.5f : voice == AmbientVoice.Rain ? 2.4f : voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
+            float seconds = voice == AmbientVoice.Bees ? 1.4f : voice == AmbientVoice.Frogs ? 1.1f : voice == AmbientVoice.Owl ? 1.5f : voice == AmbientVoice.Rain ? 2.4f : voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
                 : voice == AmbientVoice.Birds ? 0.6f : 0.18f;
             int length = Mathf.RoundToInt(SampleRate * seconds);
             var samples = new float[length];
@@ -119,6 +119,16 @@ namespace Evergrove.UnityClient
                         patter = rng.NextDouble() < 0.0035 ? 1f : patter * 0.9965f; // each drop, then its decay
                         float swell = Mathf.Sin(t / seconds * Mathf.PI);
                         samples[i] = swell * (0.05f * smooth + 0.05f * white * patter);
+                        break;
+                    }
+                    case AmbientVoice.Bees:
+                    {
+                        // I426: a bee passing: a soft buzz near 220 Hz that swells and fades, its
+                        // pitch wavering a little as it turns.
+                        float swell = Mathf.Sin(t / seconds * Mathf.PI);
+                        float hz = 220f + 14f * Mathf.Sin(t * 5f);
+                        float buzz = Sine(hz, t) + 0.45f * Sine(hz * 2f, t) + 0.2f * Sine(hz * 3f, t);
+                        samples[i] = 0.035f * swell * swell * buzz;
                         break;
                     }
                     case AmbientVoice.Frogs:
