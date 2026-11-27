@@ -432,6 +432,11 @@ internal static class WorldIdeasTests
         Expect(!Visitors.Welcomes(visitedGarden, Visitor.Birds), "birds wait for trees tended");
         for (int i = 0; i < visitedGarden.Choices.Length; i++) if (visitedGarden.Choices[i] == (int)VillageChoice.ShadeTree) visitedGarden.SolveTree(i);
         Expect(Visitors.Welcomes(visitedGarden, Visitor.Birds), "fruit trees tended bring the birds");
+        // I378: with bees about, a tree with a flower beside it gives one more fruit; not in winter.
+        int fruitBeforeBees = visitedGarden.Fruit;
+        Expect(visitedGarden.PickPollinatedFruit(true, Season.Summer) && visitedGarden.Fruit == fruitBeforeBees + 1, "the bees' fruit");
+        Expect(!visitedGarden.PickPollinatedFruit(false, Season.Summer), "no flower beside: no extra");
+        Expect(!visitedGarden.PickPollinatedFruit(true, Season.Winter), "no bees in winter");
         Expect(Visitors.Out(Visitor.Bees, Season.Summer, DayPhase.Day) && !Visitors.Out(Visitor.Bees, Season.Winter, DayPhase.Day) &&
                !Visitors.Out(Visitor.Bees, Season.Summer, DayPhase.Night), "bees by warm day only");
         Expect(Visitors.Out(Visitor.Birds, Season.Winter, DayPhase.Morning) && !Visitors.Out(Visitor.Birds, Season.Spring, DayPhase.Night),
