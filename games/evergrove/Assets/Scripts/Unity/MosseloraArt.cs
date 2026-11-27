@@ -970,6 +970,9 @@ namespace Evergrove.UnityClient
         private void Update()
         {
             elapsed += Time.unscaledDeltaTime;
+            // I437 (b328: the toast was child 3 of 5, under two later siblings): always on top.
+            Transform parent = transform.parent;
+            if (parent != null && transform.GetSiblingIndex() != parent.childCount - 1) transform.SetAsLastSibling();
             if (elapsed > stay) group.alpha = Mathf.Clamp01(1f - (elapsed - stay) / 0.4f);
             if (elapsed > stay + 0.4f) Destroy(gameObject);
         }

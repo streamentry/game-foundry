@@ -912,8 +912,23 @@ namespace Evergrove.UnityClient
             foreach (string name in names)
             {
                 int n = 0;
-                foreach (RectTransform t in all) if (t.name == name) n++;
+                RectTransform first = null;
+                foreach (RectTransform t in all) if (t.name == name) { n++; if (first == null) first = t; }
                 counts.Append(" | ").Append(name).Append('=').Append(n);
+                if (first != null)
+                {
+                    // Where it is on screen, how visible its parents leave it, and who holds it.
+                    Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, first.position);
+                    float alpha = 1f;
+                    foreach (CanvasGroup g in first.GetComponentsInParent<CanvasGroup>()) alpha *= g.alpha;
+                    var graphic = first.GetComponent<UnityEngine.UI.Graphic>();
+                    counts.Append(" @").Append(Mathf.RoundToInt(screen.x)).Append(',').Append(Mathf.RoundToInt(screen.y))
+                        .Append(" of ").Append(Screen.width).Append('x').Append(Screen.height)
+                        .Append(" a=").Append((alpha * (graphic != null ? graphic.color.a : 1f)).ToString("0.00"))
+                        .Append(" scale=").Append(first.lossyScale.x.ToString("0.00"))
+                        .Append(" in ").Append(first.parent != null ? first.parent.name : "-")
+                        .Append(" #").Append(first.GetSiblingIndex()).Append('/').Append(first.parent != null ? first.parent.childCount : 0);
+                }
             }
             Debug.Log(counts.ToString());
         }
