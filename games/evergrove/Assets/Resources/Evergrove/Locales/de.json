@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "Diese Änderung übernehmen"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Datenschutzerklärung"
     }
   ]
 }
