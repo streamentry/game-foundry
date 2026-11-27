@@ -883,6 +883,8 @@ namespace Evergrove.UnityClient
             }
 
             yield return DayRhythmShots(); // checklists 49 and 54: night, dew and lantern shots (DevQaTour.DayRhythm.cs)
+            yield return ReplyShots(); // checklist 81: reply chips and the echo (DevQaTour.Replies.cs)
+            yield return ShadowShots(); // checklist 22: dawn, noon and dusk sun shadows (DevQaTour.Shadows.cs)
             // Smart companion (SC02): a scripted week. Nine things grown, two tended, a letter from
             // Anh; one visit a day, each neighbour spoken to once; then each neighbour on day eight.
             WorldModel week = WorldModel.New(PlayMode.Living);

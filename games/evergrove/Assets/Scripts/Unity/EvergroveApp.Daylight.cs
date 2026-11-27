@@ -145,6 +145,7 @@ namespace Evergrove.UnityClient
             GardenMapView.Fireflies = on && DayLight.Fireflies(DayLight.PhaseAt(hour, minute), GardenSeason.For(garden));
             GardenMapView.FirefliesMove = gentleMotion;
             GardenMapView.LampLit = on && DayLight.LampLit(DayLight.PhaseAt(hour, minute)); // I296
+            SunShadow.Phase = on ? DayLight.PhaseAt(hour, minute) : DayPhase.Night; // checklist 22: no sun shadows with the light off
             GardenMapView.FestivalNow = GardenSeason.Festival(garden); // I317
             // I325/I326: visitors come for logical reasons, and are out by season and hour.
             DayPhase visitPhase = DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day;

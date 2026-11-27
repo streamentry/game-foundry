@@ -143,6 +143,8 @@ namespace Evergrove.UnityClient
         private string NeighborSays(int villager)
         {
             if (SpeakLessSilences(villager)) return ""; // idea 85: speak less keeps half the remarks
+            string echo = ReplyEchoSaid(villager); // checklist 81: their answer to a reply, once, within three days
+            if (echo != null) return echo;
             string arc = ArcRemark(villager); // idea 83: a neighbour's project, when its step is news
             if (arc != null) return arc;
             Fact pick = CompanionPick(villager);
