@@ -40,6 +40,7 @@ namespace Evergrove.Core
                 Make("stone-wet", "New river, past the story", reaches > GardenMap.MaxReaches),
                 // I386: where things stand matters; the first good neighbours, then all seven.
                 Make("flower-05", "Your first good neighbours", world.PairingsFound != 0),
+                Make("food-apple", "The first gift of a season", world.YieldTaken != 0), // I432
                 Make("tree-05", "Every good neighbour found, all seven",
                     world.PairingsFound == (1 << System.Enum.GetValues(typeof(Pairing)).Length) - 1),
                 Make("vignette-bridge", "The story of your garden, told to its end", world.Completed)

@@ -874,6 +874,7 @@ namespace Evergrove.UnityClient
     {
         private static RuleToast current;
         private float elapsed, stay = 2.6f;
+        private bool news;
         private CanvasGroup group;
 
         public static void Show(RectTransform anchor, string message, Font font, Color ink, Color paper)
@@ -955,11 +956,13 @@ namespace Evergrove.UnityClient
             rect.anchoredPosition += new Vector2(Mathf.Clamp(local.x, -limit + half, limit - half) - local.x, 0f);
             // I398: anchored to a whole screen (home, a visit), "above it" would be off the top:
             // keep the toast on screen, below the top chrome.
-            float maxTop = root.rect.yMax - 96f;
+            // I428 (P26, 150% text): the top chrome grows with the text, so the clearance does too.
+            float maxTop = root.rect.yMax - 96f * Mathf.Max(1f, TextScale.Percent / 100f);
             if (local.y + rect.rect.height > maxTop)
                 rect.anchoredPosition += new Vector2(0f, maxTop - (local.y + rect.rect.height));
             current = node.AddComponent<RuleToast>();
             current.stay = shown > 0 ? 3.6f : 2.6f;
+            current.news = shown > 0; // I436: news (with pictures) outlives a page rebuild
             current.group = node.AddComponent<CanvasGroup>();
             current.group.blocksRaycasts = false;
         }
@@ -967,6 +970,9 @@ namespace Evergrove.UnityClient
         private void Update()
         {
             elapsed += Time.unscaledDeltaTime;
+            // I437 (b328: the toast was child 3 of 5, under two later siblings): always on top.
+            Transform parent = transform.parent;
+            if (parent != null && transform.GetSiblingIndex() != parent.childCount - 1) transform.SetAsLastSibling();
             if (elapsed > stay) group.alpha = Mathf.Clamp01(1f - (elapsed - stay) / 0.4f);
             if (elapsed > stay + 0.4f) Destroy(gameObject);
         }
@@ -977,7 +983,7 @@ namespace Evergrove.UnityClient
         /// (menu, journal, next screen) that thing is gone, so the toast goes too (I104).</summary>
         public static void Dismiss()
         {
-            if (current == null) return;
+            if (current == null || current.news) return; // I436: news stays its few seconds
             current.gameObject.SetActive(false);
             Destroy(current.gameObject);
             current = null;

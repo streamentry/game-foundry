@@ -984,3 +984,30 @@ Apple build 6 later reached processing state VALID, upload COMPLETE. An attempt 
 | Evidence | The research diary and session notes; per-iteration docs |
 
 **Never claim** from this run: retention, wellbeing, memory or connection effects; that families play together; that the 29 non-English catalogs cover the new text.
+
+## 2026-11-27 — Mosselora run 3, I338–I437: the garden's logic, a living world, a quieter companion
+
+**Decisions (founder goal for this run):**
+
+- Icons over text, with smart navigation.
+- An immersive, easy, everyday garden with deep logic behind simple play.
+- An open, endless river; family visits and sharing.
+- Simple, logical economics.
+- A subtle companion.
+
+In-run requests added seasons (snow, autumn, spring, summer) and weather days (rain, snow, wind, hot, fair). Each iteration is documented in `docs/improvements/I338` to `I437`; the systems are specified in [garden-logic-2026-11-27.md](../../games/evergrove/docs/specs/proposals/garden-logic-2026-11-27.md).
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Pure C# rules with deterministic tests (about 1.28M assertions with the parallel economy session's). Release-define and development compiles against the Unity 6.3 player assemblies. iOS simulator tours in portrait, landscape and 150% text for each batch (b311–b330); from I433, logged object counts for effects too faint to trust by eye. No physical device; no adult 40+; no family pair |
+| Owner | Founder, through the run goal and in-session requests. Economy items 71–80 belonged to a parallel session; seed changes route through its ledger |
+| Delete | Weather never touches the economy. Device-only companion facts never enter the garden file. New English lines aren't translated; consumer builds ship English only |
+| User value | Seven good neighbours with written rules; seven visitors who come for reasons; a gift each season; pollination; family gift ideas on visits; a river and sky that change with the hour and weather; fewer words on screen |
+| Audience fit | Unknown: `age fit not validated` |
+| Falsification | Uncoached adults 40+ (bands 40–49, 50–64, 65+), solo and with a family member, for a week on a physical phone. Do they find a pairing unaided, notice a visitor, understand a season's gift? Does any notice feel like pressure or surveillance? |
+| Stop | If most find no pairing in a week, the glow comes unasked. If the ways page reads as homework, cut it to the at-a-glance row. If the hour notice feels like being watched, remove it (I419) |
+| Evidence | Session notes and the research diary; per-iteration docs; tour logs (`MOSSELORA_ATMOSPHERE` lines) |
+
+**Fixed on main along the way:** release builds failed to compile (`qaRainbow` was declared inside the dev-only block; #118). The docs contract counted 124 keys after the privacy link added a 125th (#111).
+
+**Never claim** from this run: retention, wellbeing, memory or connection effects; that families play together; that adults 40+ find the pairings, visitors or seasons understandable.
