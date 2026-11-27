@@ -358,6 +358,8 @@ namespace Evergrove.UnityClient
             PairSpotsNext = null;
             view.creatureCells = new[] { HeronAtNext, HedgehogAtNext, OwlAtNext, KingfisherAtNext }; // I374, I382
             HeronAtNext = HedgehogAtNext = OwlAtNext = KingfisherAtNext = -1;
+            view.seatLantern = SeatLanternNext; // I430
+            SeatLanternNext = -1;
             LanternsNext = 0;
             view.Layout();
             return view;
@@ -705,7 +707,8 @@ namespace Evergrove.UnityClient
                 riverLife = lifeNode.AddComponent<RiverLifeLayer>();
                 riverLife.Cell = cellW;
                 riverLife.Rain = RiverRainNow;
-                riverLife.Glitter = RiverGlitterNow;
+                riverLife.Glitter = RiverGlitterNow || MoonlightNow;
+                riverLife.Moon = MoonlightNow;
                 riverLife.Leaves = RiverLeavesNow;
                 riverLife.FishEvery = FishEveryNow;
                 riverLife.Moving = FirefliesMove;
@@ -727,19 +730,23 @@ namespace Evergrove.UnityClient
                 nodes.Add(lifeRect);
             }
             // I409: morning mist lying low on the river, a few soft banks along the water.
-            for (int c = 0, drawn = 0; MistNow && c < map.CellCount && drawn < 16; c++)
+            // I437: spread along the whole river (the first 16 water cells were all at the far top).
+            int waterCells = 0;
+            for (int c = 0; MistNow && c < map.CellCount; c++) if (map.At(c) == GardenMap.Water) waterCells++;
+            int mistStride = Mathf.Max(1, waterCells / 28);
+            for (int c = 0, seen = 0; MistNow && c < map.CellCount; c++)
             {
-                if (map.At(c) != GardenMap.Water || (c * 7 + c / map.Columns) % 5 != 0) continue;
-                drawn++;
+                if (map.At(c) != GardenMap.Water) continue;
+                if (seen++ % mistStride != 0) continue;
                 var mist = new GameObject("Morning mist", typeof(RectTransform));
                 mist.transform.SetParent(land, false);
                 var mistRect = (RectTransform)mist.transform;
                 mistRect.anchorMin = mistRect.anchorMax = new Vector2(0f, 1f);
-                mistRect.sizeDelta = new Vector2(cellW * 2.6f, cellH * 1.0f);
+                mistRect.sizeDelta = new Vector2(cellW * 3.2f, cellH * 1.3f); // I437: larger and stronger (b328: too faint to read)
                 mistRect.anchoredPosition = new Vector2((c % map.Columns + 0.5f) * cellW, -(c / map.Columns + 0.5f) * cellH);
                 var mistImage = mist.AddComponent<Image>();
                 mistImage.sprite = MosseloraArt.SoftGlow();
-                mistImage.color = new Color(1f, 1f, 1f, 0.38f);
+                mistImage.color = new Color(0.96f, 0.98f, 1f, 0.62f);
                 mistImage.raycastTarget = false;
                 if (FirefliesMove) Breathe.Add(mistImage);
                 nodes.Add(mistRect);
@@ -927,6 +934,35 @@ namespace Evergrove.UnityClient
                 linkImage.color = new Color(0.36f, 0.62f, 0.38f, 0.9f);
                 linkImage.raycastTarget = false;
                 nodes.Add(linkRect);
+            }
+            // I430: a small lantern by the shady seat; lit from dusk, when the neighbours have sat there.
+            if (seatLantern >= 0 && seatLantern < map.CellCount)
+            {
+                var seatLamp = new GameObject("A lantern by the seat", typeof(RectTransform));
+                seatLamp.transform.SetParent(land, false);
+                var seatLampRect = (RectTransform)seatLamp.transform;
+                seatLampRect.anchorMin = seatLampRect.anchorMax = new Vector2(0f, 1f);
+                seatLampRect.pivot = new Vector2(0.5f, 0f);
+                seatLampRect.sizeDelta = new Vector2(cellW * 0.55f, cellH * 0.55f);
+                seatLampRect.anchoredPosition = new Vector2((seatLantern % map.Columns + 0.95f) * cellW, -(seatLantern / map.Columns + 1f) * cellH);
+                if (LampLit)
+                {
+                    var glow = new GameObject("Lantern light", typeof(RectTransform));
+                    glow.transform.SetParent(seatLamp.transform, false);
+                    var glowRect = (RectTransform)glow.transform;
+                    glowRect.anchorMin = glowRect.anchorMax = new Vector2(0.5f, 0.6f);
+                    glowRect.sizeDelta = new Vector2(cellW * 1.3f, cellW * 1.3f);
+                    var glowImage = glow.AddComponent<Image>();
+                    glowImage.sprite = MosseloraArt.SoftGlow();
+                    glowImage.color = new Color(1f, 0.82f, 0.45f, 0.55f);
+                    glowImage.raycastTarget = false;
+                    if (FirefliesMove) Breathe.Add(glowImage);
+                }
+                var lampImage = seatLamp.AddComponent<Image>();
+                lampImage.sprite = MosseloraArt.Load("build-96");
+                lampImage.preserveAspect = true;
+                lampImage.raycastTarget = false;
+                nodes.Add(seatLampRect);
             }
             // I374: the visitors good neighbours bring.
             for (int k = 0; creatureCells != null && k < creatureCells.Length; k++)
@@ -1532,8 +1568,10 @@ namespace Evergrove.UnityClient
         public static Weather WeatherNow = Weather.Fair; // I353: the day's weather, set before a build
         public static Font SignFont; // I360: the river-name signs' lettering
 
-        // I412: when snow lies, a trail of small prints from the cottage door to each neighbour,
-        // left and right in turn: they walked out to meet you.
+        // I412: when snow lies, a short trail of small prints leading up to each neighbour from
+        // the cottage's direction, left and right in turn: they walked out to meet you.
+        // I437 (b328: a trail from the far door spread 24 prints over thousands of points, so
+        // almost none were on screen): ten prints at a steady stride, ending at their feet.
         private void Footprints(List<RectTransform> standing, float width, float reachHeight)
         {
             if (standing == null) return;
@@ -1542,23 +1580,25 @@ namespace Evergrove.UnityClient
             {
                 if (person == null) continue;
                 Vector2 to = person.anchoredPosition;
-                Vector2 way = to - door;
-                float length = way.magnitude;
-                if (length < 30f) continue;
-                Vector2 dir = way / length, side = new Vector2(-dir.y, dir.x);
-                int prints = Mathf.Clamp(Mathf.RoundToInt(length / 22f), 3, 24);
-                for (int k = 1; k < prints; k++)
+                Vector2 back = door - to;
+                if (back.sqrMagnitude < 1f) continue;
+                // Along the ground, from below and the cottage's side: a trail leading up from
+                // their feet would run under their own portrait.
+                Vector2 dir = new Vector2(Mathf.Sign(back.x) * 0.55f, -0.85f).normalized, side = new Vector2(-dir.y, dir.x);
+                const int prints = 10;
+                const float stride = 16f;
+                for (int k = 1; k <= prints; k++)
                 {
                     var print = new GameObject("Footprint in the snow", typeof(RectTransform));
                     print.transform.SetParent(land, false);
                     var printRect = (RectTransform)print.transform;
                     printRect.anchorMin = printRect.anchorMax = new Vector2(0f, 1f);
-                    printRect.sizeDelta = new Vector2(5f, 7f);
-                    printRect.anchoredPosition = door + way * ((float)k / prints) + side * (k % 2 == 0 ? 3.5f : -3.5f);
-                    printRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f);
+                    printRect.sizeDelta = new Vector2(6f, 9f);
+                    printRect.anchoredPosition = to + dir * (k * stride) + side * (k % 2 == 0 ? 4f : -4f);
+                    printRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(-dir.y, -dir.x) * Mathf.Rad2Deg - 90f);
                     var printImage = print.AddComponent<Image>();
                     printImage.sprite = MosseloraArt.Rounded(3);
-                    printImage.color = new Color(0.55f, 0.60f, 0.70f, 0.45f);
+                    printImage.color = new Color(0.45f, 0.52f, 0.64f, 0.55f * (1f - k / (prints + 2f)));
                     printImage.raycastTarget = false;
                     nodes.Add(printRect);
                 }
@@ -1593,8 +1633,10 @@ namespace Evergrove.UnityClient
         public static int[] PairSpotsNext; // I372: free cells that would make a new pairing
         public static int HeronAtNext = -1, HedgehogAtNext = -1, OwlAtNext = -1; // I374: cells, -1 none
         public static int KingfisherAtNext = -1; // I382
+        public static int SeatLanternNext = -1; // I430: the shady seat's cell, -1 none
+        private int seatLantern = -1;
         public static bool MistNow, SmokeNow, FootprintsNow; // I409, I410, I412
-        public static bool RiverRainNow, RiverGlitterNow, RiverLeavesNow; // I413, I415, I417
+        public static bool RiverRainNow, RiverGlitterNow, RiverLeavesNow, MoonlightNow; // I413, I415, I417, I425
         public static float FishEveryNow; // I416: seconds between fish rising, 0 none
         public static Action WaterTapped; // I414: the app's soft drop
         private RiverLifeLayer riverLife;

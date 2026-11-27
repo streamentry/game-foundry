@@ -51,8 +51,8 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **32. More good-neighbour pairings.** Extend I368 with second-order pairings, such as a bed beside a grove. Each is a rule you can say out loud. *Test:* every pairing has a one-line rule and a test.
 - [ ] **33. Garden layouts that remember.** Pairings found per garden layout give a gentle almanac page called "how my garden grew". *Test:* save round-trip.
 - [ ] **34. Difficulty the player chooses, honestly labelled.** Leaves 1–3 (I336) on every puzzle kind, with the chosen level remembered per kind. *Test:* no kind lacks a gentle level.
-- [ ] **35. A weekly deeper board.** One harder board each week per favourite kind, with no timer, and no penalty for skipping it. *Test:* generator proves uniqueness at the top tier.
-- [ ] **36. Technique names.** When a player uses a known technique (a naked pair in seed sudoku), the almanac names it the first time. *Test:* the detector agrees with the solver on 1,000 boards.
+- [x] **35. A weekly deeper board.** One harder board each week per favourite kind, with no timer, and no penalty for skipping it. *Test:* generator proves uniqueness at the top tier.
+- [x] **36. Technique names.** When a player uses a known technique (a naked pair in seed sudoku), the almanac names it the first time. *Test:* the detector agrees with the solver on 1,000 boards.
 - [ ] **37. Boards drawn from the player's own garden.** Mosaic and pictures-by-numbers boards use shapes of things the player grew. *Test:* generated boards are unique and solvable.
 - [ ] **38. Chains between puzzles.** Finishing a stream path waters plots; finishing plots feeds the nursery. Each link is one visible, logical cause. *Test:* the cause shows on screen within 2 s.
 - [ ] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
@@ -80,7 +80,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **55. Calendar of the river.** Real seasonal days per locale (first frost, longest day) become small festivals, not cultural events the game can't do justice to. *Test:* each festival line reviewed per locale.
 - [ ] **56. An end to each session.** After the day's thing, a neighbour says goodnight and the garden quietens. This invites stopping, not more play. *Test:* players report a natural ending point.
 - [ ] **57. Notifications only for real arrivals.** Notifications fire only for a family letter or a parcel, at most one a day, and are opt-in (I273–I277). *Test:* a week's log shows no more than 7.
-- [ ] **58. A diary page per week.** The almanac writes one painted page per week, made from what happened. *Test:* the page is generated deterministically from the save.
+- [x] **58. A diary page per week.** The almanac writes one painted page per week, made from what happened. *Test:* the page is generated deterministically from the save.
 - [ ] **59. The year has a shape.** A season tale (I312) unlocks one new kind of thing per season, so the year has chapters. *Test:* a year simulation shows something new every season.
 - [x] **60. Come back for people, not prizes.** Every daily reason should trace to the garden or family, never to a timed reward. *Test:* audit list of every return reason.
 
@@ -102,12 +102,12 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **71. Write the economy on one page.** Seeds in, seeds out, every source and sink, with a daily cap. *Test:* a simulation of 365 days shows no runaway balance.
 - [ ] **72. Everything has a reason to cost what it costs.** Nursery prices follow growth time and size, and the price label shows why. *Test:* players predict price order correctly.
 - [x] **73. Giving is always cheaper than buying.** Gifts to family cost less than buying the same thing for yourself, which makes generosity the rational choice. *Test:* economy table check.
-- [ ] **74. A market stall.** Sell surplus fruit and jam to neighbours at prices that move with the season. *Test:* prices are deterministic by date.
+- [x] **74. A market stall.** Sell surplus fruit and jam to neighbours at prices that move with the season. *Test:* prices are deterministic by date.
 - [ ] **75. Recipes.** Two harvests combine into a new food (apple and honey, for example) and recipes are found by trying them. *Test:* every recipe is listed in the almanac once found.
 - [ ] **76. Storage has a limit you can grow.** A larder with shelves gives a reason to cook, give or sell. *Test:* a full larder never loses items silently.
-- [ ] **77. No currency for sale that buys power.** If the game is ever monetised, use a one-time unlock or cosmetic season packs only. *Test:* monetisation spec reviewed against the vision's §7.
+- [x] **77. No currency for sale that buys power.** If the game is ever monetised, use a one-time unlock or cosmetic season packs only. *Test:* monetisation spec reviewed against the vision's §7.
 - [x] **78. Visible ledger.** A small book shows the last 20 seed movements, so nothing in the purse is a mystery. *Test:* every change of `seeds` writes a ledger line.
-- [ ] **79. Neighbours trade too.** Orin trades wood for fruit and Fen trades stone for jam, at stable, sensible rates. *Test:* no trade loop yields profit.
+- [x] **79. Neighbours trade too.** Orin trades wood for fruit and Fen trades stone for jam, at stable, sensible rates. *Test:* no trade loop yields profit.
 - [x] **80. Rewards scale down when repeated.** The first solve of the day pays fully and later ones pay less. Play stays open and farming stays pointless. *Test:* simulated grinding gains less than a normal day's play.
 
 ## I. Neighbours as quiet companions

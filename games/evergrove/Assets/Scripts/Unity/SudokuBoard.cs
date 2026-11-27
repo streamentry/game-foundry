@@ -1,3 +1,4 @@
+using System;
 using Evergrove.Core;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,7 @@ namespace Evergrove.UnityClient
         private int selected = -1;
         private bool locked;
         private int shown = -1; // I253
+        private Font ruleFont;
 
         public SudokuBoard(SeedSudokuGame game, Sprite[] plants)
         {
@@ -31,6 +33,7 @@ namespace Evergrove.UnityClient
         public void Build(Transform card, float width, float screenHeight, Font font, TreePlay host)
         {
             play = host;
+            ruleFont = font;
             int n = game.Size;
             const float trayHeight = 64f;
             float rule = BoardKit.FirstTimeRule(card, "sudoku", row =>
@@ -90,9 +93,13 @@ namespace Evergrove.UnityClient
         {
             if (locked || selected < 0) return;
             if (value > 0 && game.Value(selected) == value) value = 0; // the same plant again lifts it
+            // v1 #36: name the technique from the board as the player sees it, before the placement.
+            SudokuTechnique.Technique technique = value > 0 && game.Solution(selected) == value
+                ? SudokuTechnique.Classify(game, selected, value) : SudokuTechnique.Technique.None;
             SudokuMove move = game.Place(selected, value);
             if (move == SudokuMove.Ignored) return;
             play.Moved();
+            if (technique != SudokuTechnique.Technique.None && game.Value(selected) == value) NoteTechnique(technique);
             if (value > 0 && game.Conflicts(selected)) BoardKit.Shiver(cells[selected].gameObject);
             // Walk on to the next empty bed: fewer taps for a steady hand or a shaky one.
             if (value > 0)
@@ -106,6 +113,44 @@ namespace Evergrove.UnityClient
             }
             Paint();
             if (game.Solved) play.Done();
+        }
+
+        // v1 #36: the first time a technique is used on this device, a gentle one-line note above the bed.
+        // Only the first sighting shows; the almanac keeps the list afterwards.
+        private void NoteTechnique(SudokuTechnique.Technique technique)
+        {
+            if (!TechniqueLog.MarkSeen(technique) || cells == null || selected < 0) return;
+            RuleToast.Show(cells[selected].rectTransform, "Found a way: " + SudokuTechnique.Name(technique) + ".",
+                ruleFont, MosseloraTheme.EarthInk, MosseloraTheme.CardFill);
+        }
+
+        /// <summary>
+        /// Device-only record of which techniques the player has used (PlayerPrefs, like the first-time
+        /// rules in BoardKit; not in the save). Read by the almanac.
+        /// </summary>
+        internal static class TechniqueLog
+        {
+            private const string KeyPrefix = "evergrove:technique:";
+
+            public static bool Seen(SudokuTechnique.Technique technique)
+            {
+                if (technique == SudokuTechnique.Technique.None) return false;
+                try { return PlayerPrefs.GetInt(KeyPrefix + (int)technique, 0) == 1; }
+                catch (Exception) { return false; }
+            }
+
+            // True only on the first sighting, when it was recorded.
+            public static bool MarkSeen(SudokuTechnique.Technique technique)
+            {
+                if (technique == SudokuTechnique.Technique.None || Seen(technique)) return false;
+                try
+                {
+                    PlayerPrefs.SetInt(KeyPrefix + (int)technique, 1);
+                    PlayerPrefs.Save();
+                    return true;
+                }
+                catch (Exception) { return false; }
+            }
         }
 
         private void Paint()

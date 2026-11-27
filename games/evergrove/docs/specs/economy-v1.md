@@ -9,8 +9,8 @@ Seeds are the only money in Mosselora. Players earn them by solving water puzzle
 ## Currencies
 
 - **Seeds**: the only balance. Held in `WorldModel.Seeds`, range 0 to `WorldModel.MaxSeeds` (9,999,999). Every change goes through `WorldModel.Ledger.cs:ChangeSeeds`, which writes one ledger line (`SeedReason`, applied delta) and keeps the newest 20 (`MaxLedger`).
-- **Fruit**: picked from trees, never bought. Used for gifts and jam. Range 0 to `MaxFruit` (99). Not convertible to seeds.
-- **Jam**: three fruit cooked into one jar (`MakeJam`, `JamPerJar` = 3). Range 0 to `MaxJam` (10). Used for gifts only.
+- **Fruit**: picked from trees, never bought. Used for gifts, jam, and the market stall and neighbour trades (below). Range 0 to `MaxFruit` (99).
+- **Jam**: three fruit cooked into one jar (`MakeJam`, `JamPerJar` = 3). Range 0 to `MaxJam` (10). Used for gifts, the market stall and neighbour trades.
 - **Cuttings**: plants held in a basket (`state.gifts`, max `MaxGifts` 50). Not a currency; they cost seeds only when they are bought or sent.
 
 ## Seeds in
@@ -22,6 +22,12 @@ Seeds are the only money in Mosselora. Players earn them by solving water puzzle
 | Replay of a solved thing or bought plant | Paid under the daily cap (see Daily cap) | Replays are not capped by count, only by pay | Replay | `WorldModel.cs:PayReplay`, `ReplayPay` |
 | Seed parcel opened | 1 to 500 (`FamilyParcel.MaxSeedsPerParcel`) | Once per parcel id per garden; not under the daily cap | ParcelOpened | `WorldModel.Family.cs:Open` |
 | Pairing reward | none | Defined as `SeedReason.Pairing` (7) and restored from saves; no code produces it | Pairing | `WorldModel.Ledger.cs` (not built) |
+| Market stall: fruit sold | Season price x count: fruit 3 (spring), 2 (summer), 1 (autumn), 3 (winter) | At most 10 fruit per local day; the garden's own season only; whole sale or nothing | MarketFruit (9) | `Market.cs:FruitPrice`, `WorldModel.Market.cs:SellFruit` |
+| Market stall: jam sold | Season price x count: jam 8, 6, 3, 9 | At most 3 jars per local day; whole sale or nothing | MarketJam (10) | `Market.cs:JamPrice`, `WorldModel.Market.cs:SellJam` |
+| Neighbour trade: Orin | 4 seeds for 2 fruit (fixed) | Trades per local day, all neighbours together: at most 3 | Trade (11) | `Market.cs:TradeTable`, `WorldModel.Market.cs:Trade` |
+| Neighbour trade: Fen | 5 seeds for 1 jar of jam (fixed) | As above | Trade (11) | As above |
+
+Mira's trade (4 fruit for 1 jar of jam) moves goods and pays no seeds, so it writes no ledger line.
 | Seasonal yield | none | Defined as `SeedReason.Season` (8) and restored from saves; reserved for the run-3 seasons branch, which routes through `ChangeSeeds` | Season | `WorldModel.Ledger.cs` (not built) |
 
 Tier of a thing is `TreePuzzles.TierFor(chapter)` = chapter / 4, capped to 0..2, so chapters 0 to 3 are tier 0, 4 to 7 tier 1, 8 to 11 tier 2.
@@ -65,11 +71,59 @@ Seed parcels are a transfer: `SendParcel` debits the sender by the amount and `O
 ## Fruit and jam
 
 - **Fruit in**: solving a thing whose choice was `ShadeTree` (`SolveTree`), solving a bought plant of the ShadeTree family (`SolveBought`): one fruit for the first solve and for each full-paid replay of the day (see Daily cap), never more; `TendWell` gives 2 fruit per well board, once per board waiting (`OldWell.cs`); opening a fruit parcel (up to 10 per parcel; refused with `LarderFull` if it would not all fit under `MaxFruit`).
-- **Fruit out**: `GiveFruit` to Mira, Orin or Fen (one at a time, no seeds paid); `MakeJam` (3 fruit for 1 jar); fruit parcels sent (1 to 10, free).
+- **Fruit out**: `GiveFruit` to Mira, Orin or Fen (one at a time, no seeds paid); `MakeJam` (3 fruit for 1 jar); fruit parcels sent (1 to 10, free); market stall (`SellFruit`, seeds in); Orin's trade (2 fruit for 4 seeds); Mira's trade (4 fruit for 1 jar).
 - **Jam in**: `MakeJam` (uses 3 fruit, adds 1 jar, refused at `MaxJam` 10 without losing fruit); opening a jam parcel (1 to 3 jars; refused with `LarderFull` if it would not all fit under `MaxJam`).
-- **Jam out**: jam parcels sent (1 to 3 jars, free).
+- **Jam out**: jam parcels sent (1 to 3 jars, free); market stall (`SellJam`, seeds in); Fen's trade (1 jar for 5 seeds).
 
-Nothing is made from nothing: `MakeJam` consumes fruit first and refuses when the pantry is full. Fruit and jam never change seeds.
+Nothing is made from nothing: `MakeJam` consumes fruit first and refuses when the pantry is full. Fruit and jam change seeds only by being sold to the stall or traded (below), and every such sale removes the goods it pays for.
+
+## Market stall and neighbour trades (items 74 and 79)
+
+Code: `Market.cs` (prices, trade table, caps, valuation) and `WorldModel.Market.cs` (SellFruit, SellJam, Trade, validation). Living gardens only.
+
+**Deviation (decided):** the game has no wood or stone and adds no currency. Item 79 is built over the existing goods only: Orin gives seeds for fruit, Fen gives seeds for jam, and Mira swaps fruit for a jar of jam. Seeds stay the only money.
+
+**Prices follow the season, not the date.** GardenSeason follows progress and never the clock, so there is no date-to-season mapping. A price is a fixed function of the garden's season. `SellFruit` and `SellJam` take a season, which must equal `GardenSeason.For(world)`; any other season is refused, so the caller cannot choose a dearer one.
+
+| Season | Fruit (stall, each) | Jam (stall, each) | Orin (fruit, fixed) | Fen (jam, fixed) |
+|---|---|---|---|---|
+| Spring | 3 | 8 | 2 per fruit | 5 per jar |
+| Summer | 2 | 6 | 2 per fruit | 5 per jar |
+| Autumn | 1 | 3 | 2 per fruit | 5 per jar |
+| Winter | 3 | 9 | 2 per fruit | 5 per jar |
+
+So the stall is best in spring and winter; Orin and Fen beat it in autumn (and Fen in summer). Mira's rate is 4 fruit for a jar, one more than the kitchen's 3, so cooking your own jam stays better.
+
+**Caps (per local day, all-or-nothing):** 10 fruit sold, 3 jars sold, 3 trades of any neighbour. Refused calls change nothing. A later day starts a fresh count; an earlier date counts against the latest day already used, so setting the clock back cannot reset the cap (the same rule as the replay cap). A day of 0, or outside a yyyymmdd range, is refused. A sale or trade that would overflow seeds, fruit or jam is refused whole.
+
+**Saved as** (optional, absent in older JSON, not written while 0): `marketStamp` (the latest day the caps count for), `fruitSold`, `jamSold`, `tradesDone`. Fail-closed on restore: each count is within its cap, a stamp of 0 holds no counts, and all are 0 outside a Living garden. The stamp is named without "day" because `DailyRhythmAuditTests` allows only `payDay` as a date stamp.
+
+**New seed reasons** (appended, values fixed once shipped): `MarketFruit` = 9 (fruit sold), `MarketJam` = 10 (jam sold), `Trade` = 11 (seeds from Orin or Fen). Every seed change writes one ledger line.
+
+### No-profit invariant (item 79)
+
+No sequence of sales, trades and cooking turns a basket into more total value, with no outside input.
+
+**Valuation.** `Market.ValueOf(good, season)` values a unit at the best seeds the garden can get for it that season: fruit is worth max(stall price, Orin's rate); jam is worth max(stall price, Fen's rate); a seed is worth 1. This gives spring fruit 3, summer 2, autumn 2, winter 3; jam 8, 6, 5, 9. The valuation is not the cheapest season's price, because that would make every ordinary stall sale look like a gain.
+
+**Proof.** Within one season, each conversion has gain (value out minus value in) at most zero:
+- stall sales: price is at most the valuation, so gain is at most 0;
+- Orin and Fen: their rates are at most the valuation by construction;
+- Mira and cooking (3 fruit to 1 jar): value of a jar is at most the value of the fruit it takes in each season (for example spring 8 at most 9, summer 6 at most 6, autumn 5 at most 6, winter 9 at most 9).
+
+No conversion produces fruit, so the goods graph (fruit, jam, seeds) has no cycle. `MarketTests.NoProfitLoop` checks each edge in each season and brute-forces every walk of up to 6 steps from each good: 40 walks, no closed walk.
+
+**Run-time check.** `MarketTests.ArbitrageBot` plays 365 days with a greedy seller under the caps. Every market step is checked: the valuation never rises, and no step creates fruit or jam. Its seeds from fruit sold to the market (3,273) stay at or below the best-price value of all fruit from play (1,097 x 3 = 3,291). Fruit from play is itself capped: at most 3 full-paid replays a day plus one for each ShadeTree first solve.
+
+**Limit (accepted).** Goods held across a season change can gain up to the spread in valuation between seasons, which is at most 1 seed per fruit (`MarketTests` checks the bound). That gain comes from progress, which is play, not from the market.
+
+## What is not built yet
+
+- 72 Prices that follow growth time and size, with a label that shows why: not built. Prices are fixed by row.
+- 75 Recipes combining two harvests: not built.
+- 76 Storage limit that can grow (larder shelves): not built. Current limits are the fixed caps above. The no-silent-loss part is built (`LarderFull`).
+- 77 No currency for sale that buys power: a policy, not code. See the stance below.
+- 74 and 79 are built (see Market stall and neighbour trades), with the "existing goods only" deviation.
 
 **Larder full (v1 #76):** `Open` refuses a fruit or jam parcel that would not all fit, with `ParcelError.LarderFull`. It changes nothing and does not remember the parcel id, so the same text opens later, after jam is made or fruit or jam is given away. Seed parcels keep their behaviour (capped at `MaxSeeds`).
 
@@ -85,7 +139,8 @@ The tests enforce these:
 - Replay pay follows the daily cap for each day; a day's replay pay never exceeds 29.
 - Over 365 simulated days, the grinder's replay income beyond a daily player's is at most 365 x 5 x 1 = 1,825, and on every day the grinder's replays past the first three earn less than one normal day's replay pay at the top tier (24).
 - Fruit and jam from a parcel are never silently dropped: a parcel opens in full or not at all (`LarderFull`, v1 #76).
-- After the first solves are done, the balance rises by at most 29 a day, and purchases only lower it.
+- After the first solves are done, the balance rises by at most 29 a day from replays, and purchases only lower it. Market sales and trades add seeds, but they are bounded by the market caps and by fruit and jam from play (see Market stall and neighbour trades).
+- No market step raises the garden's valuation (see Market stall and neighbour trades), and none creates fruit or jam (`MarketTests`).
 
 ## What is not built yet
 
@@ -112,8 +167,10 @@ These are gaps between the intent of the checklist and the code. None is fixed h
 6. **Pairing reason is dead.** `SeedReason.Pairing` restores from saves but nothing writes it, so saves cannot yet contain it legitimately.
 7. **Garden copies may duplicate the cap.** The daily cap state is copied with the garden file. Unknown whether two imported copies of one garden can both replay at full pay the same day.
 8. **Bought plants pay back less than they cost.** A row-2 plant costs 200 and returns 40 on its first solve; net sinks hold per plant. Not a runaway, but a bought-then-gifted loop (sender pays 100, recipient earns 40) is also net negative for the system.
+9. **Seasons stop turning once first solves run out.** A season turns every 4 first solves (`GardenMap.SolvesPerReach`), and only first solves count toward `PuzzlesSolved` (bought plants count too). A garden with its 12 grown things solved reaches spring and then stays there until a bought plant is solved. Because stall and trade prices depend on the season, prices go static for most gardens. This is consistent with "a garden left alone waits unchanged", but it means the market is mostly a spring market for players who have solved their grown things. Decide before shipping whether the seasons should keep turning through replays or through a clock, which would need a new spec.
 
 ## Verification
 
 - `Tests/EconomyTests.cs`: ledger, caps, saves, forgeries, gift prices (existing).
+- `Tests/MarketTests.cs`: prices, sales and trades per season, refusals and caps, saves and forgeries, the no-profit walk over all seasons, and a 365-day greedy market bot.
 - `Tests/EconomySimulationTests.cs`: 365-day run of three profiles (gentle, daily, grinder) through the public API. Summary line printed on each run.

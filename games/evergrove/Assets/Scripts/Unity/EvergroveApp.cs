@@ -2804,24 +2804,41 @@ namespace Evergrove.UnityClient
             switch (got)
             {
                 case SeasonYield.Seedling:
+                    celebrateKeeper = 2; // I431: Fen, for the flowers
                     pairingFound = "Spring: your flower bed has sown itself. A seedling is waiting in your basket.";
                     toastMarks = new[] { MosseloraArt.Load("flower-12"), MosseloraArt.Load("glyph-sprout"), MosseloraArt.Load("food-basket") };
                     break;
                 case SeasonYield.Seeds:
+                    celebrateKeeper = 0; // I431: Mira, for the grove
                     pairingFound = "Summer: the grove let fall its seeds. +" + SeasonalYields.SummerSeeds + " seeds.";
                     toastMarks = new[] { MosseloraArt.Load("tree-00"), MosseloraArt.Load("tree-05"), MosseloraArt.Load("glyph-sprout") };
                     break;
                 case SeasonYield.Fruit:
+                    celebrateKeeper = 0; // I431: Mira, for the orchard
                     pairingFound = "Autumn: the orchard is ready. " + SeasonalYields.AutumnFruit + " fruit picked.";
                     toastMarks = new[] { MosseloraArt.Load("tree-05"), MosseloraArt.Load("food-apple"), MosseloraArt.Load("food-pear") };
                     break;
                 default:
+                    celebrateKeeper = last; // I431: whoever brought the jam
                     pairingFound = "Winter: " + giver + " brought a jar of jam, for the fruit you gave this year.";
                     toastMarks = new[] { MosseloraArt.Load("portrait-" + giver.ToLowerInvariant()), MosseloraArt.Load("food-jam") };
                     break;
             }
             SaveWorld();
             PlayChime();
+        }
+
+        // I424: whose line of work a good neighbour is: Mira trees, Orin builds, Fen flowers.
+        private int celebrateKeeper = -1;
+
+        private static int KeeperOf(Pairing pairing)
+        {
+            switch (pairing)
+            {
+                case Pairing.Grove: case Pairing.Orchard: return 0;
+                case Pairing.ByTheWater: case Pairing.ShadySeat: return 1;
+                default: return 2;
+            }
         }
 
         // I387: each pairing as two paintings side by side (water as a wet stone).
@@ -2869,6 +2886,7 @@ namespace Evergrove.UnityClient
                     pairingFound = "Good neighbours: " + Pairings.Hint(pairing).ToLowerInvariant().TrimEnd('.') +
                         ". +" + Pairings.RewardFor(pairing) + " seeds.";
                     toastMarks = PairingMarks(pairing);
+                    celebrateKeeper = KeeperOf(pairing); // I424
                     SaveWorld();
                     if (soundOn && sound != null) sound.PlayOneShot(GardenSounds.Neighbours(), 0.9f); // I406
                     else PlayChime();
@@ -2893,6 +2911,8 @@ namespace Evergrove.UnityClient
                 GardenMapView.PairLinksNext = Pairings.Links(map, things); // I371
                 GardenMapView.PairSpotsNext = PairingSpots(map, things);    // I372
                 SetVisitorsFor(world, map, things); // I374, I382
+                // I430: a lantern by the shady seat, lit from dusk.
+                GardenMapView.SeatLanternNext = world.HasPairing(Pairing.ShadySeat) ? Pairings.SpotFor(map, things, Pairing.ShadySeat) : -1;
                 owlInGrove = Pairings.SpotFor(map, things, Pairing.Grove) >= 0; // I376: heard only while a grove stands
             }
             if (plot == null || map == null) return false;
@@ -2913,6 +2933,7 @@ namespace Evergrove.UnityClient
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;
+            celebrateKeeper = -1; // I424: once
             if (pairingFound != null && titleScreen != null)
             {
                 RuleToast.Show((RectTransform)titleScreen.transform, pairingFound, font, Ink, MosseloraTheme.CardFill, toastMarks);
@@ -3472,6 +3493,18 @@ namespace Evergrove.UnityClient
                 {
                     int[] byDoor = { 2 * map.Columns + 7, 3 * map.Columns + 8, 2 * map.Columns + 5 };
                     int spot = byDoor[villager % byDoor.Length];
+                    // I434 (P27, b324: Fen stood on the wisteria at dusk): a spot where a thing
+                    // stands moves to the nearest free one beside it.
+                    var thingCells = new System.Collections.Generic.HashSet<int>();
+                    foreach (PlacedThing t in Pairings.Things(world, map)) thingCells.Add(t.Cell);
+                    int[] steps = { 0, 1, -1, map.Columns, -map.Columns, 2, -2 };
+                    foreach (int d in steps)
+                    {
+                        int tryCell = spot + d;
+                        if (tryCell < 0 || tryCell >= map.CellCount || thingCells.Contains(tryCell) || !map.IsLand(tryCell)) continue;
+                        spot = tryCell;
+                        break;
+                    }
                     if (spot < map.CellCount) at = point(spot);
                 }
                 // Never stand on another neighbour (I184): step down a row and a half
@@ -3503,6 +3536,9 @@ namespace Evergrove.UnityClient
                 // give a little hop, one after another. Once per return; never with reduced motion.
                 if (fromTitle && waveHello && gentleMotion)
                     holder.AddComponent<HelloHop>().Delay = 0.35f + placed.Count * 0.28f;
+                // I424: the keeper whose good neighbour was just found gives a little hop of joy.
+                else if (fromTitle && celebrateKeeper == villager && gentleMotion)
+                    holder.AddComponent<HelloHop>().Delay = 0.6f;
                 placed.Add(rect);
             }
             return placed;
@@ -6141,6 +6177,7 @@ namespace Evergrove.UnityClient
             if (!participantView) BuildResearchControls(living);
 #endif
             BuildPostcard();
+            BuildStallEntries(); // EvergroveApp.Market.cs: the stall and deeper boards (v1 #74 #79 #35)
             BuildGardenFileSection();
             if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
@@ -6494,15 +6531,66 @@ namespace Evergrove.UnityClient
         private void WaysPage()
         {
             var page = Card(journalContent, "The garden's ways", new Color(0f, 0f, 0f, 0f));
+            WaysAtAGlance(page.transform); // I423
             PairingRows(page.transform); // I369
             VisitorsRows(page.transform);
             YearRows(page.transform); // I392
+        }
+
+        // I423: the garden's ways at a glance: one painting per good neighbour (in colour once
+        // found, a pencil shadow before; the deeper three only once open), then a dot per visitor.
+        private void WaysAtAGlance(Transform page)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            Transform row = CenteredRowIn(page, "Good neighbours at a glance");
+            row.GetComponent<HorizontalLayoutGroup>().spacing = 6;
+            int open = Pairings.Open(world);
+            foreach (Pairing pairing in Enum.GetValues(typeof(Pairing)))
+            {
+                if ((open & PairingMask.Of(pairing)) == 0) continue;
+                var mark = Node(pairing.ToString(), row);
+                var layout = mark.AddComponent<LayoutElement>();
+                layout.preferredWidth = layout.minWidth = layout.preferredHeight = 34f;
+                var image = mark.AddComponent<Image>();
+                image.sprite = PairingMarks(pairing)[0];
+                image.preserveAspect = true;
+                image.color = world.HasPairing(pairing) ? Color.white : new Color(0.33f, 0.30f, 0.25f, 0.18f);
+                image.raycastTarget = false;
+            }
+            Transform dots = CenteredRowIn(page, "Visitors at a glance");
+            dots.GetComponent<HorizontalLayoutGroup>().spacing = 8;
+            foreach (Visitor visitor in Enum.GetValues(typeof(Visitor)))
+            {
+                var dot = Node(visitor.ToString(), dots);
+                var layout = dot.AddComponent<LayoutElement>();
+                layout.preferredWidth = layout.minWidth = layout.preferredHeight = 14f;
+                var image = dot.AddComponent<Image>();
+                image.sprite = MosseloraArt.Rounded(7);
+                image.color = Visitors.Welcomes(world, visitor) ? VisitorColour(visitor) : new Color(0.33f, 0.30f, 0.25f, 0.16f);
+                image.raycastTarget = false;
+            }
+        }
+
+        private static Color VisitorColour(Visitor visitor)
+        {
+            switch (visitor)
+            {
+                case Visitor.Bees: return new Color(0.98f, 0.78f, 0.18f, 1f);
+                case Visitor.Birds: return new Color(0.45f, 0.38f, 0.30f, 1f);
+                case Visitor.Heron: return new Color(0.62f, 0.68f, 0.74f, 1f);
+                case Visitor.Hedgehog: return new Color(0.55f, 0.42f, 0.30f, 1f);
+                case Visitor.Owl: return new Color(0.50f, 0.40f, 0.28f, 1f);
+                case Visitor.Kingfisher: return new Color(0.16f, 0.55f, 0.78f, 1f);
+                default: return new Color(0.93f, 0.62f, 0.72f, 1f);
+            }
         }
 
         private void AlmanacPage()
         {
             var page = Card(journalContent, "The almanac", new Color(0f, 0f, 0f, 0f));
             MemoryShelfRow(page.transform);
+            TechniqueRow(page.transform);
+            WeeklyDiaryRow(page.transform);
             foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Flowers, VillageChoice.Bridge })
             {
                 Transform head = CenteredRowIn(page.transform, "Almanac family");
@@ -6649,13 +6737,7 @@ namespace Evergrove.UnityClient
                 markLayout.preferredWidth = markLayout.minWidth = markLayout.preferredHeight = 36f;
                 var markImage = mark.AddComponent<Image>();
                 markImage.sprite = MosseloraArt.Rounded(12);
-                markImage.color = !come ? new Color(0.33f, 0.30f, 0.25f, 0.16f)
-                    : visitor == Visitor.Bees ? new Color(0.98f, 0.78f, 0.18f, 1f)
-                    : visitor == Visitor.Birds ? new Color(0.45f, 0.38f, 0.30f, 1f)
-                    : visitor == Visitor.Heron ? new Color(0.62f, 0.68f, 0.74f, 1f)
-                    : visitor == Visitor.Hedgehog ? new Color(0.55f, 0.42f, 0.30f, 1f)
-                    : visitor == Visitor.Owl ? new Color(0.50f, 0.40f, 0.28f, 1f)
-                    : visitor == Visitor.Kingfisher ? new Color(0.16f, 0.55f, 0.78f, 1f) : new Color(0.93f, 0.62f, 0.72f, 1f);
+                markImage.color = !come ? new Color(0.33f, 0.30f, 0.25f, 0.16f) : VisitorColour(visitor);
                 markImage.raycastTarget = false;
                 Text why = Label(row, "Why", Visitors.Why(visitor), 16, 0, come ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f),
                     TextAnchor.MiddleLeft);
@@ -8696,6 +8778,7 @@ namespace Evergrove.UnityClient
             Season riverSeason = GardenSeason.For(garden);
             GardenMapView.RiverRainNow = livingHere && RiverMoments.RainRings(riverSeason, visitWeather); // I413
             GardenMapView.RiverGlitterNow = livingHere && DayLightOn && RiverMoments.Glitter(riverSeason, visitPhase, visitWeather); // I415
+            GardenMapView.MoonlightNow = livingHere && DayLightOn && RiverMoments.Moonlight(visitPhase, visitWeather); // I425
             GardenMapView.RiverLeavesNow = livingHere && RiverMoments.LeavesAfloat(riverSeason); // I417
             GardenMapView.FishEveryNow = livingHere ? RiverMoments.FishEvery(riverSeason, DayLightOn ? visitPhase : DayPhase.Day) : 0f; // I416
             GardenMapView.WaterTapped = () => { if (soundOn && sound != null) sound.PlayOneShot(GardenSounds.Ambient(AmbientVoice.Water, ambientDice.Next(3)), 0.9f); };
@@ -8857,6 +8940,7 @@ namespace Evergrove.UnityClient
                 CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconContinue),
                     summary.Waiting == 1 ? "One thing holds a new puzzle" : summary.Waiting + " things hold a new puzzle");
             if (summary.DropsNeed > 0) CottageDrops(paper.transform, summary.DropsHave, summary.DropsNeed);
+            CottageDaysLine(paper.transform, summary.DaysPlayed);
             // I313: the open hope nearest to coming true, with its true count (one line, not three).
             NeighbourWish nearest = null;
             int nearestWho = -1;
@@ -9408,6 +9492,9 @@ namespace Evergrove.UnityClient
             AmbientVoice? owl = owlInGrove && Visitors.Welcomes(world, Visitor.Owl)
                 ? Soundscape.VisitorVoice(Visitor.Owl, GardenSeason.For(world), phase) : null;
             if (owl.HasValue && ambientDice.NextDouble() < 0.3) voice = owl.Value;
+            // I426: bees heard by day when they've come and are out in this weather.
+            if (Visitors.Welcomes(world, Visitor.Bees) && Visitors.OutIn(Visitor.Bees, GardenSeason.For(world), phase, TodayWeather(world))
+                && ambientDice.NextDouble() < 0.25) voice = AmbientVoice.Bees;
             if (nextAmbient > 0f) sound.PlayOneShot(GardenSounds.Ambient(voice, ambientDice.Next(3)), 0.55f);
             nextAmbient = now + Soundscape.SecondsBetween(voice) * (0.6f + 0.8f * (float)ambientDice.NextDouble());
         }

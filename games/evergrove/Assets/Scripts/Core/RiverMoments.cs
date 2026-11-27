@@ -30,5 +30,11 @@ namespace Evergrove.Core
         }
 
         public static bool LeavesAfloat(Season season) { return season == Season.Autumn; }
+
+        /// <summary>I425: moonlight glints on the water on a clear night (not under rain or snow).</summary>
+        public static bool Moonlight(DayPhase phase, Weather weather)
+        {
+            return phase == DayPhase.Night && weather != Weather.Rainy && weather != Weather.Snowy;
+        }
     }
 }

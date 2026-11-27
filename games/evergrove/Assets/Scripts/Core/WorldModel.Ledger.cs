@@ -14,7 +14,13 @@ namespace Evergrove.Core
         /// <summary>A good-neighbour pairing discovered for the first time (Pairings.cs: DiscoverPairing).</summary>
         Pairing = 7,
         /// <summary>A seasonal yield (summer seeds); reserved for the run-3 seasons branch, which routes through ChangeSeeds.</summary>
-        Season = 8
+        Season = 8,
+        /// <summary>Items 74 and 79: fruit sold to the market stall (WorldModel.Market.cs: SellFruit).</summary>
+        MarketFruit = 9,
+        /// <summary>Items 74 and 79: jam sold to the market stall (WorldModel.Market.cs: SellJam).</summary>
+        MarketJam = 10,
+        /// <summary>Item 79: seeds from, or paid for, a neighbour trade (WorldModel.Market.cs: Trade).</summary>
+        Trade = 11
     }
 
     /// <summary>One line of the seed ledger: a change to the seed count and why it happened.</summary>
