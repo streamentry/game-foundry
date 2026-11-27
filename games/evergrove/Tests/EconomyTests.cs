@@ -77,7 +77,20 @@ internal static class EconomyTests
         ReplayCap();
         Grinding();
         GiftPrices();
+        PairingLine();
         return assertions;
+    }
+
+    // A pairing found for the first time pays through ChangeSeeds and writes one Pairing line; never twice.
+    private static void PairingLine()
+    {
+        WorldModel w = Grown(3, 100);
+        int paid = w.DiscoverPairing(Pairing.Sheltered);
+        Expect(paid == Pairings.Reward && w.Ledger.Length == 1 && w.Ledger[0].Reason == SeedReason.Pairing &&
+               w.Ledger[0].Delta == Pairings.Reward, "a discovered pairing writes one Pairing line");
+        Expect(w.DiscoverPairing(Pairing.Sheltered) == 0 && w.Ledger.Length == 1, "a pairing found again writes nothing");
+        WorldModel full = Grown(3, WorldModel.MaxSeeds);
+        Expect(full.DiscoverPairing(Pairing.Grove) == 0 && full.Ledger.Length == 0, "a pairing at the seed cap applies nothing and writes nothing");
     }
 
     private static void Recording()

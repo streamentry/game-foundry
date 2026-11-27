@@ -227,6 +227,35 @@ namespace Evergrove.UnityClient
                 weatherRect.offsetMin = weatherRect.offsetMax = Vector2.zero;
                 weather.AddComponent<WeatherLayer>().Kind = WeatherNow;
             }
+            // I364: a rainbow on the first fair day after rain, soft, over the top of the view.
+            if (RainbowNow)
+            {
+                var bow = new GameObject("Rainbow", typeof(RectTransform), typeof(RectMask2D));
+                bow.transform.SetParent(host.transform, false);
+                var bowRect = (RectTransform)bow.transform;
+                bowRect.anchorMin = new Vector2(0f, 1f);
+                bowRect.anchorMax = Vector2.one;
+                bowRect.pivot = new Vector2(0.5f, 1f);
+                bowRect.sizeDelta = new Vector2(0f, 260f);
+                bowRect.anchoredPosition = new Vector2(0f, -40f);
+                Color[] bands = {
+                    new Color(0.95f, 0.45f, 0.42f), new Color(0.98f, 0.70f, 0.38f), new Color(0.98f, 0.90f, 0.45f),
+                    new Color(0.55f, 0.82f, 0.55f), new Color(0.48f, 0.68f, 0.92f), new Color(0.68f, 0.55f, 0.88f) };
+                for (int b = 0; b < bands.Length; b++)
+                {
+                    var arc = new GameObject("Band", typeof(RectTransform));
+                    arc.transform.SetParent(bow.transform, false);
+                    var arcRect = (RectTransform)arc.transform;
+                    arcRect.anchorMin = arcRect.anchorMax = new Vector2(0.5f, 0f);
+                    float size = 620f - b * 18f;
+                    arcRect.sizeDelta = new Vector2(size, size);
+                    arcRect.anchoredPosition = new Vector2(0f, -size * 0.18f);
+                    var arcImage = arc.AddComponent<Image>();
+                    arcImage.sprite = MosseloraArt.Halo();
+                    arcImage.color = new Color(bands[b].r, bands[b].g, bands[b].b, 0.30f);
+                    arcImage.raycastTarget = false;
+                }
+            }
             // I341: summer by day: dappled sunlight drifts slowly over the garden.
             if (SeasonNow == Season.Summer && Dark < 0.005f && FirefliesMove)
             {
@@ -321,6 +350,14 @@ namespace Evergrove.UnityClient
             view.decorate = decorate;
             view.BuildDryLand();
             view.lanterns = Mathf.Max(0, LanternsNext); // review fix: known before the first layout
+            view.meadow = MeadowTufts; // I363: home's alone; kept for every re-layout (zoom, lookout)
+            MeadowTufts = null;
+            view.pairLinks = PairLinksNext; // I371
+            PairLinksNext = null;
+            view.pairSpots = PairSpotsNext; // I372
+            PairSpotsNext = null;
+            view.creatureCells = new[] { HeronAtNext, HedgehogAtNext, OwlAtNext }; // I374
+            HeronAtNext = HedgehogAtNext = OwlAtNext = -1;
             LanternsNext = 0;
             view.Layout();
             return view;
@@ -393,6 +430,10 @@ namespace Evergrove.UnityClient
         private float apron, teaser;
         private int reaches = 1;
         private int lanterns; // I310
+        private int[] meadow;  // I363
+        private int[] pairLinks; // I371
+        private int[] pairSpots; // I372
+        private int[] creatureCells; // I374: heron, hedgehog, owl
         public static int LanternsNext; // set by the app just before building home's map
 
         /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
@@ -770,6 +811,112 @@ namespace Evergrove.UnityClient
                 lanternImage.raycastTarget = false;
                 nodes.Add(lanternRect);
             }
+            // I363: wild flowers along the banks, small and behind the things (home's map only).
+            int[] tuftCells = meadow;
+            for (int t = 0; tuftCells != null && t < tuftCells.Length; t++)
+            {
+                int cell = tuftCells[t];
+                if (cell < 0 || cell >= map.CellCount) continue;
+                Sprite wild = MosseloraArt.Load("flower-" + ((cell * 7 + 3) % 50).ToString("00"));
+                if (wild == null) continue;
+                var tuft = new GameObject("Wild flowers", typeof(RectTransform));
+                tuft.transform.SetParent(land, false);
+                var tuftRect = (RectTransform)tuft.transform;
+                tuftRect.anchorMin = tuftRect.anchorMax = new Vector2(0f, 1f);
+                tuftRect.pivot = new Vector2(0.5f, 0.1f);
+                float th = cellH * 0.55f;
+                tuftRect.sizeDelta = new Vector2(th * wild.rect.width / Mathf.Max(1f, wild.rect.height), th);
+                int tc = cell % map.Columns, tr = cell / map.Columns;
+                tuftRect.anchoredPosition = new Vector2((tc + 0.5f + ((cell * 13) % 5 - 2) * 0.08f) * cellW, -(tr + 0.8f) * cellH);
+                var tuftImage = tuft.AddComponent<Image>();
+                tuftImage.sprite = wild;
+                tuftImage.preserveAspect = true;
+                tuftImage.raycastTarget = false;
+                ThingLook tuftLook = SeasonLook.For(SeasonNow, VillageChoice.Flowers, (cell * 7 + 3) % 50);
+                tuftImage.color = tuftLook == ThingLook.Resting ? new Color(0.72f, 0.78f, 0.70f, 0.8f) : Color.white;
+                nodes.Add(tuftRect);
+            }
+            // I371: a small sprig between good neighbours (I368), so the pairing shows where it is.
+            Sprite sprig = pairLinks != null ? MosseloraArt.Load(MosseloraArt.Sprig) : null;
+            for (int l = 0; sprig != null && l + 1 < pairLinks.Length; l += 2)
+            {
+                int a = pairLinks[l], b = pairLinks[l + 1];
+                if (a < 0 || b < 0 || a >= map.CellCount || b >= map.CellCount) continue;
+                Vector2 pa = new Vector2((a % map.Columns + 0.5f) * cellW, -(a / map.Columns + 0.85f) * cellH);
+                Vector2 pb = new Vector2((b % map.Columns + 0.5f) * cellW, -(b / map.Columns + 0.85f) * cellH);
+                var link = new GameObject("Good neighbours", typeof(RectTransform));
+                link.transform.SetParent(land, false);
+                var linkRect = (RectTransform)link.transform;
+                linkRect.anchorMin = linkRect.anchorMax = new Vector2(0f, 1f);
+                float ls = Mathf.Max(16f, cellW * 0.32f);
+                linkRect.sizeDelta = new Vector2(ls, ls);
+                linkRect.anchoredPosition = (pa + pb) * 0.5f;
+                var linkImage = link.AddComponent<Image>();
+                linkImage.sprite = sprig;
+                linkImage.preserveAspect = true;
+                linkImage.color = new Color(0.36f, 0.62f, 0.38f, 0.9f);
+                linkImage.raycastTarget = false;
+                nodes.Add(linkRect);
+            }
+            // I374: the visitors good neighbours bring.
+            for (int k = 0; creatureCells != null && k < creatureCells.Length; k++)
+            {
+                int cell = creatureCells[k];
+                if (cell < 0 || cell >= map.CellCount) continue;
+                var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling" : "An owl, watching",
+                    typeof(RectTransform));
+                creature.transform.SetParent(land, false);
+                var creatureRect = (RectTransform)creature.transform;
+                creatureRect.anchorMin = creatureRect.anchorMax = new Vector2(0f, 1f);
+                creatureRect.sizeDelta = new Vector2(40f, 40f);
+                float lift = k == 2 ? 0.25f : k == 1 ? 0.95f : 0.6f; // the owl up in the tree, the hedgehog at its foot
+                float side = k == 1 ? 0.35f : 0f;
+                creatureRect.anchoredPosition = new Vector2((cell % map.Columns + 0.5f + side) * cellW, -(cell / map.Columns + lift) * cellH);
+                creature.AddComponent<GardenCreature>().Kind = k;
+                nodes.Add(creatureRect);
+            }
+            // I372: where the thing in hand would make a new good neighbour, a soft green glow.
+            for (int sp = 0; pairSpots != null && sp < pairSpots.Length; sp++)
+            {
+                int cell = pairSpots[sp];
+                if (cell < 0 || cell >= map.CellCount) continue;
+                var spot = new GameObject("Would make good neighbours", typeof(RectTransform));
+                spot.transform.SetParent(land, false);
+                var spotRect = (RectTransform)spot.transform;
+                spotRect.anchorMin = spotRect.anchorMax = new Vector2(0f, 1f);
+                spotRect.sizeDelta = new Vector2(cellW * 0.9f, cellH * 0.6f);
+                spotRect.anchoredPosition = new Vector2((cell % map.Columns + 0.5f) * cellW, -(cell / map.Columns + 0.7f) * cellH);
+                var spotImage = spot.AddComponent<Image>();
+                spotImage.sprite = MosseloraArt.SoftGlow();
+                spotImage.color = new Color(0.55f, 0.85f, 0.50f, 0.55f);
+                spotImage.raycastTarget = false;
+                if (FirefliesMove) Breathe.Add(spotImage);
+                nodes.Add(spotRect);
+            }
+            // I366: dew glints on the grass in the morning; frost in winter.
+            if (DewNow != Dew.None)
+            {
+                var rng = new System.Random(366);
+                for (int g = 0; g < 36; g++)
+                {
+                    int cell = rng.Next(map.CellCount);
+                    if (!map.IsLand(cell)) continue;
+                    var glint = new GameObject(DewNow == Dew.Frost ? "Frost" : "Dew", typeof(RectTransform));
+                    glint.transform.SetParent(land, false);
+                    var glintRect = (RectTransform)glint.transform;
+                    glintRect.anchorMin = glintRect.anchorMax = new Vector2(0f, 1f);
+                    float gd = DewNow == Dew.Frost ? 14f : 9f;
+                    glintRect.sizeDelta = new Vector2(gd, gd);
+                    glintRect.anchoredPosition = new Vector2(((cell % map.Columns) + (float)rng.NextDouble()) * cellW,
+                        -((cell / map.Columns) + (float)rng.NextDouble()) * cellH);
+                    var glintImage = glint.AddComponent<Image>();
+                    glintImage.sprite = MosseloraArt.SoftGlow();
+                    glintImage.color = DewNow == Dew.Frost ? new Color(1f, 1f, 1f, 0.8f) : new Color(0.85f, 0.95f, 1f, 0.9f);
+                    glintImage.raycastTarget = false;
+                    if (FirefliesMove && DewNow == Dew.Dew) glint.AddComponent<Twinkle>().Phase = g;
+                    nodes.Add(glintRect);
+                }
+            }
             Vector2 focus = Vector2.zero;
             bool focused = false;
             int beesPlaced = 0;
@@ -977,6 +1124,7 @@ namespace Evergrove.UnityClient
                 standing = decorate(land, cell =>
                     new Vector2((cell % map.Columns + 0.5f) * cellW, -(cell / map.Columns + 0.78f) * cellH));
                 if (standing != null) nodes.AddRange(standing);
+                if (SignFont != null) KeepOffSigns(standing, width, reachHeight, reaches); // I375
             }
             if (keep.x >= 0f)
             {
@@ -1299,6 +1447,35 @@ namespace Evergrove.UnityClient
         public static Season SeasonNow = Season.Summer; // I338: the garden's season, set before a build
         public static Weather WeatherNow = Weather.Fair; // I353: the day's weather, set before a build
         public static Font SignFont; // I360: the river-name signs' lettering
+
+        // I375 (P15: Orin stood on "Kingfisher Run" and hid half of it): a neighbour standing on
+        // a river's name plank steps aside, toward the roomier side, so the name always reads.
+        private static void KeepOffSigns(List<RectTransform> standing, float width, float reachHeight, int reaches)
+        {
+            if (standing == null) return;
+            float signW = Mathf.Clamp(width * 0.34f, 120f, 170f), signH = signW * 0.28f, signX = width * 0.58f;
+            foreach (RectTransform person in standing)
+            {
+                if (person == null) continue;
+                Vector2 at = person.anchoredPosition, size = person.sizeDelta;
+                for (int reach = 0; reach < reaches; reach++)
+                {
+                    float signTop = -(reach * reachHeight + reachHeight * 0.012f), signBottom = signTop - signH;
+                    bool overlapsY = at.y < signTop && at.y + size.y * 0.8f > signBottom;
+                    bool overlapsX = Mathf.Abs(at.x - signX) < (signW + size.x * 0.6f) / 2f;
+                    if (!overlapsY || !overlapsX) continue;
+                    float left = signX - signW / 2f - size.x * 0.32f, right = signX + signW / 2f + size.x * 0.32f;
+                    at.x = left >= size.x * 0.5f && (at.x < signX || right > width - size.x * 0.5f) ? left : right;
+                    person.anchoredPosition = at;
+                }
+            }
+        }
+        public static int[] MeadowTufts; // I363: bank cells for wild flowers, set for home's map
+        public static int[] PairLinksNext; // I371: good-neighbour cell pairs, set for home's map
+        public static int[] PairSpotsNext; // I372: free cells that would make a new pairing
+        public static int HeronAtNext = -1, HedgehogAtNext = -1, OwlAtNext = -1; // I374: cells, -1 none
+        public static bool RainbowNow;   // I364
+        public static Dew DewNow;        // I366
 
         /// <summary>
         /// I354–I356: rain falling on a slant; faint gusts of wind sweeping across; or heat

@@ -11,7 +11,7 @@ namespace Evergrove.Core
         Keepsake = 4,
         ParcelSent = 5,
         ParcelOpened = 6,
-        /// <summary>A good-neighbour pairing discovered; the reward lands in a later branch that will route through ChangeSeeds.</summary>
+        /// <summary>A good-neighbour pairing discovered for the first time (Pairings.cs: DiscoverPairing).</summary>
         Pairing = 7
     }
 
