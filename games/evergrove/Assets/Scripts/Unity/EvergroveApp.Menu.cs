@@ -226,6 +226,7 @@ namespace Evergrove.UnityClient
             }
             tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
                 () => { CloseFan(); CloseTitle(); SetMenu(true); }));
+            tokens = ArrangeFan(tokens); // checklist 15: the token used last opens first, nearest the thumb
             // Hang the fan just under the corner button it came from.
             foreach (Button corner in canvasRoot.GetComponentsInChildren<Button>())
                 if (corner.name == "Open menu" && corner.gameObject.activeInHierarchy)
