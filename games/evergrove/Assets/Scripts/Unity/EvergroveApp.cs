@@ -2929,7 +2929,11 @@ namespace Evergrove.UnityClient
             int restored = world.Completed ? PuzzleCatalog.Count : world.Round;
             var taken = new System.Collections.Generic.List<int>(map.Layout(world.Choices, world.Placements, world.Occupied));
             taken.AddRange(world.Occupied);
-            GardenMapView.MeadowTufts = MeadowLife.Cells(map, MeadowLife.Count(restored), taken.ToArray());
+            // Checklist 46: flowers you planted spread along the river by days played (WildGrowth), drawn as the same tufts.
+            var tufts = new System.Collections.Generic.List<int>(MeadowLife.Cells(map, MeadowLife.Count(restored), taken.ToArray()));
+            foreach (int wild in WildGrowth.Spread(map, world, world.DaysPlayed))
+                if (!tufts.Contains(wild)) tufts.Add(wild);
+            GardenMapView.MeadowTufts = tufts.ToArray();
             GardenMapView view = GardenMapView.Build(window, plot, map, hubItems, zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldDecor >= 0 ? DecorIndex + heldDecor : heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
                 (justPlanted >= 0 || justBought >= 0) && gentleMotion,
@@ -8464,6 +8468,7 @@ namespace Evergrove.UnityClient
         private void BuildGardenFileSection()
         {
             var card = Card(content, "Garden file", MosseloraTheme.CardFill);
+            BuildSaveTrustLine(card.transform); // EvergroveApp.Saving.cs (checklist 9): first line, above every button and prompt
             GameObject files = Row(card.transform, "Garden file actions");
             IconButton(files.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
                 MosseloraArt.IconCopyFile, CopyGardenFile, 78, MosseloraTheme.ForestAction,
@@ -8966,7 +8971,7 @@ namespace Evergrove.UnityClient
                     world.Jam == 1 ? "A jar of jam in the pantry" : world.Jam + " jars of jam in the pantry");
             // I330 (ideas 14 and 16, after block-building sandboxes): decorate anywhere, for free.
             Transform decorRow = CenteredRowIn(paper.transform, "Decorate");
-            decorRow.gameObject.SetActive(world.DecorCount < WorldModel.MaxDecor);
+            decorRow.gameObject.SetActive(world.DecorCount < WorldModel.MaxDecor || world.CanUndoDecor);
             decorRow.GetComponent<HorizontalLayoutGroup>().spacing = 8;
             foreach (Decoration piece in new[] { Decoration.Stones, Decoration.Bench, Decoration.Fence, Decoration.LanternPost })
             {
@@ -8984,6 +8989,20 @@ namespace Evergrove.UnityClient
                 Transform glyph = decorRow.GetChild(decorRow.childCount - 1).Find("Icon");
                 if (glyph != null) { ((RectTransform)glyph).sizeDelta = new Vector2(46f, 46f); glyph.GetComponent<Image>().color = Color.white; }
             }
+            // Step 47: take back the last placement, move or removal (session only; a refused undo changes nothing).
+            if (world.CanUndoDecor)
+                TreePlay.Token(decorRow, "Undo the last decoration", MosseloraArt.Load(MosseloraArt.IconUndo), 56f,
+                    MosseloraTheme.QuietAction, () => {
+                        CloseCottage();
+                        decorInHand = -1;
+                        heldDecor = -1;
+                        justDecorated = -1;
+                        GardenMap undoMap = LoadGardenMap();
+                        if (undoMap != null && world.UndoDecor(undoMap)) SaveWorld();
+                        else if (titleScreen != null)
+                            RuleToast.Show((RectTransform)titleScreen.transform, "That can't be taken back here.", font, Ink, MosseloraTheme.CardFill);
+                        RefreshMaps();
+                    }, true);
             // I319: from the cottage, look out over the whole river.
             Transform look = CenteredRowIn(paper.transform, "Look out");
             TreePlay.Token(look, "Look out over the whole river", MosseloraArt.Load(MosseloraArt.IconPath), 56f,

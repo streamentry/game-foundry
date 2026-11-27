@@ -24,6 +24,18 @@ namespace Evergrove.UnityClient
         /// </summary>
         public static bool RecoveryBlocked { get; private set; }
 
+        // Local time of the last successful primary write this session, or the primary file's
+        // write time when the game loaded from the primary. Null when unknown (loaded from backup
+        // or staging, or the file cannot be read). Used only for the "saved on this phone" line.
+        private static DateTime? lastSavedLocal;
+        public static DateTime? LastSavedLocal { get { return lastSavedLocal; } }
+
+        private static DateTime? PrimaryWriteTime()
+        {
+            try { return File.Exists(SaveFile) ? File.GetLastWriteTime(SaveFile) : (DateTime?)null; }
+            catch (Exception) { return null; }
+        }
+
         private static bool ValidSnapshot(string json)
         {
             try
@@ -38,6 +50,7 @@ namespace Evergrove.UnityClient
         public static WorldModel Load()
         {
             RecoveryBlocked = false;
+            lastSavedLocal = null;
             string payload, origin;
             if (SaveJournal.TryLoad(SaveFile, ValidSnapshot, out payload, out origin))
             {
@@ -47,6 +60,8 @@ namespace Evergrove.UnityClient
                     if (origin != "primary")
                         Debug.LogWarning("Evergrove recovered a " + origin +
                             " save. Recent progress may have been lost; verify before continuing.");
+                    else
+                        lastSavedLocal = PrimaryWriteTime();
                     // Do not copy fallback bytes to the primary during load.
                     // A later validated save repairs the primary while keeping
                     // a good backup when the previous primary is corrupt.
@@ -94,7 +109,9 @@ namespace Evergrove.UnityClient
             try
             {
                 string payload = JsonUtility.ToJson(world.Export());
-                return SaveJournal.Commit(SaveFile, payload, ValidSnapshot);
+                bool committed = SaveJournal.Commit(SaveFile, payload, ValidSnapshot);
+                if (committed) lastSavedLocal = DateTime.Now;
+                return committed;
             }
             catch (Exception ex)
             {
@@ -132,6 +149,7 @@ namespace Evergrove.UnityClient
                     success = false;
                 }
             }
+            lastSavedLocal = null;
             RecoveryBlocked = !success;
             return success;
         }

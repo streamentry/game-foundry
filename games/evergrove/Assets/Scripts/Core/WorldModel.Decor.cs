@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Evergrove.Core
 {
@@ -14,6 +15,17 @@ namespace Evergrove.Core
     {
         public const int MaxDecor = 60;
         private const int DecorKinds = 4;
+
+        /// <summary>Decoration steps the player can take back in this session (not saved).</summary>
+        public const int UndoDecorLimit = 20;
+
+        /// <summary>
+        /// Whole decoration arrays from before each placement, move or removal, oldest first. Never saved:
+        /// a reopened garden starts with nothing to undo. Arrays are replaced, never edited in place.
+        /// </summary>
+        private readonly List<int[]> decorUndo = new List<int[]>();
+        public int DecorUndoDepth { get { return decorUndo.Count; } }
+        public bool CanUndoDecor { get { return decorUndo.Count > 0; } }
 
         /// <summary>Decorations as pairs [kind, cell, ...], in the order they were set down (a copy).</summary>
         public int[] Decor { get { return (int[])state.decor.Clone(); } }
@@ -76,6 +88,7 @@ namespace Evergrove.Core
             if (Mode != PlayMode.Living || (int)kind < 0 || (int)kind >= DecorKinds || DecorCount >= MaxDecor ||
                 !DecorCellFree(map, cell, -1))
                 return false;
+            RememberDecor();
             state.decor = Append(Append(state.decor, (int)kind), cell);
             return true;
         }
@@ -84,6 +97,7 @@ namespace Evergrove.Core
         public bool RemoveDecor(int index)
         {
             if (index < 0 || index >= DecorCount) return false;
+            RememberDecor();
             int[] next = new int[state.decor.Length - 2];
             Array.Copy(state.decor, 0, next, 0, index * 2);
             Array.Copy(state.decor, index * 2 + 2, next, index * 2, next.Length - index * 2);
@@ -95,9 +109,38 @@ namespace Evergrove.Core
         public bool MoveDecor(int index, int cell, GardenMap map)
         {
             if (Mode != PlayMode.Living || index < 0 || index >= DecorCount || !DecorCellFree(map, cell, index)) return false;
+            if (state.decor[index * 2 + 1] == cell) return true; // same cell: nothing to change or undo
+            RememberDecor();
             int[] next = (int[])state.decor.Clone();
             next[index * 2 + 1] = cell;
             state.decor = next;
+            return true;
+        }
+
+        private void RememberDecor()
+        {
+            decorUndo.Add((int[])state.decor.Clone());
+            if (decorUndo.Count > UndoDecorLimit) decorUndo.RemoveAt(0);
+        }
+
+        /// <summary>
+        /// Takes back the last placement, move or removal, restoring the exact decorations as they were.
+        /// Fail-closed: if the earlier set no longer fits this garden (for example a planting now stands where
+        /// a piece was), nothing changes and the step stays on the stack. Living gardens only.
+        /// </summary>
+        public bool UndoDecor(GardenMap map)
+        {
+            if (Mode != PlayMode.Living || map == null || decorUndo.Count == 0) return false;
+            int[] current = state.decor;
+            int[] previous = decorUndo[decorUndo.Count - 1];
+            state.decor = previous;
+            for (int k = 0; k * 2 + 1 < previous.Length; k++)
+            {
+                if (DecorCellFree(map, previous[k * 2 + 1], k)) continue;
+                state.decor = current;
+                return false;
+            }
+            decorUndo.RemoveAt(decorUndo.Count - 1);
             return true;
         }
 
