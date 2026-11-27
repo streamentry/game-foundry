@@ -82,6 +82,7 @@ namespace Evergrove.UnityClient
         private const string AlmanacKey = "evergrove:almanac";
         private Almanac almanac = new Almanac();
         private bool almanacTab;
+        private bool waysTab; // I403: the garden's ways (visitors, good neighbours, the year)
         private bool familyTab; // I269: the book's family page
         // WCAG 2.3.3: motion triggered by play (pipe swing, bloom, butterfly,
         // glide) can be switched off. Off means snap, still and instant.
@@ -1619,7 +1620,7 @@ namespace Evergrove.UnityClient
             // I325: butterflies come to flowers in spring and summer (before I325 they always flew).
             bool livingGarden = world != null && world.Mode == PlayMode.Living;
             if (lively && (!livingGarden || (Visitors.Welcomes(world, Visitor.Butterflies) &&
-                Visitors.Out(Visitor.Butterflies, GardenSeason.For(world), DayLightOn ? CurrentPhase() : DayPhase.Day))))
+                Visitors.OutIn(Visitor.Butterflies, GardenSeason.For(world), DayLightOn ? CurrentPhase() : DayPhase.Day, TodayWeather(world)))))
                 window.AddComponent<HubButterflies>();
             // The living garden opens on its own map (E3, I176): everything you made
             // standing where it grew. Otherwise, the painting as before.
@@ -2030,8 +2031,8 @@ namespace Evergrove.UnityClient
                 ? world.ReplayRewardOn(TreePuzzles.TierFor(item), day)
                 : WorldModel.TreeReward(TreePuzzles.TierFor(item), true);
             bool replay = world.TreeSolved(item);
-            Func<int> solved = () => { int earned = world.SolveTree(item, day); if (replay) CountReplay(item);
-                NotePollinated(item); // I378
+            Func<int> solved = () => { int fruitBeforeSolve = world.Fruit; int earned = world.SolveTree(item, day); if (replay) CountReplay(item);
+                NotePollinated(item, world.Fruit > fruitBeforeSolve); // I378, gated by the fruit this solve picked
                 SaveWorld(); PlayChime(); return earned; };
             OpenThingPuzzle(seed, tier, ThingPuzzle.ForStory(item, (VillageChoice)made[item]), ItemArt(item, made[item]),
                 thing.Name, reward, item, solved, ownBoard: true);
@@ -2060,8 +2061,8 @@ namespace Evergrove.UnityClient
             OpenThingPuzzle(ReplayBoards.Seed(world.Garden * 1000 + 500 + k * 7, replay ? replays + 1 : 0), tier,
                 ThingPuzzle.ForNursery(kind),
                 MosseloraArt.Load(plant.Art), plant.Name, reward, k * 5 + kind,
-                () => { int earned = world.SolveBought(k, day); if (replay) CountReplay(BoughtIndex + k);
-                    NotePollinated(world.Choices.Length + world.PlantingCount + k); // I378
+                () => { int fruitBeforeSolve = world.Fruit; int earned = world.SolveBought(k, day); if (replay) CountReplay(BoughtIndex + k);
+                    NotePollinated(world.Choices.Length + world.PlantingCount + k, world.Fruit > fruitBeforeSolve); // I378
                     SaveWorld(); PlayChime(); return earned; }, ownBoard: true);
         }
 
@@ -2713,10 +2714,10 @@ namespace Evergrove.UnityClient
             GardenMapView.KingfisherAtNext = VisitorSpot(garden, map, things, Visitor.Kingfisher, Pairing.Waterside, season, phase);
         }
 
-        private static int VisitorSpot(WorldModel garden, GardenMap map, System.Collections.Generic.List<PlacedThing> things,
+        private int VisitorSpot(WorldModel garden, GardenMap map, System.Collections.Generic.List<PlacedThing> things,
             Visitor visitor, Pairing pairing, Season season, DayPhase phase)
         {
-            if (!Visitors.Welcomes(garden, visitor) || !Visitors.Out(visitor, season, phase)) return -1;
+            if (!Visitors.Welcomes(garden, visitor) || !Visitors.OutIn(visitor, season, phase, TodayWeather(garden))) return -1;
             return Pairings.SpotFor(map, things, pairing);
         }
 
@@ -2808,8 +2809,11 @@ namespace Evergrove.UnityClient
         }
 
         // I378: a tended tree with a flower beside it, while the bees are about, gives one more fruit.
-        private void NotePollinated(int thingIndex)
+        // I404 follow-up: only when this solve itself picked fruit, so the bees' extra fruit
+        // follows whatever limit governs a tree's own fruit (a replay cap included).
+        private void NotePollinated(int thingIndex, bool pickedFruit)
         {
+            if (!pickedFruit) return;
             GardenMap map = LoadGardenMap();
             if (map == null) return;
             var things = Pairings.Things(world, map);
@@ -2831,7 +2835,8 @@ namespace Evergrove.UnityClient
                         ". +" + Pairings.RewardFor(pairing) + " seeds.";
                     toastMarks = PairingMarks(pairing);
                     SaveWorld();
-                    PlayChime();
+                    if (soundOn && sound != null) sound.PlayOneShot(GardenSounds.Neighbours(), 0.9f); // I406
+                    else PlayChime();
                 }
         }
 
@@ -4405,7 +4410,7 @@ namespace Evergrove.UnityClient
             Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => {
                     if (menuOpen) SetMenu(false);
-                    else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; Rebuild(); }
+                    else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; waysTab = false; Rebuild(); }
                     else ToggleFan(false);
                 }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
@@ -6168,7 +6173,7 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
             RectTransform pageRoot = content;
             content = journalContent;
-            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; Rebuild(); });
+            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; waysTab = false; Rebuild(); });
             content = pageRoot;
             JournalTabs();
             if (familyTab)
@@ -6179,6 +6184,11 @@ namespace Evergrove.UnityClient
             if (almanacTab)
             {
                 AlmanacPage();
+                return;
+            }
+            if (waysTab)
+            {
+                WaysPage();
                 return;
             }
             string[] allEntries = LocalizedVillage.Journal(world);
@@ -6317,16 +6327,20 @@ namespace Evergrove.UnityClient
             if (world.Mode != PlayMode.Living) { almanacTab = false; return; }
             Transform tabs = CenteredRowIn(journalContent, "Book tabs");
             tabs.GetComponent<HorizontalLayoutGroup>().spacing = 18;
-            bool pagesTab = !almanacTab && !familyTab;
+            bool pagesTab = !almanacTab && !familyTab && !waysTab;
             IconButton(tabs, "Our pages", GameLocalization.Text("journal_title"), MosseloraArt.IconJournal,
-                () => { almanacTab = false; familyTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                () => { almanacTab = false; familyTab = false; waysTab = false; journalOpenPage = -1; Rebuild(); }, 56,
                 pagesTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             Button almanacButton = IconButton(tabs, "Almanac", "Almanac", MosseloraArt.IconJournal,
-                () => { almanacTab = true; familyTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                () => { almanacTab = true; familyTab = false; waysTab = false; journalOpenPage = -1; Rebuild(); }, 56,
                 almanacTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            // I403: the garden's ways, under a sprig: who visits, good neighbours, the year.
+            IconButton(tabs, "The garden's ways", "The garden's ways", "glyph-sprig",
+                () => { waysTab = true; almanacTab = false; familyTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                waysTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             // The family page (I269): letters, help and puzzles played together.
             IconButton(tabs, "Family in the garden", "Family in the garden", MosseloraArt.IconNeighbors,
-                () => { familyTab = true; almanacTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                () => { familyTab = true; almanacTab = false; waysTab = false; journalOpenPage = -1; Rebuild(); }, 56,
                 familyTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             // The almanac's mark is a painted sapling, not a second book.
             Transform glyph = almanacButton.transform.Find("Icon");
@@ -6412,13 +6426,20 @@ namespace Evergrove.UnityClient
             Emphasize(Label(head, words, words, 19, 0, Moss, TextAnchor.MiddleLeft));
         }
 
+        // I403: the garden's ways: what lives here and why, which good neighbours there are, and
+        // what each season gives. The almanac keeps the collections; this page keeps the logic.
+        private void WaysPage()
+        {
+            var page = Card(journalContent, "The garden's ways", new Color(0f, 0f, 0f, 0f));
+            PairingRows(page.transform); // I369
+            VisitorsRows(page.transform);
+            YearRows(page.transform); // I392
+        }
+
         private void AlmanacPage()
         {
             var page = Card(journalContent, "The almanac", new Color(0f, 0f, 0f, 0f));
             MemoryShelfRow(page.transform);
-            VisitorsRows(page.transform);
-            PairingRows(page.transform); // I369
-            YearRows(page.transform); // I392
             foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Flowers, VillageChoice.Bridge })
             {
                 Transform head = CenteredRowIn(page.transform, "Almanac family");
@@ -8578,8 +8599,18 @@ namespace Evergrove.UnityClient
             return DayWeather.For(DateTime.Now.Date, GardenSeason.For(garden), garden.Garden);
         }
 
+        // I404: a tapped visitor answers in its own voice (the sound switch still rules).
+        private void OnVisitorTapped(int kind)
+        {
+            if (!soundOn || sound == null) return;
+            if (kind == 2) sound.PlayOneShot(GardenSounds.Ambient(AmbientVoice.Owl, ambientDice.Next(3)), 0.7f);
+            else if (kind == 0 || kind == 3) sound.PlayOneShot(GardenSounds.Ambient(AmbientVoice.Water, ambientDice.Next(3)), 0.8f);
+            if (gentleMotion) Haptics.Tick();
+        }
+
         private void ApplyDayLight(WorldModel garden)
         {
+            GardenCreature.Tapped = OnVisitorTapped; // I404
             Now(out int hour, out int minute);
             DayTint tint = DayLight.TintAt(hour, minute);
             bool on = DayLightOn && garden != null && garden.Mode == PlayMode.Living;
@@ -8592,7 +8623,8 @@ namespace Evergrove.UnityClient
             // I325/I326: visitors come for logical reasons, and are out by season and hour.
             DayPhase visitPhase = DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day;
             Season visitSeason = GardenSeason.For(garden);
-            GardenMapView.BeesOut = Visitors.Welcomes(garden, Visitor.Bees) && Visitors.Out(Visitor.Bees, visitSeason, visitPhase);
+            Weather visitWeather = TodayWeather(garden); // I405: they keep the weather
+            GardenMapView.BeesOut = Visitors.Welcomes(garden, Visitor.Bees) && Visitors.OutIn(Visitor.Bees, visitSeason, visitPhase, visitWeather);
             GardenMapView.BirdsOut = Visitors.Welcomes(garden, Visitor.Birds) && Visitors.Out(Visitor.Birds, visitSeason, visitPhase);
             GardenMapView.CatBy = GardenCat.NapBy(garden, visitPhase); // I335
             GardenMapView.SeasonNow = garden != null && garden.Mode == PlayMode.Living ? visitSeason : Season.Summer; // I338

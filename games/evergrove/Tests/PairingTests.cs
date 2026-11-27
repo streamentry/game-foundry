@@ -124,6 +124,12 @@ internal static class PairingTests
         // I401/I402: each says what it brings; the shady seat is where neighbours sit.
         foreach (Pairing p in Enum.GetValues(typeof(Pairing))) Expect(Pairings.Brings(p).Length > 0 && !Pairings.Brings(p).Contains("!"), "each brings something");
         Expect(Pairings.SpotFor(map, new[] { tree2, seat }, Pairing.ShadySeat) == seat.Cell, "the seat itself");
+        // I405: visitors keep the weather (what is seen only).
+        Expect(Visitors.OutIn(Visitor.Bees, Season.Summer, DayPhase.Day, Weather.Fair) && !Visitors.OutIn(Visitor.Bees, Season.Summer, DayPhase.Day, Weather.Rainy),
+            "bees stay in when it rains");
+        Expect(!Visitors.OutIn(Visitor.Butterflies, Season.Summer, DayPhase.Day, Weather.Windy) && Visitors.OutIn(Visitor.Heron, Season.Summer, DayPhase.Day, Weather.Rainy),
+            "butterflies keep out of the wind; a heron doesn't mind rain");
+        Expect(!Visitors.OutIn(Visitor.Owl, Season.Autumn, DayPhase.Night, Weather.Rainy), "the owl keeps to its tree on a rainy night");
         // I376: the owl heard at night, only.
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Night) == AmbientVoice.Owl, "the owl calls at night");
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Day) == null, "never by day");

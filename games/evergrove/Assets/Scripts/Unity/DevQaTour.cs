@@ -212,6 +212,10 @@ namespace Evergrove.UnityClient
                     for (int f = 0; f < 4; f++) yield return null;
                     yield return new WaitForEndOfFrame();
                     SavePng("10d-almanac.png");
+                    Press("The garden's ways"); // I403
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("10e-garden-ways.png");
                     Press("Our pages");
                     for (int f = 0; f < 4; f++) yield return null;
                     Press("Close journal"); // close it before the rest of the run
