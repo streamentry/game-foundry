@@ -17,10 +17,11 @@ namespace Evergrove.UnityClient
             int openStretches = app.QaOpenReaches();
             for (int reach = 0; reach < openStretches; reach++)
             {
-                app.QaTravel(reach);
+                // The hub first, then the boat: travel moves the hub's own view, so it needs the hub built.
                 app.QaShowHub(true);
                 for (int f = 0; f < 10; f++) yield return null;
-                yield return new WaitForSecondsRealtime(0.5f);
+                app.QaTravel(reach);
+                yield return new WaitForSecondsRealtime(1.5f);
                 yield return new WaitForEndOfFrame();
                 SavePng("20-night-reach-" + reach + ".png");
                 app.QaShowHub(false);

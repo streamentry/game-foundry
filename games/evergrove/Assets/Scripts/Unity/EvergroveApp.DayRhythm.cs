@@ -13,25 +13,12 @@ namespace Evergrove.UnityClient
     public sealed partial class EvergroveApp
     {
         // ---- Checklist 49: one free cell per open stretch, in the evening only (-1 where none is free).
+        // The choice of cell is a pure rule (NightCreatures.Spots): mid-stretch, frogs by the water.
         private static int[] NightSpots(GardenMap map, List<PlacedThing> things, DayPhase phase)
         {
-            if (map == null || map.ReachRows <= 0 || !NightCreatures.Dark(phase)) return null;
             var taken = new HashSet<int>();
             if (things != null) foreach (PlacedThing thing in things) taken.Add(thing.Cell);
-            int reaches = map.Reaches;
-            var spots = new int[reaches];
-            for (int reach = 0; reach < reaches; reach++)
-            {
-                spots[reach] = -1;
-                int from = reach * map.ReachRows + 1, to = Math.Min(map.Rows, (reach + 1) * map.ReachRows - 1);
-                for (int row = from; row < to && spots[reach] < 0; row++)
-                    for (int col = 0; col < map.Columns && spots[reach] < 0; col++)
-                    {
-                        int cell = row * map.Columns + col;
-                        if (map.IsLand(cell) && !taken.Contains(cell)) spots[reach] = cell;
-                    }
-            }
-            return spots;
+            return NightCreatures.Spots(map, taken, phase);
         }
 
         // The "who visits" log: a night creature is logged the first evening it is out on this device.

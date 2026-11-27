@@ -28,6 +28,7 @@ internal static class DayRhythmTests
         EveryStretchHasANightCreature();
         NoNightCreatureOutsideTheEvening();
         NightCreaturesAreTheNewKinds();
+        NightSpotsSitMidStretch();
         OfferIsDewInTheMorningOnly();
         OfferIsALanternAtDuskOnly();
         OfferIsDeterministic();
@@ -148,12 +149,44 @@ internal static class DayRhythmTests
             "a lantern letter never asks for a reply");
     }
 
+    // Each stretch's creature sits on free land inside its own stretch, away from the screen's edges
+    // (not in the outer columns, where the buttons are), frogs beside the water where the stretch has such a cell.
+    private static void NightSpotsSitMidStretch()
+    {
+        GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 6);
+        Expect(NightCreatures.Spots(map, null, DayPhase.Day) == null, "no spots by day");
+        Expect(NightCreatures.Spots(null, null, DayPhase.Night) == null, "no map, no spots");
+        int[] spots = NightCreatures.Spots(map, null, DayPhase.Night);
+        Expect(spots != null && spots.Length == map.Reaches, "one spot per stretch");
+        for (int reach = 0; reach < spots.Length; reach++)
+        {
+            int cell = spots[reach];
+            Expect(cell >= 0 && map.IsLand(cell), "stretch " + reach + " has a creature on free land");
+            int row = cell / map.Columns, col = cell % map.Columns;
+            Expect(row > reach * map.ReachRows && row < (reach + 1) * map.ReachRows - 1, "stretch " + reach + "'s creature is inside its stretch");
+            Expect(col >= 2 && col <= map.Columns - 3, "stretch " + reach + "'s creature is away from the screen's edges (column " + col + ")");
+            if (reach % 2 == 1) Expect(map.DistanceToWater(cell) == 1, "stretch " + reach + "'s frog is beside the water");
+            else Expect(map.DistanceToWater(cell) >= 2, "stretch " + reach + "'s moth is away from the water");
+        }
+        // A taken cell is never chosen; the creature moves to the next free one.
+        var taken = new System.Collections.Generic.HashSet<int> { spots[0] };
+        int[] again = NightCreatures.Spots(map, taken, DayPhase.Dusk);
+        Expect(again[0] >= 0 && again[0] != spots[0], "a placed thing's cell is left to the thing");
+        // A stretch with no free land has no creature (-1), and nothing throws.
+        var all = new System.Collections.Generic.HashSet<int>();
+        for (int cell = 0; cell < map.CellCount; cell++) all.Add(cell);
+        int[] none = NightCreatures.Spots(map, all, DayPhase.Night);
+        Expect(Array.TrueForAll(none, c => c == -1), "no free land, no creature");
+    }
+
     private static void TourSavesTheShots()
     {
         string tour = ReadEvergrove("Assets/Scripts/Unity/DevQaTour.DayRhythm.cs");
         Expect(ReadEvergrove("Assets/Scripts/Unity/DevQaTour.cs").Contains("yield return DayRhythmShots();"), "the tour runs the day rhythm shots");
         Expect(tour.Contains("SavePng(\"20-night-reach-\" + reach + \".png\")"), "the tour shoots each open stretch at night");
         Expect(tour.Contains("app.QaSetClock(22);") && tour.Contains("app.QaTravel(reach);"), "the night tour moves to each stretch");
+        Expect(tour.IndexOf("app.QaShowHub(true);", StringComparison.Ordinal) < tour.IndexOf("app.QaTravel(reach);", StringComparison.Ordinal),
+            "the hub is built before the boat travels (travel moves the hub's view)");
         Expect(tour.Contains("SavePng(\"20-morning-dew.png\")"), "the tour shoots the morning dew board");
         Expect(tour.Contains("SavePng(\"20-evening-lantern.png\")"), "the tour shoots the evening lantern letter");
         Expect(tour.IndexOf("SavePng(\"20-morning-dew.png\")", StringComparison.Ordinal) >
