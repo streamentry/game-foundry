@@ -487,11 +487,13 @@ namespace Evergrove.UnityClient
             order.Sort((a, b) => a.Cell / map.Columns != b.Cell / map.Columns
                 ? (a.Cell / map.Columns).CompareTo(b.Cell / map.Columns)
                 : a.Cell.CompareTo(b.Cell));
-            // I296: from dusk to dawn, lamplight spills from the cottage door (painted in the
-            // first reach, top right): two soft warm discs, over the evening shade.
-            if (LampLit)
+            // I296: from dusk to dawn, lamplight spills from each cottage door (painted top right
+            // of every reach): two soft warm discs, over the evening shade.
+            for (int reach = 0; LampLit && reach < reaches; reach++)
             {
-                Vector2 door = new Vector2(width * 0.858f, -reachHeight * 0.148f);
+                // Every other reach is the painting mirrored top to bottom (I192), door and all.
+                float down = reach % 2 == 0 ? reach * reachHeight + reachHeight * 0.148f : (reach + 1) * reachHeight - reachHeight * 0.148f;
+                Vector2 door = new Vector2(width * 0.858f, -down);
                 float[] sizes = { 3.2f, 1.6f };
                 float[] alphas = { 0.55f, 0.85f };
                 for (int g = 0; g < sizes.Length; g++)
@@ -614,6 +616,20 @@ namespace Evergrove.UnityClient
                 // I297 (idea 30, the wind of hand-drawn film): living things lean in the breeze,
                 // each a little out of step with its neighbours. Built things stay put; still
                 // with reduced motion.
+                // I307 (idea 29, weather you notice): water just freed for a thing falls back on
+                // it as a short, light shower. Only as the ring grows in, so only with motion.
+                if (item.BloomNow && item.Kind == (int)PuzzleKind.Water + 1)
+                {
+                    var shower = new GameObject("A short shower", typeof(RectTransform));
+                    shower.transform.SetParent(land, false);
+                    var showerRect = (RectTransform)shower.transform;
+                    showerRect.anchorMin = showerRect.anchorMax = new Vector2(0f, 1f);
+                    showerRect.pivot = new Vector2(0.5f, 0f);
+                    showerRect.sizeDelta = new Vector2(Mathf.Max(rect.sizeDelta.x * 1.3f, cellW * 1.6f), rect.sizeDelta.y * 1.4f);
+                    showerRect.anchoredPosition = at;
+                    shower.AddComponent<Shower>();
+                    nodes.Add(showerRect);
+                }
                 if (!held && FirefliesMove && item.Family != VillageChoice.Bridge)
                     node.AddComponent<Sway>().Phase = item.Cell * 0.73f;
                 if (item.Together && !held)
@@ -1058,6 +1074,55 @@ namespace Evergrove.UnityClient
                 if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position,
                         eventData.pressEventCamera, out Vector2 local))
                     Tapped?.Invoke(local);
+            }
+        }
+
+        /// <summary>Thin streaks of rain falling for under two seconds, then fading (I307).</summary>
+        private sealed class Shower : MonoBehaviour
+        {
+            private RectTransform[] drops;
+            private float[] x, offset;
+            private float clock, high;
+            private const float Lasts = 1.8f;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                high = Mathf.Max(1f, rect.rect.height);
+                float wide = Mathf.Max(1f, rect.rect.width);
+                var rng = new System.Random(29);
+                drops = new RectTransform[16];
+                x = new float[drops.Length];
+                offset = new float[drops.Length];
+                for (int i = 0; i < drops.Length; i++)
+                {
+                    var drop = new GameObject("Rain", typeof(RectTransform));
+                    drop.transform.SetParent(transform, false);
+                    var dropRect = (RectTransform)drop.transform;
+                    dropRect.anchorMin = dropRect.anchorMax = new Vector2(0f, 0f);
+                    dropRect.sizeDelta = new Vector2(2.5f, 11f + (float)rng.NextDouble() * 6f);
+                    dropRect.localRotation = Quaternion.Euler(0f, 0f, -8f);
+                    var image = drop.AddComponent<Image>();
+                    image.sprite = MosseloraArt.Rounded(2);
+                    image.color = new Color(0.78f, 0.88f, 0.98f, 0.8f);
+                    image.raycastTarget = false;
+                    x[i] = (float)rng.NextDouble() * wide;
+                    offset[i] = (float)rng.NextDouble() * high;
+                    drops[i] = dropRect;
+                }
+            }
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float fade = Mathf.Clamp01((Lasts - clock) / 0.5f);
+                for (int i = 0; i < drops.Length; i++)
+                {
+                    float y = high - Mathf.Repeat(offset[i] + clock * high * 1.6f, high);
+                    drops[i].anchoredPosition = new Vector2(x[i] + (high - y) * 0.14f, y);
+                    drops[i].GetComponent<Image>().color = new Color(0.78f, 0.88f, 0.98f, 0.8f * fade);
+                }
+                if (clock >= Lasts) Destroy(gameObject);
             }
         }
 

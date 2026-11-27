@@ -214,6 +214,29 @@ internal static class WorldIdeasTests
                     Expect(line.Contains("in " + season), "a flower's season: " + line);
                 }
             }
+        // Idea 4 (music puzzles, falling blocks): each move plays the next note of a gentle
+        // phrase, in a pentatonic scale so any run of moves is in tune; the last solve note
+        // comes home to the tonic. Each kind has its own phrase.
+        var scale = new HashSet<int>(Melody.Scale);
+        var phrases = new HashSet<string>();
+        foreach (PuzzleKind kind in Enum.GetValues(typeof(PuzzleKind)))
+        {
+            string phrase = "";
+            for (int move = 0; move < Melody.PhraseLength * 2; move++)
+            {
+                int note = Melody.NoteAt(kind, move);
+                Expect(scale.Contains(note), "every note is in the scale: " + note);
+                if (move > 0) Expect(Math.Abs(note - Melody.NoteAt(kind, move - 1)) <= 7, "no leap beyond a fifth");
+                if (move < Melody.PhraseLength) phrase += note + ",";
+                Expect(note == Melody.NoteAt(kind, move + Melody.PhraseLength), "the phrase repeats");
+            }
+            phrases.Add(phrase);
+            Expect(Melody.Home(kind) == Melody.Scale[0] || Melody.Home(kind) == Melody.Scale[0] + 12, "the solve comes home to the tonic");
+            double hz = Melody.Hertz(Melody.NoteAt(kind, 0));
+            Expect(hz > 200 && hz < 1200, "a comfortable pitch: " + hz);
+        }
+        Expect(phrases.Count == Enum.GetValues(typeof(PuzzleKind)).Length, "each kind has its own phrase");
+        Expect(Math.Abs(Melody.Hertz(0) - 261.63) < 0.01 && Math.Abs(Melody.Hertz(12) - 523.25) < 0.02, "semitones from middle C");
         return assertions;
     }
 

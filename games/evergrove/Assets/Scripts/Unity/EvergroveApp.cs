@@ -2018,7 +2018,8 @@ namespace Evergrove.UnityClient
         private void OpenThingPuzzle(int seed, int tier, PuzzleKind kind, Sprite art, string name, int reward,
                                      int pictureStart, Func<int> solved)
         {
-            Action turned = () => { PlayTock(); if (gentleMotion) Haptics.Tick(); };
+            moveNote = 0; // I305: each board starts its phrase from the top
+            Action turned = () => { PlayMove(kind); if (gentleMotion) Haptics.Tick(); };
             int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
             // Back home, the view returns to the thing and its ring grows in (I212).
             Action closed = () => { justSolved = solvedHere ? shown : -1; solvedHere = false;
@@ -2310,7 +2311,9 @@ namespace Evergrove.UnityClient
                 (VillageChoice)Mathf.Clamp(made[item], 0, 2));
             Func<int, int, Sprite> artOf = (chapter, family) => MosseloraArt.Load(GardenCatalog.For(theirs.Garden,
                 Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)Mathf.Clamp(family, 0, 2)).Art);
-            Action turned = () => { PlayTock(); if (gentleMotion) Haptics.Tick(); };
+            moveNote = 0;
+            PuzzleKind helpKind = ThingPuzzle.ForStory(item, (VillageChoice)made[item]);
+            Action turned = () => { PlayMove(helpKind); if (gentleMotion) Haptics.Tick(); };
             Func<int> solved = () =>
             {
                 string from = PlayerPrefs.GetString(FamilyNameKey, "");
@@ -3851,6 +3854,12 @@ namespace Evergrove.UnityClient
                     child.gameObject.SetActive(false);
                 }
             if (chrome != null && chrome.gameObject.activeSelf) { quieted.Add(chrome.gameObject); chrome.gameObject.SetActive(false); }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var hidNames = new System.Collections.Generic.List<string>();
+            foreach (GameObject hid in quieted) hidNames.Add(hid.name);
+            Debug.Log("MOSSELORA_QUIET hid " + quieted.Count + " under " + titleScreen.name + " (" +
+                titleScreen.transform.childCount + " children): " + string.Join(", ", hidNames));
+#endif
             quietLayer = Node("Quiet garden. Tap anywhere to come back.", titleScreen.transform);
             Fill(quietLayer.GetComponent<RectTransform>());
             var catcher = quietLayer.AddComponent<Image>();
@@ -8107,6 +8116,7 @@ namespace Evergrove.UnityClient
         {
             if (!qaInMemoryOnly || item < 0) return;
             PlayerPrefs.SetInt(ReplayKey(item), ReplayBoards.ReplaysPerTier * 3);
+            justSolved = item; // home frames it
             RefreshMapsFresh();
         }
 
@@ -8209,6 +8219,16 @@ namespace Evergrove.UnityClient
             float reach = world.Solved ? 1f : VillageScenePlan.From(world).WaterReachPercent / 100f;
             creek.volume = reach <= 0f ? 0f : 0.05f + 0.20f * reach;
             if (!creek.isPlaying) creek.Play();
+        }
+
+        // I305/I306: a move on a thing's puzzle sounds in its kind's own voice, at the next
+        // note of the kind's phrase.
+        private int moveNote;
+
+        private void PlayMove(PuzzleKind kind)
+        {
+            if (!soundOn) return;
+            sound.PlayOneShot(GardenSounds.Move(kind, moveNote++), 0.9f);
         }
 
         private void PlayChime()
