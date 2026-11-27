@@ -35,7 +35,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 ## C. Immersion: art, light, sound
 
 - [ ] **21. Parallax depth on the map.** Three layers (far hills, garden, near grass) shift a few points on pan. *Test:* 60 fps on the oldest supported iPhone.
-- [ ] **22. Cast shadows that follow the sun.** Things cast one soft shadow whose angle follows `DayLight`. *Test:* dawn, noon and dusk tour shots.
+- [x] **22. Cast shadows that follow the sun.** Things cast one soft shadow whose angle follows `DayLight`. *Test:* dawn, noon and dusk tour shots.
 - [ ] **23. Water that reflects.** The river mirrors the trees beside it, a faint flipped copy with a ripple shader. *Test:* GPU frame time on device.
 - [ ] **24. Footsteps for neighbours.** Neighbours walk between spots with a short step animation instead of appearing. *Test:* tour video at 0.5× speed.
 - [ ] **25. A painted transition between board and garden.** The board folds into the thing it came from (extending I293). *Test:* a side-by-side clip reviewed for one continuous motion.
@@ -112,7 +112,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 ## I. Neighbours as quiet companions
 
-- [ ] **81. Neighbours remember what you said.** Reply chips in letters (three icons, not free text) shape the next letter. *Test:* a reply is echoed within 3 days.
+- [x] **81. Neighbours remember what you said.** Reply chips in letters (three icons, not free text) shape the next letter. *Test:* a reply is echoed within 3 days.
 - [x] **82. They notice your habits, gently.** "You come by in the mornings" appears after a real pattern, and never in a way that judges. *Test:* the line appears only after 5 morning visits.
 - [x] **83. Each neighbour has a life arc.** Orin builds a boat over a season and Fen mends the mill. Their projects move forward as you play. *Test:* each arc has an end.
 - [x] **84. Neighbours ask for help.** Small requests (I313 wishes) that need your garden's logic, such as "a flower bed near my door". *Test:* each wish is satisfiable from the current garden.
