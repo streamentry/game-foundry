@@ -1935,6 +1935,8 @@ internal static class Program
             assertions += CompanionFactsTests.Run();
             assertions += CompanionRankerTests.Run();
             assertions += LineBankTests.Run();
+            assertions += CompanionAttentionTests.Run();
+            assertions += CompanionLocaleTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
             assertions += FamilyHelpTests.Run();
@@ -1942,6 +1944,12 @@ internal static class Program
             assertions += TogetherTests.Run();
             assertions += FamilyGiftsTests.Run();
             assertions += KitchenTests.Run();
+            assertions += FileSizeTests.Run();
+            assertions += RiverTravelTests.Run();
+            assertions += ColourCueTests.Run();
+            assertions += BackPlacementTests.Run();
+            assertions += FirstSizeTests.Run();
+            assertions += IdleFadeTests.Run();
             assertions += OwnBoardWiringTests.Run();
             assertions += NoSignupWallTests.Run();
             assertions += SheetMotionTests.Run();

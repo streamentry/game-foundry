@@ -103,6 +103,7 @@ namespace Evergrove.UnityClient
                 cells[c].color = c == shownCell ? BoardKit.Picked
                     : mark == CellMark.Unknown ? BoardKit.Soil
                     : clash ? BoardKit.Clash : Ground;
+                BoardKit.MarkRing(cells[c], c == shownCell);
                 BoardKit.MarkClash(cells[c], clash);
                 petals[c].enabled = mark == CellMark.Drawn;
             }

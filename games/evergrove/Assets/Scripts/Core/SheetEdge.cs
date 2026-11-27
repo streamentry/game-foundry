@@ -23,6 +23,7 @@ namespace Evergrove.Core
                 case "Deeper boards": return Side.Bottom;
                 case "Name sheet": return Side.Bottom;
                 case "Dates sheet": return Side.Bottom;
+                case "Travel by boat": return Side.Bottom; // checklist 43: the river stretches rise from the foot
                 case "Family": return Side.Bottom;
                 case "Letter": return Side.Top;           // the letterbox stands at the top right, under the purse
                 default:

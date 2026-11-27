@@ -184,6 +184,8 @@ namespace Evergrove.UnityClient
                     : c == selected && !locked ? BoardKit.Picked
                     : clash ? BoardKit.Clash
                     : value > 0 ? BoardKit.Leafy : BoardKit.Soil;
+                BoardKit.MarkRing(cells[c], c == selected && !locked);
+                MosseloraArt.StateMark(cells[c].transform, given, 14f, MosseloraArt.Rounded(4), topLeft: true, name: "Given mark");
                 BoardKit.MarkClash(cells[c], clash);
                 cells[c].transform.localScale = c == selected && !locked ? new Vector3(1.05f, 1.05f, 1f) : Vector3.one;
                 Sprite plant = value > 0 && plants != null && value - 1 < plants.Length ? plants[value - 1] : null;

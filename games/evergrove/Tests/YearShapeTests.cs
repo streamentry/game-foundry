@@ -94,7 +94,7 @@ internal static class YearShapeTests
             for (int i = 0; i < seen.Count; i++) Expect(open[i].Brings == seen[i], "earlier chapters stay open");
             seen.Add(fresh.Brings);
             string line = SeasonUnlocks.YearLine(w);
-            Expect(line != null && line.Contains(fresh.Season.ToString().ToLowerInvariant() + " brought " + fresh.Brings),
+            Expect(line != null && line.Contains(fresh.Season.ToString().ToLowerInvariant() + " can bring " + fresh.Brings),
                 "the almanac names it: " + line);
             UseChapter(w, fresh);
             if (turn < SeasonUnlocks.FirstYearTurns - 1) Advance(w, 3);
@@ -106,7 +106,7 @@ internal static class YearShapeTests
         SeasonUnlock[] all = SeasonUnlocks.Unlocked(w);
         Expect(all.Length == SeasonUnlocks.FirstYearTurns && Names(all).TrueForAll(seen.Contains), "all four still open after the story");
         Expect(SeasonUnlocks.For(4) == null, "after the first year no chapter is named (see report)");
-        Expect(SeasonUnlocks.YearLine(w).Contains("winter brought " + seen[3]), "the almanac line lists the year");
+        Expect(SeasonUnlocks.YearLine(w).Contains("winter can bring " + seen[3]), "the almanac line lists the year");
 
         // Deterministic and kept across a save.
         Expect(Names(SeasonUnlocks.Unlocked(w)).TrueForAll(Names(all).Contains), "the same chapters on a second read");

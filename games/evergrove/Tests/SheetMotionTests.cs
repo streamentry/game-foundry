@@ -21,7 +21,7 @@ internal static class SheetMotionTests
     private static readonly string[] SheetRootFiles =
     {
         "EvergroveApp.cs", "EvergroveApp.Market.cs", "EvergroveApp.Dates.cs", "EvergroveApp.Name.cs",
-        "EvergroveApp.Economy.cs", "FamilySheet.cs",
+        "EvergroveApp.Economy.cs", "EvergroveApp.Boat.cs", "FamilySheet.cs",
     };
 
     // Each sheet's named call site. A sheet not routed through SheetMotion fails here.
@@ -36,6 +36,7 @@ internal static class SheetMotionTests
         { "Name sheet", "EvergroveApp.Name.cs" },
         { "Seed book", "EvergroveApp.Economy.cs" },
         { "Family", "FamilySheet.cs" },
+        { "Travel by boat", "EvergroveApp.Boat.cs" },
     };
 
     // Direct SetActive calls on a sheet root, each with its reason. Only build-time hiding is allowed:
@@ -84,7 +85,7 @@ internal static class SheetMotionTests
                 routedNames.Add(m.Groups[1].Value);
         }
 
-        var expected = new SortedSet<string> { "Menu", "Journal", "Seed book", "The stall", "Deeper boards", "Name sheet", "Dates sheet" };
+        var expected = new SortedSet<string> { "Menu", "Journal", "Seed book", "The stall", "Deeper boards", "Name sheet", "Dates sheet", "Travel by boat" };
         Expect(buildNames.SetEquals(expected), "BuildSheet names are the known seven: " + string.Join(", ", buildNames));
         foreach (string name in buildNames)
             Expect(SheetEdgeNoThrow(name), "every BuildSheet name has an edge: " + name);
@@ -211,6 +212,7 @@ internal static class SheetMotionTests
 
     private static string ReadUnity(string name)
     {
+        if (name == "EvergroveApp.cs") return UnityAppSource.ReadAll(); // the partial class, all its files
         return File.ReadAllText(Path.Combine(EvergroveRoot(), "Assets", "Scripts", "Unity", name));
     }
 

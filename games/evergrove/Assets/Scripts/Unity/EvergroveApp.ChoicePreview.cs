@@ -74,6 +74,7 @@ namespace Evergrove.UnityClient
             int generation = rebuildGeneration;
             var preview = Card(content, "Choice preview", MosseloraTheme.CardFill);
             choicePreviewPanel = preview.GetComponent<RectTransform>();
+            preview.GetComponent<VerticalLayoutGroup>().padding.top = (int)BackPlacement.Reserve; // clear of the corner close
             // I394 (run 3, P20): the thing you tapped, by its own name ("Weathervane"), as on its
             // card; "Before you choose" is spoken only, the open card already says it.
             SpokenOnly(Label(preview.transform, "Choice preview heading", GameLocalization.Text("preview_title"),
@@ -108,13 +109,15 @@ namespace Evergrove.UnityClient
 
             // I348 (run 3, P11): a tick to make it so and a cross to step back, as round
             // tokens like every other decision in the garden. Their names stay spoken.
-            Transform decide = CenteredRowIn(preview.transform, "Choice preview decision");
-            decide.GetComponent<HorizontalLayoutGroup>().spacing = 28;
-            IconButton(decide, "Close choice preview", GameLocalization.Text("close"), MosseloraArt.IconCancel,
-                () => {
+            // The back control sits top-right of the card (BackPlacement); the card keeps that corner clear.
+            Button closePreview = IconButton(preview.transform, "Close choice preview", GameLocalization.Text("close"),
+                MosseloraArt.IconCancel, () => {
                     if (generation == rebuildGeneration && ReferenceEquals(choicePreview, expected))
                         CloseChoicePreview();
-                }, 64, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+                }, 56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true); // 56: BackPlacement.Size
+            PlaceBack(closePreview.GetComponent<RectTransform>());
+            Transform decide = CenteredRowIn(preview.transform, "Choice preview decision");
+            decide.GetComponent<HorizontalLayoutGroup>().spacing = 28;
             IconButton(decide, "Apply garden choice", GameLocalization.Text("preview_apply"), MosseloraArt.IconConfirm,
                 () => ApplyChoicePreview(cards, expected, generation), 80, MosseloraTheme.ForestAction,
                 false, null, false, 0, 0, true);

@@ -18,7 +18,7 @@ namespace Evergrove.UnityClient
     /// <c>MOSSELORA_QA_TOUR_DONE &lt;count&gt;</c> and quits.
     /// Inactive in release builds, in the Editor and when the argument is absent.
     /// </summary>
-    public sealed class DevQaTour : MonoBehaviour
+    public sealed partial class DevQaTour : MonoBehaviour
     {
         private const string TourArg = "-mosseloraQaTour";
         private const int JournalAfterChapter = 3; // zero-based: choice made on chapter 4
@@ -107,6 +107,13 @@ namespace Evergrove.UnityClient
             Puzzle first = app.QaWorld.CurrentPuzzle;
             yield return new WaitForEndOfFrame();
             SavePng("01-chapter1-start.png");
+            // v1 #6: the first-launch text size chooser, shown over the first board.
+            app.QaFirstSize(true);
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("01a-first-size.png");
+            app.QaFirstSize(false);
+            for (int f = 0; f < 4; f++) yield return null;
 
             SolvePartially(first, 3);
             for (int f = 0; f < 6; f++) yield return null;
@@ -246,6 +253,15 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 8; f++) yield return null;
             yield return new WaitForEndOfFrame();
             SavePng("17-hub-map.png");
+            // v1 #18: the same hub at rest (corner chrome faded) and back in use.
+            app.QaIdle(true);
+            for (int f = 0; f < 4; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17-hub-idle.png");
+            app.QaIdle(false);
+            for (int f = 0; f < 4; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17-hub-awake.png");
             // The one corner button's fan (I191), with a whole year of memories.
             Press("Open menu");
             for (int f = 0; f < 12; f++) yield return null;
@@ -366,22 +382,8 @@ namespace Evergrove.UnityClient
                 // I310: Nan left a lantern by the cottage (it glows at night below).
                 app.QaLantern();
                 // I299: the cottage's summary, what's waiting at a glance (and who left lanterns).
-                app.QaGardenName("Willow Bend"); // named for these shots only, so the title line shows
-                app.OpenCottage();
-                for (int f = 0; f < 6; f++) yield return null;
-                yield return new WaitForSecondsRealtime(0.3f);
-                yield return new WaitForEndOfFrame();
-                SavePng("17j5-cottage.png");
-                // I299 (fit): when the card's lines are more than fit (sideways, 150% text) they
-                // scroll inside it; page down so the tour shows every line.
-                for (int page = 2; page <= 6 && PageCottage(); page++)
-                {
-                    for (int f = 0; f < 3; f++) yield return null;
-                    yield return new WaitForEndOfFrame();
-                    SavePng("17j5-cottage-" + page + ".png");
-                }
-                app.CloseCottage();
-                app.QaGardenName("");
+                // DevQaTour.Cottage.cs: 17j5-cottage*.png, every line. Stepped inline so the pump in Start still catches its errors.
+                for (IEnumerator shots = CottageShots(); shots.MoveNext();) yield return shots.Current;
                 for (int f = 0; f < 4; f++) yield return null;
                 // I319: the lookout, the whole river at once.
                 app.QaQuiet(true, true);
@@ -455,6 +457,16 @@ namespace Evergrove.UnityClient
                 yield return new WaitForEndOfFrame();
                 SavePng("17x-river-opened.png");
                 app.QaEndTreePlay();
+                // Checklist 43: travel by boat, from the hub, to the furthest open stretch.
+                for (int f = 0; f < 8; f++) yield return null;
+                app.QaOpenTravel();
+                yield return new WaitForSecondsRealtime(0.5f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17zc-boat-travel.png");
+                app.QaTravel(app.QaOpenReaches() - 1);
+                yield return new WaitForSecondsRealtime(1.5f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17zd-boat-arrived.png");
             }
             // I243-I247: the five newer kinds, each unsolved and then solved.
             foreach (PuzzleKind kind in new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots,
@@ -916,6 +928,35 @@ namespace Evergrove.UnityClient
             }
             app.QaSetDay(0);
             app.QaSetWeather((int)Weather.Fair);
+
+            // Smart companion (SC05): one ranker, many uses. A finished garden with a cutting in the
+            // basket, a letter, and family help on thing 2: the arrow plays the helped thing, one soft
+            // mark shows where the top waiting thing lives, the cottage card lists what waits first.
+            WorldModel waiting = WorldModel.New(PlayMode.Living);
+            for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+            {
+                Puzzle stream = waiting.CurrentPuzzle;
+                for (int i = 0; i < stream.CellCount; i++)
+                    while (waiting.Rotations[i] != stream.Solution[i]) waiting.Rotate(i);
+                waiting.Choose((VillageChoice)(chapter % 3));
+            }
+            WorldSnapshot helpedSave = waiting.Export();
+            helpedSave.helped = new[] { 2 };
+            helpedSave.helpedFrom = new[] { "Anh" };
+            if (WorldModel.TryRestore(helpedSave, out WorldModel helped)) waiting = helped;
+            for (int kind = 0; kind < Nursery.Kinds; kind++)
+                if (Nursery.Family(kind) == VillageChoice.Flowers) { waiting.ReceiveNeighbourCutting(kind); break; }
+            app.QaReplaceWorld(waiting);
+            app.QaShowHub(true);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("22-attention-hub.png");
+            app.OpenCottage();
+            for (int f = 0; f < 6; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("22-attention-cottage.png");
+            app.CloseCottage();
+            app.QaShowHub(false);
             app.QaSetClock(13);
 
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
@@ -1096,22 +1137,6 @@ namespace Evergrove.UnityClient
             float targetTop = content.rect.yMax - content.InverseTransformPoint(worldTop).y;
             scroll.StopMovement();
             scroll.verticalNormalizedPosition = 1f - Mathf.Clamp01((targetTop - 16f) / distance);
-        }
-
-        // Scrolls the cottage card's lines down by most of a view; false when it doesn't
-        // scroll or is already at the end (I299 fit).
-        private static bool PageCottage()
-        {
-            var card = GameObject.Find("Cottage paper");
-            var scroll = card != null ? card.GetComponent<ScrollRect>() : null;
-            if (scroll == null || !scroll.vertical || scroll.content == null || scroll.viewport == null) return false;
-            Canvas.ForceUpdateCanvases();
-            float distance = scroll.content.rect.height - scroll.viewport.rect.height;
-            if (distance <= 0.5f || scroll.verticalNormalizedPosition <= 0.001f) return false;
-            float step = scroll.viewport.rect.height * 0.8f / distance;
-            scroll.StopMovement();
-            scroll.verticalNormalizedPosition = Mathf.Max(0f, scroll.verticalNormalizedPosition - step);
-            return true;
         }
 
         // Scrolls the main ScrollRect to its lowest position so the capture shows

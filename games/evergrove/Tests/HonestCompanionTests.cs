@@ -183,8 +183,8 @@ internal static class HonestCompanionTests
         Expect(literals.Count >= 300, "source scan sees the literal set (" + literals.Count + ")");
         Expect(Contains(literals, "Mira remembers the shade you planted by the stream."),
             "canary: source scan reads VillageStory literals");
-        Expect(ContainsIn(literals, "Unity/EvergroveApp.cs", "You found what was under the mossy stone: "),
-            "canary: Unity scan reaches a real KeepNote literal in EvergroveApp.cs");
+        Expect(ContainsIn(literals, "Unity/EvergroveApp.Map.cs", "You found what was under the mossy stone: "),
+            "canary: Unity scan reaches a real KeepNote literal in EvergroveApp.Map.cs");
 
         var reflected = new List<Hit>();
         SweepStaticFields(reflected);

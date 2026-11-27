@@ -123,6 +123,7 @@ namespace Evergrove.UnityClient
                 if (gone) continue;
                 bool free = game.IsFree(t);
                 tiles[t].color = t == game.Selected ? BoardKit.Picked : free ? BoardKit.Soil : new Color(0.80f, 0.78f, 0.72f, 1f);
+                BoardKit.MarkRing(tiles[t], t == game.Selected);
                 tiles[t].transform.localScale = t == game.Selected ? new Vector3(1.06f, 1.06f, 1f) : Vector3.one;
                 Image picture = tiles[t].transform.Find("Picture").GetComponent<Image>();
                 picture.color = free ? Color.white : new Color(1f, 1f, 1f, 0.75f);
@@ -143,6 +144,7 @@ namespace Evergrove.UnityClient
                 foreach (int t in pair)
                 {
                     tiles[t].color = BoardKit.Picked;
+                    BoardKit.MarkRing(tiles[t], true);
                     BloomPulse.Add(tiles[t].gameObject, 0f, 0.18f);
                 }
                 return;

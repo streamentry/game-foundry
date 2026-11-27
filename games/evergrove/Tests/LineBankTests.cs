@@ -229,6 +229,7 @@ internal static class LineBankTests
         foreach (FactKind kind in Enum.GetValues(typeof(FactKind)))
             Expect(rules.Kinds.ContainsKey(kind.ToString()), "every fact kind has rules (reviewed lines, or pending review): " + kind);
         if (pending.Count > 0) Console.WriteLine("Line bank: awaiting reviewed lines (fixed sentence meanwhile): " + string.Join(", ", pending));
+        Expect(pending.Count == 0, "every fact kind on main has a reviewed English bank: " + string.Join(", ", pending));
     }
 
     private static IEnumerable<WorldModel> KindsSaves()

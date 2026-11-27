@@ -13,7 +13,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **3. Name the garden.** Let the player name the garden (optional, with a suggested name from `RiverNames`), and show it on the cottage sign and on postcards. *Test:* what share of players change the suggested name.
 - [x] **4. Mira explains one thing, once.** Cap the opening dialogue at three short lines. Any later help comes from the neighbours in context (I370), never from a tutorial screen. *Test:* count words shown before the first puzzle (goal: under 40).
 - [ ] **5. Remember the hand.** On the first long-press, ask once whether the player is left- or right-handed, and mirror the tray and menu to suit. *Test:* thumb-reach heatmap in landscape on a 6.7″ phone.
-- [ ] **6. Text size first, not in Settings.** On first launch, show the garden with a size slider whose preview updates live. *Test:* 150% tour (I-series tour) shows no clipped text on any first-run screen.
+- [x] **6. Text size first, not in Settings.** On first launch, show the garden with a size slider whose preview updates live. *Test:* 150% tour (I-series tour) shows no clipped text on any first-run screen.
 - [ ] **7. A first win in two minutes.** The first board is sized to finish in about two minutes and ends in a visible change to the garden. *Test:* median first-board time in the playtest kit.
 - [x] **8. No sign-up wall, ever, for solo play.** Audit every first-run path so that family features appear only after the third day, and only as an offer. *Test:* fresh install, airplane mode, play day 1 end to end.
 - [x] **9. Restore that the player can trust.** Before any reinstall prompt, show "Your garden is saved on this phone" with the last-saved time. *Test:* kill the app mid-move, relaunch, compare the garden.
@@ -24,13 +24,13 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **11. One menu button.** Collapse every non-garden control into a single leaf button in the corner, opening to a radial or fan menu of icons. *Test:* count buttons visible at rest on the hub (target: no more than 2).
 - [ ] **12. Icons that need no word.** Replace each remaining text button with a painted icon. Keep the word only as an accessibility label and a long-press caption. *Test:* icon-recognition card sort with 8 players aged 40+; any icon below 80% recognition gets redrawn.
 - [ ] **13. Context buttons appear where the thumb is.** A tapped thing shows its two actions beside it (play, move) and nothing else. *Test:* taps per action before and after.
-- [ ] **14. Back is always the same place.** One back gesture and one back icon position across all sheets (FamilySheet, almanac, nursery). *Test:* tour shot audit of every sheet.
+- [x] **14. Back is always the same place.** One back gesture and one back icon position across all sheets (FamilySheet, almanac, nursery). *Test:* tour shot audit of every sheet.
 - [ ] **15. The menu remembers.** The fan opens with the last-used item nearest the thumb. *Test:* second-tap distance in a logged session.
 - [x] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
 - [x] **17. Sheets slide, never pop.** Every panel enters from the edge it belongs to (letters from the letterbox, nursery from the gate), with motion limited to transform and opacity. *Test:* reduced-motion setting replaces each slide with a fade.
-- [ ] **18. Hide the HUD while looking.** After 6 s with no touch, the menu and purse fade to 20% so the garden fills the screen. Any touch brings them back. *Test:* screenshot pairs at rest and in use.
+- [x] **18. Hide the HUD while looking.** After 6 s with no touch, the menu and purse fade to 20% so the garden fills the screen. Any touch brings them back. *Test:* screenshot pairs at rest and in use.
 - [x] **19. Long-press explains anything.** Any icon or thing, long-pressed, shows its name and one line. This replaces help pages. *Test:* coverage script lists every raycast target without a caption.
-- [ ] **20. Split `EvergroveApp.cs`.** Break the monolith into Hub, Sheets, Map and Notes partials so navigation changes stop colliding. *Test:* no file over 800 lines; build and tours unchanged.
+- [x] **20. Split `EvergroveApp.cs`.** Break the monolith into Hub, Sheets, Map and Notes partials so navigation changes stop colliding. *Test:* no file over 800 lines; build and tours unchanged.
 
 ## C. Immersion: art, light, sound
 
@@ -62,7 +62,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 - [ ] **41. Scroll beyond the mist as stretches open.** The world extends downward by named stretches (I360). Each opens through play, never by payment. *Test:* save format has no maximum stretch count.
 - [ ] **42. Each stretch has a character.** Water meadow, mill, heron pool. Each has its own palette, its own neighbour and its own puzzle flavour. *Test:* three stretches recognisable from a single screenshot.
-- [ ] **43. A boat to travel.** A small boat ride between stretches replaces scrolling for long distances. *Test:* any stretch is reachable in 2 taps.
+- [x] **43. A boat to travel.** A small boat ride between stretches replaces scrolling for long distances. *Test:* any stretch is reachable in 2 taps.
 - [ ] **44. Landmarks for wayfinding.** One tall landmark per stretch (mill, bridge, willow) is visible from the next, so players can't get lost. *Test:* a "where are you" test with 5 players.
 - [ ] **45. A river map.** A painted scroll map of opened stretches, with your family's gardens pinned on it. *Test:* the map opens from the menu with one tap.
 - [x] **46. Things grow outside the garden.** Wild places along the river where planted things spread on their own over days. *Test:* growth is deterministic by date and seed.
@@ -126,7 +126,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 ## J. Accessibility, trust and proof
 
 - [ ] **91. Touch targets of at least 48 pt everywhere.** Audit every raycast target and enlarge any below 48 pt. *Test:* an automated scan in the tour.
-- [ ] **92. A colour-blind pass.** Every colour cue is paired with a shape or pattern (puzzle colours, pairing sprigs, fit glow). *Test:* deuteranopia and protanopia simulations on the tour sheets.
+- [x] **92. A colour-blind pass.** Every colour cue is paired with a shape or pattern (puzzle colours, pairing sprigs, fit glow). *Test:* deuteranopia and protanopia simulations on the tour sheets.
 - [ ] **93. VoiceOver and TalkBack can finish a board.** Do this for at least one puzzle kind first. *Test:* a blind-tester session.
 - [ ] **94. One-hand landscape and portrait.** Every action is reachable with one thumb in both orientations. *Test:* landscape and 150% tours (per the landscape-verification memory).
 - [ ] **95. Crash reporting with consent.** Add a privacy-reviewed crash reporter that is off until accepted. *Test:* the privacy label matches what's collected.

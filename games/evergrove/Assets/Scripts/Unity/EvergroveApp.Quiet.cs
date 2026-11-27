@@ -61,7 +61,7 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.Save();
                     Rebuild();
                 }, SettingToken, SpeakLessOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, false, 0, 0, true);
+                false, null, false, 0, 0, true, stateOn: SpeakLessOn);
         }
     }
 }

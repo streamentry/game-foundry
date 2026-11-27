@@ -132,8 +132,45 @@ namespace Evergrove.UnityClient
                 cells[c].color = c == corner ? BoardKit.Picked
                     : bed >= 0 ? BedTones[tones[bed]] : BoardKit.Soil;
                 cells[c].transform.localScale = c == corner ? new Vector3(1.08f, 1.08f, 1f) : Vector3.one;
+                BoardKit.MarkRing(cells[c], c == corner);
             }
+            PaintBedPictures(n, tones);
             if (undo != null) undo.Refresh(locked);
+        }
+
+        // Colour-blind pass (checklist 92): each bed's tone also has its own picture, drawn on the
+        // bed's first cell (in reading order), so beds stay apart without colour.
+        private static readonly string[] BedPictures =
+        {
+            MosseloraArt.Sprout, MosseloraArt.Droplet, MosseloraArt.Sprig,
+            MosseloraArt.SpringWaves, MosseloraArt.Wildflowers, MosseloraArt.ShadeTree,
+        };
+
+        private void PaintBedPictures(int n, int[] tones)
+        {
+            var firstCell = new System.Collections.Generic.Dictionary<int, int>();
+            for (int c = 0; c < n * n; c++)
+            {
+                int bed = game.BedAt(c);
+                if (bed >= 0 && !firstCell.ContainsKey(bed)) firstCell[bed] = c;
+            }
+            for (int c = 0; c < n * n; c++)
+            {
+                int bed = game.BedAt(c);
+                bool first = bed >= 0 && firstCell[bed] == c;
+                Transform mark = cells[c].transform.Find("Bed picture");
+                if (mark == null)
+                {
+                    if (!first) continue;
+                    mark = BoardKit.Glyph(cells[c].transform, "Bed picture", null, 14f).transform;
+                }
+                mark.gameObject.SetActive(first);
+                if (!first) continue;
+                var image = mark.GetComponent<Image>();
+                image.sprite = MosseloraArt.Load(BedPictures[tones[bed] % BedPictures.Length]);
+                image.enabled = image.sprite != null;
+                image.color = Color.white;
+            }
         }
 
         public void Hint()
@@ -152,6 +189,7 @@ namespace Evergrove.UnityClient
                     for (int c = bed[0]; c < bed[0] + bed[2]; c++)
                     {
                         cells[r * n + c].color = BoardKit.Picked;
+                        BoardKit.MarkRing(cells[r * n + c], true);
                         BloomPulse.Add(cells[r * n + c].gameObject, 0f, 0.12f);
                     }
                 return;

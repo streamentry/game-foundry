@@ -1,6 +1,6 @@
 # Companion lines: RainComing
 
-**Status: draft, not reviewed.** Written by hand (no script) on 2026-11-27 for smart companion SC04, for the v1 session's new fact (checklist 48, `RiverWeather.RainComing`). Nothing here ships until a person has read every line; until then Orin says the fixed sentence "Rain on the hills upstream today. It'll reach the garden by tomorrow."
+**Status: approved by the founder on 2026-11-28 (all 20 lines), and moved into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`.** Written by hand (no script) for smart companion SC04, for the v1 session's fact (checklist 48, `RiverWeather.RainComing`). This file stays as the review record; `en.json` is what ships.
 
 **The fact:** rain is falling upstream today and reaches the garden tomorrow (the garden's own weather tomorrow is rainy). Orin, who minds the bridge and gutters, says it.
 

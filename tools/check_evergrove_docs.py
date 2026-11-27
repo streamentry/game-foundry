@@ -29,6 +29,13 @@ def source_text(path: Path) -> str:
         fail(f"Missing required documentation: {path.relative_to(ROOT)}")
     return path.read_text(encoding="utf-8")
 
+def app_source() -> str:
+    # EvergroveApp is one partial class over EvergroveApp*.cs files (checklist 20); read them as one text.
+    unity_dir = GAME / "Assets/Scripts/Unity"
+    main = source_text(unity_dir / "EvergroveApp.cs")
+    partials = sorted(unity_dir.glob("EvergroveApp.*.cs"))
+    return "\n".join([main, *(p.read_text(encoding="utf-8") for p in partials)])
+
 def main() -> int:
     index = source_text(DOCS / "README.md")
     for name in REQUIRED:
@@ -283,7 +290,7 @@ def check_specification_contract() -> None:
         fail(f"Unowned verification tests: {sorted(set(test_by_id) - linked_ids)}")
 
     # Static release isolation is a prerequisite, never a runtime-certification.
-    ui = source_text(GAME / "Assets/Scripts/Unity/EvergroveApp.cs")
+    ui = app_source()
     builder = source_text(GAME / "Assets/Editor/EvergroveBuild.cs")
     if ui.count("#if UNITY_EDITOR || DEVELOPMENT_BUILD") < 4 or \
             "options = releaseCandidate ? BuildOptions.None : BuildOptions.Development" not in builder:
@@ -306,7 +313,7 @@ def check_specification_contract() -> None:
         fail("Language-neutral board endpoint markers are missing")
     store = source_text(GAME / "Assets/Scripts/Unity/WorldStore.cs")
     journal = source_text(GAME / "Assets/Scripts/Core/SaveJournal.cs")
-    app = source_text(GAME / "Assets/Scripts/Unity/EvergroveApp.cs")
+    app = app_source()
     test_runner = source_text(GAME / "Tests/Program.cs")
     if "evergrove-world-v2.json" not in store:
         fail("Save filename changed without migration contract review")

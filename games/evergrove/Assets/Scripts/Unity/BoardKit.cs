@@ -56,6 +56,7 @@ namespace Evergrove.UnityClient
             Transform lens = top.Find(caption);
             Transform hint = top.Find("Hint: show the next move");
             if (lens != null && hint != null) lens.SetSiblingIndex(hint.GetSiblingIndex() + 1);
+            MosseloraArt.StateMark(lens, ShowClashes, 20f);
         }
 
         private static void ToggleClashes(Transform top, Action repaint)
@@ -67,6 +68,7 @@ namespace Evergrove.UnityClient
                 lens.name = ShowClashes ? HideCaption : ShowCaption;
                 var image = lens.GetComponent<Image>();
                 if (image != null) image.color = LensTone(ShowClashes);
+                MosseloraArt.StateMark(lens, ShowClashes, 20f);
             }
             repaint();
         }
@@ -91,6 +93,39 @@ namespace Evergrove.UnityClient
                 var rect = (RectTransform)node.transform;
                 rect.anchorMin = new Vector2(0.62f, 0.62f);
                 rect.anchorMax = new Vector2(0.9f, 0.9f);
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+                var image = node.AddComponent<Image>();
+                image.sprite = MosseloraArt.BoldRing();
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                image.color = MosseloraTheme.EarthInk;
+                image.raycastTarget = false;
+                mark = node.transform;
+            }
+            mark.gameObject.SetActive(on);
+        }
+
+        // ---- Colour-blind pass (checklist 92): a selected, hinted or snug-fit cell also wears a ring.
+        public const string FocusMarkName = "Focus mark";
+        public const string FitMarkName = "Fit mark";
+
+        /// <summary>
+        /// The shape cue for a cell that is selected, hinted or a snug fit: a full-cell ring, shown
+        /// only while <paramref name="on"/>. Created on first use, then shown or hidden.
+        /// </summary>
+        public static void MarkRing(Image cell, bool on, string name = FocusMarkName)
+        {
+            if (cell == null) return;
+            Transform mark = cell.transform.Find(name);
+            if (mark == null)
+            {
+                if (!on) return;
+                var node = new GameObject(name, typeof(RectTransform));
+                node.transform.SetParent(cell.transform, false);
+                node.AddComponent<LayoutElement>().ignoreLayout = true;
+                var rect = (RectTransform)node.transform;
+                rect.anchorMin = new Vector2(0.06f, 0.06f);
+                rect.anchorMax = new Vector2(0.94f, 0.94f);
                 rect.offsetMin = rect.offsetMax = Vector2.zero;
                 var image = node.AddComponent<Image>();
                 image.sprite = MosseloraArt.BoldRing();

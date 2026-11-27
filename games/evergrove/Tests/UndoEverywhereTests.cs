@@ -5,8 +5,8 @@ using System.Text;
 using Evergrove.Core;
 
 /// <summary>
-/// Step 39, undo everywhere. Every board kind with moves gets a seeded random walk of
-/// 300 changing moves, with undo (30%) and redo (10%) interleaved. After each undo the board
+/// Step 39, undo everywhere. Every board kind with moves, including a thing's water board
+/// (TreeWater), gets a seeded random walk of 300 changing moves, with undo (30%) and redo (10%) interleaved. After each undo the board
 /// equals exactly the state before that move; after each redo, the state after it; a new move
 /// clears redo; undo back to the start restores the starting board. The walk runs through the
 /// same BoardHistory the boards use, so it exercises the real replay path.
@@ -39,11 +39,44 @@ internal static class UndoEverywhereTests
             Walk("Sums", seed, t, (s, k) => new SeedSumsGame(s, k), DescribeSums, PickSums);
             Walk("Pairs", seed, t, (s, k) => new PairsGame(s, k), DescribePairs, PickPairs);
             Walk("Mosaic", seed, t, (s, k) => new MosaicGame(s, k), DescribeMosaic, PickMosaic);
+            Puzzle treeBoard = TreePuzzles.For(seed, t, "Kingfisher Run");
+            Walk("TreeWater", seed, t, (s, k) => new TreeWaterGame(treeBoard), DescribeTreeWater, PickTreeWater);
         }
+        TreeWaterSolveLocks();
+        TreePlayUndoSource();
         WaterWalk();
         WaterSaveStillCapped();
         WaterControlsSource();
         return assertions;
+    }
+
+    // The thing's water board (TreePlay) must build the same Undo row as the other kinds.
+    private static void TreePlayUndoSource()
+    {
+        string root = FindRepoRoot();
+        Expect(root != null, "could not locate games/evergrove from the working or base directory");
+        string play = File.ReadAllText(Path.Combine(root, "games", "evergrove", "Assets", "Scripts", "Unity", "TreePlay.cs"));
+        Expect(play.Contains("new BoardHistory<TreeWaterGame>("), "tree water: the board keeps its tile turns in a BoardHistory");
+        Expect(play.Contains("waterUndo = BoardKit.UndoRow.Build(card.transform, font, waterHistory,"),
+            "tree water: the water board builds its Undo and Redo row under the board");
+        Expect(play.Contains("waterUndo.Refresh(solved)"), "tree water: the row is refreshed, locked once solved");
+    }
+
+    // A solved water board takes no more turns, and turning each tile to its answer solves it.
+    private static void TreeWaterSolveLocks()
+    {
+        for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
+        {
+            string label = "tree water tier " + tier;
+            Puzzle board = TreePuzzles.For(1000 + tier * 17, tier, "Kingfisher Run");
+            var game = new TreeWaterGame(board);
+            for (int i = 0; i < board.CellCount; i++)
+                for (int guard = 0; guard < 4 && game.Rotation(i) != board.Solution[i]; guard++)
+                    Expect(game.Turn(i), label + ": a tile turns toward its answer");
+            Expect(game.Solved, label + ": turning every tile to its answer solves the board");
+            string solvedState = Ints(game.Rotations);
+            Expect(!game.Turn(0) && Ints(game.Rotations) == solvedState, label + ": a solved board takes no more turns");
+        }
     }
 
     // The water board's Undo row must offer Redo and a step count, from WorldModel's own API.
@@ -51,7 +84,7 @@ internal static class UndoEverywhereTests
     {
         string root = FindRepoRoot();
         Expect(root != null, "could not locate games/evergrove from the working or base directory");
-        string app = File.ReadAllText(Path.Combine(root, "games", "evergrove", "Assets", "Scripts", "Unity", "EvergroveApp.cs"));
+        string app = UnityAppSource.ReadAll();
         Expect(app.Contains("world.Redo()"), "water controls: the Redo token calls WorldModel.Redo()");
         Expect(app.Contains("world.RedoDepth") || app.Contains("world.CanRedo"),
             "water controls: the Redo token is enabled from WorldModel's redo depth");
@@ -273,6 +306,13 @@ internal static class UndoEverywhereTests
         return x => x.Place(cell, digit) != SumMove.Ignored;
     }
 
+    private static Func<TreeWaterGame, bool> PickTreeWater(Random rng, TreeWaterGame g)
+    {
+        if (g.Solved) return null;
+        int tile = rng.Next(g.Puzzle.CellCount);
+        return x => x.Turn(tile);
+    }
+
     private static Func<PairsGame, bool> PickPairs(Random rng, PairsGame g)
     {
         if (g.Solved) return null;
@@ -359,6 +399,11 @@ internal static class UndoEverywhereTests
     private static string DescribeSums(SeedSumsGame g)
     {
         return Describe("sums", g.Moves, g.Solved, Cells(g.Width * g.Height, c => g.Value(c)));
+    }
+
+    private static string DescribeTreeWater(TreeWaterGame g)
+    {
+        return Describe("tree-water", g.Solved, Ints(g.Rotations));
     }
 
     private static string DescribePairs(PairsGame g)

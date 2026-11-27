@@ -26,15 +26,15 @@ internal static class LongPressCaptionTests
     private static readonly Dictionary<string, int> KnownNonControls = new Dictionary<string, int>
     {
         // Full-screen or sheet veils that close what is open on a tap.
-        { "EvergroveApp.cs:BuildSheet:dimButton", 1 },
-        { "EvergroveApp.cs:EnterQuiet:back", 1 },
-        { "EvergroveApp.cs:JournalPageOpen:back", 1 },
-        { "EvergroveApp.cs:NeighborConversation:neighborLayer", 1 },
-        { "EvergroveApp.cs:OpenCottage:backdrop", 1 },
-        { "EvergroveApp.cs:ShowLetter:letterCard", 1 },
-        { "EvergroveApp.cs:ToggleFan:away", 1 },
+        { "EvergroveApp.Sheets.cs:BuildSheet:dimButton", 1 },
+        { "EvergroveApp.Menu.cs:EnterQuiet:back", 1 },
+        { "EvergroveApp.Journal.cs:JournalPageOpen:back", 1 },
+        { "EvergroveApp.Choices.cs:NeighborConversation:neighborLayer", 1 },
+        { "EvergroveApp.Cottage.cs:OpenCottage:backdrop", 1 },
+        { "EvergroveApp.Letters.cs:ShowLetter:letterCard", 1 },
+        { "EvergroveApp.Menu.cs:ToggleFan:away", 1 },
         // A letter's own paper: it only swallows taps so they do not reach the veil behind it.
-        { "EvergroveApp.cs:LetterPaper:paper", 1 },
+        { "EvergroveApp.Letters.cs:LetterPaper:paper", 1 },
         // The garden map surface: a tap on land asks which landmark is there (GardenMapView.TapLand).
         { "GardenMapView.cs:Build:plotNode", 1 },
     };
@@ -62,7 +62,7 @@ internal static class LongPressCaptionTests
         files.Sort(StringComparer.Ordinal);
 
         // 1. The shared helpers must attach the component (the item's core requirement).
-        string appText = File.ReadAllText(Path.Combine(unity, "EvergroveApp.cs"));
+        string appText = UnityAppSource.ReadAll();
         var helperAttach = HelperAttachStatus(appText);
         Expect(helperAttach.TryGetValue("Button", out bool buttonAttaches) && buttonAttaches,
             "the Button(…, Color tone) helper must call LongPressCaption.Attach");
