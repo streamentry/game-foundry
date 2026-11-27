@@ -2345,6 +2345,8 @@ namespace Evergrove.UnityClient
             var window = Node("Their garden", visitLayer.transform);
             Fill(window.GetComponent<RectTransform>());
             window.AddComponent<RectMask2D>();
+            SetVisitorsFor(visited, map, Pairings.Things(visited, map)); // I384: their visitors too
+            GardenMapView.PairLinksNext = Pairings.Links(map, Pairings.Things(visited, map)); // and their sprigs
             // Help (I227): tap one of their things that still holds a puzzle, solve it for them.
             GardenMapView view = GardenMapView.Build((RectTransform)window.transform, plot, map, VisitItems(visited, map),
                 landscape ? 1f : 1.3f, null, HelpWith, -1, false, 1f, -1f, null, 0.22f, RiverGoesOn(map));
@@ -2647,10 +2649,22 @@ namespace Evergrove.UnityClient
             }
         }
 
-        private int VisitorSpot(GardenMap map, System.Collections.Generic.List<PlacedThing> things, Visitor visitor,
-            Pairing pairing, Season season, DayPhase phase)
+        // I374/I382: the visitors a garden's good neighbours bring, where they'd stand, when
+        // they're out. I384: the same for a family garden you visit (your hour, their season).
+        private void SetVisitorsFor(WorldModel garden, GardenMap map, System.Collections.Generic.List<PlacedThing> things)
         {
-            if (!Visitors.Welcomes(world, visitor) || !Visitors.Out(visitor, season, phase)) return -1;
+            DayPhase phase = DayLightOn ? CurrentPhase() : DayPhase.Day;
+            Season season = GardenSeason.For(garden);
+            GardenMapView.HeronAtNext = VisitorSpot(garden, map, things, Visitor.Heron, Pairing.ByTheWater, season, phase);
+            GardenMapView.HedgehogAtNext = VisitorSpot(garden, map, things, Visitor.Hedgehog, Pairing.Sheltered, season, phase);
+            GardenMapView.OwlAtNext = VisitorSpot(garden, map, things, Visitor.Owl, Pairing.Grove, season, phase);
+            GardenMapView.KingfisherAtNext = VisitorSpot(garden, map, things, Visitor.Kingfisher, Pairing.Waterside, season, phase);
+        }
+
+        private static int VisitorSpot(WorldModel garden, GardenMap map, System.Collections.Generic.List<PlacedThing> things,
+            Visitor visitor, Pairing pairing, Season season, DayPhase phase)
+        {
+            if (!Visitors.Welcomes(garden, visitor) || !Visitors.Out(visitor, season, phase)) return -1;
             return Pairings.SpotFor(map, things, pairing);
         }
 
@@ -2687,6 +2701,26 @@ namespace Evergrove.UnityClient
         // I368: good neighbours found in the garden as it stands: each pays once, with a word.
         // (Also carries I378's word about the bees: whatever the hub should say once, on return.)
         private string pairingFound;
+        private Sprite[] toastMarks; // I387: the paintings the toast shows above its words
+
+        // I387: each pairing as two paintings side by side (water as a wet stone).
+        private static Sprite[] PairingMarks(Pairing pairing)
+        {
+            string[] arts;
+            switch (pairing)
+            {
+                case Pairing.Sheltered: arts = new[] { "flower-05", "tree-00" }; break;
+                case Pairing.ByTheWater: arts = new[] { "build-00", "stone-wet" }; break;
+                case Pairing.FlowerBed: arts = new[] { "flower-05", "flower-12" }; break;
+                case Pairing.Grove: arts = new[] { "tree-00", "tree-05" }; break;
+                case Pairing.Waterside: arts = new[] { "flower-08", "stone-wet" }; break;
+                case Pairing.ShadySeat: arts = new[] { "build-03", "tree-00" }; break;
+                default: arts = new[] { "tree-00", "tree-05", "tree-02" }; break;
+            }
+            var marks = new Sprite[arts.Length];
+            for (int i = 0; i < arts.Length; i++) marks[i] = MosseloraArt.Load(arts[i]);
+            return marks;
+        }
 
         // I378: a tended tree with a flower beside it, while the bees are about, gives one more fruit.
         private void NotePollinated(int thingIndex)
@@ -2695,7 +2729,10 @@ namespace Evergrove.UnityClient
             if (map == null) return;
             var things = Pairings.Things(world, map);
             if (world.PickPollinatedFruit(Pairings.Pollinated(map, things, thingIndex), GardenSeason.For(world)))
+            {
                 pairingFound = "The bees carried pollen from the flower beside it: one more fruit.";
+                toastMarks = new[] { MosseloraArt.Load("flower-05"), MosseloraArt.Load("food-pear") };
+            }
         }
 
         private void NotePairings(GardenMap map)
@@ -2707,6 +2744,7 @@ namespace Evergrove.UnityClient
                 {
                     pairingFound = "Good neighbours: " + Pairings.Hint(pairing).ToLowerInvariant().TrimEnd('.') +
                         ". +" + Pairings.RewardFor(pairing) + " seeds.";
+                    toastMarks = PairingMarks(pairing);
                     SaveWorld();
                     PlayChime();
                 }
@@ -2727,13 +2765,7 @@ namespace Evergrove.UnityClient
                 var things = Pairings.Things(world, map);
                 GardenMapView.PairLinksNext = Pairings.Links(map, things); // I371
                 GardenMapView.PairSpotsNext = PairingSpots(map, things);    // I372
-                // I374: the visitors good neighbours bring, where they'd stand, when they're out.
-                DayPhase phase = DayLightOn ? CurrentPhase() : DayPhase.Day;
-                Season season = GardenSeason.For(world);
-                GardenMapView.HeronAtNext = VisitorSpot(map, things, Visitor.Heron, Pairing.ByTheWater, season, phase);
-                GardenMapView.HedgehogAtNext = VisitorSpot(map, things, Visitor.Hedgehog, Pairing.Sheltered, season, phase);
-                GardenMapView.OwlAtNext = VisitorSpot(map, things, Visitor.Owl, Pairing.Grove, season, phase);
-                GardenMapView.KingfisherAtNext = VisitorSpot(map, things, Visitor.Kingfisher, Pairing.Waterside, season, phase); // I382
+                SetVisitorsFor(world, map, things); // I374, I382
                 owlInGrove = Pairings.SpotFor(map, things, Pairing.Grove) >= 0; // I376: heard only while a grove stands
             }
             if (plot == null || map == null) return false;
@@ -2756,8 +2788,9 @@ namespace Evergrove.UnityClient
             hubMapView = view;
             if (pairingFound != null && titleScreen != null)
             {
-                RuleToast.Show((RectTransform)titleScreen.transform, pairingFound, font, Ink, MosseloraTheme.CardFill);
+                RuleToast.Show((RectTransform)titleScreen.transform, pairingFound, font, Ink, MosseloraTheme.CardFill, toastMarks);
                 pairingFound = null;
+                toastMarks = null;
             }
             // I310: lanterns are passed in before the build (LanternsNext), so nothing lays out twice.
             waveHello = false; // they waved (or would have) on this return; not on every rebuild
@@ -8979,6 +9012,50 @@ namespace Evergrove.UnityClient
             qaShowHub = false;
         }
 #endif
+        // I383 tour: arrange a finished garden so every good neighbour stands somewhere: a
+        // cluster on a bank (flower by the water, a tree beside it, two more trees, a second
+        // flower, something built), found by trying each land cell on the real map.
+        internal bool QaArrangeGoodNeighbours()
+        {
+            GardenMap map = LoadGardenMap();
+            int[] made = world.Choices;
+            if (map == null || made.Length < 12) return false;
+            int f1 = 11, f2 = 8, t1 = 9, t2 = 6, t3 = 3, b1 = 10; // chapter % 3: tree, built, flower
+            int[] arranged = { f1, t1, t2, t3, f2, b1 };
+            int all = (1 << Enum.GetValues(typeof(Pairing)).Length) - 1;
+            int w = map.Columns;
+            int[][] shapes =
+            {
+                new[] { 0, 1, 1 + w, w, -1, 2 }, new[] { 0, -1, -1 + w, w, 1, -2 },
+                new[] { 0, 1, 1 - w, -w, -1, 2 }, new[] { 0, -1, -1 - w, -w, 1, -2 },
+                new[] { 0, 1, 1 + w, w, -w, 1 - w }, new[] { 0, -1, -1 + w, w, -w, -1 - w },
+            };
+            for (int c0 = 0; c0 < map.CellCount; c0++)
+                foreach (int[] shape in shapes)
+                {
+                    var cells = new int[shape.Length];
+                    bool ok = true;
+                    for (int k = 0; k < shape.Length && ok; k++)
+                    {
+                        cells[k] = c0 + shape[k];
+                        int dx = Mathf.Abs(cells[k] % w - c0 % w);
+                        ok = cells[k] >= 0 && cells[k] < map.CellCount && dx <= 2 && map.IsLand(cells[k]);
+                    }
+                    if (!ok) continue;
+                    var trial = WorldModel.TryRestore(world.Export(), out WorldModel copy) ? copy : null;
+                    if (trial == null) return false;
+                    for (int k = 0; k < arranged.Length; k++) trial.PlaceAt(arranged[k], cells[k]);
+                    var things = Pairings.Things(trial, map);
+                    var seen = new System.Collections.Generic.HashSet<int>();
+                    foreach (PlacedThing t in things) if (t.Cell >= 0 && !seen.Add(t.Cell)) ok = false;
+                    if (!ok || Pairings.Between(map, things) != all) continue;
+                    for (int k = 0; k < arranged.Length; k++) world.PlaceAt(arranged[k], cells[k]);
+                    Rebuild(true);
+                    return true;
+                }
+            return false;
+        }
+
         internal void QaReplaceWorld(WorldModel next)
         {
             if (!qaInMemoryOnly || next == null) return;
