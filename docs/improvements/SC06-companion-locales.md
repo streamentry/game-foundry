@@ -27,7 +27,8 @@ Nothing changes outside English today. In every other language the neighbours sa
   - for every shipped non-English language (29), with no bank: the companion is silent, can't say any of a garden's facts, never returns an English sentence, and `LocalizedVillage` still speaks;
   - a French test bank speaks its own fruit and rain lines, fills a typed name, and refuses a line that would carry an English item name;
   - English without a bank says today's sentence.
-- `dotnet run --project games/evergrove/Tests -c Release`: passed. The full count is in the PR.
+- `dotnet run --project games/evergrove/Tests -c Release`: passed, 2,337,422 assertions on main after #145.
+- Tours `c9p`, `c9l` and `c9x` in English: the neighbours speak the bank as before. A non-English tour wasn't run; the Core tests cover that path.
 
 ## Not verified
 

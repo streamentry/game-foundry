@@ -40,8 +40,11 @@ The spec gives the same facts and weights four uses. The weekly letter is "later
   - no mark when nothing waits;
   - exactly one mark, and equal weights take turns across days;
   - the cottage order reorders without adding or dropping lines, puts what waits for you before the season's line, and is deterministic.
-- Unity build `c8`: 0 `error CS`, and `Info.plist` present. Tour `c8p` reached `MOSSELORA_QA_TOUR_DONE 130`. The hub shows the basket's ribbon with no number; the cottage card lists "12 things hold a new puzzle" and "A cutting in your basket" before the season's line.
-- Seen in the shots, and not caused by SC05: the arrow's "what it plays" picture doesn't show in this hub layout, here or in the earlier `c7p` shot. The arrival toast ("Good neighbours: …") overlaps the top of the cottage card in the tour, because the tour opens the card straight after the toast.
+- Unity builds `c8` and `c9` (on main after #145): 0 `error CS` each, and `Info.plist` present. Tours `c8p`, `c9p` (portrait), `c9l` (landscape) and `c9x` (150% text) reached `MOSSELORA_QA_TOUR_DONE 130`. The hub shows the basket's ribbon with no number, in every layout. The cottage card lists "12 things hold a new puzzle" and "A cutting in your basket" before the season's line.
+- Seen in the shots, and not caused by SC05:
+  - The arrow's "what it plays" picture doesn't show in this hub layout, here or in the earlier `c7p` shot.
+  - The arrival toast ("Good neighbours: …") draws over the cottage card for its few seconds when the card is opened straight away, as the tour does. Run 3 keeps news toasts up deliberately (I436, `RuleToast.Dismiss` leaves news alone), so this was left as it is.
+  - In landscape the cottage card is taller than the screen, and its name and season lines sit above the top edge. This was already so before SC05 (`c7l/17j5-cottage.png`). It's a follow-up: the card should scroll or tighten in landscape.
 
 ## Not verified
 
