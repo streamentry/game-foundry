@@ -18,6 +18,16 @@ namespace Evergrove.UnityClient
             return today.Year * 10000 + today.Month * 100 + today.Day;
         }
 
+        /// <summary>
+        /// v1 #52: counts today as a day played when the hub returns in a Living garden. A total that only grows;
+        /// a day skipped costs nothing. Saves only when today was newly counted.
+        /// </summary>
+        private void NotePlayedToday()
+        {
+            if (world == null || !world.MarkPlayed(LocalDayStamp())) return;
+            SaveWorld();
+        }
+
         // ---- Item 78: the seed book. Tapping the seed purse opens a sheet that lists the
         // last 20 seed movements (world.Ledger, newest first), so nothing in the purse is a mystery.
         private GameObject seedBookSheet;
@@ -122,6 +132,9 @@ namespace Evergrove.UnityClient
                 case SeedReason.ParcelOpened: return "letter-open";
                 case SeedReason.Pairing: return MosseloraArt.IconNeighbors;
                 case SeedReason.Season: return TreePlay.SeedIcon;
+                case SeedReason.MarketFruit: return "food-pear";
+                case SeedReason.MarketJam: return MosseloraArt.IconRooted;
+                case SeedReason.Trade: return MosseloraArt.IconNeighbors;
                 default: return TreePlay.SeedIcon;
             }
         }
@@ -139,6 +152,9 @@ namespace Evergrove.UnityClient
                 case SeedReason.ParcelOpened: return "From family";
                 case SeedReason.Pairing: return "Good neighbours";
                 case SeedReason.Season: return "The season's harvest";
+                case SeedReason.MarketFruit: return "Fruit at the stall";
+                case SeedReason.MarketJam: return "Jam at the stall";
+                case SeedReason.Trade: return "A neighbour's trade";
                 default: return "In the garden";
             }
         }

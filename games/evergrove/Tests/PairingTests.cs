@@ -139,6 +139,15 @@ internal static class PairingTests
             "the fire is lit on cold evenings");
         Expect(Array.IndexOf(Soundscape.For(Season.Summer, DayPhase.Dusk), AmbientVoice.Frogs) >= 0 &&
                Array.IndexOf(Soundscape.For(Season.Autumn, DayPhase.Dusk), AmbientVoice.Frogs) < 0, "frogs on summer dusks only");
+        // I413-I417: the river's moments.
+        Expect(RiverMoments.RainRings(Season.Summer, Weather.Rainy) && !RiverMoments.RainRings(Season.Winter, Weather.Rainy)
+            && !RiverMoments.RainRings(Season.Summer, Weather.Fair), "rain rings on open water when it rains");
+        Expect(RiverMoments.FishEvery(Season.Summer, DayPhase.Dawn) > 0f && RiverMoments.FishEvery(Season.Summer, DayPhase.Dawn) < RiverMoments.FishEvery(Season.Summer, DayPhase.Day)
+            && RiverMoments.FishEvery(Season.Winter, DayPhase.Day) == 0f && RiverMoments.FishEvery(Season.Summer, DayPhase.Night) == 0f,
+            "fish rise most at the edges of the day, never in winter or at night");
+        Expect(RiverMoments.Glitter(Season.Summer, DayPhase.Golden, Weather.Fair) && !RiverMoments.Glitter(Season.Summer, DayPhase.Golden, Weather.Rainy)
+            && !RiverMoments.Glitter(Season.Summer, DayPhase.Day, Weather.Fair), "glitter in a clear golden hour");
+        Expect(RiverMoments.LeavesAfloat(Season.Autumn) && !RiverMoments.LeavesAfloat(Season.Spring), "leaves float in autumn");
         // I376: the owl heard at night, only.
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Night) == AmbientVoice.Owl, "the owl calls at night");
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Day) == null, "never by day");
