@@ -462,6 +462,40 @@ internal static class WorldIdeasTests
         Expect(OldWell.Tier == TreePuzzles.Tiers - 1, "always the deepest");
         Expect(OldWell.SeedFor(3, 2) != OldWell.SeedFor(3, 3) && OldWell.SeedFor(3, 2) == OldWell.SeedFor(3, 2), "its own board each time");
         Expect(WorldModel.New(PlayMode.PuzzleOnly).TendWell() < 0, "only in a living garden");
+        // Idea 40 (omiyage, a keepsake brought home): from a relative's garden you may take a
+        // cutting home, copied, never taken from them, paid at its nursery price like buying.
+        WorldModel guest = WorldModel.New(PlayMode.Living);
+        WorldSnapshot rich = guest.Export();
+        rich.seeds = 200;
+        Expect(WorldModel.TryRestore(rich, out guest), "a guest with seeds");
+        int keepsakeKind = Nursery.Kinds - 1;
+        int keepsakeSeedsBefore = guest.Seeds, giftsBefore = guest.Gifts.Length;
+        Expect(guest.TakeKeepsake(keepsakeKind), "a keepsake is taken home");
+        Expect(guest.Seeds == keepsakeSeedsBefore - Nursery.Price(keepsakeKind) && guest.Gifts.Length == giftsBefore + 1,
+            "it costs its nursery price and lands in the basket");
+        WorldModel poor = WorldModel.New(PlayMode.Living);
+        Expect(!poor.TakeKeepsake(keepsakeKind) && poor.Gifts.Length == 0, "not without the seeds for it");
+        Expect(!guest.TakeKeepsake(-1) && !guest.TakeKeepsake(Nursery.Kinds), "only real plants");
+        Expect(!WorldModel.New(PlayMode.PuzzleOnly).TakeKeepsake(0), "only in a living garden");
+        // Idea 20 (a small life glad to see you, without neglect): the garden cat naps by the
+        // thing you most recently solved by day, by the cottage door after dusk. It has no
+        // needs: nothing to feed, nothing that can go wrong.
+        WorldModel catless = WorldModel.New(PlayMode.Living);
+        Expect(GardenCat.NapBy(catless, DayPhase.Day) == GardenCat.NotHere, "no cat before anything is tended");
+        WorldModel catGarden = WorldModel.New(PlayMode.Living);
+        for (int chapter = 0; chapter < 4; chapter++)
+        {
+            Puzzle board = catGarden.CurrentPuzzle;
+            for (int i = 0; i < board.CellCount; i++)
+                while (catGarden.Rotations[i] != board.Solution[i]) catGarden.Rotate(i);
+            catGarden.Choose((VillageChoice)(chapter % 3));
+        }
+        catGarden.SolveTree(1);
+        catGarden.SolveTree(3);
+        Expect(GardenCat.NapBy(catGarden, DayPhase.Day) == 3, "by day, beside the last solved thing (" + GardenCat.NapBy(catGarden, DayPhase.Day) + ")");
+        Expect(GardenCat.NapBy(catGarden, DayPhase.Night) == GardenCat.ByTheDoor && GardenCat.NapBy(catGarden, DayPhase.Dusk) == GardenCat.ByTheDoor,
+            "after dusk, by the cottage door");
+        Expect(GardenCat.NapBy(WorldModel.New(PlayMode.PuzzleOnly), DayPhase.Day) == GardenCat.NotHere, "only in a living garden");
         return assertions;
     }
 

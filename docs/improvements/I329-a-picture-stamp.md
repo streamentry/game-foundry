@@ -20,4 +20,4 @@ Any parcel can carry a picture stamp. One token turns through twelve of the game
 
 ## Result
 
-Letters can be said in pictures. Not yet shown on the letter card when re-reading (the stamp is stored); that's a small follow-up.
+Letters can be said in pictures. The stamp also shows on the letter card each time the letter is read again.

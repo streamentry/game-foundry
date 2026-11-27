@@ -2313,8 +2313,38 @@ namespace Evergrove.UnityClient
             words.rectTransform.offsetMax = new Vector2(-12f, -4f);
             Emphasize(words);
             words.horizontalOverflow = HorizontalWrapMode.Overflow; // one line; the sign grows with text size
+            // I334 (idea 40, omiyage): take a keepsake home: a cutting of their newest nursery plant,
+            // copied, never taken from them, at its nursery price. Once a visit.
+            int[] theirs = visited.Bought;
+            if (theirs.Length >= 2 && keepsakeTakenFrom != text && world.Mode == PlayMode.Living)
+            {
+                int keepKind = theirs[theirs.Length - 2];
+                if (keepKind >= 0 && keepKind < Nursery.Kinds)
+                {
+                    bool afford = world.Seeds >= Nursery.Price(keepKind);
+                    Button keep = IconButton(bar.transform, "Take a keepsake cutting home, " + Nursery.Price(keepKind) + " seeds",
+                        "Keepsake", Nursery.Item(keepKind).Art, () => TakeKeepsake(keepKind, text), 54, MosseloraTheme.QuietAction);
+                    PlaceChrome(keep, new Vector2(1f, 1f), new Vector2(-10f, ChromeTop));
+                    Transform glyph = keep.transform.Find("Icon");
+                    if (glyph != null) glyph.GetComponent<Image>().color = afford ? Color.white : new Color(1f, 1f, 1f, 0.4f);
+                }
+            }
             semanticsDirty = true;
             return true;
+        }
+
+        private string keepsakeTakenFrom;
+
+        private void TakeKeepsake(int kind, string visit)
+        {
+            if (!world.TakeKeepsake(kind)) return; // not enough seeds yet, or a full basket
+            keepsakeTakenFrom = visit;
+            world.KeepNote("Fen", "You brought home a cutting of " + Nursery.Item(kind).Name +
+                " from your family's garden. It's in your basket, a keepsake of the visit.");
+            letterArrived = true;
+            SaveWorld();
+            PlayChime();
+            if (visitLayer != null) { Destroy(visitLayer); visitLayer = null; OpenVisit(visit); }
         }
 
         private System.Collections.Generic.List<GardenMapView.Placed> VisitItems(WorldModel visited, GardenMap map)
@@ -2951,6 +2981,19 @@ namespace Evergrove.UnityClient
             envelopeImage.sprite = MosseloraArt.Load("letter-open");
             envelopeImage.preserveAspect = true;
             envelopeImage.raycastTarget = false;
+            // I329: the picture stamp they chose, kept with the letter, shown each time it's read.
+            int[] stamps = world.LetterStamps;
+            int stampOn = i >= 0 && i < stamps.Length ? stamps[i] : 0;
+            if (stampOn > 0 && stampOn <= FamilyParcel.StampCount)
+            {
+                var stampNode = Node("Picture stamp", paper.transform);
+                var stampLayout = stampNode.AddComponent<LayoutElement>();
+                stampLayout.preferredHeight = stampLayout.minHeight = 96f;
+                var stampImage = stampNode.AddComponent<Image>();
+                stampImage.sprite = MosseloraArt.Load(FamilyParcel.Stamps[stampOn - 1]);
+                stampImage.preserveAspect = true;
+                stampImage.raycastTarget = false;
+            }
             Narrate(Label(paper.transform, "Letter words", words, 21, 0, Ink, TextAnchor.UpperLeft), true);
             // Signed at the foot, unless they already signed it ("Love, Nan").
             string tail = words.TrimEnd(' ', '.', '!', '\n');
@@ -8033,6 +8076,7 @@ namespace Evergrove.UnityClient
             Season visitSeason = GardenSeason.For(garden);
             GardenMapView.BeesOut = Visitors.Welcomes(garden, Visitor.Bees) && Visitors.Out(Visitor.Bees, visitSeason, visitPhase);
             GardenMapView.BirdsOut = Visitors.Welcomes(garden, Visitor.Birds) && Visitors.Out(Visitor.Birds, visitSeason, visitPhase);
+            GardenMapView.CatBy = GardenCat.NapBy(garden, visitPhase); // I335
             // I295: the season's drift by day; it follows the season even with the light switch off.
             bool living = garden != null && garden.Mode == PlayMode.Living;
             GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),

@@ -189,6 +189,18 @@ namespace Evergrove.Core
         /// I315: a neighbour's cutting (NeighbourGifts) goes in the basket, like a parcel's. Only in
         /// a living garden, only a real kind, only while the basket has room. Nothing else changes.
         /// </summary>
+        public bool TakeKeepsake(int kind)
+        {
+            // I334 (idea 40, omiyage): a cutting of a relative's plant, copied, never taken from
+            // them; it costs its nursery price, like buying, so the economy stays logical.
+            if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds || state.gifts.Length >= MaxGifts) return false;
+            int price = Nursery.Price(kind);
+            if (state.seeds < price) return false;
+            state.seeds -= price;
+            state.gifts = Append(state.gifts, kind);
+            return true;
+        }
+
         public bool ReceiveNeighbourCutting(int kind)
         {
             if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds || state.gifts.Length >= MaxGifts) return false;

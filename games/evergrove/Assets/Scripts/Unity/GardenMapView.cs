@@ -566,6 +566,30 @@ namespace Evergrove.UnityClient
                     nodes.Add(lampRect);
                 }
             }
+            // I335: the garden cat, asleep beside the newest tended thing, or by the door after dusk.
+            if (CatBy != -1)
+            {
+                Vector2 catAt = new Vector2(-1f, 1f);
+                if (CatBy == -2) catAt = new Vector2(width * 0.80f, -reachHeight * 0.175f);
+                else foreach (Placed item in items)
+                    if (item.Index == CatBy && item.Cell >= 0 && item.Cell < map.CellCount)
+                    {
+                        int column = item.Cell % map.Columns, row = item.Cell / map.Columns;
+                        catAt = new Vector2((column + 0.5f) * cellW + cellW * (column < map.Columns / 2 ? 0.75f : -0.75f),
+                            -(row + 0.85f) * cellH);
+                    }
+                if (catAt.x >= 0f)
+                {
+                    var cat = new GameObject("The garden cat, asleep", typeof(RectTransform));
+                    cat.transform.SetParent(land, false);
+                    var catRect = (RectTransform)cat.transform;
+                    catRect.anchorMin = catRect.anchorMax = new Vector2(0f, 1f);
+                    catRect.sizeDelta = new Vector2(40f, 24f);
+                    catRect.anchoredPosition = catAt;
+                    cat.AddComponent<SleepingCat>();
+                    nodes.Add(catRect);
+                }
+            }
             // I310 (idea 43, leaving a light for another): lanterns family left stand along the
             // path below your cottage door, the newest nearest; lit after dusk.
             for (int l = 0; l < Mathf.Min(lanterns, 3); l++)
@@ -1103,6 +1127,47 @@ namespace Evergrove.UnityClient
         public static bool LampLit; // I296
         public static bool FestivalNow; // I317
         public static bool BeesOut, BirdsOut; // I325, I326
+        public static int CatBy = -1;          // I335: a thing's index, -2 by the door, -1 none
+
+        /// <summary>A small cat asleep, curled: body, head, ears and tail, breathing slowly (I335).</summary>
+        private sealed class SleepingCat : MonoBehaviour
+        {
+            private RectTransform body;
+            private float clock;
+
+            private void Start()
+            {
+                Color fur = new Color(0.86f, 0.60f, 0.36f, 1f), dark = new Color(0.62f, 0.40f, 0.22f, 1f);
+                Part("Tail", new Vector2(18f, 5f), new Vector2(10f, -4f), 20f, dark);
+                body = Part("Body", new Vector2(28f, 15f), Vector2.zero, 0f, fur);
+                Part("Head", new Vector2(13f, 12f), new Vector2(-12f, 3f), 0f, fur);
+                Part("Ear", new Vector2(5f, 5f), new Vector2(-16f, 9f), 45f, dark);
+                Part("Ear", new Vector2(5f, 5f), new Vector2(-9f, 9f), 45f, dark);
+                Part("Stripe", new Vector2(3f, 11f), new Vector2(2f, 1f), 0f, dark);
+            }
+
+            private RectTransform Part(string name, Vector2 size, Vector2 at, float angle, Color colour)
+            {
+                var node = new GameObject(name, typeof(RectTransform));
+                node.transform.SetParent(transform, false);
+                var rect = (RectTransform)node.transform;
+                rect.sizeDelta = size;
+                rect.anchoredPosition = at;
+                rect.localRotation = Quaternion.Euler(0f, 0f, angle);
+                var image = node.AddComponent<Image>();
+                image.sprite = MosseloraArt.Rounded(8);
+                image.color = colour;
+                image.raycastTarget = false;
+                return rect;
+            }
+
+            private void Update()
+            {
+                if (body == null || !FirefliesMove) return;
+                clock += Time.unscaledDeltaTime;
+                body.localScale = new Vector3(1f, 1f + 0.05f * Mathf.Sin(clock * 1.6f), 1f); // asleep, breathing
+            }
+        }
 
         /// <summary>A small bee: a striped body and two pale wings, buzzing in loops (I325).</summary>
         private sealed class BeeBuzz : MonoBehaviour
