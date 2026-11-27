@@ -413,7 +413,7 @@ internal static class FamilyParcelTests
         string deep = "{\"format\":\"mosselora-parcel\",\"formatVersion\":1,\"checksumSha256\":\"x\",\"parcel\":" + new string('[', 30) + new string(']', 30) + "}";
         Expect(b.Open(deep).Error == ParcelError.Malformed, "deep nesting inside the parcel is refused");
         Expect(b.Open(good.Replace("mosselora-parcel", "mosselora-garden")).Error == ParcelError.WrongFormat, "another app's format");
-        Expect(b.Open(good.Replace("\"formatVersion\":1", "\"formatVersion\":2")).Error == ParcelError.UnsupportedFutureVersion, "a newer parcel version");
+        Expect(b.Open(good.Replace("\"formatVersion\":1", "\"formatVersion\":3")).Error == ParcelError.UnsupportedFutureVersion, "a newer parcel version");
         Expect(b.Open(good.Replace("\"formatVersion\":1", "\"formatVersion\":0")).Error == ParcelError.WrongFormat, "version zero");
         Expect(b.Open(good.Replace("\"formatVersion\":1", "\"formatVersion\":1.5")).Error == ParcelError.WrongFormat, "fractional version");
         Expect(b.Open(good.Replace("\"amount\":10", "\"amount\":10.0")).Error == ParcelError.Malformed, "a fractional amount is not an integer");

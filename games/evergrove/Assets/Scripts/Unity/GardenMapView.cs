@@ -32,6 +32,7 @@ namespace Evergrove.UnityClient
             public int Kind;             // I255: PuzzleKind + 1 drawn in the mark (0: a plain play arrow)
             public bool Together;        // I265: solved taking turns: two small discs, sage and honey
             public bool Crowned;         // I292: a replay solved at the deepest tier: a second, outer ring
+            public float Grown;          // I300: drawn this much larger as replays deepen it (0 or 1: its own size)
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -186,6 +187,30 @@ namespace Evergrove.UnityClient
                 fliesRect.offsetMin = fliesRect.offsetMax = Vector2.zero;
                 flies.AddComponent<FireflyDrift>().Moving = FirefliesMove;
             }
+            // I317: through the festival spring, a garland of paper lanterns hangs across the view.
+            if (FestivalNow)
+            {
+                var garland = new GameObject("Festival lanterns", typeof(RectTransform));
+                garland.transform.SetParent(host.transform, false);
+                var garlandRect = (RectTransform)garland.transform;
+                garlandRect.anchorMin = new Vector2(0f, 1f);
+                garlandRect.anchorMax = Vector2.one;
+                garlandRect.pivot = new Vector2(0.5f, 1f);
+                garlandRect.sizeDelta = new Vector2(0f, 110f);
+                garlandRect.anchoredPosition = new Vector2(0f, -86f);
+                garland.AddComponent<FestivalGarland>().Lit = LampLit;
+            }
+            // I295: the season's own drift over home by day (petals, leaves, snow); motion only.
+            if (DriftNow != Drift.None && FirefliesMove)
+            {
+                var drift = new GameObject("Season drift", typeof(RectTransform));
+                drift.transform.SetParent(host.transform, false);
+                var driftRect = (RectTransform)drift.transform;
+                driftRect.anchorMin = Vector2.zero;
+                driftRect.anchorMax = Vector2.one;
+                driftRect.offsetMin = driftRect.offsetMax = Vector2.zero;
+                drift.AddComponent<SeasonDrift>().Kind = DriftNow;
+            }
             view.apron = teaser ? 0f : Mathf.Clamp(apron, 0f, 0.4f);
             if (view.apron > 0f && plot != null)
             {
@@ -303,6 +328,15 @@ namespace Evergrove.UnityClient
         private RectTransform plotRect, apronRect;
         private float apron, teaser;
         private int reaches = 1;
+        private int lanterns; // I310
+
+        /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
+        public void SetLanterns(int count)
+        {
+            if (count == lanterns) return;
+            lanterns = Mathf.Max(0, count);
+            Layout();
+        }
 
         // One copy of the painting as a RawImage, mirrored top to bottom if asked.
         private static RawImage ReachImage(RectTransform parent, Sprite plot, bool mirrored, string name)
@@ -358,6 +392,22 @@ namespace Evergrove.UnityClient
         // between them; one relayout when they lift. The zoom is reported so the
         // caller can keep it across rebuilds.
         public float MinZoom = 1f, MaxZoom = 3f;
+        private float beforeLookout = -1f;
+
+        /// <summary>
+        /// I319 (ideas 23 and 15, after the lookouts of hiking games and always knowing your way
+        /// home): the whole river at once, cottage at the top, the newest stretch at the foot.
+        /// The map's own width rule fits the river's height when asked for the least width.
+        /// </summary>
+        public void LookOut(bool on)
+        {
+            if (on == (beforeLookout > 0f)) return;
+            if (on) { beforeLookout = widthScale; widthScale = 0.01f; }
+            else { widthScale = beforeLookout; beforeLookout = -1f; }
+            keep = new Vector2(-1f, -1f);
+            growNewest = false;
+            Layout();
+        }
         public float Zoom { get { return widthScale; } }
         public Action<float> Zoomed;
         private bool pinching;
@@ -475,6 +525,65 @@ namespace Evergrove.UnityClient
             order.Sort((a, b) => a.Cell / map.Columns != b.Cell / map.Columns
                 ? (a.Cell / map.Columns).CompareTo(b.Cell / map.Columns)
                 : a.Cell.CompareTo(b.Cell));
+            // I296: from dusk to dawn, lamplight spills from each cottage door (painted top right
+            // of every reach): two soft warm discs, over the evening shade.
+            for (int reach = 0; LampLit && reach < reaches; reach++)
+            {
+                // Every other reach is the painting mirrored top to bottom (I192), door and all.
+                float down = reach % 2 == 0 ? reach * reachHeight + reachHeight * 0.148f : (reach + 1) * reachHeight - reachHeight * 0.148f;
+                Vector2 door = new Vector2(width * 0.858f, -down);
+                float[] sizes = { 3.2f, 1.6f };
+                float[] alphas = { 0.55f, 0.85f };
+                for (int g = 0; g < sizes.Length; g++)
+                {
+                    var lamp = new GameObject(g == 0 ? "Lamplight" : "Lamp", typeof(RectTransform));
+                    lamp.transform.SetParent(land, false);
+                    var lampRect = (RectTransform)lamp.transform;
+                    lampRect.anchorMin = lampRect.anchorMax = new Vector2(0f, 1f);
+                    lampRect.sizeDelta = new Vector2(cellW * sizes[g], cellH * sizes[g] * 0.7f);
+                    lampRect.anchoredPosition = door;
+                    var lampImage = lamp.AddComponent<Image>();
+                    lampImage.sprite = MosseloraArt.SoftGlow();
+                    lampImage.color = new Color(1f, 0.80f, 0.42f, alphas[g]);
+                    lampImage.raycastTarget = false;
+                    nodes.Add(lampRect);
+                }
+            }
+            // I310 (idea 43, leaving a light for another): lanterns family left stand along the
+            // path below your cottage door, the newest nearest; lit after dusk.
+            for (int l = 0; l < Mathf.Min(lanterns, 3); l++)
+            {
+                var lantern = new GameObject("A lantern left by family", typeof(RectTransform));
+                lantern.transform.SetParent(land, false);
+                var lanternRect = (RectTransform)lantern.transform;
+                lanternRect.anchorMin = lanternRect.anchorMax = new Vector2(0f, 1f);
+                lanternRect.pivot = new Vector2(0.5f, 0f);
+                lanternRect.sizeDelta = new Vector2(cellW * 0.8f, cellH * 0.8f);
+                lanternRect.anchoredPosition = new Vector2(width * (0.80f - l * 0.07f), -reachHeight * (0.20f + l * 0.035f));
+                if (LampLit)
+                {
+                    var halo = new GameObject("Lantern light", typeof(RectTransform));
+                    halo.transform.SetParent(lantern.transform, false);
+                    var haloRect = (RectTransform)halo.transform;
+                    haloRect.anchorMin = haloRect.anchorMax = new Vector2(0.5f, 0.6f);
+                    haloRect.sizeDelta = new Vector2(cellW * 1.4f, cellW * 1.4f);
+                    var haloImage = halo.AddComponent<Image>();
+                    haloImage.sprite = MosseloraArt.SoftGlow();
+                    haloImage.color = new Color(1f, 0.82f, 0.45f, 0.6f);
+                    haloImage.raycastTarget = false;
+                }
+                var art = MosseloraArt.Load(FamilySheet.LanternArt);
+                var lanternImage = new GameObject("Lantern", typeof(RectTransform)).AddComponent<Image>();
+                lanternImage.transform.SetParent(lantern.transform, false);
+                var artRect = lanternImage.rectTransform;
+                artRect.anchorMin = Vector2.zero;
+                artRect.anchorMax = Vector2.one;
+                artRect.offsetMin = artRect.offsetMax = Vector2.zero;
+                lanternImage.sprite = art;
+                lanternImage.preserveAspect = true;
+                lanternImage.raycastTarget = false;
+                nodes.Add(lanternRect);
+            }
             Vector2 focus = Vector2.zero;
             bool focused = false;
             foreach (Placed item in order)
@@ -538,7 +647,7 @@ namespace Evergrove.UnityClient
                 var rect = (RectTransform)node.transform;
                 rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
                 rect.pivot = new Vector2(0.5f, 0.08f);
-                float tall = cellH * HeightInCells(item.Family) * (held ? 1.12f : 1f);
+                float tall = cellH * HeightInCells(item.Family) * (held ? 1.12f : 1f) * Mathf.Max(1f, item.Grown);
                 float aspectArt = item.Art.rect.width / Mathf.Max(1f, item.Art.rect.height);
                 rect.sizeDelta = new Vector2(tall * aspectArt, tall);
                 rect.anchoredPosition = at;
@@ -577,6 +686,25 @@ namespace Evergrove.UnityClient
                     }
                 }
                 else if (growNewest && item.Newest) node.AddComponent<GrowUp>();
+                // I297 (idea 30, the wind of hand-drawn film): living things lean in the breeze,
+                // each a little out of step with its neighbours. Built things stay put; still
+                // with reduced motion.
+                // I307 (idea 29, weather you notice): water just freed for a thing falls back on
+                // it as a short, light shower. Only as the ring grows in, so only with motion.
+                if (item.BloomNow && item.Kind == (int)PuzzleKind.Water + 1)
+                {
+                    var shower = new GameObject("A short shower", typeof(RectTransform));
+                    shower.transform.SetParent(land, false);
+                    var showerRect = (RectTransform)shower.transform;
+                    showerRect.anchorMin = showerRect.anchorMax = new Vector2(0f, 1f);
+                    showerRect.pivot = new Vector2(0.5f, 0f);
+                    showerRect.sizeDelta = new Vector2(Mathf.Max(rect.sizeDelta.x * 1.3f, cellW * 1.6f), rect.sizeDelta.y * 1.4f);
+                    showerRect.anchoredPosition = at;
+                    shower.AddComponent<Shower>();
+                    nodes.Add(showerRect);
+                }
+                if (!held && FirefliesMove && item.Family != VillageChoice.Bridge)
+                    node.AddComponent<Sway>().Phase = item.Cell * 0.73f;
                 if (item.Together && !held)
                 {
                     // Two players' colours, overlapping, at the other shoulder (I265).
@@ -923,6 +1051,129 @@ namespace Evergrove.UnityClient
             }
         }
 
+        public static Drift DriftNow = Drift.None;
+        public static bool LampLit; // I296
+        public static bool FestivalNow; // I317
+
+        /// <summary>Paper lanterns on a sagging string across the top of the view, swaying a little.</summary>
+        private sealed class FestivalGarland : MonoBehaviour
+        {
+            public bool Lit;
+            private RectTransform[] lanterns;
+            private float clock;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                float wide = Mathf.Max(1f, rect.rect.width);
+                int count = Mathf.Clamp(Mathf.RoundToInt(wide / 70f), 4, 9);
+                lanterns = new RectTransform[count];
+                Sprite art = MosseloraArt.Load(FamilySheet.LanternArt);
+                for (int i = 0; i < count; i++)
+                {
+                    float x = (i + 0.5f) / count;
+                    float sag = 4f * x * (1f - x) * 26f; // the string dips toward the middle
+                    var node = new GameObject("Paper lantern", typeof(RectTransform));
+                    node.transform.SetParent(transform, false);
+                    var nodeRect = (RectTransform)node.transform;
+                    nodeRect.anchorMin = nodeRect.anchorMax = new Vector2(x, 1f);
+                    nodeRect.pivot = new Vector2(0.5f, 1f);
+                    nodeRect.sizeDelta = new Vector2(40f, 40f);
+                    nodeRect.anchoredPosition = new Vector2(0f, -sag);
+                    if (Lit)
+                    {
+                        var glow = new GameObject("Glow", typeof(RectTransform)).AddComponent<Image>();
+                        glow.transform.SetParent(node.transform, false);
+                        glow.rectTransform.sizeDelta = new Vector2(70f, 70f);
+                        glow.rectTransform.anchoredPosition = new Vector2(0f, -20f);
+                        glow.sprite = MosseloraArt.SoftGlow();
+                        glow.color = new Color(1f, 0.8f, 0.42f, 0.55f);
+                        glow.raycastTarget = false;
+                    }
+                    var image = new GameObject("Lantern", typeof(RectTransform)).AddComponent<Image>();
+                    image.transform.SetParent(node.transform, false);
+                    image.rectTransform.anchorMin = Vector2.zero;
+                    image.rectTransform.anchorMax = Vector2.one;
+                    image.rectTransform.offsetMin = image.rectTransform.offsetMax = Vector2.zero;
+                    image.sprite = art;
+                    image.preserveAspect = true;
+                    image.raycastTarget = false;
+                    lanterns[i] = nodeRect;
+                }
+            }
+
+            private void Update()
+            {
+                if (lanterns == null || !FirefliesMove) return;
+                clock += Time.unscaledDeltaTime;
+                for (int i = 0; i < lanterns.Length; i++)
+                    lanterns[i].localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 0.9f + i * 1.3f) * 4f);
+            }
+        }
+
+        /// <summary>
+        /// A few petals, leaves or flakes falling slowly across the view, swaying as they go,
+        /// and coming round again at the top. Few and slow on purpose: weather, not confetti.
+        /// </summary>
+        private sealed class SeasonDrift : MonoBehaviour
+        {
+            public Drift Kind;
+            private RectTransform[] bits;
+            private float[] x0, speed, sway, phase;
+            private float clock, high, wide;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                wide = Mathf.Max(1f, rect.rect.width);
+                high = Mathf.Max(1f, rect.rect.height);
+                var rng = new System.Random(527);
+                int count = Kind == Drift.Snow ? 18 : 10;
+                bits = new RectTransform[count];
+                x0 = new float[count]; speed = new float[count]; sway = new float[count]; phase = new float[count];
+                for (int i = 0; i < count; i++)
+                {
+                    var bit = new GameObject(Kind.ToString(), typeof(RectTransform));
+                    bit.transform.SetParent(transform, false);
+                    var bitRect = (RectTransform)bit.transform;
+                    bitRect.anchorMin = bitRect.anchorMax = new Vector2(0f, 1f);
+                    float size = Kind == Drift.Snow ? 5f + (float)rng.NextDouble() * 4f : 9f + (float)rng.NextDouble() * 6f;
+                    bitRect.sizeDelta = Kind == Drift.Snow ? new Vector2(size, size) : new Vector2(size, size * 0.62f);
+                    var image = bit.AddComponent<Image>();
+                    image.sprite = MosseloraArt.Rounded(8);
+                    image.raycastTarget = false;
+                    image.color = Kind == Drift.Petals ? new Color(0.98f, 0.80f, 0.84f, 0.9f)
+                        : Kind == Drift.Leaves ? (i % 2 == 0 ? new Color(0.85f, 0.48f, 0.18f, 0.9f) : new Color(0.72f, 0.36f, 0.16f, 0.9f))
+                        : new Color(1f, 1f, 1f, 0.85f);
+                    x0[i] = (float)rng.NextDouble() * wide;
+                    speed[i] = (Kind == Drift.Snow ? 22f : 30f) + (float)rng.NextDouble() * 18f;
+                    sway[i] = 14f + (float)rng.NextDouble() * 16f;
+                    phase[i] = (float)rng.NextDouble() * high;
+                    bits[i] = bitRect;
+                }
+                Place();
+            }
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                Place();
+            }
+
+            private void Place()
+            {
+                if (bits == null) return;
+                for (int i = 0; i < bits.Length; i++)
+                {
+                    float fall = (phase[i] + clock * speed[i]) % (high + 40f) - 20f;
+                    float drift = clock * 8f; // a light breeze from the left
+                    float x = Mathf.Repeat(x0[i] + drift + Mathf.Sin(clock * 0.9f + i) * sway[i], wide);
+                    bits[i].anchoredPosition = new Vector2(x, -fall);
+                    if (Kind != Drift.Snow) bits[i].localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 1.3f + i * 2f) * 50f);
+                }
+            }
+        }
+
         /// <summary>A painting that is opaque at its top edge and clear at its foot (I252).</summary>
         private sealed class FadeDownRawImage : RawImage
         {
@@ -953,6 +1204,69 @@ namespace Evergrove.UnityClient
                 if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position,
                         eventData.pressEventCamera, out Vector2 local))
                     Tapped?.Invoke(local);
+            }
+        }
+
+        /// <summary>Thin streaks of rain falling for under two seconds, then fading (I307).</summary>
+        private sealed class Shower : MonoBehaviour
+        {
+            private RectTransform[] drops;
+            private float[] x, offset;
+            private float clock, high;
+            private const float Lasts = 1.8f;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                high = Mathf.Max(1f, rect.rect.height);
+                float wide = Mathf.Max(1f, rect.rect.width);
+                var rng = new System.Random(29);
+                drops = new RectTransform[16];
+                x = new float[drops.Length];
+                offset = new float[drops.Length];
+                for (int i = 0; i < drops.Length; i++)
+                {
+                    var drop = new GameObject("Rain", typeof(RectTransform));
+                    drop.transform.SetParent(transform, false);
+                    var dropRect = (RectTransform)drop.transform;
+                    dropRect.anchorMin = dropRect.anchorMax = new Vector2(0f, 0f);
+                    dropRect.sizeDelta = new Vector2(2.5f, 11f + (float)rng.NextDouble() * 6f);
+                    dropRect.localRotation = Quaternion.Euler(0f, 0f, -8f);
+                    var image = drop.AddComponent<Image>();
+                    image.sprite = MosseloraArt.Rounded(2);
+                    image.color = new Color(0.78f, 0.88f, 0.98f, 0.8f);
+                    image.raycastTarget = false;
+                    x[i] = (float)rng.NextDouble() * wide;
+                    offset[i] = (float)rng.NextDouble() * high;
+                    drops[i] = dropRect;
+                }
+            }
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float fade = Mathf.Clamp01((Lasts - clock) / 0.5f);
+                for (int i = 0; i < drops.Length; i++)
+                {
+                    float y = high - Mathf.Repeat(offset[i] + clock * high * 1.6f, high);
+                    drops[i].anchoredPosition = new Vector2(x[i] + (high - y) * 0.14f, y);
+                    drops[i].GetComponent<Image>().color = new Color(0.78f, 0.88f, 0.98f, 0.8f * fade);
+                }
+                if (clock >= Lasts) Destroy(gameObject);
+            }
+        }
+
+        /// <summary>A slow lean back and forth about the foot, a degree or two (I297).</summary>
+        private sealed class Sway : MonoBehaviour
+        {
+            public float Phase;
+            private float clock;
+
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                float gust = 0.6f + 0.4f * Mathf.Sin(clock * 0.21f + Phase * 0.3f); // the breeze rises and falls
+                transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 1.1f + Phase) * 1.8f * gust);
             }
         }
 
