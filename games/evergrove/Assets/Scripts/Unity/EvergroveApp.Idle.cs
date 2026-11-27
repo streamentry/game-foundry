@@ -15,7 +15,7 @@ namespace Evergrove.UnityClient
         private const float QaIdleSeconds = 30f;
 
         // Chrome that fades, besides the menu bar, all children of the home screen.
-        private static readonly string[] IdleHudNames = { "Seeds you have", "Letterbox", "Basket corner" };
+        private static readonly string[] IdleHudNames = { "Hub chrome", "Seeds you have", "Letterbox", "Basket corner" }; // Hub chrome: the home menu button (tour found it unfaded)
 
         private float idleTouchAt = -1f; // Time.unscaledTime of the last touch
         private bool? idleQaOverride;    // QaIdle(): forces idle on or off for the tour; a real touch clears it
