@@ -40,7 +40,7 @@ namespace Evergrove.Core
             "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
             "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
             "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam", "letterStamps", "decor", "well", "pairings", "yields",
-            "ledger", "payDay", "replaysPaid", "daysPlayed", "lastPlayedDay"
+            "ledger", "payDay", "replaysPaid", "marketStamp", "fruitSold", "jamSold", "tradesDone", "daysPlayed", "lastPlayedDay"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -260,6 +260,10 @@ namespace Evergrove.Core
                 if (s.ledger != null && s.ledger.Length != 0) sb.Append(",\"ledger\":").Append(IntArray(s.ledger));
                 if (s.payDay != 0) sb.Append(",\"payDay\":").Append(Int(s.payDay));
                 if (s.replaysPaid != 0) sb.Append(",\"replaysPaid\":").Append(Int(s.replaysPaid));
+                if (s.marketStamp != 0) sb.Append(",\"marketStamp\":").Append(Int(s.marketStamp));
+                if (s.fruitSold != 0) sb.Append(",\"fruitSold\":").Append(Int(s.fruitSold));
+                if (s.jamSold != 0) sb.Append(",\"jamSold\":").Append(Int(s.jamSold));
+                if (s.tradesDone != 0) sb.Append(",\"tradesDone\":").Append(Int(s.tradesDone));
                 if (s.daysPlayed != 0) sb.Append(",\"daysPlayed\":").Append(Int(s.daysPlayed));
                 if (s.lastPlayedDay != 0) sb.Append(",\"lastPlayedDay\":").Append(Int(s.lastPlayedDay));
             }
@@ -385,6 +389,10 @@ namespace Evergrove.Core
                    ReadInts(fields, "ledger", ref snapshot.ledger) &&
                    ReadInt(fields, "payDay", ref snapshot.payDay) &&
                    ReadInt(fields, "replaysPaid", ref snapshot.replaysPaid) &&
+                   ReadInt(fields, "marketStamp", ref snapshot.marketStamp) &&
+                   ReadInt(fields, "fruitSold", ref snapshot.fruitSold) &&
+                   ReadInt(fields, "jamSold", ref snapshot.jamSold) &&
+                   ReadInt(fields, "tradesDone", ref snapshot.tradesDone) &&
                    ReadInt(fields, "daysPlayed", ref snapshot.daysPlayed) &&
                    ReadInt(fields, "lastPlayedDay", ref snapshot.lastPlayedDay);
         }

@@ -232,7 +232,7 @@ internal static class EconomyTests
 
         Refused("odd ledger length", Tweak(busy.Export(), s => s.ledger = new[] { 1, 10, 2 }));
         Refused("unknown reason 0", Tweak(busy.Export(), s => s.ledger = new[] { 0, 10 }));
-        Refused("unknown reason 9", Tweak(busy.Export(), s => s.ledger = new[] { 9, 10 }));
+        Refused("unknown reason 99", Tweak(busy.Export(), s => s.ledger = new[] { 99, 10 }));
         Refused("negative reason", Tweak(busy.Export(), s => s.ledger = new[] { -1, 10 }));
         Refused("zero delta", Tweak(busy.Export(), s => s.ledger = new[] { 1, 0 }));
         Refused("delta past the cap", Tweak(busy.Export(), s => s.ledger = new[] { 1, WorldModel.MaxSeeds + 1 }));
@@ -251,14 +251,14 @@ internal static class EconomyTests
         Expect(!GardenTransfer.TryImport(file.Replace("\"replaysPaid\":1", "\"replaysPaid\":-1"), out _, out _), "an edited cap fails import");
         Expect(State(busy) == before, "forgeries change nothing");
 
-        // Reasons 7 (Pairing) and 8 (Season) are defined and restore; reason 9 is refused.
+        // Reasons 7 (Pairing) and 8 (Season) are defined and restore; reason 99 is refused.
         Expect(WorldModel.TryRestore(Tweak(Grown(3, 0).Export(), s => s.ledger = new[] { 7, 5 }), out WorldModel paired) &&
                paired.Ledger.Length == 1 && paired.Ledger[0].Reason == SeedReason.Pairing && paired.Ledger[0].Delta == 5,
             "a Pairing line restores");
         Expect(WorldModel.TryRestore(Tweak(Grown(3, 0).Export(), s => s.ledger = new[] { 8, 5 }), out WorldModel seasonal) &&
                seasonal.Ledger.Length == 1 && seasonal.Ledger[0].Reason == SeedReason.Season && (int)SeedReason.Season == 8,
             "a Season line restores (v1 #78 reserved reason 8)");
-        Refused("reason 9", Tweak(Grown(3, 0).Export(), s => s.ledger = new[] { 9, 5 }));
+        Refused("reason 99", Tweak(Grown(3, 0).Export(), s => s.ledger = new[] { 99, 5 }));
     }
 
     private static void Refused(string what, WorldSnapshot forged)

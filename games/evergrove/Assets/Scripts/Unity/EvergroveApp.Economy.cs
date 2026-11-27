@@ -132,6 +132,9 @@ namespace Evergrove.UnityClient
                 case SeedReason.ParcelOpened: return "letter-open";
                 case SeedReason.Pairing: return MosseloraArt.IconNeighbors;
                 case SeedReason.Season: return TreePlay.SeedIcon;
+                case SeedReason.MarketFruit: return "food-pear";
+                case SeedReason.MarketJam: return MosseloraArt.IconRooted;
+                case SeedReason.Trade: return MosseloraArt.IconNeighbors;
                 default: return TreePlay.SeedIcon;
             }
         }
@@ -149,6 +152,9 @@ namespace Evergrove.UnityClient
                 case SeedReason.ParcelOpened: return "From family";
                 case SeedReason.Pairing: return "Good neighbours";
                 case SeedReason.Season: return "The season's harvest";
+                case SeedReason.MarketFruit: return "Fruit at the stall";
+                case SeedReason.MarketJam: return "Jam at the stall";
+                case SeedReason.Trade: return "A neighbour's trade";
                 default: return "In the garden";
             }
         }
