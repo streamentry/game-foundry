@@ -1938,6 +1938,7 @@ internal static class Program
             assertions += DecorTests.Run();
             assertions += DoorstepTests.Run();
             assertions += DifficultyTests.Run();
+            assertions += EconomyTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
