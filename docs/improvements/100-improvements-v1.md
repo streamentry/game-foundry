@@ -47,8 +47,8 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 ## D. Depth: simple to play, more to discover
 
-- [ ] **31. Snug fits in Garden Pieces.** Glow only snug placements that leave no unfillable pocket (I373 in progress), so the hint teaches corners-first play. *Test:* snug glow covers under half of the plain-fit squares.
-- [ ] **32. More good-neighbour pairings.** Extend I368 with second-order pairings, such as a bed beside a grove. Each is a rule you can say out loud. *Test:* every pairing has a one-line rule and a test.
+- [x] **31. Snug fits in Garden Pieces.** Glow only snug placements that leave no unfillable pocket (I373 in progress), so the hint teaches corners-first play. *Test:* snug glow covers under half of the plain-fit squares.
+- [x] **32. More good-neighbour pairings.** Extend I368 with second-order pairings, such as a bed beside a grove. Each is a rule you can say out loud. *Test:* every pairing has a one-line rule and a test.
 - [ ] **33. Garden layouts that remember.** Pairings found per garden layout give a gentle almanac page called "how my garden grew". *Test:* save round-trip.
 - [ ] **34. Difficulty the player chooses, honestly labelled.** Leaves 1–3 (I336) on every puzzle kind, with the chosen level remembered per kind. *Test:* no kind lacks a gentle level.
 - [x] **35. A weekly deeper board.** One harder board each week per favourite kind, with no timer, and no penalty for skipping it. *Test:* generator proves uniqueness at the top tier.

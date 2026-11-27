@@ -107,6 +107,10 @@ internal static class PairingTests
         Expect(deep.DiscoverPairing(Pairing.Orchard) == Pairings.DeeperReward && deep.Seeds == seedsBeforeOrchard + Pairings.DeeperReward,
             "a deeper pairing pays a little more");
         foreach (Pairing p in Enum.GetValues(typeof(Pairing))) Expect(Pairings.Hint(p).Length > 0, "each has its rule written");
+        // v1 #32: each pairing is a rule you can say out loud: one short line, no line breaks.
+        foreach (Pairing p in Enum.GetValues(typeof(Pairing)))
+            Expect(Pairings.Hint(p).IndexOf('\n') < 0 && Pairings.Hint(p).Length <= 100,
+                "each rule is one short line: " + Pairings.Hint(p));
         // I382: the kingfisher at a waterside flower.
         Expect(Pairings.SpotFor(map, new[] { flower }, Pairing.Waterside) == 2, "the kingfisher over the water beside the flower");
         Expect(Visitors.Out(Visitor.Kingfisher, Season.Spring, DayPhase.Morning) && !Visitors.Out(Visitor.Kingfisher, Season.Winter, DayPhase.Day)
