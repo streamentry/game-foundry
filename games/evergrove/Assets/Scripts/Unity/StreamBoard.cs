@@ -112,6 +112,7 @@ namespace Evergrove.UnityClient
             {
                 if (game.IsRock(c)) continue;
                 cells[c].color = game.OnPath(c) ? BoardKit.Water : BoardKit.Soil;
+                BoardKit.MarkRing(cells[c], false);
                 for (int d = 0; d < 4; d++) channels[c][d].enabled = false;
             }
             for (int i = 0; i + 1 < path.Length; i++)
@@ -137,6 +138,7 @@ namespace Evergrove.UnityClient
             {
                 shown = next;
                 cells[next].color = BoardKit.Picked;
+                BoardKit.MarkRing(cells[next], true);
                 BloomPulse.Add(cells[next].gameObject, 0f, 0.18f);
                 return;
             }

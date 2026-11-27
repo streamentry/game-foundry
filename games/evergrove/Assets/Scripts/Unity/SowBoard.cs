@@ -117,6 +117,8 @@ namespace Evergrove.UnityClient
             {
                 int count = game.Seeds(b);
                 beds[b].color = b == shown ? BoardKit.Picked : !locked && game.IsRipe(b) ? BoardKit.Leafy : BoardKit.Soil;
+                BoardKit.MarkRing(beds[b], b == shown);
+                MosseloraArt.StateMark(beds[b].transform, !locked && game.IsRipe(b), 16f); // ready: a check
                 for (int s = 0; s < MaxShown; s++) seedDots[b][s].enabled = s < count;
             }
             basketCount.text = game.InBasket + " / " + game.Total;
