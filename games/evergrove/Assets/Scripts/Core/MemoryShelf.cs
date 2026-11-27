@@ -38,6 +38,10 @@ namespace Evergrove.Core
                 Make("food-basket", "Help from family, in your garden", world.Helped.Length > 0),
                 Make("build-96", "A lantern left for you", world.Lanterns.Length > 0),
                 Make("stone-wet", "New river, past the story", reaches > GardenMap.MaxReaches),
+                // I386: where things stand matters; the first good neighbours, then all seven.
+                Make("flower-05", "Your first good neighbours", world.PairingsFound != 0),
+                Make("tree-05", "Every good neighbour found, all seven",
+                    world.PairingsFound == (1 << System.Enum.GetValues(typeof(Pairing)).Length) - 1),
                 Make("vignette-bridge", "The story of your garden, told to its end", world.Completed)
             };
             return shelf.ToArray();
