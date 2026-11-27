@@ -1,5 +1,5 @@
 {
-  "about": "Rules every Mosselora companion line must pass (smart companion SC03/SC04). Read by tools/evergrove_line_bank_check.py and by the C# LineBankTests. Per kind: the slots its facts fill, the voices that speak it (and, for a qualified kind, which qualifier values each voice needs, keyed \"Kind.Value\" in the bank), the minimum lines per voice, and per qualifier value. Change only with the spec: docs/specs/proposals/smart-companion-2026-11-27.md.",
+  "about": "Rules every Mosselora companion line must pass (smart companion SC03/SC04). Read by tools/evergrove_line_bank_check.py and by the C# LineBankTests. Per kind: the slots its facts fill, the voices that speak it (and, for a qualified kind, which qualifier values each voice needs, keyed \"Kind.Value\" in the bank), the minimum lines per voice, and per qualifier value. Change only with the spec: docs/specs/proposals/smart-companion-2026-11-27.md. A kind marked \"pending\" has draft lines in review; the English bank need not cover it yet, and it speaks its fixed sentence until approved.",
   "maxChars": 140,
   "kinds": {
     "FruitGiven": {
@@ -299,6 +299,14 @@
       "min": 8,
       "qualifier": "pairing",
       "minEach": 4
+    },
+    "RainComing": {
+      "slots": [],
+      "voices": {
+        "1": null
+      },
+      "min": 20,
+      "pending": true
     }
   },
   "longest": {

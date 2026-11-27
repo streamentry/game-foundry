@@ -13,8 +13,8 @@ Engagement we want: a calm daily ritual the player *chooses*, and family moments
 
 1. **Invited, never assumed.** Off until the player turns it on. The system permission prompt only ever follows the player's own yes in the game (a "soft ask" in Mosselora's own words first).
 2. **The player chooses the hour.** One daily moment they pick (morning, afternoon, evening), like a cup of tea at the same time. Never at night (no notification between 21:00 and 08:00).
-3. **One a day at most.** Usually fewer.
-4. **Only when something is truly waiting.** If nothing is waiting, nothing is sent. No empty "come play" pings.
+3. **One a day at most.** Usually fewer. A week's plan never holds more than seven notes (checklist 57).
+4. **Only for arrivals, truly waiting.** A note is sent only when something has arrived for the player and is still unopened: a letter in the box (family or neighbour) or a cutting in the basket. Drops, replays, things still holding a puzzle and other prizes or prompts never qualify. If nothing has arrived, nothing is sent. No empty "come play" pings.
 5. **True at the moment it is read.** The garden doesn't change while you're away (progress only moves when you play), so what was true when the game closed is still true. Nothing is invented.
 6. **Warm, specific, short, from someone.** In a neighbour's voice, naming the actual thing. Never "we miss you", "don't lose", "hurry", "only today", "streak", "come back", counts of days away.
 7. **Backs off by itself.** A note is queued only when the game closes, so at most one is ever waiting. If it goes unopened, nothing more is sent until the player opens the game again: one note, then silence. (A guard also stops scheduling after three unopened in a row, should a future version queue more than one.)
@@ -22,19 +22,18 @@ Engagement we want: a calm daily ritual the player *chooses*, and family moments
 9. **Nothing leaves the device.** Local notifications only: no server, no account, no tracking, no analytics, no third-party SDK.
 10. **One switch, in Settings, in plain sight.** Easy to turn off; the hour is easy to change.
 
-## 3. What may be said (priority order)
+## 3. What may be said (checklist 57)
 
-Chosen when the game closes, from the save, by a pure, tested Core function (`GardenNote`). The first true one wins:
+Chosen from the save by a pure, tested Core function, `GardenNote.For` (one note, first true one wins), and planned for a week by `GardenNote.ForWeek` (one per day at most, at most seven, none when opted out, stops after three unopened in a row). The scheduler in `GardenNotes.Schedule` queues only the first note of that plan and has no other source of text.
 
-| Waiting in the garden | Who says it | Example |
+| Arrived and waiting | Who says it | Example |
 | --- | --- | --- |
-| A letter not yet read | Orin | "There's a letter in your box from Nan. It'll keep until you're ready." |
-| A cutting from family in the basket | the keeper of its kind | "Fen: A clover cutting is waiting in your basket for a sunny spot." |
-| One drop from more river | Mira | "Mira: One more thing tended and the mist downstream will lift." |
-| A thing still holding its first puzzle | its keeper | "Orin: Your weathervane still holds a puzzle of garden plots, whenever you fancy it." |
-| A favourite to replay (only if nothing else) | its keeper | "Fen: The forget-me-nots would deal you a fresh table of pairs." |
+| A letter in the box not yet read (family, or a neighbour's note) | Orin | "There's a letter in your box from Nan. It'll keep until you're ready." |
+| A cutting in the basket (from a family parcel or a neighbour) | the keeper of its kind | "Fen: A clover cutting is in your basket, ready for a good spot." |
 
-Nothing else qualifies. Family parcels can't be detected while the game is closed (they travel by message apps), so the system never pretends to know a parcel arrived; the future opt-in family circle could add that honestly.
+Nothing else qualifies. Drops from more river, replays of a favourite and things still holding their first puzzle are prizes or reminders, so they are no longer scheduled (they remain in the game itself). This matches item 60's return-reasons rule (`docs/specs/return-reasons-v1.md`).
+
+Family parcels are opened by pasting their text in the game, so a parcel only "arrives" once it is opened; its letter then waits in the box and its cutting in the basket. A parcel still sitting in a message app is not knowable while the game is closed, so the system never pretends to know about it.
 
 ## 4. Asking for permission
 

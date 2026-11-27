@@ -205,18 +205,30 @@ internal static class LineBankTests
         GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 2);
         var today = new DateTime(2026, 11, 27);
         var spoken = new HashSet<FactKind>();
+        var pending = new HashSet<FactKind>();
         foreach (WorldModel world in CompanionFactsTests.Saves())
             foreach (CompanionContext context in CompanionFactsTests.Contexts(map).Where(c => c.Map != null)) // without the map, {where} is unknown and today's sentence speaks
                 foreach (Fact fact in CompanionFacts.For(world, context))
                 {
                     int speaker = fact.Keeper < 0 ? 0 : fact.Keeper;
+                    if (!rules.Kinds.ContainsKey(fact.Kind.ToString()) || rules.Kinds[fact.Kind.ToString()].Pending)
+                    {
+                        // A kind newer than its reviewed lines speaks its own fixed sentence until they ship.
+                        Expect(CompanionSpeech.Legacy(fact, speaker) != null, "a kind awaiting review still has words: " + fact);
+                        pending.Add(fact.Kind);
+                        continue;
+                    }
                     string text = en.Speak(fact, speaker, world.Garden, context.DayNumber, CompanionMemory.Empty, out int variant);
                     Expect(text != null && variant >= 0 && !text.Contains("{") && !text.Contains("}"), "English speaks " + fact + ": " + text);
                     Expect(text.Length <= rules.MaxChars, "within " + rules.MaxChars + " characters: " + text);
                     spoken.Add(fact.Kind);
                 }
+        foreach (var kind in rules.Kinds)
+            if (!kind.Value.Pending)
+                Expect(spoken.Contains((FactKind)Enum.Parse(typeof(FactKind), kind.Key)), "the English bank speaks for " + kind.Key);
         foreach (FactKind kind in Enum.GetValues(typeof(FactKind)))
-            Expect(spoken.Contains(kind), "the English bank speaks for every fact kind: " + kind);
+            Expect(rules.Kinds.ContainsKey(kind.ToString()), "every fact kind has rules (reviewed lines, or pending review): " + kind);
+        if (pending.Count > 0) Console.WriteLine("Line bank: awaiting reviewed lines (fixed sentence meanwhile): " + string.Join(", ", pending));
     }
 
     private static IEnumerable<WorldModel> KindsSaves()
@@ -316,7 +328,7 @@ internal static class LineBankTests
         }
         foreach (var kind in rules.Kinds)
         {
-            if (!present.TryGetValue(kind.Key, out var got)) { Expect(!complete, name + ": has lines for " + kind.Key); continue; }
+            if (!present.TryGetValue(kind.Key, out var got)) { Expect(!complete || kind.Value.Pending, name + ": has lines for " + kind.Key); continue; }
             foreach (var voice in kind.Value.Voices)
             {
                 got.TryGetValue(voice.Key, out var counts);
@@ -348,6 +360,7 @@ internal static class LineBankTests
         public string Qualifier;
         public int MinEach;
         public bool AllowTimeClaims;
+        public bool Pending;
     }
 
     private sealed class Rules
@@ -374,6 +387,7 @@ internal static class LineBankTests
                     Qualifier = v.TryGetProperty("qualifier", out JsonElement q) ? q.GetString() : null,
                     MinEach = v.TryGetProperty("minEach", out JsonElement m) ? m.GetInt32() : 0,
                     AllowTimeClaims = v.TryGetProperty("allowTimeClaims", out JsonElement t) && t.GetBoolean(),
+                    Pending = v.TryGetProperty("pending", out JsonElement pend) && pend.GetBoolean(),
                 };
             }
             return new Rules {

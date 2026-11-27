@@ -19,7 +19,88 @@ namespace Evergrove.UnityClient
         public static readonly Color Water = new Color(0.62f, 0.83f, 0.88f, 1f);
         public static readonly Color Given = new Color(0.90f, 0.86f, 0.74f, 1f);
         public static readonly Color Picked = new Color(0.98f, 0.93f, 0.74f, 1f);
-        public static readonly Color Clash = new Color(0.96f, 0.80f, 0.78f, 1f);
+        // A conflict tile: muted sand (the palette's AnchoredTile, #F1DEB6), never red. It is only
+        // painted once the player asks (see ShowClashes), and always with the ring below.
+        public static readonly Color Clash = new Color(0.945f, 0.871f, 0.714f, 1f);
+
+        // ---- Kind mistakes: conflicts are never shown by themselves. A lens token beside each
+        // board's hint shows them, as a sand tile and a small ring; the choice is kept on this device.
+        public const string ShowClashesKey = "evergrove:showClashes";
+        private const string ClashMarkName = "Clash mark";
+        private const string ShowCaption = "Show clashes";
+        private const string HideCaption = "Hide clashes";
+
+        /// <summary>Device-only, off by default. Saved at once, so it survives the app closing.</summary>
+        public static bool ShowClashes
+        {
+            get { return PlayerPrefs.GetInt(ShowClashesKey, 0) == 1; }
+            set
+            {
+                PlayerPrefs.SetInt(ShowClashesKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+            }
+        }
+
+        /// <summary>
+        /// The lens token, placed just after the hint token in the card's top row. Tapping it
+        /// flips <see cref="ShowClashes"/> and calls <paramref name="repaint"/>. Its name is the
+        /// spoken caption ("Show clashes" / "Hide clashes").
+        /// </summary>
+        public static void ClashLens(Transform top, Action repaint)
+        {
+            if (top == null) return;
+            string caption = ShowClashes ? HideCaption : ShowCaption;
+            TreePlay.Token(top, caption, MosseloraArt.BoldRing(), 52f, LensTone(ShowClashes),
+                () => ToggleClashes(top, repaint), true);
+            Transform lens = top.Find(caption);
+            Transform hint = top.Find("Hint: show the next move");
+            if (lens != null && hint != null) lens.SetSiblingIndex(hint.GetSiblingIndex() + 1);
+        }
+
+        private static void ToggleClashes(Transform top, Action repaint)
+        {
+            Transform lens = top.Find(ShowClashes ? HideCaption : ShowCaption);
+            ShowClashes = !ShowClashes;
+            if (lens != null)
+            {
+                lens.name = ShowClashes ? HideCaption : ShowCaption;
+                var image = lens.GetComponent<Image>();
+                if (image != null) image.color = LensTone(ShowClashes);
+            }
+            repaint();
+        }
+
+        private static Color LensTone(bool on)
+        {
+            return on ? MosseloraTheme.WaterAction : MosseloraTheme.ForestAction;
+        }
+
+        /// <summary>
+        /// The shape cue for a conflict: a small earth-ink ring in the cell's top-right corner,
+        /// created on first use and shown or hidden after that. Colour is never the only cue.
+        /// </summary>
+        public static void MarkClash(Image cell, bool on)
+        {
+            Transform mark = cell.transform.Find(ClashMarkName);
+            if (mark == null)
+            {
+                if (!on) return;
+                var node = new GameObject(ClashMarkName, typeof(RectTransform));
+                node.transform.SetParent(cell.transform, false);
+                var rect = (RectTransform)node.transform;
+                rect.anchorMin = new Vector2(0.62f, 0.62f);
+                rect.anchorMax = new Vector2(0.9f, 0.9f);
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+                var image = node.AddComponent<Image>();
+                image.sprite = MosseloraArt.BoldRing();
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                image.color = MosseloraTheme.EarthInk;
+                image.raycastTarget = false;
+                mark = node.transform;
+            }
+            mark.gameObject.SetActive(on);
+        }
 
         /// <summary>Room for a board under the card's top row: width and height in points.</summary>
         public static Vector2 Room(float width, float screenHeight, float below = 0f)

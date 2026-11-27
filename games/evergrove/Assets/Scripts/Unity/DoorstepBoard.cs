@@ -61,6 +61,7 @@ namespace Evergrove.UnityClient
             Line(board, n * cell, true, 0f);
             Line(board, n * cell, false, 0f);
             if (diagonals) { Line(board, n * cell, true, 45f); Line(board, n * cell, true, -45f); }
+            BoardKit.ClashLens(card.Find("Tree puzzle top"), Paint);
             Paint();
         }
 
@@ -95,9 +96,11 @@ namespace Evergrove.UnityClient
             for (int c = 0; c < cells.Length; c++)
             {
                 CellMark mark = game.State(c);
+                bool clash = mark != CellMark.Unknown && c != shownCell && BoardKit.ShowClashes && game.Conflicts(c);
                 cells[c].color = c == shownCell ? BoardKit.Picked
                     : mark == CellMark.Unknown ? BoardKit.Soil
-                    : game.Conflicts(c) ? BoardKit.Clash : Ground;
+                    : clash ? BoardKit.Clash : Ground;
+                BoardKit.MarkClash(cells[c], clash);
                 petals[c].enabled = mark == CellMark.Drawn;
             }
         }

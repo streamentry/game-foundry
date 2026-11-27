@@ -22,5 +22,15 @@ namespace Evergrove.Core
         {
             return Names[Math.Max(0, Math.Min(Names.Length - 1, reach))];
         }
+
+        /// <summary>
+        /// A deterministic suggestion for naming a garden (checklist 3): the same seed always gives the
+        /// same reach name, and every result is one of the river names above.
+        /// </summary>
+        public static string Suggest(int seed)
+        {
+            uint mixed = unchecked((uint)seed * 2654435761u);
+            return Names[mixed % (uint)Names.Length];
+        }
     }
 }

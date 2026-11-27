@@ -18,6 +18,7 @@ namespace Evergrove.Core
                 case FactKind.FruitGiven: return NeighbourNotice.Thanked(speaker);
                 case FactKind.SolvedTogether: return NeighbourNotice.TogetherLine(fact.EnumSlot<PuzzleKind>("puzzle"));
                 case FactKind.WeatherWhileAway:
+                    if (fact.Slot("letter") != null) return fact.Slot("letter"); // v1 #90
                     string since = DayWeather.SinceSentence(fact.Slot("weather"), fact.IntSlot("days"));
                     return fact.Slot("welcome") == null ? since : fact.Slot("welcome") + " " + since; // I420
                 case FactKind.LetterWaiting:
@@ -39,6 +40,7 @@ namespace Evergrove.Core
                 case FactKind.NewestThing: return Newest(fact, speaker);
                 case FactKind.VisitorCame: return VisitorRemark(fact.Slot("visitor"));
                 case FactKind.HourHabit: return HabitRemark(fact.EnumSlot<DayPhase>("phase"), speaker);
+                case FactKind.RainComing: return RiverWeather.ComingLine;
                 default: return null;
             }
         }
@@ -65,6 +67,8 @@ namespace Evergrove.Core
         public static string Compose(Fact fact, string bankLine)
         {
             if (fact == null || bankLine == null) return bankLine;
+            // v1 #90: after 90 days or more, the short letter about this garden replaces the weather report.
+            if (fact.Kind == FactKind.WeatherWhileAway && !string.IsNullOrEmpty(fact.Slot("letter"))) return fact.Slot("letter");
             string welcome = fact.Kind == FactKind.WeatherWhileAway ? fact.Slot("welcome") : null;
             return string.IsNullOrEmpty(welcome) ? bankLine : welcome + " " + bankLine;
         }

@@ -11,21 +11,21 @@ namespace Evergrove.Core
     public static class Companion
     {
         public const int PhaseCount = 6;
-        public const int HabitNeeds = 6;           // returns counted before a habit can show
-        public const float HabitShare = 0.6f;      // and the one hour must be this share of them
+        public const int HabitNeeds = 5;           // visits to one hour before a habit can show (idea 82)
         public const int LongAway = 7, VeryLongAway = 30;
+        public const int LetterAway = 90;          // days away before the return letter (idea 90)
 
-        /// <summary>I419: the hour (phase) you usually come, or null while there's no clear habit.</summary>
+        /// <summary>
+        /// I419 (idea 82): the hour (phase) you usually come, or null while there's no clear habit.
+        /// The busiest hour counts alone: visits to other hours neither add to it nor cancel it.
+        /// </summary>
         public static DayPhase? Habit(int[] counts)
         {
             if (counts == null || counts.Length != PhaseCount) return null;
-            int total = 0, best = 0;
-            for (int i = 0; i < counts.Length; i++)
-            {
-                total += Math.Max(0, counts[i]);
+            int best = 0;
+            for (int i = 1; i < counts.Length; i++)
                 if (counts[i] > counts[best]) best = i;
-            }
-            if (total < HabitNeeds || counts[best] < total * HabitShare) return null;
+            if (counts[best] < HabitNeeds) return null;
             return (DayPhase)best;
         }
 
@@ -61,6 +61,45 @@ namespace Evergrove.Core
         {
             if (daysAway >= VeryLongAway) return "There you are. It's been a while, and that's all right: nothing's lost, the garden kept itself.";
             if (daysAway >= LongAway) return "It's good to see you. Nothing's lost while you were away.";
+            return null;
+        }
+
+        /// <summary>
+        /// Idea 90: the letter after a long absence (LetterAway days or more). Three short lines,
+        /// each naming something of this garden (its name, else the last thing grown), with no
+        /// loss or guilt words. Null for shorter gaps. Pure: the same garden and days always give
+        /// the same letter.
+        /// </summary>
+        public static string[] AbsenceLetter(WorldModel world, int daysAway)
+        {
+            if (world == null || daysAway < LetterAway) return null;
+            string specific;
+            if (world.GardenName.Length > 0)
+                specific = world.GardenName + " is still here, and so is everything you grew in it.";
+            else
+            {
+                string thing = LastGrown(world);
+                specific = thing != null
+                    ? "The " + thing + " you grew is still there, right where you left it."
+                    : "Your garden is quiet and ready whenever you are.";
+            }
+            return new[]
+            {
+                "It's been a while, and it's lovely to have you back.",
+                specific,
+                "Nothing needs doing. The garden looked after itself, and it's glad you came.",
+            };
+        }
+
+        /// <summary>The name of the most recent thing grown in the garden, or null if nothing is grown yet.</summary>
+        private static string LastGrown(WorldModel world)
+        {
+            int[] made = world.Choices;
+            for (int i = made.Length - 1; i >= 0; i--)
+            {
+                if (made[i] < 0 || made[i] > 2) continue;
+                return GardenCatalog.For(world.Garden, Math.Min(i, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)made[i]).Name;
+            }
             return null;
         }
 

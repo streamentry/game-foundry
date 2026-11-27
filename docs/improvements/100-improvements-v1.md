@@ -11,12 +11,12 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **1. One silent opening shot.** Open on the garden at the current local hour and weather, with no logo card, so the first frame already shows the game. *Test:* time from launch to the first tap that does something, under 10 s on a mid-range phone.
 - [ ] **2. Learn by one gesture.** The first thing asked is a single tap that waters the garden (I350). Teach every other control only when it's first needed. *Test:* five first-time 40+ players finish the first board without help.
 - [ ] **3. Name the garden.** Let the player name the garden (optional, with a suggested name from `RiverNames`), and show it on the cottage sign and on postcards. *Test:* what share of players change the suggested name.
-- [ ] **4. Mira explains one thing, once.** Cap the opening dialogue at three short lines. Any later help comes from the neighbours in context (I370), never from a tutorial screen. *Test:* count words shown before the first puzzle (goal: under 40).
+- [x] **4. Mira explains one thing, once.** Cap the opening dialogue at three short lines. Any later help comes from the neighbours in context (I370), never from a tutorial screen. *Test:* count words shown before the first puzzle (goal: under 40).
 - [ ] **5. Remember the hand.** On the first long-press, ask once whether the player is left- or right-handed, and mirror the tray and menu to suit. *Test:* thumb-reach heatmap in landscape on a 6.7″ phone.
 - [ ] **6. Text size first, not in Settings.** On first launch, show the garden with a size slider whose preview updates live. *Test:* 150% tour (I-series tour) shows no clipped text on any first-run screen.
 - [ ] **7. A first win in two minutes.** The first board is sized to finish in about two minutes and ends in a visible change to the garden. *Test:* median first-board time in the playtest kit.
 - [ ] **8. No sign-up wall, ever, for solo play.** Audit every first-run path so that family features appear only after the third day, and only as an offer. *Test:* fresh install, airplane mode, play day 1 end to end.
-- [ ] **9. Restore that the player can trust.** Before any reinstall prompt, show "Your garden is saved on this phone" with the last-saved time. *Test:* kill the app mid-move, relaunch, compare the garden.
+- [x] **9. Restore that the player can trust.** Before any reinstall prompt, show "Your garden is saved on this phone" with the last-saved time. *Test:* kill the app mid-move, relaunch, compare the garden.
 - [ ] **10. A two-sentence store promise.** The store promise has to match the first five minutes exactly. Rewrite the store's first line after watching what players do in their first session. *Test:* five-second test of the listing with 40+ readers.
 
 ## B. Navigation: icons, one menu, nothing extra on screen
@@ -26,7 +26,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **13. Context buttons appear where the thumb is.** A tapped thing shows its two actions beside it (play, move) and nothing else. *Test:* taps per action before and after.
 - [ ] **14. Back is always the same place.** One back gesture and one back icon position across all sheets (FamilySheet, almanac, nursery). *Test:* tour shot audit of every sheet.
 - [ ] **15. The menu remembers.** The fan opens with the last-used item nearest the thumb. *Test:* second-tap distance in a logged session.
-- [ ] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
+- [x] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
 - [ ] **17. Sheets slide, never pop.** Every panel enters from the edge it belongs to (letters from the letterbox, nursery from the gate), with motion limited to transform and opacity. *Test:* reduced-motion setting replaces each slide with a fade.
 - [ ] **18. Hide the HUD while looking.** After 6 s with no touch, the menu and purse fade to 20% so the garden fills the screen. Any touch brings them back. *Test:* screenshot pairs at rest and in use.
 - [ ] **19. Long-press explains anything.** Any icon or thing, long-pressed, shows its name and one line. This replaces help pages. *Test:* coverage script lists every raycast target without a caption.
@@ -47,16 +47,16 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 ## D. Depth: simple to play, more to discover
 
-- [ ] **31. Snug fits in Garden Pieces.** Glow only snug placements that leave no unfillable pocket (I373 in progress), so the hint teaches corners-first play. *Test:* snug glow covers under half of the plain-fit squares.
-- [ ] **32. More good-neighbour pairings.** Extend I368 with second-order pairings, such as a bed beside a grove. Each is a rule you can say out loud. *Test:* every pairing has a one-line rule and a test.
-- [ ] **33. Garden layouts that remember.** Pairings found per garden layout give a gentle almanac page called "how my garden grew". *Test:* save round-trip.
-- [ ] **34. Difficulty the player chooses, honestly labelled.** Leaves 1–3 (I336) on every puzzle kind, with the chosen level remembered per kind. *Test:* no kind lacks a gentle level.
+- [x] **31. Snug fits in Garden Pieces.** Glow only snug placements that leave no unfillable pocket (I373 in progress), so the hint teaches corners-first play. *Test:* snug glow covers under half of the plain-fit squares.
+- [x] **32. More good-neighbour pairings.** Extend I368 with second-order pairings, such as a bed beside a grove. Each is a rule you can say out loud. *Test:* every pairing has a one-line rule and a test.
+- [x] **33. Garden layouts that remember.** Pairings found per garden layout give a gentle almanac page called "how my garden grew". *Test:* save round-trip.
+- [x] **34. Difficulty the player chooses, honestly labelled.** Leaves 1–3 (I336) on every puzzle kind, with the chosen level remembered per kind. *Test:* no kind lacks a gentle level.
 - [x] **35. A weekly deeper board.** One harder board each week per favourite kind, with no timer, and no penalty for skipping it. *Test:* generator proves uniqueness at the top tier.
 - [x] **36. Technique names.** When a player uses a known technique (a naked pair in seed sudoku), the almanac names it the first time. *Test:* the detector agrees with the solver on 1,000 boards.
 - [ ] **37. Boards drawn from the player's own garden.** Mosaic and pictures-by-numbers boards use shapes of things the player grew. *Test:* generated boards are unique and solvable.
 - [ ] **38. Chains between puzzles.** Finishing a stream path waters plots; finishing plots feeds the nursery. Each link is one visible, logical cause. *Test:* the cause shows on screen within 2 s.
 - [ ] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
-- [ ] **40. Mistakes shown kindly.** Show conflicts only on request (a lens icon), never automatically in red. *Test:* setting persists; no red anywhere.
+- [x] **40. Mistakes shown kindly.** Show conflicts only on request (a lens icon), never automatically in red. *Test:* setting persists; no red anywhere.
 
 ## E. The open world: the endless river
 
@@ -65,9 +65,9 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **43. A boat to travel.** A small boat ride between stretches replaces scrolling for long distances. *Test:* any stretch is reachable in 2 taps.
 - [ ] **44. Landmarks for wayfinding.** One tall landmark per stretch (mill, bridge, willow) is visible from the next, so players can't get lost. *Test:* a "where are you" test with 5 players.
 - [ ] **45. A river map.** A painted scroll map of opened stretches, with your family's gardens pinned on it. *Test:* the map opens from the menu with one tap.
-- [ ] **46. Things grow outside the garden.** Wild places along the river where planted things spread on their own over days. *Test:* growth is deterministic by date and seed.
-- [ ] **47. Build simple paths and bridges.** Place stepping stones that join areas, with Minecraft-like freedom kept at a gentle scale. *Test:* placement is grid-snapped and undoable.
-- [ ] **48. Weather moves down the river.** Rain upstream today reaches you tomorrow, said by a neighbour. *Test:* same seed, same forecast.
+- [x] **46. Things grow outside the garden.** Wild places along the river where planted things spread on their own over days. *Test:* growth is deterministic by date and seed.
+- [x] **47. Build simple paths and bridges.** Place stepping stones that join areas, with Minecraft-like freedom kept at a gentle scale. *Test:* placement is grid-snapped and undoable.
+- [x] **48. Weather moves down the river.** Rain upstream today reaches you tomorrow, said by a neighbour. *Test:* same seed, same forecast.
 - [ ] **49. Night creatures per stretch.** Owls, moths and frogs, visible only in the evening. Each is logged in "who visits" (I327). *Test:* a night tour shot per stretch.
 - [ ] **50. Performance budget for an endless world.** Only the visible stretch plus one on either side is built, and the rest is pooled. *Test:* memory flat after 30 stretches of scrolling.
 
@@ -79,9 +79,9 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **54. A morning and an evening.** Different small things wait by local time of day (dew boards in the morning, lantern letters in the evening). *Test:* clock QA hook tours.
 - [ ] **55. Calendar of the river.** Real seasonal days per locale (first frost, longest day) become small festivals, not cultural events the game can't do justice to. *Test:* each festival line reviewed per locale.
 - [ ] **56. An end to each session.** After the day's thing, a neighbour says goodnight and the garden quietens. This invites stopping, not more play. *Test:* players report a natural ending point.
-- [ ] **57. Notifications only for real arrivals.** Notifications fire only for a family letter or a parcel, at most one a day, and are opt-in (I273–I277). *Test:* a week's log shows no more than 7.
+- [x] **57. Notifications only for real arrivals.** Notifications fire only for a family letter or a parcel, at most one a day, and are opt-in (I273–I277). *Test:* a week's log shows no more than 7.
 - [x] **58. A diary page per week.** The almanac writes one painted page per week, made from what happened. *Test:* the page is generated deterministically from the save.
-- [ ] **59. The year has a shape.** A season tale (I312) unlocks one new kind of thing per season, so the year has chapters. *Test:* a year simulation shows something new every season.
+- [x] **59. The year has a shape.** A season tale (I312) unlocks one new kind of thing per season, so the year has chapters. *Test:* a year simulation shows something new every season.
 - [x] **60. Come back for people, not prizes.** Every daily reason should trace to the garden or family, never to a timed reward. *Test:* audit list of every return reason.
 
 ## G. Family: playing together across distance
@@ -104,7 +104,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **73. Giving is always cheaper than buying.** Gifts to family cost less than buying the same thing for yourself, which makes generosity the rational choice. *Test:* economy table check.
 - [x] **74. A market stall.** Sell surplus fruit and jam to neighbours at prices that move with the season. *Test:* prices are deterministic by date.
 - [ ] **75. Recipes.** Two harvests combine into a new food (apple and honey, for example) and recipes are found by trying them. *Test:* every recipe is listed in the almanac once found.
-- [ ] **76. Storage has a limit you can grow.** A larder with shelves gives a reason to cook, give or sell. *Test:* a full larder never loses items silently.
+- [x] **76. Storage has a limit you can grow.** A larder with shelves gives a reason to cook, give or sell. *Test:* a full larder never loses items silently.
 - [x] **77. No currency for sale that buys power.** If the game is ever monetised, use a one-time unlock or cosmetic season packs only. *Test:* monetisation spec reviewed against the vision's §7.
 - [x] **78. Visible ledger.** A small book shows the last 20 seed movements, so nothing in the purse is a mystery. *Test:* every change of `seeds` writes a ledger line.
 - [x] **79. Neighbours trade too.** Orin trades wood for fruit and Fen trades stone for jam, at stable, sensible rates. *Test:* no trade loop yields profit.
@@ -113,15 +113,15 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 ## I. Neighbours as quiet companions
 
 - [ ] **81. Neighbours remember what you said.** Reply chips in letters (three icons, not free text) shape the next letter. *Test:* a reply is echoed within 3 days.
-- [ ] **82. They notice your habits, gently.** "You come by in the mornings" appears after a real pattern, and never in a way that judges. *Test:* the line appears only after 5 morning visits.
-- [ ] **83. Each neighbour has a life arc.** Orin builds a boat over a season and Fen mends the mill. Their projects move forward as you play. *Test:* each arc has an end.
-- [ ] **84. Neighbours ask for help.** Small requests (I313 wishes) that need your garden's logic, such as "a flower bed near my door". *Test:* each wish is satisfiable from the current garden.
-- [ ] **85. Neighbours can be quiet.** A setting for "speak less" halves remarks, for players who prefer silence. *Test:* setting persists.
+- [x] **82. They notice your habits, gently.** "You come by in the mornings" appears after a real pattern, and never in a way that judges. *Test:* the line appears only after 5 morning visits.
+- [x] **83. Each neighbour has a life arc.** Orin builds a boat over a season and Fen mends the mill. Their projects move forward as you play. *Test:* each arc has an end.
+- [x] **84. Neighbours ask for help.** Small requests (I313 wishes) that need your garden's logic, such as "a flower bed near my door". *Test:* each wish is satisfiable from the current garden.
+- [x] **85. Neighbours can be quiet.** A setting for "speak less" halves remarks, for players who prefer silence. *Test:* setting persists.
 - [ ] **86. A neighbour speaks your language properly.** Neighbour lines are localised by native writers, not translated, starting with the first localisation market. *Test:* a native reviewer signs off.
-- [ ] **87. They mark real dates you choose.** The player may add a birthday or anniversary, and the neighbours mark it. It stays local and is never sent anywhere. *Test:* data stays on the device.
+- [x] **87. They mark real dates you choose.** The player may add a birthday or anniversary, and the neighbours mark it. It stays local and is never sent anywhere. *Test:* data stays on the device.
 - [x] **88. Honest companions.** Neighbours never claim feelings about the player's health or loneliness, and never imply they're real people. *Test:* a line audit against vision §1a's "what we must not claim".
 - [ ] **89. Optional on-device language model, researched first.** Only if it runs offline and passes a safety review: a neighbour could vary wording, never facts. *Test:* a spike that compares wording quality and latency on device.
-- [ ] **90. Goodbyes that matter.** If the player stops for months, the return letter is warm, short and specific to their garden. *Test:* the 90-day absence path in QA.
+- [x] **90. Goodbyes that matter.** If the player stops for months, the return letter is warm, short and specific to their garden. *Test:* the 90-day absence path in QA.
 
 ## J. Accessibility, trust and proof
 

@@ -25,9 +25,6 @@ internal static class DailyRhythmAuditTests
     {
         "Garden note: letter waiting",
         "Garden note: cutting in basket",
-        "Garden note: mist will lift",
-        "Garden note: puzzle still waiting",
-        "Garden note: favourite board",
         "Garden note: daily reminder",
         "Since you were last here",
         "Today's weather",

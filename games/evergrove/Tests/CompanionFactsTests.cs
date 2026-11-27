@@ -82,6 +82,13 @@ internal static class CompanionFactsTests
         IReadOnlyList<Fact> away = CompanionFacts.For(world, new CompanionContext(today, lastSeen: today.AddDays(-1)));
         Expect(Find(away, FactKind.WeatherWhileAway, 0) == null, "yesterday is not 'a while'");
         Fact gone = Find(CompanionFacts.For(world, new CompanionContext(today, lastSeen: today.AddDays(-5))), FactKind.WeatherWhileAway, 0);
+        // v1 #90: 90+ days away, the live line is the short letter about this garden, never the weather list.
+        Fact longGone = Find(CompanionFacts.For(world, new CompanionContext(today, lastSeen: today.AddDays(-120))), FactKind.WeatherWhileAway, 0);
+        string longLine = longGone == null ? null : CompanionSpeech.Legacy(longGone, 0);
+        Expect(longLine != null && longLine == string.Join(" ", Companion.AbsenceLetter(world, 120)),
+            "after 120 days Mira says the garden's own letter: " + longLine);
+        Fact shortGone = Find(CompanionFacts.For(world, new CompanionContext(today, lastSeen: today.AddDays(-30))), FactKind.WeatherWhileAway, 0);
+        Expect(shortGone == null || shortGone.Slot("letter") == null, "under 90 days there is no letter slot");
         Expect(gone != null && gone.IntSlot("days") == 5, "five days away, told as five");
         Expect(Find(CompanionFacts.For(world, new CompanionContext(today, lastSeen: today.AddDays(3))), FactKind.WeatherWhileAway, 0) == null,
             "a clock set back claims nothing");

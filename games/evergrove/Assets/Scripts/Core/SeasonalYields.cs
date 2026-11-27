@@ -99,13 +99,14 @@ namespace Evergrove.Core
                     ChangeSeeds(SeasonalYields.SummerSeeds, SeedReason.Season); // v1 #78: every seed change is in the ledger
                     break;
                 case SeasonYield.Fruit:
-                    if (state.fruit >= MaxFruit) return SeasonYield.None;
-                    state.fruit = Math.Min(MaxFruit, state.fruit + SeasonalYields.AutumnFruit);
+                    // v1 #76: all of it fits or the yield keeps waiting, so nothing is dropped silently.
+                    if (state.fruit + SeasonalYields.AutumnFruit > FruitCapacity) return SeasonYield.None;
+                    state.fruit += SeasonalYields.AutumnFruit;
                     break;
                 default:
                     int given = 0;
                     foreach (int g in state.fruitGiven) given += g;
-                    if (given == 0 || state.jam >= MaxJam) return SeasonYield.None;
+                    if (given == 0 || state.jam >= JamCapacity) return SeasonYield.None;
                     state.jam++;
                     break;
             }

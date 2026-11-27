@@ -31,6 +31,7 @@ namespace Evergrove.Core
         SeasonTurned,     // the season the garden is in now, once per season turn (I250/I251)
         YieldGiven,       // what this season gave: seedling, seeds, fruit or jam (I388-I391)
         PairingFound,     // a good-neighbour pairing you have found (I369/I383)
+        RainComing,       // rain upstream today, reaching the garden tomorrow: Orin (checklist 48)
     }
 
     /// <summary>
@@ -197,6 +198,9 @@ namespace Evergrove.Core
                 facts.Add(Make(FactKind.WeatherToday, Fact.AnyKeeper,
                     "weather:" + context.Weather, AmbientWeight, false, false, 10 * Step,
                     "weather", context.Weather.ToString()));
+            if (RiverWeather.RainComing(context.Today, world.Garden, GardenSeason.For(world)))
+                facts.Add(Make(FactKind.RainComing, 1, "rain-coming:" + context.Today.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
+                    AmbientWeight, false, false, 10 * Step + 60, LegacyOffSlot, "1"));
             if (context.LightOn && DayLight.Remark(0, context.Phase, GardenSeason.For(world)) != null)
                 facts.Add(Make(FactKind.Hour, Fact.AnyKeeper, "hour:" + context.Phase, AmbientWeight, false, false, 12 * Step,
                     "phase", context.Phase.ToString(), "season", GardenSeason.For(world).ToString()));
@@ -221,6 +225,9 @@ namespace Evergrove.Core
             string welcome = Companion.WelcomeBack(days);
             var slots = new List<string> { "weather", weather, "days", Num(days) };
             if (welcome != null) { slots.Add("welcome"); slots.Add(welcome); }
+            // v1 #90: after 90 days or more, a short letter about this garden replaces the weather report.
+            string[] letter = Companion.AbsenceLetter(world, days);
+            if (letter != null) { slots.Add("letter"); slots.Add(string.Join(" ", letter)); }
             facts.Add(Make(FactKind.WeatherWhileAway, 0, "away:" + last.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
                 RareWeight, false, false, 2 * Step, slots.ToArray()));
         }

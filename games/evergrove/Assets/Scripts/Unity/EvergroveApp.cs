@@ -924,7 +924,7 @@ namespace Evergrove.UnityClient
             saveWarningCaption.resizeTextForBestFit = true;
             saveWarningCaption.resizeTextMinSize = TextScale.Scale(12);
             saveWarningCaption.resizeTextMaxSize = TextScale.Scale(14);
-            saveWarningCaption.color = Hex("#983E37");
+            saveWarningCaption.color = MosseloraTheme.EarthInk;
             saveWarningCaption.alignment = TextAnchor.MiddleCenter;
             saveWarningCaption.raycastTarget = false;
             UpdateSaveWarning();
@@ -1922,7 +1922,7 @@ namespace Evergrove.UnityClient
             Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => ToggleFan(true), 54, MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
-            if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu);
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu, MenuSeenKey);
         }
 
         // "Rainwater" with the painted landmark your last choice planted in it:
@@ -2070,6 +2070,9 @@ namespace Evergrove.UnityClient
         private void OpenThingPuzzle(int seed, int tier, PuzzleKind kind, Sprite art, string name, int reward,
                                      int pictureStart, Func<int> solved, bool ownBoard = false)
         {
+            // Item 34: only your own things follow your chosen level; a relative's shared board, the well
+            // and the weekly deeper board stay exactly as dealt.
+            if (ownBoard) (seed, tier) = ChosenDeal(kind, seed, tier, solved, (s, t, sv) => () => OpenThingPuzzle(s, t, kind, art, name, reward, pictureStart, sv, ownBoard));
             moveNote = 0; // I305: each board starts its phrase from the top
             Action turned = () => { PlayMove(kind); if (gentleMotion) Haptics.Tick(); };
             int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
@@ -2926,7 +2929,11 @@ namespace Evergrove.UnityClient
             int restored = world.Completed ? PuzzleCatalog.Count : world.Round;
             var taken = new System.Collections.Generic.List<int>(map.Layout(world.Choices, world.Placements, world.Occupied));
             taken.AddRange(world.Occupied);
-            GardenMapView.MeadowTufts = MeadowLife.Cells(map, MeadowLife.Count(restored), taken.ToArray());
+            // Checklist 46: flowers you planted spread along the river by days played (WildGrowth), drawn as the same tufts.
+            var tufts = new System.Collections.Generic.List<int>(MeadowLife.Cells(map, MeadowLife.Count(restored), taken.ToArray()));
+            foreach (int wild in WildGrowth.Spread(map, world, world.DaysPlayed))
+                if (!tufts.Contains(wild)) tufts.Add(wild);
+            GardenMapView.MeadowTufts = tufts.ToArray();
             GardenMapView view = GardenMapView.Build(window, plot, map, hubItems, zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldDecor >= 0 ? DecorIndex + heldDecor : heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
                 (justPlanted >= 0 || justBought >= 0) && gentleMotion,
@@ -3550,6 +3557,9 @@ namespace Evergrove.UnityClient
         // outside English, their authored lines (LocalizedVillage).
         private string NeighborSays(int villager)
         {
+            if (SpeakLessSilences(villager)) return ""; // idea 85: speak less keeps half the remarks
+            string arc = ArcRemark(villager); // idea 83: a neighbour's project, when its step is news
+            if (arc != null) return arc;
             Fact pick = CompanionPick(villager);
             if (pick == null) return LocalizedVillage.Speak(world, villager);
             return CompanionWords(pick, villager, out _) ?? LocalizedVillage.Speak(world, villager); // never a blank card
@@ -3969,7 +3979,8 @@ namespace Evergrove.UnityClient
                 }
                 Image ribbon = MosseloraArt.Ornament(token.transform, "Ribbon", MosseloraArt.Rounded(8),
                     new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(18f, 18f), new Vector2(-8f, -8f));
-                if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.85f, 0.32f, 0.35f, 1f); }
+                // B5: honey, not red (badge rule: no red on a badge).
+                if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.93f, 0.72f, 0.36f, 1f); }
                 if (index == giftPick && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
             }
         }
@@ -4499,8 +4510,8 @@ namespace Evergrove.UnityClient
             SettingsRow(offerLanguage);
         }
 
-        // Floating game chrome: a leaf menu button (left) and the memory book
-        // with its count (right). Rebuilt with the page so state stays honest.
+        // Floating game chrome: a leaf menu button (left, with a new-memory dot) and the
+        // memory book (right). Rebuilt with the page so state stays honest.
         private void BuildChrome(bool living)
         {
             if (chrome == null) return;
@@ -4514,7 +4525,7 @@ namespace Evergrove.UnityClient
                     else ToggleFan(false);
                 }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
-            if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu);
+            if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu, MenuSeenKey);
         }
 
         // ---- I191: the fan menu. One corner button opens a column of round
@@ -4530,10 +4541,28 @@ namespace Evergrove.UnityClient
             semanticsDirty = true;
         }
 
+        // Removes the dot from the menu button itself (its child "Has a new memory"); the
+        // book token inside the fan has its own dot and is not touched.
+        private void ClearMenuDot()
+        {
+            if (canvasRoot == null) return;
+            foreach (Transform t in canvasRoot.GetComponentsInChildren<Transform>(true))
+                if (t.name == "Has a new memory" && t.parent != null && t.parent.name == "Open menu")
+                    Destroy(t.gameObject);
+        }
+
         private void ToggleFan(bool fromHub)
         {
             if (fan != null) { CloseFan(); return; }
             if (canvasRoot == null) return;
+            // Opening the menu reads its dot (B1b): the dot on the menu button goes now and stays
+            // gone. The book inside the fan keeps its own dot until the book is opened.
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
+            {
+                PlayerPrefs.SetInt(MenuSeenKey, world.Choices.Length);
+                PlayerPrefs.Save();
+                ClearMenuDot();
+            }
             speakingWith = -1;
             fan = Node("Menu fan", canvasRoot);
             Fill(fan.GetComponent<RectTransform>());
@@ -5449,7 +5478,7 @@ namespace Evergrove.UnityClient
 
         // Painted page header: generated wordmark with vine corners. The
         // localized title stays as transparent text for screen readers.
-        private const float ChromeInset = 84f; // book button with its count badge + 10 pt margin + air
+        private const float ChromeInset = 84f; // book button with its new-memory dot + 10 pt margin + air
 
         private void GardenHeader(bool compact)
         {
@@ -6179,6 +6208,8 @@ namespace Evergrove.UnityClient
 #endif
             BuildPostcard();
             BuildStallEntries(); // EvergroveApp.Market.cs: the stall and deeper boards (v1 #74 #79 #35)
+            BuildNameEntry(); // EvergroveApp.Name.cs: "Name your garden" (checklist 3)
+            BuildDatesEntry(); // EvergroveApp.Dates.cs: "Dates to remember" (checklist 87)
             BuildGardenFileSection();
             if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
@@ -6239,14 +6270,17 @@ namespace Evergrove.UnityClient
         // while it holds a memory the player has not opened yet. It replaces the
         // bare count, which a review found meaningless on the button (I112).
         private const string JournalSeenKey = "evergrove:journal-seen";
+        // The menu button's own dot (B1b) clears when the menu is opened; the book inside the
+        // menu keeps its dot until the book itself is opened (JournalSeenKey).
+        private const string MenuSeenKey = "evergrove:menu-seen";
 
-        private void MarkUnreadMemory(Button book)
+        private void MarkUnreadMemory(Button book, string seenKey = JournalSeenKey)
         {
-            int seen = PlayerPrefs.GetInt(JournalSeenKey, 0);
+            int seen = PlayerPrefs.GetInt(seenKey, 0);
             if (seen > world.Choices.Length)
             {
                 // Read in another garden (restored or new): this garden's memories so far count as seen.
-                PlayerPrefs.SetInt(JournalSeenKey, world.Choices.Length);
+                PlayerPrefs.SetInt(seenKey, world.Choices.Length);
                 PlayerPrefs.Save();
                 return;
             }
@@ -7279,12 +7313,13 @@ namespace Evergrove.UnityClient
                     toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
                 undoButton.interactable = world.CanUndo;
                 ShowUndo(world.CanUndo, false);
-                // Hint depth shows as a small 1/2 or 2/2 badge, not words.
+                // Hint depth is the button's own words (Guide me, Show a closer clue, Fix one
+                // connection). No level dots here: a dot means something new, and nothing else (I16).
                 Button hintButton = IconButton(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
                     MosseloraArt.IconHint, UseGentleHint, toolHeight, MosseloraTheme.WaterAction, false,
-                    null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep, roundTools);
+                    null, teach, 0, 0, roundTools);
                 if (!landscape) FlankDrops(tools, toolHeight);
                 Transform hintDots = hintButton.transform.Find("Level dots");
                 if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too
@@ -7645,6 +7680,7 @@ namespace Evergrove.UnityClient
                     Rebuild();
                 }, SettingToken, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
+            SpeakLessButton(row.transform);
             IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
@@ -7825,7 +7861,9 @@ namespace Evergrove.UnityClient
         private bool HasNews(int villager)
         {
             if (world.Mode != PlayMode.Living) return false;
-            return NeighborSays(villager) != PlayerPrefs.GetString(HeardKey + villager, "");
+            string says = NeighborSays(villager);
+            // v1 #85: a remark quietened by "speak less" is not news; no badge for silence.
+            return says.Length > 0 && says != PlayerPrefs.GetString(HeardKey + villager, "");
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -8001,8 +8039,11 @@ namespace Evergrove.UnityClient
             if (world.Mode == PlayMode.Living)
             {
                 Fact said = CompanionPick(villagerIndex);
-                PlayerPrefs.SetString(HeardKey + villagerIndex, NeighborSays(villagerIndex));
-                CompanionHeard(villagerIndex, said); // SC02: after the line is taken, so rebuilds keep it
+                string line = NeighborSays(villagerIndex);
+                PlayerPrefs.SetString(HeardKey + villagerIndex, line);
+                // SC02: remembered only when the companion's remark is what was shown (not a "speak less"
+                // silence, v1 #85, nor an arc line, v1 #83); after the line is taken, so rebuilds keep it.
+                if (said != null && line == CompanionWords(said, villagerIndex, out _)) CompanionHeard(villagerIndex, said);
                 PlayerPrefs.Save();
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -8039,7 +8080,7 @@ namespace Evergrove.UnityClient
                 "This run shows no village choices or story.", 12, 52, Ink);
             CreateMatchedInput(card.transform);
             if (matchedError.Length > 0)
-                Label(card.transform, "Schedule error", matchedError, 13, 36, Hex("#983E37"));
+                Label(card.transform, "Schedule error", matchedError, 13, 36, MosseloraTheme.EarthInk);
             if (!confirmMatchedReplace)
                 Button(card.transform, "Check matched schedule", "Check schedule", RequestMatchedStart, 50, true);
             else
@@ -8469,6 +8510,7 @@ namespace Evergrove.UnityClient
         private void BuildGardenFileSection()
         {
             var card = Card(content, "Garden file", MosseloraTheme.CardFill);
+            BuildSaveTrustLine(card.transform); // EvergroveApp.Saving.cs (checklist 9): first line, above every button and prompt
             GameObject files = Row(card.transform, "Garden file actions");
             IconButton(files.transform, "Copy garden file", GameLocalization.Text("garden_copy"),
                 MosseloraArt.IconCopyFile, CopyGardenFile, 78, MosseloraTheme.ForestAction,
@@ -8494,7 +8536,7 @@ namespace Evergrove.UnityClient
             }
             if (gardenNoticeKey.Length > 0)
                 Label(card.transform, "Garden file notice", GameLocalization.Text(gardenNoticeKey),
-                    13, 40, gardenNoticeIsError ? Hex("#983E37") : Moss);
+                    13, 40, gardenNoticeIsError ? MosseloraTheme.EarthInk : Moss);
         }
 
         private void SetGardenNotice(string key, bool isError)
@@ -8914,6 +8956,7 @@ namespace Evergrove.UnityClient
             column.childForceExpandWidth = true;
             column.childForceExpandHeight = false;
             paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            GardenNameLine(paper.transform); // EvergroveApp.Name.cs: the garden's name, as the sign's title (checklist 3)
             // The season, as its stone: the year at a glance.
             string[] stones = { "stone-spring", "stone-summer", "stone-autumn", "stone-winter" };
             CottageLine(paper.transform, MosseloraArt.Load(stones[(int)summary.Season]), summary.Season.ToString());
@@ -8970,7 +9013,7 @@ namespace Evergrove.UnityClient
                     world.Jam == 1 ? "A jar of jam in the pantry" : world.Jam + " jars of jam in the pantry");
             // I330 (ideas 14 and 16, after block-building sandboxes): decorate anywhere, for free.
             Transform decorRow = CenteredRowIn(paper.transform, "Decorate");
-            decorRow.gameObject.SetActive(world.DecorCount < WorldModel.MaxDecor);
+            decorRow.gameObject.SetActive(world.DecorCount < WorldModel.MaxDecor || world.CanUndoDecor);
             decorRow.GetComponent<HorizontalLayoutGroup>().spacing = 8;
             foreach (Decoration piece in new[] { Decoration.Stones, Decoration.Bench, Decoration.Fence, Decoration.LanternPost })
             {
@@ -8988,11 +9031,25 @@ namespace Evergrove.UnityClient
                 Transform glyph = decorRow.GetChild(decorRow.childCount - 1).Find("Icon");
                 if (glyph != null) { ((RectTransform)glyph).sizeDelta = new Vector2(46f, 46f); glyph.GetComponent<Image>().color = Color.white; }
             }
+            // Step 47: take back the last placement, move or removal (session only; a refused undo changes nothing).
+            if (world.CanUndoDecor)
+                TreePlay.Token(decorRow, "Undo the last decoration", MosseloraArt.Load(MosseloraArt.IconUndo), 56f,
+                    MosseloraTheme.QuietAction, () => {
+                        CloseCottage();
+                        decorInHand = -1;
+                        heldDecor = -1;
+                        justDecorated = -1;
+                        GardenMap undoMap = LoadGardenMap();
+                        if (undoMap != null && world.UndoDecor(undoMap)) SaveWorld();
+                        else if (titleScreen != null)
+                            RuleToast.Show((RectTransform)titleScreen.transform, "That can't be taken back here.", font, Ink, MosseloraTheme.CardFill);
+                        RefreshMaps();
+                    }, true);
             // I319: from the cottage, look out over the whole river.
             Transform look = CenteredRowIn(paper.transform, "Look out");
             TreePlay.Token(look, "Look out over the whole river", MosseloraArt.Load(MosseloraArt.IconPath), 56f,
                 MosseloraTheme.WaterAction, () => { CloseCottage(); EnterQuiet(true); }, true);
-            if (world.Fruit >= WorldModel.JamPerJar && world.Jam < WorldModel.MaxJam)
+            if (world.Fruit >= WorldModel.JamPerJar && world.Jam < world.JamCapacity)
             {
                 TreePlay.Token(look, "Make a jar of jam from three fruit", MosseloraArt.Load("food-jam"), 56f,
                     MosseloraTheme.QuietAction, () => {

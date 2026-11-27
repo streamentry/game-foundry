@@ -120,6 +120,18 @@ namespace Evergrove.UnityClient
             }
         }
 
+        // Checklist 9: the first line of the garden-file section, above the copy, save and restore
+        // buttons and any replace prompt. Calm Ink, never red. A failed write or an unreadable save
+        // shows the existing copy instead of claiming the garden is saved.
+        private void BuildSaveTrustLine(Transform card)
+        {
+            string text;
+            if (WorldStore.RecoveryBlocked) text = GameLocalization.Text("save_unreadable");
+            else if (saveFailed) text = GameLocalization.Text("save_warning");
+            else text = SaveStatus.Line(WorldStore.LastSavedLocal, DateTime.Now, CultureInfo.InvariantCulture);
+            Label(card, "Save trust line", text, 15, 0, Ink);
+        }
+
         // "Save garden file" sits beside "Copy garden file" and uses the same button helper.
         private void BuildSaveGardenFileButton(Transform files)
         {

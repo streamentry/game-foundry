@@ -15,9 +15,43 @@ namespace Evergrove.UnityClient
             var names = new List<string>();
             foreach (SudokuTechnique.Technique technique in new[] { SudokuTechnique.Technique.NakedSingle, SudokuTechnique.Technique.HiddenSingle })
                 if (SudokuBoard.TechniqueLog.Seen(technique)) names.Add(SudokuTechnique.Name(technique));
-            if (names.Count == 0) return;
+            if (names.Count == 0) { RecipeRow(page); YearRow(page); GardenGrewRow(page); return; }
             Text line = Label(page, "Ways you've solved", "Ways you've solved: " + string.Join(", ", names.ToArray()),
                 18, 0, Moss, TextAnchor.MiddleLeft);
+            Emphasize(line);
+            RecipeRow(page);
+            YearRow(page);
+            GardenGrewRow(page);
+        }
+
+        // ---- Checklist 33: how my garden grew. The good-neighbour pairings found, as a gentle page. Living gardens only.
+        private void GardenGrewRow(Transform page)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            string[] lines = GardenGrew.Page(world).Split('\n');
+            var paper = Card(page, "How my garden grew", MosseloraTheme.CardFill);
+            Text title = Label(paper.transform, "Garden grew title", lines[0], 20, 0, Ink, TextAnchor.MiddleLeft);
+            Emphasize(title);
+            for (int i = 1; i < lines.Length; i++)
+                Label(paper.transform, "Garden grew line", lines[i], 17, 0, Ink, TextAnchor.MiddleLeft);
+        }
+
+        // ---- I312: the year has a shape. One line naming the chapters the seasons have opened so far.
+        private void YearRow(Transform page)
+        {
+            if (world == null) return;
+            string line = SeasonUnlocks.YearLine(world);
+            if (line == null) return;
+            Label(page, "This year", line, 18, 0, Moss, TextAnchor.MiddleLeft);
+        }
+
+        // ---- Item 75: the recipes found by cooking, once any is found (nothing is shown before that).
+        private void RecipeRow(Transform page)
+        {
+            if (world == null) return;
+            string[] names = Recipes.Found(world);
+            if (names.Length == 0) return;
+            Text line = Label(page, "Recipes found", "Recipes found: " + string.Join(", ", names), 18, 0, Moss, TextAnchor.MiddleLeft);
             Emphasize(line);
         }
 

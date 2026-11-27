@@ -108,7 +108,7 @@ def check_bank(name: str, bank: dict, rules: dict, complete: bool = False) -> li
                 seen.add(low)
                 for p in check_line(kind, voice, line, rules):
                     problems.append(f"{name}: {key}/{voice} #{i} {p}: {line}")
-    kinds = rules["kinds"] if complete else {k: rules["kinds"][k] for k in present}
+    kinds = {k: v for k, v in rules["kinds"].items() if not v.get("pending")} if complete else {k: rules["kinds"][k] for k in present}
     for kind, spec in kinds.items():
         got = present.get(kind, {})
         if not got and complete:
