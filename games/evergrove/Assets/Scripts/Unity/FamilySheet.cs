@@ -261,6 +261,16 @@ namespace Evergrove.UnityClient
             }
         }
 
+        /// <summary>Begin a letter (I235, "write back"): the send view with these words started.</summary>
+        internal void Prefill(string words)
+        {
+            sending = true;
+            outcome = "";
+            pick = LetterOnly;
+            letter = words ?? "";
+            Rebuild();
+        }
+
         // Tour only: send with this name, or open this text, by the same paths as taps.
         internal void QaSend(string name, int code, string words) { pick = code; letter = words; DoSend(name); }
         internal void QaOpen() { sending = false; DoOpen(); }

@@ -368,10 +368,30 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng("17t-letterbox.png");
-                app.QaReadLetter();
+                // I236: Orin points to the letter waiting unread.
+                app.QaShowHub(false);
+                app.QaTalk(1);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17t2-orin-letter.png");
+                app.QaTalk(-1);
+                app.QaShowHub(true);
                 for (int f = 0; f < 6; f++) yield return null;
+                app.QaReadLetter();
+                // I234: the seal lifts, then the paper rises.
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17u0-envelope.png");
+                yield return new WaitForSecondsRealtime(1.2f);
                 yield return new WaitForEndOfFrame();
                 SavePng("17u-letter.png");
+                // I235: write back, "Dear Nan," begun.
+                app.QaWriteBack();
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17u2-write-back.png");
+                app.QaCloseFamily();
                 app.QaCloseLetter();
             }
             // Neighbours notice (I210): Mira names the poplar you just bought.

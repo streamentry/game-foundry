@@ -1384,17 +1384,17 @@ namespace Evergrove.UnityClient
             for (; slot < reached && slot < waterDrops.Length; slot++) SetDrop(waterDrops[slot], true);
         }
 
-        // A pear arcs from where the puzzle card was into the purse (I229).
-        private IEnumerator FlyFruit(Image target)
+        // Something arcs from mid-screen into where it's kept (I229 a pear into the
+        // purse, I237 a letter into the letterbox); its home swells once.
+        private IEnumerator FlyInto(RectTransform target, string art, Vector2 size)
         {
-            Sprite sprite = MosseloraArt.Load("food-pear");
+            Sprite sprite = MosseloraArt.Load(art);
             if (sprite == null || target == null || canvasRoot == null) yield break;
-            if (!gentleMotion) { BloomPulse.Add(target.gameObject, 0.1f, 0.22f); yield break; }
             for (float wait = 0.35f; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
             if (target == null) yield break;
-            var node = Node("Picked fruit", canvasRoot);
+            var node = Node("Arriving " + art, canvasRoot);
             var rect = node.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(54f, 54f);
+            rect.sizeDelta = size;
             var image = node.AddComponent<Image>();
             image.sprite = sprite;
             image.preserveAspect = true;
@@ -1404,7 +1404,7 @@ namespace Evergrove.UnityClient
             for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.8f)
             {
                 if (target == null) { Destroy(node); yield break; }
-                Vector3 end = target.rectTransform.TransformPoint(target.rectTransform.rect.center);
+                Vector3 end = target.TransformPoint(target.rect.center);
                 float k = Mathf.SmoothStep(0f, 1f, t);
                 Vector3 at = Vector3.Lerp(start, end, k);
                 at.y += Mathf.Sin(k * Mathf.PI) * lift; // tossed up, then down into the purse
@@ -2072,6 +2072,7 @@ namespace Evergrove.UnityClient
                 },
                 Open = text => {
                     ParcelOpenResult opened = world.Open(text);
+                    if (opened.Ok && opened.Contents != null && opened.Contents.Letter.Length > 0) letterArrived = true;
                     if (opened.Ok) { SaveWorld(); PlayChime(); }
                     return opened;
                 },
@@ -2327,7 +2328,11 @@ namespace Evergrove.UnityClient
                 PlayChime();
             }
             riverOpened = false;
-            if (fruitPicked && purseFruit != null) StartCoroutine(FlyFruit(purseFruit));
+            if (fruitPicked && purseFruit != null)
+            {
+                if (gentleMotion) StartCoroutine(FlyInto(purseFruit.rectTransform, "food-pear", new Vector2(54f, 54f)));
+                else BloomPulse.Add(purseFruit.gameObject, 0.1f, 0.22f);
+            }
             fruitPicked = false;
             RiverDrops(view, dropEarned && gentleMotion);
             dropEarned = false;
@@ -2346,7 +2351,8 @@ namespace Evergrove.UnityClient
             view.FocusFromTop = landscape ? 0.24f : 0.36f;
             // The play row and the basket live in the bottom of home: neighbours keep out of it (I218).
             view.ClearBottom = landscape ? 0f : 190f;
-            view.ClearTop = landscape ? 0f : 140f;
+            // The letterbox stands under the purse (I233): neighbours keep below it too.
+            view.ClearTop = landscape ? 0f : world.Letters.Length > 0 ? 220f : 140f; // the box's foot is ~195 pt down
             return true;
         }
 
@@ -2497,6 +2503,8 @@ namespace Evergrove.UnityClient
         private const string LettersReadKey = "evergrove:letters-read";
         private int letterShown = -1;
         private GameObject letterCard;
+        private RectTransform letterboxRect;
+        private bool letterArrived; // a parcel with a letter was just opened: it flies into the box (I237)
 
         // Under the seed purse, top right of home: always in view, wherever the
         // river has taken you (I217: on the map by the cottage it was off-screen for
@@ -2511,25 +2519,27 @@ namespace Evergrove.UnityClient
             float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
             rect.anchorMin = rect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
             rect.pivot = new Vector2(1f, 1f);
-            rect.sizeDelta = new Vector2(56f, 56f);
-            rect.anchoredPosition = new Vector2(-16f, -ChromeTop - 60f);
-            var disc = node.AddComponent<Image>();
-            MosseloraArt.Round(disc, new Color(0.98f, 0.95f, 0.86f, 0.98f), 28);
-            MosseloraArt.Lift(disc, 2f, 0.22f);
+            // A painted letterbox on its post (I233), not an app badge: a sealed
+            // envelope sits on top while a letter waits unread.
+            rect.sizeDelta = new Vector2(60f, 80f);
+            rect.anchoredPosition = new Vector2(-14f, -ChromeTop - 58f);
+            var box = node.AddComponent<Image>();
+            box.sprite = MosseloraArt.Load("letterbox");
+            box.preserveAspect = true;
+            MosseloraArt.Lift(box, 2f, 0.22f);
             var button = node.AddComponent<Button>();
-            button.targetGraphic = disc;
+            button.targetGraphic = box;
             button.onClick.AddListener(() => ShowLetter(0));
             PressSquash.Add(node);
-            Image mark = MosseloraArt.Ornament(node.transform, "Letter", MosseloraArt.Load(MosseloraArt.IconChat),
-                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(32f, 32f), Vector2.zero);
-            if (mark != null) mark.color = MosseloraTheme.ForestAction;
+            letterboxRect = rect;
             if (PlayerPrefs.GetInt(LettersReadKey, 0) < letters.Length)
             {
-                Image dot = MosseloraArt.Ornament(node.transform, "Unread", MosseloraArt.Rounded(8),
-                    new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(16f, 16f), new Vector2(-6f, -6f));
-                if (dot != null) { dot.preserveAspect = false; dot.color = new Color(0.85f, 0.32f, 0.35f, 1f); }
-                if (gentleMotion) BloomPulse.Add(node, 0.6f, 0.06f);
+                Image sealedLetter = MosseloraArt.Ornament(node.transform, "Unread letter", MosseloraArt.Load("letter-sealed"),
+                    new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(44f, 34f), new Vector2(-4f, -8f));
+                if (sealedLetter != null && gentleMotion) BloomPulse.Add(sealedLetter.gameObject, 0.6f, 0.08f);
             }
+            if (letterArrived && gentleMotion) StartCoroutine(FlyInto(rect, "letter-sealed", new Vector2(64f, 50f)));
+            letterArrived = false;
             var caption = Node("Caption", node.transform);
             caption.AddComponent<LayoutElement>().ignoreLayout = true;
             var spoken = caption.AddComponent<Text>();
@@ -2546,6 +2556,7 @@ namespace Evergrove.UnityClient
             fromNewest = Mathf.Clamp(fromNewest, 0, letters.Length - 1);
             int i = letters.Length - 1 - fromNewest;
             letterShown = fromNewest;
+            bool unread = PlayerPrefs.GetInt(LettersReadKey, 0) < letters.Length && fromNewest == 0;
             PlayerPrefs.SetInt(LettersReadKey, letters.Length);
             PlayerPrefs.Save();
             if (letterCard != null) Destroy(letterCard);
@@ -2553,7 +2564,36 @@ namespace Evergrove.UnityClient
             Fill(letterCard.GetComponent<RectTransform>());
             letterCard.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.38f);
             letterCard.AddComponent<TapCatcher>().Tapped = CloseLetter;
-            var paper = Node("Letter paper", letterCard.transform);
+            // An unread letter arrives sealed: the seal lifts, then the paper (I234).
+            if (unread && gentleMotion) { StartCoroutine(OpenEnvelope(letterCard, i, from[i], letters[i])); return; }
+            LetterPaper(letterCard, i, from[i], letters[i], false);
+        }
+
+        private IEnumerator OpenEnvelope(GameObject card, int i, string from, string words)
+        {
+            Image sealedLetter = MosseloraArt.Ornament(card.transform, "Sealed letter", MosseloraArt.Load("letter-sealed"),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(200f, 154f), Vector2.zero);
+            if (sealedLetter == null) { LetterPaper(card, i, from, words, true); yield break; }
+            PlayChime();
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.7f)
+            {
+                if (card == null || sealedLetter == null) yield break;
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                sealedLetter.transform.localScale = Vector3.one * Mathf.Lerp(0.82f, 1.06f, k);
+                sealedLetter.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI * 3f) * 4f * (1f - k));
+                yield return null;
+            }
+            if (card == null) yield break;
+            Destroy(sealedLetter.gameObject);
+            LetterPaper(card, i, from, words, true);
+        }
+
+        private void LetterPaper(GameObject card, int i, string sender, string words, bool rise)
+        {
+            string[] letters = world.Letters;
+            int fromNewest = letters.Length - 1 - i;
+            letterCard = card;
+            var paper = Node("Letter paper", card.transform);
             var paperRect = paper.GetComponent<RectTransform>();
             paperRect.anchorMin = paperRect.anchorMax = new Vector2(0.5f, 0.5f);
             paperRect.sizeDelta = new Vector2(Mathf.Min(PageWidth() + 6f, 420f), 0f);
@@ -2570,19 +2610,51 @@ namespace Evergrove.UnityClient
             column.childForceExpandWidth = true;
             column.childForceExpandHeight = false;
             paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            Text who = Label(paper.transform, "Letter from", "From " + from[i], 17, 0, Leaf, TextAnchor.MiddleLeft);
-            Emphasize(who);
-            Narrate(Label(paper.transform, "Letter words", letters[i], 19, 0, Ink, TextAnchor.UpperLeft), true);
+            // The opened envelope crowns the page; the words are big; it's signed at the foot.
+            var envelope = Node("Opened envelope", paper.transform);
+            var envelopeLayout = envelope.AddComponent<LayoutElement>();
+            envelopeLayout.preferredHeight = envelopeLayout.minHeight = 64f;
+            var envelopeImage = envelope.AddComponent<Image>();
+            envelopeImage.sprite = MosseloraArt.Load("letter-open");
+            envelopeImage.preserveAspect = true;
+            envelopeImage.raycastTarget = false;
+            Narrate(Label(paper.transform, "Letter words", words, 21, 0, Ink, TextAnchor.UpperLeft), true);
+            // Signed at the foot, unless they already signed it ("Love, Nan").
+            string tail = words.TrimEnd(' ', '.', '!', '\n');
+            if (!tail.EndsWith(sender, StringComparison.OrdinalIgnoreCase))
+                Emphasize(Label(paper.transform, "Letter from", "\u2014 " + sender, 19, 0, Leaf, TextAnchor.MiddleRight));
             Transform row = CenteredRowIn(paper.transform, "Letter actions");
             if (fromNewest < letters.Length - 1)
                 IconButton(row, "Older letter", "Older letter", MosseloraArt.IconUndo, () => ShowLetter(letterShown + 1),
                     56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             IconButton(row, "Close letter", GameLocalization.Text("close"), MosseloraArt.IconConfirm, CloseLetter,
                 56, MosseloraTheme.ForestAction, false, null, false, 0, 0, true);
+            // Write back (I235): the family card opens with "Dear <name>," begun.
+            if (world.Mode == PlayMode.Living)
+            {
+                string to = sender;
+                Button reply = IconButton(row, "Write back", "Write back to " + to, "letter-pen", () => WriteBack(to),
+                    56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+                Transform pen = reply.transform.Find("Icon");
+                if (pen != null)
+                {
+                    pen.GetComponent<Image>().color = Color.white; // painted, not a glyph
+                    var penSize = pen.GetComponent<LayoutElement>();
+                    penSize.minWidth = penSize.preferredWidth = penSize.minHeight = penSize.preferredHeight = 36f;
+                }
+            }
             if (fromNewest > 0)
                 IconButton(row, "Newer letter", "Newer letter", MosseloraArt.IconContinue, () => ShowLetter(letterShown - 1),
                     56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            if (rise) StartCoroutine(RiseIn(paperRect));
             semanticsDirty = true;
+        }
+
+        private void WriteBack(string to)
+        {
+            CloseLetter();
+            OpenFamily();
+            if (familySheet != null) familySheet.Prefill("Dear " + to + ",\n");
         }
 
         private void CloseLetter()
@@ -2595,6 +2667,7 @@ namespace Evergrove.UnityClient
 
         internal void QaReadLetter() { ShowLetter(0); }
         internal void QaCloseLetter() { CloseLetter(); }
+        internal void QaWriteBack() { string[] from = world.LetterFrom; if (from.Length > 0) WriteBack(from[from.Length - 1]); }
 
         private System.Collections.Generic.List<RectTransform> NeighborsOnMap(RectTransform land,
             Func<int, Vector2> point, GardenMap map, bool fromTitle)
@@ -2686,6 +2759,12 @@ namespace Evergrove.UnityClient
             // puzzles you solved under their kind of thing) comes first, when true.
             string thanks = fruitThanks == villager ? NeighbourNotice.ThanksFor(villager, world) : null;
             if (thanks != null) return thanks;
+            // Orin keeps an eye on the lane (I236): a letter waiting unread, by name, until you read it.
+            string[] mail = world.Letters;
+            if (villager == 1 && world.Mode == PlayMode.Living && mail.Length > 0 &&
+                PlayerPrefs.GetInt(LettersReadKey, 0) < mail.Length)
+                return "There's a letter in your box from " + world.LetterFrom[mail.Length - 1] +
+                    ". I saw the flag go up this morning.";
             string noticed = NeighbourNotice.Line(villager, world);
             if (noticed != null) return noticed;
             int[] made = world.Choices;

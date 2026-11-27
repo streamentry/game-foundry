@@ -271,6 +271,7 @@ UI_ICONS = ("ui-undo", "ui-hint", "ui-restart", "ui-language",
 
 
 FOOD_ICONS = ("food-pear", "food-basket", "food-jam", "food-apple")
+LETTER_ICONS = ("letter-sealed", "letter-open", "letterbox", "letter-pen")
 
 
 SUPERSEDED = {"ui-board-size", "ui-chime-on", "ui-chime-off", "ui-change"}
@@ -451,6 +452,12 @@ def main() -> None:
     food = master("icons-food")
     if food:
         for name, part in zip(FOOD_ICONS, quadrants(food.convert("RGBA"))):
+            save(fit(trim(part, 4), 192, 192), name)
+
+    # I233: letters between family (prompts/letters.txt).
+    letters = master("icons-letters")
+    if letters:
+        for name, part in zip(LETTER_ICONS, quadrants(letters.convert("RGBA"))):
             save(fit(trim(part, 4), 192, 192), name)
 
     ui = master("icons-ui")
