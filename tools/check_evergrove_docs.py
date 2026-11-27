@@ -96,7 +96,7 @@ def main() -> int:
     print(
         f"Evergrove documentation contract: {len(target_docs)} documents, "
         f"{checked_links} verified local links, 12 puzzles, "
-        "v4 saves, 30 language choices, 125 keys."
+        "v4 saves, 30 language choices, 127 keys."
     )
     return 0
 
