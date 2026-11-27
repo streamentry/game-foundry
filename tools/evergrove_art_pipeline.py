@@ -362,6 +362,40 @@ def season_maps(plot: Image.Image) -> None:
     from PIL import ImageEnhance
     winter = grade((0.82, 0.9, 1.0), (0.97, 0.98, 1.0), 0.28, 0.5)
     save(ImageEnhance.Contrast(winter).enhance(1.18).convert("RGBA"), "garden-map-winter")
+    save(spring_grade(plot, True).convert("RGBA"), "garden-map-spring")
+
+
+def spring_grade(image: Image.Image, blossom: bool = False) -> Image.Image:
+    """Spring (I249): cooler, fresher mint greens and a soft morning haze, so it reads
+    apart from the yellow summer at a glance. With `blossom`, a deterministic scatter of
+    soft pink and white petal clusters over the land (the map only)."""
+    import random
+    from PIL import ImageChops, ImageDraw, ImageEnhance, ImageFilter
+    alpha = image.getchannel("A") if image.mode == "RGBA" else None
+    base = image.convert("RGB")
+    cooled = ImageChops.multiply(base, Image.new("RGB", base.size, (200, 250, 215)))
+    hazed = Image.blend(cooled, Image.new("RGB", base.size, (250, 235, 245)), 0.20)
+    fresh = ImageEnhance.Color(ImageEnhance.Brightness(hazed).enhance(1.10)).enhance(0.95)
+    if blossom:
+        petals = Image.new("RGBA", base.size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(petals)
+        rng = random.Random(1225)  # fixed: the same spring every build
+        w, h = base.size
+        for _ in range(int(w * h / 2600)):
+            x, y = rng.uniform(0, w), rng.uniform(0, h)
+            r, g, b = base.getpixel((int(x), int(y)))
+            if b > r and b > g * 0.95:  # skip water: blue dominates there
+                continue
+            tone = rng.choice([(246, 190, 210), (250, 214, 226), (255, 246, 248), (238, 176, 200)])
+            for _ in range(rng.randint(2, 5)):
+                dx, dy, rad = rng.uniform(-5, 5), rng.uniform(-5, 5), rng.uniform(1.6, 3.2)
+                draw.ellipse((x + dx - rad, y + dy - rad, x + dx + rad, y + dy + rad), fill=tone + (rng.randint(150, 220),))
+        petals = petals.filter(ImageFilter.GaussianBlur(0.6))
+        fresh = Image.alpha_composite(fresh.convert("RGBA"), petals).convert("RGB")
+    if alpha is not None:
+        fresh = fresh.convert("RGBA")
+        fresh.putalpha(alpha)
+    return fresh
 
 
 def main() -> None:

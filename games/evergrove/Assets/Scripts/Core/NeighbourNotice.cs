@@ -47,7 +47,7 @@ namespace Evergrove.Core
                 if (GardenMap.TowardNext(world.Choices.Length, true, all, out int have, out int need) && have == need - 1)
                     return "The mist downstream is thinning. One more thing tended and it will lift.";
                 if (have == 0 && GardenMap.ReachesFor(world.Choices.Length, true, all) > GardenMap.MaxReaches)
-                    return "The river runs further than it ever did. There's new bank down there, waiting for roots.";
+                    return "The river runs further than it ever did. " + SeasonCame(GardenSeason.AfterStory(all));
             }
             // Fruit you gave (I228): one true thank-you, only from the neighbour who got the
             // latest, so the tended count is never hidden for good. The count itself is never said.
@@ -78,6 +78,18 @@ namespace Evergrove.Core
                 case 0: return "A " + name + ", new in the garden. Give it a season and it will shade the whole bank.";
                 case 1: return "That new " + name + ": I would like to see how it is joined.";
                 default: return "A new " + name + "! The bees will find it by noon.";
+            }
+        }
+
+        // I250: the season the new stretch brought, said once, plainly (seasons turn by tending).
+        private static string SeasonCame(Season season)
+        {
+            switch (season)
+            {
+                case Season.Spring: return "Spring came down with it. The new bank is all blossom.";
+                case Season.Autumn: return "Autumn came down with it. The new bank is gold already.";
+                case Season.Winter: return "Winter came down with it. Even the new bank is frosted.";
+                default: return "Summer came down with it. There's new bank down there, waiting for roots.";
             }
         }
 
