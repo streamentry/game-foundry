@@ -354,6 +354,36 @@ internal static class WorldIdeasTests
         Expect(GardenSeason.YearAfterStory(0) == 0 && GardenSeason.YearAfterStory(spring) == 1, "the first spring begins year one");
         Expect(!GardenSeason.Festival(WorldModel.New(PlayMode.Living)), "never during the story");
         Expect(FamilyParcel.ValidLetter(GardenSeason.FestivalNote(1)) && !GardenSeason.FestivalNote(2).Contains("!"), "a calm note");
+        // Idea 24 (secrets under stones): each stretch after the first hides one mossy stone on
+        // its bank; it sits on free land, beside the water, never on a thing.
+        var long3 = GardenMap.River(10, 15, Mask(), 4);
+        Expect(RiverSecrets.CellFor(long3, 0, new int[0]) < 0, "the first stretch keeps no secret");
+        var usedSecrets = new HashSet<int>();
+        for (int reach = 1; reach < long3.Reaches; reach++)
+        {
+            int cell = RiverSecrets.CellFor(long3, reach, new int[0]);
+            Expect(cell >= 0 && long3.IsLand(cell), "a stone on land in stretch " + reach);
+            Expect(cell / long3.Columns / 15 == reach, "inside its own stretch");
+            bool bank = false;
+            int col = cell % long3.Columns;
+            foreach (int d in new[] { -1, 1, -long3.Columns, long3.Columns })
+            {
+                int next = cell + d;
+                if (next < 0 || next >= long3.CellCount) continue;
+                if ((d == -1 && col == 0) || (d == 1 && col == long3.Columns - 1)) continue;
+                if (long3.At(next) == GardenMap.Water) bank = true;
+            }
+            Expect(bank, "on the river bank");
+            Expect(RiverSecrets.CellFor(long3, reach, new int[0]) == cell, "always the same stone");
+            int moved = RiverSecrets.CellFor(long3, reach, new[] { cell });
+            Expect(moved >= 0 && moved != cell && long3.IsLand(moved), "never under a thing: it moves along the bank");
+            usedSecrets.Add(cell);
+        }
+        Expect(usedSecrets.Count == long3.Reaches - 1, "one per stretch");
+        WorldModel finder = WorldModel.New(PlayMode.Living);
+        int found = RiverSecrets.CuttingFor(finder, 1);
+        Expect(found >= 0 && finder.RowOpen(Nursery.Row(found)), "the secret is a cutting from an open row");
+        Expect(RiverSecrets.CuttingFor(finder, 2) != found || Nursery.Kinds < 2, "stretch by stretch, a different plant");
         return assertions;
     }
 

@@ -2583,6 +2583,7 @@ namespace Evergrove.UnityClient
         private int heldPlanting = -1; // a planting picked up to move or put back
         // ---- I208: the nursery. Seeds buy new plants; each holds its own puzzle.
         private const int BoughtIndex = 2000; // map indices at or above this are bought plants
+        private const int SecretIndex = 3000; // I320: map indices at or above this are mossy stones, by stretch
         private int heldBought = -1;   // a bought plant picked up (to move, or to play its puzzle)
         private bool nurseryOpen;      // the basket tray shows the nursery instead of your own kinds
         private int nurseryKind = -1;  // the nursery kind planted (bought) on a tap, -1 none
@@ -2688,7 +2689,43 @@ namespace Evergrove.UnityClient
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
+            // I320: one mossy stone on the bank of each stretch after the first, until found.
+            if (markPuzzles)
+            {
+                var taken = new System.Collections.Generic.List<int>(cells);
+                for (int k = 1; k < planted.Length; k += 2) taken.Add(planted[k]);
+                for (int k = 1; k < bought.Length; k += 2) taken.Add(bought[k]);
+                Sprite moss = MosseloraArt.Load("stone-spring");
+                for (int reach = 1; reach < map.Reaches && moss != null; reach++)
+                {
+                    int cell = RiverSecrets.CellFor(map, reach, taken.ToArray());
+                    if (cell < 0 || SecretFound(reach)) continue;
+                    items.Add(new GardenMapView.Placed { Art = moss, Cell = cell, Index = SecretIndex + reach,
+                        Family = VillageChoice.Bridge });
+                }
+            }
             return items;
+        }
+
+        private string StoneKey(int reach) { return "evergrove:mossy-stone:" + world.Garden + ":" + reach; }
+        private bool SecretFound(int reach) { return PlayerPrefs.GetInt(StoneKey(reach), 0) == 1; }
+
+        // I320: lift the mossy stone: a lost cutting goes to the basket, with a note from Fen.
+        private void FindSecret(int reach)
+        {
+            if (SecretFound(reach) || world.Mode != PlayMode.Living) return;
+            int kind = RiverSecrets.CuttingFor(world, reach);
+            if (kind < 0 || !world.ReceiveNeighbourCutting(kind)) return; // basket full: the stone keeps it
+            PlayerPrefs.SetInt(StoneKey(reach), 1);
+            PlayerPrefs.Save();
+            string what = Nursery.Family(kind) == VillageChoice.Bridge ? "a little " + Nursery.Item(kind).Name
+                : "a cutting of " + Nursery.Item(kind).Name;
+            world.KeepNote("Fen", "You found what was under the mossy stone: " + what +
+                ", lost there long ago. It's in your basket now.");
+            letterArrived = true;
+            SaveWorld();
+            PlayChime();
+            RefreshMaps();
         }
 
         // Mira, Orin and Fen stand in the garden (I181): each beside the newest thing
@@ -3028,6 +3065,7 @@ namespace Evergrove.UnityClient
 
         private void OnMapItem(int index)
         {
+            if (index >= SecretIndex) { FindSecret(index - SecretIndex); return; }
             if (index >= BoughtIndex)
             {
                 // A bought plant: pick it up (to move it, or play its puzzle), or put it down.
@@ -3938,9 +3976,12 @@ namespace Evergrove.UnityClient
 
         internal bool Quiet { get { return quietLayer != null; } }
 
-        internal void EnterQuiet()
+        internal void EnterQuiet() { EnterQuiet(false); }
+
+        internal void EnterQuiet(bool wholeRiver)
         {
             if (titleScreen == null || quietLayer != null) return;
+            if (wholeRiver && hubMapView != null) hubMapView.LookOut(true); // I319
             quieted.Clear();
             // Keep only the line of parents that holds home's live map; every sibling along
             // that line steps aside (b305: in portrait, controls also lived outside the title).
@@ -3984,6 +4025,7 @@ namespace Evergrove.UnityClient
 
         internal void ExitQuiet()
         {
+            if (hubMapView != null) hubMapView.LookOut(false);
             if (quietLayer != null) Destroy(quietLayer);
             quietLayer = null;
             foreach (GameObject hidden in quieted)
@@ -7998,6 +8040,10 @@ namespace Evergrove.UnityClient
             }
             if (!summary.Anything)
                 CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconConfirm), "All tended. Replays wait whenever you like.");
+            // I319: from the cottage, look out over the whole river.
+            Transform look = CenteredRowIn(paper.transform, "Look out");
+            TreePlay.Token(look, "Look out over the whole river", MosseloraArt.Load(MosseloraArt.IconPath), 56f,
+                MosseloraTheme.WaterAction, () => { CloseCottage(); EnterQuiet(true); }, true);
             if (gentleMotion) BloomPulse.Add(paper, 0.05f, 0.04f);
             semanticsDirty = true;
         }
@@ -8287,9 +8333,9 @@ namespace Evergrove.UnityClient
                 world.Open(text);
         }
 
-        internal void QaQuiet(bool on)
+        internal void QaQuiet(bool on, bool wholeRiver = false)
         {
-            if (on) EnterQuiet(); else ExitQuiet();
+            if (on) EnterQuiet(wholeRiver); else ExitQuiet();
         }
 
         internal void QaShowHub(bool show)

@@ -392,6 +392,22 @@ namespace Evergrove.UnityClient
         // between them; one relayout when they lift. The zoom is reported so the
         // caller can keep it across rebuilds.
         public float MinZoom = 1f, MaxZoom = 3f;
+        private float beforeLookout = -1f;
+
+        /// <summary>
+        /// I319 (ideas 23 and 15, after the lookouts of hiking games and always knowing your way
+        /// home): the whole river at once, cottage at the top, the newest stretch at the foot.
+        /// The map's own width rule fits the river's height when asked for the least width.
+        /// </summary>
+        public void LookOut(bool on)
+        {
+            if (on == (beforeLookout > 0f)) return;
+            if (on) { beforeLookout = widthScale; widthScale = 0.01f; }
+            else { widthScale = beforeLookout; beforeLookout = -1f; }
+            keep = new Vector2(-1f, -1f);
+            growNewest = false;
+            Layout();
+        }
         public float Zoom { get { return widthScale; } }
         public Action<float> Zoomed;
         private bool pinching;

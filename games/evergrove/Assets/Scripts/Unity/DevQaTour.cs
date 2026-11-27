@@ -308,6 +308,13 @@ namespace Evergrove.UnityClient
                 SavePng("17j5-cottage.png");
                 app.CloseCottage();
                 for (int f = 0; f < 4; f++) yield return null;
+                // I319: the lookout, the whole river at once.
+                app.QaQuiet(true, true);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j6-lookout.png");
+                app.QaQuiet(false);
+                for (int f = 0; f < 4; f++) yield return null;
                 app.QaShowHub(false);
                 app.QaTalk(2);
                 for (int f = 0; f < 8; f++) yield return null;
