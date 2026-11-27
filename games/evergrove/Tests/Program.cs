@@ -1910,6 +1910,7 @@ internal static class Program
             assertions += MosaicTests.Run();
             assertions += NonogramTests.Run();
             assertions += SeedSudokuTests.Run();
+            assertions += SeedSumsTests.Run();
             assertions += PlotsTests.Run();
             assertions += StreamPathTests.Run();
             assertions += MahjongTests.Run();
