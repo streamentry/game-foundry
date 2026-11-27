@@ -19,7 +19,7 @@ Neighbours now pick the one thing worth saying, remember what they've said on th
 | Their own line of work | +10 |
 | Ambient (today's weather, the hour, a pairing hint) | +5 |
 
-The visitor remark (I377) used to come one day in three. Now it weighs +20 as rare, and the 3-day rule keeps it from becoming a refrain. The old day gate is kept only for SC01's parity check.
+The visitor remark (I377) used to come one day in three, and the hour habit (I419) one day in seven. Now the visitor weighs +20 as rare and the habit +5 as ambient, and the 3-day rule keeps both from becoming refrains. The old day gates are kept only for SC01's parity check. The welcome-back (I420) rides on Mira's "since you were last here", so it is said once per return, as before.
 
 Three choices the spec left open:
 

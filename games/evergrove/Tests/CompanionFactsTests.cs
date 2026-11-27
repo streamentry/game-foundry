@@ -6,7 +6,7 @@ using Evergrove.Core;
 /// <summary>
 /// Smart companion SC01: the fact feed reproduces exactly what the neighbours said before it.
 /// <see cref="LegacySays"/> is a verbatim port of EvergroveApp.NeighborSays as it stood on main at
-/// 66d7f6b (English, living garden; run 3's deeper pairings and visitor remarks included), calling the same Core functions. For many constructed saves and
+/// 0cf0825 (English, living garden; run 3's deeper pairings, visitor remarks, hour habit and welcome-back included), calling the same Core functions. For many constructed saves and
 /// contexts, feed → old chain → old sentence must equal it, word for word.
 /// </summary>
 internal static class CompanionFactsTests
@@ -196,6 +196,18 @@ internal static class CompanionFactsTests
         yield return new CompanionContext(today, togetherKeeper: 2, togetherKind: PuzzleKind.Doorstep, lettersRead: 5);
         // I377's "one day in three" falls on different days for each keeper.
         yield return new CompanionContext(today.AddDays(1), map: map);
+        // I419: a clear habit at each hour, over a week of days so each noticer's day comes round;
+        // I420: back after a week and after a month.
+        foreach (DayPhase phase in Enum.GetValues(typeof(DayPhase)))
+        {
+            int[] counts = new int[Companion.PhaseCount];
+            counts[(int)phase] = 9;
+            counts[((int)phase + 1) % Companion.PhaseCount] = 1;
+            for (int d = 0; d < 7; d++) yield return new CompanionContext(today.AddDays(d), hourCounts: counts, map: map);
+        }
+        yield return new CompanionContext(today, hourCounts: new[] { 3, 3, 3, 0, 0, 0 }, map: map);
+        yield return new CompanionContext(today, lastSeen: today.AddDays(-8), map: map);
+        yield return new CompanionContext(today, lastSeen: today.AddDays(-31), weather: Weather.Windy);
         yield return new CompanionContext(today.AddDays(2), lightOn: true, phase: DayPhase.Dusk, map: map);
     }
 
@@ -206,8 +218,13 @@ internal static class CompanionFactsTests
         string thanks = c.FruitJustGivenTo == villager ? NeighbourNotice.ThanksFor(villager, world) : null;
         if (thanks != null) return thanks;
         if (villager == c.TogetherKeeper) return NeighbourNotice.TogetherLine(c.TogetherKind);
-        string sinceLine = c.LastSeen != null && world.Choices.Length > 0
-            ? DayWeather.SinceLastVisit(c.LastSeen.Value, c.Today, GardenSeason.For(world), world.Garden) : null;
+        string sinceLine = null;
+        if (c.LastSeen != null && world.Choices.Length > 0)
+        {
+            sinceLine = DayWeather.SinceLastVisit(c.LastSeen.Value, c.Today, GardenSeason.For(world), world.Garden);
+            string welcome = Companion.WelcomeBack((int)(c.Today - c.LastSeen.Value.Date).TotalDays);
+            if (welcome != null) sinceLine = welcome + (string.IsNullOrEmpty(sinceLine) ? "" : " " + sinceLine);
+        }
         if (villager == 0 && sinceLine != null) return sinceLine;
         string[] mail = world.Letters;
         if (villager == 1 && mail.Length > 0 && c.LettersRead < mail.Length)
@@ -223,6 +240,9 @@ internal static class CompanionFactsTests
             if (!world.HasPairing(p) && (Pairings.Open(world) & PairingMask.Of(p)) != 0) return OldPairingHint(p);
         string visitorLine = Visitors.KeeperRemark(world, villager, (int)(c.Today - new DateTime(2000, 1, 1)).TotalDays);
         if (visitorLine != null) return visitorLine;
+        int[] hours = c.HourCounts == null ? new int[Companion.PhaseCount] : new List<int>(c.HourCounts).ToArray();
+        string habitLine = Companion.HabitLine(hours, villager, (int)(c.Today - new DateTime(2000, 1, 1)).TotalDays);
+        if (habitLine != null) return habitLine;
         string hourLine = c.LightOn ? DayLight.Remark(villager, c.Phase, GardenSeason.For(world)) : null;
         if (hourLine != null) return hourLine;
         int[] made = world.Choices;

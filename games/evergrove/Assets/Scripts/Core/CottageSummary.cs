@@ -20,6 +20,8 @@ namespace Evergrove.Core
         public int DropsNeed { get; private set; }
         public int Seeds { get; private set; }
         public int Fruit { get; private set; }
+        /// <summary>Days this garden has been played: a total that only grows, never a streak (v1 #52).</summary>
+        public int DaysPlayed { get; private set; }
         public Season Season { get; private set; }
 
         public bool Anything { get { return Waiting > 0 || Letters > 0 || Cuttings > 0; } }
@@ -41,6 +43,7 @@ namespace Evergrove.Core
                 DropsNeed = growing ? need : 0,
                 Seeds = world.Seeds,
                 Fruit = world.Fruit,
+                DaysPlayed = world.DaysPlayed,
                 Season = GardenSeason.For(world)
             };
         }
