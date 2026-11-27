@@ -558,6 +558,30 @@ namespace Evergrove.UnityClient
             yield return new WaitForEndOfFrame();
             SavePng("14-garden-file.png");
 
+            // I251: home through the year. A finished garden, then 4, 8 and 12 first
+            // solves: autumn, winter, spring (the festival itself is summer).
+            Press("Close menu");
+            for (int f = 0; f < 4; f++) yield return null;
+            string[] seasons = { "19-summer-home.png", "19-autumn-home.png", "19-winter-home.png", "19-spring-home.png" };
+            for (int turn = 0; turn < seasons.Length; turn++)
+            {
+                WorldModel year = WorldModel.New(PlayMode.Living);
+                for (int chapter = 0; chapter < PuzzleCatalog.Count; chapter++)
+                {
+                    Puzzle stream = year.CurrentPuzzle;
+                    for (int i = 0; i < stream.CellCount; i++)
+                        while (year.Rotations[i] != stream.Solution[i]) year.Rotate(i);
+                    year.Choose((VillageChoice)(chapter % 3));
+                }
+                for (int i = 0; i < turn * GardenMap.SolvesPerReach; i++) year.SolveTree(i);
+                app.QaReplaceWorld(year);
+                app.QaShowHub(true);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng(seasons[turn]);
+                app.QaShowHub(false);
+            }
+
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
             Application.Quit();
         }

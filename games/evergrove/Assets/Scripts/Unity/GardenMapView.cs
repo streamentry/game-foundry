@@ -43,7 +43,7 @@ namespace Evergrove.UnityClient
                                           int inHand = -1, bool growNewest = false,
                                           float greened = 1f, float greenedBefore = -1f,
                                           Func<RectTransform, Func<int, Vector2>, List<RectTransform>> decorate = null,
-                                          float apron = 0f, bool teaser = false)
+                                          float apron = 0f, bool teaser = false, Sprite teaserPlot = null)
         {
             var host = new GameObject("Garden map", typeof(RectTransform));
             host.transform.SetParent(window, false);
@@ -110,21 +110,38 @@ namespace Evergrove.UnityClient
             if (teaser && plot != null)
             {
                 view.teaser = 0.55f;
-                RawImage next = ReachImage(landRect, plot, reaches % 2 == 1, "Next reach in mist");
+                // The next stretch wears the season it will bring (I252), as the stones ahead do.
+                Sprite nextPlot = teaserPlot != null ? teaserPlot : plot;
+                RawImage next = ReachImage(landRect, nextPlot, reaches % 2 == 1, "Next reach in mist");
                 var nextRect = next.rectTransform;
                 nextRect.anchorMin = new Vector2(0f, 0f);
                 nextRect.anchorMax = new Vector2(1f, 0f);
                 nextRect.pivot = new Vector2(0.5f, 0f);
                 view.apronRect = nextRect;
                 // Only the top of that reach shows, so trim the painting to match.
-                Rect r = plot.textureRect;
-                float tu = r.x / plot.texture.width, tv = r.y / plot.texture.height;
-                float tw = r.width / plot.texture.width, th = r.height / plot.texture.height, t = view.teaser;
+                Rect r = nextPlot.textureRect;
+                float tu = r.x / nextPlot.texture.width, tv = r.y / nextPlot.texture.height;
+                float tw = r.width / nextPlot.texture.width, th = r.height / nextPlot.texture.height, t = view.teaser;
                 next.uvRect = reaches % 2 == 1
                     ? new Rect(tu, tv + th * t, tw, -th * t)          // mirrored: the painting's foot, upside down
                     : new Rect(tu, tv + th * (1f - t), tw, th * t);   // as painted: the painting's head
                 // Both washes fade in from clear (I199): a solid straw wash drew a hard
                 // line across the garden where the open river ends.
+                // This season melts into the next over the same ground (I252): no hard line.
+                if (nextPlot != plot)
+                {
+                    var melt = new GameObject("Season melting", typeof(RectTransform));
+                    melt.transform.SetParent(nextRect, false);
+                    var meltRect = (RectTransform)melt.transform;
+                    meltRect.anchorMin = new Vector2(0f, 0.55f);
+                    meltRect.anchorMax = Vector2.one;
+                    meltRect.offsetMin = meltRect.offsetMax = Vector2.zero;
+                    var fade = melt.AddComponent<FadeDownRawImage>();
+                    fade.texture = plot.texture;
+                    Rect uv = next.uvRect;
+                    fade.uvRect = new Rect(uv.x, uv.y + uv.height * 0.55f, uv.width, uv.height * 0.45f);
+                    fade.raycastTarget = false;
+                }
                 Wash(nextRect, new Color(0.84f, 0.74f, 0.50f, 0.5f), true);
                 Wash(nextRect, new Color(0.97f, 0.95f, 0.89f, 0.82f), true);
             }
@@ -696,6 +713,24 @@ namespace Evergrove.UnityClient
                 if (group != null) group.alpha = 1f - Mathf.SmoothStep(0f, 1f, t);
                 transform.localScale = new Vector3(1f, 1f + 0.06f * t, 1f);
                 if (t >= 1f) Destroy(gameObject);
+            }
+        }
+
+        /// <summary>A painting that is opaque at its top edge and clear at its foot (I252).</summary>
+        private sealed class FadeDownRawImage : RawImage
+        {
+            protected override void OnPopulateMesh(VertexHelper vh)
+            {
+                vh.Clear();
+                Rect r = GetPixelAdjustedRect();
+                Rect uv = uvRect;
+                Color top = color, foot = new Color(color.r, color.g, color.b, 0f);
+                vh.AddVert(new Vector3(r.xMin, r.yMin), foot, new Vector2(uv.xMin, uv.yMin));
+                vh.AddVert(new Vector3(r.xMin, r.yMax), top, new Vector2(uv.xMin, uv.yMax));
+                vh.AddVert(new Vector3(r.xMax, r.yMax), top, new Vector2(uv.xMax, uv.yMax));
+                vh.AddVert(new Vector3(r.xMax, r.yMin), foot, new Vector2(uv.xMax, uv.yMin));
+                vh.AddTriangle(0, 1, 2);
+                vh.AddTriangle(2, 3, 0);
             }
         }
 

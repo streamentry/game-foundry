@@ -774,7 +774,7 @@ namespace Evergrove.UnityClient
             stripRect.offsetMin = stripRect.offsetMax = Vector2.zero;
             var painting = strip.AddComponent<PaintedVillage>();
             VillageScenePlan plan = VillageScenePlan.From(world);
-            painting.Build(0f, PaintedVillage.SeasonFor(plan.LandscapePhase, world.Completed));
+            painting.Build(0f, PaintedVillage.ArtSeason(world));
             if (painting.Ready)
                 painting.Show(plan.Chapter, plan.TreeCount, plan.CrossingCount, plan.FlowerCount,
                     plan.WaterRestored, plan.WaterReachPercent);
@@ -1629,7 +1629,7 @@ namespace Evergrove.UnityClient
             strip.SetActive(!mapShown);
             if (mapShown) windowRect.anchorMin = new Vector2(0f, 0.33f);
             var painting = strip.AddComponent<PaintedVillage>();
-            painting.Build(0f, PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed));
+            painting.Build(0f, PaintedVillage.ArtSeason(world));
             if (painting.Ready)
             {
                 VillageScenePlan plan = VillageScenePlan.From(world);
@@ -1943,6 +1943,16 @@ namespace Evergrove.UnityClient
             return gardenMap;
         }
 
+        // After the story, the stretch in the mist wears the season it will bring (I252).
+        private Sprite NextSeasonPlot()
+        {
+            if (world.Mode != PlayMode.Living || !world.Completed) return null;
+            if (!GardenMap.TowardNext(world.Choices.Length, true, world.PuzzlesSolved, out int have, out int need)) return null;
+            Season next = GardenSeason.AfterStory(world.PuzzlesSolved + (need - have));
+            int art = next == Season.Spring ? 3 : next == Season.Autumn ? 1 : next == Season.Winter ? 2 : 0;
+            return MosseloraArt.Load(PaintedVillage.MapFor(art));
+        }
+
         // The next reach shows in mist below the open river until it opens.
         private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.ReachesCeiling; }
 
@@ -2131,9 +2141,9 @@ namespace Evergrove.UnityClient
             GardenMap map;
             try { map = GardenMap.River(10, 15, mask.text.Trim(), GardenMap.ReachesFor(visited.Choices.Length, visited.Completed, visited.PuzzlesSolved)); }
             catch (ArgumentException) { return false; }
-            int season = PaintedVillage.SeasonFor(VillageScenePlan.From(visited).LandscapePhase, visited.Completed);
-            Sprite plot = (season == 1 ? MosseloraArt.Load("garden-map-autumn") : season == 2 ? MosseloraArt.Load("garden-map-winter") : null)
-                ?? MosseloraArt.Load("garden-map");
+            // Their garden in its own season (I249): families see each other's year.
+            int season = PaintedVillage.ArtSeason(visited);
+            Sprite plot = MosseloraArt.Load(PaintedVillage.MapFor(season)) ?? MosseloraArt.Load("garden-map");
             if (plot == null) return false;
 
             if (text != visitText) helpedOnVisit.Clear();
@@ -2338,7 +2348,7 @@ namespace Evergrove.UnityClient
                 heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
                 (justPlanted >= 0 || justBought >= 0) && gentleMotion,
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
-                0.22f, RiverGoesOn(map));
+                0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;
             // A solve opened more river (I223): its mist lifts, framed, with the chime.
             if (riverOpened && map.Reaches > 1)
@@ -2382,9 +2392,9 @@ namespace Evergrove.UnityClient
         // amber, then winter frost; a finished garden is summer again.
         private Sprite MapPainting()
         {
-            int season = PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed);
-            Sprite graded = season == 1 ? MosseloraArt.Load("garden-map-autumn")
-                : season == 2 ? MosseloraArt.Load("garden-map-winter") : null;
+            // Four seasons by progress (I248/I249): the story walks spring to winter; after it,
+            // tending turns the year on.
+            Sprite graded = MosseloraArt.Load(PaintedVillage.MapFor(PaintedVillage.ArtSeason(world)));
             return graded != null ? graded : MosseloraArt.Load("garden-map");
         }
 
@@ -3489,8 +3499,7 @@ namespace Evergrove.UnityClient
 
         private void CreekBehindBoard(Transform board)
         {
-            int season = PaintedVillage.SeasonFor(VillageScenePlan.From(world).LandscapePhase, world.Completed);
-            string prefix = season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-" : "banner-stream-";
+            string prefix = PaintedVillage.BannerFor(PaintedVillage.ArtSeason(world));
             Sprite creek = MosseloraArt.Load(prefix + (world.Solved ? "flowing" : "dry"));
             if (creek == null) return;
             var window = Node("Creek behind board", board);
@@ -4705,25 +4714,27 @@ namespace Evergrove.UnityClient
             if (here) return MosseloraArt.Load(MosseloraArt.StoneHere);
             if (passed) return MosseloraArt.Load(MosseloraArt.StoneWalked);
             int phase = stream >= 9 ? 3 : stream >= 6 ? 2 : stream >= 3 ? 1 : 0;
-            switch (PaintedVillage.SeasonFor(phase, false))
+            switch (GardenSeason.ForStory(phase))
             {
-                case 1: return MosseloraArt.Load(MosseloraArt.StoneAutumn);
-                case 2: return MosseloraArt.Load(MosseloraArt.StoneWinter);
+                case Season.Spring: return MosseloraArt.Load("stone-spring") ?? MosseloraArt.Load(MosseloraArt.StoneSummer);
+                case Season.Autumn: return MosseloraArt.Load(MosseloraArt.StoneAutumn);
+                case Season.Winter: return MosseloraArt.Load(MosseloraArt.StoneWinter);
                 default: return MosseloraArt.Load(MosseloraArt.StoneSummer);
             }
         }
 
-        // Stones ahead wear the season they will be walked in (summer sage,
-        // autumn amber, winter frost): the year ahead is visible, never timed.
+        // Stones ahead wear the season they will be walked in (spring mint, summer
+        // sage, autumn amber, winter frost): the year ahead is visible, never timed.
         private static Color SeasonStone(int stream)
         {
             int phase = stream >= 9 ? 3 : stream >= 6 ? 2 : stream >= 3 ? 1 : 0;
-            switch (PaintedVillage.SeasonFor(phase, false))
+            switch (GardenSeason.ForStory(phase))
             {
                 // Opaque season tones, each at least 3:1 against the paper
                 // (WCAG 1.4.11); the old translucent stones measured about 1.6:1 (I84).
-                case 1: return new Color(0.72f, 0.47f, 0.20f, 1f);   // autumn 3.3:1
-                case 2: return new Color(0.36f, 0.52f, 0.66f, 1f);   // winter 3.5:1
+                case Season.Spring: return new Color(0.27f, 0.53f, 0.43f, 1f); // spring mint, darker than summer for 3:1
+                case Season.Autumn: return new Color(0.72f, 0.47f, 0.20f, 1f);   // autumn 3.3:1
+                case Season.Winter: return new Color(0.36f, 0.52f, 0.66f, 1f);   // winter 3.5:1
                 default: return new Color(0.40f, 0.55f, 0.35f, 1f);  // summer 3.4:1
             }
         }
@@ -4979,7 +4990,7 @@ namespace Evergrove.UnityClient
                     if (diorama != null) diorama.Hide();
 #endif
                     var painting = illustration.AddComponent<PaintedVillage>();
-                    painting.Build(17f, PaintedVillage.SeasonFor(scenePlan.LandscapePhase, world.Completed));
+                    painting.Build(17f, PaintedVillage.ArtSeason(world));
                     if (painting.Ready)
                     {
                         int[] grown = world.Choices;

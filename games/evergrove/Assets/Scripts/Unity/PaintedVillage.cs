@@ -1,3 +1,4 @@
+using Evergrove.Core;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,9 +60,38 @@ namespace Evergrove.UnityClient
             return landscapePhase >= 3 ? 2 : landscapePhase >= 2 ? 1 : 0;
         }
 
+        /// <summary>
+        /// The art season for a garden (I249): four seasons by progress (GardenSeason).
+        /// 0 summer, 1 autumn, 2 winter (the old meanings), 3 spring.
+        /// </summary>
+        public static int ArtSeason(WorldModel world)
+        {
+            switch (GardenSeason.For(world))
+            {
+                case Season.Spring: return 3;
+                case Season.Autumn: return 1;
+                case Season.Winter: return 2;
+                default: return 0;
+            }
+        }
+
+        /// <summary>The garden map painting's resource name for an art season.</summary>
+        public static string MapFor(int season)
+        {
+            return season == 1 ? "garden-map-autumn" : season == 2 ? "garden-map-winter"
+                : season == 3 ? "garden-map-spring" : "garden-map";
+        }
+
+        /// <summary>The banner prefix for an art season.</summary>
+        public static string BannerFor(int season)
+        {
+            return season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-"
+                : season == 3 ? "banner-spring-" : "banner-stream-";
+        }
+
         public void Build(float bleed, int season = 0)
         {
-            string prefix = season == 2 ? "banner-winter-" : season == 1 ? "banner-autumn-" : null;
+            string prefix = season == 0 ? null : BannerFor(season);
             Sprite drySprite = prefix != null ? MosseloraArt.Load(prefix + "dry") : null;
             Sprite wetSprite = prefix != null ? MosseloraArt.Load(prefix + "flowing") : null;
             if (drySprite == null || wetSprite == null)

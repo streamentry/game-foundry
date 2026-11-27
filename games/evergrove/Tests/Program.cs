@@ -1914,6 +1914,7 @@ internal static class Program
             assertions += StreamPathTests.Run();
             assertions += MahjongTests.Run();
             assertions += ThingPuzzleTests.Run();
+            assertions += SeasonTests.Run();
             assertions += NoticeTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
