@@ -20,6 +20,7 @@ namespace Evergrove.UnityClient
         private RectTransform board;
         private int tier;
         private bool locked;
+        private int[] shown; // I253
 
         public MahjongBoard(MahjongGame game, int tier, Sprite[] pictures)
         {
@@ -39,7 +40,15 @@ namespace Evergrove.UnityClient
                 maxZ = Mathf.Max(maxZ, game.Z(t));
             }
             // Positions are in half tiles; a tile is 2 x 2 halves, drawn a little taller than wide.
-            Vector2 room = BoardKit.Room(width, screenHeight);
+            float rule = BoardKit.FirstTimeRule(card, "mahjong", row =>
+            {
+                Sprite face = pictures != null && pictures.Length > 0 ? pictures[0] : null;
+                BoardKit.RuleSquare(row, BoardKit.Soil, face, 34f);
+                BoardKit.RuleSquare(row, BoardKit.Soil, face, 34f);
+                BoardKit.RuleArrow(row);
+                BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
+            });
+            Vector2 room = BoardKit.Room(width, screenHeight, rule);
             float lift = 6f; // each layer sits up and left, so the terrace reads in depth
             float half = Mathf.Floor(Mathf.Min((room.x - maxZ * lift) / (maxX + 2), (room.y - maxZ * lift) / ((maxY + 2) * 1.2f)));
             half = Mathf.Min(half, 34f);
@@ -96,6 +105,28 @@ namespace Evergrove.UnityClient
                 int face = game.Face(t);
                 picture.sprite = pictures != null && face < pictures.Length ? pictures[face] : null;
             }
+        }
+
+        public void Hint()
+        {
+            if (locked) return;
+            int[] pair = game.HintPair();
+            if (pair.Length < 2) return;
+            if (shown == null || shown[0] != pair[0] || shown[1] != pair[1])
+            {
+                shown = pair;
+                Paint();
+                foreach (int t in pair)
+                {
+                    tiles[t].color = BoardKit.Picked;
+                    BloomPulse.Add(tiles[t].gameObject, 0f, 0.18f);
+                }
+                return;
+            }
+            shown = null;
+            if (game.Selected >= 0 && game.Selected != pair[0]) Tap(game.Selected);
+            if (game.Selected != pair[0]) Tap(pair[0]);
+            Tap(pair[1]);
         }
 
         public void Lock()

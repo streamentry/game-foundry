@@ -2209,6 +2209,7 @@ namespace Evergrove.UnityClient
                 items.Add(new GardenMapView.Placed { Art = art(i, made[i]), Cell = cells[i], Index = i,
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2), Bloomed = done,
                     HoldsPuzzle = !done && world.Mode == PlayMode.Living,
+                    Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1,
                     BloomNow = gentleMotion && helpedOnVisit.Count > 0 && helpedOnVisit[helpedOnVisit.Count - 1] == i });
             }
             for (int k = 0; k * 2 + 1 < planted.Length; k++)
@@ -2488,6 +2489,7 @@ namespace Evergrove.UnityClient
                     Newest = justSolved >= 0 ? i == justSolved : i == made.Length - 1 && justPlanted < 0,
                     Bloomed = world.TreeSolved(i) || world.IsHelped(i), // solved (I204), or by family (I227)
                     HoldsPuzzle = markPuzzles && !world.TreeSolved(i), // helped still holds your own first solve
+                    Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, // I255
                     BloomNow = i == justSolved && gentleMotion
                 });
             // More of what you grew, planted from the basket (I193).
@@ -2519,6 +2521,7 @@ namespace Evergrove.UnityClient
                     Newest = justSolved >= 0 ? BoughtIndex + k == justSolved : k == justBought,
                     Bloomed = world.BoughtSolved(k),
                     HoldsPuzzle = markPuzzles && !world.BoughtSolved(k),
+                    Kind = (int)ThingPuzzle.ForNursery(kind) + 1, // I255
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
@@ -7400,8 +7403,14 @@ namespace Evergrove.UnityClient
         private TreePlay qaTreePlay;
         internal int QaHoldThing(int family = -1)
         {
-            int item = Mathf.Min(4, world.Choices.Length - 1);
-            if (family >= 0) item = System.Array.LastIndexOf(world.Choices, family); // a flower: Pairs
+            // The classic kinds live in the first four things (I243): pick from those, so the
+            // tour keeps playing water, Pairs and Mosaic (the newer kinds have their own shots).
+            int[] made = world.Choices;
+            int want = family >= 0 ? family : (int)VillageChoice.ShadeTree;
+            int item = -1;
+            for (int i = 0; i < made.Length && i < ThingPuzzle.ClassicChapters && item < 0; i++)
+                if (made[i] == want) item = i;
+            if (item < 0) item = family >= 0 ? System.Array.LastIndexOf(made, family) : Mathf.Min(4, made.Length - 1);
             if (item < 0) return -1;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             qaShowHub = true; // the hub rebuilds when the puzzle closes
@@ -7468,6 +7477,7 @@ namespace Evergrove.UnityClient
         internal void QaOpenKind(PuzzleKind kind, int tier)
         {
             qaShowHub = true;
+            PlayerPrefs.DeleteKey("evergrove:rule-seen-" + kind.ToString().ToLowerInvariant()); // I254: shown each tour
             if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
             int item = Mathf.Min(5, world.Choices.Length - 1);
             if (titleScreen == null || item < 0) return;
@@ -7486,6 +7496,7 @@ namespace Evergrove.UnityClient
         }
 
         internal void QaSolveTreePlay() { if (qaTreePlay != null) qaTreePlay.QaSolve(); }
+        internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
 
         internal void QaEndTreePlay()
         {

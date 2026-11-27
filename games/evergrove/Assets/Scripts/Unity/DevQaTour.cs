@@ -220,6 +220,11 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.4f);
                 yield return new WaitForEndOfFrame();
                 SavePng("17f-tree-puzzle.png");
+                // I256: the classic kinds hint too: a wrong tile glows.
+                app.QaHintTreePlay();
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17f2-water-hint.png");
                 app.QaSolveTreePlay();
                 yield return new WaitForSecondsRealtime(0.9f);
                 yield return new WaitForEndOfFrame();
@@ -297,6 +302,12 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.4f);
                 yield return new WaitForEndOfFrame();
                 SavePng("18-" + kind.ToString().ToLowerInvariant() + ".png");
+                // I253: one hint, shown (not yet made).
+                app.QaHintTreePlay();
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForEndOfFrame();
+                SavePng("18-" + kind.ToString().ToLowerInvariant() + "-hint.png");
                 app.QaSolveTreePlay();
                 yield return new WaitForSecondsRealtime(0.9f);
                 yield return new WaitForEndOfFrame();

@@ -1,0 +1,15 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI). The attached icon sheet is the EXISTING icon family: match its style exactly (solid black single-colour glyphs, bold rounded strokes about 9% of icon size, rounded caps and joins, flat, friendly). Generate exactly ONE image.
+Use case: logo-brand
+Asset type: eight small UI glyphs, one per kind of puzzle in a cozy garden game, sliced from a 4x2 grid
+Primary request: a grid of 4 columns and 2 rows, each icon centred in its own equal cell, about 60% of the cell, generous margins, no grid lines:
+ row 1, col 1 (water pipes): two short pipe segments joined at a right-angle elbow with a single water drop at the open end;
+ row 1, col 2 (memory pairs): two upright playing cards side by side, the left one face down with a small leaf on its back, the right one face up showing a small flower;
+ row 1, col 3 (mosaic): a square picture split into a 2x2 grid of tiles, one tile slightly lifted and turned;
+ row 1, col 4 (planting by numbers): a 3x3 grid of small squares where three squares in the middle row are filled solid, with a small numeral-free tick mark above the filled row;
+ row 2, col 1 (seed sudoku): a 2x2 grid of squares each holding a different tiny shape: a leaf, a circle, a triangle, a small flower;
+ row 2, col 2 (garden plots): a square field divided by bold lines into three rectangles of different sizes, with a small dot in each rectangle;
+ row 2, col 3 (lead the stream): a single continuous wavy path snaking through a 3x3 grid of dots, from a small spring curl at one corner to a round pond at the opposite corner;
+ row 2, col 4 (garden tiles / mahjong): three upright rectangular tiles stacked like a small terrace, two in front and one resting on top behind, the top one showing a tiny flower.
+Background: fully TRANSPARENT (alpha). Image size 2048x1024 (wide).
+Constraints: no text, no letters, no numbers, no watermark.
+Copy the final PNG to games/evergrove/art/generated/icons-puzzle-kinds.png and print the path. Do nothing else.

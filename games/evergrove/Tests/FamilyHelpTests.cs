@@ -245,7 +245,9 @@ internal static class FamilyHelpTests
         Expect(NeighbourNotice.Line(1, w) == null, "only the newest helped item speaks");
         w.Open(Help(Grown(1), "Chú", "", 0, "n3")); // trees -> Mira
         string mira = NeighbourNotice.Line(0, w);
-        Expect(mira != null && mira.Contains("Chú") && mira.Contains("tree"), "Mira names Chú: " + mira);
+        // I257: true to the puzzle's kind (item 0 holds water), not "tree" by family.
+        Expect(mira != null && mira.Contains("Chú") && mira.Contains(NeighbourNotice.KindWord(PuzzleKind.Water)),
+            "Mira names Chú: " + mira);
         foreach (string line in new[] { orin, fen, mira })
         {
             string lower = line.ToLowerInvariant();

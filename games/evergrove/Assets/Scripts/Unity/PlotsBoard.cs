@@ -24,6 +24,7 @@ namespace Evergrove.UnityClient
         private Image[] cells;
         private int corner = -1;
         private bool locked;
+        private int[] shown; // I253: the hinted bed, waiting for a second tap
 
         public PlotsBoard(PlotsGame game) { this.game = game; }
 
@@ -31,7 +32,16 @@ namespace Evergrove.UnityClient
         {
             play = host;
             int n = game.Size;
-            Vector2 room = BoardKit.Room(width, screenHeight);
+            float rule = BoardKit.FirstTimeRule(card, "plots", row =>
+            {
+                BoardKit.RuleNumber(row, "4", font);
+                BoardKit.RuleArrow(row);
+                for (int k = 0; k < 4; k++) BoardKit.RuleSquare(row, BedTones[0]);
+                BoardKit.RuleNumber(row, "2", font);
+                BoardKit.RuleArrow(row);
+                for (int k = 0; k < 2; k++) BoardKit.RuleSquare(row, BedTones[1]);
+            });
+            Vector2 room = BoardKit.Room(width, screenHeight, rule);
             float cell = Mathf.Min(Mathf.Floor(Mathf.Min(room.x, room.y) / n), 64f);
             const float gap = 2f;
             RectTransform board = BoardKit.Bed(card, "Garden plots", new Vector2(n * cell, n * cell));
@@ -107,6 +117,34 @@ namespace Evergrove.UnityClient
                     : bed >= 0 ? BedTones[tones[bed]] : BoardKit.Soil;
                 cells[c].transform.localScale = c == corner ? new Vector3(1.08f, 1.08f, 1f) : Vector3.one;
             }
+        }
+
+        public void Hint()
+        {
+            if (locked) return;
+            int[] bed = game.HintBed();
+            if (bed.Length < 4) return;
+            int n = game.Size;
+            bool same = shown != null && shown[0] == bed[0] && shown[1] == bed[1] && shown[2] == bed[2] && shown[3] == bed[3];
+            if (!same)
+            {
+                shown = bed;
+                corner = -1;
+                Paint();
+                for (int r = bed[1]; r < bed[1] + bed[3]; r++)
+                    for (int c = bed[0]; c < bed[0] + bed[2]; c++)
+                    {
+                        cells[r * n + c].color = BoardKit.Picked;
+                        BloomPulse.Add(cells[r * n + c].gameObject, 0f, 0.12f);
+                    }
+                return;
+            }
+            shown = null;
+            corner = -1;
+            // Lift any wrong bed in the way, then stake the right one, as taps would.
+            Tap(bed[1] * n + bed[0]);
+            if (corner < 0) Tap(bed[1] * n + bed[0]);
+            Tap((bed[1] + bed[3] - 1) * n + bed[0] + bed[2] - 1);
         }
 
         public void Lock()

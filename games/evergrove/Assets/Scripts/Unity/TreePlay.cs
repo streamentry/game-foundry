@@ -48,6 +48,7 @@ namespace Evergrove.UnityClient
             void Build(Transform card, float width, float screenHeight, Font font, TreePlay play);
             void Lock();     // solved: no more input, the board blooms
             void QaSolve();  // tour only: solve by the same paths as taps
+            void Hint();     // I253: first tap shows the next sensible move, the second makes it
         }
 
         /// <summary>A newer kind's board in the same card as every other puzzle.</summary>
@@ -62,6 +63,66 @@ namespace Evergrove.UnityClient
         internal bool Gentle { get { return gentle; } }
         internal void Moved() { if (!solved) onTurn?.Invoke(); }
         internal void Done() { if (!solved) Finish(); }
+        internal void QaHint() { Hint(); }
+
+        // I256: the classic three get the same two-tap hint as the newer kinds.
+        private int hintA = -1, hintB = -1;
+
+        private void Hint()
+        {
+            if (solved) return;
+            if (board != null) { board.Hint(); return; }
+            int a = -1, b = -1;
+            if (pairs != null)
+            {
+                // Two cards that match, glowing face down: memory stays memory.
+                for (int c = 0; c < pairs.Count && a < 0; c++)
+                {
+                    if (pairs.Kept(c)) continue;
+                    for (int d = c + 1; d < pairs.Count; d++)
+                        if (!pairs.Kept(d) && pairs.Face(d) == pairs.Face(c)) { a = c; b = d; break; }
+                }
+            }
+            else if (mosaic != null)
+            {
+                // A tile out of place, and the slot holding its piece.
+                for (int slot = 0; slot < mosaic.Count && a < 0; slot++)
+                {
+                    if (mosaic.InPlace(slot)) continue;
+                    for (int s2 = 0; s2 < mosaic.Count; s2++)
+                        if (mosaic.At(s2) == slot) { a = slot; b = s2; break; }
+                }
+            }
+            else
+            {
+                // A tile turned the wrong way.
+                for (int i = 0; i < puzzle.CellCount && a < 0; i++)
+                    if (rotations[i] != puzzle.Solution[i] && PipeRules.OrientationCount(puzzle.Kinds[i]) > 1) a = i;
+            }
+            if (a < 0) return;
+            if (a != hintA || b != hintB)
+            {
+                hintA = a;
+                hintB = b;
+                foreach (int t in new[] { a, b })
+                {
+                    if (t < 0) continue;
+                    tiles[t].color = new Color(0.98f, 0.93f, 0.74f, 1f);
+                    BloomPulse.Add(tiles[t].gameObject, 0f, 0.18f);
+                }
+                return;
+            }
+            hintA = hintB = -1;
+            if (pairs != null) { TurnCard(a); TurnCard(b); return; }
+            if (mosaic != null)
+            {
+                if (mosaic.Picked >= 0) TapPiece(mosaic.Picked); // put down a stray pick
+                TapPiece(a);
+                TapPiece(b);
+                return;
+            }
+            for (int guard = 0; guard < 4 && rotations[a] != puzzle.Solution[a] && !solved; guard++) Turn(a);
+        }
 
         public static TreePlay Open(RectTransform host, Puzzle puzzle, Sprite art, string name, int reward,
                                     Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed)
@@ -155,6 +216,9 @@ namespace Evergrove.UnityClient
             thingImage.preserveAspect = true;
             thingImage.raycastTarget = false;
             if (gentle) BloomPulse.Add(thing, 0.2f, 0.05f);
+            // A hint on every kind (I253, I256): shown, then made, never a penalty.
+            Token(top, "Hint: show the next move", MosseloraArt.Load(MosseloraArt.IconHint), 52f,
+                MosseloraTheme.QuietAction, Hint, true);
             rewardPill = Pill(top, "+" + reward, font, out rewardText);
             // Helping family (I227) pays nothing: no seed pill, said plainly.
             if (reward < 0) rewardPill.SetActive(false);
