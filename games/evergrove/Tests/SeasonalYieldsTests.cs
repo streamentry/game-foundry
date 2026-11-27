@@ -49,6 +49,8 @@ internal static class SeasonalYieldsTests
         Expect(w.TakeSeasonYield(0) == SeasonYield.None, "found once but not standing now: nothing");
         int seeds = w.Seeds;
         Expect(w.TakeSeasonYield(grove) == SeasonYield.Seeds && w.Seeds == seeds + SeasonalYields.SummerSeeds, "summer seeds");
+        Expect(w.Ledger.Length > 0 && w.Ledger[0].Reason == SeedReason.Season && w.Ledger[0].Delta == SeasonalYields.SummerSeeds,
+            "summer seeds write one Season line in the seed ledger (v1 #78)");
         Expect(w.TakeSeasonYield(grove) == SeasonYield.None, "once a season");
         Expect(GardenTransfer.TryImport(GardenTransfer.Export(w, "2026-11-27T00:00:00Z"), out WorldModel back, out _) &&
                back.YieldTaken == w.YieldTaken && back.TakeSeasonYield(grove) == SeasonYield.None, "taken travels in the garden file");

@@ -229,7 +229,7 @@ namespace Evergrove.UnityClient
                     hooks.Seeds() >= amount);
             GiftToken(gifts, LetterOnly, MosseloraArt.Load(MosseloraArt.IconChat), "", true);
             // A basket of fruit from your trees (I230), then a cutting of a plant you
-            // have grown from the nursery (it costs its price).
+            // have grown from the nursery (it costs its gift price, half the nursery price).
             int[] owned = hooks.OwnedKinds();
             int fruit = hooks.Fruit != null ? hooks.Fruit() : 0;
             Transform cuttings = Row(body, "Lantern, fruit and cuttings", 82f, 10f);
@@ -243,7 +243,7 @@ namespace Evergrove.UnityClient
             }
             for (int i = 0; i < owned.Length && i < (fruit > 0 ? 2 : 3); i++)
                 GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
-                    Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
+                    Nursery.GiftPrice(owned[i]).ToString(), hooks.Seeds() >= Nursery.GiftPrice(owned[i])); // v1 #73: sending costs half
             StepTokens(() => { sendStep = 1; outcome = ""; Rebuild(); }, "On to wrapping it", MosseloraArt.IconContinue,
                 MosseloraTheme.ForestAction);
         }

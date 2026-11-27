@@ -196,7 +196,7 @@ namespace Evergrove.Core
             if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds || state.gifts.Length >= MaxGifts) return false;
             int price = Nursery.Price(kind);
             if (state.seeds < price) return false;
-            state.seeds -= price;
+            ChangeSeeds(-price, SeedReason.Keepsake);
             state.gifts = Append(state.gifts, kind);
             return true;
         }
@@ -213,8 +213,9 @@ namespace Evergrove.Core
         /// <summary>
         /// Makes a parcel and pays for it, all or nothing. <paramref name="value"/> is the seed amount
         /// (1..500) for Seeds, the nursery kind for Cutting, or the grown thing to help with for Help; ignored for None.
-        /// Help, like a letter, costs nothing. A cutting costs its
-        /// nursery price and needs that kind's row open; it removes no plant. A letter costs nothing.
+        /// Help, like a letter, costs nothing. A cutting sent to family costs half
+        /// its nursery price (v1 #73, <see cref="Nursery.GiftPrice"/>) and needs that kind's row open; it removes
+        /// no plant. A letter costs nothing.
         /// </summary>
         public ParcelSendResult SendParcel(string from, string letter, ParcelGift gift, int value, string nonce,
                                            int blessing = 0, int boardSeed = 0, int stamp = 0)
@@ -232,12 +233,12 @@ namespace Evergrove.Core
             else if (gift == ParcelGift.Cutting)
             {
                 if (!RowOpen(Nursery.Row(contents.Kind))) return Fail(result, ParcelError.CuttingNotAvailable);
-                cost = Nursery.Price(contents.Kind);
+                cost = Nursery.GiftPrice(contents.Kind);
             }
             if (state.seeds < cost) return Fail(result, ParcelError.NotEnoughSeeds);
             if (gift == ParcelGift.Fruit && state.fruit < contents.Amount) return Fail(result, ParcelError.NotEnoughFruit);
             if (gift == ParcelGift.Jam && state.jam < contents.Amount) return Fail(result, ParcelError.NotEnoughJam);
-            state.seeds -= cost;
+            ChangeSeeds(-cost, SeedReason.ParcelSent);
             if (gift == ParcelGift.Fruit) state.fruit -= contents.Amount;
             if (gift == ParcelGift.Jam) state.jam -= contents.Amount;
             RememberParcel(contents.Id);
@@ -275,7 +276,7 @@ namespace Evergrove.Core
             if (contents.Gift == ParcelGift.Seeds)
             {
                 int gained = Math.Min(contents.Amount, MaxSeeds - state.seeds);
-                state.seeds += gained;
+                ChangeSeeds(gained, SeedReason.ParcelOpened);
                 result.SeedsGained = gained;
             }
             else if (contents.Gift == ParcelGift.Fruit)

@@ -93,20 +93,20 @@ internal static class FamilyParcelTests
             Expect(!rich.SendParcel("Anh", "", ParcelGift.Seeds, bad, "k").Ok && State(rich) == before, "seed amount " + bad + " refused");
         Expect(rich.SendParcel("Anh", "", ParcelGift.Seeds, 500, "k").Ok && rich.Seeds == 4500, "500 is the most one parcel may carry");
 
-        // A cutting costs its nursery price; it removes no plant; the row must be open.
+        // A cutting sent to family costs half its nursery price (v1 #73); it removes no plant; the row must be open.
         WorldModel g = WithSeeds(1000);
         Expect(g.Buy(0, 5) && g.Seeds == 950, "setup: one row 0 plant");
         ParcelSendResult cut = g.SendParcel("Anh", "", ParcelGift.Cutting, 1, "c1");
-        Expect(cut.Ok && cut.Cost == 50 && g.Seeds == 900 && g.BoughtCount == 1, "a row 0 cutting costs 50 and removes nothing");
+        Expect(cut.Ok && cut.Cost == 25 && g.Seeds == 925 && g.BoughtCount == 1, "a row 0 cutting costs 25 (half of 50) and removes nothing");
         cut = g.SendParcel("Anh", "", ParcelGift.Cutting, 4, "c2");
-        Expect(cut.Ok && cut.Cost == 100 && g.Seeds == 800, "a row 1 cutting costs 100 (row 1 is open)");
+        Expect(cut.Ok && cut.Cost == 50 && g.Seeds == 875, "a row 1 cutting costs 50 (half of 100; row 1 is open)");
         before = State(g);
         Expect(!g.SendParcel("Anh", "", ParcelGift.Cutting, 7, "c3").Ok && State(g) == before, "a row 2 cutting is refused while row 2 is closed");
         Expect(g.SendParcel("Anh", "", ParcelGift.Cutting, 7, "c3").Error == ParcelError.CuttingNotAvailable, "with its own reason");
         foreach (int badKind in new[] { -1, Nursery.Kinds, 100 })
             Expect(!g.SendParcel("Anh", "", ParcelGift.Cutting, badKind, "c4").Ok && State(g) == before, "kind " + badKind + " refused");
-        WorldModel low = WithSeeds(49);
-        Expect(!low.SendParcel("Anh", "", ParcelGift.Cutting, 0, "c").Ok && low.Seeds == 49, "a cutting you cannot afford is refused");
+        WorldModel low = WithSeeds(24);
+        Expect(!low.SendParcel("Anh", "", ParcelGift.Cutting, 0, "c").Ok && low.Seeds == 24, "a cutting you cannot afford is refused");
         WorldModel lowRow = WithSeeds(60);
         Expect(!lowRow.SendParcel("Anh", "", ParcelGift.Cutting, 3, "c").Ok && lowRow.Seeds == 60, "row 1 is closed before any row 0 plant");
 
@@ -216,7 +216,7 @@ internal static class FamilyParcelTests
             for (int row = 0; row < Nursery.Rows - 1; row++) Expect(a.Buy(row * 3, row), "setup row " + row);
             int seeds = a.Seeds;
             ParcelSendResult s = a.SendParcel("A", "", ParcelGift.Cutting, kind, "k" + kind);
-            Expect(s.Ok && a.Seeds == seeds - Nursery.Price(kind) && s.Cost == Nursery.Price(kind), "kind " + kind + " costs its price");
+            Expect(s.Ok && a.Seeds == seeds - Nursery.GiftPrice(kind) && s.Cost == Nursery.GiftPrice(kind), "kind " + kind + " costs its gift price (v1 #73)");
             WorldModel b = WithSeeds(0);
             Expect(b.Open(s.Text).Ok && b.Seeds == 0 && b.Gifts[0] == kind, "kind " + kind + " arrives free of charge to the recipient");
         }
