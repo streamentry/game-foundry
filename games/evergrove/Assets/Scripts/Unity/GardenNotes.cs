@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Evergrove.Core;
 using UnityEngine;
@@ -89,7 +90,10 @@ namespace Evergrove.UnityClient
             return came;
         }
 
-        /// <summary>The game is closing: queue tomorrow's (or today's) one note, if anything is waiting.</summary>
+        /// <summary>
+        /// The game is closing: queue the one note the Core plan (GardenNote.ForWeek) gives for the
+        /// next due day, if something has arrived and is waiting. Nothing else is a source of notes.
+        /// </summary>
         public static GardenNote Schedule(WorldModel world, bool unreadLetter)
         {
             if (!On) return null;
@@ -97,10 +101,10 @@ namespace Evergrove.UnityClient
             if (devTestActive) return null; // I284: leave the test note queued while backgrounded
 #endif
             int unopened = PlayerPrefs.GetInt(UnopenedKey, 0);
-            if (!GardenNote.MaySchedule(unopened)) { Cancel(); return null; }
-            GardenNote note = GardenNote.For(world, unreadLetter);
-            if (note == null) { Cancel(); return null; }
             DateTime when = GardenNote.NextTime(DateTime.Now, Hour);
+            List<PlannedNote> plan = GardenNote.ForWeek(world, GardenNote.DayNumber(when), unreadLetter, On, unopened);
+            if (plan.Count == 0) { Cancel(); return null; }
+            GardenNote note = plan[0].Note;
             double seconds = (when - DateTime.Now).TotalSeconds;
             // Counted now; reset when the game opens. Three in a row unopened and it stops.
             PlayerPrefs.SetInt(UnopenedKey, unopened + 1);
@@ -131,8 +135,10 @@ namespace Evergrove.UnityClient
             if (DevArgs.Read("-MosseloraNoteTest") == null) return;
             devTestActive = true;
             TurnOn(19);
-            GardenNote note = GardenNote.For(world, false) ??
-                new GardenNote { From = "Mosselora", Body = "A test note from the garden (development build).", Target = NoteTarget.River };
+            // Only the Core plan's note: with nothing arrived there is nothing to send, and the test says so.
+            List<PlannedNote> plan = GardenNote.ForWeek(world, GardenNote.DayNumber(DateTime.Now), false, true, 0);
+            if (plan.Count == 0) { Debug.Log("MOSSELORA_NOTE_TEST nothing has arrived: no note to send"); return; }
+            GardenNote note = plan[0].Note;
 #if UNITY_IOS && !UNITY_EDITOR
             try { _MosseloraNotesSchedule(note.From, note.Body, 75, note.Target.ToString()); }
             catch (Exception e) { Debug.LogWarning("Garden notes unavailable: " + e.Message); }

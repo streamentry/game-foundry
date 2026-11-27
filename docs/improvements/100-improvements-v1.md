@@ -11,7 +11,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **1. One silent opening shot.** Open on the garden at the current local hour and weather, with no logo card, so the first frame already shows the game. *Test:* time from launch to the first tap that does something, under 10 s on a mid-range phone.
 - [ ] **2. Learn by one gesture.** The first thing asked is a single tap that waters the garden (I350). Teach every other control only when it's first needed. *Test:* five first-time 40+ players finish the first board without help.
 - [ ] **3. Name the garden.** Let the player name the garden (optional, with a suggested name from `RiverNames`), and show it on the cottage sign and on postcards. *Test:* what share of players change the suggested name.
-- [ ] **4. Mira explains one thing, once.** Cap the opening dialogue at three short lines. Any later help comes from the neighbours in context (I370), never from a tutorial screen. *Test:* count words shown before the first puzzle (goal: under 40).
+- [x] **4. Mira explains one thing, once.** Cap the opening dialogue at three short lines. Any later help comes from the neighbours in context (I370), never from a tutorial screen. *Test:* count words shown before the first puzzle (goal: under 40).
 - [ ] **5. Remember the hand.** On the first long-press, ask once whether the player is left- or right-handed, and mirror the tray and menu to suit. *Test:* thumb-reach heatmap in landscape on a 6.7″ phone.
 - [ ] **6. Text size first, not in Settings.** On first launch, show the garden with a size slider whose preview updates live. *Test:* 150% tour (I-series tour) shows no clipped text on any first-run screen.
 - [ ] **7. A first win in two minutes.** The first board is sized to finish in about two minutes and ends in a visible change to the garden. *Test:* median first-board time in the playtest kit.
@@ -26,7 +26,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **13. Context buttons appear where the thumb is.** A tapped thing shows its two actions beside it (play, move) and nothing else. *Test:* taps per action before and after.
 - [ ] **14. Back is always the same place.** One back gesture and one back icon position across all sheets (FamilySheet, almanac, nursery). *Test:* tour shot audit of every sheet.
 - [ ] **15. The menu remembers.** The fan opens with the last-used item nearest the thumb. *Test:* second-tap distance in a logged session.
-- [ ] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
+- [x] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
 - [ ] **17. Sheets slide, never pop.** Every panel enters from the edge it belongs to (letters from the letterbox, nursery from the gate), with motion limited to transform and opacity. *Test:* reduced-motion setting replaces each slide with a fade.
 - [ ] **18. Hide the HUD while looking.** After 6 s with no touch, the menu and purse fade to 20% so the garden fills the screen. Any touch brings them back. *Test:* screenshot pairs at rest and in use.
 - [ ] **19. Long-press explains anything.** Any icon or thing, long-pressed, shows its name and one line. This replaces help pages. *Test:* coverage script lists every raycast target without a caption.
@@ -79,9 +79,9 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **54. A morning and an evening.** Different small things wait by local time of day (dew boards in the morning, lantern letters in the evening). *Test:* clock QA hook tours.
 - [ ] **55. Calendar of the river.** Real seasonal days per locale (first frost, longest day) become small festivals, not cultural events the game can't do justice to. *Test:* each festival line reviewed per locale.
 - [ ] **56. An end to each session.** After the day's thing, a neighbour says goodnight and the garden quietens. This invites stopping, not more play. *Test:* players report a natural ending point.
-- [ ] **57. Notifications only for real arrivals.** Notifications fire only for a family letter or a parcel, at most one a day, and are opt-in (I273–I277). *Test:* a week's log shows no more than 7.
+- [x] **57. Notifications only for real arrivals.** Notifications fire only for a family letter or a parcel, at most one a day, and are opt-in (I273–I277). *Test:* a week's log shows no more than 7.
 - [x] **58. A diary page per week.** The almanac writes one painted page per week, made from what happened. *Test:* the page is generated deterministically from the save.
-- [ ] **59. The year has a shape.** A season tale (I312) unlocks one new kind of thing per season, so the year has chapters. *Test:* a year simulation shows something new every season.
+- [x] **59. The year has a shape.** A season tale (I312) unlocks one new kind of thing per season, so the year has chapters. *Test:* a year simulation shows something new every season.
 - [x] **60. Come back for people, not prizes.** Every daily reason should trace to the garden or family, never to a timed reward. *Test:* audit list of every return reason.
 
 ## G. Family: playing together across distance

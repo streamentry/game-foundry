@@ -36,22 +36,19 @@ internal static class GardenNoteTests
         Expect(GardenNote.For(WorldModel.New(PlayMode.PuzzleOnly), true) == null, "never in puzzle-only mode");
         Expect(GardenNote.For(null, true) == null, "no garden, no note");
 
-        // A thing still holding its first puzzle.
+        // Checklist 57: a thing still holding its first puzzle is a reminder, not an arrival.
         WorldModel world = WorldModel.New(PlayMode.Living);
         Grow(world, 5);
-        GardenNote unsolved = GardenNote.For(world, false);
-        Expect(unsolved != null && unsolved.Target == NoteTarget.Thing && unsolved.Thing >= 0 &&
-               !world.TreeSolved(unsolved.Thing), "a thing with its first puzzle: " + unsolved?.Body);
-        Kind(unsolved, "unsolved");
+        Expect(GardenNote.For(world, false) == null, "a thing with its first puzzle says nothing");
 
         // An unread letter outranks everything.
         GardenNote letter = GardenNote.For(withLetter(world), true);
         Expect(letter != null && letter.Target == NoteTarget.Letterbox && letter.Body.Contains("Nan"),
             "an unread letter first: " + letter?.Body);
         Kind(letter, "letter");
-        Expect(GardenNote.For(withLetter(world), false).Target != NoteTarget.Letterbox, "a read letter isn't news");
+        Expect(GardenNote.For(withLetter(world), false) == null, "a read letter isn't news, and nothing else has arrived");
 
-        // A cutting waiting in the basket outranks the river and things.
+        // A cutting waiting in the basket is an arrival.
         WorldSnapshot s = world.Export();
         s.gifts = new[] { 2 };
         Expect(WorldModel.TryRestore(s, out WorldModel gift), "restore with a gift");
@@ -60,25 +57,20 @@ internal static class GardenNoteTests
             "the cutting in the basket: " + cutting?.Body);
         Kind(cutting, "cutting");
 
-        // One drop from more river (after the story).
+        // Checklist 57: one drop from more river is a prize, not an arrival.
         WorldModel done = WorldModel.New(PlayMode.Living);
         Grow(done, 12);
         for (int i = 0; i < GardenMap.SolvesPerReach - 1; i++) done.SolveTree(i);
-        GardenNote river = GardenNote.For(done, false);
-        Expect(river != null && river.Target == NoteTarget.River && river.From == "Mira", "Mira and the mist: " + river?.Body);
-        Kind(river, "river");
+        Expect(GardenNote.For(done, false) == null, "the river mist is not an arrival");
 
-        // Everything solved: a favourite to replay.
+        // Checklist 57: everything solved, a favourite to replay, is a reminder, not an arrival.
         WorldModel all = WorldModel.New(PlayMode.Living);
         Grow(all, 12);
         for (int i = 0; i < 12; i++) all.SolveTree(i);
-        GardenNote replay = GardenNote.For(all, false);
-        Expect(replay != null && replay.Target == NoteTarget.Thing && replay.Body.Contains("fresh"),
-            "a fresh board of a favourite: " + replay?.Body);
-        Kind(replay, "replay");
+        Expect(GardenNote.For(all, false) == null, "a fresh board of a favourite is not an arrival");
 
         // Deterministic.
-        Expect(GardenNote.For(world, false).Body == GardenNote.For(world, false).Body, "same garden, same note");
+        Expect(GardenNote.For(withLetter(world), true).Body == GardenNote.For(withLetter(world), true).Body, "same garden, same note");
 
         // When: the player's hour, never at night, today if there's time else tomorrow.
         var morning = new DateTime(2026, 11, 27, 6, 0, 0);

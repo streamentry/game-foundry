@@ -1922,7 +1922,7 @@ namespace Evergrove.UnityClient
             Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => ToggleFan(true), 54, MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
-            if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu);
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu, MenuSeenKey);
         }
 
         // "Rainwater" with the painted landmark your last choice planted in it:
@@ -3933,7 +3933,8 @@ namespace Evergrove.UnityClient
                 }
                 Image ribbon = MosseloraArt.Ornament(token.transform, "Ribbon", MosseloraArt.Rounded(8),
                     new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(18f, 18f), new Vector2(-8f, -8f));
-                if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.85f, 0.32f, 0.35f, 1f); }
+                // B5: honey, not red (badge rule: no red on a badge).
+                if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.93f, 0.72f, 0.36f, 1f); }
                 if (index == giftPick && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
             }
         }
@@ -4463,8 +4464,8 @@ namespace Evergrove.UnityClient
             SettingsRow(offerLanguage);
         }
 
-        // Floating game chrome: a leaf menu button (left) and the memory book
-        // with its count (right). Rebuilt with the page so state stays honest.
+        // Floating game chrome: a leaf menu button (left, with a new-memory dot) and the
+        // memory book (right). Rebuilt with the page so state stays honest.
         private void BuildChrome(bool living)
         {
             if (chrome == null) return;
@@ -4478,7 +4479,7 @@ namespace Evergrove.UnityClient
                     else ToggleFan(false);
                 }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
-            if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu);
+            if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu, MenuSeenKey);
         }
 
         // ---- I191: the fan menu. One corner button opens a column of round
@@ -4494,10 +4495,28 @@ namespace Evergrove.UnityClient
             semanticsDirty = true;
         }
 
+        // Removes the dot from the menu button itself (its child "Has a new memory"); the
+        // book token inside the fan has its own dot and is not touched.
+        private void ClearMenuDot()
+        {
+            if (canvasRoot == null) return;
+            foreach (Transform t in canvasRoot.GetComponentsInChildren<Transform>(true))
+                if (t.name == "Has a new memory" && t.parent != null && t.parent.name == "Open menu")
+                    Destroy(t.gameObject);
+        }
+
         private void ToggleFan(bool fromHub)
         {
             if (fan != null) { CloseFan(); return; }
             if (canvasRoot == null) return;
+            // Opening the menu reads its dot (B1b): the dot on the menu button goes now and stays
+            // gone. The book inside the fan keeps its own dot until the book is opened.
+            if (world.Mode == PlayMode.Living && world.Choices.Length > 0)
+            {
+                PlayerPrefs.SetInt(MenuSeenKey, world.Choices.Length);
+                PlayerPrefs.Save();
+                ClearMenuDot();
+            }
             speakingWith = -1;
             fan = Node("Menu fan", canvasRoot);
             Fill(fan.GetComponent<RectTransform>());
@@ -5413,7 +5432,7 @@ namespace Evergrove.UnityClient
 
         // Painted page header: generated wordmark with vine corners. The
         // localized title stays as transparent text for screen readers.
-        private const float ChromeInset = 84f; // book button with its count badge + 10 pt margin + air
+        private const float ChromeInset = 84f; // book button with its new-memory dot + 10 pt margin + air
 
         private void GardenHeader(bool compact)
         {
@@ -6205,14 +6224,17 @@ namespace Evergrove.UnityClient
         // while it holds a memory the player has not opened yet. It replaces the
         // bare count, which a review found meaningless on the button (I112).
         private const string JournalSeenKey = "evergrove:journal-seen";
+        // The menu button's own dot (B1b) clears when the menu is opened; the book inside the
+        // menu keeps its dot until the book itself is opened (JournalSeenKey).
+        private const string MenuSeenKey = "evergrove:menu-seen";
 
-        private void MarkUnreadMemory(Button book)
+        private void MarkUnreadMemory(Button book, string seenKey = JournalSeenKey)
         {
-            int seen = PlayerPrefs.GetInt(JournalSeenKey, 0);
+            int seen = PlayerPrefs.GetInt(seenKey, 0);
             if (seen > world.Choices.Length)
             {
                 // Read in another garden (restored or new): this garden's memories so far count as seen.
-                PlayerPrefs.SetInt(JournalSeenKey, world.Choices.Length);
+                PlayerPrefs.SetInt(seenKey, world.Choices.Length);
                 PlayerPrefs.Save();
                 return;
             }
@@ -7245,12 +7267,13 @@ namespace Evergrove.UnityClient
                     toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
                 undoButton.interactable = world.CanUndo;
                 ShowUndo(world.CanUndo, false);
-                // Hint depth shows as a small 1/2 or 2/2 badge, not words.
+                // Hint depth is the button's own words (Guide me, Show a closer clue, Fix one
+                // connection). No level dots here: a dot means something new, and nothing else (I16).
                 Button hintButton = IconButton(tools.transform, "Hint",
                     GameLocalization.Text(world.HintStep == 2 ? "hint_turn" :
                         world.HintStep == 1 ? "hint_more" : "hint"),
                     MosseloraArt.IconHint, UseGentleHint, toolHeight, MosseloraTheme.WaterAction, false,
-                    null, teach, world.HintStep > 0 ? 2 : 0, world.HintStep, roundTools);
+                    null, teach, 0, 0, roundTools);
                 if (!landscape) FlankDrops(tools, toolHeight);
                 Transform hintDots = hintButton.transform.Find("Level dots");
                 if (hintDots != null) hintMarkers.Add(hintDots.gameObject); // a move ends the hint: dots go too

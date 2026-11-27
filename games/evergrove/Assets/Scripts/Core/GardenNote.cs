@@ -1,29 +1,44 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace Evergrove.Core
 {
     public enum NoteTarget { Letterbox, Basket, River, Thing }
 
+    /// <summary>One day's note in the plan: the yyyymmdd it is due, and what it says.</summary>
+    public sealed class PlannedNote
+    {
+        public int Day;
+        public GardenNote Note;
+    }
+
     /// <summary>
-    /// I274: the one daily note from the garden (docs/specs/proposals/notifications-2026-11-27.md).
-    /// Chosen when the game closes, from the save alone: only what is truly waiting, first true
-    /// one wins (unread letter, cutting in the basket, one drop from more river, a thing still
-    /// holding its first puzzle, a favourite to replay). In a neighbour's voice; never pressure.
-    /// The garden doesn't change while you're away, so what's true at close is true when read.
+    /// I274, narrowed by checklist 57: the one daily note from the garden
+    /// (docs/specs/proposals/notifications-2026-11-27.md). A note is only for an ARRIVAL that is
+    /// waiting unopened: a family or neighbour letter in the box, or a cutting in the basket.
+    /// Prizes and reminders (drops, replays, things still holding a puzzle) never qualify.
+    /// Chosen from the save alone, in a neighbour's voice; never pressure. The garden doesn't
+    /// change while you're away, so what's true at close is true when read.
     /// </summary>
     public sealed class GardenNote
     {
         public string From;
         public string Body;
         public NoteTarget Target;
-        public int Thing = -1;   // story index, or BoughtBase + k
+        public int Thing = -1;   // story index, or BoughtBase + k (kept for saved notes; no longer made)
 
         public const int EarliestHour = 8;   // quiet hours: never before eight...
         public const int LatestHour = 20;    // ...or after eight in the evening
         public const int MaxUnopened = 3;    // three unopened in a row: stop until the game is opened
+        public const int PlanDays = 7;       // the plan covers one week
 
         private static readonly string[] Names = { "Mira", "Orin", "Fen" };
 
+        /// <summary>
+        /// The note for what has arrived and is waiting, or null. Only two kinds exist: an unread
+        /// letter in the box (Orin, the newest), then a cutting in the basket (its family's keeper).
+        /// </summary>
         public static GardenNote For(WorldModel world, bool unreadLetter)
         {
             if (world == null || world.Mode != PlayMode.Living) return null;
@@ -39,63 +54,36 @@ namespace Evergrove.Core
                 return new GardenNote { From = Names[(int)Nursery.Family(kind)], Target = NoteTarget.Basket,
                     Body = "A " + Nursery.Item(kind).Name + " cutting is in your basket, ready for a good spot." };
             }
-            if (world.Completed && GardenMap.TowardNext(world.Choices.Length, true, world.PuzzlesSolved, out int have, out int need) &&
-                have == need - 1)
-                return new GardenNote { From = "Mira", Target = NoteTarget.River,
-                    Body = "One more thing tended and the mist downstream will lift." };
-            // The newest thing still holding its first puzzle: a bought plant, then a grown one.
-            int[] bought = world.Bought;
-            for (int k = bought.Length / 2 - 1; k >= 0; k--)
-                if (!world.BoughtSolved(k))
-                    return Holds(Nursery.Item(bought[k * 2]).Name, ThingPuzzle.ForNursery(bought[k * 2]),
-                        WorldModel.BoughtBase + k, false);
-            int[] made = world.Choices;
-            for (int i = made.Length - 1; i >= 0; i--)
-                if (!world.TreeSolved(i)) return Holds(Story(world, i), StoryKind(world, i), i, false);
-            // Everything tended: a favourite would deal a fresh board (I259).
-            for (int i = made.Length - 1; i >= 0; i--)
-                if (world.TreeSolved(i)) return Holds(Story(world, i), StoryKind(world, i), i, true);
             return null;
         }
 
-        private static string Story(WorldModel world, int i)
+        /// <summary>
+        /// Checklist 57: the notes the scheduler would queue over the next seven days, one per day at most,
+        /// from <paramref name="startDay"/> (yyyymmdd). It assumes the player does not open the game
+        /// in between, so the same arrival stays waiting: a day is planned while the back-off
+        /// allows, and the plan stops after three unopened in a row. Empty when opted out, when
+        /// nothing has arrived, or when the back-off already stopped it. Pure: no clock, no device.
+        /// </summary>
+        public static List<PlannedNote> ForWeek(WorldModel world, int startDay, bool unreadLetter, bool optedIn, int unopenedInARow)
         {
-            int[] made = world.Choices;
-            return GardenCatalog.For(world.Garden, Math.Min(i, GardenCatalog.ChaptersPerGarden - 1),
-                (VillageChoice)Math.Max(0, Math.Min(2, made[i]))).Name;
+            var plan = new List<PlannedNote>();
+            if (!optedIn) return plan;
+            GardenNote note = For(world, unreadLetter);
+            DateTime first;
+            if (note == null || !TryDay(startDay, out first)) return plan;
+            int unopened = unopenedInARow;
+            for (int day = 0; day < PlanDays && MaySchedule(unopened); day++, unopened++)
+                plan.Add(new PlannedNote { Day = DayNumber(first.AddDays(day)), Note = note });
+            return plan;
         }
 
-        private static PuzzleKind StoryKind(WorldModel world, int i)
-        {
-            return ThingPuzzle.ForStory(i, (VillageChoice)Math.Max(0, Math.Min(2, world.Choices[i])));
-        }
+        /// <summary>A calendar day as yyyymmdd.</summary>
+        public static int DayNumber(DateTime day) { return day.Year * 10000 + day.Month * 100 + day.Day; }
 
-        private static GardenNote Holds(string name, PuzzleKind kind, int thing, bool replay)
+        private static bool TryDay(int yyyymmdd, out DateTime day)
         {
-            string what = KindPhrase(kind);
-            return new GardenNote {
-                From = Names[NeighbourNotice.OwnerOf(kind)], Target = NoteTarget.Thing, Thing = thing,
-                Body = replay ? "Your " + name + " would deal you a fresh board of " + what + ", if you fancy one."
-                              : "Your " + name + " still holds a puzzle of " + what + ", whenever you fancy it." };
-        }
-
-        private static string KindPhrase(PuzzleKind kind)
-        {
-            switch (kind)
-            {
-                case PuzzleKind.Water: return "water channels";
-                case PuzzleKind.StreamPath: return "the stream to lead";
-                case PuzzleKind.Nonogram: return "planting by numbers";
-                case PuzzleKind.Mosaic: return "an old painting to mend";
-                case PuzzleKind.Plots: return "garden plots";
-                case PuzzleKind.Mahjong: return "garden tiles";
-                case PuzzleKind.Pairs: return "flower pairs";
-                case PuzzleKind.Sowing: return "beds to sow";
-                case PuzzleKind.Sums: return "seed sums";
-                case PuzzleKind.Pieces: return "garden pieces to fit";
-                case PuzzleKind.Doorstep: return "a doorstep pattern to draw";
-                default: return "seed squares";
-            }
+            return DateTime.TryParseExact(yyyymmdd.ToString(CultureInfo.InvariantCulture), "yyyyMMdd",
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out day);
         }
 
         /// <summary>The next moment at the player's hour (clamped to daytime), at least half an hour away.</summary>
