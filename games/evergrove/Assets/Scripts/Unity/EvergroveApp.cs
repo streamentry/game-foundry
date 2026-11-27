@@ -2019,6 +2019,13 @@ namespace Evergrove.UnityClient
                 solvedHere = true;
                 int before = OpenReaches(), solvedBefore = world.PuzzlesSolved, fruitBefore = world.Fruit;
                 int earned = solvedOnce();
+                // Played taking turns (I263/I264): the garden remembers it was solved together.
+                if (openCard != null && openCard.PlayedTogether && shown >= 0 && world.MarkTogether(shown))
+                {
+                    SaveWorld();
+                    togetherKind = kind; // I266: its keeper has news
+                    togetherKeeper = NeighbourNotice.OwnerOf(kind);
+                }
                 fruitPicked = world.Fruit > fruitBefore; // trees bear fruit when tended (I229)
                 // After the story, every fourth solve opens more river (I220): home shows it (I223).
                 riverOpened = OpenReaches() > before;
@@ -2028,6 +2035,7 @@ namespace Evergrove.UnityClient
             PuzzleCard((RectTransform)titleScreen.transform, seed, tier, kind, art, name, reward,
                 count => PairsPictures(count, pictureStart, (c, f) => ItemArt(c, f)), turned, solved, closed);
             TreePlay card = titleScreen.GetComponentInChildren<TreePlay>();
+            openCard = card;
             if (card != null) card.ShowTier(tier); // I261: how deep this board is, in leaves
         }
 
@@ -2455,6 +2463,9 @@ namespace Evergrove.UnityClient
         private int justSolved = -1;   // map index of the thing whose puzzle was just solved (I212)
         private bool solvedHere;
         private bool riverOpened;   // the last solve opened a new stretch of river (I223)
+        private TreePlay openCard;  // the puzzle card now open (I264: was it played together?)
+        private PuzzleKind togetherKind;
+        private int togetherKeeper = -1; // I266: the neighbour who'll say you played it together
         private bool dropEarned;    // the last solve was a first solve: a drop on the mist fills (I224)
         private bool fruitPicked;   // the last solve picked fruit from a tree (I229)
         private Image purseFruit;   // the pear in the purse, where picked fruit flies (I229)
@@ -2509,6 +2520,7 @@ namespace Evergrove.UnityClient
                     Bloomed = world.TreeSolved(i) || world.IsHelped(i), // solved (I204), or by family (I227)
                     HoldsPuzzle = markPuzzles && !world.TreeSolved(i), // helped still holds your own first solve
                     Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, // I255
+                    Together = world.SolvedTogether(i), // I265
                     BloomNow = i == justSolved && gentleMotion
                 });
             // More of what you grew, planted from the basket (I193).
@@ -2541,6 +2553,7 @@ namespace Evergrove.UnityClient
                     Bloomed = world.BoughtSolved(k),
                     HoldsPuzzle = markPuzzles && !world.BoughtSolved(k),
                     Kind = (int)ThingPuzzle.ForNursery(kind) + 1, // I255
+                    Together = world.SolvedTogether(BoughtIndex + k), // I265
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
@@ -2810,6 +2823,7 @@ namespace Evergrove.UnityClient
             // puzzles you solved under their kind of thing) comes first, when true.
             string thanks = fruitThanks == villager ? NeighbourNotice.ThanksFor(villager, world) : null;
             if (thanks != null) return thanks;
+            if (villager == togetherKeeper) return NeighbourNotice.TogetherLine(togetherKind);
             // Orin keeps an eye on the lane (I236): a letter waiting unread, by name, until you read it.
             string[] mail = world.Letters;
             if (villager == 1 && world.Mode == PlayMode.Living && mail.Length > 0 &&
@@ -6688,6 +6702,8 @@ namespace Evergrove.UnityClient
         private void OpenConversation(int villagerIndex, bool afterFruit = false)
         {
             fruitThanks = afterFruit ? villagerIndex : -1;
+            // The "together" line is said once: talking to anyone else lets it pass (I266).
+            if (togetherKeeper >= 0 && villagerIndex != togetherKeeper) togetherKeeper = -1;
             speakingWith = villagerIndex;
             if (world.Mode == PlayMode.Living)
             {
@@ -7516,6 +7532,7 @@ namespace Evergrove.UnityClient
 
         internal void QaSolveTreePlay() { if (qaTreePlay != null) qaTreePlay.QaSolve(); }
         internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
+        internal void QaTogetherTreePlay() { if (qaTreePlay != null) qaTreePlay.QaTogether(); }
 
         internal void QaEndTreePlay()
         {

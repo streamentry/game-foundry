@@ -135,6 +135,25 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>
+        /// I266: said by the kind's keeper right after a puzzle solved taking turns on one
+        /// device. Never guesses who played (no names, no ages): just that it was two of you.
+        /// </summary>
+        public static string TogetherLine(PuzzleKind kind)
+        {
+            switch (kind)
+            {
+                case PuzzleKind.Water: return "The two of you freed the water together. It ran twice as glad.";
+                case PuzzleKind.StreamPath: return "You led the stream together, turn by turn. I heard two sets of footsteps.";
+                case PuzzleKind.Nonogram: return "The two of you planted that bed by the numbers together. Neat rows, both hands.";
+                case PuzzleKind.Mosaic: return "You mended one of the old paintings together. Two pairs of eyes see more.";
+                case PuzzleKind.Plots: return "You staked those plots together. Good work goes faster with two.";
+                case PuzzleKind.Mahjong: return "You cleared the garden tiles together, one pair each. That's how we played them.";
+                case PuzzleKind.Pairs: return "The two of you matched the flower beds together. My bees approve.";
+                default: return "You sowed the seed squares together, turn about. Not one plant twice.";
+            }
+        }
+
         private static string HelpedWith(PuzzleKind kind)
         {
             switch (kind)

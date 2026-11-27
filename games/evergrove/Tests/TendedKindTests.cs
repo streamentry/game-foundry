@@ -55,6 +55,18 @@ internal static class TendedKindTests
         int total = 0;
         foreach (PuzzleKind k in Enum.GetValues(typeof(PuzzleKind))) total += NeighbourNotice.SolvedOf(all, k);
         Expect(total == made.Length, "every solved thing counted once, by its kind");
+        // I266: after a puzzle solved taking turns, its keeper says so, kindly and truly.
+        string[] banned = { "miss", "lonely", "come back", "streak", "hurry", "waiting for you", "love you", "grandma", "child" };
+        foreach (PuzzleKind kind in Enum.GetValues(typeof(PuzzleKind)))
+        {
+            string line = NeighbourNotice.TogetherLine(kind);
+            Expect(!string.IsNullOrEmpty(line) && line.Contains(NeighbourNotice.KindWord(kind)),
+                "the together line names the kind: " + line);
+            Expect(line.ToLowerInvariant().Contains("two of you") || line.ToLowerInvariant().Contains("together"),
+                "it says you played together: " + line);
+            foreach (string word in banned)
+                Expect(!line.ToLowerInvariant().Contains(word), "no pressure, no guessing who played (" + word + ")");
+        }
         return assertions;
     }
 

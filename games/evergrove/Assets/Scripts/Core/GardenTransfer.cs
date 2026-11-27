@@ -39,7 +39,7 @@ namespace Evergrove.Core
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
             "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
             "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
-            "fruit", "fruitGiven", "lastFruitTo"
+            "fruit", "fruitGiven", "lastFruitTo", "together"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -140,7 +140,9 @@ namespace Evergrove.Core
             // Gardens exported before I213 have no "gifts"/"parcelIds"/"letters"/"letterFrom" keys.
             // Gardens exported before I226 have no "helped"/"helpedFrom" keys.
             // Gardens exported before I228 have no "fruit"/"fruitGiven"/"lastFruitTo" keys.
-            bool noFruitYet = snapshot.fruit == 0 && snapshot.lastFruitTo == -1 && AllZero(snapshot.fruitGiven);
+            // Gardens exported before I263 have no "together" key.
+            bool noTogetherYet = snapshot.together.Length == 0;
+            bool noFruitYet = snapshot.fruit == 0 && snapshot.lastFruitTo == -1 && AllZero(snapshot.fruitGiven) && noTogetherYet;
             bool noHelpYet = snapshot.helped.Length == 0 && snapshot.helpedFrom.Length == 0 && noFruitYet;
             bool noFamilyYet = snapshot.gifts.Length == 0 && snapshot.parcelIds.Length == 0 &&
                 snapshot.letters.Length == 0 && snapshot.letterFrom.Length == 0 && noHelpYet;
@@ -150,12 +152,14 @@ namespace Evergrove.Core
             // Gardens exported before I193 have no "plantings" key.
             bool matchesPrePlantings = snapshot.plantings.Length == 0 && noTreesYet &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, false, false, false)), checksum, StringComparison.Ordinal);
+            bool matchesPreTogether = noTogetherYet &&
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreFruit = noFruitYet &&
-                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, true, false, false)), checksum, StringComparison.Ordinal);
             bool matchesPreHelp = noHelpYet &&
-                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, true, false, false, false)), checksum, StringComparison.Ordinal);
             bool matchesPreFamily = noFamilyYet &&
-                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, false)), checksum, StringComparison.Ordinal);
+                string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, true, false, false, false, false)), checksum, StringComparison.Ordinal);
             // Gardens exported before I205 have no "bought"/"boughtSolved" keys; seeds may be set.
             bool matchesPreNursery = noNurseryYet &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, true, true, true, false)), checksum, StringComparison.Ordinal);
@@ -166,7 +170,7 @@ namespace Evergrove.Core
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, true, false)), checksum, StringComparison.Ordinal);
             bool matchesPreHistory = noMapYet && snapshot.history.Length == 0 &&
                 string.Equals(Sha256Hex(SnapshotJson(snapshot, false, false)), checksum, StringComparison.Ordinal);
-            if (!matchesCurrent && !matchesPreFruit && !matchesPreHelp && !matchesPreFamily && !matchesPreNursery && !matchesPreTrees && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
+            if (!matchesCurrent && !matchesPreTogether && !matchesPreFruit && !matchesPreHelp && !matchesPreFamily && !matchesPreNursery && !matchesPreTrees && !matchesPrePlantings && !matchesPreMap && !matchesPreHistory)
             {
                 error = GardenImportError.ChecksumMismatch;
                 return false;
@@ -193,7 +197,7 @@ namespace Evergrove.Core
         /// </summary>
         private static string SnapshotJson(WorldSnapshot s, bool includeHistory, bool includeMap, bool includePlantings = true,
                                            bool includeTrees = true, bool includeNursery = true, bool includeFamily = true,
-                                           bool includeHelp = true, bool includeFruit = true)
+                                           bool includeHelp = true, bool includeFruit = true, bool includeTogether = true)
         {
             var sb = new StringBuilder(256);
             sb.Append("{\"version\":").Append(Int(s.version))
@@ -233,6 +237,8 @@ namespace Evergrove.Core
                 sb.Append(",\"fruit\":").Append(Int(s.fruit))
                   .Append(",\"fruitGiven\":").Append(IntArray(s.fruitGiven))
                   .Append(",\"lastFruitTo\":").Append(Int(s.lastFruitTo));
+            if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit && includeTogether)
+                sb.Append(",\"together\":").Append(IntArray(s.together));
             return sb.Append('}').ToString();
         }
 
@@ -343,7 +349,8 @@ namespace Evergrove.Core
                    ReadStrings(fields, "helpedFrom", ref snapshot.helpedFrom) &&
                    ReadInt(fields, "fruit", ref snapshot.fruit) &&
                    ReadInts(fields, "fruitGiven", ref snapshot.fruitGiven) &&
-                   ReadInt(fields, "lastFruitTo", ref snapshot.lastFruitTo);
+                   ReadInt(fields, "lastFruitTo", ref snapshot.lastFruitTo) &&
+                   ReadInts(fields, "together", ref snapshot.together);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)

@@ -259,12 +259,28 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.4f);
                 yield return new WaitForEndOfFrame();
                 SavePng("17i-pairs.png");
+                // I264: take turns: the token wears whose turn it is.
+                app.QaTogetherTreePlay();
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17i2-taking-turns.png");
                 app.QaSolveTreePlay();
                 yield return new WaitForSecondsRealtime(0.9f);
                 yield return new WaitForEndOfFrame();
                 SavePng("17j-pairs-solved.png");
                 yield return new WaitForSecondsRealtime(2.4f);
                 app.QaEndTreePlay();
+                // I265/I266: the flowers wear two players' colours; Fen says you played it together.
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j2-solved-together-mark.png");
+                app.QaShowHub(false);
+                app.QaTalk(2);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.5f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j3-fen-together.png");
+                app.QaTalk(-1);
             }
             // Buildings hold a Mosaic (I209): swap tiles to mend a memory painting.
             int building = app.QaHoldThing((int)VillageChoice.Bridge);

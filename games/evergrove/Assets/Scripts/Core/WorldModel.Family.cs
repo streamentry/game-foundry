@@ -26,6 +26,61 @@ namespace Evergrove.Core
             return at < 0 ? null : state.helpedFrom[at];
         }
 
+        // ---- I263: solved together. A private memory of things two or more people solved by taking turns
+        // on one device. It never changes seeds, fruit or the solve counts, and is never a score.
+        /// <summary>Encodes a bought plant k as a thing index: <see cref="BoughtBase"/> + k.</summary>
+        public const int BoughtBase = 2000;
+        public const int MaxTogether = 200;
+
+        /// <summary>Things solved together, sorted ascending (grown: Choices index; bought: BoughtBase + k).</summary>
+        public int[] Together { get { return (int[])state.together.Clone(); } }
+        public int TogetherCount { get { return state.together.Length; } }
+        public bool SolvedTogether(int thing) { return Array.BinarySearch(state.together, thing) >= 0; }
+
+        /// <summary>
+        /// Remembers that a solved thing was solved together. Living gardens only; the thing must exist and
+        /// already be solved. Marking twice keeps one entry. Returns false, changing nothing, otherwise.
+        /// </summary>
+        public bool MarkTogether(int thing)
+        {
+            if (Mode != PlayMode.Living || !ThingIsSolved(thing)) return false;
+            if (SolvedTogether(thing)) return true;
+            if (state.together.Length >= MaxTogether) return false;
+            int[] next = new int[state.together.Length + 1];
+            int at = ~Array.BinarySearch(state.together, thing);
+            Array.Copy(state.together, 0, next, 0, at);
+            next[at] = thing;
+            Array.Copy(state.together, at, next, at + 1, state.together.Length - at);
+            state.together = next;
+            return true;
+        }
+
+        private bool ThingIsSolved(int thing)
+        {
+            if (thing >= 0 && thing < state.choices.Length) return TreeSolved(thing);
+            if (thing >= BoughtBase && thing - BoughtBase < BoughtCount) return BoughtSolved(thing - BoughtBase);
+            return false;
+        }
+
+        /// <summary>Fail-closed validation of the together list (I263); null means "absent in an older save".</summary>
+        private static bool ReadTogether(WorldSnapshot source, out int[] together)
+        {
+            together = null;
+            int[] list = source.together ?? Array.Empty<int>();
+            if (list.Length > MaxTogether || (source.mode != "living" && list.Length != 0)) return false;
+            int bought = (source.bought ?? Array.Empty<int>()).Length / 2;
+            for (int i = 0; i < list.Length; i++)
+            {
+                int t = list[i];
+                bool grown = t >= 0 && t < source.choices.Length;
+                bool plant = t >= BoughtBase && t - BoughtBase < bought;
+                if (!grown && !plant) return false;
+                if (i > 0 && list[i - 1] >= t) return false; // sorted, no duplicates
+            }
+            together = (int[])list.Clone();
+            return true;
+        }
+
         // ---- I228: fruit. Picked only by tending trees (see SolveTree/SolveBought), never by time.
         public const int MaxFruit = 99;
         public const int MaxFruitPerParcel = 10;
