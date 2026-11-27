@@ -315,6 +315,15 @@ namespace Evergrove.UnityClient
         private RectTransform plotRect, apronRect;
         private float apron, teaser;
         private int reaches = 1;
+        private int lanterns; // I310
+
+        /// <summary>I310: how many lanterns family have left; drawn by the cottage.</summary>
+        public void SetLanterns(int count)
+        {
+            if (count == lanterns) return;
+            lanterns = Mathf.Max(0, count);
+            Layout();
+        }
 
         // One copy of the painting as a RawImage, mirrored top to bottom if asked.
         private static RawImage ReachImage(RectTransform parent, Sprite plot, bool mirrored, string name)
@@ -510,6 +519,41 @@ namespace Evergrove.UnityClient
                     lampImage.raycastTarget = false;
                     nodes.Add(lampRect);
                 }
+            }
+            // I310 (idea 43, leaving a light for another): lanterns family left stand along the
+            // path below your cottage door, the newest nearest; lit after dusk.
+            for (int l = 0; l < Mathf.Min(lanterns, 3); l++)
+            {
+                var lantern = new GameObject("A lantern left by family", typeof(RectTransform));
+                lantern.transform.SetParent(land, false);
+                var lanternRect = (RectTransform)lantern.transform;
+                lanternRect.anchorMin = lanternRect.anchorMax = new Vector2(0f, 1f);
+                lanternRect.pivot = new Vector2(0.5f, 0f);
+                lanternRect.sizeDelta = new Vector2(cellW * 0.8f, cellH * 0.8f);
+                lanternRect.anchoredPosition = new Vector2(width * (0.80f - l * 0.07f), -reachHeight * (0.20f + l * 0.035f));
+                if (LampLit)
+                {
+                    var halo = new GameObject("Lantern light", typeof(RectTransform));
+                    halo.transform.SetParent(lantern.transform, false);
+                    var haloRect = (RectTransform)halo.transform;
+                    haloRect.anchorMin = haloRect.anchorMax = new Vector2(0.5f, 0.6f);
+                    haloRect.sizeDelta = new Vector2(cellW * 1.4f, cellW * 1.4f);
+                    var haloImage = halo.AddComponent<Image>();
+                    haloImage.sprite = MosseloraArt.SoftGlow();
+                    haloImage.color = new Color(1f, 0.82f, 0.45f, 0.6f);
+                    haloImage.raycastTarget = false;
+                }
+                var art = MosseloraArt.Load(FamilySheet.LanternArt);
+                var lanternImage = new GameObject("Lantern", typeof(RectTransform)).AddComponent<Image>();
+                lanternImage.transform.SetParent(lantern.transform, false);
+                var artRect = lanternImage.rectTransform;
+                artRect.anchorMin = Vector2.zero;
+                artRect.anchorMax = Vector2.one;
+                artRect.offsetMin = artRect.offsetMax = Vector2.zero;
+                lanternImage.sprite = art;
+                lanternImage.preserveAspect = true;
+                lanternImage.raycastTarget = false;
+                nodes.Add(lanternRect);
             }
             Vector2 focus = Vector2.zero;
             bool focused = false;

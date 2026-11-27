@@ -21,7 +21,8 @@ namespace Evergrove.UnityClient
             public Func<int> Fruit;                // fruit picked from your trees (I230)
             public Func<int, bool> RowOpen;
             public Func<int[]> OwnedKinds;          // nursery kinds you have bought, newest first
-            public Func<string, string, ParcelGift, int, string, ParcelSendResult> Send;
+            public Func<string, string, ParcelGift, int, string, int, ParcelSendResult> Send; // I308: the last int is a blessing
+            public Action<int, int, int, string> PlayBoard;  // I309: kind, tier, seed, from whom
             public Func<string, ParcelOpenResult> Open;
             public Action<string> Share;           // native share sheet, else the clipboard
             public Func<string> Paste;              // the clipboard
@@ -34,6 +35,10 @@ namespace Evergrove.UnityClient
 
         private static readonly int[] SeedChoices = { 10, 50, 100 };
         private const int LetterOnly = -1, CuttingBase = 1000, FruitBase = 2000; // pick codes: seed amount, 1000+kind, 2000+fruit, or -1
+        private const int Lantern = -2;          // I310: leave a lantern
+        public const string LanternArt = "build-96"; // the catalogue's own paper lanterns
+        private int blessing;                    // I308: 0, or 1..6 into FamilyParcel.Blessings
+        private ParcelOpenResult boardWaiting;   // I309: an opened board, ready to play
         private const int FruitPerBasket = 5;
 
         private Hooks hooks;
@@ -184,17 +189,30 @@ namespace Evergrove.UnityClient
             // have grown from the nursery (it costs its price).
             int[] owned = hooks.OwnedKinds();
             int fruit = hooks.Fruit != null ? hooks.Fruit() : 0;
-            if (owned.Length > 0 || fruit > 0)
             {
-                Transform cuttings = Row(body, "Fruit and cuttings", 82f, 10f);
+                Transform cuttings = Row(body, "Lantern, fruit and cuttings", 82f, 10f);
+                GiftToken(cuttings, Lantern, MosseloraArt.Load(LanternArt), "", true); // I310
                 if (fruit > 0)
                 {
                     int basket = Math.Min(FruitPerBasket, fruit);
                     GiftToken(cuttings, FruitBase + basket, MosseloraArt.Load("food-basket"), basket.ToString(), true);
                 }
-                for (int i = 0; i < owned.Length && i < (fruit > 0 ? 3 : 4); i++)
+                for (int i = 0; i < owned.Length && i < (fruit > 0 ? 2 : 3); i++)
                     GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
                         Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
+            }
+            // I308 (idea 41, after red envelopes): seeds or fruit may go in a festive envelope with
+            // a wish, picked from a few, never typed. One token turns through the wishes.
+            bool wrappable = pick != LetterOnly && pick != Lantern && (pick < CuttingBase || pick >= FruitBase);
+            if (!wrappable) blessing = 0;
+            else
+            {
+                Transform wrap = Row(body, "Festive envelope", 60f, 10f);
+                TreePlay.Token(wrap, blessing == 0 ? "Wrap it with a wish" : "Wish: " + FamilyParcel.Blessings[blessing - 1],
+                    MosseloraArt.Load("letter-sealed"), 54f, blessing == 0 ? MosseloraTheme.QuietAction : Festive,
+                    () => { blessing = (blessing + 1) % (FamilyParcel.MaxBlessing + 1); Rebuild(); }, true);
+                Words(wrap, blessing == 0 ? "No envelope" : "“" + FamilyParcel.Blessings[blessing - 1] + "”", 16,
+                    MosseloraTheme.EarthInk);
             }
             if (rightColumn != null) body = rightColumn; // sideways: the letter has its own column
             InputField words = Field(body, "A few words for them (optional)", letter, wide ? 150f : 104f, true,
@@ -209,7 +227,7 @@ namespace Evergrove.UnityClient
         private void GiftToken(Transform row, int code, Sprite art, string price, bool can)
         {
             bool chosen = pick == code;
-            TreePlay.Token(row, code == LetterOnly ? "Just a letter" : code >= FruitBase ? (code - FruitBase) + " fruit"
+            TreePlay.Token(row, code == LetterOnly ? "Just a letter" : code == Lantern ? "Leave a lantern" : code >= FruitBase ? (code - FruitBase) + " fruit"
                     : code >= CuttingBase ? "A cutting of " + Nursery.Item(code - CuttingBase).Name : code + " seeds",
                 art, 66f, chosen ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 () => { if (can) { pick = code; Rebuild(); } }, true);
@@ -243,15 +261,19 @@ namespace Evergrove.UnityClient
             string from = (name ?? "").Trim();
             if (!FamilyParcel.ValidName(from)) { outcome = "Write your name first, so they know who it's from."; Rebuild(); return; }
             hooks.SaveName(from);
-            ParcelGift gift = pick == LetterOnly ? ParcelGift.None : pick >= FruitBase ? ParcelGift.Fruit
-                : pick >= CuttingBase ? ParcelGift.Cutting : ParcelGift.Seeds;
-            int value = pick >= FruitBase ? pick - FruitBase : pick >= CuttingBase ? pick - CuttingBase : pick;
+            ParcelGift gift = pick == LetterOnly ? ParcelGift.None : pick == Lantern ? ParcelGift.Lantern
+                : pick >= FruitBase ? ParcelGift.Fruit : pick >= CuttingBase ? ParcelGift.Cutting : ParcelGift.Seeds;
+            int value = pick == Lantern ? 0 : pick >= FruitBase ? pick - FruitBase : pick >= CuttingBase ? pick - CuttingBase : pick;
+            int wish = gift == ParcelGift.Seeds || gift == ParcelGift.Fruit ? blessing : 0;
             string nonce = Guid.NewGuid().ToString("N").Substring(0, 16);
-            ParcelSendResult sent = hooks.Send(from, letter.Trim(), gift, value, nonce);
+            ParcelSendResult sent = hooks.Send(from, letter.Trim(), gift, value, nonce, wish);
             if (!sent.Ok) { outcome = Explain(sent.Error); Rebuild(); return; }
             string what = gift == ParcelGift.Seeds ? value + " seeds"
                 : gift == ParcelGift.Fruit ? "a basket of " + value + " fruit from their trees"
-                : gift == ParcelGift.Cutting ? "a cutting of " + Nursery.Item(value).Name : "a letter";
+                : gift == ParcelGift.Cutting ? "a cutting of " + Nursery.Item(value).Name
+                : gift == ParcelGift.Lantern ? "a lantern for their garden" : "a letter";
+            if (wish > 0) what += " in a festive envelope";
+            blessing = 0;
             hooks.Share(FamilyParcel.Wrap(sent.Text, from + " sent you " + what + " in Mosselora. Open it in the game: Family, then Open."));
             letter = "";
             outcome = "Sent. Share it with them however you like to talk.";
@@ -266,7 +288,19 @@ namespace Evergrove.UnityClient
             TreePlay.Token(go, "Paste and open", MosseloraArt.Load(MosseloraArt.IconRestoreFile), 84f,
                 MosseloraTheme.WaterAction, DoOpen, true);
             if (outcome.Length > 0) Words(body, outcome, 17, MosseloraTheme.EarthInk);
+            if (boardWaiting != null && hooks.PlayBoard != null)
+            {
+                ParcelOpenResult board = boardWaiting;
+                Transform play = Row(body, "Play their board", 84f, 12f);
+                TreePlay.Token(play, "Play the board they sent", MosseloraArt.Load(MosseloraArt.IconContinue), 76f,
+                    MosseloraTheme.ForestAction, () => {
+                        boardWaiting = null;
+                        hooks.PlayBoard(board.BoardKind, board.BoardTier, board.BoardSeed, board.Contents.From);
+                    }, true);
+            }
         }
+
+        private static readonly Color Festive = new Color(0.78f, 0.24f, 0.20f, 1f); // envelope red
 
         private void DoOpen()
         {
@@ -280,7 +314,11 @@ namespace Evergrove.UnityClient
                 : c.Gift == ParcelGift.Fruit ? (opened.FruitGained > 0 ? opened.FruitGained + " fruit, picked from their trees, are in your basket."
                     : "Your fruit basket is already full.")
                 : c.Gift == ParcelGift.Help ? c.From + " solved a puzzle in your garden for you. Look for the bloom."
+                : c.Gift == ParcelGift.Lantern ? c.From + " left a lantern by your cottage. It's lit in the evenings."
+                : c.Gift == ParcelGift.Board ? "The very board " + c.From + " solved. Play it when you like; it pays nothing."
                 : "";
+            if (c.Blessing > 0) gift = "A festive envelope: “" + FamilyParcel.Blessings[c.Blessing - 1] + "”.\n" + gift;
+            boardWaiting = c.Gift == ParcelGift.Board && opened.BoardKind >= 0 ? opened : null;
             outcome = "From " + c.From + "." + (c.Letter.Length > 0 ? "\n“" + c.Letter + "”" : "") +
                 (gift.Length > 0 ? "\n" + gift : "");
             Rebuild();

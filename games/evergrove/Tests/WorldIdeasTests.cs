@@ -237,6 +237,96 @@ internal static class WorldIdeasTests
         }
         Expect(phrases.Count == Enum.GetValues(typeof(PuzzleKind)).Length, "each kind has its own phrase");
         Expect(Math.Abs(Melody.Hertz(0) - 261.63) < 0.01 && Math.Abs(Melody.Hertz(12) - 523.25) < 0.02, "semitones from middle C");
+        // Ideas 26 and 38 (seasons greet you; a tale a night): when the garden's season turns,
+        // a neighbour leaves a note, a greeting and a short tale, a different teller each turn.
+        string[] bannedInTales = { "miss", "lonely", "come back", "streak", "don't forget", "hurry", "only today",
+            "waiting for you", "lose", "last chance", "!" };
+        var tellers = new HashSet<string>();
+        var tales = new HashSet<string>();
+        for (int turn = 0; turn < 12; turn++)
+            foreach (Season season in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
+            {
+                SeasonNote note = SeasonTales.For(season, turn);
+                Expect(FamilyParcel.ValidName(note.From) && FamilyParcel.ValidLetter(note.Body),
+                    "a note the letterbox accepts: " + note.From + " / " + note.Body.Length);
+                string lower = note.Body.ToLowerInvariant();
+                foreach (string word in bannedInTales) Expect(!lower.Contains(word), "no pressure (" + word + "): " + note.Body);
+                Expect(lower.Contains(season.ToString().ToLowerInvariant()), "it names the season: " + note.Body);
+                tellers.Add(note.From);
+                tales.Add(note.Body);
+                Expect(SeasonTales.For(season, turn + 3).From == note.From, "tellers take turns in threes");
+            }
+        Expect(tellers.SetEquals(new[] { "Mira", "Orin", "Fen" }), "all three neighbours tell tales");
+        Expect(tales.Count == 12, "twelve tales: each neighbour has one for each season (" + tales.Count + ")");
+        Expect(SeasonTales.For(Season.Winter, 0).From != SeasonTales.For(Season.Spring, 1).From, "turn by turn, a new teller");
+        // Idea 31 (each companion has a wish you can grant): counted only from the save.
+        WorldModel wishing = WorldModel.New(PlayMode.Living);
+        for (int villager = 0; villager < 3; villager++)
+        {
+            NeighbourWish wish = NeighbourWish.For(wishing, villager);
+            Expect(wish.Need > 0 && wish.Have == 0 && !wish.Granted, "a new garden: every wish open");
+            Expect(wish.Hope.Length > 0 && !wish.Hope.Contains("!") && wish.Thanks.Length > 0 &&
+                   FamilyParcel.ValidLetter(wish.Thanks), "a hope and a thank-you note: " + wish.Hope);
+        }
+        Expect(NeighbourWish.For(null, 0) == null && NeighbourWish.For(wishing, 3) == null, "no garden or no such neighbour");
+        for (int chapter = 0; chapter < 12; chapter++)
+        {
+            Puzzle board = wishing.CurrentPuzzle;
+            for (int i = 0; i < board.CellCount; i++)
+                while (wishing.Rotations[i] != board.Solution[i]) wishing.Rotate(i);
+            wishing.Choose((VillageChoice)(chapter % 3));
+        }
+        int treesSolved = 0;
+        for (int i = 0; i < wishing.Choices.Length; i++)
+            if (wishing.Choices[i] == (int)VillageChoice.ShadeTree && wishing.SolveTree(i) >= 0 && wishing.TreeSolved(i)) treesSolved++;
+        NeighbourWish miraWish = NeighbourWish.For(wishing, (int)VillageChoice.ShadeTree);
+        Expect(miraWish.Have == Math.Min(miraWish.Need, treesSolved), "Mira counts trees tended: " + miraWish.Have + " of " + treesSolved);
+        Expect(miraWish.Granted == (treesSolved >= miraWish.Need), "granted exactly when enough");
+        NeighbourWish fenWish = NeighbourWish.For(wishing, (int)VillageChoice.Flowers);
+        Expect(fenWish.Have == Math.Min(fenWish.Need, 4), "Fen counts the kinds of flower grown (four story flowers): " + fenWish.Have);
+        NeighbourWish orinWish = NeighbourWish.For(wishing, (int)VillageChoice.Bridge);
+        int beyond = GardenMap.ReachesFor(wishing.Choices.Length, wishing.Completed, wishing.PuzzlesSolved) - GardenMap.MaxReaches;
+        Expect(orinWish.Have == Math.Max(0, Math.Min(orinWish.Need, beyond)) && orinWish.Granted == (beyond >= orinWish.Need),
+            "Orin counts new stretches of river beyond the story: " + orinWish.Have + " (" + beyond + ")");
+        // Idea 34 (a life told through objects): the memory shelf keeps your firsts, read
+        // straight from the save, nothing invented and nothing extra stored.
+        Keepsake[] none = MemoryShelf.For(WorldModel.New(PlayMode.Living));
+        Expect(none.Length >= 6, "a shelf of firsts to come: " + none.Length);
+        foreach (Keepsake k in none)
+        {
+            Expect(!k.Kept, "a new garden has kept nothing yet: " + k.Label);
+            Expect(k.Art.Length > 0 && k.Label.Length > 0 && !k.Label.Contains("!"), "each has art and a calm label");
+        }
+        Expect(MemoryShelf.For(null).Length == 0, "no garden, empty shelf");
+        WorldModel shelfWorld = WorldModel.New(PlayMode.Living);
+        Expect(shelfWorld.KeepNote("Mira", "The river runs further."), "a first note");
+        Keepsake letterFirst = Array.Find(MemoryShelf.For(shelfWorld), k => k.Art == "letter-sealed");
+        Expect(letterFirst != null && letterFirst.Kept, "the first letter is on the shelf");
+        int keptCount = 0;
+        foreach (Keepsake k in MemoryShelf.For(shelfWorld)) if (k.Kept) keptCount++;
+        Expect(keptCount == 1, "only what truly happened: " + keptCount);
+        // Idea 32 (neighbours give back): at a few true milestones of puzzles solved, a
+        // neighbour leaves a cutting of their own kind, from a nursery row you have open.
+        Expect(NeighbourGifts.Due(0, 0) == 0 && NeighbourGifts.Due(NeighbourGifts.Milestones[0] - 1, 0) == 0,
+            "nothing before the first milestone");
+        Expect(NeighbourGifts.Due(NeighbourGifts.Milestones[0], 0) == 1, "one at the first");
+        Expect(NeighbourGifts.Due(NeighbourGifts.Milestones[0], 1) == 0, "never twice");
+        Expect(NeighbourGifts.Due(100000, 0) == NeighbourGifts.Milestones.Length, "a few, never endless");
+        for (int m = 1; m < NeighbourGifts.Milestones.Length; m++)
+            Expect(NeighbourGifts.Milestones[m] > NeighbourGifts.Milestones[m - 1], "milestones grow apart");
+        WorldModel giving = WorldModel.New(PlayMode.Living);
+        for (int m = 0; m < NeighbourGifts.Milestones.Length; m++)
+        {
+            int kind = NeighbourGifts.CuttingFor(giving, m);
+            Expect(kind >= 0 && Nursery.Family(kind) == (VillageChoice)(m % 3) && giving.RowOpen(Nursery.Row(kind)),
+                "a cutting of the giver's own kind, from an open row: " + kind);
+            Expect(NeighbourGifts.From(m) == new[] { "Mira", "Orin", "Fen" }[m % 3], "givers take turns");
+        }
+        int before = giving.Gifts.Length, seedsBefore = giving.Seeds;
+        Expect(giving.ReceiveNeighbourCutting(NeighbourGifts.CuttingFor(giving, 0)), "it goes in the basket");
+        Expect(giving.Gifts.Length == before + 1 && giving.Seeds == seedsBefore, "a cutting, and nothing else changes");
+        Expect(!giving.ReceiveNeighbourCutting(-1) && !giving.ReceiveNeighbourCutting(Nursery.Kinds), "only real kinds");
+        Expect(!WorldModel.New(PlayMode.PuzzleOnly).ReceiveNeighbourCutting(0), "only in a living garden");
         return assertions;
     }
 

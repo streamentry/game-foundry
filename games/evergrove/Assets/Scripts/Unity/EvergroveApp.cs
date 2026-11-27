@@ -1556,6 +1556,7 @@ namespace Evergrove.UnityClient
         // streaks, no "you were away" - the garden simply waited.
         private void BuildTitleScreen(Transform host)
         {
+            if (quietLayer != null) ExitQuiet(); // a new home never starts hidden (I294)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (qaInMemoryOnly && !qaShowHub) return; // the scripted QA tour starts on the board
 #endif
@@ -2055,6 +2056,9 @@ namespace Evergrove.UnityClient
             TreePlay card = titleScreen.GetComponentInChildren<TreePlay>();
             openCard = card;
             if (card != null) card.ShowTier(tier); // I261: how deep this board is, in leaves
+            // I309: a board of your own can be sent to family once solved.
+            if (card != null && reward > 0 && world.Mode == PlayMode.Living)
+                card.SendBoard = () => SendBoardToFamily(kind, tier, seed, name);
         }
 
         // The card itself, for your things and, visiting, for theirs (I227); eight kinds (I243).
@@ -2148,8 +2152,8 @@ namespace Evergrove.UnityClient
                         if (!kinds.Contains(bought[k * 2])) kinds.Add(bought[k * 2]);
                     return kinds.ToArray();
                 },
-                Send = (from, words, gift, value, nonce) => {
-                    ParcelSendResult sent = world.SendParcel(from, words, gift, value, nonce);
+                Send = (from, words, gift, value, nonce, wish) => {
+                    ParcelSendResult sent = world.SendParcel(from, words, gift, value, nonce, wish);
                     if (sent.Ok) { SaveWorld(); PlayChime(); }
                     return sent;
                 },
@@ -2175,7 +2179,34 @@ namespace Evergrove.UnityClient
                 Closed = () => { familySheet = null; RefreshMaps(); },
                 Name = () => PlayerPrefs.GetString(FamilyNameKey, ""),
                 SaveName = name => { PlayerPrefs.SetString(FamilyNameKey, name); PlayerPrefs.Save(); },
+                PlayBoard = (kind, tier, seed, from) => {
+                    if (familySheet != null) Destroy(familySheet.gameObject);
+                    familySheet = null;
+                    PlayTheirBoard(kind, tier, seed, from);
+                },
             });
+        }
+
+        // ---- I309: the very board a relative solved, played here. It pays nothing and
+        // changes nothing in your garden; it's simply the same puzzle, shared.
+        private void PlayTheirBoard(int kind, int tier, int seed, string from)
+        {
+            if (titleScreen == null || kind < 0 || kind > (int)PuzzleKind.StreamPath) return;
+            OpenThingPuzzle(seed, Mathf.Clamp(tier, 0, TreePuzzles.Tiers - 1), (PuzzleKind)kind,
+                MosseloraArt.Load("letter-sealed"), from + "'s board", 0, Mathf.Abs(seed % 97), () => 0);
+        }
+
+        private void SendBoardToFamily(PuzzleKind kind, int tier, int seed, string thing)
+        {
+            string from = PlayerPrefs.GetString(FamilyNameKey, "");
+            if (!FamilyParcel.ValidName(from)) { OpenFamily(); return; } // your name first, on the family page
+            string nonce = Guid.NewGuid().ToString("N").Substring(0, 16);
+            ParcelSendResult sent = world.SendBoard(from, "", (int)kind, tier, seed, nonce);
+            if (!sent.Ok) return;
+            SaveWorld();
+            string text = FamilyParcel.Wrap(sent.Text, from + " sent you the " + thing +
+                " puzzle they solved in Mosselora. Open it in the game: Family, then Open.");
+            if (!NativeShare.Text(text, "Mosselora")) GUIUtility.systemCopyBuffer = text;
         }
 
         // ---- I216: visit a relative's garden, read-only. Their garden file (the one
@@ -2393,8 +2424,66 @@ namespace Evergrove.UnityClient
             var fit = purse.AddComponent<ContentSizeFitter>();
             fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
+        // ---- I311/I312: when the garden's season turns, the next neighbour leaves a note with
+        // a tale. The first time home is seen only records the season, so nothing is sudden.
+        private void NoteSeasonTurn()
+        {
+            if (world == null || world.Mode != PlayMode.Living || world.Choices.Length == 0) return;
+            string seenKey = "evergrove:season-seen:" + world.Garden, turnsKey = "evergrove:season-turns:" + world.Garden;
+            int now = (int)GardenSeason.For(world) + 1, seen = PlayerPrefs.GetInt(seenKey, 0);
+            if (seen == now) return;
+            PlayerPrefs.SetInt(seenKey, now);
+            if (seen != 0)
+            {
+                int turn = PlayerPrefs.GetInt(turnsKey, 0);
+                SeasonNote note = SeasonTales.For(GardenSeason.For(world), turn);
+                if (world.KeepNote(note.From, note.Body)) { letterArrived = true; SaveWorld(); }
+                PlayerPrefs.SetInt(turnsKey, turn + 1);
+            }
+            PlayerPrefs.Save();
+        }
+
+        // I313: a wish that has come true is thanked for once, by letter.
+        private void NoteGrantedWishes()
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            for (int villager = 0; villager < 3; villager++)
+            {
+                NeighbourWish wish = NeighbourWish.For(world, villager);
+                string key = "evergrove:wish-thanked:" + world.Garden + ":" + villager;
+                if (wish == null || !wish.Granted || PlayerPrefs.GetInt(key, 0) == 1) continue;
+                PlayerPrefs.SetInt(key, 1);
+                if (world.KeepNote(wish.From, wish.Thanks)) { letterArrived = true; SaveWorld(); }
+            }
+            PlayerPrefs.Save();
+        }
+
+        // I315: at a few milestones of puzzles solved, a neighbour leaves a cutting and a note.
+        private void NoteNeighbourGifts()
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            string key = "evergrove:neighbour-gifts:" + world.Garden;
+            int given = PlayerPrefs.GetInt(key, 0);
+            for (int due = NeighbourGifts.Due(world.PuzzlesSolved, given); due > 0; due--, given++)
+            {
+                int kind = NeighbourGifts.CuttingFor(world, given);
+                if (kind < 0 || !world.ReceiveNeighbourCutting(kind)) break; // basket full: it waits for room
+                string what = Nursery.Family(kind) == VillageChoice.Bridge
+                    ? "I've made you a " + Nursery.Item(kind).Name + ". It's in your basket; set it wherever you like."
+                    : "I've left a cutting of " + Nursery.Item(kind).Name + " in your basket, from my own. Plant it wherever you like.";
+                world.KeepNote(NeighbourGifts.From(given), what);
+                letterArrived = true;
+                PlayerPrefs.SetInt(key, given + 1);
+                SaveWorld();
+            }
+            PlayerPrefs.Save();
+        }
+
         private bool GardenMapOnHub(RectTransform window)
         {
+            NoteSeasonTurn();
+            NoteGrantedWishes();
+            NoteNeighbourGifts();
             ApplyDayLight(world);
             Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
@@ -2410,6 +2499,7 @@ namespace Evergrove.UnityClient
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;
+            view.SetLanterns(world.Lanterns.Length); // I310
             waveHello = false; // they waved (or would have) on this return; not on every rebuild
             // A solve opened more river (I223): its mist lifts, framed, with the chime.
             if (riverOpened && map.Reaches > 1)
@@ -3467,6 +3557,7 @@ namespace Evergrove.UnityClient
 
         private void CloseTitle()
         {
+            if (quietLayer != null) ExitQuiet(); // never leave the page beneath hidden (I294)
             if (titleScreen == null) return;
             Destroy(titleScreen);
             titleScreen = null;
@@ -3847,20 +3938,29 @@ namespace Evergrove.UnityClient
         {
             if (titleScreen == null || quietLayer != null) return;
             quieted.Clear();
-            foreach (Transform child in titleScreen.transform)
-                if (child.gameObject.activeSelf && child.name != "Village window")
-                {
-                    quieted.Add(child.gameObject);
-                    child.gameObject.SetActive(false);
-                }
-            if (chrome != null && chrome.gameObject.activeSelf) { quieted.Add(chrome.gameObject); chrome.gameObject.SetActive(false); }
+            // Keep only the line of parents that holds home's live map; every sibling along
+            // that line steps aside (b305: in portrait, controls also lived outside the title).
+            Transform keep = hubMapView != null ? hubMapView.transform : titleScreen.transform.Find("Village window");
+            Transform stop = canvasRoot != null ? canvasRoot.parent : null;
+            for (Transform at = keep; at != null && at.parent != null && at != stop; at = at.parent)
+            {
+                foreach (Transform sibling in at.parent)
+                    if (sibling != at && sibling.gameObject.activeSelf && sibling.GetComponent<Canvas>() == null &&
+                        sibling.GetComponent<UnityEngine.EventSystems.EventSystem>() == null)
+                    {
+                        quieted.Add(sibling.gameObject);
+                        sibling.gameObject.SetActive(false);
+                    }
+                if (at == (Transform)canvasRoot) break;
+            }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             var hidNames = new System.Collections.Generic.List<string>();
             foreach (GameObject hid in quieted) hidNames.Add(hid.name);
             Debug.Log("MOSSELORA_QUIET hid " + quieted.Count + " under " + titleScreen.name + " (" +
                 titleScreen.transform.childCount + " children): " + string.Join(", ", hidNames));
 #endif
-            quietLayer = Node("Quiet garden. Tap anywhere to come back.", titleScreen.transform);
+            quietLayer = Node("Quiet garden. Tap anywhere to come back.", canvasRoot != null ? (Transform)canvasRoot : titleScreen.transform);
+            quietLayer.transform.SetAsLastSibling();
             Fill(quietLayer.GetComponent<RectTransform>());
             var catcher = quietLayer.AddComponent<Image>();
             catcher.color = new Color(0f, 0f, 0f, 0f); // invisible, still takes the tap
@@ -5696,6 +5796,7 @@ namespace Evergrove.UnityClient
         private void AlmanacPage()
         {
             var page = Card(journalContent, "The almanac", new Color(0f, 0f, 0f, 0f));
+            MemoryShelfRow(page.transform);
             foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Flowers, VillageChoice.Bridge })
             {
                 Transform head = CenteredRowIn(page.transform, "Almanac family");
@@ -5760,6 +5861,38 @@ namespace Evergrove.UnityClient
                     name.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
                         said, font, Ink, MosseloraTheme.CardFill));
                 }
+            }
+        }
+
+        // I314: the memory shelf, your firsts, above the almanac's collections. Kept ones in
+        // colour; the rest are pencil silhouettes, like unfound almanac items.
+        private void MemoryShelfRow(Transform page)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            Keepsake[] shelf = MemoryShelf.For(world);
+            var grid = Node("Memory shelf", page);
+            var layout = grid.AddComponent<GridLayoutGroup>();
+            float cell = Mathf.Floor(Mathf.Min(64f, (PageWidth() - 40f) / 4f - 8f));
+            layout.cellSize = new Vector2(cell, cell);
+            layout.spacing = new Vector2(8f, 8f);
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            layout.constraintCount = 4;
+            int rows = (shelf.Length + 3) / 4;
+            Height(grid, rows * cell + (rows - 1) * 8f + 12f);
+            foreach (Keepsake keepsake in shelf)
+            {
+                var slot = Node(keepsake.Kept ? keepsake.Label : "Not yet", grid.transform);
+                var image = slot.AddComponent<Image>();
+                image.sprite = MosseloraArt.Load(keepsake.Art);
+                image.preserveAspect = true;
+                bool icon = keepsake.Art.StartsWith("ui-");
+                image.color = keepsake.Kept ? (icon ? MosseloraTheme.ForestAction : Color.white)
+                    : new Color(0.33f, 0.30f, 0.25f, 0.16f);
+                var tap = slot.AddComponent<Button>();
+                tap.transition = Selectable.Transition.None;
+                string said = keepsake.Kept ? keepsake.Label : "Not yet";
+                tap.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(), said, font, Ink, MosseloraTheme.CardFill));
             }
         }
 
@@ -7838,6 +7971,26 @@ namespace Evergrove.UnityClient
                 CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconContinue),
                     summary.Waiting == 1 ? "One thing holds a new puzzle" : summary.Waiting + " things hold a new puzzle");
             if (summary.DropsNeed > 0) CottageDrops(paper.transform, summary.DropsHave, summary.DropsNeed);
+            // I313: the open hope nearest to coming true, with its true count (one line, not three).
+            NeighbourWish nearest = null;
+            int nearestWho = -1;
+            for (int villager = 0; villager < 3; villager++)
+            {
+                NeighbourWish wish = NeighbourWish.For(world, villager);
+                if (wish == null || wish.Granted) continue;
+                if (nearest == null || wish.Have * nearest.Need > nearest.Have * wish.Need) { nearest = wish; nearestWho = villager; }
+            }
+            if (nearest != null)
+                CottageLine(paper.transform, MosseloraArt.Portrait(nearestWho), nearest.Hope + ": " + nearest.Have + " of " + nearest.Need);
+            // I310: who left a light here, newest first.
+            string[] lit = world.Lanterns;
+            if (lit.Length > 0)
+            {
+                var names = new System.Collections.Generic.List<string>();
+                for (int l = lit.Length - 1; l >= 0 && names.Count < 3; l--) if (!names.Contains(lit[l])) names.Add(lit[l]);
+                CottageLine(paper.transform, MosseloraArt.Load(FamilySheet.LanternArt), "Lanterns from " +
+                    (names.Count == 1 ? names[0] : string.Join(", ", names.GetRange(0, names.Count - 1).ToArray()) + " and " + names[names.Count - 1]));
+            }
             if (!summary.Anything)
                 CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconConfirm), "All tended. Replays wait whenever you like.");
             if (gentleMotion) BloomPulse.Add(paper, 0.05f, 0.04f);
@@ -8118,6 +8271,15 @@ namespace Evergrove.UnityClient
             PlayerPrefs.SetInt(ReplayKey(item), ReplayBoards.ReplaysPerTier * 3);
             justSolved = item; // home frames it
             RefreshMapsFresh();
+        }
+
+        // I310 tour: a real lantern parcel from a relative, opened here.
+        internal void QaLantern()
+        {
+            if (!qaInMemoryOnly) return;
+            if (FamilyParcel.TryCreate("Nan", "", ParcelGift.Lantern, 0, "qa-lantern-" + world.Lanterns.Length,
+                    out string text, out ParcelContents _, out ParcelError _))
+                world.Open(text);
         }
 
         internal void QaQuiet(bool on)

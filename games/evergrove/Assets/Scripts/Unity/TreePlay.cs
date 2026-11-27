@@ -31,6 +31,8 @@ namespace Evergrove.UnityClient
         private GameObject rewardPill;
         private float closeAt = -1f;
         private Image hintToken; // I302
+        /// <summary>I309: set by the app for your own boards; once solved, the hint becomes "send this board".</summary>
+        internal Action SendBoard;
         private RectTransform cardRect; // I293: the card the solved board fades out of
         private Sprite thingArt;
         // Pairs (flowers): the table, its pictures and the card images.
@@ -476,6 +478,7 @@ namespace Evergrove.UnityClient
             solved = true;
             int earned = onSolved != null ? onSolved() : 0;
             SettleIntoThing();
+            OfferToSend();
             rewardText.text = "+" + earned;
             if (together && turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
             if (board != null)
@@ -540,6 +543,24 @@ namespace Evergrove.UnityClient
             image.raycastTarget = false;
             var settle = veil.AddComponent<SettleIn>();
             settle.Begin(thingRect, SettleAfter, gentle);
+        }
+
+        // I309 (idea 42, everyone plays the same one): a solved board of your own can go to
+        // family as it is. The hint's place becomes a sealed letter; a tap keeps the card open.
+        private void OfferToSend()
+        {
+            if (SendBoard == null || hintToken == null) return;
+            Transform top = hintToken.transform.parent;
+            int at = hintToken.transform.GetSiblingIndex();
+            Destroy(hintToken.gameObject);
+            hintToken = null;
+            Token(top, "Send this board to family", MosseloraArt.Load("letter-sealed"), 52f,
+                MosseloraTheme.QuietAction, () => { closeAt = -1f; SendBoard(); }, true);
+            Transform send = top.GetChild(top.childCount - 1);
+            send.SetSiblingIndex(at);
+            Transform glyph = send.Find("Icon");
+            if (glyph != null) glyph.GetComponent<Image>().color = Color.white;
+            if (gentle) BloomPulse.Add(send.gameObject, 0.6f, 0.12f);
         }
 
         private sealed class SettleIn : MonoBehaviour

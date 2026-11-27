@@ -143,6 +143,17 @@ namespace Evergrove.Core
             return true;
         }
 
+        /// <summary>
+        /// I315: a neighbour's cutting (NeighbourGifts) goes in the basket, like a parcel's. Only in
+        /// a living garden, only a real kind, only while the basket has room. Nothing else changes.
+        /// </summary>
+        public bool ReceiveNeighbourCutting(int kind)
+        {
+            if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds || state.gifts.Length >= MaxGifts) return false;
+            state.gifts = Append(state.gifts, kind);
+            return true;
+        }
+
         public bool HasSeenParcel(string id) { return id != null && Array.IndexOf(state.parcelIds, id) >= 0; }
 
         /// <summary>

@@ -298,7 +298,9 @@ namespace Evergrove.UnityClient
                 SavePng("17j4-quiet-garden.png");
                 app.QaQuiet(false);
                 for (int f = 0; f < 4; f++) yield return null;
-                // I299: the cottage's summary, what's waiting at a glance.
+                // I310: Nan left a lantern by the cottage (it glows at night below).
+                app.QaLantern();
+                // I299: the cottage's summary, what's waiting at a glance (and who left lanterns).
                 app.OpenCottage();
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForSecondsRealtime(0.3f);
