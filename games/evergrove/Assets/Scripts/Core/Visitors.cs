@@ -2,7 +2,7 @@ using System;
 
 namespace Evergrove.Core
 {
-    public enum Visitor { Bees, Birds, Butterflies, Heron, Hedgehog, Owl }
+    public enum Visitor { Bees, Birds, Butterflies, Heron, Hedgehog, Owl, Kingfisher }
 
     /// <summary>
     /// I374 adds three drawn by good neighbours (I368): a heron to something built by the water,
@@ -40,6 +40,7 @@ namespace Evergrove.Core
                 case Visitor.Heron: return world.HasPairing(Pairing.ByTheWater);   // I374
                 case Visitor.Hedgehog: return world.HasPairing(Pairing.Sheltered); // I374
                 case Visitor.Owl: return world.HasPairing(Pairing.Grove);          // I374
+                case Visitor.Kingfisher: return world.HasPairing(Pairing.Waterside); // I382
                 case Visitor.Bees: return flowers >= BeesNeedFlowers;
                 case Visitor.Birds: return trees >= BirdsNeedTrees;
                 default: return flowers >= 1;
@@ -56,6 +57,7 @@ namespace Evergrove.Core
             if (visitor == Visitor.Owl) return phase == DayPhase.Night;
             if (dark) return false;
             if (visitor == Visitor.Heron) return season != Season.Winter && phase != DayPhase.Dawn;
+            if (visitor == Visitor.Kingfisher) return season != Season.Winter; // I382: by day, while the water is open
             switch (visitor)
             {
                 case Visitor.Bees: return season == Season.Spring || season == Season.Summer;
@@ -94,6 +96,7 @@ namespace Evergrove.Core
                 case Visitor.Heron: return "A heron fishes by something built beside the water, by day, unless the river is frozen.";
                 case Visitor.Hedgehog: return "A hedgehog comes at dusk to a flower sheltered by a tree. It sleeps the winter through.";
                 case Visitor.Owl: return "An owl comes at night to a grove of two trees.";
+                case Visitor.Kingfisher: return "A kingfisher perches over the water by a waterside flower, by day, unless the river is frozen.";
                 case Visitor.Bees: return "Bees come once three flowers are growing, on warm days.";
                 case Visitor.Birds: return "Birds come once two trees are tended, for the fruit, even in winter.";
                 default: return "Butterflies come to any flower in spring and summer.";

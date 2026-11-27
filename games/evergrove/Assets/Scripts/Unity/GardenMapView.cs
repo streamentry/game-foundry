@@ -356,8 +356,8 @@ namespace Evergrove.UnityClient
             PairLinksNext = null;
             view.pairSpots = PairSpotsNext; // I372
             PairSpotsNext = null;
-            view.creatureCells = new[] { HeronAtNext, HedgehogAtNext, OwlAtNext }; // I374
-            HeronAtNext = HedgehogAtNext = OwlAtNext = -1;
+            view.creatureCells = new[] { HeronAtNext, HedgehogAtNext, OwlAtNext, KingfisherAtNext }; // I374, I382
+            HeronAtNext = HedgehogAtNext = OwlAtNext = KingfisherAtNext = -1;
             LanternsNext = 0;
             view.Layout();
             return view;
@@ -863,14 +863,15 @@ namespace Evergrove.UnityClient
             {
                 int cell = creatureCells[k];
                 if (cell < 0 || cell >= map.CellCount) continue;
-                var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling" : "An owl, watching",
+                var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling"
+                    : k == 2 ? "An owl, watching" : "A kingfisher, perched",
                     typeof(RectTransform));
                 creature.transform.SetParent(land, false);
                 var creatureRect = (RectTransform)creature.transform;
                 creatureRect.anchorMin = creatureRect.anchorMax = new Vector2(0f, 1f);
                 creatureRect.sizeDelta = new Vector2(40f, 40f);
                 float lift = k == 2 ? 0.25f : k == 1 ? 0.95f : 0.6f; // the owl up in the tree, the hedgehog at its foot
-                float side = k == 1 ? 0.35f : 0f;
+                float side = k == 1 ? 0.35f : k == 3 ? -0.2f : 0f;
                 creatureRect.anchoredPosition = new Vector2((cell % map.Columns + 0.5f + side) * cellW, -(cell / map.Columns + lift) * cellH);
                 creature.AddComponent<GardenCreature>().Kind = k;
                 nodes.Add(creatureRect);
@@ -1054,7 +1055,17 @@ namespace Evergrove.UnityClient
                     beeRect.anchorMin = beeRect.anchorMax = new Vector2(0f, 1f);
                     beeRect.sizeDelta = new Vector2(12f, 9f);
                     beeRect.anchoredPosition = at + new Vector2(0f, rect.sizeDelta.y * 0.6f);
-                    bee.AddComponent<BeeBuzz>().Phase = item.Cell;
+                    var buzz = bee.AddComponent<BeeBuzz>();
+                    buzz.Phase = item.Cell;
+                    // I379: a flower with a tree beside it: its bee carries pollen over to the tree.
+                    foreach (Placed other in items)
+                    {
+                        if (other.Family != VillageChoice.ShadeTree || other.Cell < 0 || other.Cell >= map.CellCount) continue;
+                        int dx = other.Cell % map.Columns - item.Cell % map.Columns, dy = other.Cell / map.Columns - item.Cell / map.Columns;
+                        if (Mathf.Abs(dx) > 1 || Mathf.Abs(dy) > 1 || (dx == 0 && dy == 0)) continue;
+                        buzz.Toward = new Vector2(dx * cellW, -dy * cellH + cellH * 0.25f);
+                        break;
+                    }
                     nodes.Add(beeRect);
                 }
                 if (item.Together && !held)
@@ -1474,6 +1485,7 @@ namespace Evergrove.UnityClient
         public static int[] PairLinksNext; // I371: good-neighbour cell pairs, set for home's map
         public static int[] PairSpotsNext; // I372: free cells that would make a new pairing
         public static int HeronAtNext = -1, HedgehogAtNext = -1, OwlAtNext = -1; // I374: cells, -1 none
+        public static int KingfisherAtNext = -1; // I382
         public static bool RainbowNow;   // I364
         public static Dew DewNow;        // I366
 
@@ -1728,6 +1740,7 @@ namespace Evergrove.UnityClient
         private sealed class BeeBuzz : MonoBehaviour
         {
             public float Phase;
+            public Vector2 Toward; // I379: offset to a tree beside its flower; zero for none
             private Vector2 home;
             private float clock;
             private RectTransform wings;
@@ -1758,7 +1771,10 @@ namespace Evergrove.UnityClient
             {
                 clock += Time.unscaledDeltaTime;
                 float t = clock * 1.6f + Phase;
-                ((RectTransform)transform).anchoredPosition = home + new Vector2(Mathf.Sin(t) * 22f, Mathf.Sin(t * 2.3f) * 9f);
+                // I379: to and fro between the flower and the tree beside it, lingering at each.
+                float trip = Toward == Vector2.zero ? 0f : Mathf.SmoothStep(0f, 1f, Mathf.PingPong(clock * 0.18f + Phase * 0.1f, 1.4f) - 0.2f);
+                Vector2 loop = new Vector2(Mathf.Sin(t) * 22f, Mathf.Sin(t * 2.3f) * 9f) * (Toward == Vector2.zero ? 1f : 0.6f);
+                ((RectTransform)transform).anchoredPosition = home + Toward * trip + loop;
                 if (wings != null) wings.localScale = new Vector3(1f, 0.5f + 0.5f * Mathf.Abs(Mathf.Sin(clock * 40f)), 1f);
             }
         }
