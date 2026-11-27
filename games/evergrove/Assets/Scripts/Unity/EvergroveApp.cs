@@ -6157,6 +6157,7 @@ namespace Evergrove.UnityClient
             if (!participantView) BuildResearchControls(living);
 #endif
             BuildPostcard();
+            BuildStallEntries(); // EvergroveApp.Market.cs: the stall and deeper boards (v1 #74 #79 #35)
             BuildGardenFileSection();
             if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
@@ -6568,6 +6569,8 @@ namespace Evergrove.UnityClient
         {
             var page = Card(journalContent, "The almanac", new Color(0f, 0f, 0f, 0f));
             MemoryShelfRow(page.transform);
+            TechniqueRow(page.transform);
+            WeeklyDiaryRow(page.transform);
             foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Flowers, VillageChoice.Bridge })
             {
                 Transform head = CenteredRowIn(page.transform, "Almanac family");
@@ -8931,6 +8934,7 @@ namespace Evergrove.UnityClient
                 CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconContinue),
                     summary.Waiting == 1 ? "One thing holds a new puzzle" : summary.Waiting + " things hold a new puzzle");
             if (summary.DropsNeed > 0) CottageDrops(paper.transform, summary.DropsHave, summary.DropsNeed);
+            CottageDaysLine(paper.transform, summary.DaysPlayed);
             // I313: the open hope nearest to coming true, with its true count (one line, not three).
             NeighbourWish nearest = null;
             int nearestWho = -1;
