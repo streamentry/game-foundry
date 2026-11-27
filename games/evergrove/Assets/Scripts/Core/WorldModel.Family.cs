@@ -12,6 +12,10 @@ namespace Evergrove.Core
         public const int MaxGifts = 50;
         public const int MaxLetters = 20;
         public const int MaxParcelIds = 200;
+        public const int MaxLanterns = 12;
+
+        /// <summary>Names of those who left a lantern, oldest first, newest last (a copy).</summary>
+        public string[] Lanterns { get { return (string[])state.lanterns.Clone(); } }
         /// <summary>At most one entry per grown thing, so this only needs to cover the catalogue.</summary>
         public const int MaxHelped = 50;
 
@@ -147,14 +151,15 @@ namespace Evergrove.Core
         /// Help, like a letter, costs nothing. A cutting costs its
         /// nursery price and needs that kind's row open; it removes no plant. A letter costs nothing.
         /// </summary>
-        public ParcelSendResult SendParcel(string from, string letter, ParcelGift gift, int value, string nonce)
+        public ParcelSendResult SendParcel(string from, string letter, ParcelGift gift, int value, string nonce,
+                                           int blessing = 0, int boardSeed = 0)
         {
             var result = new ParcelSendResult();
             if (Mode != PlayMode.Living) return Fail(result, ParcelError.NotLiving);
             string text;
             ParcelContents contents;
             ParcelError error;
-            if (!FamilyParcel.TryCreate(from, letter, gift, value, nonce, out text, out contents, out error))
+            if (!FamilyParcel.TryCreate(from, letter, gift, value, nonce, out text, out contents, out error, blessing, boardSeed))
                 return Fail(result, error);
             if (HasSeenParcel(contents.Id)) return Fail(result, ParcelError.AlreadyUsed);
             int cost = 0;
@@ -175,6 +180,14 @@ namespace Evergrove.Core
             result.Id = contents.Id;
             result.Cost = cost;
             return result;
+        }
+
+        /// <summary>Sends the very board someone just solved (free): puzzle kind 0..7, tier, and board seed.</summary>
+        public ParcelSendResult SendBoard(string from, string letter, int puzzleKind, int tier, int seed, string nonce)
+        {
+            if (puzzleKind < 0 || tier < 0 || tier >= TreePuzzles.Tiers)
+                return Fail(new ParcelSendResult(), ParcelError.Invalid);
+            return SendParcel(from, letter, ParcelGift.Board, puzzleKind * TreePuzzles.Tiers + tier, nonce, 0, seed);
         }
 
         /// <summary>
@@ -213,6 +226,16 @@ namespace Evergrove.Core
             {
                 RecordHelp(contents.Kind, contents.From);
                 result.HelpedItem = contents.Kind;
+            }
+            else if (contents.Gift == ParcelGift.Board)
+            {
+                result.BoardKind = contents.Kind / TreePuzzles.Tiers;
+                result.BoardTier = contents.Kind % TreePuzzles.Tiers;
+                result.BoardSeed = contents.Amount;
+            }
+            else if (contents.Gift == ParcelGift.Lantern)
+            {
+                state.lanterns = AppendCapped(state.lanterns, contents.From, MaxLanterns);
             }
             if (contents.Letter.Length > 0)
             {
@@ -345,6 +368,18 @@ namespace Evergrove.Core
                     return false;
             helped = (int[])helped.Clone();
             helpedFrom = (string[])helpedFrom.Clone();
+            return true;
+        }
+
+        /// <summary>Fail-closed validation of the lanterns; null means "absent in an older save".</summary>
+        private static bool ReadLanterns(WorldSnapshot source, out string[] lanterns)
+        {
+            lanterns = null;
+            string[] list = source.lanterns ?? Array.Empty<string>();
+            if (list.Length > MaxLanterns || (source.mode != "living" && list.Length != 0)) return false;
+            foreach (string name in list)
+                if (!FamilyParcel.ValidName(name)) return false;
+            lanterns = (string[])list.Clone();
             return true;
         }
 
