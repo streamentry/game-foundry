@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "Pas deze wijziging toe"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Privacybeleid"
     }
   ]
 }

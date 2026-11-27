@@ -43,7 +43,7 @@ The player count counts only if the first two goals are kept.
 
 ## 1a. Family play: connection, not only entertainment
 
-**Founder direction (2026-11-25):** Mosselora should not only entertain. It should help older players feel less alone by giving families something gentle to do and talk about together. The primary player is still the adult 40+ ([AGENTS.md](../../AGENTS.md)); parents and children join as co-players.
+**Founder direction (2026-11-25):** Mosselora should not only entertain. It should help older players feel less alone by giving families something gentle to do and talk about together. The primary player is still the adult 40+ ([AGENTS.md](../../AGENTS.md)); parents and children join as co-players. **Age range (founder decision, 2026-11-25): 7 and up.** **Accounts and data collection (founder decision, 2026-11-25):** Mosselora will have optional accounts and will collect data for the family circle. No build has them yet, so each store privacy answer must describe the build actually submitted.
 
 ### Why the game might fit (hypothesis, unverified)
 
@@ -77,7 +77,8 @@ The player count counts only if the first two goals are kept.
 The current backend is a demo with a bearer token and is "not a production identity system" ([backend README](backend/README.md)). A family circle needs, at minimum:
 
 - **Simple sign-up for adults only:** email link or Sign in with Apple / Google, display name only. If any third-party sign-in is offered on iOS, Apple's login-service rule applies.
-- **Children join through a family adult**, as a profile the adult manages, with no child email, password or contact data. Collecting anything from a child under 13 triggers COPPA verifiable parental consent; the design goal is to collect nothing.
+- **Children (7–12) join through a family adult**, as a profile the adult manages, with no child email, password or contact data. Any child profile, garden move or identifier stored on the server is personal data under COPPA, so a **parent or legal guardian** must give verifiable consent first. A grandparent who creates the circle is not automatically that parent. Put a parental gate in front of sign-up and invites.
+- **Data inventory (draft, to minimise):** adult sign-in identifier (email or Apple/Google ID), display name, family circle membership, shared-garden moves and choices with timestamps, child nickname. No location, contacts, advertising ID, third-party analytics or ads. Every item needs a purpose, a retention period and a deletion path before it ships.
 - **In-app account deletion** (an Apple requirement for apps with sign-up), data export, and a privacy policy and Data safety form that match the real data flows.
 - **Invite-only circles** with a small size limit, adult-controlled removal, and no discovery of strangers. Any free-text message needs its own safety decision; preset reactions come first.
 - **Asynchronous, turn-based play first.** Real-time play adds cost and pressure; it isn't needed for gentle play.

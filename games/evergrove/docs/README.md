@@ -31,7 +31,7 @@
 
 | Evidence level | Current claim | What it actually means |
 | --- | --- | --- |
-| **Implemented in repository** | 12-chapter loop, deterministic variants, inspect-before-confirm choices, painted 2D with procedural fallback, development-only 2.5D, 3 authored neighbors, local save, 124-key English + 29 draft catalogs | Source behavior; release candidates currently enable English only |
+| **Implemented in repository** | 12-chapter loop, deterministic variants, inspect-before-confirm choices, painted 2D with procedural fallback, development-only 2.5D, 3 authored neighbors, local save, 125-key English + 29 draft catalogs | Source behavior; release candidates currently enable English only |
 | **Current local domain evidence** | 2026-11-26 .NET run: 51,611 reported assertions, separate SaveJournal runner: 1,626; all 45 catalog profiles pass | Core rules, preview isolation/equivalence and save tests; current static checks and CI results must be attached to the final revision |
 | **Historical native evidence** | Licensed M1 packet at `5acbac4`, later iOS Simulator and Android emulator checks; links in [build QA](BUILD_AND_QA.md) | Those recorded builds ran; this does not verify the current preview changes |
 | **Unverified for current source / physical devices** | Updated Unity compilation and QA tour, touch, script rendering, screen readers, frame time, battery, interruption recovery | Must be tested on current builds and actual target phones |
@@ -63,7 +63,7 @@ To get a real player: open `games/evergrove` in Unity Hub with the version in `P
 
 ## Automated documentation integrity
 
-`python3 tools/check_evergrove_docs.py` runs in repository CI and checks all canonical handbook files, relative links, Markdown code fences, and current 12-puzzle / v4-save / 30-language / 124-key source contracts. These checks **do not validate product claims or native device behavior**; they only prevent simple drift and broken handoffs.
+`python3 tools/check_evergrove_docs.py` runs in repository CI and checks all canonical handbook files, relative links, Markdown code fences, and current 12-puzzle / v4-save / 30-language / 125-key source contracts. These checks **do not validate product claims or native device behavior**; they only prevent simple drift and broken handoffs.
 
 ## Documentation rules
 

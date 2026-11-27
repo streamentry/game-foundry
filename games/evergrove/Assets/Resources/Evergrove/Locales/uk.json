@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "Застосувати зміну"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Політика конфіденційності"
     }
   ]
 }
