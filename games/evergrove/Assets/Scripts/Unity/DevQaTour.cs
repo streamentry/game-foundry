@@ -93,6 +93,8 @@ namespace Evergrove.UnityClient
                 if (app == null) yield return null;
             }
             if (app == null) throw new InvalidOperationException("EvergroveApp was not created");
+            // A fixed clock (I282): shots compare build to build whatever time the tour runs.
+            app.QaSetClock(13);
             // Picture rules show the first few times per device (I254/I262): every tour sees them.
             foreach (string kind in new[] { "water", "pairs", "mosaic", "nonogram", "sudoku", "plots", "streampath", "mahjong" })
                 PlayerPrefs.DeleteKey("evergrove:rule-seen-" + kind);
@@ -666,6 +668,24 @@ namespace Evergrove.UnityClient
                 SavePng(seasons[turn]);
                 app.QaShowHub(false);
             }
+
+            // I278-I282: the same garden at dawn, golden hour, dusk and night; Fen at night.
+            foreach (int hour in new[] { 6, 18, 20, 23 })
+            {
+                app.QaSetClock(hour);
+                app.QaShowHub(true);
+                for (int f = 0; f < 10; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("20-light-" + hour.ToString("00") + ".png");
+                app.QaShowHub(false);
+            }
+            app.QaTalk(2);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("20-fen-at-night.png");
+            app.QaTalk(-1);
+            app.QaSetClock(13);
 
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
             Application.Quit();

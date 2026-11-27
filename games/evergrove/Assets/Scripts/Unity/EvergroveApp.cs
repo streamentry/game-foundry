@@ -708,6 +708,7 @@ namespace Evergrove.UnityClient
 
         private bool LandscapeGardenMap(Transform pane)
         {
+            ApplyDayLight(world);
             Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
@@ -2179,6 +2180,7 @@ namespace Evergrove.UnityClient
             GardenMap map;
             try { map = GardenMap.River(10, 15, mask.text.Trim(), GardenMap.ReachesFor(visited.Choices.Length, visited.Completed, visited.PuzzlesSolved)); }
             catch (ArgumentException) { return false; }
+            ApplyDayLight(visited); // your hour, their season
             // Their garden in its own season (I249): families see each other's year.
             int season = PaintedVillage.ArtSeason(visited);
             Sprite plot = MosseloraArt.Load(PaintedVillage.MapFor(season)) ?? MosseloraArt.Load("garden-map");
@@ -2376,6 +2378,7 @@ namespace Evergrove.UnityClient
         }
         private bool GardenMapOnHub(RectTransform window)
         {
+            ApplyDayLight(world);
             Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
@@ -2844,6 +2847,9 @@ namespace Evergrove.UnityClient
                     ". I saw the flag go up this morning.";
             string noticed = NeighbourNotice.Line(villager, world);
             if (noticed != null) return noticed;
+            // Nothing new and true to tell: they may notice the light instead (I281).
+            string hourLine = HourRemark(villager);
+            if (hourLine != null) return hourLine;
             int[] made = world.Choices;
             int newest = -1, count = 0;
             for (int i = 0; i < made.Length; i++)
@@ -3251,6 +3257,7 @@ namespace Evergrove.UnityClient
 
         private bool PageGardenMap(GameObject window, bool memoryScreen)
         {
+            ApplyDayLight(world);
             Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             if (plot == null || map == null) return false;
@@ -6490,6 +6497,15 @@ namespace Evergrove.UnityClient
                     Rebuild();
                 }, SettingToken, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
+            // Light that follows the day (I280): on by default; off keeps the garden in clear daylight.
+            IconButton(row.transform, "Day light setting",
+                DayLightOn ? "The garden's light follows your day: on" : "The garden's light follows your day: off",
+                MosseloraArt.IconSun, () => {
+                    PlayerPrefs.SetInt(DayLightKey, DayLightOn ? 0 : 1);
+                    PlayerPrefs.Save();
+                    Rebuild();
+                }, SettingToken, DayLightOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
             // Garden notes (I277): one switch in plain sight, and the hour when it's on.
             if (GardenNotes.Supported && world.Mode == PlayMode.Living)
             {
@@ -7481,6 +7497,36 @@ namespace Evergrove.UnityClient
 
         private bool UnreadLetters() { return PlayerPrefs.GetInt(LettersReadKey, 0) < world.Letters.Length; }
 
+        // ---- I278-I281: light that follows the player's day. Cosmetic only, never saved.
+        private const string DayLightKey = "evergrove:daylight";
+        private static bool DayLightOn { get { return PlayerPrefs.GetInt(DayLightKey, 1) == 1; } }
+        private int qaClockHour = -1; // the tour's fixed clock (I282)
+
+        private void Now(out int hour, out int minute)
+        {
+            DateTime now = DateTime.Now;
+            hour = qaClockHour >= 0 ? qaClockHour : now.Hour;
+            minute = qaClockHour >= 0 ? 0 : now.Minute;
+        }
+
+        private void ApplyDayLight(WorldModel garden)
+        {
+            Now(out int hour, out int minute);
+            DayTint tint = DayLight.TintAt(hour, minute);
+            bool on = DayLightOn && garden != null && garden.Mode == PlayMode.Living;
+            GardenMapView.Tint = on ? new Color(tint.R, tint.G, tint.B, tint.A) : new Color(0f, 0f, 0f, 0f);
+            GardenMapView.Dark = on ? tint.Dark : 0f;
+            GardenMapView.Fireflies = on && DayLight.Fireflies(DayLight.PhaseAt(hour, minute), GardenSeason.For(garden));
+            GardenMapView.FirefliesMove = gentleMotion;
+        }
+
+        private string HourRemark(int villager)
+        {
+            if (!DayLightOn || world.Mode != PlayMode.Living) return null;
+            Now(out int hour, out int minute);
+            return DayLight.Remark(villager, DayLight.PhaseAt(hour, minute), GardenSeason.For(world));
+        }
+
         // A painted picture in a token keeps its colours (not tinted like a glyph).
         private static void PaintedIcon(Button token, float alpha)
         {
@@ -7770,6 +7816,7 @@ namespace Evergrove.UnityClient
         internal void QaSolveTreePlay() { if (qaTreePlay != null) qaTreePlay.QaSolve(); }
         internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
         internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
+        internal void QaSetClock(int hour) { qaClockHour = hour; }
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }
         internal void QaTogetherTreePlay() { if (qaTreePlay != null) qaTreePlay.QaTogether(); }
 

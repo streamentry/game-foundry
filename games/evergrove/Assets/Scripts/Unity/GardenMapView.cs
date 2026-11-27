@@ -147,6 +147,44 @@ namespace Evergrove.UnityClient
                 Wash(nextRect, new Color(0.84f, 0.74f, 0.50f, 0.5f), true);
                 Wash(nextRect, new Color(0.97f, 0.95f, 0.89f, 0.82f), true);
             }
+            // The day's light on the ground (I278): over the painting, under every thing, neighbour
+            // and mark, so they keep their full contrast at night.
+            if (Dark > 0.005f)
+            {
+                // Evening first darkens the ground (b295: a colour wash alone read as a muted day).
+                var shade = new GameObject("Evening shade", typeof(RectTransform));
+                shade.transform.SetParent(land.transform, false);
+                var shadeRect = (RectTransform)shade.transform;
+                shadeRect.anchorMin = Vector2.zero;
+                shadeRect.anchorMax = Vector2.one;
+                shadeRect.offsetMin = shadeRect.offsetMax = Vector2.zero;
+                var dim = shade.AddComponent<Image>();
+                dim.color = new Color(0.02f, 0.03f, 0.08f, Dark);
+                dim.raycastTarget = false;
+            }
+            if (Tint.a > 0.005f)
+            {
+                var light = new GameObject("Day light", typeof(RectTransform));
+                light.transform.SetParent(land.transform, false);
+                var lightRect = (RectTransform)light.transform;
+                lightRect.anchorMin = Vector2.zero;
+                lightRect.anchorMax = Vector2.one;
+                lightRect.offsetMin = lightRect.offsetMax = Vector2.zero;
+                var wash = light.AddComponent<Image>();
+                wash.color = Tint;
+                wash.raycastTarget = false;
+            }
+            // Fireflies at dusk and night (I279), above everything, drifting in the view.
+            if (Fireflies)
+            {
+                var flies = new GameObject("Fireflies", typeof(RectTransform));
+                flies.transform.SetParent(host.transform, false);
+                var fliesRect = (RectTransform)flies.transform;
+                fliesRect.anchorMin = Vector2.zero;
+                fliesRect.anchorMax = Vector2.one;
+                fliesRect.offsetMin = fliesRect.offsetMax = Vector2.zero;
+                flies.AddComponent<FireflyDrift>().Moving = FirefliesMove;
+            }
             view.apron = teaser ? 0f : Mathf.Clamp(apron, 0f, 0.4f);
             if (view.apron > 0f && plot != null)
             {
@@ -810,6 +848,62 @@ namespace Evergrove.UnityClient
             image.sprite = MosseloraArt.Rounded(3);
             image.color = new Color(1f, 1f, 1f, alpha);
             image.raycastTarget = false;
+        }
+
+        // ---- I278/I279: light that follows the day (set by the app before maps are built).
+        public static Color Tint = new Color(0f, 0f, 0f, 0f);
+        public static float Dark;
+        public static bool Fireflies;
+        public static bool FirefliesMove = true;
+
+        /// <summary>A dozen soft points of light, wandering slowly; still (but glowing) with reduced motion.</summary>
+        private sealed class FireflyDrift : MonoBehaviour
+        {
+            public bool Moving = true;
+            private RectTransform[] dots;
+            private Vector2[] home;
+            private float[] phase;
+            private float clock;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                Vector2 size = rect.rect.size;
+                var rng = new System.Random(1225); // the same evening every time, not random noise
+                dots = new RectTransform[12];
+                home = new Vector2[dots.Length];
+                phase = new float[dots.Length];
+                for (int i = 0; i < dots.Length; i++)
+                {
+                    var dot = new GameObject("Firefly", typeof(RectTransform));
+                    dot.transform.SetParent(transform, false);
+                    var dotRect = (RectTransform)dot.transform;
+                    dotRect.anchorMin = dotRect.anchorMax = new Vector2(0f, 0f);
+                    float d = 6f + (float)rng.NextDouble() * 4f;
+                    dotRect.sizeDelta = new Vector2(d, d);
+                    home[i] = new Vector2((float)rng.NextDouble() * size.x, (float)rng.NextDouble() * size.y);
+                    dotRect.anchoredPosition = home[i];
+                    phase[i] = (float)rng.NextDouble() * 6.28f;
+                    var image = dot.AddComponent<Image>();
+                    image.sprite = MosseloraArt.Rounded(8);
+                    image.color = new Color(1f, 0.93f, 0.55f, 0.85f);
+                    image.raycastTarget = false;
+                    dots[i] = dotRect;
+                }
+            }
+
+            private void Update()
+            {
+                if (dots == null || !Moving) return;
+                clock += Time.unscaledDeltaTime;
+                for (int i = 0; i < dots.Length; i++)
+                {
+                    float t = clock * 0.35f + phase[i];
+                    dots[i].anchoredPosition = home[i] + new Vector2(Mathf.Sin(t) * 18f, Mathf.Sin(t * 1.3f + 1f) * 12f);
+                    var image = dots[i].GetComponent<Image>();
+                    image.color = new Color(1f, 0.93f, 0.55f, 0.35f + 0.5f * (0.5f + 0.5f * Mathf.Sin(t * 2.1f)));
+                }
+            }
         }
 
         /// <summary>A painting that is opaque at its top edge and clear at its foot (I252).</summary>
