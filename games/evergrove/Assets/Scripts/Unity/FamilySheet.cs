@@ -178,9 +178,48 @@ namespace Evergrove.UnityClient
         }
 
         // ---- Sending
+        // I343 (run 3, P1): sending is three calm steps, not one crowded form: the gift, then how
+        // it's wrapped, then a few words and who it's from. Dots show where you are; a back
+        // token is always there. Nothing is sent until the last step's send token.
+        private int sendStep;
+
         private void BuildSend()
         {
-            InputField name = Field(body, "Your name", hooks.Name() ?? "", 48f, false, FamilyParcel.MaxNameLength);
+            StepDots();
+            if (sendStep == 0) BuildGiftStep();
+            else if (sendStep == 1) BuildWrapStep();
+            else BuildWordsStep();
+            if (outcome.Length > 0) Words(body, outcome, 16, MosseloraTheme.EarthInk);
+        }
+
+        private void StepDots()
+        {
+            Transform dots = Row(body, "Step " + (sendStep + 1) + " of 3", 18f, 10f);
+            for (int d = 0; d < 3; d++)
+            {
+                var dot = new GameObject("Dot", typeof(RectTransform), typeof(LayoutElement));
+                dot.transform.SetParent(dots, false);
+                var layout = dot.GetComponent<LayoutElement>();
+                layout.preferredWidth = layout.preferredHeight = layout.minWidth = 12f;
+                var image = dot.AddComponent<Image>();
+                image.sprite = d == sendStep ? MosseloraArt.Rounded(8) : MosseloraArt.Ring(8);
+                image.color = d <= sendStep ? MosseloraTheme.ForestAction : MosseloraTheme.EarthInk;
+                image.raycastTarget = false;
+            }
+        }
+
+        // Back (except on the first step) and on (or send, on the last).
+        private void StepTokens(Action onward, string onwardName, string onwardIcon, Color onwardTone)
+        {
+            Transform go = Row(body, "Step row", 76f, 16f);
+            if (sendStep > 0)
+                TreePlay.Token(go, "Back a step", MosseloraArt.Load(MosseloraArt.IconUndo), 60f, MosseloraTheme.QuietAction,
+                    () => { sendStep--; outcome = ""; Rebuild(); }, true);
+            TreePlay.Token(go, onwardName, MosseloraArt.Load(onwardIcon), 72f, onwardTone, onward, true);
+        }
+
+        private void BuildGiftStep()
+        {
             Transform pickRow = Row(body, "Pick row", 44f, 10f);
             Words(pickRow, "Pick one gift", 15, MosseloraTheme.EarthInk);
             TreePlay.Pill(pickRow, hooks.Seeds().ToString(), font, out _);
@@ -193,53 +232,58 @@ namespace Evergrove.UnityClient
             // have grown from the nursery (it costs its price).
             int[] owned = hooks.OwnedKinds();
             int fruit = hooks.Fruit != null ? hooks.Fruit() : 0;
+            Transform cuttings = Row(body, "Lantern, fruit and cuttings", 82f, 10f);
+            GiftToken(cuttings, Lantern, MosseloraArt.Load(LanternArt), "", true); // I310
+            int jars = hooks.Jam != null ? hooks.Jam() : 0;
+            if (jars > 0) GiftToken(cuttings, JamJar, MosseloraArt.Load("food-jam"), jars.ToString(), true); // I328
+            if (fruit > 0)
             {
-                Transform cuttings = Row(body, "Lantern, fruit and cuttings", 82f, 10f);
-                GiftToken(cuttings, Lantern, MosseloraArt.Load(LanternArt), "", true); // I310
-                int jars = hooks.Jam != null ? hooks.Jam() : 0;
-                if (jars > 0) GiftToken(cuttings, JamJar, MosseloraArt.Load("food-jam"), jars.ToString(), true); // I328
-                if (fruit > 0)
-                {
-                    int basket = Math.Min(FruitPerBasket, fruit);
-                    GiftToken(cuttings, FruitBase + basket, MosseloraArt.Load("food-basket"), basket.ToString(), true);
-                }
-                for (int i = 0; i < owned.Length && i < (fruit > 0 ? 2 : 3); i++)
-                    GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
-                        Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
+                int basket = Math.Min(FruitPerBasket, fruit);
+                GiftToken(cuttings, FruitBase + basket, MosseloraArt.Load("food-basket"), basket.ToString(), true);
             }
-            // I308 (idea 41, after red envelopes): seeds or fruit may go in a festive envelope with
-            // a wish, picked from a few, never typed. One token turns through the wishes.
+            for (int i = 0; i < owned.Length && i < (fruit > 0 ? 2 : 3); i++)
+                GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
+                    Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
+            StepTokens(() => { sendStep = 1; outcome = ""; Rebuild(); }, "On to wrapping it", MosseloraArt.IconContinue,
+                MosseloraTheme.ForestAction);
+        }
+
+        // I344 (run 3, P2): the wrapping is all pictures. An envelope with a wish only for
+        // seeds, fruit or jam (I308); a picture stamp for any parcel (I329). Nothing chosen
+        // shows the plain token, no "No envelope" words.
+        private void BuildWrapStep()
+        {
             bool wrappable = pick == JamJar || (pick != LetterOnly && pick != Lantern && (pick < CuttingBase || pick >= FruitBase));
             if (!wrappable) blessing = 0;
-            else
+            Transform wraps = Row(body, "Wrapping", 96f, 18f);
+            if (wrappable)
             {
-                Transform wrap = Row(body, "Festive envelope", 60f, 10f);
-                TreePlay.Token(wrap, blessing == 0 ? "Wrap it with a wish" : "Wish: " + FamilyParcel.Blessings[blessing - 1],
-                    MosseloraArt.Load("letter-sealed"), 54f, blessing == 0 ? MosseloraTheme.QuietAction : Festive,
+                TreePlay.Token(wraps, blessing == 0 ? "Wrap it with a wish" : "Wish: " + FamilyParcel.Blessings[blessing - 1],
+                    MosseloraArt.Load("letter-sealed"), 72f, blessing == 0 ? MosseloraTheme.QuietAction : Festive,
                     () => { blessing = (blessing + 1) % (FamilyParcel.MaxBlessing + 1); Rebuild(); }, true);
-                Words(wrap, blessing == 0 ? "No envelope" : "“" + FamilyParcel.Blessings[blessing - 1] + "”", 16,
-                    MosseloraTheme.EarthInk);
+                Transform envelopeIcon = wraps.GetChild(wraps.childCount - 1).Find("Icon");
+                if (envelopeIcon != null) { ((RectTransform)envelopeIcon).sizeDelta = new Vector2(48f, 48f); envelopeIcon.GetComponent<Image>().color = Color.white; }
             }
-            // I329 (idea 37, after wordless story games): a picture stamp for the letter, picked,
-            // never typed; for those who'd rather say it with a picture.
-            {
-                Transform stampRow = Row(body, "Picture stamp", 60f, 10f);
-                Sprite stampArt = stamp > 0 ? MosseloraArt.Load(FamilyParcel.Stamps[stamp - 1]) : MosseloraArt.Load(MosseloraArt.IconChat);
-                TreePlay.Token(stampRow, stamp == 0 ? "Add a picture stamp" : "Picture stamp " + stamp, stampArt, 54f,
-                    stamp == 0 ? MosseloraTheme.QuietAction : MosseloraTheme.CardFill,
-                    () => { stamp = (stamp + 1) % (FamilyParcel.StampCount + 1); Rebuild(); }, true);
-                Transform stampIcon = stampRow.GetChild(stampRow.childCount - 1).Find("Icon");
-                if (stampIcon != null && stamp > 0) { ((RectTransform)stampIcon).sizeDelta = new Vector2(44f, 44f); stampIcon.GetComponent<Image>().color = Color.white; }
-                Words(stampRow, stamp == 0 ? "No stamp" : "A picture stamp", 16, MosseloraTheme.EarthInk);
-            }
+            Sprite stampArt = stamp > 0 ? MosseloraArt.Load(FamilyParcel.Stamps[stamp - 1]) : MosseloraArt.Load(MosseloraArt.IconChat);
+            TreePlay.Token(wraps, stamp == 0 ? "Add a picture stamp" : "Picture stamp " + stamp, stampArt, 72f,
+                stamp == 0 ? MosseloraTheme.QuietAction : MosseloraTheme.CardFill,
+                () => { stamp = (stamp + 1) % (FamilyParcel.StampCount + 1); Rebuild(); }, true);
+            Transform stampIcon = wraps.GetChild(wraps.childCount - 1).Find("Icon");
+            if (stampIcon != null && stamp > 0) { ((RectTransform)stampIcon).sizeDelta = new Vector2(56f, 56f); stampIcon.GetComponent<Image>().color = Color.white; }
+            // Only the wish itself is words: it's what they'll read.
+            if (blessing > 0) Words(body, "“" + FamilyParcel.Blessings[blessing - 1] + "”", 20, Festive);
+            StepTokens(() => { sendStep = 2; outcome = ""; Rebuild(); }, "On to a few words", MosseloraArt.IconContinue,
+                MosseloraTheme.ForestAction);
+        }
+
+        private void BuildWordsStep()
+        {
+            InputField name = Field(body, "Your name", hooks.Name() ?? "", 48f, false, FamilyParcel.MaxNameLength);
             if (rightColumn != null) body = rightColumn; // sideways: the letter has its own column
             InputField words = Field(body, "A few words for them (optional)", letter, wide ? 150f : 104f, true,
                 FamilyParcel.MaxLetterLength);
             words.onValueChanged.AddListener(v => letter = v ?? "");
-            Transform go = Row(body, "Send row", 76f, 12f);
-            TreePlay.Token(go, "Send it", MosseloraArt.Load(MosseloraArt.IconContinue), 72f,
-                MosseloraTheme.WaterAction, () => DoSend(name.text), true);
-            if (outcome.Length > 0) Words(body, outcome, 16, MosseloraTheme.EarthInk);
+            StepTokens(() => DoSend(name.text), "Send it", MosseloraArt.IconContinue, MosseloraTheme.WaterAction);
         }
 
         private void GiftToken(Transform row, int code, Sprite art, string price, bool can)
@@ -295,6 +339,7 @@ namespace Evergrove.UnityClient
             if (wish > 0) what += " in a festive envelope";
             blessing = 0;
             stamp = 0;
+            sendStep = 0;
             hooks.Share(FamilyParcel.Wrap(sent.Text, from + " sent you " + what + " in Mosselora. Open it in the game: Family, then Open."));
             letter = "";
             outcome = "Sent. Share it with them however you like to talk.";
@@ -384,7 +429,12 @@ namespace Evergrove.UnityClient
         }
 
         // Tour only: send with this name, or open this text, by the same paths as taps.
-        internal void QaSend(string name, int code, string words) { pick = code; letter = words; DoSend(name); }
+        internal void QaSend(string name, int code, string words) { pick = code; letter = words; sendStep = 2; DoSend(name); }
+        // I343/I344 tour: show a step of sending, with a gift, a wish and a stamp picked.
+        internal void QaStep(int step, int gift, int wish, int pictureStamp)
+        {
+            sendStep = step; pick = gift; blessing = wish; stamp = pictureStamp; outcome = ""; Rebuild();
+        }
         internal void QaOpen() { sending = false; DoOpen(); }
         internal void QaVisit() { DoVisit(); }
 

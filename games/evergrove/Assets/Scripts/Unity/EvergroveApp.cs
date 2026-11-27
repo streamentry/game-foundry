@@ -3510,11 +3510,22 @@ namespace Evergrove.UnityClient
             basketRect.sizeDelta = new Vector2(72f, 72f);
             if (!basketOpen && !holding)
             {
-                // Closed, the basket shows the newest thing you grew.
+                // I345 (run 3, P3): closed, it reads as a basket (the painted one) with the
+                // newest thing you grew peeking out of it, so "things to plant" says itself.
                 Transform glyph = basket.transform.Find("Icon");
                 Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
                 Sprite newest = ItemArt(made.Length - 1, made[made.Length - 1]);
-                if (glyphImage != null && newest != null) { glyphImage.sprite = newest; glyphImage.color = Color.white; }
+                Sprite basketArt = MosseloraArt.Load("food-basket");
+                if (glyphImage != null && basketArt != null)
+                {
+                    glyphImage.sprite = basketArt;
+                    glyphImage.color = Color.white;
+                    ((RectTransform)glyph).anchoredPosition = new Vector2(0f, -6f);
+                    Image peek = newest == null ? null : MosseloraArt.Ornament(basket.transform, "Newest thing, peeking out",
+                        newest, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f), new Vector2(34f, 34f), new Vector2(4f, 2f));
+                    if (peek != null) peek.transform.SetSiblingIndex(glyph.GetSiblingIndex()); // behind the basket's rim
+                }
+                else if (glyphImage != null && newest != null) { glyphImage.sprite = newest; glyphImage.color = Color.white; }
                 if (world.PlantingCount == 0 && gentleMotion) BloomPulse.Add(basket.gameObject, 0.8f, 0.08f);
             }
         }
@@ -4173,8 +4184,15 @@ namespace Evergrove.UnityClient
                     () => { CloseFan(); EnterQuiet(); });
                 Transform lookGlyph = look.transform.Find("Icon");
                 Image lookImage = lookGlyph != null ? lookGlyph.GetComponent<Image>() : null;
-                Sprite sprig = MosseloraArt.Load(MosseloraArt.Sprig);
-                if (lookImage != null && sprig != null) { lookImage.sprite = sprig; lookImage.color = Color.white; }
+                // I346 (run 3, P4): a tiny painting of the garden says "look", where a sprig didn't.
+                Sprite view = MosseloraArt.Load(MosseloraArt.VignetteTree) ?? MosseloraArt.Load(MosseloraArt.Sprig);
+                if (lookImage != null && view != null)
+                {
+                    lookImage.sprite = view;
+                    lookImage.color = Color.white;
+                    lookImage.preserveAspect = true;
+                    ((RectTransform)lookGlyph).sizeDelta = new Vector2(48f, 40f);
+                }
                 tokens.Add(look);
             }
             tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
@@ -4723,7 +4741,8 @@ namespace Evergrove.UnityClient
             neighborLayer.transform.SetSiblingIndex(1);
             Fill(neighborLayer.GetComponent<RectTransform>());
             var veil = neighborLayer.AddComponent<Image>();
-            veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.10f);
+            // I347 (run 3, P6): the neighbour comes forward; the page behind steps back.
+            veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.36f);
             // A tap anywhere else ends the conversation, as the check does.
             neighborLayer.AddComponent<TapCatcher>().Tapped = () => { speakingWith = -1; Rebuild(); };
             var row = Node("A neighbor's memory", neighborLayer.transform);
@@ -4756,8 +4775,8 @@ namespace Evergrove.UnityClient
             {
                 var portrait = Node("Speaker portrait", row.transform);
                 var portraitLayout = portrait.AddComponent<LayoutElement>();
-                portraitLayout.minWidth = portraitLayout.preferredWidth = 64;
-                portraitLayout.minHeight = portraitLayout.preferredHeight = 64;
+                portraitLayout.minWidth = portraitLayout.preferredWidth = 92; // I347: a face you can see
+                portraitLayout.minHeight = portraitLayout.preferredHeight = 92;
                 var portraitImage = portrait.AddComponent<Image>();
                 portraitImage.sprite = face;
                 portraitImage.preserveAspect = true;
@@ -4767,10 +4786,10 @@ namespace Evergrove.UnityClient
             var bubble = Card(row.transform, "Speech bubble", new Color(0f, 0f, 0f, 0f));
             bubble.AddComponent<LayoutElement>().flexibleWidth = 1f;
             Text speaker = Label(bubble.transform, "Neighbor name",
-                LocalizedVillage.Name(speakingWith), 15, 0, Leaf, TextAnchor.MiddleLeft);
+                LocalizedVillage.Name(speakingWith), 17, 0, Leaf, TextAnchor.MiddleLeft);
             Emphasize(speaker);
             Narrate(Label(bubble.transform, "What they say",
-                NeighborSays(speakingWith), 17, 0, Ink, TextAnchor.MiddleLeft));
+                NeighborSays(speakingWith), 20, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
                 MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
                 MosseloraTheme.ForestAction);
