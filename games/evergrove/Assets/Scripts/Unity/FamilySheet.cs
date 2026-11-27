@@ -229,6 +229,7 @@ namespace Evergrove.UnityClient
             ParcelContents c = opened.Contents;
             string gift = c.Gift == ParcelGift.Seeds ? opened.SeedsGained + " seeds are in your purse."
                 : c.Gift == ParcelGift.Cutting ? "A cutting of " + Nursery.Item(c.Kind).Name + " is waiting in your basket."
+                : c.Gift == ParcelGift.Help ? c.From + " solved a puzzle in your garden for you. Look for the bloom."
                 : "";
             outcome = "From " + c.From + "." + (c.Letter.Length > 0 ? "\n“" + c.Letter + "”" : "") +
                 (gift.Length > 0 ? "\n" + gift : "");
@@ -261,6 +262,7 @@ namespace Evergrove.UnityClient
                 case ParcelError.NotEnoughSeeds: return "You don't have enough seeds for that gift yet.";
                 case ParcelError.BasketFull: return "Your basket is full. Plant a gift first, then open this one.";
                 case ParcelError.CuttingNotAvailable: return "That plant isn't open in your nursery yet.";
+                case ParcelError.NotInThisGarden: return "This help is for something your garden hasn't grown yet.";
                 case ParcelError.ChecksumMismatch:
                 case ParcelError.Malformed:
                 case ParcelError.Invalid: return "This parcel was changed on the way and can't be opened. Ask them to send it again.";

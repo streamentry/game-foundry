@@ -4,8 +4,9 @@ namespace Evergrove.Core
     /// Neighbours who notice (depth spine, Layer 4; founder decision 2026-11-26:
     /// the companion is offline first). Each neighbour keeps to their own kind,
     /// Mira trees, Orin buildings, Fen flowers, and says one line built only from
-    /// true facts in the save: a plant you bought of their kind, and how many of
-    /// their kind's puzzles you have solved. Never guilt, never "I missed you",
+    /// true facts in the save: a plant you bought of their kind, how many of
+    /// their kind's puzzles you have solved, and (Mira) how close more river is.
+    /// Never guilt, never "I missed you",
     /// no clock, no randomness. Returns null when there is nothing new and true
     /// to say, so the older story lines speak instead. English only for now.
     /// </summary>
@@ -18,6 +19,16 @@ namespace Evergrove.Core
             // easy to miss, and it was sent with care.
             foreach (int kind in world.Gifts)
                 if ((int)Nursery.Family(kind) == villager) return Waiting(villager, Nursery.Item(kind).Name);
+            // A relative who helped with one of their kind's puzzles (I226): said only while
+            // the owner has not solved that thing themselves, naming the helper.
+            int[] helped = world.Helped;
+            if (helped.Length > 0)
+            {
+                int item = helped[helped.Length - 1];
+                int[] made = world.Choices;
+                if (item < made.Length && made[item] == villager && !world.TreeSolved(item))
+                    return Helped(villager, world.HelpedBy(item));
+            }
             // A new arrival from the nursery is the freshest news: the newest one of
             // their kind, while its puzzle is still unsolved.
             int[] bought = world.Bought;
@@ -27,6 +38,16 @@ namespace Evergrove.Core
                 if ((int)Nursery.Family(kind) != villager) continue;
                 if (!world.BoughtSolved(k)) return Arrival(villager, Nursery.Item(kind).Name);
                 break;
+            }
+            // Mira keeps the trees by the water, so she reads the river (I225): what
+            // the drops on the mist mean, only when it's true right now.
+            if (villager == 0 && world.Completed)
+            {
+                int all = world.PuzzlesSolved;
+                if (GardenMap.TowardNext(world.Choices.Length, true, all, out int have, out int need) && have == need - 1)
+                    return "The mist downstream is thinning. One more thing tended and it will lift.";
+                if (have == 0 && GardenMap.ReachesFor(world.Choices.Length, true, all) > GardenMap.MaxReaches)
+                    return "The river runs further than it ever did. There's new bank down there, waiting for roots.";
             }
             int solved = SolvedOfKind(villager, world);
             return solved > 0 ? Tended(villager, solved) : null;
@@ -54,6 +75,16 @@ namespace Evergrove.Core
                 case 0: return "A " + name + ", new in the garden. Give it a season and it will shade the whole bank.";
                 case 1: return "That new " + name + ": I would like to see how it is joined.";
                 default: return "A new " + name + "! The bees will find it by noon.";
+            }
+        }
+
+        private static string Helped(int villager, string helper)
+        {
+            switch (villager)
+            {
+                case 0: return helper + " came by and freed the water under one of your trees. Look how it blooms.";
+                case 1: return helper + " was here and mended one of the old paintings with you in mind.";
+                default: return helper + " matched a flower bed of yours. The bees approve.";
             }
         }
 

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Evergrove.Core
 {
-    public enum ParcelGift { None = 0, Seeds = 1, Cutting = 2 }
+    public enum ParcelGift { None = 0, Seeds = 1, Cutting = 2, Help = 3 }
 
     public enum ParcelError
     {
@@ -24,7 +24,9 @@ namespace Evergrove.Core
         NotLiving,
         NotEnoughSeeds,
         CuttingNotAvailable,
-        BasketFull
+        BasketFull,
+        /// <summary>Opening a Help parcel: this garden has no grown thing with that index.</summary>
+        NotInThisGarden
     }
 
     public sealed class ParcelContents
@@ -56,10 +58,12 @@ namespace Evergrove.Core
         public int SeedsGained;
         /// <summary>Basket index of a received cutting, else -1.</summary>
         public int GiftIndex = -1;
+        /// <summary>Index of the grown thing a Help parcel bloomed, else -1.</summary>
+        public int HelpedItem = -1;
     }
 
     /// <summary>
-    /// A family parcel: one gift (seeds, a cutting, or nothing but a letter) from one garden to
+    /// A family parcel: one gift (seeds, a cutting, help with a puzzle, or nothing but a letter) from one garden to
     /// another, as a small checksummed JSON text shared through any messaging app. Pure C#, no
     /// clock, no randomness: the caller supplies a nonce. The checksum and id catch accidental
     /// damage and forged ids; they are NOT tamper-proofing (anyone can recompute them), so the
@@ -94,7 +98,7 @@ namespace Evergrove.Core
                 Letter = letter == null ? "" : letter.Replace("\r\n", "\n").Trim(),
                 Gift = gift,
                 Amount = gift == ParcelGift.Seeds ? value : 0,
-                Kind = gift == ParcelGift.Cutting ? value : -1,
+                Kind = gift == ParcelGift.Cutting || gift == ParcelGift.Help ? value : -1,
                 Nonce = nonce
             };
             if (!ValidNonce(c.Nonce) || !ValidShape(c)) return false;
@@ -238,6 +242,8 @@ namespace Evergrove.Core
                     return c.Amount >= 1 && c.Amount <= MaxSeedsPerParcel && c.Kind == -1;
                 case ParcelGift.Cutting:
                     return c.Amount == 0 && c.Kind >= 0 && c.Kind < Nursery.Kinds;
+                case ParcelGift.Help:
+                    return c.Amount == 0 && c.Kind >= 0 && c.Kind < PuzzleCatalog.Count;
                 default:
                     return false;
             }
@@ -284,6 +290,7 @@ namespace Evergrove.Core
                 case "none": c.Gift = ParcelGift.None; break;
                 case "seeds": c.Gift = ParcelGift.Seeds; break;
                 case "cutting": c.Gift = ParcelGift.Cutting; break;
+                case "help": c.Gift = ParcelGift.Help; break;
                 default: c.Gift = (ParcelGift)(-1); break; // fails ValidShape, so the parcel is Invalid
             }
             return true;
@@ -295,6 +302,7 @@ namespace Evergrove.Core
             {
                 case ParcelGift.Seeds: return "seeds";
                 case ParcelGift.Cutting: return "cutting";
+                case ParcelGift.Help: return "help";
                 case ParcelGift.None: return "none";
                 default: return "unknown";
             }

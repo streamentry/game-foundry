@@ -12,6 +12,19 @@ namespace Evergrove.Core
         public const int MaxGifts = 50;
         public const int MaxLetters = 20;
         public const int MaxParcelIds = 200;
+        /// <summary>At most one entry per grown thing, so this only needs to cover the catalogue.</summary>
+        public const int MaxHelped = 50;
+
+        /// <summary>Grown things a relative helped with (I226), oldest first; <see cref="HelpedFrom"/> holds who.</summary>
+        public int[] Helped { get { return (int[])state.helped.Clone(); } }
+        public string[] HelpedFrom { get { return (string[])state.helpedFrom.Clone(); } }
+        public bool IsHelped(int item) { return Array.IndexOf(state.helped, item) >= 0; }
+        /// <summary>Who helped with grown thing <paramref name="item"/>, or null.</summary>
+        public string HelpedBy(int item)
+        {
+            int at = Array.IndexOf(state.helped, item);
+            return at < 0 ? null : state.helpedFrom[at];
+        }
 
         /// <summary>Cuttings waiting in the basket, as nursery kinds, oldest first.</summary>
         public int[] Gifts { get { return (int[])state.gifts.Clone(); } }
@@ -23,7 +36,8 @@ namespace Evergrove.Core
 
         /// <summary>
         /// Makes a parcel and pays for it, all or nothing. <paramref name="value"/> is the seed amount
-        /// (1..500) for Seeds or the nursery kind for Cutting; ignored for None. A cutting costs its
+        /// (1..500) for Seeds, the nursery kind for Cutting, or the grown thing to help with for Help; ignored for None.
+        /// Help, like a letter, costs nothing. A cutting costs its
         /// nursery price and needs that kind's row open; it removes no plant. A letter costs nothing.
         /// </summary>
         public ParcelSendResult SendParcel(string from, string letter, ParcelGift gift, int value, string nonce)
@@ -67,6 +81,7 @@ namespace Evergrove.Core
             if (!FamilyParcel.TryRead(text, out contents, out error)) return Refuse(result, error);
             if (HasSeenParcel(contents.Id)) return Refuse(result, ParcelError.AlreadyOpened);
             if (contents.Gift == ParcelGift.Cutting && state.gifts.Length >= MaxGifts) return Refuse(result, ParcelError.BasketFull);
+            if (contents.Gift == ParcelGift.Help && contents.Kind >= state.choices.Length) return Refuse(result, ParcelError.NotInThisGarden);
 
             if (contents.Gift == ParcelGift.Seeds)
             {
@@ -78,6 +93,11 @@ namespace Evergrove.Core
             {
                 state.gifts = Append(state.gifts, contents.Kind);
                 result.GiftIndex = state.gifts.Length - 1;
+            }
+            else if (contents.Gift == ParcelGift.Help)
+            {
+                RecordHelp(contents.Kind, contents.From);
+                result.HelpedItem = contents.Kind;
             }
             if (contents.Letter.Length > 0)
             {
@@ -108,6 +128,30 @@ namespace Evergrove.Core
             state.gifts = rest;
             state.bought = bought;
             return true;
+        }
+
+        /// <summary>One entry per item: helping again replaces the sender and moves it to newest.</summary>
+        private void RecordHelp(int item, string from)
+        {
+            int at = Array.IndexOf(state.helped, item);
+            int others = state.helped.Length - (at < 0 ? 0 : 1);
+            int keep = Math.Min(others, MaxHelped - 1);
+            var items = new int[keep + 1];
+            var names = new string[keep + 1];
+            int skip = others - keep; // oldest entries beyond the cap
+            int n = 0;
+            for (int i = 0; i < state.helped.Length; i++)
+            {
+                if (i == at) continue;
+                if (skip > 0) { skip--; continue; }
+                items[n] = state.helped[i];
+                names[n] = state.helpedFrom[i];
+                n++;
+            }
+            items[n] = item;
+            names[n] = from;
+            state.helped = items;
+            state.helpedFrom = names;
         }
 
         private void RememberParcel(string id)
@@ -143,6 +187,23 @@ namespace Evergrove.Core
             Array.Copy(items, items.Length - keep, next, 0, keep);
             next[keep] = value;
             return next;
+        }
+
+        /// <summary>Fail-closed validation of the help fields (I226); null arrays mean "absent in an older save".</summary>
+        private static bool ReadHelped(WorldSnapshot source, out int[] helped, out string[] helpedFrom)
+        {
+            helped = source.helped ?? Array.Empty<int>();
+            helpedFrom = source.helpedFrom ?? Array.Empty<string>();
+            if (helped.Length != helpedFrom.Length || helped.Length > MaxHelped ||
+                (helped.Length != 0 && source.mode != "living"))
+                return false;
+            for (int i = 0; i < helped.Length; i++)
+                if (helped[i] < 0 || helped[i] >= source.choices.Length ||
+                    Array.IndexOf(helped, helped[i]) != i || !FamilyParcel.ValidName(helpedFrom[i]))
+                    return false;
+            helped = (int[])helped.Clone();
+            helpedFrom = (string[])helpedFrom.Clone();
+            return true;
         }
 
         /// <summary>Fail-closed validation of the family fields; null arrays mean "absent in an older save".</summary>

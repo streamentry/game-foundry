@@ -55,6 +55,31 @@ internal static class RiverGrowsTests
         world.SolveTree(0);
         world.SolveTree(2);
         Expect(world.PuzzlesSolved == 2, "first solves count once each, replays don't");
+        // I224: the misty stretch shows how close it is, in drops: streams during the
+        // story, first solves after it. Each step fills one drop; a full row opens it.
+        for (int restored = 0; restored < 12; restored++)
+        {
+            Expect(GardenMap.TowardNext(restored, false, 7, out int have, out int need),
+                "during the story the next stretch is always coming (" + restored + ")");
+            Expect(need == GardenMap.StreamsPerReach && have == restored % GardenMap.StreamsPerReach,
+                "story drops count streams (" + restored + ": " + have + "/" + need + ")");
+        }
+        for (int solved = 0; solved < 80; solved++)
+        {
+            bool more = GardenMap.TowardNext(12, true, solved, out int have, out int need);
+            bool open = GardenMap.ReachesFor(12, true, solved) < GardenMap.ReachesCeiling;
+            Expect(more == open, "drops show only while more river can come (" + solved + ")");
+            if (!more) continue;
+            Expect(need == GardenMap.SolvesPerReach && have == solved % GardenMap.SolvesPerReach,
+                "tending drops count first solves (" + solved + ")");
+            // Filling the last drop opens exactly one more stretch.
+            int left = need - have;
+            Expect(GardenMap.ReachesFor(12, true, solved + left) == GardenMap.ReachesFor(12, true, solved) + 1,
+                "the drops left are exactly what opens the next stretch (" + solved + ")");
+            Expect(left >= 1 && left <= need, "between one and a whole row left");
+        }
+        GardenMap.TowardNext(12, true, -5, out int h0, out int n0);
+        Expect(h0 == 0 && n0 == GardenMap.SolvesPerReach, "a bad count reads as none solved");
         return assertions;
     }
 

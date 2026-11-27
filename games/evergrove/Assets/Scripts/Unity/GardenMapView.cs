@@ -503,7 +503,7 @@ namespace Evergrove.UnityClient
                     }
                 }
                 else if (growNewest && item.Newest) node.AddComponent<GrowUp>();
-                if (item.HoldsPuzzle && !held && !item.Bloomed && onItem != null)
+                if (item.HoldsPuzzle && !held && onItem != null)
                 {
                     // A small round play mark at the thing's shoulder: "there's a puzzle here".
                     var mark = new GameObject("Holds a puzzle", typeof(RectTransform));
@@ -648,6 +648,41 @@ namespace Evergrove.UnityClient
         }
 
         private int liftFocus = -1;
+
+        /// <summary>
+        /// Drops on the next stretch's mist (I224): one per stream (story) or first
+        /// solve (after), filled as they come; a full row opens the stretch. The
+        /// drop just earned swells once. No words: the drops are the progress.
+        /// </summary>
+        public void ShowDrops(int have, int need, bool swellNewest)
+        {
+            if (apronRect == null || teaser <= 0f || need < 1) return;
+            Transform old = apronRect.Find("Drops toward the next stretch");
+            if (old != null) Destroy(old.gameObject);
+            var row = new GameObject("Drops toward the next stretch", typeof(RectTransform));
+            row.transform.SetParent(apronRect, false);
+            var rect = (RectTransform)row.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.42f);
+            const float size = 30f, gap = 12f;
+            rect.sizeDelta = new Vector2(need * size + (need - 1) * gap, size);
+            for (int i = 0; i < need; i++)
+            {
+                bool full = i < have;
+                var drop = new GameObject(full ? "Drop filled" : "Drop to come", typeof(RectTransform));
+                drop.transform.SetParent(row.transform, false);
+                var dropRect = (RectTransform)drop.transform;
+                dropRect.anchorMin = dropRect.anchorMax = new Vector2(0f, 0.5f);
+                dropRect.pivot = new Vector2(0.5f, 0.5f);
+                dropRect.sizeDelta = new Vector2(size, size);
+                dropRect.anchoredPosition = new Vector2(size / 2f + i * (size + gap), 0f);
+                var image = drop.AddComponent<Image>();
+                image.sprite = MosseloraArt.Load(full ? MosseloraArt.Droplet : MosseloraArt.DropletEmpty);
+                image.preserveAspect = true;
+                image.raycastTarget = false;
+                image.color = full ? Color.white : new Color(0.30f, 0.35f, 0.33f, 1f); // as the board's drops (I146)
+                if (full && swellNewest && i == have - 1) drop.AddComponent<RingGrow>();
+            }
+        }
 
         private sealed class Lift : MonoBehaviour
         {

@@ -1954,12 +1954,28 @@ namespace Evergrove.UnityClient
             Action closed = () => { justSolved = solvedHere ? shown : -1; solvedHere = false;
                 mapInHand = -1; heldBought = -1; keepHubAt = new Vector2(-1f, -1f); RefreshMapsFresh(); };
             Func<int> solvedOnce = solved;
-            solved = () => { solvedHere = true; return solvedOnce(); };
-            var host = (RectTransform)titleScreen.transform;
+            solved = () =>
+            {
+                solvedHere = true;
+                int before = OpenReaches(), solvedBefore = world.PuzzlesSolved;
+                int earned = solvedOnce();
+                // After the story, every fourth solve opens more river (I220): home shows it (I223).
+                riverOpened = OpenReaches() > before;
+                dropEarned = world.PuzzlesSolved > solvedBefore;
+                return earned;
+            };
+            PuzzleCard((RectTransform)titleScreen.transform, seed, tier, family, art, name, reward,
+                count => PairsPictures(count, pictureStart, (c, f) => ItemArt(c, f)), turned, solved, closed);
+        }
+
+        // The card itself (kind by family), for your things and, visiting, for theirs (I227).
+        private void PuzzleCard(RectTransform host, int seed, int tier, VillageChoice family, Sprite art, string name,
+                                int reward, Func<int, Sprite[]> pictures, Action turned, Func<int> solved, Action closed)
+        {
             if (family == VillageChoice.Flowers)
             {
                 var game = new PairsGame(seed, tier);
-                TreePlay.OpenPairs(host, game, PairsPictures(game.Pairs, pictureStart), art, name, reward, font,
+                TreePlay.OpenPairs(host, game, pictures(game.Pairs), art, name, reward, font,
                     gentleMotion, turned, solved, closed);
                 return;
             }
@@ -1982,14 +1998,14 @@ namespace Evergrove.UnityClient
 
         // Distinct paintings from this garden's catalogue for a Pairs table, starting
         // at a place set by the flower, so each flower deals different pictures.
-        private Sprite[] PairsPictures(int count, int item)
+        private Sprite[] PairsPictures(int count, int item, Func<int, int, Sprite> artOf)
         {
             var found = new System.Collections.Generic.List<Sprite>();
             int total = GardenCatalog.ChaptersPerGarden * 3;
             for (int step = 0; step < total && found.Count < count; step++)
             {
                 int slot = (item * 5 + step) % total;
-                Sprite art = ItemArt(slot / 3, slot % 3);
+                Sprite art = artOf(slot / 3, slot % 3);
                 if (art != null && !found.Contains(art)) found.Add(art);
             }
             return found.ToArray();
@@ -2047,6 +2063,9 @@ namespace Evergrove.UnityClient
         // Settings copies) is read without touching yours; their river, things,
         // plantings and nursery plants stand on their own painted map.
         private GameObject visitLayer;
+        private string visitText;
+        private WorldModel visitWorld;
+        private readonly System.Collections.Generic.List<int> helpedOnVisit = new System.Collections.Generic.List<int>();
 
         private bool OpenVisit(string text)
         {
@@ -2062,6 +2081,9 @@ namespace Evergrove.UnityClient
                 ?? MosseloraArt.Load("garden-map");
             if (plot == null) return false;
 
+            if (text != visitText) helpedOnVisit.Clear();
+            visitText = text;
+            visitWorld = visited;
             visitLayer = Node("Visiting a garden", canvasRoot);
             Fill(visitLayer.GetComponent<RectTransform>());
             visitLayer.AddComponent<Image>().color = Paper;
@@ -2069,8 +2091,9 @@ namespace Evergrove.UnityClient
             var window = Node("Their garden", visitLayer.transform);
             Fill(window.GetComponent<RectTransform>());
             window.AddComponent<RectMask2D>();
+            // Help (I227): tap one of their things that still holds a puzzle, solve it for them.
             GardenMapView view = GardenMapView.Build((RectTransform)window.transform, plot, map, VisitItems(visited, map),
-                landscape ? 1f : 1.3f, null, null, -1, false, 1f, -1f, null, 0.22f, RiverGoesOn(map));
+                landscape ? 1f : 1.3f, null, HelpWith, -1, false, 1f, -1f, null, 0.22f, RiverGoesOn(map));
             view.FocusFromTop = 0.4f;
 
             // A wooden "back home" token where the menu button lives, and a sign.
@@ -2116,8 +2139,13 @@ namespace Evergrove.UnityClient
             Func<int, int, Sprite> art = (chapter, family) => MosseloraArt.Load(GardenCatalog.For(visited.Garden,
                 Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)Mathf.Clamp(family, 0, 2)).Art);
             for (int i = 0; i < made.Length; i++)
+            {
+                bool done = visited.TreeSolved(i) || visited.IsHelped(i) || helpedOnVisit.Contains(i);
                 items.Add(new GardenMapView.Placed { Art = art(i, made[i]), Cell = cells[i], Index = i,
-                    Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2), Bloomed = visited.TreeSolved(i) });
+                    Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2), Bloomed = done,
+                    HoldsPuzzle = !done && world.Mode == PlayMode.Living,
+                    BloomNow = gentleMotion && helpedOnVisit.Count > 0 && helpedOnVisit[helpedOnVisit.Count - 1] == i });
+            }
             for (int k = 0; k * 2 + 1 < planted.Length; k++)
                 if (planted[k * 2] < made.Length && map.IsLand(planted[k * 2 + 1]))
                     items.Add(new GardenMapView.Placed { Art = art(planted[k * 2], made[planted[k * 2]]),
@@ -2130,9 +2158,11 @@ namespace Evergrove.UnityClient
                         Bloomed = visited.BoughtSolved(k) });
             if (items.Count > 0)
             {
-                var newest = items[made.Length > 0 ? made.Length - 1 : 0];
-                newest.Newest = true; // frame their newest thing
-                items[made.Length > 0 ? made.Length - 1 : 0] = newest;
+                // Frame their newest thing, or the one you just helped with, blooming (I227).
+                int frame = helpedOnVisit.Count > 0 ? helpedOnVisit[helpedOnVisit.Count - 1] : made.Length > 0 ? made.Length - 1 : 0;
+                var newest = items[frame];
+                newest.Newest = true;
+                items[frame] = newest;
             }
             return items;
         }
@@ -2143,6 +2173,48 @@ namespace Evergrove.UnityClient
             visitLayer = null;
             semanticsDirty = true;
         }
+
+        // I227: help with one of their things. You play the very board they would
+        // (same seed), earn nothing, and a Help parcel goes to them by any message
+        // app; it blooms in their garden when they open it.
+        private void HelpWith(int item)
+        {
+            WorldModel theirs = visitWorld;
+            if (theirs == null || visitLayer == null || world.Mode != PlayMode.Living) return;
+            int[] made = theirs.Choices;
+            if (item < 0 || item >= made.Length || theirs.TreeSolved(item) || theirs.IsHelped(item) ||
+                helpedOnVisit.Contains(item)) return;
+            int tier = TreePuzzles.TierFor(item);
+            GardenItem thing = GardenCatalog.For(theirs.Garden, Mathf.Clamp(item, 0, GardenCatalog.ChaptersPerGarden - 1),
+                (VillageChoice)Mathf.Clamp(made[item], 0, 2));
+            Func<int, int, Sprite> artOf = (chapter, family) => MosseloraArt.Load(GardenCatalog.For(theirs.Garden,
+                Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)Mathf.Clamp(family, 0, 2)).Art);
+            Action turned = () => { PlayTock(); if (gentleMotion) Haptics.Tick(); };
+            Func<int> solved = () =>
+            {
+                string from = PlayerPrefs.GetString(FamilyNameKey, "");
+                if (!FamilyParcel.ValidName(from)) from = "Family";
+                string nonce = Guid.NewGuid().ToString("N").Substring(0, 16);
+                ParcelSendResult sent = world.SendParcel(from, "", ParcelGift.Help, item, nonce);
+                if (!sent.Ok) return 0;
+                SaveWorld();
+                PlayChime();
+                helpedOnVisit.Add(item);
+                helpShare = FamilyParcel.Wrap(sent.Text, from + " helped in your Mosselora garden.");
+                return 0;
+            };
+            Action closed = () =>
+            {
+                string share = helpShare;
+                helpShare = null;
+                if (visitLayer != null) { Destroy(visitLayer); visitLayer = null; OpenVisit(visitText); }
+                if (share != null && !NativeShare.Text(share, "Mosselora")) GUIUtility.systemCopyBuffer = share;
+            };
+            PuzzleCard((RectTransform)visitLayer.transform, theirs.Garden * 1000 + item * 7 + 1, tier,
+                (VillageChoice)made[item], artOf(item, made[item]), thing.Name, -1,
+                count => PairsPictures(count, item, artOf), turned, solved, closed);
+        }
+        private string helpShare;
 
         // The seeds you have, top right of home: a sprout and a number.
         private void SeedPurse()
@@ -2177,6 +2249,10 @@ namespace Evergrove.UnityClient
             iconImage.raycastTarget = false;
             Text count = Label(purse.transform, "Seed count", world.Seeds.ToString(), 20, 0, Ink, TextAnchor.MiddleLeft);
             Emphasize(count);
+            // One line at any text size; the purse grows leftward to fit "100" at 150% (I227).
+            count.horizontalOverflow = HorizontalWrapMode.Overflow;
+            var fit = purse.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
         private bool GardenMapOnHub(RectTransform window)
         {
@@ -2194,6 +2270,15 @@ namespace Evergrove.UnityClient
                 GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
                 0.22f, RiverGoesOn(map));
             hubMapView = view;
+            // A solve opened more river (I223): its mist lifts, framed, with the chime.
+            if (riverOpened && map.Reaches > 1)
+            {
+                if (gentleMotion) view.LiftMist(map.Reaches - 1);
+                PlayChime();
+            }
+            riverOpened = false;
+            RiverDrops(view, dropEarned && gentleMotion);
+            dropEarned = false;
             justBought = -1;
             justSolved = -1;
             // Pinch to zoom (I202), kept while the app runs, per orientation.
@@ -2262,6 +2347,17 @@ namespace Evergrove.UnityClient
         private int justBought = -1;
         private int justSolved = -1;   // map index of the thing whose puzzle was just solved (I212)
         private bool solvedHere;
+        private bool riverOpened;   // the last solve opened a new stretch of river (I223)
+        private bool dropEarned;    // the last solve was a first solve: a drop on the mist fills (I224)
+
+        // Drops on the next stretch's mist (I224): how close more river is.
+        private void RiverDrops(GardenMapView view, bool swell)
+        {
+            if (view == null || world.Mode != PlayMode.Living) return;
+            if (GardenMap.TowardNext(world.Choices.Length, world.Completed, world.PuzzlesSolved, out int have, out int need))
+                view.ShowDrops(have, need, swell);
+        }
+        private int OpenReaches() { return GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved); }
 
         // Everything standing on the map besides your story things: plantings, then bought plants.
         private int[] Occupied()
@@ -2301,8 +2397,8 @@ namespace Evergrove.UnityClient
                     Index = i,
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
                     Newest = justSolved >= 0 ? i == justSolved : i == made.Length - 1 && justPlanted < 0,
-                    Bloomed = world.TreeSolved(i), // its puzzle solved (I204)
-                    HoldsPuzzle = markPuzzles,
+                    Bloomed = world.TreeSolved(i) || world.IsHelped(i), // solved (I204), or by family (I227)
+                    HoldsPuzzle = markPuzzles && !world.TreeSolved(i), // helped still holds your own first solve
                     BloomNow = i == justSolved && gentleMotion
                 });
             // More of what you grew, planted from the basket (I193).
@@ -2333,7 +2429,7 @@ namespace Evergrove.UnityClient
                     Family = Nursery.Family(kind),
                     Newest = justSolved >= 0 ? BoughtIndex + k == justSolved : k == justBought,
                     Bloomed = world.BoughtSolved(k),
-                    HoldsPuzzle = markPuzzles,
+                    HoldsPuzzle = markPuzzles && !world.BoughtSolved(k),
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion
                 });
             }
@@ -2984,6 +3080,7 @@ namespace Evergrove.UnityClient
                 view.LiftMist(map.Reaches - 1);
                 PlayChime();
             }
+            if (!memoryScreen) RiverDrops(view, false);
             // Under a floating title the new thing sits lower in view (I185).
             if (hero) view.FocusFromTop = 0.55f;
             int held = ItemInHand();
@@ -7075,6 +7172,56 @@ namespace Evergrove.UnityClient
             mapInHand = item;
             RefreshMaps();
             return item;
+        }
+
+        // I223 tour: a grown thing whose puzzle is still unsolved (a first solve counts toward the river).
+        internal int QaHoldUnsolved()
+        {
+            int item = -1;
+            for (int i = world.Choices.Length - 1; i >= 0 && item < 0; i--)
+                if (!world.TreeSolved(i) && world.Choices[i] == (int)VillageChoice.ShadeTree) item = i;
+            if (item < 0) return -1;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            qaShowHub = true;
+#endif
+            heldPlanting = -1;
+            mapInHand = item;
+            RefreshMaps();
+            return item;
+        }
+
+        internal int QaPuzzlesSolved() { return world.PuzzlesSolved; }
+
+        // I227 tour: help with the first unsolved thing of a kind in the garden being visited.
+        internal bool QaHelpOnVisit(int family)
+        {
+            if (visitWorld == null || visitLayer == null) return false;
+            int[] made = visitWorld.Choices;
+            for (int i = 0; i < made.Length; i++)
+                if (made[i] == family && !visitWorld.TreeSolved(i) && !visitWorld.IsHelped(i))
+                {
+                    HelpWith(i);
+                    qaTreePlay = visitLayer.GetComponentInChildren<TreePlay>();
+                    return qaTreePlay != null;
+                }
+            return false;
+        }
+
+        // The first grown thing of a kind in your garden still unsolved, or -1.
+        internal int QaUnsolved(int family)
+        {
+            int[] made = world.Choices;
+            for (int i = 0; i < made.Length; i++)
+                if (made[i] == family && !world.TreeSolved(i)) return i;
+            return -1;
+        }
+
+        // I224 tour: home scrolled to the river's foot, where the drops sit on the mist.
+        internal void QaHubToFoot()
+        {
+            qaShowHub = true;
+            if (titleScreen == null && canvasRoot != null) BuildTitleScreen(canvasRoot);
+            if (hubMapView != null) hubMapView.KeepAt(new Vector2(0.5f, 0f));
         }
 
         internal void QaOpenTreePlay(int item)

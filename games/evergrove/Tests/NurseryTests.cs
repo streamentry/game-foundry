@@ -209,6 +209,8 @@ internal static class NurseryTests
         int end = text.IndexOf(']', text.IndexOf(",\"boughtSolved\":", start, StringComparison.Ordinal));
         int letterFrom = text.IndexOf(",\"letterFrom\":", start, StringComparison.Ordinal);
         if (letterFrom >= 0) end = text.IndexOf(']', letterFrom); // family keys follow boughtSolved
+        int helpedFrom = text.IndexOf(",\"helpedFrom\":", start, StringComparison.Ordinal);
+        if (helpedFrom >= 0) end = text.IndexOf(']', helpedFrom); // I226 help keys follow the family keys
         return text.Substring(0, start) + text.Substring(end + 1);
     }
 
