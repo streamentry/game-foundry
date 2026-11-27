@@ -1935,6 +1935,8 @@ internal static class Program
             assertions += CompanionFactsTests.Run();
             assertions += CompanionRankerTests.Run();
             assertions += LineBankTests.Run();
+            assertions += CompanionAttentionTests.Run();
+            assertions += CompanionLocaleTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
             assertions += FamilyHelpTests.Run();

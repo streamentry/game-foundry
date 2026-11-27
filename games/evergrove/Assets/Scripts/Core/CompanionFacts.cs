@@ -85,6 +85,12 @@ namespace Evergrove.Core
             return value != null && int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int n) ? n : 0;
         }
 
+        public int IntSlotOr(string name, int otherwise)
+        {
+            string value = Slot(name);
+            return value != null && int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int n) ? n : otherwise;
+        }
+
         public T EnumSlot<T>(string name) where T : struct
         {
             return Enum.TryParse(Slot(name), out T value) ? value : default(T);
@@ -263,7 +269,7 @@ namespace Evergrove.Core
             if (item >= made.Length || world.TreeSolved(item)) return;
             PuzzleKind kind = ThingPuzzle.ForStory(item, (VillageChoice)Math.Max(0, Math.Min(2, made[item])));
             facts.Add(Make(FactKind.HelpedBy, NeighbourNotice.OwnerOf(kind), "helped:" + item, WaitingWeight, true, false,
-                5 * Step, "name", world.HelpedBy(item), "puzzle", kind.ToString(), "work", WorkOf(kind)));
+                5 * Step, "name", world.HelpedBy(item), "puzzle", kind.ToString(), "work", WorkOf(kind), "item", Num(item)));
         }
 
         private static void Arrival(WorldModel world, int v, List<Fact> facts)
@@ -275,7 +281,7 @@ namespace Evergrove.Core
                 if ((int)Nursery.Family(kind) != v) continue;
                 if (!world.BoughtSolved(k))
                     facts.Add(Make(FactKind.NewArrival, v, "arrival:" + k, OwnDoingWeight, false, false, 6 * Step,
-                        "thing", Nursery.Item(kind).Name));
+                        "thing", Nursery.Item(kind).Name, "bought", Num(k)));
                 return;
             }
         }

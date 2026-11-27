@@ -1776,15 +1776,12 @@ namespace Evergrove.UnityClient
                 if (!world.Completed && GameLocalization.Current == "en")
                     NextStreamLine(stack.transform, world.CurrentPuzzle.Name, false);
                 Transform token = CenteredRowIn(stack.transform, "Play row");
-                // I351 (run 3, P9): after the story, the big arrow plays what's waiting: the
-                // newest thing still holding its first puzzle, whose picture peeks from the token.
-                int waitingBought = -1, waitingThing = -1;
-                if (world.Completed && world.Mode == PlayMode.Living)
-                {
-                    for (int k = world.BoughtCount - 1; k >= 0 && waitingBought < 0; k--) if (!world.BoughtSolved(k)) waitingBought = k;
-                    if (waitingBought < 0)
-                        for (int i = world.Choices.Length - 1; i >= 0 && waitingThing < 0; i--) if (!world.TreeSolved(i)) waitingThing = i;
-                }
+                // I351 (run 3, P9): after the story, the big arrow plays what's waiting, whose picture
+                // peeks from the token. SC05: the ranker picks it (family help first, then a new
+                // arrival), else the newest thing still holding its first puzzle, as before.
+                CompanionAttention.Target arrow = CompanionAttention.ArrowTarget(world, CompanionFacts.For(world, CompanionNow()),
+                    CompanionContext.DayNumberOf(CompanionToday()));
+                int waitingBought = arrow.Bought, waitingThing = arrow.Thing;
                 Button playToken = IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")
                         : world.CurrentPuzzle.Name, MosseloraArt.IconContinue, () => {
                             basketOpen = false; basketKind = -1; heldPlanting = -1;
@@ -3571,11 +3568,9 @@ namespace Evergrove.UnityClient
         {
             int keep = spokenThisVisit.TryGetValue(villager, out string key) && key == pick.Key &&
                 spokenVariant.TryGetValue(villager, out int kept) ? kept : -1;
-            string banked = LineBankNow().Speak(pick, villager, world.Garden,
+            // SC06: English falls back to today's sentence; another language speaks only its reviewed bank.
+            return CompanionLocale.Words(GameLocalization.Current, LineBankNow(), pick, villager, world.Garden,
                 CompanionContext.DayNumberOf(CompanionToday()), CompanionMemoryNow(), keep, out variant);
-            if (banked != null) return CompanionSpeech.Compose(pick, banked); // I420's welcome stays first
-            variant = -1;
-            return CompanionSpeech.Legacy(pick, villager);
         }
 
         // SC03: one bank per locale (Resources/Evergrove/Lines/<locale>.json), kept apart from
@@ -3608,13 +3603,14 @@ namespace Evergrove.UnityClient
 
         private Fact CompanionPick(int villager)
         {
-            if (world == null || world.Mode != PlayMode.Living || GameLocalization.Current != "en") return null;
+            // SC06: a language without a reviewed bank keeps the story's own lines (LocalizedVillage), as before.
+            if (world == null || world.Mode != PlayMode.Living || !CompanionLocale.Speaks(GameLocalization.Current, LineBankNow())) return null;
             if (visitGarden != world.Garden) { spokenThisVisit.Clear(); spokenVariant.Clear(); visitGarden = world.Garden; }
             CompanionContext context = CompanionNow();
             spokenThisVisit.TryGetValue(villager, out string spoken);
             return CompanionRanker.Pick(CompanionFacts.For(world, context), CompanionMemoryNow(), villager,
                 context.DayNumber, world.Garden, spoken,
-                (fact, who) => CompanionSpeech.Legacy(fact, who) != null || LineBankNow().CanSay(fact, who)); // SC04: new kinds speak only once reviewed
+                (fact, who) => CompanionLocale.CanSay(GameLocalization.Current, LineBankNow(), fact, who)); // SC04/SC06
         }
 
         private CompanionMemory CompanionMemoryNow()
@@ -3949,6 +3945,15 @@ namespace Evergrove.UnityClient
                 }
                 else if (glyphImage != null && newest != null) { glyphImage.sprite = newest; glyphImage.color = Color.white; }
                 if (world.PlantingCount == 0 && gentleMotion) BloomPulse.Add(basket.gameObject, 0.8f, 0.08f);
+                // SC05: one soft mark where the top waiting thing lives. When that's a cutting, the
+                // basket wears the gift ribbon (B5's honey, never red): content waiting, never a count.
+                if (world.Gifts.Length > 0 && CompanionAttention.Mark(CompanionFacts.For(world, CompanionNow()),
+                        CompanionContext.DayNumberOf(CompanionToday()), world.Garden) == Attention.Basket)
+                {
+                    Image ribbon = MosseloraArt.Ornament(basket.transform, "A cutting is waiting", MosseloraArt.Rounded(8),
+                        new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(20f, 20f), new Vector2(-8f, -8f));
+                    if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.93f, 0.72f, 0.36f, 1f); }
+                }
             }
         }
 
@@ -8968,23 +8973,13 @@ namespace Evergrove.UnityClient
                 : today == Weather.Snowy ? MosseloraArt.Load("stone-winter")
                 : today == Weather.Windy ? MosseloraArt.Load("stone-autumn") : MosseloraArt.Load(MosseloraArt.IconSun);
             if (DayLightOn) CottageLine(paper.transform, weatherMark, weatherWords);
-            // I400: what this season can still give, so there is something to aim for.
-            if (world.Mode == PlayMode.Living && SeasonalYields.Waiting(world))
-            {
-                Season season = GardenSeason.For(world);
-                CottageLine(paper.transform, MosseloraArt.Load("stone-" + season.ToString().ToLowerInvariant()), SeasonalYields.Why(season));
-            }
-            if (summary.Letters > 0)
-                CottageLine(paper.transform, MosseloraArt.Load("letter-sealed"),
-                    summary.Letters == 1 ? "A letter in your box" : summary.Letters + " letters in your box");
-            if (summary.Cuttings > 0)
-                CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.Sprig),
-                    summary.Cuttings == 1 ? "A cutting in your basket" : summary.Cuttings + " cuttings in your basket");
-            if (summary.Waiting > 0)
-                CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconContinue),
-                    summary.Waiting == 1 ? "One thing holds a new puzzle" : summary.Waiting + " things hold a new puzzle");
-            if (summary.DropsNeed > 0) CottageDrops(paper.transform, summary.DropsHave, summary.DropsNeed);
-            CottageDaysLine(paper.transform, summary.DaysPlayed);
+            // SC05: the waiting lines (letters, cuttings, puzzles, the season's yield, the nearest hope)
+            // come in the companion ranker's order: what waits for you first. Never a nag: each says what is.
+            var cottageLines = new System.Collections.Generic.List<CottageItem>();
+            if (world.Mode == PlayMode.Living && SeasonalYields.Waiting(world)) cottageLines.Add(CottageItem.Yield);
+            if (summary.Letters > 0) cottageLines.Add(CottageItem.Letters);
+            if (summary.Cuttings > 0) cottageLines.Add(CottageItem.Cuttings);
+            if (summary.Waiting > 0) cottageLines.Add(CottageItem.Waiting);
             // I313: the open hope nearest to coming true, with its true count (one line, not three).
             NeighbourWish nearest = null;
             int nearestWho = -1;
@@ -8994,8 +8989,33 @@ namespace Evergrove.UnityClient
                 if (wish == null || wish.Granted) continue;
                 if (nearest == null || wish.Have * nearest.Need > nearest.Have * wish.Need) { nearest = wish; nearestWho = villager; }
             }
-            if (nearest != null)
-                CottageLine(paper.transform, MosseloraArt.Portrait(nearestWho), nearest.Hope + ": " + nearest.Have + " of " + nearest.Need);
+            if (nearest != null) cottageLines.Add(CottageItem.Wish);
+            foreach (CottageItem item in CompanionAttention.CottageOrder(cottageLines, CompanionFacts.For(world, CompanionNow()),
+                         CompanionContext.DayNumberOf(CompanionToday()), world.Garden))
+                switch (item)
+                {
+                    case CottageItem.Yield:
+                        Season season = GardenSeason.For(world); // I400: what this season can still give
+                        CottageLine(paper.transform, MosseloraArt.Load("stone-" + season.ToString().ToLowerInvariant()), SeasonalYields.Why(season));
+                        break;
+                    case CottageItem.Letters:
+                        CottageLine(paper.transform, MosseloraArt.Load("letter-sealed"),
+                            summary.Letters == 1 ? "A letter in your box" : summary.Letters + " letters in your box");
+                        break;
+                    case CottageItem.Cuttings:
+                        CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.Sprig),
+                            summary.Cuttings == 1 ? "A cutting in your basket" : summary.Cuttings + " cuttings in your basket");
+                        break;
+                    case CottageItem.Waiting:
+                        CottageLine(paper.transform, MosseloraArt.Load(MosseloraArt.IconContinue),
+                            summary.Waiting == 1 ? "One thing holds a new puzzle" : summary.Waiting + " things hold a new puzzle");
+                        break;
+                    default:
+                        CottageLine(paper.transform, MosseloraArt.Portrait(nearestWho), nearest.Hope + ": " + nearest.Have + " of " + nearest.Need);
+                        break;
+                }
+            if (summary.DropsNeed > 0) CottageDrops(paper.transform, summary.DropsHave, summary.DropsNeed);
+            CottageDaysLine(paper.transform, summary.DaysPlayed);
             // I310: who left a light here, newest first.
             string[] lit = world.Lanterns;
             if (lit.Length > 0)
