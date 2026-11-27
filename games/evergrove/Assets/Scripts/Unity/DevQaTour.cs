@@ -879,6 +879,9 @@ namespace Evergrove.UnityClient
             week.SolveTree(0);
             week.SolveTree(1);
             week.KeepNote("Anh", "The plums are early this year.");
+            // SC03: a cutting of Mira's kind waits in the basket all week, so her wordings rotate.
+            for (int kind = 0; kind < Nursery.Kinds; kind++)
+                if (Nursery.Family(kind) == VillageChoice.ShadeTree) { week.ReceiveNeighbourCutting(kind); break; }
             app.QaReplaceWorld(week);
             Weather[] weekWeather = { Weather.Rainy, Weather.Fair, Weather.Windy, Weather.Fair, Weather.Snowy, Weather.Fair, Weather.Hot, Weather.Fair };
             string[] who = { "mira", "orin", "fen" };

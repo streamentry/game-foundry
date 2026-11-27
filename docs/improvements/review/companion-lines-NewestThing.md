@@ -1,6 +1,6 @@
 # Companion lines: NewestThing
 
-**Status: draft, not reviewed.** Written by hand (no script) on 2026-11-27 for smart companion SC03. Nothing here ships until a person has read every line; accepted lines move into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`, rejected ones are deleted.
+**Status: approved by the founder on 2026-11-27 (all 60 lines), and moved into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`.** Written by hand (no script) for smart companion SC03. This file stays as the review record; `en.json` is what ships.
 
 **The fact:** the newest thing of the speaker's own kind (Mira trees, Orin built things, Fen flowers) and where it stands on the map.
 

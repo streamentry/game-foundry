@@ -2,11 +2,11 @@
 
 Smart companion, iteration 3 of 7 ([spec](../../games/evergrove/docs/specs/proposals/smart-companion-2026-11-27.md)).
 
-**Status: format, loader, checks and wiring done. 300 draft lines are waiting for the founder's review.** `en.json` ships empty (`{}`) until lines are approved, so nothing visible changes yet.
+**Status: done.** The founder approved all 300 lines on 2026-11-27, and they ship in `en.json`.
 
 ## Player note
 
-Once the lines are reviewed, neighbours will say the same true things in many different ways: 20 wordings per kind in each voice, and never the same wording twice in 14 days. Until then they speak today's sentences.
+Neighbours now say the same true things in many different ways: 20 wordings per kind in each voice, never the same wording twice in 14 days, and the same wording for the rest of a visit. Kinds without reviewed lines yet still speak today's sentences.
 
 ## PM decision
 
@@ -64,8 +64,16 @@ The lines were written by hand, with no API script.
 - `tools/evergrove_line_bank_check.py --review`: 300 lines, 0 problems.
 - `dotnet run --project games/evergrove/Tests`: passed, 1,283,089 assertions. "Line bank SC03: 0 shipped lines and 300 draft lines pass every rule."
 
-## Not verified
+- After approval:
+  - the lines moved into `en.json`, and each review file was marked approved and kept as the record;
+  - a new test proves the shipped bank speaks, with every slot filled and within 140 characters, for every fact of each of the five kinds;
+  - C# tests passed: 1,638,661 assertions. "Line bank SC03: 300 shipped lines and 300 draft lines pass every rule."
+- Unity build `c5`: 0 `error CS`, and `Info.plist` present.
+- Tours `c5p` (portrait), `c5l` (landscape) and `c5x` (150% text) each reached `MOSSELORA_QA_TOUR_DONE 128`.
+- In the scripted week, a tree cutting now waits in Mira's basket, and she says it in a different wording on each of the 8 days. Orin's and Fen's solved and newest-thing remarks come from the bank too.
+- At 150% text, Orin's longest line ("Plain sense and a bit of patience…") wraps to six lines. The card grows over the board and stays readable.
+- Observed, not changed: a waiting fact (+50, exempt from the 3-day rule) takes that neighbour's remark on every visit until it's acted on. That is what the spec intends, but it should be watched in the player check (SC07).
 
-- **The lines are not reviewed by a person yet.** They don't ship until they are.
+## Not verified
 - No physical device.
 - No players aged 40+: age fit not validated.

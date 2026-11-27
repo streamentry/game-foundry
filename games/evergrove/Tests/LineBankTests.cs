@@ -33,6 +33,7 @@ internal static class LineBankTests
         LongestIsLongest(rules);
         FactsFillTheirSlots(rules);
         int shipped = ShippedBanks(rules);
+        EnglishSpeaks(rules);
         int drafts = ReviewDrafts(rules);
         Console.WriteLine("Line bank SC03: " + shipped + " shipped lines and " + drafts + " draft lines pass every rule.");
         return assertions;
@@ -158,6 +159,29 @@ internal static class LineBankTests
                 }
         foreach (string kind in rules.Kinds.Keys)
             Expect(seen.Contains((FactKind)Enum.Parse(typeof(FactKind), kind)), "a constructed save produces " + kind);
+    }
+
+    // The shipped English bank speaks, slots filled, for every fact of every kind it holds.
+    private static void EnglishSpeaks(Rules rules)
+    {
+        LineBank en = LineBank.Parse(File.ReadAllText(Path.Combine(Root(), "games/evergrove/Assets/Resources/Evergrove/Lines/en.json")));
+        GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 2);
+        var today = new DateTime(2026, 11, 27);
+        var spoken = new HashSet<FactKind>();
+        foreach (WorldModel world in KindsSaves())
+            foreach (CompanionContext context in new[] {
+                new CompanionContext(today, map: map),
+                new CompanionContext(today, fruitJustGivenTo: 1, togetherKeeper: 2, togetherKind: PuzzleKind.Pairs, map: map) })
+                foreach (Fact fact in CompanionFacts.For(world, context))
+                {
+                    if (!en.Kinds.Contains(fact.Kind)) continue;
+                    int speaker = fact.Keeper < 0 ? 0 : fact.Keeper;
+                    string text = en.Speak(fact, speaker, world.Garden, context.DayNumber, CompanionMemory.Empty, out int variant);
+                    Expect(text != null && variant >= 0 && !text.Contains("{") && !text.Contains("}"), "English speaks " + fact + ": " + text);
+                    Expect(text.Length <= rules.MaxChars, "within " + rules.MaxChars + " characters: " + text);
+                    spoken.Add(fact.Kind);
+                }
+        foreach (FactKind kind in en.Kinds) Expect(spoken.Contains(kind), "the English bank speaks for " + kind);
     }
 
     private static IEnumerable<WorldModel> KindsSaves()

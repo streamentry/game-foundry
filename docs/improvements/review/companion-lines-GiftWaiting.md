@@ -1,6 +1,6 @@
 # Companion lines: GiftWaiting
 
-**Status: draft, not reviewed.** Written by hand (no script) on 2026-11-27 for smart companion SC03. Nothing here ships until a person has read every line; accepted lines move into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`, rejected ones are deleted.
+**Status: approved by the founder on 2026-11-27 (all 60 lines), and moved into `games/evergrove/Assets/Resources/Evergrove/Lines/en.json`.** Written by hand (no script) for smart companion SC03. This file stays as the review record; `en.json` is what ships.
 
 **The fact:** a plant of the speaker's kind is waiting in your basket to be placed. It is a "waiting" fact, so it may be mentioned on every visit until placed. That is why it needs many wordings.
 
