@@ -2703,6 +2703,39 @@ namespace Evergrove.UnityClient
         private string pairingFound;
         private Sprite[] toastMarks; // I387: the paintings the toast shows above its words
 
+        // I388-I391: once a season, what the season gives: spring seedlings from a flower bed,
+        // summer seeds from a grove, an autumn orchard's fruit, winter jam from neighbours fed.
+        private void NoteSeasonYield(GardenMap map)
+        {
+            if (world == null || world.Mode != PlayMode.Living || map == null) return;
+            if (pairingFound != null) return; // one word per return: the season's gift waits for the next
+            int last = world.LastFruitTo;
+            SeasonYield got = world.TakeSeasonYield(Pairings.Found(world, map));
+            if (got == SeasonYield.None) return;
+            string giver = last == 0 ? "Mira" : last == 1 ? "Orin" : "Fen";
+            switch (got)
+            {
+                case SeasonYield.Seedling:
+                    pairingFound = "Spring: your flower bed has sown itself. A seedling is waiting in your basket.";
+                    toastMarks = new[] { MosseloraArt.Load("flower-12"), MosseloraArt.Load("glyph-sprout"), MosseloraArt.Load("food-basket") };
+                    break;
+                case SeasonYield.Seeds:
+                    pairingFound = "Summer: the grove let fall its seeds. +" + SeasonalYields.SummerSeeds + " seeds.";
+                    toastMarks = new[] { MosseloraArt.Load("tree-00"), MosseloraArt.Load("tree-05"), MosseloraArt.Load("glyph-sprout") };
+                    break;
+                case SeasonYield.Fruit:
+                    pairingFound = "Autumn: the orchard is ready. " + SeasonalYields.AutumnFruit + " fruit picked.";
+                    toastMarks = new[] { MosseloraArt.Load("tree-05"), MosseloraArt.Load("food-apple"), MosseloraArt.Load("food-pear") };
+                    break;
+                default:
+                    pairingFound = "Winter: " + giver + " brought a jar of jam, for the fruit you gave this year.";
+                    toastMarks = new[] { MosseloraArt.Load("portrait-" + giver.ToLowerInvariant()), MosseloraArt.Load("food-jam") };
+                    break;
+            }
+            SaveWorld();
+            PlayChime();
+        }
+
         // I387: each pairing as two paintings side by side (water as a wet stone).
         private static Sprite[] PairingMarks(Pairing pairing)
         {
@@ -2760,6 +2793,7 @@ namespace Evergrove.UnityClient
             Sprite plot = MapPainting();
             GardenMap map = LoadGardenMap();
             NotePairings(map); // I368
+            NoteSeasonYield(map); // I388-I391
             if (map != null && world.Mode == PlayMode.Living)
             {
                 var things = Pairings.Things(world, map);
@@ -6308,6 +6342,7 @@ namespace Evergrove.UnityClient
             MemoryShelfRow(page.transform);
             VisitorsRows(page.transform);
             PairingRows(page.transform); // I369
+            YearRows(page.transform); // I392
             foreach (VillageChoice family in new[] { VillageChoice.ShadeTree, VillageChoice.Flowers, VillageChoice.Bridge })
             {
                 Transform head = CenteredRowIn(page.transform, "Almanac family");
@@ -6386,6 +6421,32 @@ namespace Evergrove.UnityClient
                 case Pairing.ShadySeat: return "A seat's no good in full sun. Build something beside a tree and you'll see.";
                 case Pairing.Waterside: return "Some flowers like their feet wet. Try one right by the water.";
                 default: return "Two different flowers side by side make a bed. They show each other off.";
+            }
+        }
+
+        // I392: the garden's year: what each season gives and why, the season now in ink.
+        private void YearRows(Transform page)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            Season now = GardenSeason.For(world);
+            foreach (Season season in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
+            {
+                bool current = season == now;
+                Transform row = CenteredRowIn(page, "The year " + season);
+                var layout = row.GetComponent<HorizontalLayoutGroup>();
+                layout.spacing = 10;
+                layout.childAlignment = TextAnchor.MiddleLeft;
+                var mark = Node(season.ToString(), row);
+                var markLayout = mark.AddComponent<LayoutElement>();
+                markLayout.preferredWidth = markLayout.minWidth = markLayout.preferredHeight = 36f;
+                var markImage = mark.AddComponent<Image>();
+                markImage.sprite = MosseloraArt.Load("stone-" + season.ToString().ToLowerInvariant());
+                markImage.preserveAspect = true;
+                markImage.color = current ? Color.white : new Color(1f, 1f, 1f, 0.45f);
+                markImage.raycastTarget = false;
+                Text words = Label(row, "Why", SeasonalYields.Why(season), 16, 0, current ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f),
+                    TextAnchor.MiddleLeft);
+                words.GetComponent<LayoutElement>().flexibleWidth = 1f;
             }
         }
 
