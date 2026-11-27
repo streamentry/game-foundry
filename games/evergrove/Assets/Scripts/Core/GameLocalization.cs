@@ -102,7 +102,8 @@ namespace Evergrove.Core
             "has_news",
             "memory_tree_2","memory_tree_3","memory_bridge_2","memory_bridge_3",
             "memory_flowers_2","memory_flowers_3",
-            "preview_title","preview_help","preview_apply","privacy_policy"
+            "preview_title","preview_help","preview_apply","privacy_policy",
+            "garden_save","saved"
         };
 
         private static readonly string[] English = {
@@ -230,7 +231,9 @@ namespace Evergrove.Core
             "Before you choose",
             "Tap a card to compare. Your garden changes only when you confirm.",
             "Make this change",
-            "Privacy policy"
+            "Privacy policy",
+            "Save garden file…",
+            "Saved"
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Dasar privasi"
+    },
+    {
+      "key": "garden_save",
+      "value": "Simpan fail taman…"
+    },
+    {
+      "key": "saved",
+      "value": "Disimpan"
     }
   ]
 }

@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "개인정보 처리방침"
+    },
+    {
+      "key": "garden_save",
+      "value": "정원 파일 저장…"
+    },
+    {
+      "key": "saved",
+      "value": "저장됨"
     }
   ]
 }

@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "นโยบายความเป็นส่วนตัว"
+    },
+    {
+      "key": "garden_save",
+      "value": "บันทึกไฟล์สวน…"
+    },
+    {
+      "key": "saved",
+      "value": "บันทึกแล้ว"
     }
   ]
 }

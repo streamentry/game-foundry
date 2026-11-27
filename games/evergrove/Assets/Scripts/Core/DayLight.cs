@@ -124,6 +124,19 @@ namespace Evergrove.Core
             return season == Season.Winter ? Core.Dew.Frost : Core.Dew.Dew;
         }
 
+        /// <summary>I409: mist lies on the river at dawn and in the morning, unless the day is hot or windy.</summary>
+        public static bool Mist(DayPhase phase, Weather weather)
+        {
+            return (phase == DayPhase.Dawn || phase == DayPhase.Morning) && weather != Weather.Hot && weather != Weather.Windy;
+        }
+
+        /// <summary>I410: the cottage fire is lit on cold evenings, nights and dawns (autumn, winter, or any snowy day).</summary>
+        public static bool ChimneySmoke(DayPhase phase, Season season, Weather weather)
+        {
+            bool cold = season == Season.Autumn || season == Season.Winter || weather == Weather.Snowy;
+            return cold && (phase == DayPhase.Dusk || phase == DayPhase.Night || phase == DayPhase.Dawn);
+        }
+
         /// <summary>I367: from dusk, the neighbours gather by the lamplit cottage door (I296).</summary>
         public static bool NeighboursGather(DayPhase phase) { return phase == DayPhase.Dusk || phase == DayPhase.Night; }
     }

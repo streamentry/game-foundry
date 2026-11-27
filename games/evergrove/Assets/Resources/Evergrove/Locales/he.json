@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "מדיניות הפרטיות"
+    },
+    {
+      "key": "garden_save",
+      "value": "שמירת קובץ הגן…"
+    },
+    {
+      "key": "saved",
+      "value": "נשמר"
     }
   ]
 }

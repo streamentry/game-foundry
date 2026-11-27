@@ -1,6 +1,6 @@
 namespace Evergrove.Core
 {
-    public enum AmbientVoice { Birds, Crickets, Wind, Water, Rain, Owl }
+    public enum AmbientVoice { Birds, Crickets, Wind, Water, Rain, Owl, Frogs }
 
     /// <summary>
     /// I316 (idea 49, after ambient Japanese puzzle games where sound is a place): what you
@@ -18,6 +18,7 @@ namespace Evergrove.Core
                     : new[] { AmbientVoice.Wind, AmbientVoice.Birds };
             if (dark)
                 return season == Season.Spring ? new[] { AmbientVoice.Water }
+                    : season == Season.Summer && phase == DayPhase.Dusk ? new[] { AmbientVoice.Frogs, AmbientVoice.Crickets } // I411 (the creek loop carries the water)
                     : new[] { AmbientVoice.Crickets, AmbientVoice.Water };
             if (season == Season.Autumn && phase == DayPhase.Golden)
                 return new[] { AmbientVoice.Birds, AmbientVoice.Wind };
@@ -57,6 +58,7 @@ namespace Evergrove.Core
                 case AmbientVoice.Wind: return 11f;
                 case AmbientVoice.Rain: return 2.6f; // I354: patter, close together
                 case AmbientVoice.Owl: return 16f;   // I376: rare, so it is noticed
+                case AmbientVoice.Frogs: return 8f;  // I411
                 default: return 9f;
             }
         }
