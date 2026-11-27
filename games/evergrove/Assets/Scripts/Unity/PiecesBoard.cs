@@ -46,7 +46,10 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
             });
-            const float trayHeight = 150f;
+            int perRow = Mathf.Min(4, game.PieceCount), trayRows = (game.PieceCount + perRow - 1) / perRow;
+            // b308: thumbnails were too small to read; up to four a row, each a good size.
+            thumb = Mathf.Floor(Mathf.Min(20f, (width - BoardKit.CardPadding - 10f * perRow) / (perRow * 4.4f)));
+            float trayHeight = trayRows * (thumb * 4f + 14f) + 66f;
             Vector2 room = BoardKit.Room(width, screenHeight, trayHeight + rule);
             float cell = Mathf.Min(Mathf.Floor(Mathf.Min(room.x / game.Width, room.y / game.Height)), 58f);
             const float gap = 2f;
@@ -60,14 +63,17 @@ namespace Evergrove.UnityClient
                     new Vector2((c % game.Width) * cell + gap / 2f, (c / game.Width) * cell + gap / 2f),
                     new Vector2(cell - gap, cell - gap), () => TapCell(index), 6);
             }
-            // The tray: each piece drawn small; then turn and mirror.
-            Transform tray = TreePlay.Row(card, "Piece tray", 84f);
-            tray.GetComponent<HorizontalLayoutGroup>().spacing = 6f;
-            thumb = Mathf.Floor(Mathf.Min(14f, (width - BoardKit.CardPadding) / (game.PieceCount * 4.2f)));
+            // The tray: each piece drawn, up to four a row; then turn and mirror.
             slots = new RectTransform[game.PieceCount];
+            Transform tray = null;
             for (int p = 0; p < game.PieceCount; p++)
             {
                 int piece = p;
+                if (p % perRow == 0)
+                {
+                    tray = TreePlay.Row(card, "Piece tray " + (p / perRow + 1), thumb * 4f + 10f);
+                    tray.GetComponent<HorizontalLayoutGroup>().spacing = 10f;
+                }
                 var slot = new GameObject("Piece " + (p + 1), typeof(RectTransform), typeof(LayoutElement));
                 slot.transform.SetParent(tray, false);
                 var layout = slot.GetComponent<LayoutElement>();
