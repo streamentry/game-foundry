@@ -93,6 +93,9 @@ namespace Evergrove.UnityClient
                 if (app == null) yield return null;
             }
             if (app == null) throw new InvalidOperationException("EvergroveApp was not created");
+            // Picture rules show the first few times per device (I254/I262): every tour sees them.
+            foreach (string kind in new[] { "water", "pairs", "mosaic", "nonogram", "sudoku", "plots", "streampath", "mahjong" })
+                PlayerPrefs.DeleteKey("evergrove:rule-seen-" + kind);
             for (int f = 0; f < 8; f++) yield return null;
 
             // Run A: the first chapter, then the mixed choice path to the ending.
@@ -233,6 +236,17 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng("17h-tree-bloomed.png");
+                app.QaEndTreePlay();
+                // I259/I261: play it again: a fresh board, depth shown in leaves.
+                thing = app.QaHoldThing();
+                app.QaOpenTreePlay(thing);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17h2-replay-fresh-board.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(2.6f);
+                for (int f = 0; f < 6; f++) yield return null;
                 app.QaEndTreePlay();
             }
             // Flowers hold Pairs (depth spine): turn two cards, keep a match.

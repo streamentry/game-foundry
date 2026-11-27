@@ -1916,6 +1916,7 @@ internal static class Program
             assertions += ThingPuzzleTests.Run();
             assertions += SeasonTests.Run();
             assertions += TendedKindTests.Run();
+            assertions += ReplayBoardTests.Run();
             assertions += NoticeTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
