@@ -13,7 +13,9 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal sealed class SowBoard : TreePlay.IPuzzleBoard
     {
-        private SowingGame game;
+        private readonly BoardHistory<SowingGame> history; // step 39: undo and redo
+        private SowingGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private readonly int seed, tier;
         private TreePlay play;
         private Image[] beds;           // index 1..Beds
@@ -28,7 +30,7 @@ namespace Evergrove.UnityClient
         {
             this.seed = seed;
             this.tier = tier;
-            game = new SowingGame(seed, tier);
+            history = new BoardHistory<SowingGame>(new SowingGame(seed, tier), () => new SowingGame(seed, tier));
         }
 
         public void Build(Transform card, float width, float screenHeight, Font font, TreePlay host)
@@ -44,7 +46,7 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, basketArt, 34f);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, rule + BoardKit.UndoRowSpace);
             int n = game.Beds;
             float cell = Mathf.Min(Mathf.Floor(room.x / (n + 1)), 64f);
             float tall = Mathf.Min(cell * 2.4f, room.y - 30f);
@@ -83,13 +85,14 @@ namespace Evergrove.UnityClient
             BoardKit.Glyph(basket.transform, "Basket", basketArt, cell * 0.08f);
             basketCount = BoardKit.Label(board, "Seeds in the basket", "0", new Vector2(n * cell, tall + 2f),
                 new Vector2(cell, 26f), font, 18, MosseloraTheme.ForestAction, TextAnchor.MiddleCenter);
+            undo = BoardKit.UndoRow.Build(card, font, history, () => { shown = -1; Paint(); });
             Paint();
         }
 
         private void Tap(int bed)
         {
             if (locked) return;
-            SowMove move = game.Sow(bed);
+            SowMove move = history.Play(g => g.Sow(bed), m => m == SowMove.Sowed);
             if (move == SowMove.NotRipe || move == SowMove.Empty) { BoardKit.Shiver(beds[bed].gameObject); return; }
             if (move != SowMove.Sowed) return;
             shown = -1;
@@ -104,7 +107,7 @@ namespace Evergrove.UnityClient
         private void StartAgain()
         {
             for (int b = 1; b < beds.Length; b++) BoardKit.Shiver(beds[b].gameObject);
-            game = new SowingGame(seed, tier);
+            history.Reset(); // the board starts again from its seed: its steps go with it
             Paint();
         }
 
@@ -117,6 +120,7 @@ namespace Evergrove.UnityClient
                 for (int s = 0; s < MaxShown; s++) seedDots[b][s].enabled = s < count;
             }
             basketCount.text = game.InBasket + " / " + game.Total;
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()

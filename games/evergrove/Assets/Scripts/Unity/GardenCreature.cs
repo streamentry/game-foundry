@@ -32,10 +32,11 @@ namespace Evergrove.UnityClient
             if (moving != null) home = moving.anchoredPosition;
             group = gameObject.AddComponent<CanvasGroup>();
             // I404: a small tap area on the body (not the whole square), so the tree or flower
-            // beneath stays easy to tap.
+            // beneath stays easy to tap. Checklist 91 raises it to the 48 pt minimum; the
+            // visitor sits over the plot, so it takes taps the plot beneath would have had.
             var tap = new GameObject("Tap the visitor", typeof(RectTransform));
             tap.transform.SetParent(transform, false);
-            ((RectTransform)tap.transform).sizeDelta = new Vector2(24f, 24f);
+            ((RectTransform)tap.transform).sizeDelta = new Vector2(48f, 48f);
             var tapImage = tap.AddComponent<Image>();
             tapImage.color = new Color(0f, 0f, 0f, 0f);
             tapImage.raycastTarget = true;

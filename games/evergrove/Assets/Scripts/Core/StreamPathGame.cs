@@ -45,8 +45,14 @@ namespace Evergrove.Core
         public int Moves { get; private set; }
         public bool Solved { get; private set; }
 
+        /// <summary>The seed and tier this board was dealt from; undo rebuilds it from them.</summary>
+        public int Seed { get; private set; }
+        public int Tier { get; private set; }
+
         public StreamPathGame(int seed, int tier)
         {
+            Seed = seed;
+            Tier = tier;
             Size = SizeFor(tier);
             int n = Size * Size;
             rock = new bool[n];

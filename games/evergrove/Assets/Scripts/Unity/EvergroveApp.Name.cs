@@ -24,9 +24,11 @@ namespace Evergrove.UnityClient
             BuildNameSheet(world.GardenName);
         }
 
-        internal void CloseNameSheet()
+        internal void CloseNameSheet() { RetireName(false); }
+
+        private void RetireName(bool replacing)
         {
-            if (nameSheet != null) Destroy(nameSheet);
+            RetireSheet(nameSheet, "Name sheet", replacing);
             nameSheet = null;
             semanticsDirty = true;
         }
@@ -35,7 +37,8 @@ namespace Evergrove.UnityClient
         private void BuildNameSheet(string typed)
         {
             if (titleScreen == null || world == null) return;
-            CloseNameSheet();
+            bool replacing = nameSheet != null;
+            RetireName(replacing);
             nameSheet = BuildSheet(titleScreen.transform, "Name sheet", CloseNameSheet,
                 out RectTransform sheetContent, out ScrollRect sheetScroll);
             SheetClose(sheetContent, "Close naming", CloseNameSheet);
@@ -47,6 +50,15 @@ namespace Evergrove.UnityClient
             if (nameNote.Length > 0) Label(sheetContent, "Name note", nameNote, 18, 0, Ink, TextAnchor.MiddleCenter);
             Button(sheetContent, "Keep this name", "Keep this name", () => KeepGardenName(field.text), 52, true);
             Button(sheetContent, "Use no name", "Use no name", UseNoGardenName, 52, false);
+
+            SheetMotion.Show(nameSheet, SheetEdge.For("Name sheet"), ReducedMotion, null, replacing);
+            nameSheet.transform.SetAsLastSibling();
+            FitSheet(nameSheet, "Name sheet panel");
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(sheetContent);
+            FitSheetToPages(nameSheet, sheetContent);
+            if (sheetScroll != null) sheetScroll.verticalNormalizedPosition = 1f;
+            semanticsDirty = true;
         }
 
         // An empty field keeps the suggestion shown as the placeholder. A refused name changes nothing.

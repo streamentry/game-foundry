@@ -47,12 +47,16 @@ namespace Evergrove.UnityClient
         private RectTransform cardRect; // I293: the card the solved board fades out of
         private Sprite thingArt;
         // Pairs (flowers): the table, its pictures and the card images.
-        private PairsGame pairs;
+        private BoardHistory<PairsGame> pairsHistory; // step 39: undo and redo
+        private PairsGame pairs { get { return pairsHistory == null ? null : pairsHistory.Current; } }
+        private BoardKit.UndoRow pairsUndo;
         private Sprite[] pictures;
         private Image[] cardFaces;
         private Sprite cardBack;
         // Mosaic (buildings): the scattered painting.
-        private MosaicGame mosaic;
+        private BoardHistory<MosaicGame> mosaicHistory; // step 39: undo and redo
+        private MosaicGame mosaic { get { return mosaicHistory == null ? null : mosaicHistory.Current; } }
+        private BoardKit.UndoRow mosaicUndo;
         private Sprite painting;
         private RawImage[] pieces;
         // The five newer kinds (I243 on) each draw their own board.
@@ -356,9 +360,11 @@ namespace Evergrove.UnityClient
             var play = root.AddComponent<TreePlay>();
             play.puzzle = puzzle;
             play.rotations = puzzle != null ? (int[])puzzle.Initial.Clone() : null;
-            play.pairs = game;
+            play.pairsHistory = game == null ? null
+                : new BoardHistory<PairsGame>(game, () => new PairsGame(game.Seed, game.Tier));
             play.pictures = faces;
-            play.mosaic = mosaicGame;
+            play.mosaicHistory = mosaicGame == null ? null
+                : new BoardHistory<MosaicGame>(mosaicGame, () => new MosaicGame(mosaicGame.Seed, mosaicGame.Tier));
             play.board = newerBoard;
             play.painting = painting;
             play.gentle = gentleMotion;
@@ -432,8 +438,8 @@ namespace Evergrove.UnityClient
             // The classic three get their picture rule too (I262), the first few times.
             float rule = ClassicRule(card.transform);
             screenHeight -= rule;
-            if (pairs != null) { BuildPairs(card.transform, width, screenHeight); return; }
-            if (mosaic != null) { BuildMosaic(card.transform, width, screenHeight); return; }
+            if (pairs != null) { BuildPairs(card.transform, width, screenHeight - BoardKit.UndoRowSpace, font); return; }
+            if (mosaic != null) { BuildMosaic(card.transform, width, screenHeight - BoardKit.UndoRowSpace, font); return; }
             // The board: the same paper tiles and channels as the streams.
             int size = puzzle.Size;
             float boardWidth = width - 36f;
@@ -471,6 +477,7 @@ namespace Evergrove.UnityClient
                 button.transition = Selectable.Transition.None;
                 button.onClick.AddListener(() => Turn(index));
                 PressSquash.Add(tile);
+                LongPressCaption.Attach(tile, GameLocalization.Display("Turn this tile"), uiFont);
                 var channel = new GameObject("Visible channel", typeof(RectTransform));
                 channel.transform.SetParent(tile.transform, false);
                 var channelRect = (RectTransform)channel.transform;
@@ -696,7 +703,7 @@ namespace Evergrove.UnityClient
         }
 
         // ---- Pairs: a 4-wide table of painted cards, face down on paper.
-        private void BuildPairs(Transform card, float width, float screenHeight)
+        private void BuildPairs(Transform card, float width, float screenHeight, Font font)
         {
             int columns = 4, rows = pairs.Count / columns;
             float gap = 8f;
@@ -737,6 +744,7 @@ namespace Evergrove.UnityClient
                 button.transition = Selectable.Transition.None;
                 button.onClick.AddListener(() => TurnCard(index));
                 PressSquash.Add(node);
+                LongPressCaption.Attach(node, GameLocalization.Display("Turn this card"), uiFont);
                 var face = new GameObject("Picture", typeof(RectTransform));
                 face.transform.SetParent(node.transform, false);
                 var faceRect = (RectTransform)face.transform;
@@ -751,13 +759,14 @@ namespace Evergrove.UnityClient
                 cardFaces[i] = faceImage;
                 buttons[i] = button;
             }
+            pairsUndo = BoardKit.UndoRow.Build(card, font, pairsHistory, () => { hintA = hintB = -1; PaintPairs(); });
             PaintPairs();
         }
 
         private void TurnCard(int index)
         {
             if (solved) return;
-            PairsGame.Turn turn = pairs.Flip(index);
+            PairsGame.Turn turn = pairsHistory.Play(g => g.Flip(index), t => t != PairsGame.Turn.Ignored);
             if (turn == PairsGame.Turn.Ignored) return;
             if (!givingHeadStart) onTurn?.Invoke();
             PaintPairs();
@@ -779,12 +788,13 @@ namespace Evergrove.UnityClient
                 cardFaces[i].sprite = up && pictures != null && picture < pictures.Length ? pictures[picture] : cardBack;
                 cardFaces[i].color = up ? Color.white : new Color(1f, 1f, 1f, 0.55f);
             }
+            if (pairsUndo != null) pairsUndo.Refresh(solved);
         }
 
         // ---- Mosaic: the painting's central square, cut into Size×Size tiles.
         private Rect square; // the painting's central square, in texture UVs
 
-        private void BuildMosaic(Transform card, float width, float screenHeight)
+        private void BuildMosaic(Transform card, float width, float screenHeight, Font font)
         {
             int size = mosaic.Size;
             float gap = 3f; // tight seams: the picture should read as one painting
@@ -828,6 +838,7 @@ namespace Evergrove.UnityClient
                 button.transition = Selectable.Transition.None;
                 button.onClick.AddListener(() => TapPiece(slot));
                 PressSquash.Add(node);
+                LongPressCaption.Attach(node, GameLocalization.Display("A piece of the picture"), uiFont);
                 var pictureNode = new GameObject("Piece", typeof(RectTransform));
                 pictureNode.transform.SetParent(node.transform, false);
                 var pictureRect = (RectTransform)pictureNode.transform;
@@ -842,13 +853,14 @@ namespace Evergrove.UnityClient
                 pieces[i] = piece;
                 buttons[i] = button;
             }
+            mosaicUndo = BoardKit.UndoRow.Build(card, font, mosaicHistory, () => { hintA = hintB = -1; PaintMosaic(); });
             PaintMosaic();
         }
 
         private void TapPiece(int slot)
         {
             if (solved) return;
-            MosaicGame.Step step = mosaic.Select(slot);
+            MosaicGame.Step step = mosaicHistory.Play(g => g.Select(slot), s => s != MosaicGame.Step.Ignored);
             if (step == MosaicGame.Step.Ignored) return;
             if (!givingHeadStart) onTurn?.Invoke();
             PaintMosaic();
@@ -872,6 +884,7 @@ namespace Evergrove.UnityClient
                     : home ? new Color(0.98f, 0.93f, 0.74f, 1f) : new Color(0.93f, 0.91f, 0.86f, 1f);
                 tiles[i].transform.localScale = i == mosaic.Picked ? new Vector3(1.06f, 1.06f, 1f) : Vector3.one;
             }
+            if (mosaicUndo != null) mosaicUndo.Refresh(solved);
         }
 
         /// <summary>Tour only: every tile but one in place, then the last turn by the same path as a tap.</summary>
@@ -960,8 +973,9 @@ namespace Evergrove.UnityClient
             return row.transform;
         }
 
+        // caption: what a long press says (null: the token's own name).
         internal static void Token(Transform parent, string name, Sprite glyph, float size, Color tone, Action action,
-                                  bool glyphOnly)
+                                  bool glyphOnly, string caption = null)
         {
             var node = new GameObject(name, typeof(RectTransform));
             node.transform.SetParent(parent, false);
@@ -974,6 +988,7 @@ namespace Evergrove.UnityClient
             var button = node.AddComponent<Button>();
             button.targetGraphic = image;
             button.onClick.AddListener(() => action());
+            LongPressCaption.Attach(node, caption ?? name, LongPressCaption.DefaultFont);
             PressSquash.Add(node);
             if (glyph == null) return;
             var icon = new GameObject("Icon", typeof(RectTransform));

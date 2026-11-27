@@ -43,6 +43,7 @@ namespace Evergrove.UnityClient
             tap.targetGraphic = body;
             tap.colors = PressTint();
             tap.onClick.AddListener(OpenSeedBook);
+            LongPressCaption.Attach(purse, "Seeds you have, " + world.Seeds + ". Opens the seed book.", font);
             // A hidden "Caption" child is what screen readers speak (ScreenReaderBridge.CaptionOf).
             var spoken = new GameObject("Caption", typeof(RectTransform));
             spoken.transform.SetParent(purse.transform, false);
@@ -61,7 +62,8 @@ namespace Evergrove.UnityClient
         internal void OpenSeedBook()
         {
             if (titleScreen == null || world == null) return;
-            CloseSeedBook();
+            bool replacing = seedBookSheet != null;
+            RetireSeedBook(replacing);
             seedBookSheet = BuildSheet(titleScreen.transform, "Seed book", CloseSeedBook,
                 out RectTransform content, out ScrollRect scroll);
             SheetClose(content, "Close seed book", CloseSeedBook);
@@ -75,7 +77,7 @@ namespace Evergrove.UnityClient
                 empty.GetComponent<LayoutElement>().flexibleWidth = 1f;
             }
             foreach (LedgerLine line in lines) SeedBookLine(content, line);
-            seedBookSheet.SetActive(true);
+            SheetMotion.Show(seedBookSheet, SheetEdge.For("Seed book"), ReducedMotion, null, replacing);
             seedBookSheet.transform.SetAsLastSibling(); // over the purse and the garden
             FitSheet(seedBookSheet, "Seed book panel");
             Canvas.ForceUpdateCanvases();
@@ -85,9 +87,11 @@ namespace Evergrove.UnityClient
             semanticsDirty = true;
         }
 
-        internal void CloseSeedBook()
+        internal void CloseSeedBook() { RetireSeedBook(false); }
+
+        private void RetireSeedBook(bool replacing)
         {
-            if (seedBookSheet != null) Destroy(seedBookSheet);
+            RetireSheet(seedBookSheet, "Seed book", replacing);
             seedBookSheet = null;
             semanticsDirty = true;
         }

@@ -13,7 +13,9 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal sealed class MahjongBoard : TreePlay.IPuzzleBoard
     {
-        private readonly MahjongGame game;
+        private readonly BoardHistory<MahjongGame> history; // step 39: undo and redo
+        private MahjongGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private readonly Sprite[] pictures;
         private TreePlay play;
         private Image[] tiles;
@@ -40,7 +42,7 @@ namespace Evergrove.UnityClient
 
         public MahjongBoard(MahjongGame game, int tier, Sprite[] pictures)
         {
-            this.game = game;
+            history = new BoardHistory<MahjongGame>(game, () => new MahjongGame(game.Seed, game.Tier));
             this.tier = tier;
             this.pictures = pictures;
         }
@@ -71,7 +73,7 @@ namespace Evergrove.UnityClient
                 BoardKit.RuleArrow(row);
                 BoardKit.RulePicture(row, MosseloraArt.Load(MosseloraArt.IconConfirm), 28f, MosseloraTheme.ForestAction);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, rule + BoardKit.UndoRowSpace);
             float lift = 6f; // each layer sits up and left, so the terrace reads in depth
             float half = Mathf.Floor(Mathf.Min((room.x - maxZ * lift) / (maxX + 2), (room.y - maxZ * lift) / ((maxY + 2) * 1.2f)));
             half = Mathf.Min(half, 34f);
@@ -94,20 +96,21 @@ namespace Evergrove.UnityClient
                 MosseloraArt.Edge(tiles[t].transform, MosseloraTheme.TileEdge, 8);
                 BoardKit.Glyph(tiles[t].transform, "Picture", PictureOf(t), half * 0.22f);
             }
+            undo = BoardKit.UndoRow.Build(card, font, history, () => { shown = null; Paint(); });
             Paint();
         }
 
         private void Tap(int tile)
         {
             if (locked) return;
-            MahjongMove move = game.Select(tile);
+            MahjongMove move = history.Play(g => g.Select(tile), m => m != MahjongMove.Ignored && m != MahjongMove.NotFree);
             if (move == MahjongMove.Ignored) return;
             if (move == MahjongMove.NotFree) { BoardKit.Shiver(tiles[tile].gameObject); return; }
             play.Moved();
             if (move == MahjongMove.Matched && game.Solved) { Paint(); play.Done(); return; }
             // Stuck with no free pair: reshuffle what's left. If even that can't help (a rare
             // tier-3 table), the bed counts as tended rather than leaving the player stranded.
-            if (move == MahjongMove.Matched && !game.HasMove && !game.Reshuffle()) { Paint(); play.Done(); return; }
+            if (move == MahjongMove.Matched && !game.HasMove && !history.Play(g => g.Reshuffle(), ok => ok)) { Paint(); play.Done(); return; }
             Paint();
         }
 
@@ -125,6 +128,7 @@ namespace Evergrove.UnityClient
                 picture.color = free ? Color.white : new Color(1f, 1f, 1f, 0.75f);
                 picture.sprite = PictureOf(t);
             }
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()
@@ -184,7 +188,7 @@ namespace Evergrove.UnityClient
             for (int guard = 0; guard < tiles.Length && !game.Solved && !locked; guard++)
             {
                 int[] pair = game.HintPair();
-                if (pair.Length < 2) { if (!game.Reshuffle()) break; Paint(); continue; }
+                if (pair.Length < 2) { if (!history.Play(g => g.Reshuffle(), ok => ok)) break; Paint(); continue; }
                 if (game.Selected >= 0 && game.Selected != pair[0]) Tap(game.Selected); // let go of a stray pick
                 Tap(pair[0]);
                 Tap(pair[1]);

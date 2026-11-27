@@ -136,6 +136,10 @@ namespace Evergrove.UnityClient
         private CanvasGroup pageFade; // one-shot: the rebuild after the solving tap blooms
         private Image[] waterDrops; // one painted droplet per tile the water can reach
         private Button undoButton;
+        // Water's Undo | step count | Redo row (BoardKit.UndoRow's look): the row, its redo token and count.
+        private GameObject undoRowNode;
+        private Button redoButton;
+        private Text undoStepCount;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private static readonly bool srLogEveryScreen = DevArgs.Read("-mosseloraSrLog") == "1";
 #endif
@@ -218,6 +222,7 @@ namespace Evergrove.UnityClient
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             qaInMemoryOnly = DevQaTour.IsRequested;
+            SheetMotion.Settled = qaInMemoryOnly; // QA tour screenshots capture settled sheets
             world = qaInMemoryOnly ? WorldModel.New() : WorldStore.Load();
 #else
             world = WorldStore.Load();
@@ -262,6 +267,7 @@ namespace Evergrove.UnityClient
 #endif
             baseFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (baseFont == null) baseFont = Font.CreateDynamicFontFromOSFont("Arial", 16);
+            LongPressCaption.DefaultFont = baseFont; // static helpers (TreePlay.Token, BoardKit.Cell) explain with it
             displayFont = RoundedDisplayFont();
             bookFont = BookFont();
             LocaleRuntime.Initialize();
@@ -1101,6 +1107,7 @@ namespace Evergrove.UnityClient
                     text.text = shownCaption;
             }
             button.onClick.AddListener(() => action());
+            LongPressCaption.Attach(node, text.text, text.font); // Checklist 19: hold to hear what it is
             return button;
         }
 
@@ -1242,8 +1249,8 @@ namespace Evergrove.UnityClient
                 textNode.AddComponent<LayoutElement>().ignoreLayout = true;
                 Fill(textNode.GetComponent<RectTransform>());
                 // Shown on press-and-hold, never on a plain tap.
-                IconTip.Add(node, text, Ink, MosseloraTheme.CardFill);
             }
+            LongPressCaption.Attach(node, text.text, text.font); // Checklist 19: replaces IconTip for every icon
             return button;
         }
 
@@ -1852,6 +1859,7 @@ namespace Evergrove.UnityClient
             }
             else
                 StartCoroutine(FitHubStack(windowRect, stripRect, stackRect, mapShown ? 0.33f : 0.41f));
+            OfferFamilyOnce();
         }
 
         // I201: the memory screen's map grows into the blank paper between the
@@ -2006,7 +2014,7 @@ namespace Evergrove.UnityClient
         }
 
         // The next reach shows in mist below the open river until it opens.
-        private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.ReachesCeiling; }
+        private static bool RiverGoesOn(GardenMap map) { return map != null && map.Reaches < GardenMap.SafetyReachBound; }
 
         private readonly float[] hubZoom = { 0f, 0f };
         private bool markPuzzles;
@@ -2071,7 +2079,7 @@ namespace Evergrove.UnityClient
             // and the weekly deeper board stay exactly as dealt.
             if (ownBoard) (seed, tier) = ChosenDeal(kind, seed, tier, solved, (s, t, sv) => () => OpenThingPuzzle(s, t, kind, art, name, reward, pictureStart, sv, ownBoard));
             moveNote = 0; // I305: each board starts its phrase from the top
-            Action turned = () => { PlayMove(kind); if (gentleMotion) Haptics.Tick(); };
+            Action turned = () => { PlayMove(kind); Haptics.Placed(); };
             int shown = mapInHand >= 0 ? mapInHand : heldBought >= 0 ? BoughtIndex + heldBought : -1;
             // Back home, the view returns to the thing and its ring grows in (I212).
             string hintsKey = "evergrove:hints:" + (int)kind; // I322: per kind, on this device
@@ -2118,7 +2126,7 @@ namespace Evergrove.UnityClient
             if (card != null) card.GiveHeadStart(HeadStart.Moves(PlayerPrefs.GetInt(hintsKey, 0), tier));
             // I309: a board of your own can be sent to family once solved. v1 #80: ownership is
             // explicit, because a capped replay of your own thing now pays 0 seeds.
-            if (card != null && ownBoard && world.Mode == PlayMode.Living)
+            if (card != null && ownBoard && world.Mode == PlayMode.Living && FamilyShown())
                 card.SendBoard = () => SendBoardToFamily(kind, tier, seed, name);
         }
 
@@ -2223,9 +2231,26 @@ namespace Evergrove.UnityClient
         private FamilySheet familySheet;
         private const string FamilyNameKey = "evergrove:family-name";
 
+        // Checklist 8: family features are an offer from day 3 (or at once with family activity), never a gate.
+        private bool FamilyShown()
+        {
+            return world != null && FamilyOffer.Visible(world.DaysPlayed, FamilyOffer.HasActivity(world));
+        }
+
+        // The one-time hub offer: a gentle line, shown once on this device when family first becomes visible.
+        private void OfferFamilyOnce()
+        {
+            if (titleScreen == null || !FamilyShown()) return;
+            if (PlayerPrefs.GetInt(FamilyOffer.OfferedKey, 0) == 1) return;
+            PlayerPrefs.SetInt(FamilyOffer.OfferedKey, 1);
+            PlayerPrefs.Save();
+            RuleToast.Show((RectTransform)titleScreen.transform, FamilyOffer.Line, font, Ink, MosseloraTheme.CardFill);
+        }
+
         private void OpenFamily()
         {
             if (familySheet != null) return;
+            if (!FamilyShown()) return; // checklist 8: no family sheet for a fresh solo garden
             RectTransform host = titleScreen != null ? (RectTransform)titleScreen.transform : canvasRoot;
             familySheet = FamilySheet.Open(host, font, new FamilySheet.Hooks
             {
@@ -2260,19 +2285,26 @@ namespace Evergrove.UnityClient
                 },
                 Visit = text => {
                     if (!OpenVisit(text)) return false;
-                    if (familySheet != null) Destroy(familySheet.gameObject);
-                    familySheet = null;
+                    DismissFamily();
                     return true;
                 },
                 Closed = () => { familySheet = null; RefreshMaps(); },
+                ReducedMotion = () => !gentleMotion,
                 Name = () => PlayerPrefs.GetString(FamilyNameKey, ""),
                 SaveName = name => { PlayerPrefs.SetString(FamilyNameKey, name); PlayerPrefs.Save(); },
                 PlayBoard = (kind, tier, seed, from) => {
-                    if (familySheet != null) Destroy(familySheet.gameObject);
-                    familySheet = null;
+                    DismissFamily();
                     PlayTheirBoard(kind, tier, seed, from);
                 },
             });
+        }
+
+        // Puts the family sheet away from its edge (at once when a board or a visit takes its place).
+        private void DismissFamily()
+        {
+            if (familySheet == null) return;
+            familySheet.Dismiss();
+            familySheet = null;
         }
 
         // ---- I309: the very board a relative solved, played here. It pays nothing and
@@ -2541,7 +2573,7 @@ namespace Evergrove.UnityClient
                 Mathf.Clamp(chapter, 0, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)Mathf.Clamp(family, 0, 2)).Art);
             moveNote = 0;
             PuzzleKind helpKind = ThingPuzzle.ForStory(item, (VillageChoice)made[item]);
-            Action turned = () => { PlayMove(helpKind); if (gentleMotion) Haptics.Tick(); };
+            Action turned = () => { PlayMove(helpKind); Haptics.Placed(); };
             Func<int> solved = () =>
             {
                 string from = PlayerPrefs.GetString(FamilyNameKey, "");
@@ -3272,6 +3304,7 @@ namespace Evergrove.UnityClient
             MosseloraArt.Lift(box, 2f, 0.22f);
             var button = node.AddComponent<Button>();
             button.targetGraphic = box;
+            LongPressCaption.Attach(node, "Your letterbox. Tap to read the letters waiting for you.", font);
             button.onClick.AddListener(() => ShowLetter(0));
             PressSquash.Add(node);
             letterboxRect = rect;
@@ -3281,6 +3314,7 @@ namespace Evergrove.UnityClient
                     new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(44f, 34f), new Vector2(-4f, -8f));
                 if (sealedLetter != null && gentleMotion) BloomPulse.Add(sealedLetter.gameObject, 0.6f, 0.08f);
             }
+            if (letterArrived) Haptics.Arrived();
             if (letterArrived && gentleMotion) StartCoroutine(FlyInto(rect, "letter-sealed", new Vector2(64f, 50f)));
             letterArrived = false;
             var caption = Node("Caption", node.transform);
@@ -3302,7 +3336,7 @@ namespace Evergrove.UnityClient
             bool unread = PlayerPrefs.GetInt(LettersReadKey, 0) < letters.Length && fromNewest == 0;
             PlayerPrefs.SetInt(LettersReadKey, letters.Length);
             PlayerPrefs.Save();
-            if (letterCard != null) Destroy(letterCard);
+            RetireSheet(letterCard, "Letter", true);
             letterCard = Node("Reading a letter", titleScreen.transform);
             Fill(letterCard.GetComponent<RectTransform>());
             letterCard.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.38f);
@@ -3320,13 +3354,13 @@ namespace Evergrove.UnityClient
             PlayChime();
             for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.7f)
             {
-                if (card == null || sealedLetter == null) yield break;
+                if (card == null || sealedLetter == null || letterCard != card) yield break;
                 float k = Mathf.SmoothStep(0f, 1f, t);
                 sealedLetter.transform.localScale = Vector3.one * Mathf.Lerp(0.82f, 1.06f, k);
                 sealedLetter.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI * 3f) * 4f * (1f - k));
                 yield return null;
             }
-            if (card == null) yield break;
+            if (card == null || letterCard != card) yield break; // closed while the seal lifted
             Destroy(sealedLetter.gameObject);
             LetterPaper(card, i, from, words, true);
         }
@@ -3402,7 +3436,7 @@ namespace Evergrove.UnityClient
             if (fromNewest > 0)
                 IconButton(row, "Newer letter", "Newer letter", MosseloraArt.IconContinue, () => ShowLetter(letterShown - 1),
                     56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
-            if (rise) StartCoroutine(RiseIn(paperRect));
+            SheetMotion.Show(card, SheetEdge.For("Letter"), ReducedMotion, paperRect);
             semanticsDirty = true;
         }
 
@@ -3415,7 +3449,7 @@ namespace Evergrove.UnityClient
 
         private void CloseLetter()
         {
-            if (letterCard != null) Destroy(letterCard);
+            RetireSheet(letterCard, "Letter", false);
             letterCard = null;
             letterShown = -1;
             RefreshMaps(); // the unread dot goes
@@ -3806,7 +3840,7 @@ namespace Evergrove.UnityClient
             SaveWorld();
             mapInHand = -1;
             PlayTock();
-            if (gentleMotion) Haptics.Tick();
+            Haptics.Placed();
             RefreshMaps();
         }
 
@@ -3814,7 +3848,7 @@ namespace Evergrove.UnityClient
         {
             SaveWorld();
             PlayTock();
-            if (gentleMotion) Haptics.Tick();
+            Haptics.Placed();
             RefreshMaps();
         }
 
@@ -4292,6 +4326,17 @@ namespace Evergrove.UnityClient
             }
         }
 
+        // Reduced motion is the Gentle motion setting turned off: each slide becomes a short fade.
+        private bool ReducedMotion => !gentleMotion;
+
+        // Puts a built sheet away from its edge, then destroys it. A sheet replaced by a rebuild
+        // goes at once, so the new one is the only motion the player sees.
+        private void RetireSheet(GameObject sheet, string name, bool replacing)
+        {
+            if (sheet == null) return;
+            SheetMotion.Hide(sheet, SheetEdge.For(name), ReducedMotion, () => { if (sheet != null) Destroy(sheet); }, null, replacing);
+        }
+
         // A parchment sheet that rises over the game; tapping the dimmed garden
         // behind it closes it. Built once; its contents are rebuilt with the page.
         private void BuildMenuSheet(Transform host)
@@ -4618,7 +4663,7 @@ namespace Evergrove.UnityClient
                 if (glyphImage != null && sapling != null) { glyphImage.sprite = sapling; glyphImage.color = Color.white; }
                 tokens.Add(almanac);
             }
-            if (living)
+            if (living && FamilyShown())
                 tokens.Add(FanToken(column.transform, "Family", "Family", MosseloraArt.IconNeighbors, () => {
                     CloseFan();
                     OpenFamily();
@@ -4841,13 +4886,44 @@ namespace Evergrove.UnityClient
             if (fade != null) fade.alpha = 0f;
         }
 
+        private const float WaterUndoGap = 6f;
+        private const float WaterUndoCountWidth = 36f;
+        private const float WaterUndoCountHeight = 24f; // the count, stacked in the rail
+
+        // Undo | step count | Redo: counts and token names say how far each way goes, as
+        // BoardKit's undo row does ("Undo, 3 steps" / "Redo, 1 step"). A token that cannot
+        // act is faded and refuses taps; it stays in place so the row keeps its shape.
+        private void RefreshUndoRow()
+        {
+            if (undoButton == null || redoButton == null || undoStepCount == null) return;
+            int undoSteps = world.UndoDepth, redoSteps = world.RedoDepth;
+            undoButton.name = "Undo, " + StepWords(undoSteps, "nothing to undo");
+            redoButton.name = "Redo, " + StepWords(redoSteps, "nothing to redo");
+            undoStepCount.text = undoSteps.ToString();
+            FadeToken(undoButton, undoSteps > 0);
+            FadeToken(redoButton, redoSteps > 0);
+        }
+
+        private static string StepWords(int n, string none)
+        {
+            return n == 0 ? none : n == 1 ? "1 step" : n + " steps";
+        }
+
+        private static void FadeToken(Button token, bool on)
+        {
+            token.interactable = on;
+            var group = token.GetComponent<CanvasGroup>();
+            if (group == null) group = token.gameObject.AddComponent<CanvasGroup>();
+            group.alpha = on ? 1f : 0.35f;
+        }
+
         // Undo appears only once there is something to undo: before the first
         // move its place stays empty (no layout shift), then it fades in (I155).
         private void ShowUndo(bool available, bool animate)
         {
-            if (undoButton == null) return;
-            var group = undoButton.GetComponent<CanvasGroup>();
-            if (group == null) group = undoButton.gameObject.AddComponent<CanvasGroup>();
+            if (undoRowNode == null) return;
+            var group = undoRowNode.GetComponent<CanvasGroup>();
+            if (group == null) group = undoRowNode.AddComponent<CanvasGroup>();
             group.blocksRaycasts = available;
             float target = available ? 1f : 0f;
             if (Mathf.Approximately(group.alpha, target)) return;
@@ -5251,21 +5327,21 @@ namespace Evergrove.UnityClient
             Narrate(Label(bubble.transform, "What they say",
                 NeighborSays(speakingWith), 20, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
-                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
+                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 48,
                 MosseloraTheme.ForestAction);
             // Tucked into the bubble's lower-right corner, outside the text flow.
             thanks.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
             var thanksRect = thanks.GetComponent<RectTransform>();
             thanksRect.anchorMin = thanksRect.anchorMax = new Vector2(1f, 0f);
             thanksRect.pivot = new Vector2(1f, 0f);
-            thanksRect.sizeDelta = new Vector2(56f, 44f);
+            thanksRect.sizeDelta = new Vector2(56f, 48f); // 48 pt touch target (checklist 91)
             thanksRect.anchoredPosition = new Vector2(-10f, 10f);
             // Bring them some fruit from your trees (I231): one pear, a kind word back.
             if (world.Mode == PlayMode.Living && world.Fruit > 0)
             {
                 int villager = speakingWith;
                 var give = IconButton(bubble.transform, "Give fruit", "Give " + LocalizedVillage.Name(villager) + " some fruit",
-                    "food-basket", () => GiveFruit(villager), 44, MosseloraTheme.QuietAction);
+                    "food-basket", () => GiveFruit(villager), 48, MosseloraTheme.QuietAction);
                 give.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
                 var giveRect = give.GetComponent<RectTransform>();
                 giveRect.anchorMin = giveRect.anchorMax = new Vector2(1f, 0f);
@@ -5311,6 +5387,7 @@ namespace Evergrove.UnityClient
             hit.color = new Color(1f, 1f, 1f, 0f); // whole medallion and name are the target
             var button = node.AddComponent<Button>();
             button.targetGraphic = hit;
+            LongPressCaption.Attach(node, label, font);
             button.transition = Selectable.Transition.None;
             button.onClick.AddListener(() => {
                 if (fromTitle) CloseTitle(); // step from the village straight into their memory
@@ -5862,6 +5939,9 @@ namespace Evergrove.UnityClient
             feedbackText = null;
             waterDrops = null;
             undoButton = null;
+            undoRowNode = null;
+            redoButton = null;
+            undoStepCount = null;
             decisionHeading = null;
             decisionCards = null;
             solvedBoard = null;
@@ -5949,7 +6029,7 @@ namespace Evergrove.UnityClient
                     }, 52, confirmReset);
                 if (confirmReset)
                     Button(content, "Keep unreadable files", GameLocalization.Text("keep"),
-                        () => { confirmReset = false; Rebuild(); }, 44);
+                        () => { confirmReset = false; Rebuild(); }, 48);
             }
 
             // A player must see a tappable channel before any decorative
@@ -6237,8 +6317,8 @@ namespace Evergrove.UnityClient
                 world.Round + ":" + world.Solved + ":" + showJournal + ":" + languagePicker;
             if (screenKey != lastScreenKey && lastScreenKey.Length > 0 && gentleMotion) StartCoroutine(FadeInPage());
             lastScreenKey = screenKey;
-            menuSheet.SetActive(menuOpen);
-            journalSheet.SetActive(showJournal && !menuOpen);
+            SheetMotion.Set(menuSheet, menuOpen, SheetEdge.For("Menu"), ReducedMotion);
+            SheetMotion.Set(journalSheet, showJournal && !menuOpen, SheetEdge.For("Journal"), ReducedMotion);
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(menuContent);
             LayoutRebuilder.ForceRebuildLayoutImmediate(journalContent);
@@ -6374,6 +6454,7 @@ namespace Evergrove.UnityClient
                     pageButton.targetGraphic = pageImage;
                     pageButton.colors = PressTint();
                     pageButton.onClick.AddListener(() => { journalOpenPage = pageIndex; Rebuild(); });
+                    LongPressCaption.Attach(page, "Memory " + (pageIndex + 1) + ". Tap to open it.", font);
                     PressSquash.Add(page);
                     DogEar(page.transform);
                 }
@@ -6478,8 +6559,8 @@ namespace Evergrove.UnityClient
             IconButton(tabs, "The garden's ways", "The garden's ways", "glyph-sprig",
                 () => { waysTab = true; almanacTab = false; familyTab = false; journalOpenPage = -1; Rebuild(); }, 56,
                 waysTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
-            // The family page (I269): letters, help and puzzles played together.
-            IconButton(tabs, "Family in the garden", "Family in the garden", MosseloraArt.IconNeighbors,
+            // The family page (I269): letters, help and puzzles played together. Checklist 8: offered from day 3.
+            if (FamilyShown()) IconButton(tabs, "Family in the garden", "Family in the garden", MosseloraArt.IconNeighbors,
                 () => { familyTab = true; almanacTab = false; waysTab = false; journalOpenPage = -1; Rebuild(); }, 56,
                 familyTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             // The almanac's mark is a painted sapling, not a second book.
@@ -6653,13 +6734,16 @@ namespace Evergrove.UnityClient
                 Emphasize(tally);
                 var grid = Node("Almanac grid", page.transform);
                 var layout = grid.AddComponent<GridLayoutGroup>();
-                float cell = Mathf.Floor(Mathf.Min(52f, (PageWidth() - 40f) / 7f - 4f));
+                // Checklist 91: each almanac cell is a tap target, at least 48 pt. Seven
+                // columns on a narrow page would fall below that, so six take over there.
+                int columns = (PageWidth() - 40f) / 7f - 4f >= 48f ? 7 : 6;
+                float cell = Mathf.Floor(Mathf.Min(52f, (PageWidth() - 40f) / columns - 4f));
                 layout.cellSize = new Vector2(cell, cell);
                 layout.spacing = new Vector2(4f, 4f);
                 layout.childAlignment = TextAnchor.UpperCenter;
                 layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                layout.constraintCount = 7;
-                int rows = (count + 6) / 7;
+                layout.constraintCount = columns;
+                int rows = (count + columns - 1) / columns;
                 Height(grid, rows * cell + (rows - 1) * 4f);
                 for (int i = 0; i < count; i++)
                 {
@@ -6685,6 +6769,7 @@ namespace Evergrove.UnityClient
                         hint.transition = Selectable.Transition.None;
                         hint.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
                             where, font, Ink, MosseloraTheme.CardFill));
+                        LongPressCaption.Attach(slot, where, font);
                         continue;
                     }
                     var name = slot.AddComponent<Button>();
@@ -6694,6 +6779,7 @@ namespace Evergrove.UnityClient
                     string said = char.ToUpperInvariant(label[0]) + label.Substring(1) + "\n" + Almanac.KeeperLine(item);
                     name.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
                         said, font, Ink, MosseloraTheme.CardFill));
+                    LongPressCaption.Attach(slot, said, font);
                 }
             }
         }
@@ -6791,6 +6877,8 @@ namespace Evergrove.UnityClient
         {
             if (world == null || world.Mode != PlayMode.Living) return;
             Keepsake[] shelf = MemoryShelf.For(world);
+            // Checklist 8: a relative's gifts stay off the shelf until family is offered.
+            if (!FamilyShown()) shelf = System.Array.FindAll(shelf, k => !FamilyOffer.IsFamilyKeepsake(k.Art));
             var grid = Node("Memory shelf", page);
             var layout = grid.AddComponent<GridLayoutGroup>();
             float cell = Mathf.Floor(Mathf.Min(64f, (PageWidth() - 40f) / 4f - 8f));
@@ -6814,6 +6902,7 @@ namespace Evergrove.UnityClient
                 tap.transition = Selectable.Transition.None;
                 string said = keepsake.Kept ? keepsake.Label : "Not yet";
                 tap.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(), said, font, Ink, MosseloraTheme.CardFill));
+                LongPressCaption.Attach(slot, said, font);
             }
         }
 
@@ -7047,6 +7136,7 @@ namespace Evergrove.UnityClient
                 MosseloraArt.Lift(image, 2f, 0.14f);
                 MosseloraArt.Edge(tileNode.transform, MosseloraTheme.TileEdge, 12);
                 var tile = tileNode.AddComponent<Button>();
+                LongPressCaption.Attach(tileNode, GameLocalization.Display(puzzle.IsAnchored(index) ? "This tile stays where it is." : "Turn this tile"), font);
                 tile.targetGraphic = image;
                 // Protected tiles stay tappable: a tap explains them without a move.
                 tile.interactable = !world.Solved;
@@ -7313,11 +7403,30 @@ namespace Evergrove.UnityClient
                 // A cold read preferred the tokens but asked for them bigger: 76pt upright.
                 bool roundTools = true;
                 int toolHeight = landscape ? 72 : 76;
-                undoButton = IconButton(tools.transform, "Undo", GameLocalization.Text("undo"),
+                // Undo | step count | Redo, one row (BoardKit.UndoRow's look). The row is a single
+                // child of the tools, so the drops and Hint keep their places.
+                undoRowNode = Node("Undo and redo", tools.transform);
+                var undoRowGroup = undoRowNode.AddComponent<HorizontalLayoutGroup>();
+                undoRowGroup.spacing = WaterUndoGap;
+                undoRowGroup.childAlignment = TextAnchor.MiddleCenter;
+                undoRowGroup.childControlWidth = undoRowGroup.childControlHeight = true;
+                undoRowGroup.childForceExpandWidth = undoRowGroup.childForceExpandHeight = false;
+                undoButton = IconButton(undoRowNode.transform, "Undo", GameLocalization.Text("undo"),
                     MosseloraArt.IconUndo, () => Act(() => world.Undo(), "undo"),
                     toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
-                undoButton.interactable = world.CanUndo;
-                ShowUndo(world.CanUndo, false);
+                var steps = Node("Undo steps", undoRowNode.transform);
+                var stepsLayout = steps.AddComponent<LayoutElement>();
+                stepsLayout.minWidth = stepsLayout.preferredWidth = WaterUndoCountWidth;
+                stepsLayout.minHeight = stepsLayout.preferredHeight = toolHeight;
+                undoStepCount = BoardKit.Number(steps.transform, "Step count", "0", font, 24, MosseloraTheme.EarthInk);
+                redoButton = IconButton(undoRowNode.transform, "Redo", "Redo",
+                    MosseloraArt.IconUndo, () => Act(() => world.Redo(), "redo"),
+                    toolHeight, MosseloraTheme.ForestAction, false, null, teach, 0, 0, roundTools);
+                // The redo arrow is the undo arrow turned round: one glyph, two jobs (as in BoardKit).
+                Transform redoIcon = redoButton.transform.Find("Icon");
+                if (redoIcon != null) redoIcon.localScale = new Vector3(-1f, 1f, 1f);
+                RefreshUndoRow();
+                ShowUndo(world.CanUndo || world.CanRedo, false);
                 // Hint depth is the button's own words (Guide me, Show a closer clue, Fix one
                 // connection). No level dots here: a dot means something new, and nothing else (I16).
                 Button hintButton = IconButton(tools.transform, "Hint",
@@ -7389,7 +7498,9 @@ namespace Evergrove.UnityClient
             across.spacing = 10;
             MinHeight(tools, toolHeight);
             Transform meter = waterDrops != null && waterDrops.Length > 0 ? waterDrops[0].transform.parent : null;
-            float room = PageWidth() - 2f * toolHeight - 2f * across.spacing - 8f;
+            // Undo | count | Redo takes two tokens and the count; Hint takes one.
+            float undoSide = 2f * toolHeight + 2f * WaterUndoGap + WaterUndoCountWidth;
+            float room = PageWidth() - undoSide - toolHeight - 2f * across.spacing - 8f;
             if (meter != null)
             {
                 LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)meter);
@@ -7448,7 +7559,8 @@ namespace Evergrove.UnityClient
             gap.transform.SetSiblingIndex(1);
         }
 
-        // Undo above Hint, standing right of the board (landscape, unsolved).
+        // Undo above Hint, standing right of the board (landscape, unsolved). The undo row
+        // stacks Undo, its count and Redo down the rail, since three across would not fit it.
         private void DockToolRail(GameObject tools, int toolHeight)
         {
             var across = tools.GetComponent<HorizontalLayoutGroup>();
@@ -7460,6 +7572,20 @@ namespace Evergrove.UnityClient
             down.childControlHeight = true;
             down.childForceExpandWidth = true;
             down.childForceExpandHeight = false;
+            if (undoRowNode != null)
+            {
+                var stack = undoRowNode.GetComponent<HorizontalLayoutGroup>();
+                if (stack != null) DestroyImmediate(stack);
+                var column = undoRowNode.AddComponent<VerticalLayoutGroup>();
+                column.spacing = WaterUndoGap;
+                column.childAlignment = TextAnchor.MiddleCenter;
+                column.childControlWidth = true;
+                column.childControlHeight = true;
+                column.childForceExpandWidth = true;
+                column.childForceExpandHeight = false;
+                var countLayout = undoStepCount.transform.parent.GetComponent<LayoutElement>();
+                if (countLayout != null) countLayout.minHeight = countLayout.preferredHeight = WaterUndoCountHeight;
+            }
             tools.transform.SetParent(solvedBoard, false);
             var place = tools.GetComponent<LayoutElement>();
             if (place == null) place = tools.AddComponent<LayoutElement>();
@@ -7467,7 +7593,8 @@ namespace Evergrove.UnityClient
             var rect = tools.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
             rect.pivot = new Vector2(1f, 0.5f);
-            rect.sizeDelta = new Vector2(ToolRailWidth, toolHeight * 2f + ToolRailGap);
+            float undoStack = 2f * toolHeight + WaterUndoCountHeight + 2f * WaterUndoGap;
+            rect.sizeDelta = new Vector2(ToolRailWidth, undoStack + ToolRailGap + toolHeight);
             rect.anchoredPosition = Vector2.zero;
         }
 
@@ -7592,6 +7719,7 @@ namespace Evergrove.UnityClient
             button.targetGraphic = image;
             button.colors = PressTint();
             button.onClick.AddListener(() => action());
+            LongPressCaption.Attach(node, LocalizedVillage.Choice(choice), font);
             PressSquash.Add(node);
             HorizontalOrVerticalLayoutGroup stack = wide
                 ? (HorizontalOrVerticalLayoutGroup)node.AddComponent<HorizontalLayoutGroup>()
@@ -7686,6 +7814,13 @@ namespace Evergrove.UnityClient
                 }, SettingToken, gentleMotion ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
             SpeakLessButton(row.transform);
+            IconButton(row.transform, "Haptics setting",
+                Haptics.Enabled ? "Light touch feedback: on" : "Light touch feedback: off",
+                MosseloraArt.IconTap, () => {
+                    Haptics.Enabled = !Haptics.Enabled;
+                    Rebuild();
+                }, SettingToken, Haptics.Enabled ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
             IconButton(row.transform, "Quiet audio setting",
                 GameLocalization.Text(soundOn ? "sound_on" : "sound_off"),
                 soundOn ? MosseloraArt.IconChimeOn : MosseloraArt.IconChimeOff,
@@ -7897,7 +8032,7 @@ namespace Evergrove.UnityClient
             // save blocks writes so an unreadable save cannot be silently replaced.
             if (living && world.Choices.Length >= WorldModel.ScheduleLength)
             {
-                Button(content, "Copy matched schedule", "Copy this Living run's schedule", CopyLivingSchedule, 46);
+                Button(content, "Copy matched schedule", "Copy this Living run's schedule", CopyLivingSchedule, 48);
                 if (matchedScheduleCopied)
                     Label(content, "Schedule copied", "Copied privately", 12, 43, Moss, TextAnchor.MiddleCenter);
             }
@@ -7911,7 +8046,7 @@ namespace Evergrove.UnityClient
                         pendingMatchedSchedule = null;
                         matchedError = "";
                         Rebuild();
-                    }, 46);
+                    }, 48);
                 if (matchedEntryOpen) BuildMatchedEntry();
             }
 
@@ -7936,7 +8071,7 @@ namespace Evergrove.UnityClient
                             PlayerPrefs.SetInt(ReducedMotionKey, animateMiniature ? 1 : 0);
                             PlayerPrefs.Save();
                             Rebuild();
-                        }, 45);
+                        }, 48);
             }
         }
 
@@ -7946,7 +8081,7 @@ namespace Evergrove.UnityClient
             if (localPlaytest == null)
             {
                 Button(content, "Playtest consent", GameLocalization.Text("record"),
-                    StartParticipantView, 44);
+                    StartParticipantView, 48);
                 Label(content, "No tracking by default",
                     GameLocalization.Text("privacy"),
                     12, 43, Moss, TextAnchor.MiddleCenter);
@@ -7964,7 +8099,7 @@ namespace Evergrove.UnityClient
                         GameLocalization.Text("copied"),
                         12, 43, Moss, TextAnchor.MiddleCenter);
                 Button(content, "Stop playtest", GameLocalization.Text("clear"),
-                    () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 43);
+                    () => { localPlaytest = null; playtestCopied = false; Rebuild(); }, 48);
             }
             // Return diary: explicit two-step consent; dates only; copy or delete in one action.
             Label(content, "Return diary", returnDiary.Consented
@@ -7973,7 +8108,7 @@ namespace Evergrove.UnityClient
             if (!returnDiary.Consented && !returnDiaryAsked)
             {
                 Button(content, "Return diary consent", "Start return diary",
-                    () => { returnDiaryAsked = true; Rebuild(); }, 44);
+                    () => { returnDiaryAsked = true; Rebuild(); }, 48);
             }
             else if (!returnDiary.Consented)
             {
@@ -7986,9 +8121,9 @@ namespace Evergrove.UnityClient
                         SaveReturnDiary();
                         returnDiaryAsked = false;
                         Rebuild();
-                    }, 44);
+                    }, 48);
                 Button(content, "Not now", "Not now",
-                    () => { returnDiaryAsked = false; Rebuild(); }, 43);
+                    () => { returnDiaryAsked = false; Rebuild(); }, 48);
             }
             else
             {
@@ -8002,7 +8137,7 @@ namespace Evergrove.UnityClient
                     Label(content, "Copied privately", "Copied privately",
                         12, 43, Moss, TextAnchor.MiddleCenter);
                 Button(content, "Delete return diary", "Delete return diary",
-                    () => { ClearReturnDiary(); Rebuild(); }, 43);
+                    () => { ClearReturnDiary(); Rebuild(); }, 48);
             }
         }
 
@@ -8030,7 +8165,6 @@ namespace Evergrove.UnityClient
             if (!world.GiveFruit(villager)) return;
             SaveWorld();
             PlayChime();
-            if (gentleMotion) Haptics.Tick();
             OpenConversation(villager, true); // their next line is the thank-you
         }
         private int fruitThanks = -1; // the neighbour just given fruit: thanks come first (I231)
@@ -8098,7 +8232,7 @@ namespace Evergrove.UnityClient
                     confirmMatchedReplace = false;
                     pendingMatchedSchedule = null;
                     Rebuild();
-                }, 44);
+                }, 48);
             }
         }
 
@@ -8244,8 +8378,8 @@ namespace Evergrove.UnityClient
                     insight.ConnectedCount, puzzle.CellCount, insight.LeakCount));
             if (undoButton != null)
             {
-                undoButton.interactable = world.CanUndo;
-                ShowUndo(world.CanUndo, true);
+                RefreshUndoRow();
+                ShowUndo(world.CanUndo || world.CanRedo, true);
             }
             if (activeIllustration != null || activePainting != null)
             {
@@ -8278,7 +8412,7 @@ namespace Evergrove.UnityClient
                     if (localPlaytest != null) localPlaytest.Solve(Time.unscaledTime);
 #endif
                     PlayChime();
-                    if (gentleMotion) Haptics.Success();
+                    Haptics.Finished();
                     StartCoroutine(ScrollToDecision());
                 }
             }
@@ -8327,7 +8461,7 @@ namespace Evergrove.UnityClient
             bool before = world.Solved;
             if (!world.Rotate(index)) return;
             PlayTock();
-            if (gentleMotion) Haptics.Tick(); // felt with the turn (I140)
+            Haptics.Placed(); // felt with the turn (I140)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (localPlaytest != null) localPlaytest.Rotate(Time.unscaledTime);
 #endif
@@ -8792,7 +8926,6 @@ namespace Evergrove.UnityClient
             if (!soundOn || sound == null) return;
             if (kind == 2) sound.PlayOneShot(GardenSounds.Ambient(AmbientVoice.Owl, ambientDice.Next(3)), 0.7f);
             else if (kind == 0 || kind == 3) sound.PlayOneShot(GardenSounds.Ambient(AmbientVoice.Water, ambientDice.Next(3)), 0.8f);
-            if (gentleMotion) Haptics.Tick();
         }
 
         private void ApplyDayLight(WorldModel garden)
@@ -9031,6 +9164,7 @@ namespace Evergrove.UnityClient
             if (world.Jam > 0)
                 CottageLine(paper.transform, MosseloraArt.Load("food-jam"),
                     world.Jam == 1 ? "A jar of jam in the pantry" : world.Jam + " jars of jam in the pantry");
+            CottageTableRow(paper.transform); // I328/I228: the fruit and jars, as objects on the table
             // I330 (ideas 14 and 16, after block-building sandboxes): decorate anywhere, for free.
             Transform decorRow = CenteredRowIn(paper.transform, "Decorate");
             decorRow.gameObject.SetActive(world.DecorCount < WorldModel.MaxDecor || world.CanUndoDecor);
@@ -9231,8 +9365,7 @@ namespace Evergrove.UnityClient
 
         internal void QaCloseFamily()
         {
-            if (familySheet != null) Destroy(familySheet.gameObject);
-            familySheet = null;
+            DismissFamily();
             RefreshMaps(); // as a real close does: the letterbox appears
         }
 

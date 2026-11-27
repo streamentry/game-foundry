@@ -62,8 +62,14 @@ namespace Evergrove.Core
         /// <summary>The leaves a decoy percentage earns.</summary>
         public static int LeavesFor(int decoyPercent) { return decoyPercent <= LeafCut1 ? 1 : decoyPercent <= LeafCut2 ? 2 : 3; }
 
+        /// <summary>The seed and tier this board was dealt from; undo rebuilds it from them.</summary>
+        public int Seed { get; private set; }
+        public int Tier { get; private set; }
+
         public DoorstepGame(int seed, int tier)
         {
+            Seed = seed;
+            Tier = tier;
             size = SizeFor(tier);
             this.tier = tier;
             rng = unchecked((uint)seed * 0x9E3779B1u + (uint)tier * 0x85EBCA6Bu + 0x165667B1u);

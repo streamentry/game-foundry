@@ -91,8 +91,14 @@ namespace Evergrove.Core
         public int Reshuffles { get; private set; }
         public bool Solved { get { return Remaining == 0; } }
 
+        /// <summary>The seed and tier this board was dealt from; undo rebuilds it from them.</summary>
+        public int Seed { get; private set; }
+        public int Tier { get; private set; }
+
         public MahjongGame(int seed, int tier)
         {
+            Seed = seed;
+            Tier = tier;
             int[][] layout = LayoutFor(tier);
             FacesFor(tier);
             this.tier = tier;

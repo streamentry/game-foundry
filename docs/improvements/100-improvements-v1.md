@@ -15,7 +15,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **5. Remember the hand.** On the first long-press, ask once whether the player is left- or right-handed, and mirror the tray and menu to suit. *Test:* thumb-reach heatmap in landscape on a 6.7″ phone.
 - [ ] **6. Text size first, not in Settings.** On first launch, show the garden with a size slider whose preview updates live. *Test:* 150% tour (I-series tour) shows no clipped text on any first-run screen.
 - [ ] **7. A first win in two minutes.** The first board is sized to finish in about two minutes and ends in a visible change to the garden. *Test:* median first-board time in the playtest kit.
-- [ ] **8. No sign-up wall, ever, for solo play.** Audit every first-run path so that family features appear only after the third day, and only as an offer. *Test:* fresh install, airplane mode, play day 1 end to end.
+- [x] **8. No sign-up wall, ever, for solo play.** Audit every first-run path so that family features appear only after the third day, and only as an offer. *Test:* fresh install, airplane mode, play day 1 end to end.
 - [x] **9. Restore that the player can trust.** Before any reinstall prompt, show "Your garden is saved on this phone" with the last-saved time. *Test:* kill the app mid-move, relaunch, compare the garden.
 - [ ] **10. A two-sentence store promise.** The store promise has to match the first five minutes exactly. Rewrite the store's first line after watching what players do in their first session. *Test:* five-second test of the listing with 40+ readers.
 
@@ -27,9 +27,9 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **14. Back is always the same place.** One back gesture and one back icon position across all sheets (FamilySheet, almanac, nursery). *Test:* tour shot audit of every sheet.
 - [ ] **15. The menu remembers.** The fan opens with the last-used item nearest the thumb. *Test:* second-tap distance in a logged session.
 - [x] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
-- [ ] **17. Sheets slide, never pop.** Every panel enters from the edge it belongs to (letters from the letterbox, nursery from the gate), with motion limited to transform and opacity. *Test:* reduced-motion setting replaces each slide with a fade.
+- [x] **17. Sheets slide, never pop.** Every panel enters from the edge it belongs to (letters from the letterbox, nursery from the gate), with motion limited to transform and opacity. *Test:* reduced-motion setting replaces each slide with a fade.
 - [ ] **18. Hide the HUD while looking.** After 6 s with no touch, the menu and purse fade to 20% so the garden fills the screen. Any touch brings them back. *Test:* screenshot pairs at rest and in use.
-- [ ] **19. Long-press explains anything.** Any icon or thing, long-pressed, shows its name and one line. This replaces help pages. *Test:* coverage script lists every raycast target without a caption.
+- [x] **19. Long-press explains anything.** Any icon or thing, long-pressed, shows its name and one line. This replaces help pages. *Test:* coverage script lists every raycast target without a caption.
 - [ ] **20. Split `EvergroveApp.cs`.** Break the monolith into Hub, Sheets, Map and Notes partials so navigation changes stop colliding. *Test:* no file over 800 lines; build and tours unchanged.
 
 ## C. Immersion: art, light, sound
@@ -39,10 +39,10 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **23. Water that reflects.** The river mirrors the trees beside it, a faint flipped copy with a ripple shader. *Test:* GPU frame time on device.
 - [ ] **24. Footsteps for neighbours.** Neighbours walk between spots with a short step animation instead of appearing. *Test:* tour video at 0.5× speed.
 - [ ] **25. A painted transition between board and garden.** The board folds into the thing it came from (extending I293). *Test:* a side-by-side clip reviewed for one continuous motion.
-- [ ] **26. Seasonal palette grading.** One colour-grade table per season over the whole scene, not per object (I338–I341). *Test:* grayscale check that contrast stays above 4.5:1 for text in every season.
+- [x] **26. Seasonal palette grading.** One colour-grade table per season over the whole scene, not per object (I338–I341). *Test:* grayscale check that contrast stays above 4.5:1 for text in every season.
 - [ ] **27. A composed score.** Replace the synthesized ambience with short composed loops per season and hour, plus stingers for finishing a board. *Test:* volume and mute persist; no loop seam audible in 10 minutes.
 - [ ] **28. Sound in space.** Pan the river, birds and neighbours' voices by where they are on screen. *Test:* headphone check.
-- [ ] **29. Haptics with meaning.** Three haptics only: placed, finished, and something arrived. *Test:* the haptics switch turns all three off.
+- [x] **29. Haptics with meaning.** Three haptics only: placed, finished, and something arrived. *Test:* the haptics switch turns all three off.
 - [ ] **30. Art consistency pass.** Hold one brush and one line weight across all sprites, and redraw any outlier. *Test:* contact sheet of every sprite at one scale, reviewed for outliers.
 
 ## D. Depth: simple to play, more to discover
@@ -55,7 +55,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **36. Technique names.** When a player uses a known technique (a naked pair in seed sudoku), the almanac names it the first time. *Test:* the detector agrees with the solver on 1,000 boards.
 - [ ] **37. Boards drawn from the player's own garden.** Mosaic and pictures-by-numbers boards use shapes of things the player grew. *Test:* generated boards are unique and solvable.
 - [ ] **38. Chains between puzzles.** Finishing a stream path waters plots; finishing plots feeds the nursery. Each link is one visible, logical cause. *Test:* the cause shows on screen within 2 s.
-- [ ] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
+- [x] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
 - [x] **40. Mistakes shown kindly.** Show conflicts only on request (a lens icon), never automatically in red. *Test:* setting persists; no red anywhere.
 
 ## E. The open world: the endless river
@@ -90,7 +90,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **62. Invite by a link or QR code.** A grandparent shows a QR; the grandchild scans it and joins. No usernames to type. *Test:* 3 families join in under 2 minutes each.
 - [ ] **63. Visit a relative's garden live.** See their garden as it is now, leave one gift and one note (extending I216). *Test:* a visit works on a slow 3G connection profile.
 - [ ] **64. Help with their board.** A visitor can place one move on a family member's board, which they see as "Lan helped here." *Test:* the move survives conflict resolution.
-- [ ] **65. Share food.** Jam, fruit and baskets sent to family appear on their table as real objects (extending I228–I232 and I328). *Test:* a send-and-receive round trip.
+- [x] **65. Share food.** Jam, fruit and baskets sent to family appear on their table as real objects (extending I228–I232 and I328). *Test:* a send-and-receive round trip.
 - [ ] **66. Plant a tree together.** A shared tree grows only when both gardens tend it during the same week. *Test:* the rule holds with clocks in two time zones.
 - [ ] **67. Voice notes in letters.** Optional voice notes up to 30 s for players who don't like typing, with an auto-caption shown under each one. *Test:* recording works with VoiceOver on.
 - [ ] **68. Child-safe co-play.** Before any build designed for children: the store age declaration, no free text from strangers, and a family-only circle. *Test:* review against the store's child-audience rules.

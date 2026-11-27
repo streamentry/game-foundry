@@ -12,7 +12,9 @@ namespace Evergrove.UnityClient
     /// </summary>
     internal sealed class NonogramBoard : TreePlay.IPuzzleBoard
     {
-        private readonly NonogramGame game;
+        private readonly BoardHistory<NonogramGame> history; // step 39: undo and redo
+        private NonogramGame game { get { return history.Current; } }
+        private BoardKit.UndoRow undo;
         private TreePlay play;
         private Image[] cells;
         private Image[] sprouts;
@@ -22,7 +24,10 @@ namespace Evergrove.UnityClient
         private bool locked;
         private int shown = -1; // the hinted cell, waiting for a second tap (I253)
 
-        public NonogramBoard(NonogramGame game) { this.game = game; }
+        public NonogramBoard(NonogramGame game)
+        {
+            history = new BoardHistory<NonogramGame>(game, () => new NonogramGame(game.Seed, game.Tier));
+        }
 
         private Font uiFont; // I321
 
@@ -45,7 +50,7 @@ namespace Evergrove.UnityClient
                 for (int k = 0; k < 3; k++) BoardKit.RuleSquare(row, BoardKit.Leafy, sproutArt);
                 BoardKit.RuleSquare(row, BoardKit.Soil);
             });
-            Vector2 room = BoardKit.Room(width, screenHeight, rule);
+            Vector2 room = BoardKit.Room(width, screenHeight, rule + BoardKit.UndoRowSpace);
             // Clues get about 0.55 of a cell per number; cells take the rest.
             float cell = Mathf.Floor(Mathf.Min(room.x / (n + rowRuns * 0.55f), room.y / (n + columnRuns * 0.6f)));
             cell = Mathf.Min(cell, 56f);
@@ -80,6 +85,7 @@ namespace Evergrove.UnityClient
                 sprouts[c] = BoardKit.Glyph(cells[c].transform, "Sprout", sprout, cell * 0.14f);
                 marks[c] = BoardKit.Glyph(cells[c].transform, "Nothing here", mark, cell * 0.3f);
             }
+            undo = BoardKit.UndoRow.Build(card, font, history, () => { shown = -1; Paint(); });
             Paint();
         }
 
@@ -94,7 +100,7 @@ namespace Evergrove.UnityClient
         private void Tap(int cell)
         {
             if (locked) return;
-            if (game.Tap(cell) == NonogramMove.Ignored) return;
+            if (history.Play(g => g.Tap(cell), m => m != NonogramMove.Ignored) == NonogramMove.Ignored) return;
             shown = -1;
             play.Moved();
             Paint();
@@ -118,6 +124,7 @@ namespace Evergrove.UnityClient
                 rowClues[i].color = game.RowDone(i) ? new Color(0.36f, 0.33f, 0.26f, 0.35f) : MosseloraTheme.EarthInk;
                 columnClues[i].color = game.ColumnDone(i) ? new Color(0.36f, 0.33f, 0.26f, 0.35f) : MosseloraTheme.EarthInk;
             }
+            if (undo != null) undo.Refresh(locked);
         }
 
         public void Hint()
@@ -133,7 +140,7 @@ namespace Evergrove.UnityClient
                 return;
             }
             shown = -1;
-            game.Set(cell, game.Solution(cell) ? CellState.Filled : CellState.Marked);
+            history.Play(g => g.Set(cell, g.Solution(cell) ? CellState.Filled : CellState.Marked), m => m != NonogramMove.Ignored);
             play.Moved();
             Paint();
             if (game.Solved) play.Done();

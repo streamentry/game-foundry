@@ -79,8 +79,14 @@ namespace Evergrove.Core
             return best;
         }
 
+        /// <summary>The seed and tier this board was dealt from; undo rebuilds it from them.</summary>
+        public int Seed { get; private set; }
+        public int Tier { get; private set; }
+
         public GardenPiecesGame(int seed, int tier)
         {
+            Seed = seed;
+            Tier = tier;
             if (tier < 0 || tier >= TreePuzzles.Tiers) throw new ArgumentOutOfRangeException(nameof(tier));
             this.tier = tier;
             uint state = unchecked((uint)seed * 0x9E3779B1u + (uint)tier * 0x85EBCA6Bu + 0x165667B1u);

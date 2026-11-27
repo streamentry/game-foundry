@@ -38,9 +38,11 @@ namespace Evergrove.UnityClient
             BuildDatesSheet();
         }
 
-        internal void CloseDatesSheet()
+        internal void CloseDatesSheet() { RetireDates(false); }
+
+        private void RetireDates(bool replacing)
         {
-            if (datesSheet != null) Destroy(datesSheet);
+            RetireSheet(datesSheet, "Dates sheet", replacing);
             datesSheet = null;
             semanticsDirty = true;
         }
@@ -48,7 +50,8 @@ namespace Evergrove.UnityClient
         private void BuildDatesSheet()
         {
             if (titleScreen == null) return;
-            CloseDatesSheet();
+            bool replacing = datesSheet != null;
+            RetireDates(replacing);
             datesSheet = BuildSheet(titleScreen.transform, "Dates sheet", CloseDatesSheet,
                 out RectTransform sheetContent, out ScrollRect sheetScroll);
             SheetClose(sheetContent, "Close dates", CloseDatesSheet);
@@ -66,9 +69,9 @@ namespace Evergrove.UnityClient
                 18, 0, Ink, TextAnchor.MiddleCenter);
             if (datesNote.Length > 0) Label(sheetContent, "Dates note", datesNote, 18, 0, Ink, TextAnchor.MiddleCenter);
 
-            datesSheet.SetActive(true);
+            SheetMotion.Show(datesSheet, SheetEdge.For("Dates sheet"), ReducedMotion, null, replacing);
             datesSheet.transform.SetAsLastSibling();
-            FitSheet(datesSheet, "Dates panel");
+            FitSheet(datesSheet, "Dates sheet panel"); // BuildSheet names it "<name> panel"
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(sheetContent);
             FitSheetToPages(datesSheet, sheetContent);
