@@ -12,6 +12,7 @@ Original watercolor/gouache storybook art for the in-game UI, generated on 2026-
 | `icons-small.png` (2x2 sheet) | `glyph-sprout`, `glyph-droplet`, `glyph-sprig`, `glyph-waves` | Garden/spring tile markers, dividers |
 | `icons-ui.png` (4x4 sheet of black glyphs, recolored to white) | `ui-undo`, `ui-hint`, `ui-restart`, `ui-language`, `ui-text-size`, `ui-board-size`, `ui-chime-on`, `ui-chime-off`, `ui-journal`, `ui-continue`, `ui-change`, `ui-copy-file`, `ui-restore-file`, `ui-new-garden`, `ui-confirm`, `ui-cancel` | Icon-first buttons, tinted per tone |
 | `icons-food.png` (2x2 sheet, prompt `prompts/food.txt`, 2026-11-27, `icons-small.png` attached as style reference) | `food-pear`, `food-basket`, `food-jam`, `food-apple` | Fruit picked from your trees, shared with family and neighbours (I228) |
+| `icons-letters.png` (2x2 sheet, prompt `prompts/letters.txt`, 2026-11-27, `icons-food.png` attached as style reference) | `letter-sealed`, `letter-open`, `letterbox`, `letter-pen` | Family letters: the letterbox, an unread letter, opening and replying (I233 to I235) |
 | `neighbors.png` (3 medallions) | `portrait-mira`, `portrait-orin`, `portrait-fen` | Neighbor portrait buttons |
 | `hero-village.png` | `hero-village` | Ending screen painting |
 
