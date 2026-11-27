@@ -1,0 +1,12 @@
+Use the $imagegen skill in its default built-in image_gen tool mode (not the CLI, no API key needed). Any attached images are STYLE references only unless told otherwise (soft hand-painted watercolor/gouache storybook illustration, warm cream light, sage and leaf greens, teal water, terracotta, honey-brown wood). Generate exactly ONE image.
+Use case: stylized-concept
+Asset type: sprite sheet of four small painted UI glyphs for a mobile garden game (food the player picks from their trees and shares with family)
+Primary request: a 2x2 grid, each item isolated and centred in its own quadrant with lots of empty transparent space around it:
+ top-left: a single ripe golden-green pear with one small leaf on its stem, upright;
+ top-right: a small round woven willow basket heaped with mixed fruit (pears, red apples, plums), seen from slightly above;
+ bottom-left: a small glass jar of amber fruit jam with a gingham cloth cap tied with string;
+ bottom-right: a single rosy red apple with one leaf.
+Simple, bold silhouettes that remain readable at 32 pixels; watercolor texture but clean edges; consistent soft light from the upper left.
+Background: fully TRANSPARENT (alpha). Square 1024x1024.
+Constraints: no text, no watermark, no frame, no shadows on the background.
+Copy the final PNG to games/evergrove/art/generated/icons-food.png and print the path. Do nothing else.

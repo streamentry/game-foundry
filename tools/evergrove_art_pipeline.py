@@ -270,6 +270,9 @@ UI_ICONS = ("ui-undo", "ui-hint", "ui-restart", "ui-language",
             "ui-restore-file", "ui-new-garden", "ui-confirm", "ui-cancel")
 
 
+FOOD_ICONS = ("food-pear", "food-basket", "food-jam", "food-apple")
+
+
 SUPERSEDED = {"ui-board-size", "ui-chime-on", "ui-chime-off", "ui-change"}
 
 
@@ -443,6 +446,12 @@ def main() -> None:
             save(glyph, name)
             if name == "glyph-droplet":
                 save(hollow(glyph), "glyph-droplet-empty")  # I146: an empty drop looks empty
+
+    # I228: food the player picks from their trees and shares (prompts/food.txt).
+    food = master("icons-food")
+    if food:
+        for name, part in zip(FOOD_ICONS, quadrants(food.convert("RGBA"))):
+            save(fit(trim(part, 4), 192, 192), name)
 
     ui = master("icons-ui")
     if ui:

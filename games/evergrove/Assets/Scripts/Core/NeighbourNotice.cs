@@ -49,6 +49,9 @@ namespace Evergrove.Core
                 if (have == 0 && GardenMap.ReachesFor(world.Choices.Length, true, all) > GardenMap.MaxReaches)
                     return "The river runs further than it ever did. There's new bank down there, waiting for roots.";
             }
+            // Fruit you gave (I228): one true thank-you, only from the neighbour who got the
+            // latest, so the tended count is never hidden for good. The count itself is never said.
+            if (world.LastFruitTo == villager && world.FruitGivenTo(villager) > 0) return Thanked(villager);
             int solved = SolvedOfKind(villager, world);
             return solved > 0 ? Tended(villager, solved) : null;
         }
@@ -85,6 +88,26 @@ namespace Evergrove.Core
                 case 0: return helper + " came by and freed the water under one of your trees. Look how it blooms.";
                 case 1: return helper + " was here and mended one of the old paintings with you in mind.";
                 default: return helper + " matched a flower bed of yours. The bees approve.";
+            }
+        }
+
+        /// <summary>
+        /// The thank-you said right after you hand over fruit (I231), whatever else is
+        /// news. Null unless this neighbour really was the last one given fruit.
+        /// </summary>
+        public static string ThanksFor(int villager, WorldModel world)
+        {
+            if (world == null || world.Mode != PlayMode.Living || villager < 0 || villager > 2) return null;
+            return world.LastFruitTo == villager && world.FruitGivenTo(villager) > 0 ? Thanked(villager) : null;
+        }
+
+        private static string Thanked(int villager)
+        {
+            switch (villager)
+            {
+                case 0: return "Thank you for the fruit. I'll dry some for the winter.";
+                case 1: return "The fruit you left on my bench was the best part of the day.";
+                default: return "I made jam with your fruit. There's a jar with your name on it.";
             }
         }
 

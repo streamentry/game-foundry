@@ -532,6 +532,8 @@ internal static class FamilyParcelTests
         int end = text.IndexOf(']', text.IndexOf(",\"letterFrom\":", start, StringComparison.Ordinal));
         int helpedFrom = text.IndexOf(",\"helpedFrom\":", start, StringComparison.Ordinal);
         if (helpedFrom >= 0) end = text.IndexOf(']', helpedFrom); // I226 help keys follow the family keys
+        int fruitKeys = text.IndexOf(",\"fruit\":", start, StringComparison.Ordinal);
+        if (fruitKeys >= 0) end = text.IndexOf('}', fruitKeys) - 1; // I228 fruit keys come last
         return text.Substring(0, start) + text.Substring(end + 1);
     }
 

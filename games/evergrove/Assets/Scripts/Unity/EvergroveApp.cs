@@ -1384,6 +1384,39 @@ namespace Evergrove.UnityClient
             for (; slot < reached && slot < waterDrops.Length; slot++) SetDrop(waterDrops[slot], true);
         }
 
+        // A pear arcs from where the puzzle card was into the purse (I229).
+        private IEnumerator FlyFruit(Image target)
+        {
+            Sprite sprite = MosseloraArt.Load("food-pear");
+            if (sprite == null || target == null || canvasRoot == null) yield break;
+            if (!gentleMotion) { BloomPulse.Add(target.gameObject, 0.1f, 0.22f); yield break; }
+            for (float wait = 0.35f; wait > 0f; wait -= Time.unscaledDeltaTime) yield return null;
+            if (target == null) yield break;
+            var node = Node("Picked fruit", canvasRoot);
+            var rect = node.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(54f, 54f);
+            var image = node.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            Vector3 start = canvasRoot.TransformPoint(canvasRoot.rect.center);
+            float lift = 90f * canvasRoot.lossyScale.y;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.8f)
+            {
+                if (target == null) { Destroy(node); yield break; }
+                Vector3 end = target.rectTransform.TransformPoint(target.rectTransform.rect.center);
+                float k = Mathf.SmoothStep(0f, 1f, t);
+                Vector3 at = Vector3.Lerp(start, end, k);
+                at.y += Mathf.Sin(k * Mathf.PI) * lift; // tossed up, then down into the purse
+                rect.position = at;
+                rect.localScale = Vector3.one * Mathf.Lerp(1.2f, 0.6f, k);
+                rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(k * Mathf.PI * 2f) * 14f);
+                yield return null;
+            }
+            Destroy(node);
+            if (target != null) BloomPulse.Add(target.gameObject, 0f, 0.25f);
+        }
+
         private IEnumerator FlyDrop(RectTransform from, int slot, float startDelay)
         {
             Image[] drops = waterDrops;
@@ -1957,8 +1990,9 @@ namespace Evergrove.UnityClient
             solved = () =>
             {
                 solvedHere = true;
-                int before = OpenReaches(), solvedBefore = world.PuzzlesSolved;
+                int before = OpenReaches(), solvedBefore = world.PuzzlesSolved, fruitBefore = world.Fruit;
                 int earned = solvedOnce();
+                fruitPicked = world.Fruit > fruitBefore; // trees bear fruit when tended (I229)
                 // After the story, every fourth solve opens more river (I220): home shows it (I223).
                 riverOpened = OpenReaches() > before;
                 dropEarned = world.PuzzlesSolved > solvedBefore;
@@ -2022,6 +2056,7 @@ namespace Evergrove.UnityClient
             familySheet = FamilySheet.Open(host, font, new FamilySheet.Hooks
             {
                 Seeds = () => world.Seeds,
+                Fruit = () => world.Fruit,
                 RowOpen = row => world.RowOpen(row),
                 OwnedKinds = () => {
                     int[] bought = world.Bought;
@@ -2251,6 +2286,21 @@ namespace Evergrove.UnityClient
             Emphasize(count);
             // One line at any text size; the purse grows leftward to fit "100" at 150% (I227).
             count.horizontalOverflow = HorizontalWrapMode.Overflow;
+            // Fruit from your trees sits beside the seeds once you have picked any (I229).
+            purseFruit = null;
+            if (world.Fruit > 0 || fruitPicked)
+            {
+                var pear = Node("Fruit", purse.transform);
+                var pearLayout = pear.AddComponent<LayoutElement>();
+                pearLayout.preferredWidth = pearLayout.preferredHeight = 30f;
+                purseFruit = pear.AddComponent<Image>();
+                purseFruit.sprite = MosseloraArt.Load("food-pear");
+                purseFruit.preserveAspect = true;
+                purseFruit.raycastTarget = false;
+                Text fruit = Label(purse.transform, "Fruit count", world.Fruit.ToString(), 20, 0, Ink, TextAnchor.MiddleLeft);
+                Emphasize(fruit);
+                fruit.horizontalOverflow = HorizontalWrapMode.Overflow;
+            }
             var fit = purse.AddComponent<ContentSizeFitter>();
             fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
@@ -2277,6 +2327,8 @@ namespace Evergrove.UnityClient
                 PlayChime();
             }
             riverOpened = false;
+            if (fruitPicked && purseFruit != null) StartCoroutine(FlyFruit(purseFruit));
+            fruitPicked = false;
             RiverDrops(view, dropEarned && gentleMotion);
             dropEarned = false;
             justBought = -1;
@@ -2349,6 +2401,8 @@ namespace Evergrove.UnityClient
         private bool solvedHere;
         private bool riverOpened;   // the last solve opened a new stretch of river (I223)
         private bool dropEarned;    // the last solve was a first solve: a drop on the mist fills (I224)
+        private bool fruitPicked;   // the last solve picked fruit from a tree (I229)
+        private Image purseFruit;   // the pear in the purse, where picked fruit flies (I229)
 
         // Drops on the next stretch's mist (I224): how close more river is.
         private void RiverDrops(GardenMapView view, bool swell)
@@ -2630,6 +2684,8 @@ namespace Evergrove.UnityClient
                 return LocalizedVillage.Speak(world, villager);
             // I210: what they noticed you do since (a nursery plant of their kind, the
             // puzzles you solved under their kind of thing) comes first, when true.
+            string thanks = fruitThanks == villager ? NeighbourNotice.ThanksFor(villager, world) : null;
+            if (thanks != null) return thanks;
             string noticed = NeighbourNotice.Line(villager, world);
             if (noticed != null) return noticed;
             int[] made = world.Choices;
@@ -4053,7 +4109,31 @@ namespace Evergrove.UnityClient
             thanksRect.pivot = new Vector2(1f, 0f);
             thanksRect.sizeDelta = new Vector2(56f, 44f);
             thanksRect.anchoredPosition = new Vector2(-10f, 10f);
-            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(6, 10, 2, 56);
+            // Bring them some fruit from your trees (I231): one pear, a kind word back.
+            if (world.Mode == PlayMode.Living && world.Fruit > 0)
+            {
+                int villager = speakingWith;
+                var give = IconButton(bubble.transform, "Give fruit", "Give " + LocalizedVillage.Name(villager) + " some fruit",
+                    "food-basket", () => GiveFruit(villager), 44, MosseloraTheme.QuietAction);
+                give.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
+                var giveRect = give.GetComponent<RectTransform>();
+                giveRect.anchorMin = giveRect.anchorMax = new Vector2(1f, 0f);
+                giveRect.pivot = new Vector2(1f, 0f);
+                giveRect.sizeDelta = new Vector2(64f, 48f);
+                giveRect.anchoredPosition = new Vector2(-74f, 8f);
+                Transform giveIcon = give.transform.Find("Icon");
+                if (giveIcon != null)
+                {
+                    giveIcon.GetComponent<Image>().color = Color.white; // painted, not a glyph
+                    // A painted basket needs room to read as fruit (I232): about twice a glyph.
+                    var iconSize = giveIcon.GetComponent<LayoutElement>();
+                    iconSize.minWidth = iconSize.preferredWidth = 38f;
+                    iconSize.minHeight = iconSize.preferredHeight = 38f;
+                }
+            }
+            // Room under the words for the tokens (I232): the basket stands a little taller.
+            bool basket = world.Mode == PlayMode.Living && world.Fruit > 0;
+            bubble.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(6, 10, 2, basket ? 64 : 56);
         }
 
         // Neighbor as a painted portrait medallion with their name beneath.
@@ -6426,8 +6506,20 @@ namespace Evergrove.UnityClient
         }
 #endif
 
-        private void OpenConversation(int villagerIndex)
+        // One fruit to a neighbour (I231): they remember it truthfully (no meter).
+        private void GiveFruit(int villager)
         {
+            if (!world.GiveFruit(villager)) return;
+            SaveWorld();
+            PlayChime();
+            if (gentleMotion) Haptics.Tick();
+            OpenConversation(villager, true); // their next line is the thank-you
+        }
+        private int fruitThanks = -1; // the neighbour just given fruit: thanks come first (I231)
+
+        private void OpenConversation(int villagerIndex, bool afterFruit = false)
+        {
+            fruitThanks = afterFruit ? villagerIndex : -1;
             speakingWith = villagerIndex;
             if (world.Mode == PlayMode.Living)
             {
@@ -7191,6 +7283,8 @@ namespace Evergrove.UnityClient
         }
 
         internal int QaPuzzlesSolved() { return world.PuzzlesSolved; }
+        internal int QaFruit() { return world.Fruit; }
+        internal void QaGiveFruit(int villager) { GiveFruit(villager); }
 
         // I227 tour: help with the first unsolved thing of a kind in the garden being visited.
         internal bool QaHelpOnVisit(int family)
