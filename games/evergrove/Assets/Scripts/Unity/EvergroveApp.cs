@@ -1336,6 +1336,21 @@ namespace Evergrove.UnityClient
             return mask;
         }
 
+        private void MeterEnd(Transform row, string art, float size, Color tint)
+        {
+            Sprite sprite = MosseloraArt.Load(art);
+            if (sprite == null) return;
+            var node = Node("Water meter " + (art == TreePlay.SeedIcon ? "garden" : "spring"), row);
+            var layout = node.AddComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = size;
+            layout.minHeight = layout.preferredHeight = size;
+            var image = node.AddComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.color = tint;
+            image.raycastTarget = false;
+        }
+
         // Progress at a glance: a droplet per tile, filled as real water reaches it.
         // The sentence below stays as the exact, spoken statement.
         private void WaterMeter(int tiles, int reached)
@@ -1346,6 +1361,9 @@ namespace Evergrove.UnityClient
             MinHeight(row.gameObject, 26);
             waterDrops = new Image[tiles];
             float height = tiles > 9 ? 19f : 23f;
+            // I350 (run 3, P7): the row starts at the spring and ends at the sprout, the same
+            // marks as the board, so the drops read as water reaching the garden.
+            MeterEnd(row, "glyph-waves", height + 4f, MosseloraTheme.WaterAction);
             for (int i = 0; i < tiles; i++)
             {
                 var node = Node("Water drop", row);
@@ -1358,6 +1376,7 @@ namespace Evergrove.UnityClient
                 image.raycastTarget = false;
                 waterDrops[i] = image;
             }
+            MeterEnd(row, TreePlay.SeedIcon, height + 4f, Color.white);
             PaintDrops(reached);
         }
 
@@ -1756,11 +1775,29 @@ namespace Evergrove.UnityClient
                 if (!world.Completed && GameLocalization.Current == "en")
                     NextStreamLine(stack.transform, world.CurrentPuzzle.Name, false);
                 Transform token = CenteredRowIn(stack.transform, "Play row");
-                IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")
+                // I351 (run 3, P9): after the story, the big arrow plays what's waiting: the
+                // newest thing still holding its first puzzle, whose picture peeks from the token.
+                int waitingBought = -1, waitingThing = -1;
+                if (world.Completed && world.Mode == PlayMode.Living)
+                {
+                    for (int k = world.BoughtCount - 1; k >= 0 && waitingBought < 0; k--) if (!world.BoughtSolved(k)) waitingBought = k;
+                    if (waitingBought < 0)
+                        for (int i = world.Choices.Length - 1; i >= 0 && waitingThing < 0; i--) if (!world.TreeSolved(i)) waitingThing = i;
+                }
+                Button playToken = IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")
                         : world.CurrentPuzzle.Name, MosseloraArt.IconContinue, () => {
                             basketOpen = false; basketKind = -1; heldPlanting = -1;
-                            nurseryOpen = false; nurseryKind = -1; heldBought = -1; CloseTitle();
+                            nurseryOpen = false; nurseryKind = -1;
+                            if (waitingBought >= 0) { heldBought = waitingBought; mapInHand = -1; OpenBoughtPlay(waitingBought); return; }
+                            heldBought = -1;
+                            if (waitingThing >= 0) { mapInHand = waitingThing; OpenTreePlay(waitingThing); return; }
+                            CloseTitle();
                         }, 96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
+                Sprite waiting = waitingBought >= 0 ? MosseloraArt.Load(Nursery.Item(world.Bought[waitingBought * 2]).Art)
+                    : waitingThing >= 0 ? ItemArt(waitingThing, world.Choices[waitingThing]) : null;
+                if (waiting != null)
+                    MosseloraArt.Ornament(playToken.transform, "What it plays", waiting, new Vector2(1f, 1f),
+                        new Vector2(0.5f, 0.5f), new Vector2(44f, 44f), new Vector2(-4f, -4f));
                 if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                 SeedPurse();
                 LetterBox();
@@ -6649,7 +6686,15 @@ namespace Evergrove.UnityClient
                         }, 64, MosseloraTheme.ForestAction);
                 else
                 {
-                    Text chooseTitle = Label(content, "Choose title", GameLocalization.Text("choose"),
+                    // I349 (run 3, P12): the heading keeps clear of the floating menu button on
+                    // both sides, so no scroll position can hide its first letters under it.
+                    var titleRow = Node("Choose title row", content);
+                    var titleGroup = titleRow.AddComponent<HorizontalLayoutGroup>();
+                    titleGroup.padding = new RectOffset(72, 72, 0, 0);
+                    titleGroup.childControlWidth = titleGroup.childControlHeight = true;
+                    titleGroup.childForceExpandWidth = true;
+                    titleGroup.childForceExpandHeight = false;
+                    Text chooseTitle = Label(titleRow.transform, "Choose title", GameLocalization.Text("choose"),
                         24, 56, Ink, TextAnchor.MiddleCenter);
                     Emphasize(chooseTitle);
                     decisionHeading = chooseTitle.rectTransform;

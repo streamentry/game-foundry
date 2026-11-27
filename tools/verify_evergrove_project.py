@@ -59,7 +59,7 @@ assert ui.index(first_board) < ui.index("VillageScenePlan scenePlan = VillageSce
     "World art must not push first interactive tile below the title/controls"
 )
 for marker in ("private RectTransform decisionHeading;",
-               "Label(content, \"Choose title\"",
+               "Label(titleRow.transform, \"Choose title\"",
                "decisionHeading = chooseTitle.rectTransform;",
                "content.InverseTransformPoint(worldTop).y",
                "scroll.StopMovement()"):
