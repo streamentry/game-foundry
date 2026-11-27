@@ -36,17 +36,17 @@ namespace Evergrove.Core
     /// </summary>
     public static class SunShadows
     {
-        public const float MaxAlpha = 0.4f;
+        public const float MaxAlpha = 0.5f; // batch 24 tour: 0.2-0.3 vanished on the painted ground
 
         public static SunShadowLook For(DayPhase phase)
         {
             switch (phase)
             {
-                case DayPhase.Dawn:    return new SunShadowLook(true, 180f, 1.4f, 0.20f);
-                case DayPhase.Morning: return new SunShadowLook(true, 160f, 0.85f, 0.26f);
-                case DayPhase.Day:     return new SunShadowLook(true, 270f, 0.35f, 0.32f);
-                case DayPhase.Golden:  return new SunShadowLook(true, 10f, 1.2f, 0.22f);
-                case DayPhase.Dusk:    return new SunShadowLook(true, 20f, 1.4f, 0.20f);
+                case DayPhase.Dawn:    return new SunShadowLook(true, 180f, 1.4f, 0.34f);
+                case DayPhase.Morning: return new SunShadowLook(true, 160f, 0.85f, 0.40f);
+                case DayPhase.Day:     return new SunShadowLook(true, 270f, 0.35f, 0.46f);
+                case DayPhase.Golden:  return new SunShadowLook(true, 10f, 1.2f, 0.36f);
+                case DayPhase.Dusk:    return new SunShadowLook(true, 20f, 1.4f, 0.34f);
                 default:               return new SunShadowLook(false, 0f, 0f, 0f);
             }
         }

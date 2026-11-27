@@ -230,6 +230,9 @@ internal static class ReplyChipsTests
         Expect(tour.StartsWith("#if UNITY_EDITOR || DEVELOPMENT_BUILD"), "the reply tour is guarded like the other tour parts");
         Expect(tour.Contains("private IEnumerator ReplyShots()"), "the tour has ReplyShots");
         Expect(tour.Contains("SavePng(\"21-reply-chips.png\")"), "the tour saves the letter with chips");
+        Expect(tour.Contains("SavePng(\"21-reply-chosen.png\")"), "the tour saves the chosen chip with its check");
+        Expect(tour.IndexOf("app.QaShowHub(false);", StringComparison.Ordinal) < tour.IndexOf("app.QaTalk(0);", StringComparison.Ordinal),
+            "the echo is heard in the village view, where neighbours speak");
         Expect(tour.Contains("SavePng(\"21-reply-echo.png\")"), "the tour saves the echo");
         Expect(tour.IndexOf("SavePng(\"21-reply-chips.png\")", StringComparison.Ordinal) <
                tour.IndexOf("app.QaCloseLetter();", StringComparison.Ordinal), "the chips are shot before the letter closes");

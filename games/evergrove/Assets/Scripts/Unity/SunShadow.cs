@@ -19,7 +19,7 @@ namespace Evergrove.UnityClient
         public static DayPhase Phase = DayPhase.Day;
 
         private const float WidthShare = 0.9f;   // the shadow's base length, as a share of the thing's width
-        private const float Thickness = 0.25f;   // its base depth, as a share of the thing's width
+        private const float Thickness = 0.32f;   // its base depth, as a share of the thing's width
         private const float Flatten = 0.35f;     // a shadow on the ground reads shorter up the screen
         private static readonly Color Ink = new Color(0.07f, 0.06f, 0.10f, 1f);
 

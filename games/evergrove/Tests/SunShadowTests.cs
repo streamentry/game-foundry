@@ -84,10 +84,10 @@ internal static class SunShadowTests
         {
             SunShadowLook look = SunShadows.For(phase);
             if (!look.Shows) continue;
-            Expect(look.Alpha > 0f && look.Alpha <= 0.4f, phase + " alpha is within (0, 0.4]");
+            Expect(look.Alpha >= 0.3f && look.Alpha <= 0.5f, phase + " alpha is within [0.3, 0.5]: visible on the painted ground, never black");
             Expect(look.Alpha <= SunShadows.MaxAlpha, phase + " alpha is within the cap");
         }
-        Expect(Math.Abs(SunShadows.For(DayPhase.Day).Alpha - 0.32f) < 0.001f, "noon alpha is about 0.3");
+        Expect(Math.Abs(SunShadows.For(DayPhase.Day).Alpha - 0.46f) < 0.001f, "noon alpha is about 0.46");
     }
 
     private static void HourMapsToTheExpectedPhases()
@@ -123,6 +123,8 @@ internal static class SunShadowTests
         Expect(tour.Contains("SavePng(\"22-shadow-dawn.png\")"), "the tour saves the dawn shadow shot");
         Expect(tour.Contains("SavePng(\"22-shadow-noon.png\")"), "the tour saves the noon shadow shot");
         Expect(tour.Contains("SavePng(\"22-shadow-dusk.png\")"), "the tour saves the dusk shadow shot");
+        Expect(tour.Contains("LogShadowCount(\"dawn\")") && tour.Contains("LogShadowCount(\"noon\")") && tour.Contains("LogShadowCount(\"dusk\")"),
+            "each shadow shot logs how many sun shadows are on the map (a faint effect is checked by count)");
         Expect(tour.Contains("app.QaSetClock(6);") && tour.Contains("app.QaSetClock(12);") && tour.Contains("app.QaSetClock(19);"),
             "the tour sets the clock to dawn, noon and dusk");
         Expect(tourMain.Contains("yield return ShadowShots();"), "the tour runs the shadow shots");

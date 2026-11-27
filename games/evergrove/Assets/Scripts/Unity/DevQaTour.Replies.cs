@@ -23,17 +23,18 @@ namespace Evergrove.UnityClient
             yield return new WaitForEndOfFrame();
             SavePng("21-reply-chips.png");
             app.QaChooseReply(1); // "Tell me more"
-            for (int f = 0; f < 2; f++) yield return null;
+            for (int f = 0; f < 4; f++) yield return null;
             yield return new WaitForEndOfFrame();
+            SavePng("21-reply-chosen.png"); // the chosen chip wears its check
             app.QaCloseLetter();
             app.QaSetDay(1); // the next day: Mira answers the reply
-            app.QaShowHub(true);
+            app.QaShowHub(false); // neighbours speak in the village view, as in the other talk shots
             app.QaTalk(0);
-            for (int f = 0; f < 6; f++) yield return null;
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.5f);
             yield return new WaitForEndOfFrame();
             SavePng("21-reply-echo.png");
             app.QaTalk(-1);
-            app.QaShowHub(false);
             app.QaSetDay(0);
         }
     }

@@ -8,13 +8,12 @@ namespace Evergrove.UnityClient
     /// <summary>Checklist 81 tour hooks: a neighbour's letter to reply to, a chip chosen, and the echo that follows.</summary>
     public sealed partial class EvergroveApp
     {
-        // Opens the newest letter, keeping one from Mira first if the newest is not a neighbour's. No reply saved yet.
+        // Keeps a note from Mira and opens it (the newest letter). No reply saved yet.
         internal void QaOpenNeighbourLetter()
         {
             if (world == null || world.Mode != PlayMode.Living) return;
-            string[] from = world.LetterFrom;
-            if (from.Length == 0 || Array.IndexOf(VillagerNames, from[from.Length - 1]) < 0)
-                world.KeepNote("Mira", "The river runs clear this morning. Would you like to walk down to the shade tree with me?");
+            // Always a fresh note from Mira, so the tour knows whose answer to look for.
+            world.KeepNote("Mira", "The river runs clear this morning. The shade tree is full of birds.");
             PlayerPrefs.DeleteKey(ReplyKeyPrefix + world.Garden);
             ShowLetter(0);
         }
