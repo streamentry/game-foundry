@@ -33,6 +33,7 @@ namespace Evergrove.UnityClient
             public bool Together;        // I265: solved taking turns: two small discs, sage and honey
             public bool Crowned;         // I292: a replay solved at the deepest tier: a second, outer ring
             public float Grown;          // I300: drawn this much larger as replays deepen it (0 or 1: its own size)
+            public int FlowerIndex;      // I338: a flower's catalogue index + 1 (0: not a flower or unknown)
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -164,6 +165,20 @@ namespace Evergrove.UnityClient
                 dim.color = new Color(0.02f, 0.03f, 0.08f, Dark);
                 dim.raycastTarget = false;
             }
+            // I338: in winter, snow lies on the ground: a soft white veil over the painting,
+            // under every thing, so the things stand out against it.
+            if (SeasonLook.SnowLying(SeasonNow) > 0f)
+            {
+                var snow = new GameObject("Snow lying", typeof(RectTransform));
+                snow.transform.SetParent(land.transform, false);
+                var snowRect = (RectTransform)snow.transform;
+                snowRect.anchorMin = Vector2.zero;
+                snowRect.anchorMax = Vector2.one;
+                snowRect.offsetMin = snowRect.offsetMax = Vector2.zero;
+                var veil = snow.AddComponent<Image>();
+                veil.color = new Color(0.97f, 0.98f, 1f, SeasonLook.SnowLying(SeasonNow));
+                veil.raycastTarget = false;
+            }
             if (Tint.a > 0.005f)
             {
                 var light = new GameObject("Day light", typeof(RectTransform));
@@ -186,6 +201,17 @@ namespace Evergrove.UnityClient
                 fliesRect.anchorMax = Vector2.one;
                 fliesRect.offsetMin = fliesRect.offsetMax = Vector2.zero;
                 flies.AddComponent<FireflyDrift>().Moving = FirefliesMove;
+            }
+            // I341: summer by day: dappled sunlight drifts slowly over the garden.
+            if (SeasonNow == Season.Summer && Dark < 0.005f && FirefliesMove)
+            {
+                var dapple = new GameObject("Summer sun", typeof(RectTransform));
+                dapple.transform.SetParent(host.transform, false);
+                var dappleRect = (RectTransform)dapple.transform;
+                dappleRect.anchorMin = Vector2.zero;
+                dappleRect.anchorMax = Vector2.one;
+                dappleRect.offsetMin = dappleRect.offsetMax = Vector2.zero;
+                dapple.AddComponent<SunDapple>();
             }
             // I317: through the festival spring, a garland of paper lanterns hangs across the view.
             if (FestivalNow)
@@ -594,6 +620,63 @@ namespace Evergrove.UnityClient
                     nodes.Add(catRect);
                 }
             }
+            // I338: snow on every cottage roof in winter (top right of each reach; mirrored ones too).
+            for (int reach = 0; SeasonLook.SnowCaps(SeasonNow) && reach < reaches; reach++)
+            {
+                float roofDown = reach % 2 == 0 ? reach * reachHeight + reachHeight * 0.075f : (reach + 1) * reachHeight - reachHeight * 0.075f;
+                var roof = new GameObject("Snow on the roof", typeof(RectTransform));
+                roof.transform.SetParent(land, false);
+                var roofRect = (RectTransform)roof.transform;
+                roofRect.anchorMin = roofRect.anchorMax = new Vector2(0f, 1f);
+                roofRect.sizeDelta = new Vector2(width * 0.2f, reachHeight * 0.085f);
+                roofRect.anchoredPosition = new Vector2(width * 0.858f, -roofDown);
+                var roofImage = roof.AddComponent<Image>();
+                roofImage.sprite = MosseloraArt.SoftGlow();
+                roofImage.color = new Color(1f, 1f, 1f, 0.85f);
+                roofImage.raycastTarget = false;
+                nodes.Add(roofRect);
+            }
+            // I342: the river through the year, drawn on the real water cells (a few, never all).
+            RiverLook riverLook = SeasonLook.River(SeasonNow);
+            if (riverLook != RiverLook.Running)
+            {
+                int drawn = 0;
+                for (int c = 0; c < map.CellCount && drawn < 70; c++)
+                {
+                    if (map.At(c) != GardenMap.Water || (c * 7) % (riverLook == RiverLook.IceEdged ? 2 : 3) != 0) continue;
+                    int col = c % map.Columns, row = c / map.Columns;
+                    var mark = new GameObject(riverLook.ToString(), typeof(RectTransform));
+                    mark.transform.SetParent(land, false);
+                    var markRect = (RectTransform)mark.transform;
+                    markRect.anchorMin = markRect.anchorMax = new Vector2(0f, 1f);
+                    markRect.anchoredPosition = new Vector2((col + 0.5f) * cellW, -(row + 0.5f) * cellH);
+                    var markImage = mark.AddComponent<Image>();
+                    markImage.raycastTarget = false;
+                    if (riverLook == RiverLook.IceEdged)
+                    {
+                        markRect.sizeDelta = new Vector2(cellW * 1.3f, cellH * 1.1f);
+                        markImage.sprite = MosseloraArt.SoftGlow();
+                        markImage.color = new Color(0.92f, 0.96f, 1f, 0.55f);
+                    }
+                    else if (riverLook == RiverLook.LeavesAfloat)
+                    {
+                        markRect.sizeDelta = new Vector2(cellW * 0.22f, cellW * 0.13f);
+                        markRect.localRotation = Quaternion.Euler(0f, 0f, (c * 37) % 180);
+                        markImage.sprite = MosseloraArt.Rounded(6);
+                        markImage.color = (c % 2 == 0) ? new Color(0.88f, 0.50f, 0.18f, 0.95f) : new Color(0.80f, 0.36f, 0.14f, 0.95f);
+                        if (FirefliesMove) mark.AddComponent<Afloat>().Phase = c;
+                    }
+                    else
+                    {
+                        markRect.sizeDelta = new Vector2(cellW * 0.16f, cellW * 0.16f);
+                        markImage.sprite = MosseloraArt.SoftGlow();
+                        markImage.color = new Color(1f, 1f, 0.95f, 0.9f);
+                        if (FirefliesMove) mark.AddComponent<Twinkle>().Phase = c;
+                    }
+                    nodes.Add(markRect);
+                    drawn++;
+                }
+            }
             // I310 (idea 43, leaving a light for another): lanterns family left stand along the
             // path below your cottage door, the newest nearest; lit after dusk.
             for (int l = 0; l < Mathf.Min(lanterns, 3); l++)
@@ -693,7 +776,11 @@ namespace Evergrove.UnityClient
                 var rect = (RectTransform)node.transform;
                 rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
                 rect.pivot = new Vector2(0.5f, 0.08f);
-                float tall = cellH * HeightInCells(item.Family) * (held ? 1.12f : 1f) * Mathf.Max(1f, item.Grown);
+                // I338–I340: the thing as the season has it: blossom, full, turning or resting.
+                ThingLook look = SeasonLook.For(SeasonNow, item.Family, item.FlowerIndex - 1);
+                bool restingFlower = look == ThingLook.Resting && item.Family == VillageChoice.Flowers;
+                float tall = cellH * HeightInCells(item.Family) * (held ? 1.12f : 1f) * Mathf.Max(1f, item.Grown)
+                    * (restingFlower ? 0.84f : 1f);
                 float aspectArt = item.Art.rect.width / Mathf.Max(1f, item.Art.rect.height);
                 rect.sizeDelta = new Vector2(tall * aspectArt, tall);
                 rect.anchoredPosition = at;
@@ -701,6 +788,7 @@ namespace Evergrove.UnityClient
                 image.sprite = item.Art;
                 image.preserveAspect = true;
                 image.raycastTarget = onItem != null;
+                if (!held) DressForSeason(node.transform, image, look, item.Family, rect.sizeDelta);
                 if (onItem != null)
                 {
                     int index = item.Index;
@@ -1132,6 +1220,131 @@ namespace Evergrove.UnityClient
         public static bool FestivalNow; // I317
         public static bool BeesOut, BirdsOut; // I325, I326
         public static int CatBy = -1;          // I335: a thing's index, -2 by the door, -1 none
+        public static Season SeasonNow = Season.Summer; // I338: the garden's season, set before a build
+
+        /// <summary>A leaf bobbing on the stream (I342).</summary>
+        private sealed class Afloat : MonoBehaviour
+        {
+            public float Phase;
+            private Vector2 home;
+            private float clock;
+            private void Start() { home = ((RectTransform)transform).anchoredPosition; }
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                ((RectTransform)transform).anchoredPosition = home + new Vector2(Mathf.Sin(clock * 0.7f + Phase) * 4f, Mathf.Sin(clock * 1.1f + Phase) * 2f);
+            }
+        }
+
+        /// <summary>Sun glinting on the water (I342).</summary>
+        private sealed class Twinkle : MonoBehaviour
+        {
+            public float Phase;
+            private Image image;
+            private float clock;
+            private void Start() { image = GetComponent<Image>(); }
+            private void Update()
+            {
+                clock += Time.unscaledDeltaTime;
+                if (image != null) image.color = new Color(1f, 1f, 0.95f, Mathf.Max(0f, Mathf.Sin(clock * 1.7f + Phase * 1.3f)) * 0.9f);
+            }
+        }
+
+        /// <summary>Soft warm patches of sunlight wandering slowly, as through leaves (I341).</summary>
+        private sealed class SunDapple : MonoBehaviour
+        {
+            private RectTransform[] spots;
+            private Vector2[] home;
+            private float clock;
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                Vector2 size = rect.rect.size;
+                var rng = new System.Random(41);
+                spots = new RectTransform[7];
+                home = new Vector2[spots.Length];
+                for (int i = 0; i < spots.Length; i++)
+                {
+                    var spot = new GameObject("Sunlight", typeof(RectTransform));
+                    spot.transform.SetParent(transform, false);
+                    spots[i] = (RectTransform)spot.transform;
+                    spots[i].anchorMin = spots[i].anchorMax = Vector2.zero;
+                    float d = 90f + (float)rng.NextDouble() * 80f;
+                    spots[i].sizeDelta = new Vector2(d, d * 0.7f);
+                    home[i] = new Vector2((float)rng.NextDouble() * size.x, (float)rng.NextDouble() * size.y);
+                    var image = spot.AddComponent<Image>();
+                    image.sprite = MosseloraArt.SoftGlow();
+                    image.color = new Color(1f, 0.95f, 0.70f, 0.16f);
+                    image.raycastTarget = false;
+                }
+            }
+            private void Update()
+            {
+                if (spots == null) return;
+                clock += Time.unscaledDeltaTime;
+                for (int i = 0; i < spots.Length; i++)
+                    spots[i].anchoredPosition = home[i] + new Vector2(Mathf.Sin(clock * 0.12f + i) * 30f, Mathf.Sin(clock * 0.09f + i * 2f) * 20f);
+            }
+        }
+
+        // I338–I340: snow caps in winter; warm turned leaves in autumn; a cool, quiet rest in
+        // winter; blossom on spring trees. Drawn over the painting, never replacing it.
+        private static void DressForSeason(Transform node, Image image, ThingLook look, VillageChoice family, Vector2 size)
+        {
+            if (look == ThingLook.Turning)
+            {
+                image.color = new Color(1f, 0.78f, 0.52f, 1f);
+                // I339: fallen leaves gather at its foot.
+                var rng = new System.Random(11);
+                for (int l = 0; l < 6; l++)
+                {
+                    var leaf = new GameObject("Fallen leaf", typeof(RectTransform));
+                    leaf.transform.SetParent(node, false);
+                    var r = (RectTransform)leaf.transform;
+                    r.anchorMin = r.anchorMax = new Vector2(-0.05f + (float)rng.NextDouble() * 1.1f, 0.02f + (float)rng.NextDouble() * 0.08f);
+                    float d = Mathf.Max(5f, size.x * 0.09f);
+                    r.sizeDelta = new Vector2(d, d * 0.6f);
+                    r.localRotation = Quaternion.Euler(0f, 0f, (float)rng.NextDouble() * 180f);
+                    var img = leaf.AddComponent<Image>();
+                    img.sprite = MosseloraArt.Rounded(6);
+                    img.color = l % 2 == 0 ? new Color(0.86f, 0.46f, 0.16f, 0.95f) : new Color(0.74f, 0.32f, 0.14f, 0.95f);
+                    img.raycastTarget = false;
+                }
+            }
+            else if (look == ThingLook.Resting)
+                image.color = family == VillageChoice.Flowers ? new Color(0.70f, 0.76f, 0.68f, 1f) : new Color(0.80f, 0.84f, 0.90f, 1f);
+            if (look == ThingLook.Blossom)
+            {
+                var rng = new System.Random(family == VillageChoice.ShadeTree ? 7 : 3);
+                for (int b = 0; b < 9; b++)
+                {
+                    var dot = new GameObject("Blossom", typeof(RectTransform));
+                    dot.transform.SetParent(node, false);
+                    var r = (RectTransform)dot.transform;
+                    r.anchorMin = r.anchorMax = new Vector2(0.2f + (float)rng.NextDouble() * 0.6f, 0.5f + (float)rng.NextDouble() * 0.42f);
+                    float d = Mathf.Max(5f, size.x * 0.08f);
+                    r.sizeDelta = new Vector2(d, d);
+                    var img = dot.AddComponent<Image>();
+                    img.sprite = MosseloraArt.Rounded(8);
+                    img.color = b % 3 == 0 ? new Color(1f, 0.96f, 0.97f, 0.95f) : new Color(0.98f, 0.74f, 0.82f, 0.95f);
+                    img.raycastTarget = false;
+                }
+            }
+            if (SeasonLook.SnowCaps(SeasonNow))
+            {
+                var cap = new GameObject("Snow cap", typeof(RectTransform));
+                cap.transform.SetParent(node, false);
+                var r = (RectTransform)cap.transform;
+                r.anchorMin = new Vector2(0.18f, 0.80f);
+                r.anchorMax = new Vector2(0.82f, 0.97f);
+                r.offsetMin = r.offsetMax = Vector2.zero;
+                var img = cap.AddComponent<Image>();
+                img.sprite = MosseloraArt.Rounded(16);
+                img.type = Image.Type.Sliced;
+                img.color = new Color(1f, 1f, 1f, 0.92f);
+                img.raycastTarget = false;
+            }
+        }
 
         /// <summary>A small cat asleep, curled: body, head, ears and tail, breathing slowly (I335).</summary>
         private sealed class SleepingCat : MonoBehaviour
@@ -1342,7 +1555,7 @@ namespace Evergrove.UnityClient
                 wide = Mathf.Max(1f, rect.rect.width);
                 high = Mathf.Max(1f, rect.rect.height);
                 var rng = new System.Random(527);
-                int count = Kind == Drift.Snow ? 18 : 10;
+                int count = SeasonLook.DriftCount(Kind); // I338–I340: enough to feel, never a blizzard
                 bits = new RectTransform[count];
                 x0 = new float[count]; speed = new float[count]; sway = new float[count]; phase = new float[count];
                 for (int i = 0; i < count; i++)

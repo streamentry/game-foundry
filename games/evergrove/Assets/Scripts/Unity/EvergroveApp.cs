@@ -2767,6 +2767,7 @@ namespace Evergrove.UnityClient
                     HoldsPuzzle = markPuzzles && !world.TreeSolved(i), // helped still holds your own first solve
                     Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, // I255
                     Together = world.SolvedTogether(i), // I265
+                    FlowerIndex = made[i] == (int)VillageChoice.Flowers ? ItemAt(i, made[i]).Index + 1 : 0, // I338
                     Crowned = world.TreeSolved(i) && ReplayBoards.Crowned(TreePuzzles.TierFor(i), Replays(i)), // I292
                     Grown = world.TreeSolved(i) ? ReplayBoards.Maturity(TreePuzzles.TierFor(i), Replays(i)) : 1f, // I300
                     BloomNow = i == justSolved && gentleMotion
@@ -2802,6 +2803,7 @@ namespace Evergrove.UnityClient
                     HoldsPuzzle = markPuzzles && !world.BoughtSolved(k),
                     Kind = (int)ThingPuzzle.ForNursery(kind) + 1, // I255
                     Together = world.SolvedTogether(BoughtIndex + k), // I265
+                    FlowerIndex = Nursery.Family(kind) == VillageChoice.Flowers ? Nursery.Item(kind).Index + 1 : 0, // I338
                     Crowned = world.BoughtSolved(k) && ReplayBoards.Crowned(Nursery.Row(kind), Replays(BoughtIndex + k)), // I292
                     Grown = world.BoughtSolved(k) ? ReplayBoards.Maturity(Nursery.Row(kind), Replays(BoughtIndex + k)) : 1f, // I300
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion
@@ -8149,6 +8151,7 @@ namespace Evergrove.UnityClient
             GardenMapView.BeesOut = Visitors.Welcomes(garden, Visitor.Bees) && Visitors.Out(Visitor.Bees, visitSeason, visitPhase);
             GardenMapView.BirdsOut = Visitors.Welcomes(garden, Visitor.Birds) && Visitors.Out(Visitor.Birds, visitSeason, visitPhase);
             GardenMapView.CatBy = GardenCat.NapBy(garden, visitPhase); // I335
+            GardenMapView.SeasonNow = garden != null && garden.Mode == PlayMode.Living ? visitSeason : Season.Summer; // I338
             // I295: the season's drift by day; it follows the season even with the light switch off.
             bool living = garden != null && garden.Mode == PlayMode.Living;
             GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),
