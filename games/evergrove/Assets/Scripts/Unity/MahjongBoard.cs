@@ -137,7 +137,8 @@ namespace Evergrove.UnityClient
             // in the bed, one of each, like a sampler of the garden.
             if (board == null || pictures == null) return;
             int faces = Mathf.Min(pictures.Length, MahjongGame.FacesFor(tier));
-            int across = Mathf.Min(faces, 6), down = (faces + across - 1) / across;
+            // Four to a row (I286: six to a row left them small on a phone).
+            int across = Mathf.Min(faces, 4), down = (faces + across - 1) / across;
             float size = Mathf.Min(board.rect.width / across, board.rect.height / down) * 0.86f;
             for (int f = 0; f < faces; f++)
             {

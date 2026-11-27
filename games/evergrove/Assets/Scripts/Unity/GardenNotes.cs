@@ -18,6 +18,9 @@ namespace Evergrove.UnityClient
         private const string HourKey = "evergrove:notes-hour";
         private const string UnopenedKey = "evergrove:notes-unopened";
         private const string AskedKey = "evergrove:notes-asked"; // 0 never, 1 once "not now", 2 twice: never again
+        private const string DueKey = "evergrove:notes-due";       // when the queued note was due (ticks)
+        private const string TargetKey = "evergrove:notes-target"; // what it pointed at
+        private const string ThingKey = "evergrove:notes-thing";
 
 #if UNITY_IOS && !UNITY_EDITOR
         [DllImport("__Internal")] private static extern void _MosseloraNotesRequest();
@@ -64,18 +67,35 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
         }
 
-        /// <summary>The game opened (by a note or not): the unopened run resets, the pending note goes.</summary>
-        public static void Opened()
+        /// <summary>
+        /// The game opened (by a note or not): the unopened run resets and the pending note goes.
+        /// If the note had already come (its hour has passed), returns what it pointed at, so the
+        /// garden can show it (I283, rule 8: "opens where it points"); otherwise null.
+        /// </summary>
+        public static GardenNote Opened()
         {
+            GardenNote came = null;
+            string due = PlayerPrefs.GetString(DueKey, "");
+            if (On && long.TryParse(due, out long ticks) && DateTime.Now.Ticks >= ticks &&
+                Enum.TryParse(PlayerPrefs.GetString(TargetKey, ""), out NoteTarget target))
+                came = new GardenNote { Target = target, Thing = PlayerPrefs.GetInt(ThingKey, -1) };
+            PlayerPrefs.DeleteKey(DueKey);
             PlayerPrefs.SetInt(UnopenedKey, 0);
             PlayerPrefs.Save();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (devTestActive) return came; // I284: Unity reports a resume right after launch
+#endif
             Cancel();
+            return came;
         }
 
         /// <summary>The game is closing: queue tomorrow's (or today's) one note, if anything is waiting.</summary>
         public static GardenNote Schedule(WorldModel world, bool unreadLetter)
         {
             if (!On) return null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (devTestActive) return null; // I284: leave the test note queued while backgrounded
+#endif
             int unopened = PlayerPrefs.GetInt(UnopenedKey, 0);
             if (!GardenNote.MaySchedule(unopened)) { Cancel(); return null; }
             GardenNote note = GardenNote.For(world, unreadLetter);
@@ -84,6 +104,9 @@ namespace Evergrove.UnityClient
             double seconds = (when - DateTime.Now).TotalSeconds;
             // Counted now; reset when the game opens. Three in a row unopened and it stops.
             PlayerPrefs.SetInt(UnopenedKey, unopened + 1);
+            PlayerPrefs.SetString(DueKey, when.Ticks.ToString());
+            PlayerPrefs.SetString(TargetKey, note.Target.ToString());
+            PlayerPrefs.SetInt(ThingKey, note.Thing);
             PlayerPrefs.Save();
 #if UNITY_IOS && !UNITY_EDITOR
             try { _MosseloraNotesSchedule(note.From, note.Body, seconds, note.Target.ToString()); }
@@ -93,6 +116,30 @@ namespace Evergrove.UnityClient
 #endif
             return note;
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>
+        /// I284, development builds only: launched with MosseloraNoteTest set (on the simulator,
+        /// SIMCTL_CHILD_MosseloraNoteTest=1), turn notes on and queue the real note the garden would
+        /// send (or a clearly marked test line when nothing is waiting) 75 seconds from now, so
+        /// delivery can be seen on a simulator or device.
+        /// </summary>
+        private static bool devTestActive;
+
+        public static void DevTest(WorldModel world)
+        {
+            if (DevArgs.Read("-MosseloraNoteTest") == null) return;
+            devTestActive = true;
+            TurnOn(19);
+            GardenNote note = GardenNote.For(world, false) ??
+                new GardenNote { From = "Mosselora", Body = "A test note from the garden (development build).", Target = NoteTarget.River };
+#if UNITY_IOS && !UNITY_EDITOR
+            try { _MosseloraNotesSchedule(note.From, note.Body, 75, note.Target.ToString()); }
+            catch (Exception e) { Debug.LogWarning("Garden notes unavailable: " + e.Message); }
+#endif
+            Debug.Log("MOSSELORA_NOTE_TEST in 75 s: " + note.From + ": " + note.Body);
+        }
+#endif
 
         private static void Cancel()
         {
