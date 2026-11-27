@@ -8,17 +8,24 @@ namespace Evergrove.UnityClient
     /// <summary>
     /// Checklist 49: the night creatures, one per open stretch, placed on the map in the evening only.
     /// The app sets <see cref="Cells"/> (one free cell per stretch, -1 none) from the evening's phase;
-    /// the map view places them when it is built and the cells are used once.
+    /// the map view takes them once when it is made (<see cref="Take"/>) and keeps them, so a rebuild
+    /// of the land (a resize, a turn of the phone) places them again, as it does the day visitors.
     /// Even stretches get a moth (kind 4), odd stretches a frog (kind 5): see NightCreatures.For.
     /// </summary>
     internal static class GardenNightCreatures
     {
         public static int[] Cells;
 
-        public static void Place(RectTransform land, List<RectTransform> nodes, GardenMap map, float cellW, float cellH)
+        /// <summary>The cells set for the next map view, handed over once.</summary>
+        public static int[] Take()
         {
             int[] cells = Cells;
             Cells = null;
+            return cells;
+        }
+
+        public static void Place(RectTransform land, List<RectTransform> nodes, GardenMap map, float cellW, float cellH, int[] cells)
+        {
             for (int reach = 0; cells != null && reach < cells.Length; reach++)
             {
                 int cell = cells[reach];

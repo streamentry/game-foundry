@@ -29,6 +29,7 @@ internal static class DayRhythmTests
         NoNightCreatureOutsideTheEvening();
         NightCreaturesAreTheNewKinds();
         NightSpotsSitMidStretch();
+        NightCellsSurviveRelayout();
         OfferIsDewInTheMorningOnly();
         OfferIsALanternAtDuskOnly();
         OfferIsDeterministic();
@@ -177,6 +178,19 @@ internal static class DayRhythmTests
         for (int cell = 0; cell < map.CellCount; cell++) all.Add(cell);
         int[] none = NightCreatures.Spots(map, all, DayPhase.Night);
         Expect(Array.TrueForAll(none, c => c == -1), "no free land, no creature");
+    }
+
+    // The map view lays its land out again many times (a resize, the HUD's clearances, travel's KeepAt),
+    // so the night cells are kept on the view, as the day visitors' are, not used up on the first layout.
+    private static void NightCellsSurviveRelayout()
+    {
+        string view = ReadEvergrove("Assets/Scripts/Unity/GardenMapView.cs");
+        string place = ReadEvergrove("Assets/Scripts/Unity/GardenNightCreatures.cs");
+        Expect(view.Contains("view.nightCells = GardenNightCreatures.Take();"), "the view takes the night cells once, when it is made");
+        Expect(view.Contains("GardenNightCreatures.Place(land, nodes, map, cellW, cellH, nightCells);"), "each layout places the kept cells");
+        Expect(!place.Contains("Cells = null;\n            for"), "Place does not clear the cells it is given");
+        Expect(place.Contains("public static void Place(RectTransform land, List<RectTransform> nodes, GardenMap map, float cellW, float cellH, int[] cells)"),
+            "Place is handed the view's cells");
     }
 
     private static void TourSavesTheShots()
