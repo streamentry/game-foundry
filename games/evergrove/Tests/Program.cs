@@ -1941,6 +1941,9 @@ internal static class Program
             assertions += TogetherTests.Run();
             assertions += FamilyGiftsTests.Run();
             assertions += KitchenTests.Run();
+            assertions += CompanionRulesTests.Run();
+            assertions += QuietArcsTests.Run();
+            assertions += ChosenDatesTests.Run();
             assertions += GardenNameTests.Run();
             assertions += KindMistakesTests.Run();
             assertions += RecipeTests.Run();

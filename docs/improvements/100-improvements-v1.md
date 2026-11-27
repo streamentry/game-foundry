@@ -113,15 +113,15 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 ## I. Neighbours as quiet companions
 
 - [ ] **81. Neighbours remember what you said.** Reply chips in letters (three icons, not free text) shape the next letter. *Test:* a reply is echoed within 3 days.
-- [ ] **82. They notice your habits, gently.** "You come by in the mornings" appears after a real pattern, and never in a way that judges. *Test:* the line appears only after 5 morning visits.
-- [ ] **83. Each neighbour has a life arc.** Orin builds a boat over a season and Fen mends the mill. Their projects move forward as you play. *Test:* each arc has an end.
-- [ ] **84. Neighbours ask for help.** Small requests (I313 wishes) that need your garden's logic, such as "a flower bed near my door". *Test:* each wish is satisfiable from the current garden.
-- [ ] **85. Neighbours can be quiet.** A setting for "speak less" halves remarks, for players who prefer silence. *Test:* setting persists.
+- [x] **82. They notice your habits, gently.** "You come by in the mornings" appears after a real pattern, and never in a way that judges. *Test:* the line appears only after 5 morning visits.
+- [x] **83. Each neighbour has a life arc.** Orin builds a boat over a season and Fen mends the mill. Their projects move forward as you play. *Test:* each arc has an end.
+- [x] **84. Neighbours ask for help.** Small requests (I313 wishes) that need your garden's logic, such as "a flower bed near my door". *Test:* each wish is satisfiable from the current garden.
+- [x] **85. Neighbours can be quiet.** A setting for "speak less" halves remarks, for players who prefer silence. *Test:* setting persists.
 - [ ] **86. A neighbour speaks your language properly.** Neighbour lines are localised by native writers, not translated, starting with the first localisation market. *Test:* a native reviewer signs off.
-- [ ] **87. They mark real dates you choose.** The player may add a birthday or anniversary, and the neighbours mark it. It stays local and is never sent anywhere. *Test:* data stays on the device.
+- [x] **87. They mark real dates you choose.** The player may add a birthday or anniversary, and the neighbours mark it. It stays local and is never sent anywhere. *Test:* data stays on the device.
 - [x] **88. Honest companions.** Neighbours never claim feelings about the player's health or loneliness, and never imply they're real people. *Test:* a line audit against vision §1a's "what we must not claim".
 - [ ] **89. Optional on-device language model, researched first.** Only if it runs offline and passes a safety review: a neighbour could vary wording, never facts. *Test:* a spike that compares wording quality and latency on device.
-- [ ] **90. Goodbyes that matter.** If the player stops for months, the return letter is warm, short and specific to their garden. *Test:* the 90-day absence path in QA.
+- [x] **90. Goodbyes that matter.** If the player stops for months, the return letter is warm, short and specific to their garden. *Test:* the 90-day absence path in QA.
 
 ## J. Accessibility, trust and proof
 
