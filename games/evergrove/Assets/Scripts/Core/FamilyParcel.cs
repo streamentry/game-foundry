@@ -30,7 +30,9 @@ namespace Evergrove.Core
         /// <summary>Sending fruit: the garden holds fewer than the parcel would carry.</summary>
         NotEnoughFruit,
         /// <summary>Sending jam: the garden holds fewer jars than the parcel would carry.</summary>
-        NotEnoughJam
+        NotEnoughJam,
+        /// <summary>Opening fruit or jam: the parcel would not fit in full, so nothing is opened (v1 #76). Last, so saved values hold.</summary>
+        LarderFull
     }
 
     public sealed class ParcelContents
@@ -68,13 +70,13 @@ namespace Evergrove.Core
         public int GiftIndex = -1;
         /// <summary>Index of the grown thing a Help parcel bloomed, else -1.</summary>
         public int HelpedItem = -1;
-        /// <summary>Fruit that actually arrived (less than sent only when the garden hit its fruit cap).</summary>
+        /// <summary>Fruit that arrived: all of it, since a parcel that would not fit is refused (LarderFull, v1 #76).</summary>
         public int FruitGained;
         /// <summary>Opening a Board parcel: the puzzle kind (PuzzleKind), tier and board seed to open; -1 when not a board.</summary>
         public int BoardKind = -1;
         public int BoardTier = -1;
         public int BoardSeed = -1;
-        /// <summary>Jars that actually arrived (less than sent only when the pantry is nearly full).</summary>
+        /// <summary>Jars that arrived: all of them, since a parcel that would not fit is refused (LarderFull, v1 #76).</summary>
         public int JamGained;
     }
 

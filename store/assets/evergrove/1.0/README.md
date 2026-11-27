@@ -1,6 +1,6 @@
 # Mosselora 1.0 store screenshot candidates
 
-This folder contains historical build-1 JPEGs and build-2 PNG captures from actual Unity builds. The build-2 media predates current `HEAD` `8c9e543`; recapture it from a current-source build before submission. The iOS build-2 source is recorded as `84c0592`; the Android AAB does not retain an exact source SHA. No gameplay or text was added to the screenshot captures.
+This folder contains historical build-1 JPEGs and build-2 PNG captures from actual Unity builds. The build-2 media predates current runtime `main` `6098810` and worktree `HEAD` `5bfe306`; recapture it from a current-source build before submission. The iOS build-2 source is `84c0592`; the Android AAB does not retain an exact source SHA. No gameplay or text was added to the screenshot captures.
 
 | Store | Asset | Capture source | Device / OS | Dimensions | Review |
 | --- | --- | --- | --- | --- | --- |

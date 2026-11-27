@@ -2025,13 +2025,17 @@ namespace Evergrove.UnityClient
             int replays = world.TreeSolved(item) ? Replays(item) : 0;
             int tier = ReplayBoards.Tier(TreePuzzles.TierFor(item), replays);
             int seed = ReplayBoards.Seed(world.Garden * 1000 + item * 7 + 1, world.TreeSolved(item) ? replays + 1 : 0);
-            int reward = WorldModel.TreeReward(TreePuzzles.TierFor(item), !world.TreeSolved(item));
+            // v1 #80: one day decides both the reward shown here and the seeds paid on solve.
+            int day = LocalDayStamp();
+            int reward = world.TreeSolved(item)
+                ? world.ReplayRewardOn(TreePuzzles.TierFor(item), day)
+                : WorldModel.TreeReward(TreePuzzles.TierFor(item), true);
             bool replay = world.TreeSolved(item);
-            Func<int> solved = () => { int fruitBeforeSolve = world.Fruit; int earned = world.SolveTree(item); if (replay) CountReplay(item);
-                NotePollinated(item, world.Fruit > fruitBeforeSolve); // I378
+            Func<int> solved = () => { int fruitBeforeSolve = world.Fruit; int earned = world.SolveTree(item, day); if (replay) CountReplay(item);
+                NotePollinated(item, world.Fruit > fruitBeforeSolve); // I378, gated by the fruit this solve picked
                 SaveWorld(); PlayChime(); return earned; };
             OpenThingPuzzle(seed, tier, ThingPuzzle.ForStory(item, (VillageChoice)made[item]), ItemArt(item, made[item]),
-                thing.Name, reward, item, solved);
+                thing.Name, reward, item, solved, ownBoard: true);
         }
 
         // Replays per thing, on this device (I259): only what boards to deal next, never progress.
@@ -2052,18 +2056,19 @@ namespace Evergrove.UnityClient
             bool replay = world.BoughtSolved(k);
             int replays = replay ? Replays(BoughtIndex + k) : 0;
             int tier = ReplayBoards.Tier(Nursery.Row(kind), replays);
-            int reward = WorldModel.TreeReward(Nursery.Row(kind), !replay);
+            int day = LocalDayStamp(); // v1 #80: the same day for the reward shown and the seeds paid
+            int reward = replay ? world.ReplayRewardOn(Nursery.Row(kind), day) : WorldModel.TreeReward(Nursery.Row(kind), true);
             OpenThingPuzzle(ReplayBoards.Seed(world.Garden * 1000 + 500 + k * 7, replay ? replays + 1 : 0), tier,
                 ThingPuzzle.ForNursery(kind),
                 MosseloraArt.Load(plant.Art), plant.Name, reward, k * 5 + kind,
-                () => { int fruitBeforeSolve = world.Fruit; int earned = world.SolveBought(k); if (replay) CountReplay(BoughtIndex + k);
+                () => { int fruitBeforeSolve = world.Fruit; int earned = world.SolveBought(k, day); if (replay) CountReplay(BoughtIndex + k);
                     NotePollinated(world.Choices.Length + world.PlantingCount + k, world.Fruit > fruitBeforeSolve); // I378
-                    SaveWorld(); PlayChime(); return earned; });
+                    SaveWorld(); PlayChime(); return earned; }, ownBoard: true);
         }
 
         // Each thing holds one kind of puzzle (I243: ThingPuzzle).
         private void OpenThingPuzzle(int seed, int tier, PuzzleKind kind, Sprite art, string name, int reward,
-                                     int pictureStart, Func<int> solved)
+                                     int pictureStart, Func<int> solved, bool ownBoard = false)
         {
             moveNote = 0; // I305: each board starts its phrase from the top
             Action turned = () => { PlayMove(kind); if (gentleMotion) Haptics.Tick(); };
@@ -2111,8 +2116,9 @@ namespace Evergrove.UnityClient
             if (card != null) { card.Flourish = FlourishArt(kind, out Color tint); card.FlourishTint = tint; }
             // I322: a kind that needed hints last time starts with a move or two made.
             if (card != null) card.GiveHeadStart(HeadStart.Moves(PlayerPrefs.GetInt(hintsKey, 0), tier));
-            // I309: a board of your own can be sent to family once solved.
-            if (card != null && reward > 0 && world.Mode == PlayMode.Living)
+            // I309: a board of your own can be sent to family once solved. v1 #80: ownership is
+            // explicit, because a capped replay of your own thing now pays 0 seeds.
+            if (card != null && ownBoard && world.Mode == PlayMode.Living)
                 card.SendBoard = () => SendBoardToFamily(kind, tier, seed, name);
         }
 
@@ -2577,7 +2583,7 @@ namespace Evergrove.UnityClient
             var body = purse.AddComponent<Image>();
             MosseloraArt.Round(body, new Color(0.98f, 0.95f, 0.86f, 0.96f), 24);
             MosseloraArt.Lift(body, 2f, 0.2f);
-            body.raycastTarget = false;
+            SeedPurseTap(purse, body); // tap opens the seed book (EvergroveApp.Economy.cs)
             var row = purse.AddComponent<HorizontalLayoutGroup>();
             row.padding = new RectOffset(8, 12, 4, 4);
             row.spacing = 4;
@@ -3948,7 +3954,7 @@ namespace Evergrove.UnityClient
                 int price = Nursery.Price(kind);
                 bool open = world.RowOpen(Nursery.Row(kind));
                 bool affordable = open && world.Seeds >= price;
-                Button token = IconButton(row, "Nursery " + kind, plant.Name + ", " + price + " seeds",
+                Button token = IconButton(row, "Nursery " + kind, plant.Name + ", " + price + " seeds. " + PriceReason(Nursery.Row(kind)),
                     MosseloraArt.IconRooted, () => {
                         if (!affordable) return; // gently refused: the faded look already says why
                         nurseryKind = nurseryKind == pick ? -1 : pick;
@@ -6150,6 +6156,8 @@ namespace Evergrove.UnityClient
             Text promise = Label(content, "Respectful play", GameLocalization.Text("offline"),
                 15, 36, Ink, TextAnchor.MiddleCenter);
             Emphasize(promise);
+            Button(content, "Privacy policy", GameLocalization.Text("privacy_policy"),
+                () => Application.OpenURL("https://mosselora.com/privacy/"));
             content = page;
             BuildChrome(living);
             UpdateCreekSound();
