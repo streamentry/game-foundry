@@ -1335,13 +1335,13 @@ namespace Evergrove.UnityClient
                 var cap = new GameObject("Snow cap", typeof(RectTransform));
                 cap.transform.SetParent(node, false);
                 var r = (RectTransform)cap.transform;
-                r.anchorMin = new Vector2(0.18f, 0.80f);
-                r.anchorMax = new Vector2(0.82f, 0.97f);
+                // b311: a hard pill floated over wide things; a soft mound hugs the top instead.
+                r.anchorMin = new Vector2(0.16f, 0.70f);
+                r.anchorMax = new Vector2(0.84f, 1.0f);
                 r.offsetMin = r.offsetMax = Vector2.zero;
                 var img = cap.AddComponent<Image>();
-                img.sprite = MosseloraArt.Rounded(16);
-                img.type = Image.Type.Sliced;
-                img.color = new Color(1f, 1f, 1f, 0.92f);
+                img.sprite = MosseloraArt.SoftGlow();
+                img.color = new Color(1f, 1f, 1f, 0.95f);
                 img.raycastTarget = false;
             }
         }
