@@ -134,6 +134,10 @@ namespace Evergrove.UnityClient
                     return Mathf.Exp(-t * 30f) * 0.13f * (Sine(hz, t) + 0.15f * Sine(hz * 3f, t)) + 0.03f * white * Mathf.Exp(-t * 300f);
                 case PuzzleKind.Sums: // a bead slid on a counting frame
                     return Mathf.Exp(-t * 34f) * 0.11f * (Sine(hz, t) + 0.35f * Sine(hz * 2.01f, t)) + 0.05f * white * Mathf.Exp(-t * 500f);
+                case PuzzleKind.Pieces: // a wooden piece set into place
+                    return Mathf.Exp(-t * 38f) * 0.12f * (Sine(hz, t) + 0.3f * Sine(hz * 2.5f, t)) + 0.06f * white * Mathf.Exp(-t * 350f);
+                case PuzzleKind.Doorstep: // a pinch of rice flour, soft and bright
+                    return Mathf.Exp(-t * 20f) * 0.09f * (Sine(hz, t) + 0.4f * Sine(hz * 2f, t)) + 0.02f * white * Mathf.Exp(-t * 80f);
                 case PuzzleKind.Plots: // a bed raked: a low, warm note
                     return Mathf.Exp(-t * 16f) * 0.14f * Sine(hz * 0.5f, t) + 0.02f * white * Mathf.Exp(-t * 60f);
                 default: // StreamPath: a drop of water, its pitch rising as it falls in

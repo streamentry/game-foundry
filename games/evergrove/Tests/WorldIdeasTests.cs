@@ -438,6 +438,30 @@ internal static class WorldIdeasTests
             "birds stay through winter, sleep at night");
         Expect(!Visitors.Out(Visitor.Butterflies, Season.Autumn, DayPhase.Day) && Visitors.Out(Visitor.Butterflies, Season.Spring, DayPhase.Golden),
             "butterflies in spring and summer");
+        // Ideas 9 and 44 join the nursery: garden pieces with Orin's made things, the doorstep
+        // pattern with Fen's flowers, in the last edition of each.
+        var nurseryKinds = new HashSet<PuzzleKind>();
+        for (int kind = 0; kind < Nursery.Kinds; kind++) nurseryKinds.Add(ThingPuzzle.ForNursery(kind));
+        Expect(nurseryKinds.Contains(PuzzleKind.Pieces) && nurseryKinds.Contains(PuzzleKind.Doorstep), "the nursery grows both");
+        Expect(NeighbourNotice.OwnerOf(PuzzleKind.Pieces) == 1 && NeighbourNotice.OwnerOf(PuzzleKind.Doorstep) == 2,
+            "Orin keeps the pieces, Fen the doorstep");
+        // Idea 11 (puzzles found in the world): the old well at the river's head holds the
+        // deepest boards, one per stretch of river opened; each pays two fruit, once.
+        WorldModel welled = WorldModel.New(PlayMode.Living);
+        Expect(welled.WellSolved == 0 && OldWell.Waiting(welled) == 1, "a new garden: the well holds one board");
+        int fruitBefore = welled.Fruit;
+        Expect(welled.TendWell() == OldWell.FruitPerBoard && welled.Fruit == fruitBefore + OldWell.FruitPerBoard, "two fruit, once");
+        Expect(welled.WellSolved == 1 && OldWell.Waiting(welled) == 0 && welled.TendWell() < 0, "then it waits for more river");
+        Expect(!GardenTransfer.Export(WorldModel.New(PlayMode.Living), "2026-11-27T00:00:00Z").Contains("\"well\""),
+            "older gardens' files are unchanged");
+        Expect(GardenTransfer.TryImport(GardenTransfer.Export(welled, "2026-11-27T00:00:00Z"), out WorldModel wellBack, out _) &&
+               wellBack.WellSolved == 1 && wellBack.Fruit == welled.Fruit, "the well's count travels in the garden file");
+        var kindsAtWell = new HashSet<PuzzleKind>();
+        for (int i = 0; i < 40; i++) kindsAtWell.Add(OldWell.KindFor(i));
+        Expect(kindsAtWell.Count == Enum.GetValues(typeof(PuzzleKind)).Length, "the well deals every kind in turn");
+        Expect(OldWell.Tier == TreePuzzles.Tiers - 1, "always the deepest");
+        Expect(OldWell.SeedFor(3, 2) != OldWell.SeedFor(3, 3) && OldWell.SeedFor(3, 2) == OldWell.SeedFor(3, 2), "its own board each time");
+        Expect(WorldModel.New(PlayMode.PuzzleOnly).TendWell() < 0, "only in a living garden");
         return assertions;
     }
 

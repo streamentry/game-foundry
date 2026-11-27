@@ -2090,6 +2090,8 @@ namespace Evergrove.UnityClient
                 case PuzzleKind.StreamPath: board = new StreamBoard(new StreamPathGame(seed, tier)); break;
                 case PuzzleKind.Sowing: board = new SowBoard(seed, tier); break;            // I318
                 case PuzzleKind.Sums: board = new SumsBoard(new SeedSumsGame(seed, tier)); break; // I324
+                case PuzzleKind.Pieces: board = new PiecesBoard(new GardenPiecesGame(seed, tier), tier); break; // I331
+                case PuzzleKind.Doorstep: board = new DoorstepBoard(new DoorstepGame(seed, tier), tier); break; // I332
                 case PuzzleKind.Mahjong: board = new MahjongBoard(new MahjongGame(seed, tier), tier, pictures(MahjongGame.FacesFor(tier))); break;
             }
             if (board != null)
@@ -2205,7 +2207,7 @@ namespace Evergrove.UnityClient
         // changes nothing in your garden; it's simply the same puzzle, shared.
         private void PlayTheirBoard(int kind, int tier, int seed, string from)
         {
-            if (titleScreen == null || kind < 0 || kind > (int)PuzzleKind.Sums) return;
+            if (titleScreen == null || kind < 0 || kind > (int)PuzzleKind.Doorstep) return;
             OpenThingPuzzle(seed, Mathf.Clamp(tier, 0, TreePuzzles.Tiers - 1), (PuzzleKind)kind,
                 MosseloraArt.Load("letter-sealed"), from + "'s board", 0, Mathf.Abs(seed % 97), () => 0);
         }
@@ -2623,6 +2625,7 @@ namespace Evergrove.UnityClient
         private const int BoughtIndex = 2000; // map indices at or above this are bought plants
         private const int SecretIndex = 3000; // I320: map indices at or above this are mossy stones, by stretch
         private const int DecorIndex = 4000;  // I330: map indices at or above this are decorations
+        private const int WellIndex = 5000;   // I333: the old well at the river's head
         private int decorInHand = -1;          // a Decoration chosen at the cottage, to place
         private int heldDecor = -1;            // a placed decoration picked up, to move or put away
 
@@ -2748,6 +2751,25 @@ namespace Evergrove.UnityClient
                     Cell = decor[d * 2 + 1], Index = DecorIndex + d, Family = VillageChoice.Bridge,
                     Newest = d == justDecorated });
             }
+            // I333: the old well at the head of the river, first free land at the top left.
+            if (markPuzzles)
+            {
+                var wellTaken = new System.Collections.Generic.List<int>(cells);
+                for (int k = 1; k < planted.Length; k += 2) wellTaken.Add(planted[k]);
+                for (int k = 1; k < bought.Length; k += 2) wellTaken.Add(bought[k]);
+                for (int k = 1; k < decor.Length; k += 2) wellTaken.Add(decor[k]);
+                int wellCell = -1;
+                for (int row = 1; row < 4 && wellCell < 0; row++)
+                    for (int col = 0; col < 3 && wellCell < 0; col++)
+                    {
+                        int c = row * map.Columns + col;
+                        if (map.IsLand(c) && !wellTaken.Contains(c)) wellCell = c;
+                    }
+                if (wellCell >= 0)
+                    items.Add(new GardenMapView.Placed { Art = MosseloraArt.Load("build-05"), Cell = wellCell, Index = WellIndex,
+                        Family = VillageChoice.Bridge, HoldsPuzzle = OldWell.Waiting(world) > 0,
+                        Kind = (int)OldWell.KindFor(world.WellSolved) + 1 });
+            }
             // I320: one mossy stone on the bank of each stretch after the first, until found.
             if (markPuzzles)
             {
@@ -2764,6 +2786,26 @@ namespace Evergrove.UnityClient
                 }
             }
             return items;
+        }
+
+        // I333: the well's next deepest board; two fruit when solved, once.
+        private void OpenWell()
+        {
+            if (titleScreen == null) return;
+            if (OldWell.Waiting(world) <= 0)
+            {
+                Transform hub = titleScreen.transform;
+                RuleToast.Show((RectTransform)hub, "The well is still. New river will fill it again.", font, Ink, MosseloraTheme.CardFill);
+                return;
+            }
+            int index = world.WellSolved;
+            OpenThingPuzzle(OldWell.SeedFor(world.Garden, index), OldWell.Tier, OldWell.KindFor(index),
+                MosseloraArt.Load("build-05"), "the old well", 0, index, () =>
+                {
+                    int fruitBefore = world.Fruit;
+                    if (world.TendWell() > 0) { SaveWorld(); PlayChime(); fruitPicked = world.Fruit > fruitBefore; }
+                    return 0;
+                });
         }
 
         private string StoneKey(int reach) { return "evergrove:mossy-stone:" + world.Garden + ":" + reach; }
@@ -3124,6 +3166,7 @@ namespace Evergrove.UnityClient
 
         private void OnMapItem(int index)
         {
+            if (index == WellIndex) { OpenWell(); return; }
             if (index >= DecorIndex)
             {
                 // I330: tap a decoration to pick it up; tap it again to put it away.
@@ -8467,6 +8510,33 @@ namespace Evergrove.UnityClient
             PlayerPrefs.SetInt(ReplayKey(item), ReplayBoards.ReplaysPerTier * 3);
             justSolved = item; // home frames it
             RefreshMapsFresh();
+        }
+
+        // I328/I330 tour: a jar of jam from three fruit, and a bench and stepping stones set down
+        // on free land near the newest thing.
+        internal void QaDecorAndJam()
+        {
+            if (!qaInMemoryOnly) return;
+            world.MakeJam();
+            GardenMap map = LoadGardenMap();
+            if (map == null) return;
+            int[] cells = map.Layout(world.Choices, world.Placements, world.Occupied);
+            int near = cells.Length > 0 ? cells[cells.Length - 1] : 30;
+            int placed = 0;
+            for (int step = 1; step < map.CellCount && placed < 2; step++)
+            {
+                int cell = (near + step) % map.CellCount;
+                if (world.PlaceDecor(placed == 0 ? Decoration.Bench : Decoration.Stones, cell, map)) placed++;
+            }
+            RefreshMaps();
+        }
+
+        // I333 tour: open the old well's board.
+        internal void QaOpenWell()
+        {
+            if (!qaInMemoryOnly) return;
+            OpenWell();
+            qaTreePlay = titleScreen != null ? titleScreen.GetComponentInChildren<TreePlay>() : null;
         }
 
         // I310 tour: a real lantern parcel from a relative, opened here.

@@ -93,8 +93,8 @@ namespace Evergrove.Core
         // Who speaks for which kind of puzzle: Mira the water, Orin the made things, Fen the flowers.
         private static readonly PuzzleKind[][] Kept = {
             new[] { PuzzleKind.Water, PuzzleKind.StreamPath, PuzzleKind.Nonogram },
-            new[] { PuzzleKind.Mosaic, PuzzleKind.Plots, PuzzleKind.Mahjong, PuzzleKind.Sums },
-            new[] { PuzzleKind.Pairs, PuzzleKind.Sudoku, PuzzleKind.Sowing },
+            new[] { PuzzleKind.Mosaic, PuzzleKind.Plots, PuzzleKind.Mahjong, PuzzleKind.Sums, PuzzleKind.Pieces },
+            new[] { PuzzleKind.Pairs, PuzzleKind.Sudoku, PuzzleKind.Sowing, PuzzleKind.Doorstep },
         };
 
         public static int OwnerOf(PuzzleKind kind)
@@ -132,6 +132,8 @@ namespace Evergrove.Core
                 case PuzzleKind.Pairs: return "flower beds";
                 case PuzzleKind.Sowing: return "into the basket";
                 case PuzzleKind.Sums: return "seed sums";
+                case PuzzleKind.Pieces: return "garden pieces";
+                case PuzzleKind.Doorstep: return "doorstep pattern";
                 default: return "seed squares";
             }
         }
@@ -177,6 +179,8 @@ namespace Evergrove.Core
                 case PuzzleKind.Pairs: return "The two of you matched the flower beds together. My bees approve.";
                 case PuzzleKind.Sowing: return "You sowed those beds into the basket together, turn and turn about. Seeds go further shared.";
                 case PuzzleKind.Sums: return "You worked those seed sums out together. Two heads, one ledger.";
+                case PuzzleKind.Pieces: return "You fitted the garden pieces together, a piece each. Not a gap left.";
+                case PuzzleKind.Doorstep: return "You drew that doorstep pattern together. Both halves match, as they should.";
                 default: return "You sowed the seed squares together, turn about. Not one plant twice.";
             }
         }
@@ -205,6 +209,8 @@ namespace Evergrove.Core
                 case PuzzleKind.Pairs: return "matched one of your flower beds.";
                 case PuzzleKind.Sowing: return "sowed a row of your beds into the basket.";
                 case PuzzleKind.Sums: return "worked out a board of seed sums for you.";
+                case PuzzleKind.Pieces: return "fitted a set of garden pieces for you.";
+                case PuzzleKind.Doorstep: return "drew a doorstep pattern for you.";
                 default: return "sowed a bed of seed squares for you.";
             }
         }
@@ -271,6 +277,12 @@ namespace Evergrove.Core
                 case PuzzleKind.Sums:
                     return one ? "You balanced a board of seed sums. Every row adds up, like a good ledger."
                         : "You have balanced " + n + " boards of seed sums. Every row adds up, like a good ledger.";
+                case PuzzleKind.Pieces:
+                    return one ? "You fitted a set of garden pieces. Not a gap left, not a piece spare."
+                        : "You have fitted " + n + " sets of garden pieces. Not a gap left, not a piece spare.";
+                case PuzzleKind.Doorstep:
+                    return one ? "You drew a doorstep pattern, every side a mirror of the other. My grandmother drew one each morning."
+                        : "You have drawn " + n + " doorstep patterns, every side a mirror. My grandmother drew one each morning.";
                 default:
                     return one ? "You sowed a bed of seed squares, not one plant twice in a row."
                         : "You have sown " + n + " beds of seed squares, not one plant twice in a row.";

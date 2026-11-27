@@ -80,6 +80,9 @@ namespace Evergrove.Core
         // Optional, additive (jam kitchen; absent in older JSON, and not written while 0). Jars of
         // jam (0..10), cooked from fruit. Only Living gardens hold any.
         public int jam;
+        // Optional, additive (I333, the old well; absent in older JSON, not written while 0):
+        // the well's deepest boards solved, one per stretch of river opened.
+        public int well;
         // Optional, additive (picture stamps; absent in older JSON, and not written while empty).
         // The stamp (1..12, 0 none) of each kept letter, parallel to `letters`. Empty means every
         // letter is unstamped; otherwise exactly one entry per letter.
@@ -406,7 +409,7 @@ namespace Evergrove.Core
                 letters = Array.Empty<string>(), letterFrom = Array.Empty<string>(),
                 helped = Array.Empty<int>(), helpedFrom = Array.Empty<string>(),
                 fruit = 0, fruitGiven = new int[Neighbours], lastFruitTo = -1,
-                together = Array.Empty<int>(), lanterns = Array.Empty<string>(), jam = 0, letterStamps = Array.Empty<int>(), decor = Array.Empty<int>()
+                together = Array.Empty<int>(), lanterns = Array.Empty<string>(), jam = 0, letterStamps = Array.Empty<int>(), decor = Array.Empty<int>(), well = 0
             });
         }
 
@@ -428,7 +431,7 @@ namespace Evergrove.Core
                 letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone(),
                 helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone(),
                 fruit = state.fruit, fruitGiven = (int[])state.fruitGiven.Clone(), lastFruitTo = state.lastFruitTo,
-                together = (int[])state.together.Clone(), lanterns = (string[])state.lanterns.Clone(), jam = state.jam, letterStamps = (int[])state.letterStamps.Clone(), decor = (int[])state.decor.Clone()
+                together = (int[])state.together.Clone(), lanterns = (string[])state.lanterns.Clone(), jam = state.jam, letterStamps = (int[])state.letterStamps.Clone(), decor = (int[])state.decor.Clone(), well = state.well
             };
         }
 
@@ -504,7 +507,7 @@ namespace Evergrove.Core
             if (!ReadTogether(source, out together)) return false;
             string[] lanterns;
             if (!ReadLanterns(source, out lanterns)) return false;
-            if (!ReadJam(source)) return false;
+            if (!ReadJam(source) || !ReadWell(source)) return false;
             int[] letterStamps;
             if (!ReadLetterStamps(source, out letterStamps)) return false;
             int[] decor;
@@ -575,7 +578,7 @@ namespace Evergrove.Core
                 gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom,
                 helped = helped, helpedFrom = helpedFrom,
                 fruit = source.fruit, fruitGiven = fruitGiven, lastFruitTo = source.lastFruitTo,
-                together = together, lanterns = lanterns, jam = source.jam, letterStamps = letterStamps, decor = decor
+                together = together, lanterns = lanterns, jam = source.jam, letterStamps = letterStamps, decor = decor, well = source.well
             });
             return true;
         }

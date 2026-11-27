@@ -298,6 +298,23 @@ namespace Evergrove.UnityClient
                 SavePng("17j4-quiet-garden.png");
                 app.QaQuiet(false);
                 for (int f = 0; f < 4; f++) yield return null;
+                // I328/I330: a jar of jam made, a bench and stepping stones set down.
+                app.QaDecorAndJam();
+                app.QaShowHub(true);
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17j7-decorations.png");
+                // I333: the old well holds a deepest board; solving pays two fruit.
+                app.QaOpenWell();
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j8-old-well.png");
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(3.2f);
+                app.QaEndTreePlay();
+                app.QaShowHub(true);
+                for (int f = 0; f < 4; f++) yield return null;
                 // I310: Nan left a lantern by the cottage (it glows at night below).
                 app.QaLantern();
                 // I299: the cottage's summary, what's waiting at a glance (and who left lanterns).
@@ -383,7 +400,8 @@ namespace Evergrove.UnityClient
             }
             // I243-I247: the five newer kinds, each unsolved and then solved.
             foreach (PuzzleKind kind in new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots,
-                         PuzzleKind.StreamPath, PuzzleKind.Mahjong, PuzzleKind.Sowing, PuzzleKind.Sums })
+                         PuzzleKind.StreamPath, PuzzleKind.Mahjong, PuzzleKind.Sowing, PuzzleKind.Sums,
+                         PuzzleKind.Pieces, PuzzleKind.Doorstep })
             {
                 app.QaOpenKind(kind, 1);
                 for (int f = 0; f < 8; f++) yield return null;

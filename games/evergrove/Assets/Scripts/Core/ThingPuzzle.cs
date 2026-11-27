@@ -3,7 +3,7 @@ using System;
 namespace Evergrove.Core
 {
     /// <summary>The kinds of puzzle a garden thing can hold.</summary>
-    public enum PuzzleKind { Water, Pairs, Mosaic, Nonogram, Mahjong, Sudoku, Plots, StreamPath, Sowing, Sums }
+    public enum PuzzleKind { Water, Pairs, Mosaic, Nonogram, Mahjong, Sudoku, Plots, StreamPath, Sowing, Sums, Pieces, Doorstep }
 
     /// <summary>
     /// I243: which puzzle a thing holds. The story's first four things teach the classic
@@ -27,8 +27,8 @@ namespace Evergrove.Core
         // Nursery editions 1..4 per family (each new kind grows in at least two families).
         private static readonly PuzzleKind[][] ByEdition = {
             new[] { PuzzleKind.StreamPath, PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Plots },   // trees
-            new[] { PuzzleKind.Plots, PuzzleKind.Mahjong, PuzzleKind.StreamPath, PuzzleKind.Nonogram },  // buildings
-            new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Mahjong, PuzzleKind.StreamPath }, // flowers
+            new[] { PuzzleKind.Plots, PuzzleKind.Mahjong, PuzzleKind.StreamPath, PuzzleKind.Pieces },    // buildings (I331)
+            new[] { PuzzleKind.Nonogram, PuzzleKind.Sudoku, PuzzleKind.Mahjong, PuzzleKind.Doorstep },  // flowers (I332)
         };
 
         public static PuzzleKind Classic(VillageChoice family)

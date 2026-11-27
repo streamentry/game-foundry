@@ -58,7 +58,8 @@ internal static class ThingPuzzleTests
         for (int kind = Nursery.Slots; kind < Nursery.Kinds; kind++)
         {
             PuzzleKind k = ThingPuzzle.ForNursery(kind);
-            Expect(Array.IndexOf(NewKinds, k) >= 0, "a restocked plant holds a new kind (" + kind + ")");
+            Expect(Array.IndexOf(NewKinds, k) >= 0 || k == PuzzleKind.Pieces || k == PuzzleKind.Doorstep,
+                "a restocked plant holds a new kind (" + kind + ")");
             if (!families.ContainsKey(k)) families[k] = new HashSet<VillageChoice>();
             families[k].Add(Nursery.Family(kind));
         }

@@ -91,7 +91,7 @@ namespace Evergrove.UnityClient
             var rect = (RectTransform)node.transform;
             rect.anchorMin = rect.anchorMax = across ? new Vector2(0.72f, 0.72f) : new Vector2(0.28f, 0.28f);
             rect.sizeDelta = new Vector2(cell * 0.5f, cell * 0.45f);
-            BoardKit.Number(node.transform, "Sum", sum.ToString(), font, Mathf.RoundToInt(cell * 0.3f),
+            BoardKit.Number(node.transform, "Sum", sum.ToString(), font, Mathf.RoundToInt(cell * 0.36f),
                 across ? MosseloraTheme.ForestAction : MosseloraTheme.EarthInk);
         }
 

@@ -418,6 +418,12 @@ namespace Evergrove.UnityClient
             keep = new Vector2(-1f, -1f);
             growNewest = false;
             Layout();
+            if (on && land != null)
+            {
+                // The whole river, centred in the view (b307: it sat to one side).
+                if (scroll != null) scroll.StopMovement();
+                land.anchoredPosition = Vector2.zero;
+            }
         }
         public float Zoom { get { return widthScale; } }
         public Action<float> Zoomed;
@@ -994,6 +1000,15 @@ namespace Evergrove.UnityClient
                 case PuzzleKind.Sums: // a plus: rows and columns that add up
                     Block(root.transform, 0f, 0f, 4.6f * u, 1.4f * u, 1f);
                     Block(root.transform, 0f, 0f, 1.4f * u, 4.6f * u, 1f);
+                    break;
+                case PuzzleKind.Pieces: // two pieces fitting together
+                    Block(root.transform, -1f * u, 0.9f * u, 3.6f * u, 1.6f * u, 1f);
+                    Block(root.transform, 0.9f * u, -0.9f * u, 3.6f * u, 1.6f * u, 0.6f);
+                    break;
+                case PuzzleKind.Doorstep: // four petals, mirrored about the centre
+                    foreach (Vector2 d in new[] { new Vector2(-1f, 1f), new Vector2(1f, 1f), new Vector2(-1f, -1f), new Vector2(1f, -1f) })
+                        Block(root.transform, d.x * 1.3f * u, d.y * 1.3f * u, 1.6f * u, 1.6f * u, 1f);
+                    Block(root.transform, 0f, 0f, 1.2f * u, 1.2f * u, 0.6f);
                     break;
                 case PuzzleKind.Mahjong: // a small terrace of tiles
                     Block(root.transform, -1.3f * u, -0.8f * u, 2.2f * u, 3f * u, 0.75f);

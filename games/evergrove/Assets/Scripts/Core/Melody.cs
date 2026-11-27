@@ -28,7 +28,9 @@ namespace Evergrove.Core
             new[] { 0, 2, 1, 3, 2, 4, 3, 1 },
             new[] { 3, 2, 3, 4, 5, 4, 3, 2 },
             new[] { 0, 1, 2, 1, 0, 1, 2, 3 }, // Sowing (I318)
-            new[] { 4, 3, 4, 5, 6, 5, 4, 3 }  // Sums (I324)
+            new[] { 4, 3, 4, 5, 6, 5, 4, 3 }, // Sums (I324)
+            new[] { 2, 4, 3, 5, 4, 3, 2, 3 }, // Pieces (I331)
+            new[] { 5, 6, 7, 6, 5, 4, 5, 6 }  // Doorstep (I332)
         };
 
         /// <summary>The note (semitones above middle C) for a kind's nth move.</summary>
