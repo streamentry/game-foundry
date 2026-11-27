@@ -788,6 +788,7 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 8; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng(seasons[turn]);
+                LogAtmosphere(seasons[turn]); // I433
                 app.QaShowHub(false);
                 // I354–I357: a day of each season's own weather: hot summer, windy autumn,
                 // snowy winter, rainy spring.
@@ -819,6 +820,7 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.4f);
                 yield return new WaitForEndOfFrame();
                 SavePng("20-light-" + hour.ToString("00") + ".png");
+                LogAtmosphere("20-light-" + hour.ToString("00")); // I433
                 app.QaShowHub(false);
             }
             app.QaTalk(2);
@@ -896,6 +898,23 @@ namespace Evergrove.UnityClient
         {
             return FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
                 .Any(t => t.name == name);
+        }
+
+        // I433: ground truth for the atmosphere, not just a picture: how many of each named
+        // effect object stand in the scene at this shot (faint ones can hide in a screenshot).
+        private void LogAtmosphere(string shot)
+        {
+            string[] names = { "Morning mist", "Dew", "Frost", "Chimney smoke", "Footprint in the snow", "The river's life",
+                "Ring on the water", "Glitter on the water", "Moonlight on the water", "A leaf on the water", "A lantern by the seat" };
+            var counts = new System.Text.StringBuilder("MOSSELORA_ATMOSPHERE " + shot);
+            var all = UnityEngine.Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            foreach (string name in names)
+            {
+                int n = 0;
+                foreach (RectTransform t in all) if (t.name == name) n++;
+                counts.Append(" | ").Append(name).Append('=').Append(n);
+            }
+            Debug.Log(counts.ToString());
         }
 
         private void SavePng(string fileName)
