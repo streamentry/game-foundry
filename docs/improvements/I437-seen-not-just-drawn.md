@@ -25,8 +25,8 @@ The tour now logs each effect's count, screen position, inherited alpha and pare
 Portrait tours b329 and b330 on the iOS simulator:
 
 - **News toasts:** on screen at every moment shot, as the last sibling of the canvas. 21a reads "Good neighbours: two trees side by side: a grove. +15 seeds." with its two paintings; 21c reads "Summer: the grove let fall its seeds. +20 seeds." with its three.
-- **Footprints:** 60 in winter. A visible trail leads from below up to Fen's feet ().
-- **Mist:** soft banks lie along the river in the visible stretch at dawn ().
+- **Footprints:** 60 in winter. A visible trail leads from below up to Fen's feet (`19-winter-home.png`).
+- **Mist:** soft banks lie along the river in the visible stretch at dawn (`20-light-06.png`).
 
 Not re-checked in landscape or at 150% text after these last fixes. The earlier landscape and 150% tours ran before them.
 
