@@ -193,7 +193,7 @@ internal static class NurseryRestockTests
             Expect(a.Buy(0, 1) && a.Buy(3, 2), "setup rows 0 and 1");
             int seeds = a.Seeds;
             ParcelSendResult s = a.SendParcel("Nan", "For you", ParcelGift.Cutting, kind, "r" + kind);
-            Expect(s.Ok && a.Seeds == seeds - Nursery.Price(kind), "a cutting of kind " + kind + " is sent at its row price");
+            Expect(s.Ok && a.Seeds == seeds - Nursery.GiftPrice(kind), "a cutting of kind " + kind + " is sent at its gift price (v1 #73)");
             WorldModel b = WithSeeds(0);
             ParcelOpenResult o = b.Open(s.Text);
             Expect(o.Ok && b.Gifts.Length == 1 && b.Gifts[0] == kind, "and arrives as kind " + kind);

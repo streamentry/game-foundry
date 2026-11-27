@@ -496,6 +496,10 @@
     {
       "key": "preview_apply",
       "value": "Bu değişikliği uygula"
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Gizlilik politikası"
     }
   ]
 }

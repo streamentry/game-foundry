@@ -324,7 +324,7 @@ namespace Evergrove.Core
             if (Mode != PlayMode.Living || HasPairing(pairing) || (Pairings.Open(this) & PairingMask.Of(pairing)) == 0) return 0;
             state.pairings |= PairingMask.Of(pairing);
             int before = state.seeds;
-            state.seeds = Math.Min(MaxSeeds, state.seeds + Pairings.RewardFor(pairing));
+            ChangeSeeds(Pairings.RewardFor(pairing), SeedReason.Pairing); // v1 #78: every seed change is in the ledger
             return state.seeds - before;
         }
 

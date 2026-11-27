@@ -39,7 +39,8 @@ namespace Evergrove.Core
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
             "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
             "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
-            "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam", "letterStamps", "decor", "well", "pairings", "yields"
+            "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam", "letterStamps", "decor", "well", "pairings", "yields",
+            "ledger", "payDay", "replaysPaid"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -256,6 +257,9 @@ namespace Evergrove.Core
                 if (s.well != 0) sb.Append(",\"well\":").Append(Int(s.well));
                 if (s.pairings != 0) sb.Append(",\"pairings\":").Append(Int(s.pairings));
                 if (s.yields != 0) sb.Append(",\"yields\":").Append(Int(s.yields));
+                if (s.ledger != null && s.ledger.Length != 0) sb.Append(",\"ledger\":").Append(IntArray(s.ledger));
+                if (s.payDay != 0) sb.Append(",\"payDay\":").Append(Int(s.payDay));
+                if (s.replaysPaid != 0) sb.Append(",\"replaysPaid\":").Append(Int(s.replaysPaid));
             }
             return sb.Append('}').ToString();
         }
@@ -375,7 +379,10 @@ namespace Evergrove.Core
                    ReadInts(fields, "decor", ref snapshot.decor) &&
                    ReadInt(fields, "well", ref snapshot.well) &&
                    ReadInt(fields, "pairings", ref snapshot.pairings) &&
-                   ReadInt(fields, "yields", ref snapshot.yields);
+                   ReadInt(fields, "yields", ref snapshot.yields) &&
+                   ReadInts(fields, "ledger", ref snapshot.ledger) &&
+                   ReadInt(fields, "payDay", ref snapshot.payDay) &&
+                   ReadInt(fields, "replaysPaid", ref snapshot.replaysPaid);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)

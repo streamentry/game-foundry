@@ -202,13 +202,19 @@ internal static class KitchenTests
         Expect(sender.Open(sent.Text).Error == ParcelError.AlreadyOpened && sender.Jam == 2, "the sender cannot open its own parcel");
         Expect(!WorldModel.New(PlayMode.PuzzleOnly).Open(sent.Text).Ok, "only a living garden receives");
 
+        // v1 #76: a parcel that would not fit in full is refused with LarderFull, changing nothing.
         WorldModel nearlyFull = Garden(0, WorldModel.MaxJam - 1);
-        FamilyParcel.TryCreate("Nan", "", ParcelGift.Jam, 3, "jo2", out string big, out _, out _);
-        ParcelOpenResult capped = nearlyFull.Open(big);
-        Expect(capped.Ok && capped.JamGained == 1 && nearlyFull.Jam == WorldModel.MaxJam, "capped at the pantry's size, like fruit");
+        FamilyParcel.TryCreate("Nan", "", ParcelGift.Jam, 2, "jo2", out string big, out _, out _);
+        string nearlyBefore = State(nearlyFull);
+        ParcelOpenResult refused = nearlyFull.Open(big);
+        Expect(!refused.Ok && refused.Error == ParcelError.LarderFull && refused.JamGained == 0 && State(nearlyFull) == nearlyBefore,
+            "two jars do not fit in one: refused with LarderFull, nothing changes");
+        Expect(nearlyFull.SendParcel("Anh", "", ParcelGift.Jam, 1, "jo4").Ok && nearlyFull.Jam == WorldModel.MaxJam - 2, "a jar sent makes room");
+        ParcelOpenResult opened = nearlyFull.Open(big);
+        Expect(opened.Ok && opened.JamGained == 2 && nearlyFull.Jam == WorldModel.MaxJam, "the same parcel opens once there is room");
         FamilyParcel.TryCreate("Nan", "", ParcelGift.Jam, 1, "jo3", out string more, out _, out _);
-        ParcelOpenResult none = nearlyFull.Open(more);
-        Expect(none.Ok && none.JamGained == 0 && nearlyFull.Jam == WorldModel.MaxJam, "a full pantry still opens the parcel, gaining nothing");
+        ParcelOpenResult none = Garden(0, WorldModel.MaxJam).Open(more);
+        Expect(!none.Ok && none.Error == ParcelError.LarderFull, "a full pantry refuses even one jar");
         FamilyParcel.TryCreate("Nan", "", ParcelGift.Seeds, 5, "jo5", out string seedsText, out _, out _);
         Expect(Garden(0).Open(seedsText).JamGained == 0, "other parcels report no jam");
     }
