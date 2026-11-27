@@ -305,8 +305,7 @@
       "voices": {
         "1": null
       },
-      "min": 20,
-      "pending": true
+      "min": 20
     }
   },
   "longest": {
