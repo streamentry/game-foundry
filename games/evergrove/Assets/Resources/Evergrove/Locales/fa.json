@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "سیاست حفظ حریم خصوصی"
+    },
+    {
+      "key": "garden_save",
+      "value": "ذخیرهٔ پروندهٔ باغ…"
+    },
+    {
+      "key": "saved",
+      "value": "ذخیره شد"
     }
   ]
 }

@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Politique de confidentialité"
+    },
+    {
+      "key": "garden_save",
+      "value": "Enregistrer le fichier du jardin…"
+    },
+    {
+      "key": "saved",
+      "value": "Enregistré"
     }
   ]
 }

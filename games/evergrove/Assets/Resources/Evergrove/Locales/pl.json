@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Polityka prywatności"
+    },
+    {
+      "key": "garden_save",
+      "value": "Zapisz plik ogrodu…"
+    },
+    {
+      "key": "saved",
+      "value": "Zapisano"
     }
   ]
 }

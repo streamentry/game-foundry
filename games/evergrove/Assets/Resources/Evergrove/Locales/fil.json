@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Patakaran sa privacy"
+    },
+    {
+      "key": "garden_save",
+      "value": "I-save ang file ng hardin…"
+    },
+    {
+      "key": "saved",
+      "value": "Na-save"
     }
   ]
 }

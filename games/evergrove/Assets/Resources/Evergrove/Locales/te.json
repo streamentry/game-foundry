@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "గోప్యతా విధానం"
+    },
+    {
+      "key": "garden_save",
+      "value": "తోట ఫైల్‌ను సేవ్ చేయండి…"
+    },
+    {
+      "key": "saved",
+      "value": "సేవ్ అయింది"
     }
   ]
 }

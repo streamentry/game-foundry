@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Chính sách quyền riêng tư"
+    },
+    {
+      "key": "garden_save",
+      "value": "Lưu tệp vườn…"
+    },
+    {
+      "key": "saved",
+      "value": "Đã lưu"
     }
   ]
 }

@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Privacybeleid"
+    },
+    {
+      "key": "garden_save",
+      "value": "Tuinbestand bewaren…"
+    },
+    {
+      "key": "saved",
+      "value": "Bewaard"
     }
   ]
 }

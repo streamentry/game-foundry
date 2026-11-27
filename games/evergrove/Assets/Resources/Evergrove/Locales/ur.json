@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "رازداری کی پالیسی"
+    },
+    {
+      "key": "garden_save",
+      "value": "باغ کی فائل محفوظ کریں…"
+    },
+    {
+      "key": "saved",
+      "value": "محفوظ ہو گیا"
     }
   ]
 }
