@@ -75,6 +75,35 @@ namespace Evergrove.UnityClient
                 16, 0, Ink, TextAnchor.MiddleLeft).GetComponent<LayoutElement>().flexibleWidth = 1f;
             Button(content, "Sell one jar of jam", "Sell one jar", () => SellAtStall(Good.Jam), 52, true);
 
+            // Item 75: the kitchen. Each recipe is cooked from goods the garden holds; the first cook finds it.
+            Label(content, "Kitchen title", "Kitchen", 20, 0, Ink, TextAnchor.MiddleLeft);
+            for (int id = 0; id < Recipes.Count; id++)
+            {
+                int recipe = id;
+                string name = Recipes.Name(recipe);
+                Text method = Label(content, "Recipe " + name, name + ": " + Recipes.Method(recipe), 18, 0, Ink, TextAnchor.MiddleLeft);
+                method.GetComponent<LayoutElement>().flexibleWidth = 1f;
+                if (world.CanCookRecipe(recipe))
+                    Button(content, "Cook " + name, "Cook " + name.ToLowerInvariant(), () => CookAtStall(recipe), 52, false);
+            }
+
+            // Item 76: the larder. Shelves are bought here with seeds; each one adds room for fruit and jam.
+            Label(content, "Larder title", "Larder", 20, 0, Ink, TextAnchor.MiddleLeft);
+            Text larder = Label(content, "Larder line", "Shelves: " + world.LarderShelves + " of " + WorldModel.MaxShelves +
+                ". Holds " + world.FruitCapacity + " fruit, " + world.JamCapacity + " jars.", 18, 0, Ink, TextAnchor.MiddleLeft);
+            larder.GetComponent<LayoutElement>().flexibleWidth = 1f;
+            int shelfPrice = world.NextShelfPrice;
+            if (shelfPrice > 0)
+            {
+                string shelfLine = world.Seeds >= shelfPrice
+                    ? "Add a shelf (" + shelfPrice + " seeds)"
+                    : "The next shelf costs " + shelfPrice + " seeds.";
+                if (world.Seeds >= shelfPrice)
+                    Button(content, "Add a shelf", shelfLine, BuyShelfAtStall, 52, false);
+                else
+                    Label(content, "Next shelf price", shelfLine, 16, 0, Ink, TextAnchor.MiddleLeft).GetComponent<LayoutElement>().flexibleWidth = 1f;
+            }
+
             Label(content, "Stall trades title", "Neighbours", 20, 0, Ink, TextAnchor.MiddleLeft);
             for (int i = 0; i < Market.TradeCount; i++)
             {
@@ -101,6 +130,39 @@ namespace Evergrove.UnityClient
             FitSheetToPages(marketSheet, content);
             if (scroll != null) scroll.verticalNormalizedPosition = 1f;
             semanticsDirty = true;
+        }
+
+        // Cooks one recipe. The first cook of a recipe says so; a refusal changes nothing.
+        private void CookAtStall(int recipe)
+        {
+            bool firstTime = !world.HasFound(recipe);
+            if (world.CookRecipe(recipe))
+            {
+                SaveWorld();
+                PlayChime();
+                marketNote = firstTime ? "New recipe found: " + Recipes.Name(recipe) + ". It is in the almanac."
+                    : "Cooked " + Recipes.Name(recipe).ToLowerInvariant() + ".";
+            }
+            else
+            {
+                marketNote = "There is not enough fruit for that yet, or the pantry is full.";
+            }
+            BuildMarketSheet();
+        }
+
+        // Buys the next larder shelf. A refusal changes nothing and says why.
+        private void BuyShelfAtStall()
+        {
+            if (world.BuyShelf())
+            {
+                SaveWorld();
+                PlayChime();
+                marketNote = "A new shelf is up in the larder.";
+            }
+            else if (world.Mode != PlayMode.Living) marketNote = "The stall is not open in this garden yet.";
+            else if (world.LarderShelves >= WorldModel.MaxShelves) marketNote = "The larder has all its shelves.";
+            else marketNote = "Not enough seeds for a shelf yet.";
+            BuildMarketSheet();
         }
 
         private int FruitLeftToday(int day)

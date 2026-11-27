@@ -92,7 +92,7 @@ namespace Evergrove.Core
         public const int Neighbours = 3;
         private const int MaxFruitGiven = 100000;
 
-        /// <summary>Fruit in the garden, 0..<see cref="MaxFruit"/>.</summary>
+        /// <summary>Fruit in the garden, 0..<see cref="FruitCapacity"/> (the base <see cref="MaxFruit"/> plus the larder's shelves).</summary>
         public int Fruit { get { return state.fruit; } }
         /// <summary>
         /// How many a neighbour was given. A private memory so they can speak truthfully:
@@ -120,7 +120,7 @@ namespace Evergrove.Core
         /// <summary>One fruit from tending a tree, up to the cap (extra is simply not picked).</summary>
         private void PickFruit()
         {
-            if (state.fruit < MaxFruit) state.fruit++;
+            if (state.fruit < FruitCapacity) state.fruit++;
         }
 
         /// <summary>Cuttings waiting in the basket, as nursery kinds, oldest first.</summary>
@@ -273,8 +273,8 @@ namespace Evergrove.Core
             if (HasSeenParcel(contents.Id)) return Refuse(result, ParcelError.AlreadyOpened);
             if (contents.Gift == ParcelGift.Cutting && state.gifts.Length >= MaxGifts) return Refuse(result, ParcelError.BasketFull);
             if (contents.Gift == ParcelGift.Help && contents.Kind >= state.choices.Length) return Refuse(result, ParcelError.NotInThisGarden);
-            if (contents.Gift == ParcelGift.Fruit && state.fruit + contents.Amount > MaxFruit) return Refuse(result, ParcelError.LarderFull);
-            if (contents.Gift == ParcelGift.Jam && state.jam + contents.Amount > MaxJam) return Refuse(result, ParcelError.LarderFull);
+            if (contents.Gift == ParcelGift.Fruit && state.fruit + contents.Amount > FruitCapacity) return Refuse(result, ParcelError.LarderFull);
+            if (contents.Gift == ParcelGift.Jam && state.jam + contents.Amount > JamCapacity) return Refuse(result, ParcelError.LarderFull);
 
             if (contents.Gift == ParcelGift.Seeds)
             {
@@ -409,7 +409,7 @@ namespace Evergrove.Core
         {
             fruitGiven = null;
             int[] given = source.fruitGiven ?? Array.Empty<int>();
-            if (source.fruit < 0 || source.fruit > MaxFruit || (given.Length != 0 && given.Length != Neighbours) ||
+            if (source.fruit < 0 || source.fruit > FruitCapacityFor(source.larderShelves) || (given.Length != 0 && given.Length != Neighbours) ||
                 source.lastFruitTo < -1 || source.lastFruitTo >= Neighbours)
                 return false;
             var counts = new int[Neighbours];

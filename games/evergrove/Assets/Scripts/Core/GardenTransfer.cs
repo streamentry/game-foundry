@@ -40,7 +40,8 @@ namespace Evergrove.Core
             "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
             "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
             "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam", "letterStamps", "decor", "well", "pairings", "yields",
-            "ledger", "payDay", "replaysPaid", "marketStamp", "fruitSold", "jamSold", "tradesDone", "daysPlayed", "lastPlayedDay"
+            "ledger", "payDay", "replaysPaid", "marketStamp", "fruitSold", "jamSold", "tradesDone", "daysPlayed", "lastPlayedDay",
+            "recipes", "larderShelves"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -266,6 +267,8 @@ namespace Evergrove.Core
                 if (s.tradesDone != 0) sb.Append(",\"tradesDone\":").Append(Int(s.tradesDone));
                 if (s.daysPlayed != 0) sb.Append(",\"daysPlayed\":").Append(Int(s.daysPlayed));
                 if (s.lastPlayedDay != 0) sb.Append(",\"lastPlayedDay\":").Append(Int(s.lastPlayedDay));
+                if (s.recipes != 0) sb.Append(",\"recipes\":").Append(Int(s.recipes));
+                if (s.larderShelves != 0) sb.Append(",\"larderShelves\":").Append(Int(s.larderShelves));
             }
             return sb.Append('}').ToString();
         }
@@ -394,7 +397,9 @@ namespace Evergrove.Core
                    ReadInt(fields, "jamSold", ref snapshot.jamSold) &&
                    ReadInt(fields, "tradesDone", ref snapshot.tradesDone) &&
                    ReadInt(fields, "daysPlayed", ref snapshot.daysPlayed) &&
-                   ReadInt(fields, "lastPlayedDay", ref snapshot.lastPlayedDay);
+                   ReadInt(fields, "lastPlayedDay", ref snapshot.lastPlayedDay) &&
+                   ReadInt(fields, "recipes", ref snapshot.recipes) &&
+                   ReadInt(fields, "larderShelves", ref snapshot.larderShelves);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)

@@ -12,7 +12,7 @@ namespace Evergrove.Core
         public const int MaxJam = 10;
         public const int MaxJarsPerParcel = 3;
 
-        /// <summary>Jars of jam in the pantry, 0..<see cref="MaxJam"/>.</summary>
+        /// <summary>Jars of jam in the pantry, 0..<see cref="JamCapacity"/> (the base <see cref="MaxJam"/> plus the larder's shelves).</summary>
         public int Jam { get { return state.jam; } }
 
         /// <summary>
@@ -21,16 +21,23 @@ namespace Evergrove.Core
         /// </summary>
         public bool MakeJam()
         {
-            if (Mode != PlayMode.Living || state.fruit < JamPerJar || state.jam >= MaxJam) return false;
+            if (!CanMakeJam) return false;
             state.fruit -= JamPerJar;
             state.jam++;
+            state.recipes |= Recipes.Mask(Recipes.Jam); // item 75: the first jar finds the jam recipe
             return true;
+        }
+
+        /// <summary>Whether <see cref="MakeJam"/> would succeed now, changing nothing.</summary>
+        internal bool CanMakeJam
+        {
+            get { return Mode == PlayMode.Living && state.fruit >= JamPerJar && state.jam < JamCapacity; }
         }
 
         /// <summary>Fail-closed validation of the jam count; Living gardens only may hold any.</summary>
         private static bool ReadJam(WorldSnapshot source)
         {
-            return source.jam >= 0 && source.jam <= MaxJam && (source.mode == "living" || source.jam == 0);
+            return source.jam >= 0 && source.jam <= JamCapacityFor(source.larderShelves) && (source.mode == "living" || source.jam == 0);
         }
     }
 }

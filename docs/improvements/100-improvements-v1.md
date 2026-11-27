@@ -104,7 +104,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **73. Giving is always cheaper than buying.** Gifts to family cost less than buying the same thing for yourself, which makes generosity the rational choice. *Test:* economy table check.
 - [x] **74. A market stall.** Sell surplus fruit and jam to neighbours at prices that move with the season. *Test:* prices are deterministic by date.
 - [ ] **75. Recipes.** Two harvests combine into a new food (apple and honey, for example) and recipes are found by trying them. *Test:* every recipe is listed in the almanac once found.
-- [ ] **76. Storage has a limit you can grow.** A larder with shelves gives a reason to cook, give or sell. *Test:* a full larder never loses items silently.
+- [x] **76. Storage has a limit you can grow.** A larder with shelves gives a reason to cook, give or sell. *Test:* a full larder never loses items silently.
 - [x] **77. No currency for sale that buys power.** If the game is ever monetised, use a one-time unlock or cosmetic season packs only. *Test:* monetisation spec reviewed against the vision's §7.
 - [x] **78. Visible ledger.** A small book shows the last 20 seed movements, so nothing in the purse is a mystery. *Test:* every change of `seeds` writes a ledger line.
 - [x] **79. Neighbours trade too.** Orin trades wood for fruit and Fen trades stone for jam, at stable, sensible rates. *Test:* no trade loop yields profit.

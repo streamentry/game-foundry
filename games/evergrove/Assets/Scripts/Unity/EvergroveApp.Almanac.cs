@@ -15,9 +15,20 @@ namespace Evergrove.UnityClient
             var names = new List<string>();
             foreach (SudokuTechnique.Technique technique in new[] { SudokuTechnique.Technique.NakedSingle, SudokuTechnique.Technique.HiddenSingle })
                 if (SudokuBoard.TechniqueLog.Seen(technique)) names.Add(SudokuTechnique.Name(technique));
-            if (names.Count == 0) return;
+            if (names.Count == 0) { RecipeRow(page); return; }
             Text line = Label(page, "Ways you've solved", "Ways you've solved: " + string.Join(", ", names.ToArray()),
                 18, 0, Moss, TextAnchor.MiddleLeft);
+            Emphasize(line);
+            RecipeRow(page);
+        }
+
+        // ---- Item 75: the recipes found by cooking, once any is found (nothing is shown before that).
+        private void RecipeRow(Transform page)
+        {
+            if (world == null) return;
+            string[] names = Recipes.Found(world);
+            if (names.Length == 0) return;
+            Text line = Label(page, "Recipes found", "Recipes found: " + string.Join(", ", names), 18, 0, Moss, TextAnchor.MiddleLeft);
             Emphasize(line);
         }
 

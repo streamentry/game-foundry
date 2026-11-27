@@ -9,8 +9,8 @@ Seeds are the only money in Mosselora. Players earn them by solving water puzzle
 ## Currencies
 
 - **Seeds**: the only balance. Held in `WorldModel.Seeds`, range 0 to `WorldModel.MaxSeeds` (9,999,999). Every change goes through `WorldModel.Ledger.cs:ChangeSeeds`, which writes one ledger line (`SeedReason`, applied delta) and keeps the newest 20 (`MaxLedger`).
-- **Fruit**: picked from trees, never bought. Used for gifts, jam, and the market stall and neighbour trades (below). Range 0 to `MaxFruit` (99).
-- **Jam**: three fruit cooked into one jar (`MakeJam`, `JamPerJar` = 3). Range 0 to `MaxJam` (10). Used for gifts, the market stall and neighbour trades.
+- **Fruit**: picked from trees, never bought. Used for gifts, jam, and the market stall and neighbour trades (below). Range 0 to `FruitCapacity`: the base `MaxFruit` (99) plus 20 for each larder shelf (item 76, below).
+- **Jam**: three fruit cooked into one jar (`MakeJam`, `JamPerJar` = 3). Range 0 to `JamCapacity`: the base `MaxJam` (10) plus 5 for each larder shelf. Used for gifts, the market stall and neighbour trades.
 - **Cuttings**: plants held in a basket (`state.gifts`, max `MaxGifts` 50). Not a currency; they cost seeds only when they are bought or sent.
 
 ## Seeds in
@@ -40,6 +40,7 @@ Tier of a thing is `TreePuzzles.TierFor(chapter)` = chapter / 4, capped to 0..2,
 | Keepsake: take a neighbour's cutting for yourself | Full nursery price: 50, 100 or 200 | Basket room (`MaxGifts` 50) | Keepsake | `WorldModel.Family.cs:TakeKeepsake` |
 | Send seeds to family | 1 to 500 | Balance must cover it | ParcelSent | `WorldModel.Family.cs:SendParcel` |
 | Send a cutting to family | Gift price: 25, 50 or 100 (`Nursery.GiftPrice`) | Row must be open | ParcelSent | `WorldModel.Family.cs:SendParcel` |
+| Larder shelf (item 76) | 150, 300, 600 for the first, second and third shelf (`WorldModel.Larder.cs:ShelfPrices`) | At most 3 shelves; Living gardens only; balance must cover it | Larder (12) | `WorldModel.Larder.cs:BuyShelf` |
 
 Sending a cutting removes nothing from the sender's nursery or garden; the sender pays the gift price and the recipient receives the plant.
 
@@ -98,7 +99,7 @@ So the stall is best in spring and winter; Orin and Fen beat it in autumn (and F
 
 **Saved as** (optional, absent in older JSON, not written while 0): `marketStamp` (the latest day the caps count for), `fruitSold`, `jamSold`, `tradesDone`. Fail-closed on restore: each count is within its cap, a stamp of 0 holds no counts, and all are 0 outside a Living garden. The stamp is named without "day" because `DailyRhythmAuditTests` allows only `payDay` as a date stamp.
 
-**New seed reasons** (appended, values fixed once shipped): `MarketFruit` = 9 (fruit sold), `MarketJam` = 10 (jam sold), `Trade` = 11 (seeds from Orin or Fen). Every seed change writes one ledger line.
+**New seed reasons** (appended, values fixed once shipped): `MarketFruit` = 9 (fruit sold), `MarketJam` = 10 (jam sold), `Trade` = 11 (seeds from Orin or Fen), `Larder` = 12 (a shelf bought). Every seed change writes one ledger line.
 
 ### No-profit invariant (item 79)
 
@@ -117,11 +118,43 @@ No conversion produces fruit, so the goods graph (fruit, jam, seeds) has no cycl
 
 **Limit (accepted).** Goods held across a season change can gain up to the spread in valuation between seasons, which is at most 1 seed per fruit (`MarketTests` checks the bound). That gain comes from progress, which is play, not from the market.
 
+## Recipes and the larder (items 75 and 76)
+
+Code: `Recipes.cs` (the recipe table, found mask, `CookRecipe`) and `WorldModel.Larder.cs` (shelves and capacities). Both live-only.
+
+**Recipes: named cooking, no new food (decided).** A new stored food would need its own parcel gift, a market price that keeps the no-profit proof true, a ledger path and almanac copy. None of that is in this batch, and a second harvest would have no use in the game's goods except fruit and jam. So a recipe is a named way of cooking goods the garden already has. The table has one recipe:
+
+| Recipe | Takes | Makes | Found | Code |
+|---|---|---|---|---|
+| Jam | 3 fruit | 1 jar of jam | the first jar, from any cooking path | `Recipes.Jam`, `MakeJam` |
+
+- A recipe is found the first time it is cooked (`MakeJam` sets the bit, so the kitchen card and the stall's Kitchen section both find it). A refused cook finds nothing.
+- Found recipes are a mask, `recipes` in the save (bit n = recipe n, not written while 0). Restore refuses bits above the table and any mask outside a Living garden.
+- `Recipes.Found(world)` gives the names the almanac lists ("Recipes found: Jam"); nothing is listed before a recipe is found.
+- The one recipe is value-nonincreasing: `RecipeTests` checks that three fruit are worth at least one jar in every season (jam is valued at 5 to 9, fruit at 2 to 3 each).
+- **Item 75 is not met.** The checklist asks for two harvests combined into a new food. That needs a new food and the work above; it is a spec decision, not done here.
+
+**Larder: shelves grow the caps (item 76).**
+
+| Shelves | Fruit capacity | Jam capacity | Seeds for this shelf |
+|---|---|---|---|
+| 0 (base) | 99 | 10 | none |
+| 1 | 119 | 15 | 150 |
+| 2 | 139 | 20 | 300 |
+| 3 | 159 | 25 | 600 |
+
+- Shelves are bought at the stall for seeds (one `Larder` ledger line, minus the price). A shelf is refused when the garden is not Living, the larder has three shelves, or the purse is short; a refusal changes nothing.
+- `FruitCapacity` and `JamCapacity` replace the base caps in `PickFruit`, `Open` (`LarderFull`), `MakeJam` and the restore checks. The base constants stay as the floor.
+- Saved as `larderShelves` (0..3, not written while 0). Restore refuses shelves outside 0..3, shelves outside a Living garden, and fruit or jam above the capacity for the stored shelf count.
+- A full larder still refuses parcels with `LarderFull` and drops nothing.
+
+**Not yet routed to the capacity (follow-up).** These sites still use the base constants, so shelves do not reach them. None loses goods silently, but they refuse or clip at 99 or 10 (see Findings, item 10).
+
 ## What is not built yet
 
 - 72 Prices that follow growth time and size, with a label that shows why: not built. Prices are fixed by row.
-- 75 Recipes combining two harvests: not built.
-- 76 Storage limit that can grow (larder shelves): not built. Current limits are the fixed caps above. The no-silent-loss part is built (`LarderFull`).
+- 75 Recipes combining two harvests: not built. Recipes exist as named cooking (see Recipes and the larder); no new food is stored.
+- 76 Storage limit that can grow: built for the stall's Larder row, `PickFruit`, parcels and the kitchen (see Recipes and the larder). Not yet routed: the four sites in Findings item 10. The no-silent-loss part is built (`LarderFull`).
 - 77 No currency for sale that buys power: a policy, not code. See the stance below.
 - 74 and 79 are built (see Market stall and neighbour trades), with the "existing goods only" deviation.
 
@@ -146,8 +179,8 @@ The tests enforce these:
 
 - 72 Prices that follow growth time and size, with a label that shows why: not built. Prices are fixed by row.
 - 74 Market stall: sell fruit and jam to neighbours at seasonal prices: not built. No seeds come from fruit or jam.
-- 75 Recipes combining two harvests: not built.
-- 76 Storage limit that can grow (larder shelves): not built. Current limits are the fixed caps above. The no-silent-loss part is built (`LarderFull`).
+- 75 Recipes combining two harvests: not built. Recipes exist as named cooking (see Recipes and the larder); no new food is stored.
+- 76 Storage limit that can grow: built for the stall's Larder row, `PickFruit`, parcels and the kitchen (see Recipes and the larder). Not yet routed: the four sites in Findings item 10. The no-silent-loss part is built (`LarderFull`).
 - 77 No currency for sale that buys power: a policy, not code. See the stance below.
 - 79 Neighbours trading wood, stone and fruit for jam: not built. `SeedReason.Pairing` exists but nothing uses it.
 
@@ -168,6 +201,7 @@ These are gaps between the intent of the checklist and the code. None is fixed h
 7. **Garden copies may duplicate the cap.** The daily cap state is copied with the garden file. Unknown whether two imported copies of one garden can both replay at full pay the same day.
 8. **Bought plants pay back less than they cost.** A row-2 plant costs 200 and returns 40 on its first solve; net sinks hold per plant. Not a runaway, but a bought-then-gifted loop (sender pays 100, recipient earns 40) is also net negative for the system.
 9. **Seasons stop turning once first solves run out.** A season turns every 4 first solves (`GardenMap.SolvesPerReach`), and only first solves count toward `PuzzlesSolved` (bought plants count too). A garden with its 12 grown things solved reaches spring and then stays there until a bought plant is solved. Because stall and trade prices depend on the season, prices go static for most gardens. This is consistent with "a garden left alone waits unchanged", but it means the market is mostly a spring market for players who have solved their grown things. Decide before shipping whether the seasons should keep turning through replays or through a clock, which would need a new spec.
+10. **Larder shelves do not reach every cap yet.** These sites still compare against the base constants `MaxFruit` (99) or `MaxJam` (10), so a bought shelf does not apply there: `SeasonalYields.cs` (autumn fruit clipped at 99, and the jam yield refused at 10), `Pairings.cs` (a bee-visit fruit refused at 99), `WorldModel.Market.cs` `HasRoom` (a trade that would take fruit or jam above the base cap is refused, which also blocks Mira's and Orin's trades into a larger larder), and `EvergroveApp.cs` (the cottage's "Make a jar of jam" button is hidden at 10 jars). Fix direction: route each through `FruitCapacity` and `JamCapacity`. Not done in this batch because those files were outside its scope.
 
 ## Verification
 
