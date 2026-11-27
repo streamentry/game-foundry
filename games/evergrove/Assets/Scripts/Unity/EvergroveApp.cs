@@ -2088,7 +2088,8 @@ namespace Evergrove.UnityClient
                 riverOpened = OpenReaches() > before;
                 // Mira leaves a note in the letterbox when the river opens (I271).
                 if (riverOpened && world.Completed &&
-                    world.KeepNote("Mira", NeighbourNotice.RiverNote(GardenSeason.AfterStory(world.PuzzlesSolved))))
+                    world.KeepNote("Mira", NeighbourNotice.RiverNote(GardenSeason.AfterStory(world.PuzzlesSolved),
+                        RiverNames.For(OpenReaches() - 1)))) // I362: by name
                 {
                     letterArrived = true;
                     SaveWorld();
@@ -2624,8 +2625,29 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
         }
 
+        // I359: when you come back after two days or more, Mira's next words say, truly, what
+        // the weather did meanwhile, and that the garden looked after itself. Said once.
+        private string sinceLine;
+
+        private void NoteReturn()
+        {
+            if (world == null || world.Mode != PlayMode.Living || world.Choices.Length == 0) return;
+            string key = "evergrove:last-seen:" + world.Garden;
+            string today = DateTime.Now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            string seen = PlayerPrefs.GetString(key, "");
+            if (seen != today)
+            {
+                if (seen.Length == 8 && DateTime.TryParseExact(seen, "yyyyMMdd", CultureInfo.InvariantCulture,
+                        DateTimeStyles.None, out DateTime last))
+                    sinceLine = DayWeather.SinceLastVisit(last, DateTime.Now.Date, GardenSeason.For(world), world.Garden);
+                PlayerPrefs.SetString(key, today);
+                PlayerPrefs.Save();
+            }
+        }
+
         private bool GardenMapOnHub(RectTransform window)
         {
+            NoteReturn();
             NoteSeasonTurn();
             NoteGrantedWishes();
             NoteNeighbourGifts();
@@ -3227,6 +3249,9 @@ namespace Evergrove.UnityClient
             string thanks = fruitThanks == villager ? NeighbourNotice.ThanksFor(villager, world) : null;
             if (thanks != null) return thanks;
             if (villager == togetherKeeper) return NeighbourNotice.TogetherLine(togetherKind);
+            // I359: back after a while: Mira says what the weather did, once.
+            if (villager == 0 && sinceLine != null && world.Mode == PlayMode.Living)
+                return sinceLine; // cleared when her conversation closes, so rebuilds keep the same words
             // Orin keeps an eye on the lane (I236): a letter waiting unread, by name, until you read it.
             string[] mail = world.Letters;
             if (villager == 1 && world.Mode == PlayMode.Living && mail.Length > 0 &&
@@ -3236,7 +3261,7 @@ namespace Evergrove.UnityClient
             string noticed = NeighbourNotice.Line(villager, world);
             if (noticed != null) return noticed;
             // I357: nothing new to tell, but it's raining, snowing, windy or hot: they say so.
-            string weatherLine = world.Mode == PlayMode.Living ? DayWeather.Remark(TodayWeather(world)) : null;
+            string weatherLine = world.Mode == PlayMode.Living ? DayWeather.Remark(TodayWeather(world), villager) : null; // I358
             if (weatherLine != null) return weatherLine;
             // Nothing new and true to tell: they may notice the light instead (I281).
             string hourLine = HourRemark(villager);
@@ -4784,7 +4809,11 @@ namespace Evergrove.UnityClient
             // I347 (run 3, P6): the neighbour comes forward; the page behind steps back.
             veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.36f);
             // A tap anywhere else ends the conversation, as the check does.
-            neighborLayer.AddComponent<TapCatcher>().Tapped = () => { speakingWith = -1; Rebuild(); };
+            neighborLayer.AddComponent<TapCatcher>().Tapped = () => {
+                if (speakingWith == 0) sinceLine = null; // I359: said once
+                speakingWith = -1;
+                Rebuild();
+            };
             var row = Node("A neighbor's memory", neighborLayer.transform);
             var rowRect = row.GetComponent<RectTransform>();
             rowRect.anchorMin = new Vector2(0f, 0f);
@@ -4831,7 +4860,7 @@ namespace Evergrove.UnityClient
             Narrate(Label(bubble.transform, "What they say",
                 NeighborSays(speakingWith), 20, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
-                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
+                MosseloraArt.IconConfirm, () => { if (speakingWith == 0) sinceLine = null; speakingWith = -1; Rebuild(); }, 44,
                 MosseloraTheme.ForestAction);
             // Tucked into the bubble's lower-right corner, outside the text flow.
             thanks.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
@@ -8229,6 +8258,7 @@ namespace Evergrove.UnityClient
             GardenMapView.CatBy = GardenCat.NapBy(garden, visitPhase); // I335
             GardenMapView.SeasonNow = garden != null && garden.Mode == PlayMode.Living ? visitSeason : Season.Summer; // I338
             GardenMapView.WeatherNow = TodayWeather(garden); // I353
+            GardenMapView.SignFont = font; // I360
             // I295: the season's drift by day; it follows the season even with the light switch off.
             bool living = garden != null && garden.Mode == PlayMode.Living;
             GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),

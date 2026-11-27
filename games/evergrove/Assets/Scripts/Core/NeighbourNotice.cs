@@ -186,6 +186,14 @@ namespace Evergrove.Core
         }
 
         /// <summary>I271: the note Mira leaves when tending opens new river, naming the season it brought.</summary>
+        /// <summary>I362: the same note, naming the stretch the river now reaches.</summary>
+        public static string RiverNote(Season season, string stretch)
+        {
+            string note = RiverNote(season);
+            if (string.IsNullOrEmpty(stretch)) return note;
+            return note.Replace("The river runs further than it ever did.", "The river runs on, down to " + stretch + ".");
+        }
+
         public static string RiverNote(Season season)
         {
             string came = season == Season.Spring ? "Spring came down with it, and the new bank is all blossom."

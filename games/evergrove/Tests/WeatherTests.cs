@@ -57,6 +57,47 @@ internal static class WeatherTests
         Expect(DayWeather.Rain(Weather.Rainy) && !DayWeather.Rain(Weather.Fair), "rain falls on rainy days");
         Expect(DayWeather.WindStrength(Weather.Windy) > DayWeather.WindStrength(Weather.Fair), "wind blows harder on windy days");
         Expect(DayWeather.SnowfallCount(Weather.Snowy) > SeasonLook.DriftCount(Drift.Snow), "snowy days snow harder than winter's usual");
+        // I358: each neighbour notices the weather in their own way: Mira through the trees,
+        // Orin by what's built, Fen by the flowers. Calm, true, and different from each other.
+        foreach (Weather w in new[] { Weather.Rainy, Weather.Windy, Weather.Hot, Weather.Snowy })
+        {
+            var lines = new HashSet<string>();
+            for (int villager = 0; villager < 3; villager++)
+            {
+                string line = DayWeather.Remark(w, villager);
+                Expect(line != null && line.Length < 140 && !line.Contains("!"), "a calm line from neighbour " + villager + " on " + w);
+                lines.Add(line);
+            }
+            Expect(lines.Count == 3, "three neighbours, three ways of seeing " + w);
+        }
+        Expect(DayWeather.Remark(Weather.Fair, 0) == null, "nothing to say on a fair day");
+        // I359: since you were last here, told truly: the days' weather you missed, no guilt.
+        var last = new DateTime(2026, 3, 1);
+        Expect(DayWeather.SinceLastVisit(last, last, Season.Spring, 3) == null, "the same day: nothing to tell");
+        Expect(DayWeather.SinceLastVisit(last, last.AddDays(1), Season.Spring, 3) == null, "yesterday: nothing to tell");
+        string away = DayWeather.SinceLastVisit(last, last.AddDays(6), Season.Autumn, 3);
+        Expect(away != null && away.Contains("looked after itself") && !away.Contains("miss") && !away.Contains("!"),
+            "a week away: a calm, true summary: " + away);
+        int rainy = 0;
+        for (int d = 1; d < 6; d++) if (DayWeather.For(last.AddDays(d), Season.Autumn, 3) == Weather.Rainy) rainy++;
+        Expect(rainy == 0 || away.Contains("rain"), "it names rain if it rained: " + away);
+        string long_ = DayWeather.SinceLastVisit(last, last.AddDays(400), Season.Winter, 3);
+        Expect(long_ != null && long_.Length < 160, "a long time away still reads calmly: " + long_);
+        Expect(DayWeather.SinceLastVisit(last.AddDays(3), last, Season.Spring, 3) == null, "a clock set back: nothing");
+        // I360: every stretch of river has its own name, the first being home's.
+        var names = new HashSet<string>();
+        for (int reach = 0; reach < GardenMap.ReachesCeiling; reach++)
+        {
+            string name = RiverNames.For(reach);
+            Expect(!string.IsNullOrEmpty(name) && name.Length <= 18 && !name.Contains("!"), "a short name: " + name);
+            Expect(names.Add(name), "each stretch its own name: " + name);
+            Expect(RiverNames.For(reach) == name, "always the same name");
+        }
+        Expect(RiverNames.For(GardenMap.ReachesCeiling + 5) == RiverNames.For(GardenMap.ReachesCeiling - 1) &&
+               RiverNames.For(-3) == RiverNames.For(0), "out of range keeps to the ends");
+        // I362: Mira's note when the river opens names the new stretch, and stays a letter.
+        string note = NeighbourNotice.RiverNote(Season.Spring, RiverNames.For(5));
+        Expect(note.Contains(RiverNames.For(5)) && FamilyParcel.ValidLetter(note), "the new stretch by name: " + note);
         // Its sound (I354–I356): rain patters, wind blows, heat hums by day only.
         Expect(Soundscape.WeatherVoice(Weather.Rainy, DayPhase.Day) == AmbientVoice.Rain, "rain patters");
         Expect(Soundscape.WeatherVoice(Weather.Windy, DayPhase.Night) == AmbientVoice.Wind, "wind day and night");

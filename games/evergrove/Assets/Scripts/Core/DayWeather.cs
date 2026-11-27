@@ -50,6 +50,73 @@ namespace Evergrove.Core
             }
         }
 
+        // I358: [villager][weather - 1]: Mira the trees, Orin what's built, Fen the flowers.
+        private static readonly string[][] OwnLines =
+        {
+            new[] {
+                "Rain today. The trees are drinking deep; you can almost hear the roots.",
+                "The wind's in the branches today. The old ones creak, but they've seen worse.",
+                "A hot one. The shade under the trees is the best seat in the garden today.",
+                "Snow on every branch today. The trees are asleep under it, and quite content." },
+            new[] {
+                "Rain today. The gutters are singing and the bridge stones shine.",
+                "A brisk wind today. I've checked the roofs; everything's holding.",
+                "Hot today. The stones are warm to the touch, even in the shade.",
+                "Snowing properly today. I've cleared the bridge so nobody slips." },
+            new[] {
+                "Rain today. Every flower's holding a little cup of it.",
+                "Windy today. The tall flowers are bowing; they'll stand straight tomorrow.",
+                "A hot one today. The flowers are folding up a little until evening.",
+                "Snow today. Only the snowdrops are up, and they don't seem to mind." },
+        };
+
+        /// <summary>I358: the weather as one neighbour sees it, or null on a fair day.</summary>
+        public static string Remark(Weather weather, int villager)
+        {
+            if (weather == Weather.Fair) return null;
+            int v = Math.Max(0, Math.Min(2, villager));
+            return OwnLines[v][(int)weather - 1];
+        }
+
+        private static readonly string[] Counted = { "no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
+
+        /// <summary>
+        /// I359: since you were last here, told truly and without guilt: the weather of the days
+        /// in between, and that the garden looked after itself. Null for today or yesterday, and
+        /// for a clock set back. Offline, nothing else changes while you're away, so nothing
+        /// else is claimed.
+        /// </summary>
+        public static string SinceLastVisit(DateTime lastDay, DateTime today, Season season, int garden)
+        {
+            int days = (today.Date - lastDay.Date).Days;
+            if (days < 2) return null;
+            if (days > 30) return "A good while has passed, with all sorts of weather. The garden looked after itself.";
+            int rainy = 0, windy = 0, hot = 0, snowy = 0;
+            for (int d = 1; d < days; d++)
+                switch (For(lastDay.Date.AddDays(d), season, garden))
+                {
+                    case Weather.Rainy: rainy++; break;
+                    case Weather.Windy: windy++; break;
+                    case Weather.Hot: hot++; break;
+                    case Weather.Snowy: snowy++; break;
+                }
+            var parts = new System.Collections.Generic.List<string>();
+            if (rainy > 0) parts.Add(Days(rainy, "rainy"));
+            if (snowy > 0) parts.Add(Days(snowy, "snowy"));
+            if (windy > 0) parts.Add(Days(windy, "windy"));
+            if (hot > 0) parts.Add(Days(hot, "hot"));
+            string weather = parts.Count == 0 ? "fine weather all the while"
+                : parts.Count == 1 ? parts[0]
+                : string.Join(", ", parts.GetRange(0, parts.Count - 1).ToArray()) + " and " + parts[parts.Count - 1];
+            return "Since you were last here: " + weather + ". The garden looked after itself.";
+        }
+
+        private static string Days(int n, string kind)
+        {
+            string count = n < Counted.Length ? Counted[n] : n.ToString();
+            return n == 1 ? "a " + kind + " day" : count + " " + kind + " days";
+        }
+
         public static bool Rain(Weather weather) { return weather == Weather.Rainy; }
 
         /// <summary>How hard things lean and drift is blown: 1 is the usual breeze.</summary>

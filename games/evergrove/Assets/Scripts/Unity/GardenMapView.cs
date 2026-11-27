@@ -701,6 +701,39 @@ namespace Evergrove.UnityClient
                     drawn++;
                 }
             }
+            // I360: a painted plank at the head of each stretch, with its name.
+            Sprite plank = SignFont != null ? MosseloraArt.Load(MosseloraArt.StreamSign) : null;
+            for (int reach = 0; plank != null && reach < reaches; reach++)
+            {
+                var sign = new GameObject("River name " + RiverNames.For(reach), typeof(RectTransform));
+                sign.transform.SetParent(land, false);
+                var signRect = (RectTransform)sign.transform;
+                signRect.anchorMin = signRect.anchorMax = new Vector2(0f, 1f);
+                signRect.pivot = new Vector2(0.5f, 1f);
+                float signW = Mathf.Clamp(width * 0.34f, 120f, 170f);
+                signRect.sizeDelta = new Vector2(signW, signW * 0.28f);
+                signRect.anchoredPosition = new Vector2(width * 0.58f, -(reach * reachHeight + reachHeight * 0.012f));
+                var plankImage = sign.AddComponent<Image>();
+                plankImage.sprite = plank;
+                plankImage.raycastTarget = false;
+                var label = new GameObject("Name", typeof(RectTransform)).AddComponent<Text>();
+                label.transform.SetParent(sign.transform, false);
+                label.rectTransform.anchorMin = Vector2.zero;
+                label.rectTransform.anchorMax = Vector2.one;
+                label.rectTransform.offsetMin = new Vector2(8f, 2f);
+                label.rectTransform.offsetMax = new Vector2(-8f, -2f);
+                label.font = SignFont;
+                label.fontSize = 15;
+                label.fontStyle = FontStyle.Bold;
+                label.alignment = TextAnchor.MiddleCenter;
+                label.color = MosseloraTheme.EarthInk;
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = 10;
+                label.resizeTextMaxSize = 15;
+                label.raycastTarget = false;
+                label.text = RiverNames.For(reach);
+                nodes.Add(signRect);
+            }
             // I310 (idea 43, leaving a light for another): lanterns family left stand along the
             // path below your cottage door, the newest nearest; lit after dusk.
             for (int l = 0; l < Mathf.Min(lanterns, 3); l++)
@@ -1056,6 +1089,24 @@ namespace Evergrove.UnityClient
         public void ShowDrops(int have, int need, bool swellNewest)
         {
             if (apronRect == null || teaser <= 0f || need < 1) return;
+            // I361: the name of the stretch waiting beyond the mist, faint, above the drops.
+            Transform oldName = apronRect.Find("Beyond the mist");
+            if (oldName != null) Destroy(oldName.gameObject);
+            if (SignFont != null)
+            {
+                var beyond = new GameObject("Beyond the mist", typeof(RectTransform)).AddComponent<Text>();
+                beyond.transform.SetParent(apronRect, false);
+                beyond.rectTransform.anchorMin = beyond.rectTransform.anchorMax = new Vector2(0.5f, 0.42f);
+                beyond.rectTransform.sizeDelta = new Vector2(260f, 30f);
+                beyond.rectTransform.anchoredPosition = new Vector2(0f, 38f);
+                beyond.font = SignFont;
+                beyond.fontSize = 17;
+                beyond.fontStyle = FontStyle.Italic;
+                beyond.alignment = TextAnchor.MiddleCenter;
+                beyond.color = new Color(0.30f, 0.34f, 0.32f, 0.75f);
+                beyond.raycastTarget = false;
+                beyond.text = RiverNames.For(reaches);
+            }
             Transform old = apronRect.Find("Drops toward the next stretch");
             if (old != null) Destroy(old.gameObject);
             var row = new GameObject("Drops toward the next stretch", typeof(RectTransform));
@@ -1246,6 +1297,7 @@ namespace Evergrove.UnityClient
         public static int CatBy = -1;          // I335: a thing's index, -2 by the door, -1 none
         public static Season SeasonNow = Season.Summer; // I338: the garden's season, set before a build
         public static Weather WeatherNow = Weather.Fair; // I353: the day's weather, set before a build
+        public static Font SignFont; // I360: the river-name signs' lettering
 
         /// <summary>
         /// I354–I356: rain falling on a slant; faint gusts of wind sweeping across; or heat
