@@ -42,6 +42,7 @@ Every layer below either feeds this loop or makes it more personal. Anything tha
 - **Visit:** open a relative's garden file (the existing garden file) to walk their river read-only.
 - **Gifts:** leave a seed parcel, a cutting of one of your plants, or a short letter on their map. These travel back inside a small, checksummed "parcel" file sent by any messaging app.
 - **Help:** solve one of their things' puzzles while visiting; it blooms in their garden when they open the parcel.
+  Built in I226 (rules) and I227 (visit and home). Help costs and pays nothing on either side; the owner keeps their own first solve and its seeds, and the neighbour of that thing's kind names the helper until then.
 - The opt-in live family circle (backend plus sign-up, decided 2026-11-25, not built) later carries the same parcels automatically. Same rules, different delivery.
 
 ## Simple economics, checked by tests

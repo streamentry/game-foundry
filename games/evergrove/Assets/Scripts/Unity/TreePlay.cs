@@ -131,8 +131,10 @@ namespace Evergrove.UnityClient
             thingImage.raycastTarget = false;
             if (gentle) BloomPulse.Add(thing, 0.2f, 0.05f);
             rewardPill = Pill(top, "+" + reward, font, out rewardText);
+            // Helping family (I227) pays nothing: no seed pill, said plainly.
+            if (reward < 0) rewardPill.SetActive(false);
             // Spoken: what this is and what it pays (screen readers read Text).
-            Hidden(card.transform, name + ". " + reward + " seeds.", font);
+            Hidden(card.transform, name + (reward < 0 ? ". Help with it for them." : ". " + reward + " seeds."), font);
 
             if (pairs != null) { BuildPairs(card.transform, width, screenHeight); return; }
             if (mosaic != null) { BuildMosaic(card.transform, width, screenHeight); return; }

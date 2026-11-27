@@ -264,6 +264,30 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(2.4f);
                 app.QaEndTreePlay();
             }
+            // I223: one more first solve opens a new stretch of river; home lifts its mist.
+            // I224: at the river's foot, three of four drops filled on the next stretch's mist.
+            app.QaHubToFoot();
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17y-drops-on-the-mist.png");
+            int tree = app.QaHoldUnsolved();
+            if (tree >= 0)
+            {
+                Debug.Log("MOSSELORA_QA_RIVER solves before " + app.QaPuzzlesSolved());
+                for (int f = 0; f < 6; f++) yield return null;
+                app.QaOpenTreePlay(tree);
+                for (int f = 0; f < 8; f++) yield return null;
+                app.QaSolveTreePlay();
+                yield return new WaitForSecondsRealtime(2.4f);
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17w-river-opens.png");
+                yield return new WaitForSecondsRealtime(2.6f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17x-river-opened.png");
+                app.QaEndTreePlay();
+            }
             // The nursery (I208): seeds buy a new plant that holds its own puzzle.
             app.QaOpenNursery();
             for (int f = 0; f < 6; f++) yield return null;
@@ -310,7 +334,35 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.4f);
                 yield return new WaitForEndOfFrame();
                 SavePng("17s-visiting.png");
+                // I227: help with one of their flower beds; it blooms in their garden.
+                if (app.QaHelpOnVisit((int)VillageChoice.Flowers))
+                {
+                    for (int f = 0; f < 8; f++) yield return null;
+                    yield return new WaitForSecondsRealtime(0.4f);
+                    yield return new WaitForEndOfFrame();
+                    SavePng("17s2-helping.png");
+                    app.QaSolveTreePlay();
+                    yield return new WaitForSecondsRealtime(2.6f);
+                    for (int f = 0; f < 8; f++) yield return null;
+                    yield return new WaitForSecondsRealtime(0.8f);
+                    yield return new WaitForEndOfFrame();
+                    SavePng("17s3-helped-their-garden.png");
+                    app.QaEndTreePlay();
+                }
                 app.QaCloseVisit();
+                // And the other way: Nan helped with one of your buildings.
+                int helpedThing = app.QaUnsolved((int)VillageChoice.Bridge);
+                if (helpedThing >= 0 && FamilyParcel.TryCreate("Nan", "", ParcelGift.Help, helpedThing,
+                        "qatour2", out string help, out _, out _))
+                {
+                    GUIUtility.systemCopyBuffer = FamilyParcel.Wrap(help, "Nan helped in your garden.");
+                    family = app.QaFamily(); // a visit closes the family card
+                    for (int f = 0; f < 4; f++) yield return null;
+                    family.QaOpen();
+                    for (int f = 0; f < 6; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("17s4-help-opened.png");
+                }
                 app.QaCloseFamily();
                 // Letters stay in the garden (I217): the letterbox by the cottage, then Nan's letter.
                 for (int f = 0; f < 6; f++) yield return null;
@@ -336,6 +388,13 @@ namespace Evergrove.UnityClient
             yield return new WaitForSecondsRealtime(0.6f);
             yield return new WaitForEndOfFrame();
             SavePng("17v-fen-gift.png");
+            app.QaTalk(-1);
+            // I227: Orin names Nan, who helped with one of your buildings.
+            app.QaTalk(1);
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return new WaitForEndOfFrame();
+            SavePng("17z-orin-help.png");
             app.QaTalk(-1);
             // Settings as round tokens (I194).
             Press("Open menu");

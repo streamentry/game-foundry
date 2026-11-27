@@ -60,6 +60,10 @@ namespace Evergrove.Core
         public string[] parcelIds = Array.Empty<string>();
         public string[] letters = Array.Empty<string>();
         public string[] letterFrom = Array.Empty<string>();
+        // Optional, additive (I226; absent in older JSON). Grown things a relative helped with
+        // (item indices, newest last) and who helped (parallel). Never counts as a solve.
+        public int[] helped = Array.Empty<int>();
+        public string[] helpedFrom = Array.Empty<string>();
     }
 
     /// <summary>
@@ -363,7 +367,8 @@ namespace Evergrove.Core
                 seeds = 0, treeSolved = Array.Empty<int>(),
                 bought = Array.Empty<int>(), boughtSolved = Array.Empty<int>(),
                 gifts = Array.Empty<int>(), parcelIds = Array.Empty<string>(),
-                letters = Array.Empty<string>(), letterFrom = Array.Empty<string>()
+                letters = Array.Empty<string>(), letterFrom = Array.Empty<string>(),
+                helped = Array.Empty<int>(), helpedFrom = Array.Empty<string>()
             });
         }
 
@@ -382,7 +387,8 @@ namespace Evergrove.Core
                 seeds = state.seeds, treeSolved = (int[])state.treeSolved.Clone(),
                 bought = (int[])state.bought.Clone(), boughtSolved = (int[])state.boughtSolved.Clone(),
                 gifts = (int[])state.gifts.Clone(), parcelIds = (string[])state.parcelIds.Clone(),
-                letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone()
+                letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone(),
+                helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone()
             };
         }
 
@@ -449,6 +455,9 @@ namespace Evergrove.Core
             int[] gifts;
             string[] parcelIds, letters, letterFrom;
             if (!ReadFamily(source, out gifts, out parcelIds, out letters, out letterFrom)) return false;
+            int[] helped;
+            string[] helpedFrom;
+            if (!ReadHelped(source, out helped, out helpedFrom)) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -512,7 +521,8 @@ namespace Evergrove.Core
                 plantings = (int[])plantings.Clone(),
                 seeds = source.seeds, treeSolved = (int[])treeSolved.Clone(),
                 bought = (int[])bought.Clone(), boughtSolved = (int[])boughtSolved.Clone(),
-                gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom
+                gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom,
+                helped = helped, helpedFrom = helpedFrom
             });
             return true;
         }

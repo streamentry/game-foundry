@@ -72,6 +72,10 @@ internal static class NoticeTests
             else
             {
                 Expect(line != null, "a line for " + solved);
+                Kind(line, "count " + solved);
+                // I225: three of four first solves after the story: Mira speaks for the river instead.
+                if (line.Contains("mist")) { Expect(solved % GardenMap.SolvesPerReach == 3, "river line only at three of four"); continue; }
+                if (line.Contains("river")) { Expect(solved % GardenMap.SolvesPerReach == 0, "opened line only on a full row"); continue; }
                 Expect(line.Contains(solved.ToString()) || (solved == 1 && line.ToLowerInvariant().Contains("one")),
                     "the count is the true count " + solved + ": " + line);
                 Kind(line, "count " + solved);
@@ -88,6 +92,39 @@ internal static class NoticeTests
         Expect(NeighbourNotice.Line(0, withGift) == NeighbourNotice.Line(0, world), "Mira isn't told about Fen's flowers");
         Expect(withGift.PlantGift(0, 41) && NeighbourNotice.Line(2, withGift) != fenGift,
             "once planted, the gift line gives way");
+
+        // I225: Mira, who keeps the trees by the water, tells you what the drops on the
+        // mist mean, only when it's true: one more first solve opens more river.
+        WorldModel done = WorldModel.New(PlayMode.Living);
+        Grow(done, 12);
+        Expect(done.Completed, "the story is finished");
+        done.SolveTree(0);
+        done.SolveTree(1);
+        string two = NeighbourNotice.Line(0, done);
+        Expect(two != null && !two.ToLowerInvariant().Contains("mist"), "two of four: no river line yet: " + two);
+        done.SolveTree(2);
+        string near = NeighbourNotice.Line(0, done);
+        Expect(near != null && near.ToLowerInvariant().Contains("mist") && near.ToLowerInvariant().Contains("one more"),
+            "three of four: Mira says one more will lift the mist: " + near);
+        Kind(near, "river near");
+        Expect(NeighbourNotice.Line(1, done) == null || !NeighbourNotice.Line(1, done).ToLowerInvariant().Contains("mist"),
+            "only Mira speaks for the river");
+        done.SolveTree(3);
+        Expect(GardenMap.ReachesFor(12, true, done.PuzzlesSolved) == GardenMap.MaxReaches + 1, "a stretch opened");
+        string opened = NeighbourNotice.Line(0, done);
+        Expect(opened != null && opened.ToLowerInvariant().Contains("river") && !opened.ToLowerInvariant().Contains("one more"),
+            "after it opens Mira says the river runs further: " + opened);
+        Kind(opened, "river opened");
+        done.SolveTree(4);
+        string after = NeighbourNotice.Line(0, done);
+        Expect(after != null && !after.ToLowerInvariant().Contains("mist") && !after.ToLowerInvariant().Contains("further"),
+            "then the tended count speaks again: " + after);
+        // During the story the drops count streams: no tending line about the mist.
+        WorldModel midway = WorldModel.New(PlayMode.Living);
+        Grow(midway, 5);
+        for (int i = 0; i < 5; i++) midway.SolveTree(i);
+        string mid = NeighbourNotice.Line(0, midway);
+        Expect(mid == null || !mid.ToLowerInvariant().Contains("mist"), "no river line before the story ends: " + mid);
 
         Expect(NeighbourNotice.Line(5, world) == null && NeighbourNotice.Line(-1, world) == null, "only our three neighbours");
         Expect(NeighbourNotice.Line(0, WorldModel.New(PlayMode.PuzzleOnly)) == null, "no neighbours in puzzle-only mode");

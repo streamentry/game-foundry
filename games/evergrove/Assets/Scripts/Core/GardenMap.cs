@@ -50,6 +50,25 @@ namespace Evergrove.Core
         }
 
         /// <summary>
+        /// How close the next stretch is (I224), for the drops on its mist: streams
+        /// restored during the story, first solves after it. False once no more
+        /// river can open (the ceiling), so the mist shows no drops.
+        /// </summary>
+        public static bool TowardNext(int restored, bool completed, int puzzlesSolved, out int have, out int need)
+        {
+            if (!completed)
+            {
+                need = StreamsPerReach;
+                have = Math.Max(0, restored) % StreamsPerReach;
+                return true; // the story always opens all five
+            }
+            int solved = Math.Max(0, puzzlesSolved);
+            need = SolvesPerReach;
+            have = solved % SolvesPerReach;
+            return ReachesFor(restored, true, solved) < ReachesCeiling;
+        }
+
+        /// <summary>
         /// The endless river (I192): one reach's mask repeated down the map, every
         /// other reach mirrored top to bottom, exactly as the painting is drawn, so
         /// the creek and the banks join without a seam.
