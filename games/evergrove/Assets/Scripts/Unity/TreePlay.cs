@@ -42,6 +42,7 @@ namespace Evergrove.UnityClient
             Transform seed = rewardPill.transform.Find("Seed");
             if (seed != null) seed.GetComponent<Image>().sprite = MosseloraArt.Load("food-pear");
             if (rewardText != null) rewardText.text = "+" + fruit;
+            rewardPill.SetActive(true); // the well's board pays 0 seeds, but its fruit pill still shows
         }
         private RectTransform cardRect; // I293: the card the solved board fades out of
         private Sprite thingArt;
@@ -421,10 +422,11 @@ namespace Evergrove.UnityClient
             Transform hintNode = top.Find("Hint: show the next move");
             hintToken = hintNode != null ? hintNode.GetComponent<Image>() : null;
             rewardPill = Pill(top, "+" + reward, font, out rewardText);
-            // Helping family (I227) pays nothing: no seed pill, said plainly.
-            if (reward < 0) rewardPill.SetActive(false);
+            // Helping family (I227) pays nothing, and a capped replay (v1 #80) pays nothing: no seed pill.
+            // The board still plays normally.
+            if (reward <= 0) rewardPill.SetActive(false);
             // Spoken: what this is and what it pays (screen readers read Text).
-            Hidden(card.transform, name + (reward < 0 ? ". Help with it for them." : ". " + reward + " seeds."), font);
+            Hidden(card.transform, name + (reward < 0 ? ". Help with it for them." : reward > 0 ? ". " + reward + " seeds." : "."), font);
 
             if (board != null) { board.Build(card.transform, width, screenHeight, font, this); return; }
             // The classic three get their picture rule too (I262), the first few times.
