@@ -44,6 +44,8 @@ namespace Evergrove.Core
         public int Kind = -1;
         /// <summary>1..6 picks FamilyParcel.Blessings[Blessing - 1]; 0 means none.</summary>
         public int Blessing;
+        /// <summary>1..12 picks FamilyParcel.Stamps[Stamp - 1], a picture drawn on the letter; 0 means none.</summary>
+        public int Stamp;
     }
 
     public sealed class ParcelSendResult
@@ -91,6 +93,13 @@ namespace Evergrove.Core
         /// <summary>Highest format version without a blessing key; parcels with no blessing are still written as this.</summary>
         private const int PlainFormatVersion = 1;
         public const int MaxBlessing = 6;
+        public const int StampCount = 12;
+
+        /// <summary>Art keys (Resources/Evergrove/Art/&lt;key&gt;.png) of the twelve letter stamps; stamp n is Stamps[n - 1].</summary>
+        public static readonly string[] Stamps = {
+            "flower-00", "flower-05", "flower-21", "tree-00", "tree-07", "food-pear",
+            "food-apple", "food-jam", "stone-spring", "stone-autumn", "letter-sealed", "build-96"
+        };
         private static readonly int PuzzleKindCount = Enum.GetNames(typeof(PuzzleKind)).Length;
 
         /// <summary>Fixed, never typed: short, warm, culture-neutral wishes for a festive envelope.</summary>
@@ -107,11 +116,12 @@ namespace Evergrove.Core
         private static readonly HashSet<string> EnvelopeKeys = new HashSet<string> { "format", "formatVersion", "checksumSha256", "parcel" };
         private static readonly HashSet<string> ParcelKeys = new HashSet<string> { "id", "nonce", "from", "letter", "gift", "amount", "kind" };
         private const string BlessingKey = "blessing";
+        private const string StampKey = "stamp";
 
         /// <summary>Builds a parcel after normalising (trim, CRLF to LF) and validating its contents.</summary>
         public static bool TryCreate(string from, string letter, ParcelGift gift, int value, string nonce,
                                      out string text, out ParcelContents contents, out ParcelError error,
-                                     int blessing = 0, int boardSeed = 0)
+                                     int blessing = 0, int boardSeed = 0, int stamp = 0)
         {
             text = null;
             contents = null;
@@ -123,6 +133,7 @@ namespace Evergrove.Core
                 Amount = gift == ParcelGift.Seeds || gift == ParcelGift.Fruit || gift == ParcelGift.Jam ? value : gift == ParcelGift.Board ? boardSeed : 0,
                 Kind = gift == ParcelGift.Cutting || gift == ParcelGift.Help || gift == ParcelGift.Board ? value : -1,
                 Blessing = blessing,
+                Stamp = stamp,
                 Nonce = nonce
             };
             if (!ValidNonce(c.Nonce) || !ValidShape(c)) return false;
@@ -196,14 +207,17 @@ namespace Evergrove.Core
             string checksum = envelope.TryGetValue("checksumSha256", out checksumValue) ? checksumValue as string : null;
             ParcelContents parsed;
             bool hasBlessingKey = fields != null && fields.ContainsKey(BlessingKey);
+            bool hasStampKey = fields != null && fields.ContainsKey(StampKey);
             if (checksum == null || fields == null || !OnlyKeys(envelope, EnvelopeKeys) || !OnlyParcelKeys(fields) ||
                 !TryReadFields(fields, out parsed))
             { error = ParcelError.Malformed; return false; }
 
             if (!string.Equals(GardenTransfer.Sha256Hex(ParcelJson(parsed, true)), checksum, StringComparison.Ordinal))
             { error = ParcelError.ChecksumMismatch; return false; }
-            // The blessing key and format version 2 go together; a key reading 0 is never written.
-            if (hasBlessingKey != (version >= 2) || (hasBlessingKey && parsed.Blessing == 0))
+            // The optional keys and format version 2 go together (version 2 needs at least one, version 1 has
+            // neither); a key reading 0 is never written.
+            if ((hasBlessingKey || hasStampKey) != (version >= 2) ||
+                (hasBlessingKey && parsed.Blessing == 0) || (hasStampKey && parsed.Stamp == 0))
             { error = ParcelError.Invalid; return false; }
             if (!ValidNonce(parsed.Nonce) || !ValidShape(parsed) || !IsParcelId(parsed.Id) ||
                 !string.Equals(parsed.Id, MakeId(parsed), StringComparison.Ordinal))
@@ -222,7 +236,7 @@ namespace Evergrove.Core
         internal static string BuildText(ParcelContents c)
         {
             return "{\"format\":" + GardenTransfer.Quote(FormatName) +
-                ",\"formatVersion\":" + GardenTransfer.Int(c.Blessing != 0 ? CurrentFormatVersion : PlainFormatVersion) +
+                ",\"formatVersion\":" + GardenTransfer.Int(c.Blessing != 0 || c.Stamp != 0 ? CurrentFormatVersion : PlainFormatVersion) +
                 ",\"checksumSha256\":\"" + GardenTransfer.Sha256Hex(ParcelJson(c, true)) + "\"" +
                 ",\"parcel\":" + ParcelJson(c, true) + "}";
         }
@@ -262,7 +276,7 @@ namespace Evergrove.Core
         private static bool ValidShape(ParcelContents c)
         {
             if (!ValidName(c.From) || !ValidLetter(c.Letter)) return false;
-            if (c.Blessing < 0 || c.Blessing > MaxBlessing) return false;
+            if (c.Blessing < 0 || c.Blessing > MaxBlessing || c.Stamp < 0 || c.Stamp > StampCount) return false;
             if (c.Blessing != 0 && c.Gift != ParcelGift.Seeds && c.Gift != ParcelGift.Fruit && c.Gift != ParcelGift.Jam) return false;
             switch (c.Gift)
             {
@@ -308,13 +322,13 @@ namespace Evergrove.Core
             return true;
         }
 
-        /// <summary>The seven base keys, plus the optional blessing.</summary>
+        /// <summary>The seven base keys, plus the optional blessing and stamp.</summary>
         private static bool OnlyParcelKeys(Dictionary<string, object> fields)
         {
-            int extra = fields.ContainsKey(BlessingKey) ? 1 : 0;
+            int extra = (fields.ContainsKey(BlessingKey) ? 1 : 0) + (fields.ContainsKey(StampKey) ? 1 : 0);
             if (fields.Count != ParcelKeys.Count + extra) return false;
             foreach (string key in fields.Keys)
-                if (!ParcelKeys.Contains(key) && key != BlessingKey) return false;
+                if (!ParcelKeys.Contains(key) && key != BlessingKey && key != StampKey) return false;
             return true;
         }
 
@@ -339,6 +353,13 @@ namespace Evergrove.Core
                 int blessing;
                 if (!GardenTransfer.AsInt(blessingValue, out blessing)) return false;
                 c.Blessing = blessing;
+            }
+            object stampValue;
+            if (fields.TryGetValue(StampKey, out stampValue))
+            {
+                int stamp;
+                if (!GardenTransfer.AsInt(stampValue, out stamp)) return false;
+                c.Stamp = stamp;
             }
             switch (gift)
             {
@@ -380,7 +401,8 @@ namespace Evergrove.Core
                 ",\"gift\":" + GardenTransfer.Quote(GiftName(c.Gift)) +
                 ",\"amount\":" + GardenTransfer.Int(c.Amount) +
                 ",\"kind\":" + GardenTransfer.Int(c.Kind) +
-                (c.Blessing != 0 ? ",\"blessing\":" + GardenTransfer.Int(c.Blessing) : "") + "}";
+                (c.Blessing != 0 ? ",\"blessing\":" + GardenTransfer.Int(c.Blessing) : "") +
+                (c.Stamp != 0 ? ",\"stamp\":" + GardenTransfer.Int(c.Stamp) : "") + "}";
         }
     }
 }

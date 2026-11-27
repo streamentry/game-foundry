@@ -80,6 +80,10 @@ namespace Evergrove.Core
         // Optional, additive (jam kitchen; absent in older JSON, and not written while 0). Jars of
         // jam (0..10), cooked from fruit. Only Living gardens hold any.
         public int jam;
+        // Optional, additive (picture stamps; absent in older JSON, and not written while empty).
+        // The stamp (1..12, 0 none) of each kept letter, parallel to `letters`. Empty means every
+        // letter is unstamped; otherwise exactly one entry per letter.
+        public int[] letterStamps = Array.Empty<int>();
     }
 
     /// <summary>
@@ -398,7 +402,7 @@ namespace Evergrove.Core
                 letters = Array.Empty<string>(), letterFrom = Array.Empty<string>(),
                 helped = Array.Empty<int>(), helpedFrom = Array.Empty<string>(),
                 fruit = 0, fruitGiven = new int[Neighbours], lastFruitTo = -1,
-                together = Array.Empty<int>(), lanterns = Array.Empty<string>(), jam = 0
+                together = Array.Empty<int>(), lanterns = Array.Empty<string>(), jam = 0, letterStamps = Array.Empty<int>()
             });
         }
 
@@ -420,7 +424,7 @@ namespace Evergrove.Core
                 letters = (string[])state.letters.Clone(), letterFrom = (string[])state.letterFrom.Clone(),
                 helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone(),
                 fruit = state.fruit, fruitGiven = (int[])state.fruitGiven.Clone(), lastFruitTo = state.lastFruitTo,
-                together = (int[])state.together.Clone(), lanterns = (string[])state.lanterns.Clone(), jam = state.jam
+                together = (int[])state.together.Clone(), lanterns = (string[])state.lanterns.Clone(), jam = state.jam, letterStamps = (int[])state.letterStamps.Clone()
             };
         }
 
@@ -497,6 +501,8 @@ namespace Evergrove.Core
             string[] lanterns;
             if (!ReadLanterns(source, out lanterns)) return false;
             if (!ReadJam(source)) return false;
+            int[] letterStamps;
+            if (!ReadLetterStamps(source, out letterStamps)) return false;
 
             int chapter = source.round;
             int[] rotations = (int[])source.rotations.Clone();
@@ -563,7 +569,7 @@ namespace Evergrove.Core
                 gifts = gifts, parcelIds = parcelIds, letters = letters, letterFrom = letterFrom,
                 helped = helped, helpedFrom = helpedFrom,
                 fruit = source.fruit, fruitGiven = fruitGiven, lastFruitTo = source.lastFruitTo,
-                together = together, lanterns = lanterns, jam = source.jam
+                together = together, lanterns = lanterns, jam = source.jam, letterStamps = letterStamps
             });
             return true;
         }

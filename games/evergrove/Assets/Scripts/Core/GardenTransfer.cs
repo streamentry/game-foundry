@@ -39,7 +39,7 @@ namespace Evergrove.Core
             "hintsUsed", "boardVariant", "lastSolvedVariant", "hintStep", "hintTile", "variantSchedule",
             "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
             "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
-            "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam"
+            "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam", "letterStamps"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -251,6 +251,7 @@ namespace Evergrove.Core
             if (includeMap && includePlantings && includeTrees && includeNursery && includeFamily && includeHelp && includeFruit && includeTogether && includeLanterns)
             {
                 if (s.jam != 0) sb.Append(",\"jam\":").Append(Int(s.jam));
+                if (s.letterStamps != null && s.letterStamps.Length != 0) sb.Append(",\"letterStamps\":").Append(IntArray(s.letterStamps));
             }
             return sb.Append('}').ToString();
         }
@@ -365,7 +366,8 @@ namespace Evergrove.Core
                    ReadInt(fields, "lastFruitTo", ref snapshot.lastFruitTo) &&
                    ReadInts(fields, "together", ref snapshot.together) &&
                    ReadStrings(fields, "lanterns", ref snapshot.lanterns) &&
-                   ReadInt(fields, "jam", ref snapshot.jam);
+                   ReadInt(fields, "jam", ref snapshot.jam) &&
+                   ReadInts(fields, "letterStamps", ref snapshot.letterStamps);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)
