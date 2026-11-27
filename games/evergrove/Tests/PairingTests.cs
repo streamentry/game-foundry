@@ -111,6 +111,19 @@ internal static class PairingTests
         Expect(Pairings.SpotFor(map, new[] { flower }, Pairing.Waterside) == 2, "the kingfisher over the water beside the flower");
         Expect(Visitors.Out(Visitor.Kingfisher, Season.Spring, DayPhase.Morning) && !Visitors.Out(Visitor.Kingfisher, Season.Winter, DayPhase.Day)
             && !Visitors.Out(Visitor.Kingfisher, Season.Summer, DayPhase.Night), "the kingfisher by day, on open water");
+        // I398: a gift idea for a family garden: what one thing could do there.
+        Expect(Pairings.GiftIdea(map, new[] { tree }, 0, Pairings.FirstFour, out VillageChoice giftKind, out Pairing giftMakes)
+               && giftKind == VillageChoice.Flowers && giftMakes == Pairing.Sheltered, "a lone tree: a flower would be sheltered");
+        Expect(Pairings.GiftIdea(map, new[] { tree }, PairingMask.Of(Pairing.Sheltered), Pairings.FirstFour, out giftKind, out giftMakes)
+               && giftMakes != Pairing.Sheltered, "already sheltered: another idea");
+        Expect(!Pairings.GiftIdea(map, new PlacedThing[0], Pairings.FirstFour, Pairings.FirstFour, out _, out _), "all found: no idea needed");
+        // I399: what two gardens share.
+        WorldModel mine = WorldModel.New(PlayMode.Living), theirs = WorldModel.New(PlayMode.Living);
+        mine.DiscoverPairing(Pairing.Grove); mine.DiscoverPairing(Pairing.FlowerBed); theirs.DiscoverPairing(Pairing.Grove);
+        Expect(Pairings.Shared(mine, theirs) == PairingMask.Of(Pairing.Grove) && Pairings.Shared(null, theirs) == 0, "both have a grove");
+        // I401/I402: each says what it brings; the shady seat is where neighbours sit.
+        foreach (Pairing p in Enum.GetValues(typeof(Pairing))) Expect(Pairings.Brings(p).Length > 0 && !Pairings.Brings(p).Contains("!"), "each brings something");
+        Expect(Pairings.SpotFor(map, new[] { tree2, seat }, Pairing.ShadySeat) == seat.Cell, "the seat itself");
         // I376: the owl heard at night, only.
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Night) == AmbientVoice.Owl, "the owl calls at night");
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Day) == null, "never by day");

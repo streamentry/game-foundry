@@ -47,9 +47,11 @@ internal static class SeasonalYieldsTests
         Expect(w.TakeSeasonYield(grove) == SeasonYield.None, "a grove standing but never found: nothing yet");
         w.DiscoverPairing(Pairing.Grove);
         Expect(w.TakeSeasonYield(0) == SeasonYield.None, "found once but not standing now: nothing");
+        Expect(SeasonalYields.Waiting(w), "summer's yield is waiting");
         int seeds = w.Seeds;
         Expect(w.TakeSeasonYield(grove) == SeasonYield.Seeds && w.Seeds == seeds + SeasonalYields.SummerSeeds, "summer seeds");
         Expect(w.TakeSeasonYield(grove) == SeasonYield.None, "once a season");
+        Expect(!SeasonalYields.Waiting(w), "taken: nothing waiting");
         Expect(GardenTransfer.TryImport(GardenTransfer.Export(w, "2026-11-27T00:00:00Z"), out WorldModel back, out _) &&
                back.YieldTaken == w.YieldTaken && back.TakeSeasonYield(grove) == SeasonYield.None, "taken travels in the garden file");
         Expect(!GardenTransfer.Export(WorldModel.New(PlayMode.Living), "2026-11-27T00:00:00Z").Contains("\"yields\""),
