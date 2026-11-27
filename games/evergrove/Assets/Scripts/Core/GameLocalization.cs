@@ -102,7 +102,7 @@ namespace Evergrove.Core
             "has_news",
             "memory_tree_2","memory_tree_3","memory_bridge_2","memory_bridge_3",
             "memory_flowers_2","memory_flowers_3",
-            "preview_title","preview_help","preview_apply"
+            "preview_title","preview_help","preview_apply","privacy_policy"
         };
 
         private static readonly string[] English = {
@@ -229,7 +229,8 @@ namespace Evergrove.Core
             "Fen follows the bees along your wildflowers.",
             "Before you choose",
             "Tap a card to compare. Your garden changes only when you confirm.",
-            "Make this change"
+            "Make this change",
+            "Privacy policy"
         };
 
         private static readonly Dictionary<string, int> Index = CreateIndex();

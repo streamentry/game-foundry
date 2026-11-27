@@ -229,7 +229,7 @@ namespace Evergrove.UnityClient
                     hooks.Seeds() >= amount);
             GiftToken(gifts, LetterOnly, MosseloraArt.Load(MosseloraArt.IconChat), "", true);
             // A basket of fruit from your trees (I230), then a cutting of a plant you
-            // have grown from the nursery (it costs its price).
+            // have grown from the nursery (it costs its gift price, half the nursery price).
             int[] owned = hooks.OwnedKinds();
             // I408: the last visit's gift idea (I398): cuttings of that kind first, with a sprig.
             if (IdeaFamily >= 0)
@@ -251,8 +251,8 @@ namespace Evergrove.UnityClient
             for (int i = 0; i < owned.Length && i < (fruit > 0 ? 2 : 3); i++)
             {
                 GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
-                    Nursery.Price(owned[i]).ToString(), hooks.Seeds() >= Nursery.Price(owned[i]));
-                if (IdeaFamily >= 0 && Nursery.Family(owned[i]) == (VillageChoice)IdeaFamily)
+                    Nursery.GiftPrice(owned[i]).ToString(), hooks.Seeds() >= Nursery.GiftPrice(owned[i])); // v1 #73: sending costs half
+                if (IdeaFamily >= 0 && Nursery.Family(owned[i]) == (VillageChoice)IdeaFamily) // I408
                     MosseloraArt.Ornament(cuttings.GetChild(cuttings.childCount - 1), "Gift idea", MosseloraArt.Load("glyph-sprig"),
                         new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(22f, 22f), new Vector2(2f, 2f));
             }
@@ -465,6 +465,7 @@ namespace Evergrove.UnityClient
                 case ParcelError.NotEnoughFruit: return "You don't have that much fruit yet. Tend your trees to pick more.";
                 case ParcelError.NotEnoughJam: return "Your pantry has no jam yet. Make some from fruit at your cottage.";
                 case ParcelError.NotInThisGarden: return "This help is for something your garden hasn't grown yet.";
+                case ParcelError.LarderFull: return "Your larder is full. Make jam or give some fruit away, then open this one.";
                 case ParcelError.ChecksumMismatch:
                 case ParcelError.Malformed:
                 case ParcelError.Invalid: return "This parcel was changed on the way and can't be opened. Ask them to send it again.";

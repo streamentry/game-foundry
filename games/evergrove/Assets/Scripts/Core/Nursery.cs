@@ -31,6 +31,12 @@ namespace Evergrove.Core
         public static int Price(int kind) { return Prices[Row(kind)]; }
 
         /// <summary>
+        /// v1 #73: what a cutting sent to family costs, half the nursery price. Giving is cheaper than buying,
+        /// so generosity is the rational choice; a keepsake for yourself still costs the full <see cref="Price"/>.
+        /// </summary>
+        public static int GiftPrice(int kind) { return Price(kind) / 2; }
+
+        /// <summary>
         /// The garden item this kind looks like. Edition 0: garden row + 1, chapter 2, 6 or 10.
         /// Edition e moves e * Rows gardens further along the family's fixed order, which keeps
         /// every one of a family's Editions * Rows items distinct (tested).
