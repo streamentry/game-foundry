@@ -177,7 +177,8 @@ namespace Evergrove.UnityClient
                 skyRect.anchorMax = Vector2.one;
                 skyRect.offsetMin = skyRect.offsetMax = Vector2.zero;
                 var wash = sky.AddComponent<Image>();
-                wash.color = WeatherNow == Weather.Rainy ? new Color(0.45f, 0.52f, 0.62f, 0.18f) : new Color(1f, 0.82f, 0.50f, 0.12f);
+                // b314 tour: the hot day read as an ordinary summer one; warmer, and rain a touch greyer.
+                wash.color = WeatherNow == Weather.Rainy ? new Color(0.45f, 0.52f, 0.62f, 0.22f) : new Color(1f, 0.78f, 0.42f, 0.20f);
                 wash.raycastTarget = false;
             }
             if (SeasonLook.SnowLying(SeasonNow) > 0f)
@@ -1279,10 +1280,10 @@ namespace Evergrove.UnityClient
                     images[i].raycastTarget = false;
                     if (Kind == Weather.Rainy)
                     {
-                        bits[i].sizeDelta = new Vector2(2f, 16f + (float)rng.NextDouble() * 10f);
+                        bits[i].sizeDelta = new Vector2(2.6f, 18f + (float)rng.NextDouble() * 12f);
                         bits[i].localRotation = Quaternion.Euler(0f, 0f, -12f);
                         images[i].sprite = MosseloraArt.Rounded(2);
-                        images[i].color = new Color(0.80f, 0.88f, 0.96f, 0.55f);
+                        images[i].color = new Color(0.84f, 0.90f, 0.98f, 0.72f);
                         speed[i] = 520f + (float)rng.NextDouble() * 220f;
                     }
                     else if (Kind == Weather.Windy)
@@ -1324,7 +1325,7 @@ namespace Evergrove.UnityClient
                     {
                         float y = (phase[i] + clock * speed[i]) % (high + 30f);
                         bits[i].anchoredPosition = new Vector2(wide * 0.5f + Mathf.Sin(clock * 0.8f + i) * 12f, -(high - y));
-                        images[i].color = new Color(1f, 0.96f, 0.86f, 0.10f * Mathf.Sin(Mathf.Clamp01(y / high) * Mathf.PI));
+                        images[i].color = new Color(1f, 0.96f, 0.86f, 0.20f * Mathf.Sin(Mathf.Clamp01(y / high) * Mathf.PI));
                     }
                 }
             }
