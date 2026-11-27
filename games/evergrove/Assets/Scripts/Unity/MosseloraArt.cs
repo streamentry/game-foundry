@@ -955,7 +955,8 @@ namespace Evergrove.UnityClient
             rect.anchoredPosition += new Vector2(Mathf.Clamp(local.x, -limit + half, limit - half) - local.x, 0f);
             // I398: anchored to a whole screen (home, a visit), "above it" would be off the top:
             // keep the toast on screen, below the top chrome.
-            float maxTop = root.rect.yMax - 96f;
+            // I428 (P26, 150% text): the top chrome grows with the text, so the clearance does too.
+            float maxTop = root.rect.yMax - 96f * Mathf.Max(1f, TextScale.Percent / 100f);
             if (local.y + rect.rect.height > maxTop)
                 rect.anchoredPosition += new Vector2(0f, maxTop - (local.y + rect.rect.height));
             current = node.AddComponent<RuleToast>();

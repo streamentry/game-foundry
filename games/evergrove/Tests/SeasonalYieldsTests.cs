@@ -52,6 +52,7 @@ internal static class SeasonalYieldsTests
         Expect(w.TakeSeasonYield(grove) == SeasonYield.Seeds && w.Seeds == seeds + SeasonalYields.SummerSeeds, "summer seeds");
         Expect(w.TakeSeasonYield(grove) == SeasonYield.None, "once a season");
         Expect(!SeasonalYields.Waiting(w), "taken: nothing waiting");
+        Expect(Array.Find(MemoryShelf.For(w), k => k.Label == "The first gift of a season").Kept, "the first season's gift is kept on the shelf");
         Expect(GardenTransfer.TryImport(GardenTransfer.Export(w, "2026-11-27T00:00:00Z"), out WorldModel back, out _) &&
                back.YieldTaken == w.YieldTaken && back.TakeSeasonYield(grove) == SeasonYield.None, "taken travels in the garden file");
         Expect(!GardenTransfer.Export(WorldModel.New(PlayMode.Living), "2026-11-27T00:00:00Z").Contains("\"yields\""),

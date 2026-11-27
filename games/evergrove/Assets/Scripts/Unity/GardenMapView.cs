@@ -358,6 +358,8 @@ namespace Evergrove.UnityClient
             PairSpotsNext = null;
             view.creatureCells = new[] { HeronAtNext, HedgehogAtNext, OwlAtNext, KingfisherAtNext }; // I374, I382
             HeronAtNext = HedgehogAtNext = OwlAtNext = KingfisherAtNext = -1;
+            view.seatLantern = SeatLanternNext; // I430
+            SeatLanternNext = -1;
             LanternsNext = 0;
             view.Layout();
             return view;
@@ -928,6 +930,35 @@ namespace Evergrove.UnityClient
                 linkImage.color = new Color(0.36f, 0.62f, 0.38f, 0.9f);
                 linkImage.raycastTarget = false;
                 nodes.Add(linkRect);
+            }
+            // I430: a small lantern by the shady seat; lit from dusk, when the neighbours have sat there.
+            if (seatLantern >= 0 && seatLantern < map.CellCount)
+            {
+                var seatLamp = new GameObject("A lantern by the seat", typeof(RectTransform));
+                seatLamp.transform.SetParent(land, false);
+                var seatLampRect = (RectTransform)seatLamp.transform;
+                seatLampRect.anchorMin = seatLampRect.anchorMax = new Vector2(0f, 1f);
+                seatLampRect.pivot = new Vector2(0.5f, 0f);
+                seatLampRect.sizeDelta = new Vector2(cellW * 0.55f, cellH * 0.55f);
+                seatLampRect.anchoredPosition = new Vector2((seatLantern % map.Columns + 0.95f) * cellW, -(seatLantern / map.Columns + 1f) * cellH);
+                if (LampLit)
+                {
+                    var glow = new GameObject("Lantern light", typeof(RectTransform));
+                    glow.transform.SetParent(seatLamp.transform, false);
+                    var glowRect = (RectTransform)glow.transform;
+                    glowRect.anchorMin = glowRect.anchorMax = new Vector2(0.5f, 0.6f);
+                    glowRect.sizeDelta = new Vector2(cellW * 1.3f, cellW * 1.3f);
+                    var glowImage = glow.AddComponent<Image>();
+                    glowImage.sprite = MosseloraArt.SoftGlow();
+                    glowImage.color = new Color(1f, 0.82f, 0.45f, 0.55f);
+                    glowImage.raycastTarget = false;
+                    if (FirefliesMove) Breathe.Add(glowImage);
+                }
+                var lampImage = seatLamp.AddComponent<Image>();
+                lampImage.sprite = MosseloraArt.Load("build-96");
+                lampImage.preserveAspect = true;
+                lampImage.raycastTarget = false;
+                nodes.Add(seatLampRect);
             }
             // I374: the visitors good neighbours bring.
             for (int k = 0; creatureCells != null && k < creatureCells.Length; k++)
@@ -1594,6 +1625,8 @@ namespace Evergrove.UnityClient
         public static int[] PairSpotsNext; // I372: free cells that would make a new pairing
         public static int HeronAtNext = -1, HedgehogAtNext = -1, OwlAtNext = -1; // I374: cells, -1 none
         public static int KingfisherAtNext = -1; // I382
+        public static int SeatLanternNext = -1; // I430: the shady seat's cell, -1 none
+        private int seatLantern = -1;
         public static bool MistNow, SmokeNow, FootprintsNow; // I409, I410, I412
         public static bool RiverRainNow, RiverGlitterNow, RiverLeavesNow, MoonlightNow; // I413, I415, I417, I425
         public static float FishEveryNow; // I416: seconds between fish rising, 0 none

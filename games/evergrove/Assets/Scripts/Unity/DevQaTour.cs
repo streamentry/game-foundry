@@ -840,20 +840,26 @@ namespace Evergrove.UnityClient
             }
             app.QaReplaceWorld(neighbourly);
             if (!app.QaArrangeGoodNeighbours()) throw new InvalidOperationException("No bank holds every good neighbour");
-            for (int pass = 0; pass < 2; pass++) // the first four are found, then the deeper three open
+            // I429: the moments themselves: the first four found (toast and a keeper's hop), the
+            // deeper three, then the season's gift on the next return.
+            string[] moments = { "21a-good-neighbours-found.png", "21b-deeper-neighbours-found.png", "21c-season-gift.png" };
+            for (int pass = 0; pass < moments.Length; pass++)
             {
                 app.QaShowHub(true);
                 for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.9f);
+                yield return new WaitForEndOfFrame();
+                SavePng(moments[pass]);
                 app.QaShowHub(false);
             }
-            foreach (int hour in new[] { 11, 23 })
+            foreach (int hour in new[] { 11, 18, 23 })
             {
                 app.QaSetClock(hour);
                 app.QaShowHub(true);
                 for (int f = 0; f < 10; f++) yield return null;
                 yield return new WaitForSecondsRealtime(0.8f);
                 yield return new WaitForEndOfFrame();
-                SavePng(hour == 11 ? "21-good-neighbours-day.png" : "21-good-neighbours-night.png");
+                SavePng(hour == 11 ? "21-good-neighbours-day.png" : hour == 18 ? "21-good-neighbours-golden.png" : "21-good-neighbours-night.png");
                 app.QaShowHub(false);
             }
             app.QaSetClock(13);

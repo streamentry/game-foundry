@@ -2802,18 +2802,22 @@ namespace Evergrove.UnityClient
             switch (got)
             {
                 case SeasonYield.Seedling:
+                    celebrateKeeper = 2; // I431: Fen, for the flowers
                     pairingFound = "Spring: your flower bed has sown itself. A seedling is waiting in your basket.";
                     toastMarks = new[] { MosseloraArt.Load("flower-12"), MosseloraArt.Load("glyph-sprout"), MosseloraArt.Load("food-basket") };
                     break;
                 case SeasonYield.Seeds:
+                    celebrateKeeper = 0; // I431: Mira, for the grove
                     pairingFound = "Summer: the grove let fall its seeds. +" + SeasonalYields.SummerSeeds + " seeds.";
                     toastMarks = new[] { MosseloraArt.Load("tree-00"), MosseloraArt.Load("tree-05"), MosseloraArt.Load("glyph-sprout") };
                     break;
                 case SeasonYield.Fruit:
+                    celebrateKeeper = 0; // I431: Mira, for the orchard
                     pairingFound = "Autumn: the orchard is ready. " + SeasonalYields.AutumnFruit + " fruit picked.";
                     toastMarks = new[] { MosseloraArt.Load("tree-05"), MosseloraArt.Load("food-apple"), MosseloraArt.Load("food-pear") };
                     break;
                 default:
+                    celebrateKeeper = last; // I431: whoever brought the jam
                     pairingFound = "Winter: " + giver + " brought a jar of jam, for the fruit you gave this year.";
                     toastMarks = new[] { MosseloraArt.Load("portrait-" + giver.ToLowerInvariant()), MosseloraArt.Load("food-jam") };
                     break;
@@ -2904,6 +2908,8 @@ namespace Evergrove.UnityClient
                 GardenMapView.PairLinksNext = Pairings.Links(map, things); // I371
                 GardenMapView.PairSpotsNext = PairingSpots(map, things);    // I372
                 SetVisitorsFor(world, map, things); // I374, I382
+                // I430: a lantern by the shady seat, lit from dusk.
+                GardenMapView.SeatLanternNext = world.HasPairing(Pairing.ShadySeat) ? Pairings.SpotFor(map, things, Pairing.ShadySeat) : -1;
                 owlInGrove = Pairings.SpotFor(map, things, Pairing.Grove) >= 0; // I376: heard only while a grove stands
             }
             if (plot == null || map == null) return false;
