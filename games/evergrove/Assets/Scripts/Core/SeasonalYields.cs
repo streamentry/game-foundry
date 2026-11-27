@@ -52,6 +52,13 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>I400: whether this season's yield is still to come (not yet taken this turn).</summary>
+        public static bool Waiting(WorldModel world)
+        {
+            int key = Key(world);
+            return key >= 0 && world.YieldTaken != key + 1;
+        }
+
         /// <summary>What the almanac says each season brings, and why.</summary>
         public static string Why(Season season)
         {

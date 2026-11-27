@@ -199,9 +199,61 @@ namespace Evergrove.Core
                     if (j == i || b.Cell < 0 || b.Cell >= map.CellCount || !Beside(map, a.Cell, b.Cell)) continue;
                     if (pairing == Pairing.Sheltered && a.Family == VillageChoice.Flowers && b.Family == VillageChoice.ShadeTree) return a.Cell;
                     if (pairing == Pairing.Grove && a.Family == VillageChoice.ShadeTree && b.Family == VillageChoice.ShadeTree) return a.Cell;
+                    if (pairing == Pairing.ShadySeat && a.Family == VillageChoice.Bridge && b.Family == VillageChoice.ShadeTree) return a.Cell; // I402
                 }
             }
             return -1;
+        }
+
+        /// <summary>
+        /// I398: a gift idea for a family garden: the first kind of thing (flower, tree, something
+        /// built) that, set in some free land spot, would give that garden a good neighbour it
+        /// hasn't found (within <paramref name="openMask"/>, outside <paramref name="foundMask"/>).
+        /// Returns false when nothing one thing could do. Pure; the map and things are theirs.
+        /// </summary>
+        public static bool GiftIdea(GardenMap map, IList<PlacedThing> things, int foundMask, int openMask,
+            out VillageChoice family, out Pairing pairing)
+        {
+            family = VillageChoice.Flowers;
+            pairing = Pairing.Sheltered;
+            if (map == null || things == null) return false;
+            var taken = new HashSet<int>();
+            foreach (PlacedThing t in things) taken.Add(t.Cell);
+            int closed = ~openMask | foundMask;
+            foreach (VillageChoice kind in new[] { VillageChoice.Flowers, VillageChoice.ShadeTree, VillageChoice.Bridge })
+            {
+                var trial = new List<PlacedThing>(things) { new PlacedThing(-1, kind, "gift-" + kind) };
+                int best = 0;
+                for (int c = 0; c < map.CellCount && best == 0; c++)
+                    if (map.IsLand(c) && !taken.Contains(c)) best = NewAt(map, trial, trial.Count - 1, c, closed);
+                if (best == 0) continue;
+                family = kind;
+                for (int p = 0; p < 32; p++)
+                    if ((best & (1 << p)) != 0) { pairing = (Pairing)p; break; }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>I401: what a good neighbour brings, once found (the visitor, the season's gift).</summary>
+        public static string Brings(Pairing pairing)
+        {
+            switch (pairing)
+            {
+                case Pairing.Sheltered: return "A hedgehog comes at dusk, and the bees carry pollen to the tree.";
+                case Pairing.ByTheWater: return "A heron comes to fish.";
+                case Pairing.FlowerBed: return "In spring it sows itself.";
+                case Pairing.Grove: return "An owl at night, and seeds in summer.";
+                case Pairing.Waterside: return "A kingfisher comes.";
+                case Pairing.ShadySeat: return "In the golden hour, the neighbours sit there.";
+                default: return "In autumn, fruit to pick.";
+            }
+        }
+
+        /// <summary>I399: the good neighbours two gardens have both found, as a mask.</summary>
+        public static int Shared(WorldModel a, WorldModel b)
+        {
+            return a == null || b == null ? 0 : a.PairingsFound & b.PairingsFound;
         }
 
         /// <summary>

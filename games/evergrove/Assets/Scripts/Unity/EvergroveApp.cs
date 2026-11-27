@@ -2402,8 +2402,54 @@ namespace Evergrove.UnityClient
                     if (glyph != null) glyph.GetComponent<Image>().color = afford ? Color.white : new Color(1f, 1f, 1f, 0.4f);
                 }
             }
+            VisitGiftIdea(visited, map); // I398, I399
             semanticsDirty = true;
             return true;
+        }
+
+        // I398: on arrival, a gift idea: the one thing that would give their garden a good
+        // neighbour it hasn't found. I399: and what your two gardens both have.
+        private void VisitGiftIdea(WorldModel visited, GardenMap map)
+        {
+            if (visitLayer == null || world == null || world.Mode != PlayMode.Living) return;
+            var things = Pairings.Things(visited, map);
+            string shared = SharedWords(Pairings.Shared(world, visited));
+            if (Pairings.GiftIdea(map, things, visited.PairingsFound, Pairings.Open(visited), out VillageChoice kind, out Pairing makes))
+            {
+                string thing = kind == VillageChoice.Flowers ? "a flower" : kind == VillageChoice.ShadeTree ? "a tree" : "something built";
+                string art = kind == VillageChoice.Flowers ? "flower-05" : kind == VillageChoice.ShadeTree ? "tree-00" : "build-03";
+                var marks = new System.Collections.Generic.List<Sprite> { MosseloraArt.Load(art), MosseloraArt.Load("glyph-sprig") };
+                foreach (Sprite s in PairingMarks(makes)) marks.Add(s);
+                RuleToast.Show((RectTransform)visitLayer.transform,
+                    "A gift idea: " + thing + " would give them " + PairingName(makes) + "." + shared,
+                    font, Ink, MosseloraTheme.CardFill, marks.ToArray());
+            }
+            else if (shared.Length > 0)
+                RuleToast.Show((RectTransform)visitLayer.transform, shared.Trim(), font, Ink, MosseloraTheme.CardFill);
+        }
+
+        private static string PairingName(Pairing pairing)
+        {
+            switch (pairing)
+            {
+                case Pairing.Sheltered: return "a sheltered flower";
+                case Pairing.ByTheWater: return "something by the water";
+                case Pairing.FlowerBed: return "a flower bed";
+                case Pairing.Grove: return "a grove";
+                case Pairing.Waterside: return "flowers by the water";
+                case Pairing.ShadySeat: return "a shady seat";
+                default: return "an orchard";
+            }
+        }
+
+        private static string SharedWords(int shared)
+        {
+            var names = new System.Collections.Generic.List<string>();
+            foreach (Pairing p in Enum.GetValues(typeof(Pairing)))
+                if ((shared & PairingMask.Of(p)) != 0) names.Add(PairingName(p));
+            if (names.Count == 0) return "";
+            return " You both have " + (names.Count == 1 ? names[0]
+                : string.Join(", ", names.GetRange(0, names.Count - 1).ToArray()) + " and " + names[names.Count - 1]) + ".";
         }
 
         private string keepsakeTakenFrom;
@@ -3368,6 +3414,16 @@ namespace Evergrove.UnityClient
                             if (Mathf.Abs(other.anchoredPosition.x - spot.x) < Mathf.Abs(step.x) * 1.3f &&
                                 Mathf.Abs(other.anchoredPosition.y - spot.y) < rowStep * 1.3f) taken = true;
                         if (!taken) { at = spot; break; }
+                    }
+                }
+                // I402: in the golden hour they sit by the shady seat, if the garden has one.
+                if (fromTitle && DayLightOn && CurrentPhase() == DayPhase.Golden && world.HasPairing(Pairing.ShadySeat))
+                {
+                    int seatCell = Pairings.SpotFor(map, Pairings.Things(world, map), Pairing.ShadySeat);
+                    if (seatCell >= 0)
+                    {
+                        float side = villager == 0 ? -1.3f : villager == 1 ? 1.3f : 0f;
+                        at = point(seatCell) + new Vector2(side * step.x, villager == 2 ? -1.4f * rowStep : 0f);
                     }
                 }
                 // I367: in the evening they gather on the path below the lamplit cottage door.
@@ -6493,8 +6549,8 @@ namespace Evergrove.UnityClient
                 markImage.preserveAspect = true;
                 markImage.color = found ? Color.white : new Color(0.33f, 0.30f, 0.25f, 0.18f);
                 markImage.raycastTarget = false;
-                Text words = Label(row, "Hint", Pairings.Hint(pairing), 16, 0, found ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f),
-                    TextAnchor.MiddleLeft);
+                Text words = Label(row, "Hint", Pairings.Hint(pairing) + (found ? " " + Pairings.Brings(pairing) : ""), 16, 0,
+                    found ? Ink : new Color(0.4f, 0.36f, 0.3f, 0.7f), TextAnchor.MiddleLeft); // I401: once found, what it brings
                 words.GetComponent<LayoutElement>().flexibleWidth = 1f;
             }
             // I381: a promise, not a list: the deeper three show themselves once the four are found.
@@ -8690,6 +8746,12 @@ namespace Evergrove.UnityClient
                 : today == Weather.Snowy ? MosseloraArt.Load("stone-winter")
                 : today == Weather.Windy ? MosseloraArt.Load("stone-autumn") : MosseloraArt.Load(MosseloraArt.IconSun);
             if (DayLightOn) CottageLine(paper.transform, weatherMark, weatherWords);
+            // I400: what this season can still give, so there is something to aim for.
+            if (world.Mode == PlayMode.Living && SeasonalYields.Waiting(world))
+            {
+                Season season = GardenSeason.For(world);
+                CottageLine(paper.transform, MosseloraArt.Load("stone-" + season.ToString().ToLowerInvariant()), SeasonalYields.Why(season));
+            }
             if (summary.Letters > 0)
                 CottageLine(paper.transform, MosseloraArt.Load("letter-sealed"),
                     summary.Letters == 1 ? "A letter in your box" : summary.Letters + " letters in your box");

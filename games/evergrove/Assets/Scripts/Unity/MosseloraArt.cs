@@ -953,6 +953,11 @@ namespace Evergrove.UnityClient
             Vector3 local = root.InverseTransformPoint(rect.position);
             float half = rect.rect.width / 2f, limit = root.rect.width / 2f - 8f;
             rect.anchoredPosition += new Vector2(Mathf.Clamp(local.x, -limit + half, limit - half) - local.x, 0f);
+            // I398: anchored to a whole screen (home, a visit), "above it" would be off the top:
+            // keep the toast on screen, below the top chrome.
+            float maxTop = root.rect.yMax - 96f;
+            if (local.y + rect.rect.height > maxTop)
+                rect.anchoredPosition += new Vector2(0f, maxTop - (local.y + rect.rect.height));
             current = node.AddComponent<RuleToast>();
             current.stay = shown > 0 ? 3.6f : 2.6f;
             current.group = node.AddComponent<CanvasGroup>();
