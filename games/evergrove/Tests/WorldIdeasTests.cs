@@ -305,6 +305,13 @@ internal static class WorldIdeasTests
         int keptCount = 0;
         foreach (Keepsake k in MemoryShelf.For(shelfWorld)) if (k.Kept) keptCount++;
         Expect(keptCount == 1, "only what truly happened: " + keptCount);
+        // I386: good neighbours on the shelf: the first, then all seven.
+        shelfWorld.DiscoverPairing(Pairing.Grove);
+        Expect(Array.Find(MemoryShelf.For(shelfWorld), k => k.Label == "Your first good neighbours").Kept, "first good neighbours kept");
+        Expect(!Array.Find(MemoryShelf.For(shelfWorld), k => k.Art == "tree-05").Kept, "not all seven yet");
+        foreach (Pairing p in Enum.GetValues(typeof(Pairing))) shelfWorld.DiscoverPairing(p);
+        foreach (Pairing p in Enum.GetValues(typeof(Pairing))) shelfWorld.DiscoverPairing(p); // the deeper three, now open
+        Expect(Array.Find(MemoryShelf.For(shelfWorld), k => k.Art == "tree-05").Kept, "all seven kept");
         // Idea 32 (neighbours give back): at a few true milestones of puzzles solved, a
         // neighbour leaves a cutting of their own kind, from a nursery row you have open.
         Expect(NeighbourGifts.Due(0, 0) == 0 && NeighbourGifts.Due(NeighbourGifts.Milestones[0] - 1, 0) == 0,

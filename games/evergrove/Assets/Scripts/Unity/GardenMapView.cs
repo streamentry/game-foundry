@@ -1475,7 +1475,8 @@ namespace Evergrove.UnityClient
                     bool overlapsY = at.y < signTop && at.y + size.y * 0.8f > signBottom;
                     bool overlapsX = Mathf.Abs(at.x - signX) < (signW + size.x * 0.6f) / 2f;
                     if (!overlapsY || !overlapsX) continue;
-                    float left = signX - signW / 2f - size.x * 0.32f, right = signX + signW / 2f + size.x * 0.32f;
+                    // Clear of the portrait and its talk badge (which sits at the portrait's top right).
+                    float left = signX - signW / 2f - size.x * 0.62f, right = signX + signW / 2f + size.x * 0.42f;
                     at.x = left >= size.x * 0.5f && (at.x < signX || right > width - size.x * 0.5f) ? left : right;
                     person.anchoredPosition = at;
                 }
