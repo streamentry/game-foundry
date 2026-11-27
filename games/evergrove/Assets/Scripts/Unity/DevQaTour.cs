@@ -852,6 +852,7 @@ namespace Evergrove.UnityClient
                 yield return new WaitForSecondsRealtime(0.9f);
                 yield return new WaitForEndOfFrame();
                 SavePng(moments[pass]);
+                LogAtmosphere(moments[pass]); // I436: is the news toast there?
                 app.QaShowHub(false);
             }
             foreach (int hour in new[] { 11, 18, 23 })
@@ -905,7 +906,7 @@ namespace Evergrove.UnityClient
         private void LogAtmosphere(string shot)
         {
             string[] names = { "Morning mist", "Dew", "Frost", "Chimney smoke", "Footprint in the snow", "The river's life",
-                "Ring on the water", "Glitter on the water", "Moonlight on the water", "A leaf on the water", "A lantern by the seat" };
+                "Ring on the water", "Glitter on the water", "Moonlight on the water", "A leaf on the water", "A lantern by the seat", "Rule toast" };
             var counts = new System.Text.StringBuilder("MOSSELORA_ATMOSPHERE " + shot);
             var all = UnityEngine.Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (string name in names)
