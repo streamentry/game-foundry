@@ -780,7 +780,9 @@ On the resumed goal, the Browser runtime became available. Its tab list containe
 
 After the account session became authenticated, App Store Connect Apps showed the existing Mosselora record (Apple ID `6838015597`), version 1.0 `Prepare for Submission`. The attached build remains build 2 from older source `84c0592`; the version release option “Automatically release this version” is checked. App Privacy is blank and the Privacy Policy URL is unset. Review contact and copyright fields are blank.
 
-The App Store price schedule remains set for 175 territories, but App Availability had not been configured. Following the repository's U.S.-English first-market plan and with zero native-reviewed translations, I configured **United States only**, available when the app is released. Readback showed “Availability (1 Country or Region)” and “United States — Available on App Release”; China Mainland is “Not Available.” This does not publish the draft. App Compliance still lists the China Mainland Security Assessment and AI-generated/Synthetic Content rows as `Missing Info`; no declarations were submitted. They remain owner/compliance work if China Mainland is added later.
+The App Store price schedule remains set for 175 territories, but App Availability had not been configured. Following the repository's U.S.-English first-market plan and with zero native-reviewed translations, I configured **United States only**, available when the app is released. Readback showed “Availability (1 Country or Region)” and “United States — Available on App Release”; China Mainland was not available. This did not publish the draft. The user later requested all countries free; that setting is recorded in the newer Nov 26 section below.
+
+The App Review contact name/email and no-sign-in notes are now saved on version 1.0; the reviewer phone remains blank. App Privacy, Privacy Policy URL, copyright, Content Rights, and age-rating responses remain incomplete.
 
 Google Play Console is authenticated on its Home page. Its Mosselora record (`4974796025760682569`, package `com.streamentry.evergrove`) remains Draft, last updated Nov 25, 2026. Setup is 8/12 complete; Privacy policy, Content rating, Data safety, and Trader status are pending. A country/region rollout was not set. The draft still has no uploadable current-source AAB or submission.
 
@@ -790,7 +792,7 @@ Device checks found no attached Android device (`adb devices -l` returned an emp
 
 The Browser runtime initialized but `browsers.list()` returned no browser and `getDefault()` returned “No browser is available.” Codex only queued the App Store Connect and Play Console URLs; no signed-in page content or controls were available in this session. Last known store state remains: Apple build 2 uploaded/processed and attached to the draft, automatic release selected, no submission; Google listing assets/screenshots saved, Managed publishing off, no AAB upload or submission. These states were not re-read in this session.
 
-Latest-source release remains blocked by M1/M2/M3/M5/M6 evidence and owner actions: a clean licensed current-source Unity build; physical iPhone and Android QA; the required uncoached adult-40+ study; current binary privacy and network review; store name/rights and account-owner declarations; and reviewed translations (25 mapped locale drafts exist, zero native reviews). Keep the English listing as the only eligible listing locale until native reviewers sign off. Do not submit build 2 as if it matched `8c9e543`.
+Latest-source release remains blocked by M1/M2/M3/M5/M6 evidence and owner actions: a clean licensed current-source Unity build; physical iPhone and Android QA; the required uncoached adult-40+ study; current binary privacy and network review; store name/rights and account-owner declarations; and reviewed translations (25 mapped locale drafts exist, zero native reviews). Keep the English listing as the only eligible listing locale until native reviewers sign off. Do not submit build 2 as if it matched `6098810`.
 
 ## 2026-11-25 — Mosselora family goal: generations play together
 
@@ -817,6 +819,36 @@ Latest-source release remains blocked by M1/M2/M3/M5/M6 evidence and owner actio
 
 **Not built and not authorized yet.** The existing backend is a demo, and the specs list backend, accounts and multiplayer as not authorized. Before building, run a cheap test of whether families keep playing apart (for example, trading puzzle codes by message for two weeks). Adding accounts changes the App Privacy and Data safety answers, which currently describe no account and no data collection, so the first store release should stay offline-only unless the owner decides otherwise.
 
+## 2026-11-25 — Latest authenticated store fields
+
+App Store Connect App Information confirms Games/Puzzle, but Content Rights and Age Ratings are not set up. App Privacy and the mobile Privacy Policy URL are blank. Review-contact name/email and no-sign-in notes are saved; the phone remains blank. Build 2 from `84c0592` is attached, with automatic release checked, but current main is `6098810` and requires a fresh signed build.
+
+Google Play Publishing overview confirms Managed publishing off and `Send app for review` disabled. The 8/12 setup card lists Privacy policy, Content rating, Data safety, and Trader status as pending. PC opt-out is saved; Android XR remains on the mobile track. No current-source bundle or submission exists.
+
+## 2026-11-25 — Main and live store recheck (6098810)
+
+Current `main` and `origin/main` both resolve to `609881069aea4fc4af5b7b82709a8d3be46c5b23` after PR #81. The diff from `8c9e543` contains documentation, playtest protocol and evidence assets only; no Unity `Assets`, `Packages`, or `ProjectSettings` runtime inputs changed. The family co-play direction is a founder hypothesis and playtest protocol, not an implemented feature or store claim.
+
+Authenticated App Store Connect readback at that time: Mosselora Apple ID `6838015597`, version 1.0 `Prepare for Submission`, old build 2 from `84c0592` attached, “Automatically release this version” checked. Availability was then U.S.-only, set to “Available on App Release”; the user's later all-country request supersedes that setting below. Reviewer name/email and no-sign-in notes are saved; phone remains blank. App Privacy and mobile Privacy Policy URL are blank. Copyright, Content Rights and age-rating answers remain incomplete.
+
+Authenticated Play readback: app `4974796025760682569` / `com.streamentry.evergrove` remains Draft, 8/12 setup tasks complete. Privacy policy, content rating, Data safety and trader status are pending. Managed publishing is off and `Send app for review` is disabled. Google Play Games on PC is opted out because no PC build/QA exists; Android XR remains on the mobile track by default. Country targeting is not yet settable until a track is released.
+
+No current-main Unity build exists. The isolated smoke at `8c9e543` reached Unity but failed licensing (`com.unity.editor.headless` missing); PR #81 did not change the runtime inputs, but no successful build was produced. The retained Android AAB is Android-Debug-signed, not uploadable. Neither platform has a current-source signed build, submission, approval, or verified public listing.
+
+## 2026-11-25 — Authenticated store status and platform settings (6098810)
+
+The live App Store Connect Apps page confirmed Apple ID `6838015597`, Mosselora version 1.0 `Prepare for Submission`, build 2 from `84c0592` attached, and automatic release checked. App Store Information shows Games/Puzzle selected; Content Rights and Age Ratings are not set up. App Privacy is blank and the Privacy Policy URL is unset. Review contact name/email and no-sign-in notes are saved; phone remains blank. Availability is United States only, Available on App Release. App Compliance identifies the developer as a trader; China Mainland Security Assessment and AIGC rows remain Missing Info, although China is excluded.
+
+Google Play confirms draft `4974796025760682569` / package `com.streamentry.evergrove`, setup 8/12. Privacy policy, Content rating, Data safety and Trader status remain open. Publishing overview says Managed publishing off and Send app for review disabled. Google Play Games on PC is opted out; Android XR remains active and uses the mobile release by default. Country targeting is not configurable until a track is released. No current-source signed AAB or submission exists.
+
+`main` is now `609881069aea4fc4af5b7b82709a8d3be46c5b23`, matching `origin/main`. PR #81 adds family-goal documentation and playtest protocol only; no Unity runtime, package or player settings changed from `8c9e543`. The family co-play goal remains a hypothesis, not implemented or claimed in the store listing. The current Unity smoke still failed at licensing, so the old uploaded build 2 is not eligible for submission as the current source.
+
+## 2026-11-25 — Public listing URLs checked
+
+The exact U.S. App Store URL for Apple ID `6838015597` renders “The page you're looking for can't be found.” The exact Google Play URL for `com.streamentry.evergrove` renders “We're sorry, the requested URL was not found on this server.” Both public listings are therefore not available as of this check.
+
+Unity CLI auth status now reports a stored OAuth login with `sessionState=stale`; a login refresh failed because the Unity sign-in service was unreachable. `unity license status` times out, and the Editor reports missing `com.unity.editor.headless`. No credentials or license files were read or changed.
+
 ## 2026-11-25 — Mosselora audience 7+, accounts and data collection
 
 **Founder decisions:** Mosselora's audience is **ages 7 and up**, and the game **will have optional accounts and data collection** for the family circle. Recorded in [vision §1a](../../games/evergrove/vision.md#1a-family-play-connection-not-only-entertainment), the root AGENTS.md and the [store metadata](../../store/metadata/evergrove/en-US.json).
@@ -824,3 +856,71 @@ Latest-source release remains blocked by M1/M2/M3/M5/M6 evidence and owner actio
 **Observed today:** no build or branch contains account, sign-up or data-collection code. `WorldClient` is a demo that nothing in the game calls, the backend is a demo, and the website privacy page says the site has no accounts. Store privacy answers must describe the build actually submitted, so a build without the family circle still declares no account.
 
 **Consequences to resolve before a 7+ build with accounts ships:** the account owner changes Play's target audience from 18+ to include ages 6–8 and 9–12 (Families policy); IARC and Apple content questionnaires are answered by the owner (Apple has no 7+ tier); children under 13 need verifiable consent from a parent or legal guardian (COPPA) before any child data reaches the server; in-app account deletion, a mobile privacy policy and updated store copy ("without an account") are required. No console setting was changed.
+
+## 2026-11-26 — All-country free store settings readback
+
+At the user's request, App Store Connect was checked: all 175 countries/regions read `Available on App Release`, and the price matrix shows $0.00 across all 175 (read back on 2026-11-26). This does not publish the draft. China Mainland is included, while its Security Assessment and AIGC compliance rows remain `Missing Info`; the account owner must provide the required filings before that territory is released.
+
+Google Play remains Draft with no signed bundle or active release. App pricing reads Free. Production Countries/regions now reads Targeted (178): all 177 listed countries/regions plus Rest of World. These changes appear in Publishing overview as not yet submitted for review; Send app for review is disabled. Managed publishing is off (standard publishing), PC opt-in is off, and Android XR remains on the mobile track.
+
+Fresh Unity prerequisite check: the installed Unity 6.3 Editor still fails strict arm64 signature verification. `unity auth status --format json` returned `LOCAL_STORE_UNWRITABLE` in the workspace sandbox; `unity license status --format json` hung, as did an escalated auth-status attempt. Both hanging checks were interrupted. No credentials were entered or displayed; no build or license activation completed.
+
+## 2026-11-26 — Mosselora API access and signing recovery
+
+The Golden Moments App Store Connect key returned HTTP 200 for the existing Mosselora app record and the response matched the expected bundle ID. The Golden Moments Play service account obtained an OAuth token and could read Golden Moments reviews. The equivalent Mosselora query returned HTTP 403, so Mosselora release access remains unverified. Play Console is signed in and the first Android upload will use that console. No new credential files were created in the repository.
+
+Outside the workspace sandbox, macOS found a valid distribution identity matching the existing Mosselora App Store provisioning profile. The older zero-identity result applies to the sandbox. Remote `main` remains `6098810`. The .NET suite passed 50,072 assertions and the static project verifier passed. These checks do not establish a native build. The installed Hub passed strict verification outside the sandbox. After opening it, Unity reported an active license and signed-in session. The original modular Editor failed the bundle signature check. I restored the vendor’s existing signing attributes on an isolated base Editor copy, which passed strict verification, and added the signed iOS support module and the existing installed Android module. The current-source Unity import and both release-candidate exports succeeded.
+
+Build 3 from `5bfe306` was signed with the existing local Apple distribution identity and Android upload key. Apple validated and accepted the IPA via `altool` with API authentication. The App Store Connect API confirmed build upload `COMPLETE` and build processing `VALID`. IPA SHA-256: `1f39968dfe3ae4c3e2fe37c502ab41d3bfe569e7f7d77e9aeea86af9c2982b55`. Play Console accepted the first signed AAB, version code 3 (1.0.0), min SDK 26 and target SDK 36. The bundle persisted on the internal testing draft after reload. AAB SHA-256: `b7fe2211b39a8fb7f2dd098dd4932da631ec26742ceb1fb10c199815b26244e9`. Neither build was submitted for review or rolled out. Device QA and owner declarations remain open.
+
+## 2026-11-26 — Store review validation
+
+Attached iOS build 3 to version 1.0 through App Store Connect and verified automatic release after approval. Apple refused Add for Review. Its checklist requires export compliance for build 3, Content Rights, age-rating answers, a mobile privacy policy URL, and copyright. China Mainland filings are also flagged on the draft. Play Console still shows 8 of 12 setup tasks complete. Privacy policy, content rating, Data safety and Trader status remain open, and the incomplete IARC questionnaire requires acceptance of its terms. Send app for review is disabled and Managed publishing is off. Android code 3 remains in the internal draft. No review submission or rollout occurred.
+
+## 2026-11-26 — Mobile privacy policy and review declarations
+
+Deployed the mobile privacy policy to the existing production site and verified HTTP 200 and the mobile text at the public URL. The full static site deploy also refreshed generated preview assets; the preview and support routes returned HTTP 200. Play Console saved the privacy URL as a change pending review. App Store Connect returned to sign-in, so its privacy URL remains unset. The [owner handoff](../../games/evergrove/docs/qa/mosselora-store-owner-handoff-2026-11-25.md) records proposed declaration answers and the outstanding confirmations.
+
+The uploaded build 3 lacks the in-app privacy link both stores require. Added a localized menu link in the shared source and started replacement build 4 from isolated commit `5b16299`. The iOS Unity export passed and the Android export began. Static checks validated 122 keys across 29 catalogs and the .NET suite passed 50,103 assertions. The build 3 binary review checked the Apple privacy manifest and Android runtime permissions. No physical device or network capture was available. Neither store review was submitted.
+
+Apple privacy URL saved and verified via App Store Connect API. Play accepted signed build 4 (1.0.0), code 4, from isolated source `5b16299`. Removed code 3 from the internal draft and verified code 4 persisted alone after reload. Both store privacy URLs now point to the published mobile policy. The user confirmed the proposed factual answers in general and has been asked for the exact owner values and console actions. No review submission or legal attestation was made.
+
+iOS 1.0.0 build 4 was verified, signed and uploaded through Apple API authentication. IPA SHA-256: `3aa30403a7d583b6a895be5a229232a6a95cbc0720af5d6b631fe36c6331e472`. Last API readback showed processing. App Store Connect browser sign-in was restored. No physical test device was available.
+
+Apple subsequently confirmed build 4 upload COMPLETE and build processing VALID. Attached build 4 to version 1.0 and verified automatic release after approval. No review was submitted.
+
+## 2026-11-26 — Owner copyright and territory choices
+
+Saved Apple copyright `2026 Cloudjet Solutions` and verified it after reload. Removed China Mainland at owner direction and verified 174 enabled territories. Apple’s fresh submission validation requires Content Rights, age rating, App Privacy and export compliance for build 4. Play Dashboard shows 10/12 setup tasks complete, with Data safety and Trader status open. The app inherits the account’s trader status and that option is selected. The owner confirmed trader in chat and must save the app-level declaration in Play Console. No review submission occurred.
+
+Apple age-rating answers entered from confirmed game features and content. The calculated global 4+ rating with regional exceptions persisted after reload. Kids Category remained unselected. Content Rights requires an owner attestation. Play still locks production setup and disables Send app for review. The remaining dashboard tasks are Data safety and Trader status. Fetched upstream main and verified it still resolves to `6098810`. The runtime patch in the shared checkout matches build 4’s isolated source.
+
+Prepared and saved the complete Play Data safety form as an unpublished draft. The preview displays no data collection declared and no data shared with third parties. This prepares the owner’s review and does not complete the app-content declaration. The selected trader declaration is still awaiting owner Save. Apple still shows Content Rights, App Privacy and build 4 export compliance open. Neither platform is in review.
+
+Saved the confirmed App Store Connect App Privacy answer as an unpublished draft. Apple’s preview displays Data Not Collected and enables Publish. The owner must publish the declaration. Play Data safety and Trader still require owner action. Neither store is awaiting review.
+
+Build 4 export compliance preparation: the distributed iOS UnityFramework binary contains UnityTLS/Mbed TLS implementation strings, including TLS client handshake functions. The garden transfer code uses SHA-256 for integrity. Staged Apple’s standard-encryption-outside-the-OS choice in the form without filing. The owner must review the classification and complete any follow-up documentation. No store review submission occurred.
+
+## 2026-11-27 — Build 5 and store state
+
+Both release-candidate builds from isolated commit `b8a50f3` were produced and signed. Verified the BidiSharp MIT notice in both artifacts against the vendored license. iOS IPA SHA-256: `69805bde0ede4e7395d9ff5179dcfe322032c94b539b1de30dfa3f5b6e66df4b`. Android AAB SHA-256: `0358c8a3c62c8fa2a53c91d7389df2f958fe84d6a9ba927c6c1db10d60ae5f5c`. Neither build 5 upload is verified. Apple browser returned to login and was handed back for authentication. Play Publishing overview still shows Send app for review disabled. Data safety and trader changes are saved pending review. No store submission occurred.
+
+## 2026-11-27 — Build 5 store upload
+
+Android signed build 5 was accepted in Play Console, replaced build 4 in the production draft, and was saved to Publishing overview with full rollout pending. Managed publishing remains off. Play's review button is disabled by an incomplete advertising ID declaration. The build manifest contains no AD_ID permission, and an archive filename scan found no advertising SDK. The no-advertising-ID answer is the supported proposed answer. Browser auto-review rejected saving it because AGENTS.md reserves account-owner policy declarations for the owner. The pending target-audience declaration currently reads 13 and older, which must be reconciled with the founder's 7+ co-player direction before submission. iOS build 5 was validated and uploaded with altool; Apple reported PROCESSING. Build 4 remains attached until build 5 becomes VALID. No review was submitted.
+
+Apple subsequently marked iOS build 5 VALID. Attached it to version 1.0 and verified automatic release after approval. Add for Review remains blocked by Content Rights, App Privacy, and build 5 export compliance. Play production build 5 is staged; automated check requires the owner advertising ID declaration. The pending Play audience reads 13 and older, inconsistent with the 7+ co-player direction. No submission occurred.
+
+## 2026-11-27 — Play submission and iOS crash feedback
+
+Play submission activity shows submission 1 In review, including production version code 5 full rollout. Managed publishing is off. Publishing overview still shows automated checks underway. Submitted target audience is 13 and older, while founder direction names 7+ co-players. TestFlight Crash Feedback lists build 4 on iPhone 15 Pro, iOS 27.2.1, on Nov 27 at 07:44; another report is build 2. The browser blocked Open in Xcode under its security policy, so no crash stack was obtained and root cause is unknown. No iOS crash fix or iOS review submission has been verified.
+
+The supplied TestFlight crash log identifies iOS build 4 on iPhone 15 Pro, iOS 27.2.1, failing at launch with `EXC_BREAKPOINT` in `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`. Both build 4 and build 5 IPA Info.plist files lack a scene manifest. Apple documents a launch failure when apps built with the latest SDK do not adopt scenes on iOS 27. Unity's official guidance says 6000.3.8f1 or later supports this lifecycle; the existing project uses 6000.3.0f1. An isolated commit `abf5330` upgrades the project pin and its verifier to 6000.3.8f1. Source verifier and .NET core suite passed, 50,103 assertions. Official editor installation is in progress; no fixed iOS build or runtime validation exists yet. Only iOS 18.5 and 26.5 simulators are installed, so validating the reported iOS 27 crash requires the owner's iOS 27 device or a suitable simulator runtime. Play submission activity shows submission 1 In review, including production build 5. Review and approval are distinct.
+
+## 2026-11-27 — iOS scene lifecycle repair candidate
+
+The TestFlight build 4 crash log shows `EXC_BREAKPOINT` at UIKit's `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption` during launch on iOS 27.2.1. Apple documents that iOS 27 requires the scene lifecycle for apps built with the latest SDK. Unity identifies 6000.3.8f1 as the first 6.3 LTS version with scene lifecycle support. Build 4 and build 5 lack `UIApplicationSceneManifest`.
+
+Fetched latest upstream main `d51cf14` and merged it with the privacy link and BidiSharp notice in an isolated checkout. Updated the Unity patch and explicit editor validator in isolated commit `751342d`. The shared checkout remains unchanged by the merge. Verified the Unity base editor signature and its official signed iOS module. The source verifier passed, as did 72,001 .NET assertions. Unity exported the iOS candidate, whose Xcode project has `UnityScene` and the scene manifest. A signed build 6 was produced; the signed IPA contains the scene manifest and BidiSharp notice. SHA-256 `dd8f2bdec2b20e881d13ab77aa008f376a020b2c07950cc8a902c22d623957c3`. Apple altool validation and upload succeeded; build processing is pending. An iOS 26.5 simulator build installed, launched and displayed the game, with its process still running. No iOS 27 simulator or physical device was available; the original crash is not yet verified fixed on iOS 27. Do not submit build 5 as the fix.
+
+Apple build 6 later reached processing state VALID, upload COMPLETE. An attempt to associate it with the existing internal TestFlight group returned HTTP 422 ENTITY_UNPROCESSABLE. Readback shows `usesNonExemptEncryption` unset; the exact cause of the 422 is not confirmed. The temporary isolated checkout and build artifacts were cleared by the environment after upload. The shared checkout still contains the earlier privacy and license changes, but the isolated Unity upgrade commits are no longer available in that temporary directory. App Store Connect browser returned to authentication and was handed to the user. No device launch on iOS 27 is verified.

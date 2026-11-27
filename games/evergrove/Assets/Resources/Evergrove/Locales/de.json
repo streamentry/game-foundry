@@ -484,6 +484,10 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen folgt den Bienen zwischen deinen Wildblumen."
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Datenschutzerklärung"
     }
   ]
 }

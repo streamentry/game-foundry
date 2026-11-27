@@ -484,6 +484,10 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen sigue a las abejas entre tus flores silvestres."
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Política de privacidad"
     }
   ]
 }

@@ -484,6 +484,10 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen suit les abeilles parmi vos fleurs sauvages."
+    },
+    {
+      "key": "privacy_policy",
+      "value": "Politique de confidentialité"
     }
   ]
 }

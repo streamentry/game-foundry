@@ -25,6 +25,7 @@ __pycache__/
 .idea/
 .vscode/
 # Never commit Apple certificates, keys or store credentials
+/keys-backup/
 *.p12
 *.mobileprovision
 AuthKey_*.p8

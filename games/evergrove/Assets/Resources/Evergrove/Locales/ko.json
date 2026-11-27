@@ -484,6 +484,10 @@
     {
       "key": "memory_flowers_3",
       "value": "펜은 당신의 들꽃 사이를 날아다니는 벌들을 따라가요."
+    },
+    {
+      "key": "privacy_policy",
+      "value": "개인정보 처리방침"
     }
   ]
 }
