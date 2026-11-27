@@ -1918,6 +1918,7 @@ internal static class Program
             assertions += GardenPiecesTests.Run();
             assertions += GardenPiecesFitTests.Run(); // I373
             assertions += SeasonalYieldsTests.Run(); // I388-I391
+            assertions += CompanionTests.Run(); // I419-I422
             assertions += MahjongTests.Run();
             assertions += ThingPuzzleTests.Run();
             assertions += SeasonTests.Run();
