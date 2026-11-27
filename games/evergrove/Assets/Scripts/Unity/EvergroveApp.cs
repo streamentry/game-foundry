@@ -2415,8 +2415,10 @@ namespace Evergrove.UnityClient
             if (visitLayer == null || world == null || world.Mode != PlayMode.Living) return;
             var things = Pairings.Things(visited, map);
             string shared = SharedWords(Pairings.Shared(world, visited));
+            FamilySheet.IdeaFamily = -1;
             if (Pairings.GiftIdea(map, things, visited.PairingsFound, Pairings.Open(visited), out VillageChoice kind, out Pairing makes))
             {
+                FamilySheet.IdeaFamily = (int)kind; // I408: the send sheet remembers it
                 string thing = kind == VillageChoice.Flowers ? "a flower" : kind == VillageChoice.ShadeTree ? "a tree" : "something built";
                 string art = kind == VillageChoice.Flowers ? "flower-05" : kind == VillageChoice.ShadeTree ? "tree-00" : "build-03";
                 var marks = new System.Collections.Generic.List<Sprite> { MosseloraArt.Load(art), MosseloraArt.Load("glyph-sprig") };
@@ -8633,6 +8635,10 @@ namespace Evergrove.UnityClient
             GardenMapView.RainbowNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living && qaWeather < 0 &&
                 DayWeather.Rainbow(DateTime.Now.Date, GardenSeason.For(garden), garden.Garden) &&
                 (visitPhase == DayPhase.Morning || visitPhase == DayPhase.Day || visitPhase == DayPhase.Golden) || qaRainbow; // I364
+            GardenMapView.MistNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living && DayLight.Mist(visitPhase, visitWeather); // I409
+            GardenMapView.SmokeNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living &&
+                DayLight.ChimneySmoke(visitPhase, GardenSeason.For(garden), visitWeather); // I410
+            GardenMapView.FootprintsNow = garden != null && garden.Mode == PlayMode.Living && SeasonLook.SnowLying(GardenSeason.For(garden)) > 0f; // I412
             GardenMapView.DewNow = DayLightOn && garden != null && garden.Mode == PlayMode.Living
                 ? DayLight.Dew(visitPhase, GardenSeason.For(garden)) : Dew.None; // I366
             // I295: the season's drift by day; it follows the season even with the light switch off.
