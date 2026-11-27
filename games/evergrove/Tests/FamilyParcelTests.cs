@@ -103,7 +103,7 @@ internal static class FamilyParcelTests
         before = State(g);
         Expect(!g.SendParcel("Anh", "", ParcelGift.Cutting, 7, "c3").Ok && State(g) == before, "a row 2 cutting is refused while row 2 is closed");
         Expect(g.SendParcel("Anh", "", ParcelGift.Cutting, 7, "c3").Error == ParcelError.CuttingNotAvailable, "with its own reason");
-        foreach (int badKind in new[] { -1, 9, 100 })
+        foreach (int badKind in new[] { -1, Nursery.Kinds, 100 })
             Expect(!g.SendParcel("Anh", "", ParcelGift.Cutting, badKind, "c4").Ok && State(g) == before, "kind " + badKind + " refused");
         WorldModel low = WithSeeds(49);
         Expect(!low.SendParcel("Anh", "", ParcelGift.Cutting, 0, "c").Ok && low.Seeds == 49, "a cutting you cannot afford is refused");
@@ -353,7 +353,7 @@ internal static class FamilyParcelTests
         Forged("zero seeds", Raw("Anh", "", ParcelGift.Seeds, 0, -1, "f4"));
         Forged("seeds with a kind", Raw("Anh", "", ParcelGift.Seeds, 10, 3, "f5"));
         Forged("cutting with an amount", Raw("Anh", "", ParcelGift.Cutting, 500, 3, "f6"));
-        Forged("cutting of unknown kind", Raw("Anh", "", ParcelGift.Cutting, 0, 9, "f7"));
+        Forged("cutting of unknown kind", Raw("Anh", "", ParcelGift.Cutting, 0, Nursery.Kinds, "f7"));
         Forged("cutting of negative kind", Raw("Anh", "", ParcelGift.Cutting, 0, -1, "f8"));
         Forged("letter-only with seeds", Raw("Anh", "Hi", ParcelGift.None, 300, -1, "f9"));
         Forged("empty letter-only", Raw("Anh", "", ParcelGift.None, 0, -1, "f10"));
@@ -480,7 +480,7 @@ internal static class FamilyParcelTests
         WorldSnapshot good = w.Export();
         Expect(WorldModel.TryRestore(good, out _), "setup restores");
         string id = good.parcelIds[0];
-        Expect(!WorldModel.TryRestore(Tweak(w.Export(), s => s.gifts = new[] { 9 }), out _), "unknown gift kind refused");
+        Expect(!WorldModel.TryRestore(Tweak(w.Export(), s => s.gifts = new[] { Nursery.Kinds }), out _), "unknown gift kind refused");
         Expect(!WorldModel.TryRestore(Tweak(w.Export(), s => s.gifts = new[] { -1 }), out _), "negative gift kind refused");
         Expect(!WorldModel.TryRestore(Tweak(w.Export(), s => s.gifts = new int[WorldModel.MaxGifts + 1]), out _), "too many gifts refused");
         Expect(WorldModel.TryRestore(Tweak(w.Export(), s => s.gifts = new int[WorldModel.MaxGifts]), out _), "the most gifts is fine");

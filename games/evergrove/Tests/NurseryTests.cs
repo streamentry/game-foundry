@@ -51,11 +51,11 @@ internal static class NurseryTests
 
     private static void Catalogue()
     {
-        Expect(Nursery.Kinds == 9, "nine kinds: three rows of three families");
+        Expect(Nursery.Slots == 9, "nine slots: three rows of three families");
         Expect(Nursery.Price(0) == 50 && Nursery.Price(2) == 50, "row 0 costs 50");
         Expect(Nursery.Price(3) == 100 && Nursery.Price(5) == 100, "row 1 costs 100");
         Expect(Nursery.Price(6) == 200 && Nursery.Price(8) == 200, "row 2 costs 200");
-        for (int kind = 0; kind < Nursery.Kinds; kind++)
+        for (int kind = 0; kind < Nursery.Slots; kind++)
         {
             Expect(Nursery.Row(kind) == kind / 3, "kind " + kind + " row");
             Expect((int)Nursery.Family(kind) == kind % 3, "kind " + kind + " family");
@@ -64,7 +64,7 @@ internal static class NurseryTests
             Expect(Nursery.Item(kind).Name == Nursery.Item(kind).Name, "kind " + kind + " is deterministic");
         }
         bool threw = false;
-        try { Nursery.Price(9); } catch (ArgumentOutOfRangeException) { threw = true; }
+        try { Nursery.Price(Nursery.Kinds); } catch (ArgumentOutOfRangeException) { threw = true; }
         Expect(threw, "an unknown kind is refused");
     }
 
@@ -88,7 +88,7 @@ internal static class NurseryTests
         Expect(world.Buy(8, 7) && world.Seeds == 650, "row 2 costs exactly 200");
         Expect(world.Bought.Length == 6 && world.Bought[0] == 1 && world.Bought[1] == 5 && world.Bought[4] == 8,
             "bought plants are kept as [kind, cell] pairs in order");
-        Expect(!world.Buy(-1, 1) && !world.Buy(9, 1), "unknown kinds refused");
+        Expect(!world.Buy(-1, 1) && !world.Buy(Nursery.Kinds, 1), "unknown kinds refused");
         Expect(!world.Buy(0, -1) && !world.Buy(0, WorldModel.MaxMapCell), "cells off the map refused");
         Expect(world.Seeds == 650 && world.BoughtCount == 3, "refusals changed nothing");
 
@@ -101,8 +101,8 @@ internal static class NurseryTests
                !world.MoveBought(0, WorldModel.MaxMapCell), "bad moves refused");
 
         WorldModel cap = WithSeeds(WorldModel.MaxSeeds);
-        for (int i = 0; i < WorldModel.MaxBought; i++) Expect(cap.Buy(0, i), "buy " + i);
-        Expect(!cap.Buy(0, 5) && cap.BoughtCount == WorldModel.MaxBought, "there is a cap on bought plants");
+        for (int i = 0; i < WorldModel.MaxBought; i++) Expect(cap.Buy(cap.NurseryStock(0), i), "buy " + i);
+        Expect(!cap.Buy(cap.NurseryStock(0) + 1, 5) && !cap.Buy(cap.NurseryStock(0), 5) && cap.BoughtCount == WorldModel.MaxBought, "there is a cap on bought plants");
 
         WorldSnapshot puzzleOnly = WorldModel.New(PlayMode.PuzzleOnly).Export();
         Expect(!WorldModel.TryRestore(Tweak(puzzleOnly, s => s.bought = new[] { 0, 1 }), out _), "bought plants belong to the living garden");
@@ -177,11 +177,11 @@ internal static class NurseryTests
     private static void Refusals()
     {
         WorldModel world = RichWorld();
-        Expect(world.Buy(0, 1) && world.Buy(0, 2), "setup");
+        Expect(world.Buy(0, 1) && world.Buy(world.NurseryStock(0), 2), "setup");
         WorldSnapshot good = world.Export();
         Expect(WorldModel.TryRestore(good, out _), "the setup restores");
         Expect(!WorldModel.TryRestore(Tweak(world.Export(), s => s.bought = new[] { 0, 1, 2 }), out _), "odd length refused");
-        Expect(!WorldModel.TryRestore(Tweak(world.Export(), s => s.bought = new[] { 9, 1 }), out _), "unknown kind refused");
+        Expect(!WorldModel.TryRestore(Tweak(world.Export(), s => s.bought = new[] { Nursery.Kinds, 1 }), out _), "unknown kind refused");
         Expect(!WorldModel.TryRestore(Tweak(world.Export(), s => s.bought = new[] { -1, 1 }), out _), "negative kind refused");
         Expect(!WorldModel.TryRestore(Tweak(world.Export(), s => s.bought = new[] { 0, -1 }), out _), "negative cell refused");
         Expect(!WorldModel.TryRestore(Tweak(world.Export(), s => s.bought = new[] { 0, WorldModel.MaxMapCell }), out _), "cell off the map refused");
