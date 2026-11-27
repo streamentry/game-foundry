@@ -40,7 +40,7 @@ namespace Evergrove.Core
             "history", "garden", "placements", "plantings", "seeds", "treeSolved", "bought", "boughtSolved",
             "gifts", "parcelIds", "letters", "letterFrom", "helped", "helpedFrom",
             "fruit", "fruitGiven", "lastFruitTo", "together", "lanterns", "jam", "letterStamps", "decor", "well", "pairings", "yields",
-            "ledger", "payDay", "replaysPaid"
+            "ledger", "payDay", "replaysPaid", "daysPlayed", "lastPlayedDay"
         };
 
         public static string Export(WorldModel world, string exportedAtUtcIso)
@@ -260,6 +260,8 @@ namespace Evergrove.Core
                 if (s.ledger != null && s.ledger.Length != 0) sb.Append(",\"ledger\":").Append(IntArray(s.ledger));
                 if (s.payDay != 0) sb.Append(",\"payDay\":").Append(Int(s.payDay));
                 if (s.replaysPaid != 0) sb.Append(",\"replaysPaid\":").Append(Int(s.replaysPaid));
+                if (s.daysPlayed != 0) sb.Append(",\"daysPlayed\":").Append(Int(s.daysPlayed));
+                if (s.lastPlayedDay != 0) sb.Append(",\"lastPlayedDay\":").Append(Int(s.lastPlayedDay));
             }
             return sb.Append('}').ToString();
         }
@@ -382,7 +384,9 @@ namespace Evergrove.Core
                    ReadInt(fields, "yields", ref snapshot.yields) &&
                    ReadInts(fields, "ledger", ref snapshot.ledger) &&
                    ReadInt(fields, "payDay", ref snapshot.payDay) &&
-                   ReadInt(fields, "replaysPaid", ref snapshot.replaysPaid);
+                   ReadInt(fields, "replaysPaid", ref snapshot.replaysPaid) &&
+                   ReadInt(fields, "daysPlayed", ref snapshot.daysPlayed) &&
+                   ReadInt(fields, "lastPlayedDay", ref snapshot.lastPlayedDay);
         }
 
         private static bool ReadInt(Dictionary<string, object> fields, string key, ref int target)
