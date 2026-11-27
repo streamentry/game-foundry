@@ -2,11 +2,11 @@
 
 Smart companion, iteration 4 of 7 ([spec](../../games/evergrove/docs/specs/proposals/smart-companion-2026-11-27.md)).
 
-**Status: code done. 612 draft lines (15 kinds) are waiting for the founder's review.** Kinds without approved lines still speak today's sentences, and the four new kinds stay silent until their lines are approved.
+**Status: done.** The founder approved all 612 lines (15 kinds) on 2026-11-27, and they ship in `en.json`: 912 English lines, every fact kind covered. The one exception is `RainComing`, a v1 kind that reached main during this iteration. Its 20 lines are drafted and await review, and it speaks its fixed sentence meanwhile.
 
 ## Player note
 
-Once the lines are approved, every true thing a neighbour can say has many wordings in each voice. Four true things the neighbours never mentioned before join in, each said once:
+Every true thing a neighbour can say now has many wordings in each voice. Four true things the neighbours never mentioned before join in, each said once:
 
 - how far a neighbour's hope has come;
 - the season turning;
@@ -70,8 +70,18 @@ Once the lines are approved, every true thing a neighbour can say has many wordi
 
 - Unity build `c6`: 0 `error CS`, and `Info.plist` present. Tours are run once the lines ship.
 
-## Not verified
+- After approval:
+  - `tools/evergrove_line_bank_check.py --review --complete`: 1,844 lines, 0 problems. The English bank covers every kind except `RainComing`, which the rules mark pending.
+  - The C# tests require the English bank to speak, slots filled, for every fact of every reviewed kind.
+- Merged main (v1 batches up to #141), keeping both sides:
+  - v1's `RainComing` fact stays;
+  - v1 #90's 90-day letter wins over bank lines too, as it does over today's sentence;
+  - the companion now remembers a remark only when its words were what was shown, not a "speak less" silence (v1 #85) or an arc line (v1 #83).
+- Tests with `-c Release` (as CI runs): passed, 2,216,950 assertions. Parity is still identical over 17,487 cases. In Debug under heavy machine load (load average 6), v1's `WildGrowthTests` timing check ("under a second") failed at about 1.9 s. That is not a companion test.
+- Unity build `c7`: 0 `error CS`, and `Info.plist` present. Tours `c7p`, `c7l` and `c7x` each reached `MOSSELORA_QA_TOUR_DONE 128`.
+- The scripted week: the waiting cutting rotates its wordings, Fen notes "three of the six kinds of flower" (`WishProgress`), Orin says "It's winter now…" once (`SeasonTurned`), and the pairing hints come in new wordings. No fact repeats within 3 days, and no wording within the week.
+- Seen in the week, and not the companion's: v1 #83's arc lines read in the third person in the neighbour's own mouth ("Orin is gathering timber for a small boat."). Listed as a follow-up for that session.
 
-- **612 lines are not reviewed yet.** They don't ship until they are.
+## Not verified
 - No physical device.
 - No players aged 40+: age fit not validated.
