@@ -16,7 +16,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **6. Text size first, not in Settings.** On first launch, show the garden with a size slider whose preview updates live. *Test:* 150% tour (I-series tour) shows no clipped text on any first-run screen.
 - [ ] **7. A first win in two minutes.** The first board is sized to finish in about two minutes and ends in a visible change to the garden. *Test:* median first-board time in the playtest kit.
 - [ ] **8. No sign-up wall, ever, for solo play.** Audit every first-run path so that family features appear only after the third day, and only as an offer. *Test:* fresh install, airplane mode, play day 1 end to end.
-- [ ] **9. Restore that the player can trust.** Before any reinstall prompt, show "Your garden is saved on this phone" with the last-saved time. *Test:* kill the app mid-move, relaunch, compare the garden.
+- [x] **9. Restore that the player can trust.** Before any reinstall prompt, show "Your garden is saved on this phone" with the last-saved time. *Test:* kill the app mid-move, relaunch, compare the garden.
 - [ ] **10. A two-sentence store promise.** The store promise has to match the first five minutes exactly. Rewrite the store's first line after watching what players do in their first session. *Test:* five-second test of the listing with 40+ readers.
 
 ## B. Navigation: icons, one menu, nothing extra on screen
@@ -65,8 +65,8 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **43. A boat to travel.** A small boat ride between stretches replaces scrolling for long distances. *Test:* any stretch is reachable in 2 taps.
 - [ ] **44. Landmarks for wayfinding.** One tall landmark per stretch (mill, bridge, willow) is visible from the next, so players can't get lost. *Test:* a "where are you" test with 5 players.
 - [ ] **45. A river map.** A painted scroll map of opened stretches, with your family's gardens pinned on it. *Test:* the map opens from the menu with one tap.
-- [ ] **46. Things grow outside the garden.** Wild places along the river where planted things spread on their own over days. *Test:* growth is deterministic by date and seed.
-- [ ] **47. Build simple paths and bridges.** Place stepping stones that join areas, with Minecraft-like freedom kept at a gentle scale. *Test:* placement is grid-snapped and undoable.
+- [x] **46. Things grow outside the garden.** Wild places along the river where planted things spread on their own over days. *Test:* growth is deterministic by date and seed.
+- [x] **47. Build simple paths and bridges.** Place stepping stones that join areas, with Minecraft-like freedom kept at a gentle scale. *Test:* placement is grid-snapped and undoable.
 - [x] **48. Weather moves down the river.** Rain upstream today reaches you tomorrow, said by a neighbour. *Test:* same seed, same forecast.
 - [ ] **49. Night creatures per stretch.** Owls, moths and frogs, visible only in the evening. Each is logged in "who visits" (I327). *Test:* a night tour shot per stretch.
 - [ ] **50. Performance budget for an endless world.** Only the visible stretch plus one on either side is built, and the rest is pooled. *Test:* memory flat after 30 stretches of scrolling.
