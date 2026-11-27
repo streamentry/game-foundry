@@ -260,6 +260,7 @@ namespace Evergrove.Core
 
         /// <summary>
         /// Opens pasted parcel text. Refusals change nothing. Seeds are added (capped at MaxSeeds);
+        /// fruit and jam must fit in full, or the parcel is refused with LarderFull and stays unopened (v1 #76);
         /// a cutting goes to the basket (see <see cref="PlantGift"/>); a letter is kept.
         /// </summary>
         public ParcelOpenResult Open(string text)
@@ -272,6 +273,8 @@ namespace Evergrove.Core
             if (HasSeenParcel(contents.Id)) return Refuse(result, ParcelError.AlreadyOpened);
             if (contents.Gift == ParcelGift.Cutting && state.gifts.Length >= MaxGifts) return Refuse(result, ParcelError.BasketFull);
             if (contents.Gift == ParcelGift.Help && contents.Kind >= state.choices.Length) return Refuse(result, ParcelError.NotInThisGarden);
+            if (contents.Gift == ParcelGift.Fruit && state.fruit + contents.Amount > MaxFruit) return Refuse(result, ParcelError.LarderFull);
+            if (contents.Gift == ParcelGift.Jam && state.jam + contents.Amount > MaxJam) return Refuse(result, ParcelError.LarderFull);
 
             if (contents.Gift == ParcelGift.Seeds)
             {
@@ -281,15 +284,13 @@ namespace Evergrove.Core
             }
             else if (contents.Gift == ParcelGift.Fruit)
             {
-                int gained = Math.Min(contents.Amount, MaxFruit - state.fruit);
-                state.fruit += gained;
-                result.FruitGained = gained;
+                state.fruit += contents.Amount;
+                result.FruitGained = contents.Amount;
             }
             else if (contents.Gift == ParcelGift.Jam)
             {
-                int gained = Math.Min(contents.Amount, MaxJam - state.jam);
-                state.jam += gained;
-                result.JamGained = gained;
+                state.jam += contents.Amount;
+                result.JamGained = contents.Amount;
             }
             else if (contents.Gift == ParcelGift.Cutting)
             {

@@ -203,10 +203,13 @@ namespace Evergrove.Core
             return paidSoFar < FullReplaysPerDay + SmallReplaysPerDay ? SmallReplayReward : 0;
         }
 
-        /// <summary>Pays one replay against the day's cap and counts it. Day 0 pays uncapped, as before.</summary>
-        private int PayReplay(int tier, int day)
+        /// <summary>
+        /// Pays one replay against the day's cap and counts it. Day 0 pays uncapped, as before.
+        /// <paramref name="full"/> is true when this replay is one of the day's full-paid replays (v1 #80: fruit follows them).
+        /// </summary>
+        private int PayReplay(int tier, int day, out bool full)
         {
-            if (day <= 0) return TreeReward(tier, false);
+            if (day <= 0) { full = true; return TreeReward(tier, false); }
             // Only a later day starts a fresh count: setting the clock back counts against the
             // latest day already paid, so switching between two dates cannot reset the cap.
             if (day > state.payDay)
@@ -214,16 +217,25 @@ namespace Evergrove.Core
                 state.payDay = day;
                 state.replaysPaid = 0;
             }
+            full = state.replaysPaid < FullReplaysPerDay;
             int reward = ReplayPay(tier, state.replaysPaid);
             state.replaysPaid = Math.Min(MaxReplaysPaid, state.replaysPaid + 1);
             return reward;
         }
 
-        /// <summary>Credits a solve: the first solve pays in full, a replay pays under the day's cap.</summary>
-        private int CreditSolve(int tier, bool first, int day)
+        /// <summary>
+        /// Credits a solve: the first solve pays in full, a replay pays under the day's cap. Fruit comes with the
+        /// first solve and with each full-paid replay (v1 #80), so a tree cannot be farmed past the daily cap;
+        /// <paramref name="shadeTree"/> says whether the solved thing is a ShadeTree.
+        /// </summary>
+        private int CreditSolve(int tier, bool first, int day, bool shadeTree)
         {
-            int reward = first ? TreeReward(tier, true) : PayReplay(tier, day);
+            int reward;
+            bool full = true;
+            if (first) reward = TreeReward(tier, true);
+            else reward = PayReplay(tier, day, out full);
             ChangeSeeds(reward, first ? SeedReason.FirstSolve : SeedReason.Replay);
+            if (shadeTree && (first || full)) PickFruit();
             return reward;
         }
 
@@ -242,9 +254,7 @@ namespace Evergrove.Core
                 next[next.Length - 1] = item;
                 state.treeSolved = next;
             }
-            int reward = CreditSolve(TreePuzzles.TierFor(item), first, day);
-            if (state.choices[item] == (int)VillageChoice.ShadeTree) PickFruit();
-            return reward;
+            return CreditSolve(TreePuzzles.TierFor(item), first, day, state.choices[item] == (int)VillageChoice.ShadeTree);
         }
 
         // ---- I205: the nursery. Bought plants are never removed, so indices stay put.
@@ -312,9 +322,7 @@ namespace Evergrove.Core
                 next[next.Length - 1] = k;
                 state.boughtSolved = next;
             }
-            int reward = CreditSolve(Nursery.Row(state.bought[k * 2]), first, day);
-            if (Nursery.Family(state.bought[k * 2]) == VillageChoice.ShadeTree) PickFruit();
-            return reward;
+            return CreditSolve(Nursery.Row(state.bought[k * 2]), first, day, Nursery.Family(state.bought[k * 2]) == VillageChoice.ShadeTree);
         }
 
         /// <summary>Plants one more of choice <paramref name="source"/>'s item on a cell (the map checks the land).</summary>
