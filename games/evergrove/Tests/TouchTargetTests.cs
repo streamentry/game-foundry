@@ -179,6 +179,13 @@ internal static class TouchTargetTests
         Expect(Regex.IsMatch(touch, @"MinPt\s*=\s*48f"), "TouchTargets.MinPt is not 48");
         Expect(Regex.IsMatch(touch, @"List<RectTransform>\s+Undersized\(RectTransform root,\s*float minPt\s*=\s*MinPt\)"),
             "TouchTargets.Undersized(root, minPt = MinPt) is missing");
+        // ...and the tour really calls it: every shot is scanned, and the total is reported at the end.
+        string scan = texts.ContainsKey("DevQaTour.Touch.cs") ? texts["DevQaTour.Touch.cs"] : "";
+        string tourMain = texts.ContainsKey("DevQaTour.cs") ? texts["DevQaTour.cs"] : "";
+        Expect(scan.Contains("TouchTargets.Undersized(root, TouchTargets.MinPt - ScanTolerance)") && scan.Contains("ScanTolerance = 0.05f") && scan.Contains("touch-scan.tsv"),
+            "the tour's touch scan measures every root canvas and writes touch-scan.tsv");
+        Expect(tourMain.Contains("ScanTouchTargets(fileName);") && tourMain.Contains("ReportTouchScan();"),
+            "every tour shot is scanned and the total reported before MOSSELORA_QA_TOUR_DONE");
 
         Console.WriteLine("Touch targets: " + (checkedBuilders + raw) + " builders checked, " + exceptions + " exceptions");
         return assertions;
