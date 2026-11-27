@@ -257,7 +257,7 @@ internal static class EconomyTests
             "a Pairing line restores");
         Expect(WorldModel.TryRestore(Tweak(Grown(3, 0).Export(), s => s.ledger = new[] { 8, 5 }), out WorldModel seasonal) &&
                seasonal.Ledger.Length == 1 && seasonal.Ledger[0].Reason == SeedReason.Season && (int)SeedReason.Season == 8,
-            "a Season line restores (v1 #76 reserved reason 8)");
+            "a Season line restores (v1 #78 reserved reason 8)");
         Refused("reason 9", Tweak(Grown(3, 0).Export(), s => s.ledger = new[] { 9, 5 }));
     }
 
