@@ -30,6 +30,9 @@ namespace Evergrove.UnityClient
         private Text rewardText;
         private GameObject rewardPill;
         private float closeAt = -1f;
+        private Image hintToken; // I302
+        /// <summary>I309: set by the app for your own boards; once solved, the hint becomes "send this board".</summary>
+        internal Action SendBoard;
         private RectTransform cardRect; // I293: the card the solved board fades out of
         private Sprite thingArt;
         // Pairs (flowers): the table, its pictures and the card images.
@@ -68,10 +71,16 @@ namespace Evergrove.UnityClient
         // (nothing about who is playing is stored, least of all a child's).
         private static readonly Color TurnSage = new Color(0.55f, 0.72f, 0.55f, 1f);
         private static readonly Color TurnHoney = new Color(0.93f, 0.76f, 0.40f, 1f);
-        private bool together;
+        // I303: a third and fourth colour for bigger tables, kept apart in hue and lightness.
+        private static readonly Color TurnSky = new Color(0.56f, 0.70f, 0.86f, 1f);
+        private static readonly Color TurnRose = new Color(0.86f, 0.58f, 0.62f, 1f);
+        private static readonly Color[] TurnColours = { TurnSage, TurnHoney, TurnSky, TurnRose };
+        private int players = 1;
+        private bool together { get { return players > 1; } }
         private int turn;
         private Image[] turnDiscs;
         private Transform togetherRow;
+        private Image[] pips;
 
         /// <summary>True when this puzzle was played taking turns (I263 records it on a solve).</summary>
         internal bool PlayedTogether { get { return together; } }
@@ -87,13 +96,26 @@ namespace Evergrove.UnityClient
             // Before the hint and the seeds: close, thing, together, hint, seeds.
             togetherRow.SetSiblingIndex(Mathf.Max(0, top.childCount - 3));
             turnDiscs = new[] { togetherRow.GetComponent<Image>() };
+            // I303: one pip per player under the token; whose turn it is is the filled one.
+            pips = new Image[TakeTurns.MaxPlayers];
+            for (int p = 0; p < pips.Length; p++)
+            {
+                var pip = new GameObject("Player " + (p + 1), typeof(RectTransform));
+                pip.transform.SetParent(togetherRow, false);
+                var pipRect = (RectTransform)pip.transform;
+                pipRect.anchorMin = pipRect.anchorMax = new Vector2(0.5f, 0f);
+                pipRect.sizeDelta = new Vector2(9f, 9f);
+                pips[p] = pip.AddComponent<Image>();
+                pips[p].raycastTarget = false;
+            }
             PaintTurn();
         }
 
+        // Alone, two, three, four, then alone again (I303).
         private void ToggleTogether()
         {
             if (solved) return;
-            together = !together;
+            players = TakeTurns.NextPlayers(players);
             turn = 0;
             PaintTurn();
         }
@@ -101,7 +123,7 @@ namespace Evergrove.UnityClient
         private void FlipTurn()
         {
             if (!together || solved) return;
-            turn = 1 - turn;
+            turn = TakeTurns.Next(turn, players);
             PaintTurn();
         }
 
@@ -110,12 +132,32 @@ namespace Evergrove.UnityClient
             // Playing alone: a quiet token. Together: the token wears whose turn it is.
             Image disc = turnDiscs != null && turnDiscs.Length > 0 ? turnDiscs[0] : null;
             if (disc == null) return;
-            disc.color = !together ? MosseloraTheme.QuietAction : turn == 0 ? TurnSage : TurnHoney;
-            // Shape as well as colour (I268): sage and honey sit close in brightness, so the
-            // two people swap sides on honey's turn: readable without colour vision.
+            disc.color = !together ? MosseloraTheme.QuietAction : TurnColours[turn % TurnColours.Length];
+            // Shape as well as colour (I268): with two, the two people swap sides on honey's
+            // turn; with more, the pips below say whose turn it is by position.
             Transform icon = disc.transform.Find("Icon");
-            if (icon != null) icon.localScale = together && turn == 1 ? new Vector3(-1f, 1f, 1f) : Vector3.one;
+            if (icon != null) icon.localScale = players == 2 && turn == 1 ? new Vector3(-1f, 1f, 1f) : Vector3.one;
+            if (pips != null)
+                for (int p = 0; p < pips.Length; p++)
+                {
+                    bool shown = together && p < players;
+                    pips[p].gameObject.SetActive(shown);
+                    if (!shown) continue;
+                    pips[p].sprite = p == turn ? MosseloraArt.Rounded(8) : MosseloraArt.Ring(8);
+                    pips[p].color = p == turn ? MosseloraTheme.EarthInk : new Color(0.35f, 0.30f, 0.22f, 0.8f);
+                    ((RectTransform)pips[p].transform).anchoredPosition = new Vector2((p - (players - 1) / 2f) * 12f, -8f);
+                }
             if (together && gentle) BloomPulse.Add(disc.gameObject, 0f, 0.12f);
+            // I302 (idea 48, help for small hands): on every turn but the first player's (often
+            // the grown-up holding the phone), the hint glows in honey, a quiet offer. Never pressed.
+            if (hintToken != null)
+            {
+                Breathe glow = hintToken.GetComponent<Breathe>();
+                if (glow != null) Destroy(glow);
+                bool offer = TakeTurns.OfferHint(turn, players);
+                hintToken.color = offer ? new Color(0.96f, 0.84f, 0.55f, 1f) : MosseloraTheme.QuietAction;
+                if (offer && gentle) Breathe.Add(hintToken);
+            }
         }
 
         private float ClassicRule(Transform card)
@@ -191,6 +233,8 @@ namespace Evergrove.UnityClient
         internal void Done() { if (!solved) Finish(); }
         internal void QaHint() { Hint(); }
         internal void QaTogether() { if (!together) ToggleTogether(); }
+        // I302/I303 tour: four players, then one move along so the hint's offer shows.
+        internal void QaFourTurns() { players = TakeTurns.MaxPlayers; turn = 1; PaintTurn(); }
 
         // I256: the classic three get the same two-tap hint as the newer kinds.
         private int hintA = -1, hintB = -1;
@@ -352,6 +396,8 @@ namespace Evergrove.UnityClient
             // A hint on every kind (I253, I256): shown, then made, never a penalty.
             Token(top, "Hint: show the next move", MosseloraArt.Load(MosseloraArt.IconHint), 52f,
                 MosseloraTheme.QuietAction, Hint, true);
+            Transform hintNode = top.Find("Hint: show the next move");
+            hintToken = hintNode != null ? hintNode.GetComponent<Image>() : null;
             rewardPill = Pill(top, "+" + reward, font, out rewardText);
             // Helping family (I227) pays nothing: no seed pill, said plainly.
             if (reward < 0) rewardPill.SetActive(false);
@@ -432,6 +478,7 @@ namespace Evergrove.UnityClient
             solved = true;
             int earned = onSolved != null ? onSolved() : 0;
             SettleIntoThing();
+            OfferToSend();
             rewardText.text = "+" + earned;
             if (together && turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
             if (board != null)
@@ -496,6 +543,24 @@ namespace Evergrove.UnityClient
             image.raycastTarget = false;
             var settle = veil.AddComponent<SettleIn>();
             settle.Begin(thingRect, SettleAfter, gentle);
+        }
+
+        // I309 (idea 42, everyone plays the same one): a solved board of your own can go to
+        // family as it is. The hint's place becomes a sealed letter; a tap keeps the card open.
+        private void OfferToSend()
+        {
+            if (SendBoard == null || hintToken == null) return;
+            Transform top = hintToken.transform.parent;
+            int at = hintToken.transform.GetSiblingIndex();
+            Destroy(hintToken.gameObject);
+            hintToken = null;
+            Token(top, "Send this board to family", MosseloraArt.Load("letter-sealed"), 52f,
+                MosseloraTheme.QuietAction, () => { closeAt = -1f; SendBoard(); }, true);
+            Transform send = top.GetChild(top.childCount - 1);
+            send.SetSiblingIndex(at);
+            Transform glyph = send.Find("Icon");
+            if (glyph != null) glyph.GetComponent<Image>().color = Color.white;
+            if (gentle) BloomPulse.Add(send.gameObject, 0.6f, 0.12f);
         }
 
         private sealed class SettleIn : MonoBehaviour

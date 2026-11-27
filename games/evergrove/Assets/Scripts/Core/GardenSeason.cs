@@ -4,6 +4,9 @@ namespace Evergrove.Core
 {
     public enum Season { Spring, Summer, Autumn, Winter }
 
+    /// <summary>I295: what drifts over home in a season.</summary>
+    public enum Drift { None, Petals, Leaves, Snow }
+
     /// <summary>
     /// I248: four seasons, by progress, never by the clock (vision: "seasons and chapters
     /// by progress"; a garden left alone waits unchanged). The story walks spring to
@@ -30,6 +33,18 @@ namespace Evergrove.Core
             if (world == null || world.Mode != PlayMode.Living) return Season.Summer;
             return world.Completed ? AfterStory(world.PuzzlesSolved)
                 : ForStory(VillageScenePlan.From(world).LandscapePhase);
+        }
+
+        /// <summary>
+        /// I295 (idea 27, after hanami and momijigari): spring petals, autumn leaves and
+        /// winter snow drift over home by day; summer is still. In the dark nothing drifts:
+        /// that is the fireflies' time (I279).
+        /// </summary>
+        public static Drift DriftOf(Season season, DayPhase phase)
+        {
+            if (phase == DayPhase.Dusk || phase == DayPhase.Night) return Drift.None;
+            return season == Season.Spring ? Drift.Petals : season == Season.Autumn ? Drift.Leaves
+                : season == Season.Winter ? Drift.Snow : Drift.None;
         }
     }
 }

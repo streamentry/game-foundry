@@ -270,6 +270,11 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 4; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng("17i2-taking-turns.png");
+                // I303/I302: four round one board, the second player's turn: the hint glows as an offer.
+                app.QaFourTurnsTreePlay();
+                for (int f = 0; f < 4; f++) yield return null;
+                yield return new WaitForEndOfFrame();
+                SavePng("17i3-four-take-turns.png");
                 app.QaSolveTreePlay();
                 yield return new WaitForSecondsRealtime(0.9f);
                 yield return new WaitForEndOfFrame();
@@ -282,6 +287,7 @@ namespace Evergrove.UnityClient
                 SavePng("17j2-solved-together-mark.png");
                 // I292: a thing replayed to its deepest tier wears a crown ring.
                 app.QaCrown(flower);
+                app.QaShowHub(true); // the refresh closes home in the tour; open it again
                 for (int f = 0; f < 6; f++) yield return null;
                 yield return new WaitForEndOfFrame();
                 SavePng("17j3-crowned.png");
@@ -291,6 +297,16 @@ namespace Evergrove.UnityClient
                 yield return new WaitForEndOfFrame();
                 SavePng("17j4-quiet-garden.png");
                 app.QaQuiet(false);
+                for (int f = 0; f < 4; f++) yield return null;
+                // I310: Nan left a lantern by the cottage (it glows at night below).
+                app.QaLantern();
+                // I299: the cottage's summary, what's waiting at a glance (and who left lanterns).
+                app.OpenCottage();
+                for (int f = 0; f < 6; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForEndOfFrame();
+                SavePng("17j5-cottage.png");
+                app.CloseCottage();
                 for (int f = 0; f < 4; f++) yield return null;
                 app.QaShowHub(false);
                 app.QaTalk(2);

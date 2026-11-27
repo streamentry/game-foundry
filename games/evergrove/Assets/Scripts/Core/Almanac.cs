@@ -50,6 +50,25 @@ namespace Evergrove.Core
 
         public bool Has(GardenItem item) { return item != null && found.Contains(item.Art); }
 
+        private static readonly string[] Keepers = { "Mira", "Orin", "Fen" };
+
+        /// <summary>
+        /// I304 (idea 33, after the museum where every exhibit tells you something): the line
+        /// a found item's keeper says about it. Only true things: what you made, and, for a
+        /// flower, the season it blooms in (I290).
+        /// </summary>
+        public static string KeeperLine(GardenItem item)
+        {
+            if (item == null) return "";
+            string keeper = Keepers[(int)item.Family];
+            string line = keeper + ": I remember " + item.Memory;
+            if (item.Family == VillageChoice.Flowers)
+                foreach (Season season in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
+                    if (Array.IndexOf(GardenCatalog.FlowersOf(season), item.Index) >= 0)
+                        return line + ". They bloom in " + season.ToString().ToLowerInvariant() + ".";
+            return line + ".";
+        }
+
         public int Count { get { return found.Count; } }
 
         public int CountOf(VillageChoice family)
