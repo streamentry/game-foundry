@@ -17,14 +17,90 @@ namespace Evergrove.Core
         public const string AnyVoice = "any";
 
         private readonly Dictionary<FactKind, Dictionary<string, string[]>> lines;
+        private readonly Dictionary<string, Dictionary<string, string[]>> qualified;
 
-        public static readonly LineBank Empty = new LineBank(new Dictionary<FactKind, Dictionary<string, string[]>>());
+        /// <summary>
+        /// SC04: kinds whose wording depends on one slot (rain is not snow, dawn is not dusk). The bank
+        /// keys them "Kind.Value", for example "WeatherToday.Rainy"; the slot picks the list.
+        /// </summary>
+        public static string QualifierOf(FactKind kind)
+        {
+            switch (kind)
+            {
+                case FactKind.WeatherToday: return "weather";
+                case FactKind.Hour: case FactKind.HourHabit: return "phase";
+                case FactKind.PairingToFind: case FactKind.PairingFound: return "pairing";
+                case FactKind.RiverFurther: case FactKind.SeasonTurned: case FactKind.YieldGiven: return "season";
+                default: return null;
+            }
+        }
 
-        private LineBank(Dictionary<FactKind, Dictionary<string, string[]>> lines) { this.lines = lines; }
+        public static readonly LineBank Empty = new LineBank(new Dictionary<FactKind, Dictionary<string, string[]>>(),
+            new Dictionary<string, Dictionary<string, string[]>>());
 
-        public bool IsEmpty { get { return lines.Count == 0; } }
+        private LineBank(Dictionary<FactKind, Dictionary<string, string[]>> lines, Dictionary<string, Dictionary<string, string[]>> qualified)
+        {
+            this.lines = lines;
+            this.qualified = qualified;
+        }
 
-        public IEnumerable<FactKind> Kinds { get { return lines.Keys; } }
+        public bool IsEmpty { get { return lines.Count == 0 && qualified.Count == 0; } }
+
+        /// <summary>Every kind with lines, plain or qualified.</summary>
+        public IEnumerable<FactKind> Kinds
+        {
+            get
+            {
+                var all = new HashSet<FactKind>(lines.Keys);
+                foreach (string key in qualified.Keys) all.Add((FactKind)Enum.Parse(typeof(FactKind), key.Substring(0, key.IndexOf('.'))));
+                return all;
+            }
+        }
+
+        /// <summary>The bank's keys as written: "FruitGiven", "WeatherToday.Rainy", ...</summary>
+        public IEnumerable<string> Keys
+        {
+            get
+            {
+                foreach (FactKind k in lines.Keys) yield return k.ToString();
+                foreach (string k in qualified.Keys) yield return k;
+            }
+        }
+
+        /// <summary>The wordings under a bank key ("WeatherToday.Rainy") in a voice; empty when none.</summary>
+        public IReadOnlyList<string> Lines(string key, string voice)
+        {
+            Dictionary<string, string[]> voices = null;
+            if (key != null && key.IndexOf('.') > 0) qualified.TryGetValue(key, out voices);
+            else if (key != null && Enum.TryParse(key, out FactKind kind)) lines.TryGetValue(kind, out voices);
+            return voices != null && voices.TryGetValue(voice, out string[] list)
+                ? (IReadOnlyList<string>)Array.AsReadOnly(list) : Array.Empty<string>();
+        }
+
+        public IEnumerable<string> Voices(string key)
+        {
+            Dictionary<string, string[]> voices = null;
+            if (key != null && key.IndexOf('.') > 0) qualified.TryGetValue(key, out voices);
+            else if (key != null && Enum.TryParse(key, out FactKind kind)) lines.TryGetValue(kind, out voices);
+            return voices != null ? voices.Keys : (IEnumerable<string>)Array.Empty<string>();
+        }
+
+        /// <summary>A fact's wordings for a speaker: by its qualifier when the kind has one, own voice before anyone's.</summary>
+        public IReadOnlyList<string> For(Fact fact, int speaker)
+        {
+            if (fact == null) return Array.Empty<string>();
+            string q = QualifierOf(fact.Kind);
+            if (q == null) return For(fact.Kind, speaker);
+            string key = fact.Kind + "." + fact.Slot(q);
+            IReadOnlyList<string> own = Lines(key, speaker.ToString(CultureInfo.InvariantCulture));
+            return own.Count > 0 ? own : Lines(key, AnyVoice);
+        }
+
+        /// <summary>The bank has words for this fact in this voice.</summary>
+        public bool CanSay(Fact fact, int speaker)
+        {
+            return For(fact, speaker).Count > 0;
+        }
 
         /// <summary>The wordings for a kind in a voice ("0", "1", "2" or "any"); empty when none.</summary>
         public IReadOnlyList<string> Lines(FactKind kind, string voice)
@@ -63,7 +139,7 @@ namespace Evergrove.Core
         {
             variant = -1;
             if (fact == null) return null;
-            IReadOnlyList<string> list = For(fact.Kind, speaker);
+            IReadOnlyList<string> list = For(fact, speaker);
             if (list.Count == 0) return null;
             int chosen = keep >= 0 && keep < list.Count ? keep
                 : CompanionRanker.Variant(fact.Kind, speaker, list.Count, garden, day, fact.Key, memory);
@@ -117,14 +193,20 @@ namespace Evergrove.Core
         {
             var reader = new JsonReader(json ?? "");
             var result = new Dictionary<FactKind, Dictionary<string, string[]>>();
+            var qualifiedResult = new Dictionary<string, Dictionary<string, string[]>>();
             reader.Expect('{');
             if (!reader.TryConsume('}'))
                 do
                 {
-                    string kindName = reader.String();
+                    string keyName = reader.String();
+                    int dot = keyName.IndexOf('.');
+                    string kindName = dot < 0 ? keyName : keyName.Substring(0, dot);
                     if (!Enum.TryParse(kindName, out FactKind kind) || !Enum.IsDefined(typeof(FactKind), kind) || kindName != kind.ToString())
-                        throw new FormatException("Unknown fact kind in line bank: " + kindName);
-                    if (result.ContainsKey(kind)) throw new FormatException("Fact kind twice in line bank: " + kindName);
+                        throw new FormatException("Unknown fact kind in line bank: " + keyName);
+                    if (dot >= 0 && (QualifierOf(kind) == null || dot == keyName.Length - 1))
+                        throw new FormatException("Fact kind has no qualifier: " + keyName);
+                    if (dot >= 0 ? qualifiedResult.ContainsKey(keyName) : result.ContainsKey(kind))
+                        throw new FormatException("Fact kind twice in line bank: " + keyName);
                     reader.Expect(':');
                     var voices = new Dictionary<string, string[]>();
                     reader.Expect('{');
@@ -134,7 +216,7 @@ namespace Evergrove.Core
                             string voice = reader.String();
                             if (voice != "0" && voice != "1" && voice != "2" && voice != AnyVoice)
                                 throw new FormatException("Unknown voice in line bank: " + voice);
-                            if (voices.ContainsKey(voice)) throw new FormatException("Voice twice: " + kindName + "/" + voice);
+                            if (voices.ContainsKey(voice)) throw new FormatException("Voice twice: " + keyName + "/" + voice);
                             reader.Expect(':');
                             var list = new List<string>();
                             reader.Expect('[');
@@ -144,11 +226,12 @@ namespace Evergrove.Core
                             voices[voice] = list.ToArray();
                         } while (reader.TryConsume(','));
                     if (voices.Count > 0) reader.Expect('}');
-                    result[kind] = voices;
+                    if (dot >= 0) qualifiedResult[keyName] = voices;
+                    else result[kind] = voices;
                 } while (reader.TryConsume(','));
-            if (result.Count > 0) reader.Expect('}');
+            if (result.Count + qualifiedResult.Count > 0) reader.Expect('}');
             reader.End();
-            return new LineBank(result);
+            return new LineBank(result, qualifiedResult);
         }
 
         /// <summary>A small reader for the bank's one shape: objects, arrays and strings only.</summary>

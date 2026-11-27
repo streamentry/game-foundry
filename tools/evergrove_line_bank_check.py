@@ -8,9 +8,10 @@ run in the C# tests (Tests/LineBankTests.cs); both read games/evergrove/docs/spe
 Rules: every {slot} is one its fact kind fills; at most maxChars characters once filled with the
 longest real values; no "!"; no banned, child-unsafe or time-claim phrases; a {slot} is never a
 sentence's first word, never follows "a"/"an", and {thing} is never a verb's subject; no digits;
-no duplicates; at least minVariants per kind and voice.
+no duplicates; at least the kind's minimum per voice (and per qualifier value, for kinds keyed
+"Kind.Value" such as "WeatherToday.Rainy"); only the voices that speak a kind.
 
-Usage: tools/evergrove_line_bank_check.py [--review] [--min N]
+Usage: tools/evergrove_line_bank_check.py [--review] [--complete]
 Exit 0 when every line passes, 1 otherwise. Never calls a network service.
 """
 from __future__ import annotations
@@ -33,11 +34,17 @@ def word_hit(text: str, phrase: str) -> bool:
     return re.search(r"(?<![a-z])" + re.escape(phrase) + r"(?![a-z])", text) is not None
 
 
+def split_key(key: str) -> tuple[str, str | None]:
+    kind, _, qualifier = key.partition(".")
+    return kind, (qualifier or None)
+
+
 def check_line(kind: str, voice: str, line: str, rules: dict) -> list[str]:
     problems = []
-    allowed = rules["kinds"].get(kind)
-    if allowed is None:
+    spec = rules["kinds"].get(kind)
+    if spec is None:
         return [f"unknown fact kind {kind}"]
+    allowed = spec["slots"]
     if line != line.strip() or not line:
         problems.append("empty or untrimmed")
     if "\n" in line:
@@ -56,7 +63,8 @@ def check_line(kind: str, voice: str, line: str, rules: dict) -> list[str]:
     if re.search(r"\d", line):
         problems.append("a number not from a slot")
     lower = filled.lower()
-    for group in ("banned", "childSafe", "timeClaims"):
+    groups = ["banned", "childSafe"] + ([] if spec.get("allowTimeClaims") else ["timeClaims"])
+    for group in groups:
         for phrase in rules[group]:
             if word_hit(lower, phrase.lower()):
                 problems.append(f"{group} phrase: {phrase!r}")
@@ -70,60 +78,83 @@ def check_line(kind: str, voice: str, line: str, rules: dict) -> list[str]:
     return problems
 
 
-def check_bank(name: str, bank: dict, rules: dict, minimum: int) -> list[str]:
+def check_bank(name: str, bank: dict, rules: dict, complete: bool = False) -> list[str]:
+    """bank: {"Kind" or "Kind.Value": {voice: [lines]}}. Counts are checked for every kind present
+    (all of its voices and qualifier values); with complete=True, every kind in the rules must be present."""
     problems = []
-    for kind, voices in bank.items():
-        if kind not in rules["kinds"]:
-            problems.append(f"{name}: unknown fact kind {kind}")
+    present: dict[str, dict[str, dict[str | None, int]]] = {}
+    for key, voices in bank.items():
+        kind, qualifier = split_key(key)
+        spec = rules["kinds"].get(kind)
+        if spec is None:
+            problems.append(f"{name}: unknown fact kind {key}")
             continue
-        for voice in rules["voices"]:
-            lines = voices.get(voice, [])
-            if len(lines) < minimum:
-                problems.append(f"{name}: {kind}/{voice} has {len(lines)} lines (needs {minimum})")
+        if (qualifier is None) != (spec.get("qualifier") is None):
+            problems.append(f"{name}: {key} " + ("needs a qualifier" if qualifier is None else "takes no qualifier"))
+            continue
         for voice, lines in voices.items():
-            if voice not in rules["voices"] and voice != "any":
-                problems.append(f"{name}: {kind} has unknown voice {voice!r}")
+            if voice not in spec["voices"]:
+                problems.append(f"{name}: {key} has voice {voice!r}, which doesn't speak {kind}")
+                continue
+            values = spec["voices"][voice]
+            if qualifier is not None and qualifier not in values:
+                problems.append(f"{name}: {key} voice {voice} needs no {qualifier!r} lines (allowed: {values})")
+            present.setdefault(kind, {}).setdefault(voice, {})[qualifier] = len(lines)
             seen = set()
             for i, line in enumerate(lines, 1):
-                key = line.strip().lower()
-                if key in seen:
-                    problems.append(f"{name}: {kind}/{voice} #{i} duplicate: {line}")
-                seen.add(key)
+                low = line.strip().lower()
+                if low in seen:
+                    problems.append(f"{name}: {key}/{voice} #{i} duplicate: {line}")
+                seen.add(low)
                 for p in check_line(kind, voice, line, rules):
-                    problems.append(f"{name}: {kind}/{voice} #{i} {p}: {line}")
+                    problems.append(f"{name}: {key}/{voice} #{i} {p}: {line}")
+    kinds = rules["kinds"] if complete else {k: rules["kinds"][k] for k in present}
+    for kind, spec in kinds.items():
+        got = present.get(kind, {})
+        if not got and complete:
+            problems.append(f"{name}: no lines for {kind}")
+            continue
+        for voice, values in spec["voices"].items():
+            counts = got.get(voice, {})
+            total = sum(counts.values())
+            if total < spec["min"]:
+                problems.append(f"{name}: {kind}/{voice} has {total} lines (needs {spec['min']})")
+            for value in values or []:
+                if counts.get(value, 0) < spec["minEach"]:
+                    problems.append(f"{name}: {kind}.{value}/{voice} has {counts.get(value, 0)} lines (needs {spec['minEach']})")
     return problems
 
 
-VOICE_HEADING = re.compile(r"^##\s+.*\(voice\s+(\d|any)\)\s*$")
+VOICE_HEADING = re.compile(r"^##\s+.*\(voice\s+(\d|any)\)(?:\s*·\s*(\w+))?\s*$")
 ITEM = re.compile(r"^\d+\.\s+(.*\S)\s*$")
 
 
 def parse_review(path: Path) -> tuple[str, dict]:
+    """Returns (kind, {bank key: {voice: [lines]}}); a heading "## Mira (voice 0) · Rainy" opens a qualified list."""
     kind = path.stem.replace("companion-lines-", "")
-    voices: dict[str, list[str]] = {}
-    voice = None
+    bank: dict[str, dict[str, list[str]]] = {}
+    target = None
     for raw in path.read_text(encoding="utf-8").splitlines():
         heading = VOICE_HEADING.match(raw)
         if heading:
-            voice = heading.group(1)
-            voices.setdefault(voice, [])
+            key = kind + ("." + heading.group(2) if heading.group(2) else "")
+            target = bank.setdefault(key, {}).setdefault(heading.group(1), [])
             continue
         if raw.startswith("#"):
-            voice = None
+            target = None
             continue
         item = ITEM.match(raw)
-        if item and voice is not None:
-            voices[voice].append(item.group(1))
-    return kind, voices
+        if item and target is not None:
+            target.append(item.group(1))
+    return kind, bank
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--review", action="store_true", help="also check docs/improvements/review drafts")
-    parser.add_argument("--min", type=int, default=None, help="override minVariants")
+    parser.add_argument("--complete", action="store_true", help="the English bank must cover every kind in the rules")
     args = parser.parse_args()
     rules = json.loads(RULES.read_text(encoding="utf-8"))
-    minimum = rules["minVariants"] if args.min is None else args.min
     problems: list[str] = []
     counted = 0
     for bank_path in sorted(BANKS.glob("*.json")):
@@ -135,13 +166,13 @@ def main() -> int:
         if not isinstance(bank, dict):
             problems.append(f"{bank_path.name}: not an object")
             continue
-        problems += check_bank(bank_path.name, bank, rules, minimum)
+        problems += check_bank(bank_path.name, bank, rules, args.complete and bank_path.name == "en.json")
         counted += sum(len(v) for voices in bank.values() for v in voices.values())
     if args.review:
         for review in sorted(REVIEW.glob("companion-lines-*.md")):
-            kind, voices = parse_review(review)
-            problems += check_bank(review.name, {kind: voices}, rules, minimum)
-            counted += sum(len(v) for v in voices.values())
+            _, bank = parse_review(review)
+            problems += check_bank(review.name, bank, rules)
+            counted += sum(len(v) for voices in bank.values() for v in voices.values())
     for p in problems:
         print("FAIL " + p)
     print(f"Companion line bank: {counted} lines checked, {len(problems)} problems.")

@@ -26,6 +26,11 @@ namespace Evergrove.Core
         NewestThing,      // the newest thing of their kind and where it stands (I184)
         VisitorCame,      // the visitor their good neighbours brought: owl, heron, hedgehog (I377)
         HourHabit,        // the hour you usually come, by its noticer (I419)
+        // SC04: true sources the old chain never voiced. They speak only through the reviewed bank.
+        WishProgress,     // a neighbour's hope, partly come true, with its true count (I313)
+        SeasonTurned,     // the season the garden is in now, once per season turn (I250/I251)
+        YieldGiven,       // what this season gave: seedling, seeds, fruit or jam (I388-I391)
+        PairingFound,     // a good-neighbour pairing you have found (I369/I383)
     }
 
     /// <summary>
@@ -49,10 +54,13 @@ namespace Evergrove.Core
         public bool Fresh { get; }
         /// <summary>Where today's hand-ordered chain (EvergroveApp.NeighborSays before SC01) put it: lower first.</summary>
         public int LegacyOrder { get; }
+        /// <summary>SC04: news that is said once (while remembered), not every few days: a season turned, a pairing found.</summary>
+        public bool Once { get; }
 
         public Fact(FactKind kind, int keeper, string key, IReadOnlyDictionary<string, string> slots, int weight,
-            bool waiting, bool fresh, int legacyOrder)
+            bool waiting, bool fresh, int legacyOrder, bool once = false)
         {
+            Once = once;
             if (keeper < AnyKeeper || keeper > 2) throw new ArgumentOutOfRangeException(nameof(keeper));
             if (string.IsNullOrEmpty(key)) throw new ArgumentException("A fact needs a key.", nameof(key));
             Kind = kind;
@@ -178,6 +186,10 @@ namespace Evergrove.Core
                 Newest(world, context, v, facts);
             }
             WhileAway(world, context, facts);
+            for (int v = 0; v < 3; v++) Wish(world, v, facts);
+            SeasonTurn(world, facts);
+            Yield(world, facts);
+            Found(world, facts);
             Letter(world, context, facts);
             Helped(world, facts);
             River(world, facts);
@@ -244,7 +256,7 @@ namespace Evergrove.Core
             if (item >= made.Length || world.TreeSolved(item)) return;
             PuzzleKind kind = ThingPuzzle.ForStory(item, (VillageChoice)Math.Max(0, Math.Min(2, made[item])));
             facts.Add(Make(FactKind.HelpedBy, NeighbourNotice.OwnerOf(kind), "helped:" + item, WaitingWeight, true, false,
-                5 * Step, "name", world.HelpedBy(item), "puzzle", kind.ToString()));
+                5 * Step, "name", world.HelpedBy(item), "puzzle", kind.ToString(), "work", WorkOf(kind)));
         }
 
         private static void Arrival(WorldModel world, int v, List<Fact> facts)
@@ -335,6 +347,62 @@ namespace Evergrove.Core
             if (Companion.HabitLine(counts, v, context.DayNumber) == null) { slots.Add(LegacyOffSlot); slots.Add("1"); }
             facts.Add(Make(FactKind.HourHabit, v, "habit:" + habit.Value, AmbientWeight, false, false, 11 * Step + 80,
                 slots.ToArray()));
+        }
+
+        // ---- SC04: kinds the old chain never said (LegacyOff, so SC01's parity is untouched).
+        private const int NewKindsOrder = 14 * Step;
+
+        // I313: a hope partly come true, with its true count, said once per step.
+        private static void Wish(WorldModel world, int v, List<Fact> facts)
+        {
+            NeighbourWish wish = NeighbourWish.For(world, v);
+            if (wish == null || wish.Have <= 0 || wish.Granted) return;
+            facts.Add(Once(Make(FactKind.WishProgress, v, "wish:" + v + ":" + wish.Have, OwnDoingWeight, false, false, NewKindsOrder,
+                "have", Words(wish.Have), "need", Words(wish.Need), LegacyOffSlot, "1")));
+        }
+
+        // The season now, once per season turn (never the garden's first season: that wasn't a turn).
+        private static void SeasonTurn(WorldModel world, List<Fact> facts)
+        {
+            int key = SeasonalYields.Key(world);
+            if (key <= 0 || world.Choices.Length == 0) return;
+            facts.Add(Once(Make(FactKind.SeasonTurned, Fact.AnyKeeper, "season-turn:" + key, RareWeight, false, false, NewKindsOrder,
+                "season", GardenSeason.For(world).ToString(), LegacyOffSlot, "1")));
+        }
+
+        // I388-I391: this season's yield was taken (the save proves it): its keeper says so, once.
+        // Winter's jam came from whoever you gave fruit to; the save doesn't keep who, so anyone says it.
+        private static void Yield(WorldModel world, List<Fact> facts)
+        {
+            int key = SeasonalYields.Key(world);
+            if (key < 0 || world.YieldTaken != key + 1) return;
+            Season season = GardenSeason.For(world);
+            int keeper = season == Evergrove.Core.Season.Spring ? 2 : season == Evergrove.Core.Season.Winter ? Fact.AnyKeeper : 0;
+            facts.Add(Once(Make(FactKind.YieldGiven, keeper, "yield:" + key, RareWeight, false, false, NewKindsOrder,
+                "season", season.ToString(), LegacyOffSlot, "1")));
+        }
+
+        // I369/I383: each good neighbour found, by the keeper of its kind, once.
+        private static void Found(WorldModel world, List<Fact> facts)
+        {
+            for (int v = 0; v < PairingsOf.Length; v++)
+                foreach (Pairing p in PairingsOf[v])
+                    if (world.HasPairing(p))
+                        facts.Add(Once(Make(FactKind.PairingFound, v, "pairing-found:" + p, RareWeight, false, false, NewKindsOrder,
+                            "pairing", p.ToString(), LegacyOffSlot, "1")));
+        }
+
+        private static Fact Once(Fact f)
+        {
+            return new Fact(f.Kind, f.Keeper, f.Key, f.Slots, f.Weight, f.Waiting, f.Fresh, f.LegacyOrder, true);
+        }
+
+        private static readonly string[] NumberWords = { "no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" };
+
+        /// <summary>Small counts as words ("five"), larger as digits: the bank's {have}/{need} slots.</summary>
+        public static string Words(int n)
+        {
+            return n >= 0 && n < NumberWords.Length ? NumberWords[n] : Num(n);
         }
 
         public static string VisitorName(Visitor visitor)

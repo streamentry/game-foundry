@@ -3552,7 +3552,7 @@ namespace Evergrove.UnityClient
         {
             Fact pick = CompanionPick(villager);
             if (pick == null) return LocalizedVillage.Speak(world, villager);
-            return CompanionWords(pick, villager, out _);
+            return CompanionWords(pick, villager, out _) ?? LocalizedVillage.Speak(world, villager); // never a blank card
         }
 
         // SC03: the reviewed line bank's words where it has them (a wording not heard in 14 days,
@@ -3563,7 +3563,7 @@ namespace Evergrove.UnityClient
                 spokenVariant.TryGetValue(villager, out int kept) ? kept : -1;
             string banked = LineBankNow().Speak(pick, villager, world.Garden,
                 CompanionContext.DayNumberOf(CompanionToday()), CompanionMemoryNow(), keep, out variant);
-            if (banked != null) return banked;
+            if (banked != null) return CompanionSpeech.Compose(pick, banked); // I420's welcome stays first
             variant = -1;
             return CompanionSpeech.Legacy(pick, villager);
         }
@@ -3603,7 +3603,8 @@ namespace Evergrove.UnityClient
             CompanionContext context = CompanionNow();
             spokenThisVisit.TryGetValue(villager, out string spoken);
             return CompanionRanker.Pick(CompanionFacts.For(world, context), CompanionMemoryNow(), villager,
-                context.DayNumber, world.Garden, spoken, (fact, who) => CompanionSpeech.Legacy(fact, who) != null);
+                context.DayNumber, world.Garden, spoken,
+                (fact, who) => CompanionSpeech.Legacy(fact, who) != null || LineBankNow().CanSay(fact, who)); // SC04: new kinds speak only once reviewed
         }
 
         private CompanionMemory CompanionMemoryNow()

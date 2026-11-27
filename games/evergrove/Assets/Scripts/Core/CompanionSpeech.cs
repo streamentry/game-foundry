@@ -58,6 +58,17 @@ namespace Evergrove.Core
             return best;
         }
 
+        /// <summary>
+        /// SC04: a bank line as spoken. Mira's "since you were last here" keeps I420's welcome first
+        /// after a long time away, as before.
+        /// </summary>
+        public static string Compose(Fact fact, string bankLine)
+        {
+            if (fact == null || bankLine == null) return bankLine;
+            string welcome = fact.Kind == FactKind.WeatherWhileAway ? fact.Slot("welcome") : null;
+            return string.IsNullOrEmpty(welcome) ? bankLine : welcome + " " + bankLine;
+        }
+
         /// <summary>I370: a keeper's hint at a good neighbour not yet found.</summary>
         public static string PairingHint(Pairing pairing)
         {

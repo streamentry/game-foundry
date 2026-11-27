@@ -86,6 +86,33 @@ internal static class CompanionFactsTests
         Expect(Find(CompanionFacts.For(world, new CompanionContext(today, lastSeen: today.AddDays(3))), FactKind.WeatherWhileAway, 0) == null,
             "a clock set back claims nothing");
 
+        // SC04: a hope partly come true, with its true count, said once.
+        WorldModel tending = Grown(9);
+        tending.SolveTree(0);
+        tending.SolveTree(3);
+        Fact wish = Find(CompanionFacts.For(tending, new CompanionContext(today)), FactKind.WishProgress, 0);
+        Expect(wish != null && wish.Slot("have") == "two" && wish.Slot("need") == "five" && wish.Once,
+            "Mira's hope: two of five trees tended, said once");
+        Expect(Find(CompanionFacts.For(Grown(9), new CompanionContext(today)), FactKind.WishProgress, 0) == null,
+            "no trees tended, no progress to tell");
+        Expect(Find(CompanionFacts.For(Grown(2), new CompanionContext(today)), FactKind.SeasonTurned, -1) == null,
+            "the garden's first season is not a turn");
+        WorldModel finished = Solving(GardenCatalog.ChaptersPerGarden, 4);
+        Fact turned = Find(CompanionFacts.For(finished, new CompanionContext(today)), FactKind.SeasonTurned, -1);
+        Expect(turned != null && turned.Once && turned.Slot("season") == GardenSeason.For(finished).ToString(), "a season turned after the story");
+        Expect(Find(CompanionFacts.For(finished, new CompanionContext(today)), FactKind.YieldGiven, 0) == null &&
+               Find(CompanionFacts.For(finished, new CompanionContext(today)), FactKind.YieldGiven, -1) == null &&
+               Find(CompanionFacts.For(finished, new CompanionContext(today)), FactKind.YieldGiven, 2) == null,
+            "no yield taken, none told");
+        WorldModel found = Restore(Grown(7), x => x.pairings = PairingMask.Of(Pairing.Grove) | PairingMask.Of(Pairing.Waterside));
+        IReadOnlyList<Fact> foundFacts = CompanionFacts.For(found, new CompanionContext(today));
+        Expect(Find(foundFacts, FactKind.PairingFound, 0)?.Slot("pairing") == "Grove", "Mira tells of the grove found");
+        Expect(Find(foundFacts, FactKind.PairingFound, 2)?.Slot("pairing") == "Waterside", "Fen tells of the waterside flower");
+        Expect(Find(foundFacts, FactKind.PairingFound, 1) == null, "Orin's pairings aren't found");
+        foreach (Fact f in foundFacts)
+            if (f.Kind == FactKind.WishProgress || f.Kind == FactKind.SeasonTurned || f.Kind == FactKind.YieldGiven || f.Kind == FactKind.PairingFound)
+                Expect(CompanionSpeech.LegacyPick(new[] { f }, f.Keeper < 0 ? 0 : f.Keeper) == null, "the old chain never says " + f);
+
         // Keys are stable across calls and unique within a feed.
         var a = CompanionFacts.For(world, new CompanionContext(today, weather: Weather.Windy, lightOn: true, phase: DayPhase.Dusk, map: map));
         var b = CompanionFacts.For(world, new CompanionContext(today, weather: Weather.Windy, lightOn: true, phase: DayPhase.Dusk, map: map));
@@ -99,6 +126,8 @@ internal static class CompanionFactsTests
         foreach (Fact f in a)
         {
             string line = CompanionSpeech.Legacy(f, f.Keeper < 0 ? 0 : f.Keeper);
+            // SC04's new kinds were never said by the old chain: they speak only through the reviewed bank.
+            if (line == null && f.Slot(CompanionFacts.LegacyOffSlot) != null && f.LegacyOrder >= 14 * 100000) continue;
             Expect(line != null, "every fact has words in its keeper's voice: " + f);
             Expect(!line.ToLowerInvariant().Contains("missed you") && !line.Contains("streak"), "no guilt: " + line);
         }
@@ -112,7 +141,7 @@ internal static class CompanionFactsTests
     }
 
     // ---- The saves: empty, growing, solved, completed, fruit, gifts, help, nursery, letters, pairings.
-    private static IEnumerable<WorldModel> Saves()
+    internal static IEnumerable<WorldModel> Saves()
     {
         yield return WorldModel.New(PlayMode.Living);
         foreach (int grown in new[] { 1, 2, 3, 4, 7, 9, 11 })
@@ -174,9 +203,16 @@ internal static class CompanionFactsTests
         together.MarkTogether(0);
         yield return together;
         yield return Restore(Solving(12, 5), s => { s.garden = 3; });
+        // SC04: a season's yield taken (I388), in each season after the story.
+        for (int turn = 0; turn < 4; turn++)
+        {
+            WorldModel season = Restore(Solving(GardenCatalog.ChaptersPerGarden, turn * GardenMap.SolvesPerReach), s => { });
+            int key = SeasonalYields.Key(season);
+            yield return Restore(season, s => s.yields = key + 1);
+        }
     }
 
-    private static IEnumerable<CompanionContext> Contexts(GardenMap map)
+    internal static IEnumerable<CompanionContext> Contexts(GardenMap map)
     {
         var today = new DateTime(2026, 11, 27);
         yield return new CompanionContext(today);

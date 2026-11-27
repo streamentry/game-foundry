@@ -90,10 +90,12 @@ namespace Evergrove.Core
             return score;
         }
 
-        /// <summary>Not heard in the last <see cref="KeyDays"/> days, or still waiting, or caused just now.</summary>
+        /// <summary>Not heard in the last <see cref="KeyDays"/> days, or still waiting, or caused just now; a once-fact, never heard.</summary>
         public static bool Eligible(Fact fact, CompanionMemory memory, int day)
         {
-            return fact.Waiting || fact.Fresh || memory == null || !memory.SaidWithin(fact.Key, day, KeyDays);
+            if (memory == null) return true;
+            if (fact.Once && memory.EverSaid(fact.Key)) return false; // SC04: said once is said
+            return fact.Waiting || fact.Fresh || !memory.SaidWithin(fact.Key, day, KeyDays);
         }
 
         /// <summary>
