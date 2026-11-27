@@ -119,7 +119,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **85. Neighbours can be quiet.** A setting for "speak less" halves remarks, for players who prefer silence. *Test:* setting persists.
 - [ ] **86. A neighbour speaks your language properly.** Neighbour lines are localised by native writers, not translated, starting with the first localisation market. *Test:* a native reviewer signs off.
 - [ ] **87. They mark real dates you choose.** The player may add a birthday or anniversary, and the neighbours mark it. It stays local and is never sent anywhere. *Test:* data stays on the device.
-- [ ] **88. Honest companions.** Neighbours never claim feelings about the player's health or loneliness, and never imply they're real people. *Test:* a line audit against vision §1a's "what we must not claim".
+- [x] **88. Honest companions.** Neighbours never claim feelings about the player's health or loneliness, and never imply they're real people. *Test:* a line audit against vision §1a's "what we must not claim".
 - [ ] **89. Optional on-device language model, researched first.** Only if it runs offline and passes a safety review: a neighbour could vary wording, never facts. *Test:* a spike that compares wording quality and latency on device.
 - [ ] **90. Goodbyes that matter.** If the player stops for months, the return letter is warm, short and specific to their garden. *Test:* the 90-day absence path in QA.
 
