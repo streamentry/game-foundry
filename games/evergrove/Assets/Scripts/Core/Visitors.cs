@@ -88,6 +88,24 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>
+        /// I405: out, and the day's weather suits it: bees and butterflies stay in on rainy and
+        /// snowy days (butterflies on windy ones too); the owl keeps to its tree on a rainy night.
+        /// Only what is seen changes: the garden's economy never depends on the weather (I353).
+        /// </summary>
+        public static bool OutIn(Visitor visitor, Season season, DayPhase phase, Weather weather)
+        {
+            if (!Out(visitor, season, phase)) return false;
+            bool wet = weather == Weather.Rainy || weather == Weather.Snowy;
+            switch (visitor)
+            {
+                case Visitor.Bees: return !wet;
+                case Visitor.Butterflies: return !wet && weather != Weather.Windy;
+                case Visitor.Owl: return weather != Weather.Rainy;
+                default: return true;
+            }
+        }
+
         /// <summary>Why it comes, as the almanac's visitors page says it.</summary>
         public static string Why(Visitor visitor)
         {

@@ -686,6 +686,36 @@ namespace Evergrove.UnityClient
                     nodes.Add(catRect);
                 }
             }
+            // I409: morning mist lying low on the river, a few soft banks along the water.
+            for (int c = 0, drawn = 0; MistNow && c < map.CellCount && drawn < 16; c++)
+            {
+                if (map.At(c) != GardenMap.Water || (c * 7 + c / map.Columns) % 5 != 0) continue;
+                drawn++;
+                var mist = new GameObject("Morning mist", typeof(RectTransform));
+                mist.transform.SetParent(land, false);
+                var mistRect = (RectTransform)mist.transform;
+                mistRect.anchorMin = mistRect.anchorMax = new Vector2(0f, 1f);
+                mistRect.sizeDelta = new Vector2(cellW * 2.6f, cellH * 1.0f);
+                mistRect.anchoredPosition = new Vector2((c % map.Columns + 0.5f) * cellW, -(c / map.Columns + 0.5f) * cellH);
+                var mistImage = mist.AddComponent<Image>();
+                mistImage.sprite = MosseloraArt.SoftGlow();
+                mistImage.color = new Color(1f, 1f, 1f, 0.38f);
+                mistImage.raycastTarget = false;
+                if (FirefliesMove) Breathe.Add(mistImage);
+                nodes.Add(mistRect);
+            }
+            // I410: on cold evenings the cottage fire is lit: a wisp of smoke from the chimney.
+            if (SmokeNow)
+            {
+                var smoke = new GameObject("Chimney smoke", typeof(RectTransform));
+                smoke.transform.SetParent(land, false);
+                var smokeRect = (RectTransform)smoke.transform;
+                smokeRect.anchorMin = smokeRect.anchorMax = new Vector2(0f, 1f);
+                smokeRect.sizeDelta = new Vector2(width * 0.08f, reachHeight * 0.06f);
+                smokeRect.anchoredPosition = new Vector2(width * 0.90f, -reachHeight * 0.03f);
+                smoke.AddComponent<ChimneyWisp>();
+                nodes.Add(smokeRect);
+            }
             // I338: snow on every cottage roof in winter (top right of each reach; mirrored ones too).
             for (int reach = 0; SeasonLook.SnowCaps(SeasonNow) && reach < reaches; reach++)
             {
@@ -1138,6 +1168,7 @@ namespace Evergrove.UnityClient
                     new Vector2((cell % map.Columns + 0.5f) * cellW, -(cell / map.Columns + 0.78f) * cellH));
                 if (standing != null) nodes.AddRange(standing);
                 if (SignFont != null) KeepOffSigns(standing, width, reachHeight, reaches); // I375
+                if (FootprintsNow) Footprints(standing, width, reachHeight); // I412
             }
             if (keep.x >= 0f)
             {
@@ -1461,6 +1492,39 @@ namespace Evergrove.UnityClient
         public static Weather WeatherNow = Weather.Fair; // I353: the day's weather, set before a build
         public static Font SignFont; // I360: the river-name signs' lettering
 
+        // I412: when snow lies, a trail of small prints from the cottage door to each neighbour,
+        // left and right in turn: they walked out to meet you.
+        private void Footprints(List<RectTransform> standing, float width, float reachHeight)
+        {
+            if (standing == null) return;
+            Vector2 door = new Vector2(width * 0.80f, -reachHeight * 0.20f);
+            foreach (RectTransform person in standing)
+            {
+                if (person == null) continue;
+                Vector2 to = person.anchoredPosition;
+                Vector2 way = to - door;
+                float length = way.magnitude;
+                if (length < 30f) continue;
+                Vector2 dir = way / length, side = new Vector2(-dir.y, dir.x);
+                int prints = Mathf.Clamp(Mathf.RoundToInt(length / 22f), 3, 24);
+                for (int k = 1; k < prints; k++)
+                {
+                    var print = new GameObject("Footprint in the snow", typeof(RectTransform));
+                    print.transform.SetParent(land, false);
+                    var printRect = (RectTransform)print.transform;
+                    printRect.anchorMin = printRect.anchorMax = new Vector2(0f, 1f);
+                    printRect.sizeDelta = new Vector2(5f, 7f);
+                    printRect.anchoredPosition = door + way * ((float)k / prints) + side * (k % 2 == 0 ? 3.5f : -3.5f);
+                    printRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f);
+                    var printImage = print.AddComponent<Image>();
+                    printImage.sprite = MosseloraArt.Rounded(3);
+                    printImage.color = new Color(0.55f, 0.60f, 0.70f, 0.45f);
+                    printImage.raycastTarget = false;
+                    nodes.Add(printRect);
+                }
+            }
+        }
+
         // I375 (P15: Orin stood on "Kingfisher Run" and hid half of it): a neighbour standing on
         // a river's name plank steps aside, toward the roomier side, so the name always reads.
         private static void KeepOffSigns(List<RectTransform> standing, float width, float reachHeight, int reaches)
@@ -1489,6 +1553,7 @@ namespace Evergrove.UnityClient
         public static int[] PairSpotsNext; // I372: free cells that would make a new pairing
         public static int HeronAtNext = -1, HedgehogAtNext = -1, OwlAtNext = -1; // I374: cells, -1 none
         public static int KingfisherAtNext = -1; // I382
+        public static bool MistNow, SmokeNow, FootprintsNow; // I409, I410, I412
         public static bool RainbowNow;   // I364
         public static Dew DewNow;        // I366
 
@@ -1696,6 +1761,47 @@ namespace Evergrove.UnityClient
                 img.sprite = MosseloraArt.SoftGlow();
                 img.color = new Color(1f, 1f, 1f, 0.95f);
                 img.raycastTarget = false;
+            }
+        }
+
+        /// <summary>I410: three soft puffs rising and fading from the chimney, one after another.</summary>
+        private sealed class ChimneyWisp : MonoBehaviour
+        {
+            private Image[] puffs;
+            private float clock;
+
+            private void Start()
+            {
+                puffs = new Image[3];
+                for (int i = 0; i < puffs.Length; i++)
+                {
+                    var puff = new GameObject("Puff", typeof(RectTransform));
+                    puff.transform.SetParent(transform, false);
+                    ((RectTransform)puff.transform).sizeDelta = new Vector2(18f, 14f);
+                    puffs[i] = puff.AddComponent<Image>();
+                    puffs[i].sprite = MosseloraArt.SoftGlow();
+                    puffs[i].raycastTarget = false;
+                }
+                Place(0f);
+            }
+
+            private void Update()
+            {
+                if (!FirefliesMove) return;
+                clock += Time.unscaledDeltaTime;
+                Place(clock);
+            }
+
+            private void Place(float time)
+            {
+                for (int i = 0; i < puffs.Length; i++)
+                {
+                    float life = ((time * 0.25f) + i / 3f) % 1f; // each puff rises for four seconds
+                    var rect = (RectTransform)puffs[i].transform;
+                    rect.anchoredPosition = new Vector2(6f * Mathf.Sin(life * 5f + i) + life * 10f, life * 46f);
+                    rect.localScale = Vector3.one * (0.7f + life * 1.3f);
+                    puffs[i].color = new Color(0.92f, 0.92f, 0.94f, 0.55f * (1f - life) * Mathf.Min(1f, life * 6f));
+                }
             }
         }
 

@@ -46,6 +46,33 @@ namespace Evergrove.UnityClient
             return clip;
         }
 
+        // ---- I406: good neighbours found: three soft bell notes rising (C, E, G), a little
+        // apart, so a discovery has a sound of its own, distinct from the everyday chime.
+        private static AudioClip neighbours;
+
+        public static AudioClip Neighbours()
+        {
+            if (neighbours != null) return neighbours;
+            float[] hz = { 523.25f, 659.25f, 783.99f };
+            const float gap = 0.17f, ring = 0.9f;
+            int length = Mathf.RoundToInt(SampleRate * (gap * 2f + ring));
+            var samples = new float[length];
+            for (int n = 0; n < hz.Length; n++)
+            {
+                int start = Mathf.RoundToInt(SampleRate * gap * n);
+                for (int i = start; i < length; i++)
+                {
+                    float t = (float)(i - start) / SampleRate;
+                    if (t > ring) break;
+                    float env = Mathf.Exp(-t * 5.5f) * Mathf.Min(1f, t * 400f);
+                    samples[i] += env * 0.07f * (Mathf.Sin(t * 2f * Mathf.PI * hz[n]) + 0.3f * Mathf.Sin(t * 2f * Mathf.PI * hz[n] * 2.01f));
+                }
+            }
+            neighbours = AudioClip.Create("Mosselora good neighbours", length, 1, SampleRate, false);
+            neighbours.SetData(samples, 0);
+            return neighbours;
+        }
+
         // ---- I316: the soundscape's voices, a few variants each, quiet and short.
         private static readonly Dictionary<int, AudioClip> AmbientCache = new Dictionary<int, AudioClip>();
 
@@ -54,7 +81,7 @@ namespace Evergrove.UnityClient
             int key = (int)voice * 10 + ((variant % 3) + 3) % 3;
             if (AmbientCache.TryGetValue(key, out AudioClip clip) && clip != null) return clip;
             var rng = new System.Random(101 + key);
-            float seconds = voice == AmbientVoice.Owl ? 1.5f : voice == AmbientVoice.Rain ? 2.4f : voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
+            float seconds = voice == AmbientVoice.Frogs ? 1.1f : voice == AmbientVoice.Owl ? 1.5f : voice == AmbientVoice.Rain ? 2.4f : voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
                 : voice == AmbientVoice.Birds ? 0.6f : 0.18f;
             int length = Mathf.RoundToInt(SampleRate * seconds);
             var samples = new float[length];
@@ -92,6 +119,17 @@ namespace Evergrove.UnityClient
                         patter = rng.NextDouble() < 0.0035 ? 1f : patter * 0.9965f; // each drop, then its decay
                         float swell = Mathf.Sin(t / seconds * Mathf.PI);
                         samples[i] = swell * (0.05f * smooth + 0.05f * white * patter);
+                        break;
+                    }
+                    case AmbientVoice.Frogs:
+                    {
+                        // I411: a few low croaks, each a buzzy pulse train with a small pitch drop.
+                        float slot = 0.27f, local = t % slot;
+                        int n = (int)(t / slot);
+                        float on = n < 3 && local < 0.16f ? Mathf.Sin(local / 0.16f * Mathf.PI) : 0f;
+                        float hz = 180f * (1f - 0.12f * local / 0.16f) * (1f + 0.05f * n);
+                        float buzz = Mathf.Sign(Sine(hz, t)) * 0.5f + 0.5f * Sine(hz * 2f, t);
+                        samples[i] = on * 0.045f * buzz * Mathf.Max(0f, Mathf.Sin(t * 2f * Mathf.PI * 38f));
                         break;
                     }
                     case AmbientVoice.Owl:

@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Datenschutzerklärung"
+    },
+    {
+      "key": "garden_save",
+      "value": "Gartendatei sichern…"
+    },
+    {
+      "key": "saved",
+      "value": "Gespeichert"
     }
   ]
 }

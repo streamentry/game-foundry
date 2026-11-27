@@ -77,7 +77,7 @@ def main() -> int:
     keys = re.search(
         r"private static readonly string\[\] Ids = \{([\s\S]*?)\};", locale
     )
-    if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 125:
+    if not keys or len(re.findall(r'"[^"]+"', keys.group(1))) != 127:
         fail("Localization key count changed; update documentation and catalog validator")
 
     # Compare the legacy build handbook against the actual dependency manifest.
@@ -96,7 +96,7 @@ def main() -> int:
     print(
         f"Evergrove documentation contract: {len(target_docs)} documents, "
         f"{checked_links} verified local links, 12 puzzles, "
-        "v4 saves, 30 language choices, 125 keys."
+        "v4 saves, 30 language choices, 127 keys."
     )
     return 0
 

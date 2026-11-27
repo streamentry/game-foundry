@@ -231,6 +231,13 @@ namespace Evergrove.UnityClient
             // A basket of fruit from your trees (I230), then a cutting of a plant you
             // have grown from the nursery (it costs its gift price, half the nursery price).
             int[] owned = hooks.OwnedKinds();
+            // I408: the last visit's gift idea (I398): cuttings of that kind first, with a sprig.
+            if (IdeaFamily >= 0)
+            {
+                var ordered = new System.Collections.Generic.List<int>(owned);
+                ordered.Sort((a, b) => (Nursery.Family(b) == (VillageChoice)IdeaFamily).CompareTo(Nursery.Family(a) == (VillageChoice)IdeaFamily));
+                owned = ordered.ToArray();
+            }
             int fruit = hooks.Fruit != null ? hooks.Fruit() : 0;
             Transform cuttings = Row(body, "Lantern, fruit and cuttings", 82f, 10f);
             GiftToken(cuttings, Lantern, MosseloraArt.Load(LanternArt), "", true); // I310
@@ -242,8 +249,13 @@ namespace Evergrove.UnityClient
                 GiftToken(cuttings, FruitBase + basket, MosseloraArt.Load("food-basket"), basket.ToString(), true);
             }
             for (int i = 0; i < owned.Length && i < (fruit > 0 ? 2 : 3); i++)
+            {
                 GiftToken(cuttings, CuttingBase + owned[i], MosseloraArt.Load(Nursery.Item(owned[i]).Art),
                     Nursery.GiftPrice(owned[i]).ToString(), hooks.Seeds() >= Nursery.GiftPrice(owned[i])); // v1 #73: sending costs half
+                if (IdeaFamily >= 0 && Nursery.Family(owned[i]) == (VillageChoice)IdeaFamily) // I408
+                    MosseloraArt.Ornament(cuttings.GetChild(cuttings.childCount - 1), "Gift idea", MosseloraArt.Load("glyph-sprig"),
+                        new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(22f, 22f), new Vector2(2f, 2f));
+            }
             StepTokens(() => { sendStep = 1; outcome = ""; Rebuild(); }, "On to wrapping it", MosseloraArt.IconContinue,
                 MosseloraTheme.ForestAction);
         }
@@ -285,6 +297,9 @@ namespace Evergrove.UnityClient
             words.onValueChanged.AddListener(v => letter = v ?? "");
             StepTokens(() => DoSend(name.text), "Send it", MosseloraArt.IconContinue, MosseloraTheme.WaterAction);
         }
+
+        /// <summary>I408: the family of thing the last visited garden would welcome (I398), or -1.</summary>
+        internal static int IdeaFamily = -1;
 
         private void GiftToken(Transform row, int code, Sprite art, string price, bool can)
         {

@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Evergrove.UnityClient
@@ -8,9 +10,13 @@ namespace Evergrove.UnityClient
     /// 0 a heron standing in the water, now and then dipping to fish; 1 a hedgehog snuffling at
     /// a flower's foot; 2 an owl up in a grove tree, blinking. Still when motion is off.
     /// </summary>
-    internal sealed class GardenCreature : MonoBehaviour
+    internal sealed class GardenCreature : MonoBehaviour, IPointerClickHandler
     {
         public int Kind;
+        /// <summary>I404: told when a visitor is tapped (its kind), so the app can give it a voice.</summary>
+        public static Action<int> Tapped;
+        private float reactAt = -100f; // I404: when it was last tapped (clock time)
+        private CanvasGroup group;
         private RectTransform moving;
         private RectTransform[] lids;
         private Vector2 home;
@@ -18,12 +24,28 @@ namespace Evergrove.UnityClient
 
         private void Start()
         {
-            clock = Random.Range(0f, 6f);
+            clock = UnityEngine.Random.Range(0f, 6f);
             if (Kind == 0) Heron();
             else if (Kind == 1) Hedgehog();
             else if (Kind == 2) Owl();
             else Kingfisher();
             if (moving != null) home = moving.anchoredPosition;
+            group = gameObject.AddComponent<CanvasGroup>();
+            // I404: a small tap area on the body (not the whole square), so the tree or flower
+            // beneath stays easy to tap.
+            var tap = new GameObject("Tap the visitor", typeof(RectTransform));
+            tap.transform.SetParent(transform, false);
+            ((RectTransform)tap.transform).sizeDelta = new Vector2(24f, 24f);
+            var tapImage = tap.AddComponent<Image>();
+            tapImage.color = new Color(0f, 0f, 0f, 0f);
+            tapImage.raycastTarget = true;
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (clock - reactAt < 2f) return;
+            reactAt = clock;
+            if (Tapped != null) Tapped(Kind);
         }
 
         private void Heron()
@@ -96,6 +118,46 @@ namespace Evergrove.UnityClient
             foreach (RectTransform lid in lids) lid.localScale = new Vector3(1f, 0f, 1f);
         }
 
+        // I404: the visitor's answer to a tap, for a few seconds. With reduced motion it is a
+        // still change of pose (away, curled), never a dart.
+        private bool React(float since)
+        {
+            if (since < 0f || since > 9f) { if (group != null) group.alpha = 1f; transform.localRotation = Quaternion.identity; return false; }
+            bool calm = !GardenMapView.FirefliesMove;
+            var self = (RectTransform)transform;
+            switch (Kind)
+            {
+                case 0: // the heron lifts off, is away a while, and comes back
+                {
+                    float away = since < 1.2f ? since / 1.2f : since < 7f ? 1f : Mathf.Max(0f, 1f - (since - 7f) / 2f);
+                    if (calm) away = since < 7f ? 1f : 0f;
+                    if (group != null) group.alpha = 1f - away;
+                    if (moving != null) moving.anchoredPosition = home + new Vector2(-30f * away, 40f * away);
+                    return true;
+                }
+                case 1: // the hedgehog curls into a ball, then uncurls
+                {
+                    float curl = since < 0.3f ? since / 0.3f : since < 3.5f ? 1f : Mathf.Max(0f, 1f - (since - 3.5f) / 0.6f);
+                    if (calm) curl = since < 3.5f ? 1f : 0f;
+                    if (moving != null) moving.localScale = new Vector3(1f - 0.3f * curl, 1f - 0.1f * curl, 1f);
+                    return since < 4.2f;
+                }
+                case 2: // the owl blinks twice (its call is the app's)
+                {
+                    if (lids == null) return false;
+                    float shut = since < 0.25f || (since > 0.45f && since < 0.7f) ? 1f : 0f;
+                    foreach (RectTransform lid in lids) lid.localScale = new Vector3(1f, shut, 1f);
+                    return since < 0.8f;
+                }
+                default: // the kingfisher darts down to the water and back
+                {
+                    float dive = calm ? 0f : since < 0.6f ? Mathf.Sin(since / 0.6f * Mathf.PI) : 0f;
+                    if (moving != null) moving.anchoredPosition = home + new Vector2(-4f * dive, -16f * dive);
+                    return since < 0.6f;
+                }
+            }
+        }
+
         private RectTransform Part(string name, Vector2 size, Vector2 at, float angle, Color colour, int radius,
             Transform parent = null)
         {
@@ -114,8 +176,10 @@ namespace Evergrove.UnityClient
 
         private void Update()
         {
-            if (!GardenMapView.FirefliesMove) return;
             clock += Time.unscaledDeltaTime;
+            float since = clock - reactAt;
+            if (React(since)) return;
+            if (!GardenMapView.FirefliesMove) return;
             if (Kind == 0 && moving != null)
             {
                 // Still for a long while, then a quick dip to the water and back.
@@ -126,9 +190,10 @@ namespace Evergrove.UnityClient
             }
             else if (Kind == 3 && moving != null)
             {
-                // A quick bob every few seconds, then still.
-                float t = clock % 3.2f;
-                moving.anchoredPosition = home + new Vector2(0f, t < 0.3f ? -2.5f * Mathf.Sin(t / 0.3f * Mathf.PI) : 0f);
+                // A quick bob every few seconds; now and then (I407) a dive to the water and back.
+                float t = clock % 3.2f, d = clock % 11f;
+                float dive = d > 10.4f ? Mathf.Sin((d - 10.4f) / 0.6f * Mathf.PI) : 0f;
+                moving.anchoredPosition = home + new Vector2(-4f * dive, (t < 0.3f ? -2.5f * Mathf.Sin(t / 0.3f * Mathf.PI) : 0f) - 16f * dive);
             }
             else if (Kind == 1 && moving != null)
             {
