@@ -21,7 +21,7 @@ internal static class SheetMotionTests
     private static readonly string[] SheetRootFiles =
     {
         "EvergroveApp.cs", "EvergroveApp.Market.cs", "EvergroveApp.Dates.cs", "EvergroveApp.Name.cs",
-        "EvergroveApp.Economy.cs", "EvergroveApp.Boat.cs", "FamilySheet.cs",
+        "EvergroveApp.Economy.cs", "EvergroveApp.Boat.cs", "EvergroveApp.RiverMap.cs", "FamilySheet.cs",
     };
 
     // Each sheet's named call site. A sheet not routed through SheetMotion fails here.
@@ -37,6 +37,7 @@ internal static class SheetMotionTests
         { "Seed book", "EvergroveApp.Economy.cs" },
         { "Family", "FamilySheet.cs" },
         { "Travel by boat", "EvergroveApp.Boat.cs" },
+        { "River map", "EvergroveApp.RiverMap.cs" },
     };
 
     // Direct SetActive calls on a sheet root, each with its reason. Only build-time hiding is allowed:
@@ -85,7 +86,7 @@ internal static class SheetMotionTests
                 routedNames.Add(m.Groups[1].Value);
         }
 
-        var expected = new SortedSet<string> { "Menu", "Journal", "Seed book", "The stall", "Deeper boards", "Name sheet", "Dates sheet", "Travel by boat" };
+        var expected = new SortedSet<string> { "Menu", "Journal", "Seed book", "The stall", "Deeper boards", "Name sheet", "Dates sheet", "Travel by boat", "River map" };
         Expect(buildNames.SetEquals(expected), "BuildSheet names are the known seven: " + string.Join(", ", buildNames));
         foreach (string name in buildNames)
             Expect(SheetEdgeNoThrow(name), "every BuildSheet name has an edge: " + name);

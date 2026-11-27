@@ -16,7 +16,7 @@ namespace Evergrove.UnityClient
         // The one back gesture: Android back or the keyboard's Escape closes the topmost open
         // layer, and only that one. Each layer keeps its own close method; this picks which.
         // Top to bottom: the letter, the family sheet, the sheets (seed book, stall, name,
-        // dates, deeper boards), the menu, the journal, the choice preview, the puzzle card.
+        // dates, deeper boards, travel, river map), the menu, the journal, the choice preview, the puzzle card.
         private void HandleBackGesture()
         {
             if (!BackKeyPressed()) return;
@@ -28,6 +28,7 @@ namespace Evergrove.UnityClient
             else if (datesSheet != null) CloseDatesSheet();
             else if (weeklySheet != null) CloseWeeklyBoardSheet();
             else if (travelSheet != null) CloseTravelSheet(); // v1 #43
+            else if (riverMapSheet != null) CloseRiverMap(); // checklist 45
             else if (menuOpen) SetMenu(false);
             else if (showJournal) CloseJournal();
             else if (choicePreview != null) CloseChoicePreview();

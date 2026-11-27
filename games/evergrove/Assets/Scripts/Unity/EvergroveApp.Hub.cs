@@ -205,6 +205,7 @@ namespace Evergrove.UnityClient
                     if (gentleMotion) BloomPulse.Add(thing.gameObject, 0.2f, 0.06f);
                     SeedPurse();
                     LetterBox();
+                    DayRhythmTokens(titleScreen.transform); // checklist 54
                     if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                     HubChrome();
                     MaybeAskNotes();
@@ -239,6 +240,7 @@ namespace Evergrove.UnityClient
                 if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                 SeedPurse();
                 LetterBox();
+                DayRhythmTokens(titleScreen.transform); // checklist 54
                 HubChrome();
                 MaybeAskNotes();
                 FollowNote();

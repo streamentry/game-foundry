@@ -119,7 +119,7 @@ internal static class RiverTravelTests
 
     private static void TourSavesTheShots()
     {
-        string tour = ReadEvergrove("Assets/Scripts/Unity/DevQaTour.cs");
+        string tour = ReadEvergrove("Assets/Scripts/Unity/DevQaTour.cs") + ReadEvergrove("Assets/Scripts/Unity/DevQaTour.Travel.cs"); // the boat and map steps live in the tour partial
         int river = tour.IndexOf("SavePng(\"17x-river-opened.png\")", StringComparison.Ordinal);
         int zc = tour.IndexOf("SavePng(\"17zc-boat-travel.png\")", StringComparison.Ordinal);
         int zd = tour.IndexOf("SavePng(\"17zd-boat-arrived.png\")", StringComparison.Ordinal);

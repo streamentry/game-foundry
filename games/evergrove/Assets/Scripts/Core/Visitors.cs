@@ -2,7 +2,7 @@ using System;
 
 namespace Evergrove.Core
 {
-    public enum Visitor { Bees, Birds, Butterflies, Heron, Hedgehog, Owl, Kingfisher }
+    public enum Visitor { Bees, Birds, Butterflies, Heron, Hedgehog, Owl, Kingfisher, Moths, Frogs } // Moths, Frogs: checklist 49 (appended)
 
     /// <summary>
     /// I374 adds three drawn by good neighbours (I368): a heron to something built by the water,
@@ -41,6 +41,9 @@ namespace Evergrove.Core
                 case Visitor.Hedgehog: return world.HasPairing(Pairing.Sheltered); // I374
                 case Visitor.Owl: return world.HasPairing(Pairing.Grove);          // I374
                 case Visitor.Kingfisher: return world.HasPairing(Pairing.Waterside); // I382
+                // Checklist 49: every open stretch has its night creature; they come once the garden has been played.
+                case Visitor.Moths: return world.PuzzlesSolved > 0 || flowers + trees > 0;
+                case Visitor.Frogs: return world.PuzzlesSolved > 0 || flowers + trees > 0;
                 case Visitor.Bees: return flowers >= BeesNeedFlowers;
                 case Visitor.Birds: return trees >= BirdsNeedTrees;
                 default: return flowers >= 1;
@@ -55,6 +58,7 @@ namespace Evergrove.Core
             // hunts only at night; the heron fishes by day, but not on a frozen river.
             if (visitor == Visitor.Hedgehog) return dark && season != Season.Winter;
             if (visitor == Visitor.Owl) return phase == DayPhase.Night;
+            if (NightCreatures.IsNightKind(visitor)) return NightCreatures.Dark(phase); // checklist 49
             if (dark) return false;
             if (visitor == Visitor.Heron) return season != Season.Winter && phase != DayPhase.Dawn;
             if (visitor == Visitor.Kingfisher) return season != Season.Winter; // I382: by day, while the water is open
@@ -117,6 +121,8 @@ namespace Evergrove.Core
                 case Visitor.Kingfisher: return "A kingfisher perches over the water by a waterside flower, by day, unless the river is frozen.";
                 case Visitor.Bees: return "Bees come once three flowers are growing, on warm days.";
                 case Visitor.Birds: return "Birds come once two trees are tended, for the fruit, even in winter.";
+                case Visitor.Moths: return "Moths come at dusk and in the night, to every stretch of the river.";
+                case Visitor.Frogs: return "Frogs call from the river's edge at dusk and in the night, on every other stretch.";
                 default: return "Butterflies come to any flower in spring and summer.";
             }
         }

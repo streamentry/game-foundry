@@ -345,7 +345,7 @@ namespace Evergrove.UnityClient
                 layout.preferredWidth = layout.minWidth = layout.preferredHeight = 14f;
                 var image = dot.AddComponent<Image>();
                 image.sprite = MosseloraArt.Rounded(7);
-                image.color = Visitors.Welcomes(world, visitor) ? VisitorColour(visitor) : new Color(0.33f, 0.30f, 0.25f, 0.16f);
+                image.color = Logged(visitor) ? VisitorColour(visitor) : new Color(0.33f, 0.30f, 0.25f, 0.16f); // checklist 49: night creatures once seen
                 image.raycastTarget = false;
             }
         }
@@ -360,6 +360,8 @@ namespace Evergrove.UnityClient
                 case Visitor.Hedgehog: return new Color(0.55f, 0.42f, 0.30f, 1f);
                 case Visitor.Owl: return new Color(0.50f, 0.40f, 0.28f, 1f);
                 case Visitor.Kingfisher: return new Color(0.16f, 0.55f, 0.78f, 1f);
+                case Visitor.Moths: return new Color(0.90f, 0.84f, 0.56f, 1f); // checklist 49
+                case Visitor.Frogs: return new Color(0.42f, 0.66f, 0.38f, 1f);
                 default: return new Color(0.93f, 0.62f, 0.72f, 1f);
             }
         }
@@ -511,7 +513,7 @@ namespace Evergrove.UnityClient
             if (world == null || world.Mode != PlayMode.Living) return;
             foreach (Visitor visitor in Enum.GetValues(typeof(Visitor)))
             {
-                bool come = Visitors.Welcomes(world, visitor);
+                bool come = Logged(visitor); // checklist 49: moths and frogs are logged once seen
                 Transform row = CenteredRowIn(page, "Visitor " + visitor);
                 var layout = row.GetComponent<HorizontalLayoutGroup>();
                 layout.spacing = 10;

@@ -34,6 +34,9 @@ internal static class DailyRhythmAuditTests
         "Hour remark",
         "Visitors come to the garden",
         "Keeper's word about a visitor",
+        "Night creatures on each stretch",
+        "Dew board in the morning",
+        "Lantern letter in the evening",
         "Garden cat naps",
         "Seasonal yield from a neighbour",
         "Neighbour's cutting at a milestone",
@@ -66,7 +69,7 @@ internal static class DailyRhythmAuditTests
     private static readonly string[] ReturnTextFiles =
     {
         "DayWeather.cs", "GardenNote.cs", "NeighbourNotice.cs", "NeighbourWish.cs",
-        "Visitors.cs", "DayLight.cs", "GardenCat.cs", "NeighbourGifts.cs",
+        "Visitors.cs", "DayLight.cs", "GardenCat.cs", "NeighbourGifts.cs", "NightCreatures.cs", "DayRhythm.cs",
     };
 
     // Checklist 53: the only words the "since you were last here" line may use.

@@ -391,6 +391,7 @@ namespace Evergrove.UnityClient
             BuildPostcard();
             BuildStallEntries(); // EvergroveApp.Market.cs: the stall and deeper boards (v1 #74 #79 #35)
             BuildTravelEntry(); // EvergroveApp.Boat.cs: travel by boat to any open stretch (checklist 43)
+            BuildRiverMapEntry(); // EvergroveApp.RiverMap.cs: "River map", one tap from the menu (checklist 45)
             BuildNameEntry(); // EvergroveApp.Name.cs: "Name your garden" (checklist 3)
             BuildDatesEntry(); // EvergroveApp.Dates.cs: "Dates to remember" (checklist 87)
             BuildGardenFileSection();

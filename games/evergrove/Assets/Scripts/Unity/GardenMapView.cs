@@ -981,9 +981,7 @@ namespace Evergrove.UnityClient
             {
                 int cell = creatureCells[k];
                 if (cell < 0 || cell >= map.CellCount) continue;
-                var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling"
-                    : k == 2 ? "An owl, watching" : "A kingfisher, perched",
-                    typeof(RectTransform));
+                var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling" : k == 2 ? "An owl, watching" : "A kingfisher, perched", typeof(RectTransform));
                 creature.transform.SetParent(land, false);
                 var creatureRect = (RectTransform)creature.transform;
                 creatureRect.anchorMin = creatureRect.anchorMax = new Vector2(0f, 1f);
@@ -997,6 +995,7 @@ namespace Evergrove.UnityClient
                 creatureRect.localScale = Vector3.one * Mathf.Clamp(cellW / 30f, 1f, 2.4f);
                 nodes.Add(creatureRect);
             }
+            GardenNightCreatures.Place(land, nodes, map, cellW, cellH); // checklist 49: moths and frogs, evening only
             // I372: where the thing in hand would make a new good neighbour, a soft green glow.
             for (int sp = 0; pairSpots != null && sp < pairSpots.Length; sp++)
             {
