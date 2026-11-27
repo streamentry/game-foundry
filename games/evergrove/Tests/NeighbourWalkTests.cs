@@ -27,6 +27,7 @@ internal static class NeighbourWalkTests
         WalkerMovesOnlyPositionAndRotation();
         PlacementWalksOnlyWithGentleMotion();
         WalkSurvivesRelayout();
+        PaceIsOneInPlay();
         ClashChecksUseWalkDestinations();
         TourSavesTheWalkShots();
         TourLogsEveryNeighbourSpot();
@@ -126,7 +127,7 @@ internal static class NeighbourWalkTests
     private static void WalkerMovesOnlyPositionAndRotation()
     {
         string walker = ReadEvergrove("Assets/Scripts/Unity/NeighbourWalker.cs");
-        Expect(walker.Contains("Time.unscaledTime - StartedAt") && !Regex.IsMatch(walker, @"\bTime\.deltaTime\b"),
+        Expect(walker.Contains("(Time.unscaledTime - StartedAt) * Pace") && !Regex.IsMatch(walker, @"\bTime\.deltaTime\b"),
             "the walker runs on unscaled time");
         Expect(walker.Contains("rect.anchoredPosition = To;") && walker.Contains("rect.localRotation = Quaternion.identity;") &&
                walker.Contains("enabled = false;"), "the walker ends exactly at To, upright, and disables itself");
@@ -178,6 +179,17 @@ internal static class NeighbourWalkTests
         Expect(walk.Contains("neighbourWalks.Clear();"), "walks are forgotten with the garden");
         Expect(neighbours.Contains("NeighbourWalker.PoseAt(walkFrom, at, walkSince)") && neighbours.Contains("walker.StartedAt = walkSince;"),
             "a re-placed holder starts where the walk has reached, not back at the start");
+    }
+
+    // Play walks at full pace; only the dev tour slows them, and puts the pace back after its frames.
+    private static void PaceIsOneInPlay()
+    {
+        string walker = ReadEvergrove("Assets/Scripts/Unity/NeighbourWalker.cs");
+        string tour = ReadEvergrove("Assets/Scripts/Unity/DevQaTour.Walk.cs");
+        Expect(walker.Contains("internal static float Pace = 1f;"), "walks run at full pace in play");
+        int slow = tour.IndexOf("NeighbourWalker.Pace = 0.25f;", StringComparison.Ordinal);
+        int back = tour.IndexOf("NeighbourWalker.Pace = 1f;", StringComparison.Ordinal);
+        Expect(slow > 0 && back > slow, "the tour slows walks for its frames, then restores full pace");
     }
 
     private static void ClashChecksUseWalkDestinations()

@@ -46,7 +46,7 @@ namespace Evergrove.UnityClient
             float now = Time.unscaledTime;
             if (gentleMotion && neighbourWalks.TryGetValue(villager, out NeighbourWalkUnderWay under) &&
                 (under.To - at).sqrMagnitude < 1f &&
-                now - under.StartedAt < NeighbourWalk.Duration(Vector2.Distance(under.From, under.To)))
+                (now - under.StartedAt) * NeighbourWalker.Pace < NeighbourWalk.Duration(Vector2.Distance(under.From, under.To)))
             {
                 neighbourLastAt[villager] = at;
                 from = under.From;

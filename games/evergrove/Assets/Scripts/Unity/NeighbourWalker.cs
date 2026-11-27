@@ -15,6 +15,10 @@ namespace Evergrove.UnityClient
         /// <summary>When the walk began (unscaled time). A holder re-placed mid-walk carries on from here.</summary>
         public float StartedAt;
 
+        /// <summary>How fast walks run: 1 in play. The dev tour slows them (0.25) so its frames, a few
+        /// tenths of a second apart, catch every step for the half-speed review clip.</summary>
+        internal static float Pace = 1f;
+
         /// <summary>Where a walk from <paramref name="from"/> to <paramref name="to"/> begun at
         /// <paramref name="startedAt"/> has reached now: the pose a re-placed holder starts in, so a
         /// relayout mid-walk never jumps the neighbour back to the start.</summary>
@@ -22,7 +26,7 @@ namespace Evergrove.UnityClient
         {
             float distance = Vector2.Distance(from, to);
             float duration = NeighbourWalk.Duration(distance);
-            float clock = Time.unscaledTime - startedAt;
+            float clock = (Time.unscaledTime - startedAt) * Pace;
             if (clock >= duration) return to;
             return Vector2.Lerp(from, to, NeighbourWalk.Progress(clock, duration))
                 + new Vector2(0f, NeighbourWalk.Bob(clock, duration, NeighbourWalk.Steps(distance)));
@@ -34,7 +38,7 @@ namespace Evergrove.UnityClient
             float distance = Vector2.Distance(From, To);
             float duration = NeighbourWalk.Duration(distance);
             int steps = NeighbourWalk.Steps(distance);
-            float clock = Time.unscaledTime - StartedAt;
+            float clock = (Time.unscaledTime - StartedAt) * Pace;
             if (clock >= duration)
             {
                 rect.anchoredPosition = To;

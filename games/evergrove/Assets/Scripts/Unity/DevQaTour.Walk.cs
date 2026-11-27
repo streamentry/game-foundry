@@ -20,6 +20,7 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 10; f++) yield return null;
             yield return new WaitForSecondsRealtime(0.5f); // the morning spots are recorded
             app.QaSetClock(19);
+            NeighbourWalker.Pace = 0.25f; // a quarter pace, so the frames catch every step
             app.QaRebuildHub();
             for (int i = 0; i < 16; i++)
             {
@@ -28,6 +29,7 @@ namespace Evergrove.UnityClient
                 SavePng("23-walk-" + i.ToString("00") + ".png");
                 LogNeighbourSpots(i);
             }
+            NeighbourWalker.Pace = 1f;
             app.QaShowHub(false);
             app.QaSetClock(13);
         }
