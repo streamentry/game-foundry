@@ -874,6 +874,8 @@ namespace Evergrove.UnityClient
                 float side = k == 1 ? 0.35f : k == 3 ? -0.2f : 0f;
                 creatureRect.anchoredPosition = new Vector2((cell % map.Columns + 0.5f + side) * cellW, -(cell / map.Columns + lift) * cellH);
                 creature.AddComponent<GardenCreature>().Kind = k;
+                // I395 (b320 tour: the heron read as a grey blob on a zoomed-out map): sized by the cells.
+                creatureRect.localScale = Vector3.one * Mathf.Clamp(cellW / 30f, 1f, 2.4f);
                 nodes.Add(creatureRect);
             }
             // I372: where the thing in hand would make a new good neighbour, a soft green glow.

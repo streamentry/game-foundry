@@ -28,18 +28,21 @@ namespace Evergrove.UnityClient
 
         private void Heron()
         {
-            Color grey = new Color(0.66f, 0.71f, 0.76f, 1f), dark = new Color(0.36f, 0.40f, 0.46f, 1f);
-            Color beak = new Color(0.93f, 0.70f, 0.28f, 1f);
-            Part("Ripple", new Vector2(30f, 6f), new Vector2(0f, -18f), 0f, new Color(1f, 1f, 1f, 0.45f), 3);
-            Part("Leg", new Vector2(2f, 14f), new Vector2(-3f, -11f), 0f, dark, 1);
-            Part("Leg", new Vector2(2f, 14f), new Vector2(3f, -11f), 0f, dark, 1);
-            Part("Body", new Vector2(22f, 12f), new Vector2(0f, 0f), 20f, grey, 6);
-            Part("Wing", new Vector2(15f, 7f), new Vector2(3f, -1f), 20f, dark, 4);
-            moving = Part("Neck and head", new Vector2(4f, 4f), new Vector2(-8f, 6f), 0f, new Color(0f, 0f, 0f, 0f), 1);
-            Part("Neck", new Vector2(3f, 14f), new Vector2(0f, 6f), -10f, grey, 1, moving);
-            Part("Head", new Vector2(8f, 6f), new Vector2(-1f, 13f), 0f, grey, 3, moving);
-            Part("Crest", new Vector2(7f, 1.5f), new Vector2(4f, 15f), 15f, dark, 1, moving);
-            Part("Beak", new Vector2(9f, 2f), new Vector2(-8f, 12f), 0f, beak, 1, moving);
+            // I395: a bolder silhouette that reads small: tall legs in the water, a grey body
+            // tipped back, an S of neck, a dark crest and a long yellow bill.
+            Color grey = new Color(0.70f, 0.74f, 0.79f, 1f), dark = new Color(0.30f, 0.34f, 0.40f, 1f);
+            Color beak = new Color(0.95f, 0.72f, 0.25f, 1f);
+            Part("Ripple", new Vector2(28f, 5f), new Vector2(1f, -19f), 0f, new Color(1f, 1f, 1f, 0.55f), 3);
+            Part("Leg", new Vector2(2.5f, 15f), new Vector2(-2f, -11f), 0f, dark, 1);
+            Part("Leg", new Vector2(2.5f, 15f), new Vector2(4f, -11f), 0f, dark, 1);
+            Part("Body", new Vector2(20f, 11f), new Vector2(3f, 0f), -18f, grey, 6);
+            Part("Wing", new Vector2(13f, 6f), new Vector2(6f, -1f), -18f, dark, 3);
+            moving = Part("Neck and head", new Vector2(2f, 2f), new Vector2(-5f, 4f), 0f, new Color(0f, 0f, 0f, 0f), 1);
+            Part("Neck", new Vector2(4.5f, 13f), new Vector2(-1f, 6f), 12f, grey, 2, moving);
+            Part("Head", new Vector2(9f, 7f), new Vector2(-3f, 13f), 0f, grey, 3, moving);
+            Part("Crest", new Vector2(8f, 2f), new Vector2(3f, 15f), 18f, dark, 1, moving);
+            Part("Eye", new Vector2(1.8f, 1.8f), new Vector2(-4.5f, 14f), 0f, dark, 1, moving);
+            Part("Beak", new Vector2(12f, 2.6f), new Vector2(-12f, 12.5f), -4f, beak, 1, moving);
         }
 
         private void Hedgehog()
