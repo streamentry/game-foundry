@@ -13,8 +13,7 @@ namespace Evergrove.UnityClient
     {
         private IEnumerator ReplyShots()
         {
-            WorldModel before = app.QaWorld; // put back afterwards: the shots after this one use the tour's garden
-            app.QaReplaceWorld(WorldModel.New(PlayMode.Living));
+            // The tour's own living garden; the hook keeps a note from Mira if the newest letter is not a neighbour's.
             app.QaSetDay(0);
             app.QaSetClock(13);
             app.QaShowHub(true);
@@ -36,7 +35,6 @@ namespace Evergrove.UnityClient
             app.QaTalk(-1);
             app.QaShowHub(false);
             app.QaSetDay(0);
-            app.QaReplaceWorld(before);
         }
     }
 }
