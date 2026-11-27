@@ -54,11 +54,11 @@ namespace Evergrove.UnityClient
             int key = (int)voice * 10 + ((variant % 3) + 3) % 3;
             if (AmbientCache.TryGetValue(key, out AudioClip clip) && clip != null) return clip;
             var rng = new System.Random(101 + key);
-            float seconds = voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
+            float seconds = voice == AmbientVoice.Rain ? 2.4f : voice == AmbientVoice.Wind ? 2.6f : voice == AmbientVoice.Crickets ? 0.5f
                 : voice == AmbientVoice.Birds ? 0.6f : 0.18f;
             int length = Mathf.RoundToInt(SampleRate * seconds);
             var samples = new float[length];
-            float brown = 0f, smooth = 0f;
+            float brown = 0f, smooth = 0f, patter = 0f;
             float pitch = 2800f + (float)rng.NextDouble() * 1400f;
             int chirps = 2 + rng.Next(3);
             for (int i = 0; i < length; i++)
@@ -82,6 +82,16 @@ namespace Evergrove.UnityClient
                         float pulse = Mathf.Max(0f, Mathf.Sin(t * 2f * Mathf.PI * 28f));
                         float swell = Mathf.Sin(t / seconds * Mathf.PI);
                         samples[i] = 0.03f * pulse * pulse * swell * Sine(4600f, t);
+                        break;
+                    }
+                    case AmbientVoice.Rain:
+                    {
+                        // I354: soft patter, many tiny drops under a hush.
+                        brown = Mathf.Clamp(brown + white * 0.04f, -1f, 1f);
+                        smooth += (brown - smooth) * 0.2f;
+                        patter = rng.NextDouble() < 0.0035 ? 1f : patter * 0.9965f; // each drop, then its decay
+                        float swell = Mathf.Sin(t / seconds * Mathf.PI);
+                        samples[i] = swell * (0.05f * smooth + 0.05f * white * patter);
                         break;
                     }
                     case AmbientVoice.Wind:

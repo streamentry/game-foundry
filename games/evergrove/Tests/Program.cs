@@ -1925,6 +1925,7 @@ internal static class Program
             assertions += GardenNoteTests.Run();
             assertions += WorldIdeasTests.Run();
             assertions += SeasonLookTests.Run();
+            assertions += WeatherTests.Run();
             assertions += NoticeTests.Run();
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
