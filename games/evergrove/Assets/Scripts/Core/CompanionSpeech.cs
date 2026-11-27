@@ -40,6 +40,7 @@ namespace Evergrove.Core
                 case FactKind.NewestThing: return Newest(fact, speaker);
                 case FactKind.VisitorCame: return VisitorRemark(fact.Slot("visitor"));
                 case FactKind.HourHabit: return HabitRemark(fact.EnumSlot<DayPhase>("phase"), speaker);
+                case FactKind.RainComing: return RiverWeather.ComingLine;
                 default: return null;
             }
         }
