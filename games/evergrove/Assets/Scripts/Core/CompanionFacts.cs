@@ -162,7 +162,8 @@ namespace Evergrove.Core
                 FruitGiven(world, context, v, facts);
                 if (context.TogetherKeeper == v)
                     facts.Add(Make(FactKind.SolvedTogether, v, "together:" + context.TogetherKind + ":" + world.PuzzlesSolved,
-                        OwnDoingWeight + WaitingWeight, false, true, 1 * Step, "puzzle", context.TogetherKind.ToString()));
+                        OwnDoingWeight + WaitingWeight, false, true, 1 * Step, "puzzle", context.TogetherKind.ToString(),
+                        "work", WorkOf(context.TogetherKind)));
                 Gifts(world, v, facts);
                 Arrival(world, v, facts);
                 Solved(world, v, facts);
@@ -303,6 +304,26 @@ namespace Evergrove.Core
             string thing = GardenCatalog.For(world.Garden, chapter, (VillageChoice)v).Name;
             facts.Add(Make(FactKind.NewestThing, v, "newest:" + newest + ":" + count, 0, false, false, 13 * Step,
                 "thing", thing, "where", Where(context.Map, world, newest), "count", Num(count)));
+        }
+
+        /// <summary>The line bank's {work} slot: a puzzle kind as a plain noun phrase ("the seed sums").</summary>
+        public static string WorkOf(PuzzleKind kind)
+        {
+            switch (kind)
+            {
+                case PuzzleKind.Water: return "the water";
+                case PuzzleKind.StreamPath: return "the stream";
+                case PuzzleKind.Nonogram: return "the numbered bed";
+                case PuzzleKind.Mosaic: return "the old painting";
+                case PuzzleKind.Plots: return "the plots";
+                case PuzzleKind.Mahjong: return "the garden tiles";
+                case PuzzleKind.Pairs: return "the flower beds";
+                case PuzzleKind.Sowing: return "the sowing";
+                case PuzzleKind.Sums: return "the seed sums";
+                case PuzzleKind.Pieces: return "the garden pieces";
+                case PuzzleKind.Doorstep: return "the doorstep pattern";
+                default: return "the seed squares";
+            }
         }
 
         /// <summary>Where a grown thing stands on the painted map (I184): "by the creek", "by the cottage", ...; "" when unknown.</summary>

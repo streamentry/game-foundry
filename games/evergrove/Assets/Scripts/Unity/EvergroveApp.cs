@@ -2640,6 +2640,7 @@ namespace Evergrove.UnityClient
                 if (seen.Length == 8 && DateTime.TryParseExact(seen, "yyyyMMdd", CultureInfo.InvariantCulture,
                         DateTimeStyles.None, out DateTime last))
                     sinceSeen = last;
+                spokenThisVisit.Clear(); // SC02: a new day is a new visit
                 PlayerPrefs.SetString(key, today);
                 PlayerPrefs.Save();
             }
@@ -3307,22 +3308,52 @@ namespace Evergrove.UnityClient
             return placed;
         }
 
-        // What a neighbour says. Smart companion SC01: the true facts of the save and the day
-        // (CompanionFacts), in the same order and words as before (I184, I210, I236, I266, I281,
-        // I357–I359, I370). With nothing true to tell, or outside English, their authored lines.
+        // What a neighbour says. Smart companion: the true facts of the save and the day
+        // (CompanionFacts, SC01), the one worth saying now (CompanionRanker, SC02), in today's
+        // words (I184, I210, I236, I266, I281, I357–I359, I370). With nothing worth saying, or
+        // outside English, their authored lines (LocalizedVillage).
         private string NeighborSays(int villager)
         {
-            if (world.Mode != PlayMode.Living || GameLocalization.Current != "en")
-                return LocalizedVillage.Speak(world, villager);
-            Fact pick = CompanionSpeech.LegacyPick(CompanionFacts.For(world, CompanionNow()), villager);
+            Fact pick = CompanionPick(villager);
             return pick != null ? CompanionSpeech.Legacy(pick, villager) : LocalizedVillage.Speak(world, villager);
+        }
+
+        // ---- SC02: device-local memory of what was said (PlayerPrefs; never the save or the garden file).
+        private const string CompanionMemoryKey = "evergrove:companion-heard:";
+        private readonly System.Collections.Generic.Dictionary<int, string> spokenThisVisit =
+            new System.Collections.Generic.Dictionary<int, string>();
+        private int visitGarden = int.MinValue;
+
+        private Fact CompanionPick(int villager)
+        {
+            if (world == null || world.Mode != PlayMode.Living || GameLocalization.Current != "en") return null;
+            if (visitGarden != world.Garden) { spokenThisVisit.Clear(); visitGarden = world.Garden; }
+            CompanionContext context = CompanionNow();
+            spokenThisVisit.TryGetValue(villager, out string spoken);
+            return CompanionRanker.Pick(CompanionFacts.For(world, context), CompanionMemoryNow(), villager,
+                context.DayNumber, world.Garden, spoken, (fact, who) => CompanionSpeech.Legacy(fact, who) != null);
+        }
+
+        private CompanionMemory CompanionMemoryNow()
+        {
+            return CompanionMemory.Parse(PlayerPrefs.GetString(CompanionMemoryKey + world.Garden, ""));
+        }
+
+        // Called when a conversation opens: the remark is now heard, and is theirs for this visit.
+        private void CompanionHeard(int villager, Fact said)
+        {
+            if (said == null || world == null) return;
+            spokenThisVisit[villager] = said.Key;
+            CompanionMemory memory = CompanionMemoryNow().With(
+                new Heard(CompanionContext.DayNumberOf(CompanionToday()), villager, said.Kind, -1, said.Key));
+            PlayerPrefs.SetString(CompanionMemoryKey + world.Garden, memory.Serialize());
         }
 
         // What the companion needs that the save doesn't hold (SC01).
         private CompanionContext CompanionNow()
         {
             bool living = world != null && world.Mode == PlayMode.Living;
-            return new CompanionContext(DateTime.Now.Date,
+            return new CompanionContext(CompanionToday(),
                 lastSeen: sinceSeen,
                 lettersRead: PlayerPrefs.GetInt(LettersReadKey, 0),
                 weather: TodayWeather(world),
@@ -4850,7 +4881,7 @@ namespace Evergrove.UnityClient
             veil.color = new Color(Ink.r, Ink.g, Ink.b, 0.36f);
             // A tap anywhere else ends the conversation, as the check does.
             neighborLayer.AddComponent<TapCatcher>().Tapped = () => {
-                if (speakingWith == 0) sinceSeen = null; // I359: said once
+                // I359 "said once" is now the companion memory's 3-day rule (SC02).
                 speakingWith = -1;
                 Rebuild();
             };
@@ -4900,7 +4931,7 @@ namespace Evergrove.UnityClient
             Narrate(Label(bubble.transform, "What they say",
                 NeighborSays(speakingWith), 20, 0, Ink, TextAnchor.MiddleLeft));
             var thanks = IconButton(bubble.transform, "Thanks", GameLocalization.Text("thanks"),
-                MosseloraArt.IconConfirm, () => { if (speakingWith == 0) sinceSeen = null; speakingWith = -1; Rebuild(); }, 44,
+                MosseloraArt.IconConfirm, () => { speakingWith = -1; Rebuild(); }, 44,
                 MosseloraTheme.ForestAction);
             // Tucked into the bubble's lower-right corner, outside the text flow.
             thanks.gameObject.GetComponent<LayoutElement>().ignoreLayout = true;
@@ -7578,7 +7609,9 @@ namespace Evergrove.UnityClient
             speakingWith = villagerIndex;
             if (world.Mode == PlayMode.Living)
             {
+                Fact said = CompanionPick(villagerIndex);
                 PlayerPrefs.SetString(HeardKey + villagerIndex, NeighborSays(villagerIndex));
+                CompanionHeard(villagerIndex, said); // SC02: after the line is taken, so rebuilds keep it
                 PlayerPrefs.Save();
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -8231,7 +8264,7 @@ namespace Evergrove.UnityClient
 
         private void OnApplicationPause(bool paused)
         {
-            if (!paused) waveHello = true;
+            if (!paused) { waveHello = true; spokenThisVisit.Clear(); } // SC02: a new visit
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             ResearchPause(paused);
 #endif
@@ -8290,6 +8323,10 @@ namespace Evergrove.UnityClient
         private const string DayLightKey = "evergrove:daylight";
         private static bool DayLightOn { get { return PlayerPrefs.GetInt(DayLightKey, 1) == 1; } }
         private int qaClockHour = -1; // the tour's fixed clock (I282)
+        private int qaDayOffset; // SC02: the tour's scripted week moves the companion's day; 0 outside the tour
+
+        // The companion's local day (SC02): today, or the tour's scripted day.
+        private DateTime CompanionToday() { return DateTime.Now.Date.AddDays(qaDayOffset); }
 
         private void Now(out int hour, out int minute)
         {
@@ -8802,6 +8839,8 @@ namespace Evergrove.UnityClient
         internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
         internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
         internal void QaSetClock(int hour) { qaClockHour = hour; }
+        internal void QaSetDay(int offset) { qaDayOffset = offset; spokenThisVisit.Clear(); } // SC02 tour: a new day, a new visit
+        internal string QaNeighborSays(int villager) { return NeighborSays(villager); }
         internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
         private bool qaRainbow;
         internal void QaRainbow(bool on) { qaRainbow = on; } // I364 tour
