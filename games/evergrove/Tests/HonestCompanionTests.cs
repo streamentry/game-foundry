@@ -268,14 +268,21 @@ internal static class HonestCompanionTests
         return false;
     }
 
+    // Works from games/evergrove/Tests (local runs), the repo root (CI: dotnet run --project ...)
+    // and the build output folder: walk up from both the working directory and the binary.
     private static string FindCoreDir()
     {
-        string dir = Directory.GetCurrentDirectory();
-        for (int up = 0; up < 6 && dir != null; up++)
+        foreach (string start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
         {
-            string candidate = Path.Combine(dir, "Assets", "Scripts", "Core");
-            if (Directory.Exists(candidate)) return candidate;
-            dir = Path.GetDirectoryName(dir);
+            string dir = start;
+            for (int up = 0; up < 8 && dir != null; up++)
+            {
+                foreach (string candidate in new[] {
+                    Path.Combine(dir, "Assets", "Scripts", "Core"),
+                    Path.Combine(dir, "games", "evergrove", "Assets", "Scripts", "Core") })
+                    if (Directory.Exists(candidate)) return candidate;
+                dir = Path.GetDirectoryName(dir);
+            }
         }
         return null;
     }
