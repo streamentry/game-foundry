@@ -84,6 +84,7 @@ namespace Evergrove.UnityClient
             layout.minHeight = layout.preferredHeight = 56f;
             var image = node.AddComponent<Image>();
             MosseloraArt.Round(image, chosen ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, 28);
+            MosseloraArt.StateMark(node.transform, chosen, 16f); // the chosen level also wears a check
             var button = node.AddComponent<Button>();
             button.targetGraphic = image;
             int picked = level;

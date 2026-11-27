@@ -38,6 +38,7 @@ namespace Evergrove.UnityClient
         public void Build(Transform card, float width, float screenHeight, Font font, TreePlay host)
         {
             play = host;
+            tagFont = font;
             float rule = BoardKit.FirstTimeRule(card, "pieces", row =>
             {
                 BoardKit.RuleSquare(row, Colours[0]);
@@ -171,22 +172,56 @@ namespace Evergrove.UnityClient
             for (int p = 0; p < game.PieceCount; p++) if (!game.Placed(p)) { selected = p; return; }
         }
 
+        // Colour-blind pass (checklist 92): a placed piece's first cell carries its number, so the
+        // piece is named without its colour; a snug fit also wears a ring; the chosen tray piece too.
+        private const string PieceTagName = "Piece tag";
+        private Font tagFont;
+
+        private void PieceTag(Image cell, bool on, int number)
+        {
+            Transform tag = cell.transform.Find(PieceTagName);
+            if (tag == null)
+            {
+                if (!on) return;
+                tag = BoardKit.Number(cell.transform, PieceTagName, number.ToString(), tagFont, 22,
+                    MosseloraTheme.Ink).transform;
+            }
+            tag.gameObject.SetActive(on);
+            if (on) tag.GetComponent<Text>().text = number.ToString();
+        }
+
         private void Paint()
         {
             bool[] fits = FitsChosen();
+            var firstCell = new int[game.PieceCount];
+            for (int p = 0; p < firstCell.Length; p++) firstCell[p] = -1;
+            for (int c = 0; c < cells.Length; c++)
+            {
+                int owner = game.Owner(c);
+                if (owner >= 0 && owner < firstCell.Length && firstCell[owner] < 0) firstCell[owner] = c;
+            }
             for (int c = 0; c < cells.Length; c++)
             {
                 if (cells[c] == null) continue;
                 int owner = game.Owner(c);
                 cells[c].color = owner >= 0 ? Colours[owner % Colours.Length]
                     : fits[c] ? new Color(0.80f, 0.91f, 0.72f, 1f) : BoardKit.Soil;
+                BoardKit.MarkRing(cells[c], fits[c] && owner < 0, BoardKit.FitMarkName);
+                bool tagged = owner >= 0 && owner < firstCell.Length && firstCell[owner] == c;
+                PieceTag(cells[c], tagged, owner + 1);
             }
             for (int p = 0; p < slots.Length; p++)
             {
-                for (int i = slots[p].childCount - 1; i >= 0; i--) Object.Destroy(slots[p].GetChild(i).gameObject);
+                for (int i = slots[p].childCount - 1; i >= 0; i--)
+                {
+                    if (slots[p].GetChild(i).name == BoardKit.FocusMarkName) continue;
+                    Object.Destroy(slots[p].GetChild(i).gameObject);
+                }
                 bool inTray = !game.Placed(p);
                 slots[p].GetComponent<Image>().color = inTray && p == selected && !locked
                     ? new Color(0.98f, 0.93f, 0.74f, 1f) : p == shownPiece ? BoardKit.Picked : new Color(1f, 1f, 1f, 0f);
+                BoardKit.MarkRing(slots[p].GetComponent<Image>(),
+                    (inTray && p == selected && !locked) || p == shownPiece);
                 if (!inTray) continue;
                 int[] offsets = game.PieceCells(p);
                 int minX = 0;

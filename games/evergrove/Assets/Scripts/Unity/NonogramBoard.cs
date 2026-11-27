@@ -114,6 +114,7 @@ namespace Evergrove.UnityClient
             {
                 CellState state = game.State(c);
                 cells[c].color = state == CellState.Filled ? BoardKit.Leafy : BoardKit.Soil;
+                BoardKit.MarkRing(cells[c], false);
                 sprouts[c].enabled = state == CellState.Filled && sprout != null;
                 marks[c].enabled = state == CellState.Marked && mark != null;
                 marks[c].color = new Color(0.45f, 0.5f, 0.4f, 0.55f);
@@ -136,6 +137,7 @@ namespace Evergrove.UnityClient
             {
                 shown = cell;
                 cells[cell].color = BoardKit.Picked;
+                BoardKit.MarkRing(cells[cell], true);
                 BloomPulse.Add(cells[cell].gameObject, 0f, 0.18f);
                 return;
             }

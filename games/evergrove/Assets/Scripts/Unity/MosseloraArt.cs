@@ -151,6 +151,50 @@ namespace Evergrove.UnityClient
             return boldRing;
         }
 
+        /// <summary>Name of the shape cue <see cref="StateMark"/> adds to a token.</summary>
+        public const string StateMarkName = "On mark";
+
+        /// <summary>
+        /// The shape cue for an on/off or chosen state (colour-blind pass, checklist 92): a small
+        /// mark in a token's top corner, present only while <paramref name="on"/>. It is a check
+        /// unless a sprite is given, so a state never rests on its tint alone. Created on first use,
+        /// then shown or hidden; its ink flips to paper on a dark token.
+        /// </summary>
+        public static void StateMark(Transform token, bool on, float size, Sprite sprite = null,
+                                     bool topLeft = false, string name = StateMarkName)
+        {
+            if (token == null) return;
+            Transform mark = token.Find(name);
+            if (mark == null)
+            {
+                if (!on) return;
+                var node = new GameObject(name, typeof(RectTransform));
+                node.transform.SetParent(token, false);
+                node.AddComponent<LayoutElement>().ignoreLayout = true;
+                var rect = (RectTransform)node.transform;
+                rect.anchorMin = rect.anchorMax = rect.pivot = topLeft ? new Vector2(0f, 1f) : new Vector2(1f, 1f);
+                rect.sizeDelta = new Vector2(size, size);
+                float inset = size * 0.2f;
+                rect.anchoredPosition = topLeft ? new Vector2(inset, -inset) : new Vector2(-inset, -inset);
+                var image = node.AddComponent<Image>();
+                image.sprite = sprite != null ? sprite : Load(IconConfirm);
+                image.preserveAspect = true;
+                image.raycastTarget = false;
+                mark = node.transform;
+            }
+            var shown = mark.GetComponent<Image>();
+            if (shown != null) shown.color = IsDark(token) ? MosseloraTheme.Paper : MosseloraTheme.Ink;
+            mark.gameObject.SetActive(on);
+        }
+
+        private static bool IsDark(Transform token)
+        {
+            var image = token.GetComponent<Image>();
+            if (image == null) return false;
+            Color c = image.color;
+            return 0.299f * c.r + 0.587f * c.g + 0.114f * c.b < 0.5f;
+        }
+
         // Textures are drawn at 2x so corners stay smooth on retina phones;
         // pixelsPerUnitMultiplier on the Image brings them back to logical size.
         private const int Supersample = 2;

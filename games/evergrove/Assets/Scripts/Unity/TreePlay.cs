@@ -309,6 +309,7 @@ namespace Evergrove.UnityClient
                 {
                     if (t < 0) continue;
                     tiles[t].color = new Color(0.98f, 0.93f, 0.74f, 1f);
+                    BoardKit.MarkRing(tiles[t], true);
                     BloomPulse.Add(tiles[t].gameObject, 0f, 0.18f);
                 }
                 return;
@@ -819,6 +820,8 @@ namespace Evergrove.UnityClient
                     : new Color(0.62f, 0.72f, 0.58f, 1f); // a sage back, the same for every card
                 cardFaces[i].sprite = up && pictures != null && picture < pictures.Length ? pictures[picture] : cardBack;
                 cardFaces[i].color = up ? Color.white : new Color(1f, 1f, 1f, 0.55f);
+                MosseloraArt.StateMark(tiles[i].transform, up && pairs.Kept(i), 22f); // a matched pair wears a check
+                BoardKit.MarkRing(tiles[i], false);
             }
             if (pairsUndo != null) pairsUndo.Refresh(solved);
         }
@@ -915,6 +918,8 @@ namespace Evergrove.UnityClient
                 tiles[i].color = i == mosaic.Picked ? MosseloraTheme.WaterAction
                     : home ? new Color(0.98f, 0.93f, 0.74f, 1f) : new Color(0.93f, 0.91f, 0.86f, 1f);
                 tiles[i].transform.localScale = i == mosaic.Picked ? new Vector3(1.06f, 1.06f, 1f) : Vector3.one;
+                BoardKit.MarkRing(tiles[i], i == mosaic.Picked);
+                MosseloraArt.StateMark(tiles[i].transform, home, 22f); // a tile in its place wears a check
             }
             if (mosaicUndo != null) mosaicUndo.Refresh(solved);
         }

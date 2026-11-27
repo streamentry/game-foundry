@@ -1135,7 +1135,7 @@ namespace Evergrove.UnityClient
                                   Action action, int height, Color tone,
                                   bool showCaption = false, string badge = null,
                                   bool captionBelow = false, int pips = 0, int pipsOn = 0,
-                                  bool round = false)
+                                  bool round = false, bool? stateOn = null)
         {
             Sprite glyph = MosseloraArt.Load(icon);
             if (glyph == null) return Button(parent, name, caption, action, height, tone);
@@ -1220,6 +1220,8 @@ namespace Evergrove.UnityClient
                     dotImage.raycastTarget = false;
                 }
             }
+            // Colour-blind pass (checklist 92): an on/off token with one icon for both states wears a check when on.
+            if (stateOn.HasValue) MosseloraArt.StateMark(node.transform, stateOn.Value, Mathf.Round(height * 0.3f));
             if (badge != null)
             {
                 Text value = Label(node.transform, "Value", badge, 15, 0, ink, TextAnchor.MiddleCenter);
@@ -7917,7 +7919,7 @@ namespace Evergrove.UnityClient
                     Haptics.Enabled = !Haptics.Enabled;
                     Rebuild();
                 }, SettingToken, Haptics.Enabled ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, false, 0, 0, true);
+                false, null, false, 0, 0, true, stateOn: Haptics.Enabled);
             // At most three tiles to a row: five in one row ran off a 375 pt phone (v1 tour, 2026-11-28).
             row = Row(panel.transform, "Settings row 2b");
             IconButton(row.transform, "Quiet audio setting",
@@ -7938,7 +7940,7 @@ namespace Evergrove.UnityClient
                     PlayerPrefs.Save();
                     Rebuild();
                 }, SettingToken, DayLightOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                false, null, false, 0, 0, true);
+                false, null, false, 0, 0, true, stateOn: DayLightOn);
             // Garden notes (I277): one switch in plain sight, and the hour when it's on.
             if (GardenNotes.Supported && world.Mode == PlayMode.Living)
             {
@@ -7949,7 +7951,7 @@ namespace Evergrove.UnityClient
                         if (GardenNotes.On) GardenNotes.TurnOff(); else GardenNotes.TurnOn(GardenNotes.Hour);
                         Rebuild();
                     }, SettingToken, GardenNotes.On ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
-                    false, null, false, 0, 0, true);
+                    false, null, false, 0, 0, true, stateOn: GardenNotes.On);
                 PaintedIcon(notes, GardenNotes.On ? 1f : 0.55f);
                 if (GardenNotes.On)
                 {
