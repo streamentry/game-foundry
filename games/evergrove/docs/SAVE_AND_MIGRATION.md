@@ -47,7 +47,8 @@
 ```text
 New Living game: round=0, variant=0, choices=[]
 Solve first stream: round=0, solved=true, variant=0, choices=[]
-Choose tree: round=1, solved=false, variant=1, lastSolvedVariant=0, choices=[0]
+Preview tree, compare flowers, or close: same solved state; no save write
+Confirm tree: round=1, solved=false, variant=1, lastSolvedVariant=0, choices=[0]
 Solve second stream: round=1, solved=true, variant=1, choices=[0]
 Choose flowers: round=2, solved=false, variant=3, lastSolvedVariant=1, choices=[0,2]
 Reconsider on memory interlude:
@@ -59,6 +60,8 @@ Final Living choice:
 ```
 
 PuzzleOnly advances after a win without a choice and always uses `boardVariant=0`. The on-screen memory interlude is **not** represented by an extra persisted enum: a kill/restart will resume chapter state, not necessarily replay the interlude.
+
+**Choice previews (2026-11-26)** are also transient. `VillageChoicePreview` evaluates a detached copy; it is never the object sent to `WorldStore.Save`. Only an explicit confirmation mutates the live world and requests a save. Closing, comparing, Undo, reset or replacing the world must not commit an old preview. After a relaunch, the last saved solved board remains available for a fresh choice. The v4 schema and all migrations are unchanged.
 
 ## 3. Historical migrations and file path
 
@@ -78,7 +81,7 @@ The save file lives under `Application.persistentDataPath/evergrove-world-v2.jso
 
 ## 5. Write, recovery and failure sequence
 
-**The new source-only recovery design** uses [SaveJournal.cs](../Assets/Scripts/Core/SaveJournal.cs):
+The recovery design uses [SaveJournal.cs](../Assets/Scripts/Core/SaveJournal.cs):
 
 1. Reject invalid v4 JSON and refuse any write while `WorldStore.RecoveryBlocked` is set.
 2. Write a complete `.tmp` candidate and revalidate it before publishing anything.
@@ -93,6 +96,8 @@ The save file lives under `Application.persistentDataPath/evergrove-world-v2.jso
 
 **Test scope:** [SaveJournalTests.cs](../Tests/SaveJournalTests.cs) adds pure-C# backup and staged recovery, 100 deterministic interruption/truncation simulations and 100 stage-only-last-valid recovery simulations. These are **not** 100 actual Android/iOS force-closes, filesystem permission/disk-full tests or `SAVE-001/002` verification; two-device testing remains mandatory.
 
+Historical iOS Simulator recovery checks are recorded in [save-recovery QA](qa/ios-simulator-2026-11-23/save-recovery/README.md). They do not verify the 2026-11-26 preview changes or physical flash durability. The clipboard import repair below does not change this save journal.
+
 ## 6. Invariants and extra QA
 
 The loader checks: recognized version, mode, chapter bounds, arrays present, choice history length, per-choice enumerations, current/previous orientations, solved/unsolved truth and variant consistency with the most recent chapter choice. This is basic **data integrity**, not malicious tamper resistance.
@@ -102,7 +107,10 @@ Manual fault-injection matrix:
 | Scenario | Expected behavior / evidence |
 | --- | --- |
 | Kill after rotating tile | Resume same board variant and orientation, or identify a genuine write failure |
-| Kill immediately after choosing a tree | Choice exists once; next chapter variant 1 is stable |
+| Kill while inspecting an unconfirmed choice | Resume the saved solved board; no choice or next chapter has been added |
+| Compare or close a preview; then Undo | Live state is unchanged until Undo; the stale preview cannot apply afterwards |
+| Confirm an imported garden while a preview was open | Imported world wins; no selection from the replaced world can be committed |
+| Kill immediately after confirming a tree | Choice exists once; next chapter variant 1 is stable |
 | Kill during “memory moment” | History still saved; modal may not reappear (documented limitation) |
 | Corrupt primary but valid backup | Recover backup without poisoning it; log potential loss of the most recent update; dedicated in-game recovered-progress notice remains pending |
 | Corrupt all save slots | No automatic overwrite: block saving, retain unreadable files, warn visibly and require explicit reset |
@@ -164,6 +172,8 @@ The canonical snapshot text is produced by hand-written string building, so the 
 Gardens exported before EG-111 have no `history` key. Their checksum covers the pre-history text, so import also accepts that exact form when the parsed snapshot has no history; a snapshot carrying `history` must match the current text.
 
 Errors are checked in that order. Import always goes through `WorldModel.TryRestore`, so every snapshot version that `TryRestore` accepts (v1, v2, v3, v4) imports and migrates to the current version on the next export.
+
+**Copied garden-file whitespace repair (2026-11-26):** `GardenTransfer.Parser.TryParse` now skips standard JSON whitespace before parsing the opening object. A pasted garden-file envelope may begin or end with spaces, tabs, carriage returns or line feeds without losing the recorded choices, board rotations, focused hint or undo history. The new regression compares the re-exported imported state with the original. Checksum mismatches, trailing non-whitespace content and a leading non-breaking space remain rejected. This changes clipboard garden-file import only; `SaveJournal` and primary/backup/staged recovery are unchanged.
 
 ### Versioning and compatibility promise
 

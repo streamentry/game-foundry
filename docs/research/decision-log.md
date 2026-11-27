@@ -835,6 +835,31 @@ Latest-source release remains blocked by M1/M2/M3/M5/M6 evidence and owner actio
 
 **Not built and not authorized yet.** The existing backend is a demo, and the specs list backend, accounts and multiplayer as not authorized. Before building, run a cheap test of whether families keep playing apart (for example, trading puzzle codes by message for two weeks). Adding accounts changes the App Privacy and Data safety answers, which currently describe no account and no data collection, so the first store release should stay offline-only unless the owner decides otherwise.
 
+## 2026-11-26 — Understand a garden choice before applying it
+
+**Decision:** improve the existing offline choice loop. The founder requested a source review and practical improvements toward Mosselora's vision. This change makes the current consequence inspectable; it does not authorize family accounts, multiplayer or a store release.
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | The previous choice cards hid consequence copy from sighted players, committed immediately, and pictured the next protected pipe as a hardcoded straight channel. The actual next tile can be a corner, differently oriented, wet or dry |
+| Owner | Founder request; the existing design contract requires truthful, reversible inspection before confirmation |
+| Delete | Reuse the real model transition, existing art and localization. No extra garden simulation, choice currency, profile, network call or save schema |
+| Player value | Compare tree, bridge and flowers; see the resulting garden fact and actual next protected pipe; apply one choice explicitly |
+| Audience fit | Not validated with people. Readable labels, scaled text, equally weighted choices and no timed decision preserve the adult 40+ direction. The pause may also support side-by-side discussion, but that is unobserved |
+| Strongest objection | An extra tap and explanation may slow an otherwise simple choice |
+| Cheapest disproof | Observe five uncoached players or family groups at their first decision. Ask afterwards what changed and when it was saved |
+| Stop | Simplify the preview before expanding it if at least 2 of 5 think inspection already saved the choice or cannot find the apply action |
+
+**Implemented:** a temporary preview clones the current snapshot, restores it, and calls the same WorldModel.Choose operation as committed play. Comparing, closing or losing the preview on relaunch leaves the solved garden unchanged. Only the explicit apply action reaches the existing save and choice-recorder path. The next pipe uses its real shape, orientation, water reach and position; the final choice has no next-stream promise. The preview is invalidated when the world, round or solved state changes. Old apply/close callbacks cannot act on a newer selection; accessibility activations reject inactive controls and respect interaction locks. All three new strings exist in English and 29 draft catalogs (124 keys total); draft status is unchanged.
+
+**Reliability fix:** clipboard garden restoration now accepts standard leading JSON whitespace. A regression first reproduced rejection, then proved restoration retains choices, the unfinished board, undo history and a staged hint. Checksum and malformed-input rejection remain in place.
+
+**Observed verification:** .NET 8 Release reports 51,611 assertions, including 1,416 preview assertions; the save-journal suite separately reports 1,626. All 45 source-derived puzzle profiles match. The static Unity project contract and 65 Python tool tests pass. The preview/commit comparison covers all 12 chapters × 3 choices and legacy v1/v2/v3 saves. Roslyn syntax parsing under five Unity/test define sets passes; this is not Unity type checking.
+
+**Not run:** licensed Unity import/compile, the expanded native QA tour, physical iPhone/Android tests, native-reader review or human sessions. Historical simulator/emulator evidence predates this source change. The existing native tour now checks preview, comparison, cancellation, stale callbacks, actual committed state, the final chapter and the matched control; it must be executed on the new build.
+
+**Next real action:** build this source with the pinned licensed Editor, run the updated tour and phone accessibility/layout checks, then use the existing solo and family session kits. Continue to M4 only after comprehension passes. Rotation-based variants still preserve the connection graph: this change improves clarity, not ecological depth, retention or validated demand.
+
 ## 2026-11-27 — Mosselora iteration run I189–I288: depth, family, seasons, notes
 
 **Decisions (founder directions in this run):** earned seeds and a nursery; offline neighbours who notice (a language-model companion later); five more puzzle kinds (nonogram, seed sudoku, garden plots, one-path stream, mahjong solitaire) chosen from the studio's own demand research; four seasons by progress; light that follows the player's local time (cosmetic only); on-device "garden notes" (local notifications) under the rules in [notifications-2026-11-27.md](../../games/evergrove/docs/specs/proposals/notifications-2026-11-27.md). Each iteration is documented in `docs/improvements/I189` to `I288`.

@@ -3,10 +3,10 @@ using System;
 namespace Evergrove.Core
 {
     /// <summary>
-    /// One genuinely changed watercourse after every village choice.
-    /// Board topology, endpoint positions and one immutable environmental
-    /// landmark depend on the prior choice. Rotational symmetry preserves
-    /// the original board's unique solution and low content-authoring cost.
+    /// A branch-specific board orientation after each village choice.
+    /// Endpoint positions and one immutable environmental landmark depend
+    /// on the prior choice. Rotation preserves the underlying connection
+    /// graph and its unique solution; it does not add a new puzzle topology.
     /// This is a limited deterministic system, NOT a full ecosystem simulation.
     /// </summary>
     public static class ReactiveWatercourses

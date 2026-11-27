@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen theo chân ong giữa những bông hoa dại của bạn."
+    },
+    {
+      "key": "preview_title",
+      "value": "Trước khi chọn"
+    },
+    {
+      "key": "preview_help",
+      "value": "Chạm vào thẻ để so sánh. Khu vườn chỉ thay đổi khi bạn xác nhận."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Thực hiện thay đổi này"
     }
   ]
 }
