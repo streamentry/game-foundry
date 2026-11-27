@@ -39,11 +39,34 @@ namespace Evergrove.UnityClient
         private MosaicGame mosaic;
         private Sprite painting;
         private RawImage[] pieces;
+        // The five newer kinds (I243 on) each draw their own board.
+        private IPuzzleBoard board;
+
+        /// <summary>A newer kind's board: built into the card, tells the card when it's solved.</summary>
+        internal interface IPuzzleBoard
+        {
+            void Build(Transform card, float width, float screenHeight, Font font, TreePlay play);
+            void Lock();     // solved: no more input, the board blooms
+            void QaSolve();  // tour only: solve by the same paths as taps
+        }
+
+        /// <summary>A newer kind's board in the same card as every other puzzle.</summary>
+        public static TreePlay OpenBoard(RectTransform host, IPuzzleBoard board, Sprite art, string name, int reward,
+                                         Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed)
+        {
+            TreePlay play = Open(host, null, null, null, null, null, art, name, reward, font, gentleMotion, turned,
+                solved, closed, board);
+            return play;
+        }
+
+        internal bool Gentle { get { return gentle; } }
+        internal void Moved() { if (!solved) onTurn?.Invoke(); }
+        internal void Done() { if (!solved) Finish(); }
 
         public static TreePlay Open(RectTransform host, Puzzle puzzle, Sprite art, string name, int reward,
                                     Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed)
         {
-            return Open(host, puzzle, null, null, null, null, art, name, reward, font, gentleMotion, turned, solved, closed);
+            return Open(host, puzzle, null, null, null, null, art, name, reward, font, gentleMotion, turned, solved, closed, null);
         }
 
         /// <summary>The Pairs table a flower holds: same card, same rewards, cards instead of channels.</summary>
@@ -51,7 +74,7 @@ namespace Evergrove.UnityClient
                                          int reward, Font font, bool gentleMotion, Action turned, Func<int> solved,
                                          Action closed)
         {
-            return Open(host, null, game, faces, null, null, art, name, reward, font, gentleMotion, turned, solved, closed);
+            return Open(host, null, game, faces, null, null, art, name, reward, font, gentleMotion, turned, solved, closed, null);
         }
 
         /// <summary>The Mosaic a building holds: a memory painting in scattered tiles, swapped home.</summary>
@@ -59,12 +82,13 @@ namespace Evergrove.UnityClient
                                           int reward, Font font, bool gentleMotion, Action turned, Func<int> solved,
                                           Action closed)
         {
-            return Open(host, null, null, null, game, painting, art, name, reward, font, gentleMotion, turned, solved, closed);
+            return Open(host, null, null, null, game, painting, art, name, reward, font, gentleMotion, turned, solved, closed, null);
         }
 
         private static TreePlay Open(RectTransform host, Puzzle puzzle, PairsGame game, Sprite[] faces,
                                      MosaicGame mosaicGame, Sprite painting, Sprite art, string name, int reward,
-                                     Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed)
+                                     Font font, bool gentleMotion, Action turned, Func<int> solved, Action closed,
+                                     IPuzzleBoard newerBoard)
         {
             var root = new GameObject("Tree puzzle", typeof(RectTransform));
             root.transform.SetParent(host, false);
@@ -80,6 +104,7 @@ namespace Evergrove.UnityClient
             play.pairs = game;
             play.pictures = faces;
             play.mosaic = mosaicGame;
+            play.board = newerBoard;
             play.painting = painting;
             play.gentle = gentleMotion;
             play.onTurn = turned;
@@ -136,6 +161,7 @@ namespace Evergrove.UnityClient
             // Spoken: what this is and what it pays (screen readers read Text).
             Hidden(card.transform, name + (reward < 0 ? ". Help with it for them." : ". " + reward + " seeds."), font);
 
+            if (board != null) { board.Build(card.transform, width, screenHeight, font, this); return; }
             if (pairs != null) { BuildPairs(card.transform, width, screenHeight); return; }
             if (mosaic != null) { BuildMosaic(card.transform, width, screenHeight); return; }
             // The board: the same paper tiles and channels as the streams.
@@ -206,6 +232,13 @@ namespace Evergrove.UnityClient
             solved = true;
             int earned = onSolved != null ? onSolved() : 0;
             rewardText.text = "+" + earned;
+            if (board != null)
+            {
+                board.Lock();
+                if (gentle && rewardPill.activeSelf) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
+                closeAt = Time.unscaledTime + 2.2f;
+                return;
+            }
             if (pairs != null || mosaic != null)
             {
                 if (mosaic != null) PaintMosaic();
@@ -413,6 +446,7 @@ namespace Evergrove.UnityClient
         internal void QaSolve()
         {
             if (solved) return;
+            if (board != null) { board.QaSolve(); return; }
             if (pairs != null)
             {
                 // Turn the pairs up by memory, perfectly.
@@ -479,7 +513,7 @@ namespace Evergrove.UnityClient
         }
 
         // ---- small builders
-        private static Transform Row(Transform parent, string name, float height)
+        internal static Transform Row(Transform parent, string name, float height)
         {
             var row = new GameObject(name, typeof(RectTransform));
             row.transform.SetParent(parent, false);
