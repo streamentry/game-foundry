@@ -130,6 +130,15 @@ internal static class PairingTests
         Expect(!Visitors.OutIn(Visitor.Butterflies, Season.Summer, DayPhase.Day, Weather.Windy) && Visitors.OutIn(Visitor.Heron, Season.Summer, DayPhase.Day, Weather.Rainy),
             "butterflies keep out of the wind; a heron doesn't mind rain");
         Expect(!Visitors.OutIn(Visitor.Owl, Season.Autumn, DayPhase.Night, Weather.Rainy), "the owl keeps to its tree on a rainy night");
+        // I409-I411: mist at dawn and morning but not on hot or windy days; smoke on cold
+        // evenings; frogs on summer dusks.
+        Expect(DayLight.Mist(DayPhase.Dawn, Weather.Fair) && !DayLight.Mist(DayPhase.Day, Weather.Fair) && !DayLight.Mist(DayPhase.Morning, Weather.Windy),
+            "mist lies at dawn, burns off by day, blows away in the wind");
+        Expect(DayLight.ChimneySmoke(DayPhase.Dusk, Season.Autumn, Weather.Fair) && !DayLight.ChimneySmoke(DayPhase.Dusk, Season.Summer, Weather.Fair)
+            && DayLight.ChimneySmoke(DayPhase.Night, Season.Spring, Weather.Snowy) && !DayLight.ChimneySmoke(DayPhase.Day, Season.Winter, Weather.Fair),
+            "the fire is lit on cold evenings");
+        Expect(Array.IndexOf(Soundscape.For(Season.Summer, DayPhase.Dusk), AmbientVoice.Frogs) >= 0 &&
+               Array.IndexOf(Soundscape.For(Season.Autumn, DayPhase.Dusk), AmbientVoice.Frogs) < 0, "frogs on summer dusks only");
         // I376: the owl heard at night, only.
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Night) == AmbientVoice.Owl, "the owl calls at night");
         Expect(Soundscape.VisitorVoice(Visitor.Owl, Season.Autumn, DayPhase.Day) == null, "never by day");
