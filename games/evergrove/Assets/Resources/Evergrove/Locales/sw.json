@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "Sera ya faragha"
+    },
+    {
+      "key": "garden_save",
+      "value": "Hifadhi faili ya bustani…"
+    },
+    {
+      "key": "saved",
+      "value": "Imehifadhiwa"
     }
   ]
 }

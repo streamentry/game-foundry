@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "プライバシーポリシー"
+    },
+    {
+      "key": "garden_save",
+      "value": "庭のファイルを保存…"
+    },
+    {
+      "key": "saved",
+      "value": "保存しました"
     }
   ]
 }

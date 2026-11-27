@@ -500,6 +500,14 @@
     {
       "key": "privacy_policy",
       "value": "سياسة الخصوصية"
+    },
+    {
+      "key": "garden_save",
+      "value": "حفظ ملف الحديقة…"
+    },
+    {
+      "key": "saved",
+      "value": "تم الحفظ"
     }
   ]
 }

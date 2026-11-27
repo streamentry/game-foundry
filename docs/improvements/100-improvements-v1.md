@@ -75,14 +75,14 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 - [ ] **51. One small thing each day.** The garden always has one thing waiting (a ripe fruit, a letter, a board), and it's done in under five minutes. *Test:* logged day-2 to day-7 sessions.
 - [ ] **52. No streak that can break.** Count days played as a growing total, never a streak that resets. *Test:* skipping 3 days costs nothing.
-- [ ] **53. Missing days are made kind.** On return, the garden shows what grew while you were away (I359), never what died. *Test:* returning after 14 days shows only gains.
+- [x] **53. Missing days are made kind.** On return, the garden shows what grew while you were away (I359), never what died. *Test:* returning after 14 days shows only gains.
 - [ ] **54. A morning and an evening.** Different small things wait by local time of day (dew boards in the morning, lantern letters in the evening). *Test:* clock QA hook tours.
 - [ ] **55. Calendar of the river.** Real seasonal days per locale (first frost, longest day) become small festivals, not cultural events the game can't do justice to. *Test:* each festival line reviewed per locale.
 - [ ] **56. An end to each session.** After the day's thing, a neighbour says goodnight and the garden quietens. This invites stopping, not more play. *Test:* players report a natural ending point.
 - [ ] **57. Notifications only for real arrivals.** Notifications fire only for a family letter or a parcel, at most one a day, and are opt-in (I273–I277). *Test:* a week's log shows no more than 7.
 - [ ] **58. A diary page per week.** The almanac writes one painted page per week, made from what happened. *Test:* the page is generated deterministically from the save.
 - [ ] **59. The year has a shape.** A season tale (I312) unlocks one new kind of thing per season, so the year has chapters. *Test:* a year simulation shows something new every season.
-- [ ] **60. Come back for people, not prizes.** Every daily reason should trace to the garden or family, never to a timed reward. *Test:* audit list of every return reason.
+- [x] **60. Come back for people, not prizes.** Every daily reason should trace to the garden or family, never to a timed reward. *Test:* audit list of every return reason.
 
 ## G. Family: playing together across distance
 
@@ -130,7 +130,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **93. VoiceOver and TalkBack can finish a board.** Do this for at least one puzzle kind first. *Test:* a blind-tester session.
 - [ ] **94. One-hand landscape and portrait.** Every action is reachable with one thumb in both orientations. *Test:* landscape and 150% tours (per the landscape-verification memory).
 - [ ] **95. Crash reporting with consent.** Add a privacy-reviewed crash reporter that is off until accepted. *Test:* the privacy label matches what's collected.
-- [ ] **96. Save is never lost.** Use journaled saves (SaveJournal) with a visible "saved" mark and an export to Files. *Test:* a fuzz test that kills the app during save.
+- [x] **96. Save is never lost.** Use journaled saves (SaveJournal) with a visible "saved" mark and an export to Files. *Test:* a fuzz test that kills the app during save.
 - [ ] **97. Real playtest with adults aged 40+.** Run the daily-loop kit with 8–12 players across the 40–49, 50–64 and 65+ age bands, for 7 days. *Test:* the written report goes in the decision log.
 - [ ] **98. Set the Day-7 threshold before launch.** Write down the retention number that would mean "continue" or "stop" before any data exists. *Test:* the number is in the decision log, dated.
 - [ ] **99. Store-ready checks.** Check Apple 4.3 uniqueness, the privacy disclosure, the age rating with family play, screenshots of real play, and an English (US) listing. *Test:* `docs/store-publishing-workflow.md` checklist all ticked; submission only with explicit authorization.
