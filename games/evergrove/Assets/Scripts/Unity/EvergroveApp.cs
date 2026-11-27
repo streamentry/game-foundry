@@ -2881,6 +2881,7 @@ namespace Evergrove.UnityClient
 
         private bool GardenMapOnHub(RectTransform window)
         {
+            NotePlayedToday();
             NoteReturn();
             NoteSeasonTurn();
             NoteGrantedWishes();

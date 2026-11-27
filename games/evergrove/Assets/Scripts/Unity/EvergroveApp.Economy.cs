@@ -18,6 +18,16 @@ namespace Evergrove.UnityClient
             return today.Year * 10000 + today.Month * 100 + today.Day;
         }
 
+        /// <summary>
+        /// v1 #52: counts today as a day played when the hub returns in a Living garden. A total that only grows;
+        /// a day skipped costs nothing. Saves only when today was newly counted.
+        /// </summary>
+        private void NotePlayedToday()
+        {
+            if (world == null || !world.MarkPlayed(LocalDayStamp())) return;
+            SaveWorld();
+        }
+
         // ---- Item 78: the seed book. Tapping the seed purse opens a sheet that lists the
         // last 20 seed movements (world.Ledger, newest first), so nothing in the purse is a mystery.
         private GameObject seedBookSheet;
