@@ -479,6 +479,7 @@ namespace Evergrove.Core
             {
                 root = null;
                 var parser = new Parser(text);
+                parser.SkipWhitespace();
                 object value;
                 if (!parser.ParseValue(0, out value)) return false;
                 parser.SkipWhitespace();

@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen folgt den Bienen zwischen deinen Wildblumen."
+    },
+    {
+      "key": "preview_title",
+      "value": "Bevor du wählst"
+    },
+    {
+      "key": "preview_help",
+      "value": "Tippe zum Vergleichen auf eine Karte. Dein Garten verändert sich erst, wenn du bestätigst."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Diese Änderung übernehmen"
     }
   ]
 }

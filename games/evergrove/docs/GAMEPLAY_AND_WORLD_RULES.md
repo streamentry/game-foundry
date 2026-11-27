@@ -1,6 +1,6 @@
 # Evergrove — exact gameplay rules and systemic consequence boundary
 
-**Authoritative code:** [PipeRules](../Assets/Scripts/Core/PipeRules.cs), [ReactiveWatercourses](../Assets/Scripts/Core/ReactiveWatercourses.cs), [WorldModel](../Assets/Scripts/Core/WorldModel.cs), [VillageStory](../Assets/Scripts/Core/VillageStory.cs), [VillageScenePlan](../Assets/Scripts/Core/VillageScenePlan.cs). This document describes the actual pure C# implementation; no runtime AI is implied.
+**Authoritative code:** [PipeRules](../Assets/Scripts/Core/PipeRules.cs), [ReactiveWatercourses](../Assets/Scripts/Core/ReactiveWatercourses.cs), [WorldModel](../Assets/Scripts/Core/WorldModel.cs), [VillageChoicePreview](../Assets/Scripts/Core/VillageChoicePreview.cs), [VillageStory](../Assets/Scripts/Core/VillageStory.cs), [VillageScenePlan](../Assets/Scripts/Core/VillageScenePlan.cs). This document describes the actual pure C# implementation; no runtime AI is implied.
 
 ## 1. Authored chapter structure
 
@@ -21,11 +21,11 @@ Tap    -> rotate the current tile to its next allowed orientation
 Inspect-> count connected cells, joined edges, unmatched/open ports
 Win    -> all cells connected from the source AND no leaks AND exactly two endpoints
 Hint   -> align one incorrect, mutable tile to the authored reference solution
-Undo   -> restore immediately previous board snapshot (one step)
+Undo   -> restore one previous board snapshot, up to ten stored steps
 Restart-> original initial rotations for THIS specific board variant
 ```
 
-The `PipeInsight.Leaking[]` array marks which tiles participate in a mismatch or expose a port outside the board. Unity displays a textual **!** over those tiles, providing an additional non-color clue; this is **not** a certified accessibility or contrast test.
+The `PipeInsight.Leaking[]` array marks which tiles participate in a mismatch or expose a port outside the board. Unity displays a **hollow circle** at an open join, providing an additional non-color clue; this is **not** a certified accessibility or contrast test.
 
 The game does **not** rely on a score, time limit, luck or hidden randomness. The board source and renderer receive a copied rotation array, not permission to mutate authoritative state.
 
@@ -49,9 +49,17 @@ The game does **not** rely on a score, time limit, luck or hidden randomness. Th
 5. Preserve the transformed board's original unique solution; it is still solved by matching every connection.
 6. Save the **actual** `boardVariant` and the prior `lastSolvedVariant`; on reopening a previous choice the exact prior board is used.
 
-The **11 later chapters × 3 variants = 33 possible choice-specific board presentations**. These are **not** 33 extra manually authored stories or independent puzzle graphs: a rotation is graph-isomorphic to the source puzzle. The anchor reduces interaction rather than creating new connected components. Thus *topology transforms perceptually* while the mathematical graph remains structurally equivalent.
+The **11 later chapters × 3 variants = 33 possible choice-specific board presentations**. These are **not** 33 extra manually authored stories or independent puzzle graphs: a rotation is graph-isomorphic to the source puzzle. The anchor reduces interaction rather than creating new connected components. Board orientation and the protected location change; the connection graph remains structurally equivalent.
 
 **Important UX promise:** “Your past choice changes where you work and what you must protect.” **Do not** say “The game simulates complex ecology” until resource dependencies, growth, weather, scarcity and agents truly affect later physical systems.
+
+### Inspect before committing (2026-11-26)
+
+On a solved Living board, tapping a choice opens an uncommitted preview. `VillageChoicePreview.TryCreate` exports and restores a detached world, then evaluates the same `Choose` operation used by actual play. The source world's rotations, hint state, undo history, choices and chapter stay unchanged. Comparing another card or closing the preview does not save or advance anything.
+
+The UI shows the projected garden consequence and the actual next protected pipe: its kind, orientation, position and initial spring reachability come from the projected board. It does not substitute a generic straight pipe. **Make this change** calls `Choose` on the authoritative world and saves the result; the existing memory interlude follows. The final chapter previews only the garden outcome because its projected `NextPuzzle` is null. PuzzleOnly and PuzzleMatched do not offer these previews.
+
+This makes the existing rule inspectable; it adds no puzzle topology, simulated ecology, family profile or save-schema field. Domain equivalence and non-mutation are tested; the new Unity flow still requires runtime and player verification.
 
 ## 3. What players can and cannot do
 
@@ -59,8 +67,9 @@ The **11 later chapters × 3 variants = 33 possible choice-specific board presen
 | --- | --- | --- | --- |
 | `Rotate(tile)` | Not completed/solved; tile index valid and not anchored | Cycle orientation, capture previous board, recompute solved | A tap on the protected tile is rejected |
 | `GuideOneConnection()` | Active unsolved board | Fix the first misaligned tile; increment cumulative hints | Not a multi-step automated solution |
-| `Undo()` | Current board has a previous snapshot | Restore one prior board; clear undo buffer | Undo does not reimburse the hint counter |
-| `Restart()` | Non-completed run | Restore `CurrentPuzzle.Initial` including fixed anchors | Keeps history and world variant |
+| `Undo()` | Current board has a previous snapshot | Pop one prior board from the ten-step history; clear staged hint | Undo does not reimburse the hint counter |
+| `Restart()` | Non-completed run | Restore `CurrentPuzzle.Initial` including fixed anchors; clear undo and staged hint | Keeps committed choices and world variant |
+| `VillageChoicePreview.TryCreate(world, choice)` | Solved Living board; valid choice | Evaluate a detached result for inspection | Does not mutate, save or replace the authoritative world; invalid states return false |
 | `Choose(choice)` | Living mode, solved board, one choice per finished chapter | Append choice; choose next rotated board; update history | No ability to pick all three after one solve |
 | `ReconsiderLatestChoice()` | Living mode and at least one committed choice | Pop latest choice, reopen prior board solved | UI offers this during the memory interlude; core currently permits it in other states |
 | `NextPuzzle()` | PuzzleOnly or PuzzleMatched, just solved | Advance to next board: original for PuzzleOnly; scheduled variant for PuzzleMatched | No environmental choice |
@@ -76,7 +85,10 @@ stateDiagram-v2
   Board --> Solved: Complete connected route
   Solved --> Board: Undo if available
   Solved --> Choice: Living World
-  Choice --> Memory: Commit tree/bridge/flowers
+  Choice --> Preview: Inspect a choice
+  Preview --> Preview: Compare another choice
+  Preview --> Choice: Close without saving
+  Preview --> Memory: Confirm tree/bridge/flowers
   Memory --> Solved: Reconsider latest choice
   Memory --> Board: Continue / next chapter
   Solved --> Board: PuzzleOnly -> NextPuzzle
@@ -85,7 +97,7 @@ stateDiagram-v2
   Completed --> [*]
 ```
 
-The `WorldModel` enters the next chapter immediately on a successful choice; the **memory interlude is UI state**, not another persisted `WorldSnapshot` state. If the app is killed between the choice and Continue, progress persists but the modal memory moment is not guaranteed to reopen. Do not advertise crash-proof “exactly once story popup.”
+The `WorldModel` enters the next chapter only on successful confirmation. Both the **uncommitted preview and memory interlude are UI state**, not persisted `WorldSnapshot` states. Relaunching before confirmation restores the solved board without the pending selection. If the app is killed after confirmation and before Continue, saved progress persists but the memory moment is not guaranteed to reopen. Do not advertise crash-proof “exactly once story popup.”
 
 ## 4. Cumulative, inspectable village consequences
 

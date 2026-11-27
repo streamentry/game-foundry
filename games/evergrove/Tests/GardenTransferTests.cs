@@ -370,6 +370,32 @@ internal static class GardenTransferTests
                error == GardenImportError.None, "exportedAtUtc is metadata outside the checksum");
     }
 
+    private static void PastedGardenWhitespacePreservesProgress()
+    {
+        WorldModel original = WorldModel.New();
+        CompleteChapter(original, VillageChoice.Bridge);
+        RotateFirstMutableTile(original);
+        Expect(original.AdvanceGentleHint() == 1 && original.AdvanceGentleHint() == 2,
+               "pasted garden fixture includes a focused hint and undo history");
+        string exported = Exported(original);
+
+        // Copying a garden through a text editor or a message can add any of
+        // JSON's four whitespace characters before the opening brace.
+        foreach (string padding in new[] { " ", "\t", "\r", "\n", " \r\n\t" })
+        {
+            WorldModel imported;
+            GardenImportError error;
+            Expect(GardenTransfer.TryImport(padding + exported + padding, out imported, out error) &&
+                   error == GardenImportError.None,
+                   "JSON whitespace around a pasted garden is accepted");
+            Expect(Exported(imported) == exported,
+                   "pasted garden preserves choices, current puzzle, hints and undo history");
+        }
+        ExpectError(" \n" + FlipFirstChecksumDigit(exported), GardenImportError.ChecksumMismatch);
+        ExpectError(" \n" + exported + "x", GardenImportError.Malformed);
+        ExpectError("\u00a0" + exported, GardenImportError.Malformed);
+    }
+
     private static void SizeLimit()
     {
         ExpectError("{" + new string(' ', GardenTransfer.MaxImportBytes) + "}", GardenImportError.TooLarge);
@@ -394,6 +420,7 @@ internal static class GardenTransferTests
         ImportedWorldContinuesIdentically();
         HistoricalSnapshotVersionsImport();
         ErrorCases();
+        PastedGardenWhitespacePreservesProgress();
         SizeLimit();
         Console.WriteLine("Evergrove garden transfer tests: " + assertions + " deterministic assertions.");
         return assertions;

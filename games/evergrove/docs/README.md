@@ -1,6 +1,6 @@
 # Evergrove handbook — product, game rules, architecture and release evidence
 
-**Updated:** 2026-11-22. **Scope:** the actual `games/evergrove` Unity/C# implementation on the default branch, not a projected 2036 AI world. **Audience:** founder, producer, designer, engineer, QA lead, localization reviewer, and AI coding agent.
+**Updated:** 2026-11-26. **Scope:** the actual `games/evergrove` Unity/C# implementation on the default branch, not a projected 2036 AI world. **Audience:** founder, producer, designer, engineer, QA lead, localization reviewer, and AI coding agent.
 
 > **One promise:** A small place changes because the player was there. Show the consequence first; explain it second. Never substitute an impressive-looking feature list for observed player attachment.
 
@@ -31,10 +31,11 @@
 
 | Evidence level | Current claim | What it actually means |
 | --- | --- | --- |
-| **Implemented in repository** | Unity/C# 12-chapter loop, deterministic branch-sensitive watercourses, 2D and opt-in 2.5D world, 3 authored neighbors, local save, 30 selectable language catalogs | Code exists; not equivalent to a verified native runtime |
-| **Verified in CI** | Pure .NET 8 puzzle/state tests (including 33 ecological variants), static Unity project contracts, optional backend tests; separate Godot games' checks | Logic/test harness passed, not real Unity Editor/device QA |
-| **Unverified on device** | Touch and input on phones, font shaping, accessibility APIs, Unity native exports, frame time, battery, save recovery under force-kill | Must be tested with actual Unity Editor and target devices |
-| **Unverified with players** | Fun, 1–3 minute session fit, 40+ suitability, voluntary return, preference to leading games, distribution/ASO, economics | Hypothesis, not a proven market opportunity |
+| **Implemented in repository** | 12-chapter loop, deterministic variants, inspect-before-confirm choices, painted 2D with procedural fallback, development-only 2.5D, 3 authored neighbors, local save, 124-key English + 29 draft catalogs | Source behavior; release candidates currently enable English only |
+| **Current local domain evidence** | 2026-11-26 .NET run: 51,611 reported assertions, separate SaveJournal runner: 1,626; all 45 catalog profiles pass | Core rules, preview isolation/equivalence and save tests; current static checks and CI results must be attached to the final revision |
+| **Historical native evidence** | Licensed M1 packet at `5acbac4`, later iOS Simulator and Android emulator checks; links in [build QA](BUILD_AND_QA.md) | Those recorded builds ran; this does not verify the current preview changes |
+| **Unverified for current source / physical devices** | Updated Unity compilation and QA tour, touch, script rendering, screen readers, frame time, battery, interruption recovery | Must be tested on current builds and actual target phones |
+| **Unverified with players** | Fun, 1–3 minute session fit, 40+ suitability, family co-play, voluntary return, preference to leading games, distribution/ASO, economics | Hypothesis, not a proven market opportunity |
 | **Not implemented** | Autonomous simulated ecosystem, runtime learning AI/NPCs, persistent multiplayer, production Cloudflare synchronization, UGC marketplace, paid monetization | Do not pitch as shipped or promise delivery |
 
 The **33 variants** are three oriented presentations of each of chapters 2–12, with one protected pipe. They are **not 33 independently designed levels**. In fact, 90° board rotations preserve the same graph's connectivity; the fixed tile changes interaction, not the underlying network complexity. Details: [Gameplay](GAMEPLAY_AND_WORLD_RULES.md).
@@ -62,7 +63,7 @@ To get a real player: open `games/evergrove` in Unity Hub with the version in `P
 
 ## Automated documentation integrity
 
-`python3 tools/check_evergrove_docs.py` runs in repository CI and checks all canonical handbook files, relative links, Markdown code fences, and current 12-puzzle / v4-save / 30-language / 81-key source contracts. These checks **do not validate product claims or native device behavior**; they only prevent simple drift and broken handoffs.
+`python3 tools/check_evergrove_docs.py` runs in repository CI and checks all canonical handbook files, relative links, Markdown code fences, and current 12-puzzle / v4-save / 30-language / 124-key source contracts. These checks **do not validate product claims or native device behavior**; they only prevent simple drift and broken handoffs.
 
 ## Documentation rules
 

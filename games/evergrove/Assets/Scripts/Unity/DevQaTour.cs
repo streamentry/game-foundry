@@ -22,6 +22,7 @@ namespace Evergrove.UnityClient
     {
         private const string TourArg = "-mosseloraQaTour";
         private const int JournalAfterChapter = 3; // zero-based: choice made on chapter 4
+        private const string SnapshotStamp = "2026-01-01T00:00:00Z";
 
         // Mixed, non-repeating choice pattern for the main (ending) run.
         private static readonly VillageChoice[] MainPattern =
@@ -132,8 +133,50 @@ namespace Evergrove.UnityClient
                 }
                 SolveBoard();
                 for (int f = 0; f < 6; f++) yield return null;
+                string beforePreview = GardenTransfer.Export(app.QaWorld, SnapshotStamp);
+                string afterChoice = ExpectedChoice(MainPattern[chapter]);
                 Press("Choice " + MainPattern[chapter]);
                 for (int f = 0; f < 6; f++) yield return null;
+                RequirePreview(beforePreview, chapter);
+                if (chapter == 0)
+                {
+                    // Inspect another card, then close it: neither action may
+                    // change any saved board, history, hint or garden field.
+                    Button oldApply = FindButton(n => n == "Apply garden choice", "Apply garden choice");
+                    Button oldClose = FindButton(n => n == "Close choice preview", "Close choice preview");
+                    Press("Choice " + VillageChoice.Flowers);
+                    // Rebuild destroys old controls at frame end. A stale
+                    // activation must not apply or cancel the new selection.
+                    oldApply.onClick.Invoke();
+                    oldClose.onClick.Invoke();
+                    RequirePreview(beforePreview, chapter);
+                    for (int f = 0; f < 6; f++) yield return null;
+                    RequirePreview(beforePreview, chapter);
+                    Press("Close choice preview");
+                    for (int f = 0; f < 6; f++) yield return null;
+                    RequireWorld(beforePreview, "Closing a preview changed the garden");
+                    if (HasActiveElement("Choice preview") || HasActiveElement("Apply garden choice"))
+                        throw new InvalidOperationException("Closing a preview left its controls active");
+                    Press("Choice " + MainPattern[chapter]);
+                    for (int f = 0; f < 6; f++) yield return null;
+                    RequirePreview(beforePreview, chapter);
+                    ScrollTo("Choice preview");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("03b-chapter1-choice-preview.png");
+                }
+                if (chapter == PuzzleCatalog.Count - 1)
+                {
+                    ScrollTo("Choice preview");
+                    for (int f = 0; f < 4; f++) yield return null;
+                    yield return new WaitForEndOfFrame();
+                    SavePng("17-final-choice-preview.png");
+                }
+                Press("Apply garden choice");
+                for (int f = 0; f < 6; f++) yield return null;
+                RequireWorld(afterChoice, "Applying a preview differed from the chosen outcome");
+                if (HasActiveElement("Choice preview"))
+                    throw new InvalidOperationException("Committed choice left a preview active");
                 if (chapter == 2)
                 {
                     // The third stream opens the second reach: its mist lifting (I195).
@@ -623,8 +666,14 @@ namespace Evergrove.UnityClient
                 for (int f = 0; f < 6; f++) yield return null;
                 SolveBoard();
                 for (int f = 0; f < 6; f++) yield return null;
+                string beforePreview = GardenTransfer.Export(app.QaWorld, SnapshotStamp);
+                string afterChoice = ExpectedChoice(branches[b]);
                 Press("Choice " + branches[b]);
                 for (int f = 0; f < 6; f++) yield return null;
+                RequirePreview(beforePreview, 0);
+                Press("Apply garden choice");
+                for (int f = 0; f < 6; f++) yield return null;
+                RequireWorld(afterChoice, "Branch preview committed a different outcome");
                 yield return new WaitForEndOfFrame();
                 SavePng(consequenceShots[b]);
                 if (b == 0)
@@ -649,6 +698,9 @@ namespace Evergrove.UnityClient
             for (int f = 0; f < 6; f++) yield return null;
             SolveBoard();
             for (int f = 0; f < 6; f++) yield return null;
+            if (HasActiveElement("Choice preview") || HasActiveElement("Apply garden choice") ||
+                HasActiveElement("Choice " + VillageChoice.ShadeTree))
+                throw new InvalidOperationException("PuzzleMatched exposed a village choice");
             Press("Next stream");
             for (int f = 0; f < 6; f++) yield return null;
             ScrollTo("Chapter");
@@ -677,25 +729,24 @@ namespace Evergrove.UnityClient
             // Step 14: garden file round trip through the real settings buttons and
             // the system clipboard. Copy, change the garden, restore, and require
             // the restored garden to match the copied one exactly.
-            const string probeStamp = "2026-01-01T00:00:00Z";
-            string beforeCopy = GardenTransfer.Export(app.QaWorld, probeStamp);
+            string beforeCopy = GardenTransfer.Export(app.QaWorld, SnapshotStamp);
             Press("Copy garden file");
             for (int f = 0; f < 4; f++) yield return null;
             WorldModel copiedWorld;
             GardenImportError copyError;
             if (!GardenTransfer.TryImport(GUIUtility.systemCopyBuffer, out copiedWorld, out copyError))
                 throw new InvalidOperationException("Copied garden file did not import: " + copyError);
-            if (GardenTransfer.Export(copiedWorld, probeStamp) != beforeCopy)
+            if (GardenTransfer.Export(copiedWorld, SnapshotStamp) != beforeCopy)
                 throw new InvalidOperationException("Clipboard garden file differs from the live garden");
             app.QaReplaceWorld(WorldModel.New());
             for (int f = 0; f < 4; f++) yield return null;
-            if (GardenTransfer.Export(app.QaWorld, probeStamp) == beforeCopy)
+            if (GardenTransfer.Export(app.QaWorld, SnapshotStamp) == beforeCopy)
                 throw new InvalidOperationException("Garden change did not take effect before restore");
             Press("Restore garden file");
             for (int f = 0; f < 4; f++) yield return null;
             Press("Confirm garden restore");
             for (int f = 0; f < 4; f++) yield return null;
-            if (GardenTransfer.Export(app.QaWorld, probeStamp) != beforeCopy)
+            if (GardenTransfer.Export(app.QaWorld, SnapshotStamp) != beforeCopy)
                 throw new InvalidOperationException("Restored garden does not match the copied garden");
             ScrollTo("Garden file");
             for (int f = 0; f < 4; f++) yield return null;
@@ -746,6 +797,36 @@ namespace Evergrove.UnityClient
 
             Debug.Log("MOSSELORA_QA_TOUR_DONE " + saved);
             Application.Quit();
+        }
+
+        private string ExpectedChoice(VillageChoice choice)
+        {
+            WorldModel expected;
+            if (!WorldModel.TryRestore(app.QaWorld.Export(), out expected) || !expected.Choose(choice))
+                throw new InvalidOperationException("Cannot prepare the expected choice outcome");
+            return GardenTransfer.Export(expected, SnapshotStamp);
+        }
+
+        private void RequireWorld(string expected, string failure)
+        {
+            if (GardenTransfer.Export(app.QaWorld, SnapshotStamp) != expected)
+                throw new InvalidOperationException(failure);
+        }
+
+        private void RequirePreview(string beforePreview, int chapter)
+        {
+            RequireWorld(beforePreview, "Inspecting a preview changed the garden");
+            if (!HasActiveElement("Choice preview") || !HasActiveElement("Apply garden choice"))
+                throw new InvalidOperationException("Choice preview or its confirmation is missing");
+            bool hasNextStream = HasActiveElement("Next stream preview");
+            if (hasNextStream != (chapter < PuzzleCatalog.Count - 1))
+                throw new InvalidOperationException("Preview promised the wrong next-stream state");
+        }
+
+        private static bool HasActiveElement(string name)
+        {
+            return FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                .Any(t => t.name == name);
         }
 
         private void SavePng(string fileName)

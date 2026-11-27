@@ -1,6 +1,12 @@
 # Evergrove — build, quality gates, reproducibility and release runbook
 
-**Status (2026-11-24):** the pure C# suite passes **39,931 assertions** on .NET SDK 8.0.428; the Python verifier validates **121 keys × 29 offline locale catalogs**. Current `HEAD` is `47ad558274a37c2fd78840be6e4247c5bbecf027`; Unity code last changed at `9be7c2d` with a research-only return diary guarded from release builds. The signed AAB (`1.0.0`, code 1, min SDK 25) and build-1 iOS exports predate current code; do not upload them. The old AAB did launch on an Android 16/API 36 AVD and passed first-loop/airplane-mode checks, but no controlled packet capture exists. A separate unsigned development APK after the engine-link fix rendered on Android 15/API 35, but it predates later source work. The installed Unity CLI cannot register the SSD Editor because its code signature is modified; no build from current `HEAD` exists. The Android upload key remains outside the repository. No store upload or submission has happened. Prior screenshots and clips are archived under `docs/qa/*release-candidate-2026-11-23/`; recapture them from current builds. No physical-phone or 45+ human test, or completed VoiceOver/TalkBack review is verified. This runbook does **not** claim store readiness.
+**Current source check (2026-11-26):** the .NET 8 run passed **51,611 reported assertions**, including choice-preview equivalence and isolation; the separate SaveJournal runner reported **1,626 assertions**. All **45 catalog profiles** (12 base boards + 33 variants) passed. The current localization contract is **124 keys × 29 JSON catalogs**, plus built-in English. Re-run the static project and documentation checks after the final diff and record their results with the source revision.
+
+**Historical evidence:** source `5acbac4` has recorded [licensed Editor smoke](evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-001/verification.md), [Android development APK](evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-002/verification.md) and [iOS device Xcode export](evidence/5acbac4c5cba4164a31abf33dedf71ff9bf2f8ba/BLD-003/verification.md) packets. Those packets record an AI agent’s local log review, not independent human verification. Later [iOS Simulator](qa/ios-simulator-2026-11-23/README.md) and [Android emulator](qa/android-emulator-2026-11-23/README.md) checks exercised earlier builds. The 2026-11-24 baseline reported **39,931 assertions** and **121 locale keys**; those counts describe that revision, not this change.
+
+**Not run for the 2026-11-26 changes:** Unity import/compile, the updated `DevQaTour`, native builds, physical-device checks, VoiceOver/TalkBack and human playtests. Existing screenshots and builds do not verify the new choice preview or copied garden-file import repair. No physical-phone or 40+ player evidence is established by this run.
+
+**Store status is historical, not a new readback:** the [2026-11-25 handoff](qa/mosselora-store-owner-handoff-2026-11-25.md) records an unsubmitted Apple build 2 and no uploaded Google Play bundle. Both the handoff and retained artifacts predate this change; they are not approval to submit or evidence of a build from this source. Keep signing material private. This runbook does not claim store readiness.
 
 ## 1. Toolchain and entrypoints
 
@@ -72,7 +78,7 @@ The tool accepts `UNITY_BIN=/path/to/Unity` when Unity Hub installs to another p
 1. In **Unity Hub**, open `games/evergrove` using the pinned Unity version and required platform modules.
 2. Wait for package import and resolve **all compiler errors**; no “test passed” until compilation succeeds.
 3. Menu `Evergrove → Create or Open Playtest Scene`; confirm one empty boot scene. UI is created in runtime C#.
-4. Play; test rotating every pipe kind, optional fixed tile, first dry→wet river transition, scene memory after choice.
+4. Play; test every pipe kind, protected tile and first dry→wet river transition. Select, compare and close choice previews; confirm explicitly and check the resulting memory and next anchor.
 5. Run `Evergrove → Verify C# Game and Scene` or use the batchmode entrypoint:
 
 ```bash
@@ -81,7 +87,7 @@ Unity -batchmode -nographics -projectPath games/evergrove \
   -logFile - -quit
 ```
 
-Adjust executable path to your installed Unity binary; **not run/verified here**.
+Adjust the executable path to your installed Unity binary. **Not run for the 2026-11-26 changes**; historical success is scoped to its recorded source revision.
 
 ## 2. Manual GitHub Actions playtest export
 
@@ -101,8 +107,8 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 
 | Suite / command | Current scope | Does not prove |
 | --- | --- | --- |
-| `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release` | Fixture shape, exhaustive uniqueness, leaks/connectivity, 33 branch variants, immutable landmarks, campaign completion, Hint/Undo/Restart/Choice/Reconsider, save v1/v2/v3 rules, scene flags and local playtest counters; catalog validation for 29 non-English languages | Unity UI compile, gameplay feel, device performance, bilingual rendering |
-| `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 121 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
+| `dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release` | Fixture shape, exhaustive uniqueness, leaks/connectivity, 33 branch variants, immutable landmarks, campaign completion, Hint/Undo/Restart/Choice/Reconsider, non-mutating previews matching actual commits, save v1/v2/v3/v4 rules and copied garden-file import with standard JSON whitespace, scene flags and local playtest counters; catalog validation for 29 non-English languages | Unity UI compile, gameplay feel, device performance, bilingual rendering |
+| `python3 tools/verify_evergrove_project.py` | Unity manifest, UI input guards, generated build entrypoint, Resources bundles, 124 keys each, locale code and placeholders, opt-in playtest contract | True RTL shaping, Unity engine import, native font availability |
 | `npm test` under `games/evergrove/backend` | Separate optional Worker model API behavior | Any linkage to actual offline game; cloud security or billing |
 | `.github/workflows/ci.yml` | Repo-wide research tooling and unrelated Godot game jobs | Unity-native correctness |
 
@@ -112,10 +118,10 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 
 | ID | Test | Expected observation |
 | --- | --- | --- |
-| EG-01 | Fresh install, Chapter 1, no prior save | Dry riverbed; 3×3 puzzle with wave/sprout endpoint icons; default 2D; sound/motion off; no account prompt |
+| EG-01 | Fresh install, Chapter 1, no prior save | Painted hub with clear play action; dry downstream riverbed and 3×3 board with wave/sprout icons; sound off, gentle motion adjustable; no account prompt |
 | EG-02 | Tap each kind (corner, straight, endpoint) | Correct clockwise rotation/port; live water reach and leak count; no false “solved” |
 | EG-03 | Solve Chapter 1 | Water visibly returns to village; exactly three choice actions; no timed paywall |
-| EG-04 | Choose tree | Next chapter uses variant 1 (90° rotated); one amber locked root connection; Mira acknowledges tree |
+| EG-04 | Preview and confirm tree | Next chapter uses variant 1 (90° rotated); one amber locked root connection; Mira acknowledges tree |
 | EG-05 | Alternate save choosing crossing | Variant 2 (180° rotated), locked foundation; persistent bridge/crossing |
 | EG-06 | Alternate save choosing flowers | Variant 3 (270° rotated), locked sanctuary; meadow and Fen reaction |
 | EG-07 | Tap anchored tile | No rotation; still clearly labeled as intentional protection |
@@ -127,17 +133,30 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 | EG-13 | Kill/relaunch after move and choice | Rotations, variant, history survive or explicit save error surfaced; no inconsistent character |
 | EG-14 | v1 six-chapter save, v2 mid-chapter save | Six choices remain; old active board not silently transformed; new branch rules only after the next eligible choice; no rewrite of saved active board |
 | EG-15 | Corrupt primary, valid backup | Recover valid prior garden without poisoning backup; log potential loss of the latest move |
-| EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 121 keys load correctly |
+| EG-16 | Change locale while in a branched board | Game rule, orientation, prior choices unchanged; 124 keys load correctly |
 | EG-17 | 320px phone + tablets + cutout devices | No clipped/out-of-view actionable puzzle, controls, wave/sprout endpoint icons or choices |
 | EG-18 | VoiceOver/TalkBack, keyboard and RTL/Indic | Accessible names, focus order and shaped text actually correct; **currently unverified** |
 | EG-19 | In-game local playtest report | Zero counters without opt-in; copy only when tapped; no network/identifiers |
 | EG-20 | Disk full / unavailable storage | Warning appears; no save success is claimed. Corrupt-all-slots blocks writes until explicit reset. Verify on phones |
+| EG-21 | Select each choice, compare, then Close | Preview explains the projected garden; live chapter, rotations, choices, hints and undo are unchanged; no save or playtest choice event |
+| EG-22 | Confirm a preview, including a rapid repeated tap | Exactly one choice/save transition; next board matches previewed pipe kind, orientation, row/column and initial water reach; usual memory follows |
+| EG-23 | Final chapter preview | Garden consequence remains; no next-stream section or future protected-tile promise |
+| EG-24 | Open preview, then close/relaunch, Undo or confirm garden-file import | No pending choice is restored or applied to a different world; Undo reopens the board and import retains the imported state |
+| EG-25 | Preview at compact width, 150% text and landscape; motion off | All three cards remain comparable; consequence, apply and Close are reachable, legible and unclipped; no animated change to the live garden |
+| EG-26 | Preview with VoiceOver/TalkBack | Focus announces inspection rather than commitment; consequence and fixed-pipe rule are readable; apply and Close have distinct actions; the decorative preview tile is not a playable control |
+| EG-27 | PuzzleMatched/PuzzleOnly and copied garden-file import regression | Control modes advance without village previews; valid copied envelopes with leading space/tab/CR/LF import with exact choices, board, hints and undo retained; malformed content and checksum mismatches remain rejected |
 
 **Cross-platform matrix:** at least one small/older Android phone, one recent Android, one small iPhone, one large iPhone, relevant tablet, and WebGL when chosen as distribution. Capture OS build/version, device class, repro steps, screenshot, memory and frame-time evidence. Avoid invented “60 FPS on all phones” claims.
 
+### Development tour coverage
+
+The updated `DevQaTour` drives the real buttons: `Choice ShadeTree` / `Choice Bridge` / `Choice Flowers` opens `Choice preview`; `Close choice preview` cancels; `Apply garden choice` commits. It compares complete exported state before/after inspection, compares and cancels in chapter one, checks confirmed outcomes against the core model, checks the final chapter has no `Next stream preview`, and rejects choice controls in PuzzleMatched. New captures are `03b-chapter1-choice-preview.png` and `17-final-choice-preview.png`.
+
+**This tour is authored, not run for this change.** Run it in a development player with `-mosseloraQaTour /absolute/output/dir`, retain logs and screenshots, then inspect the captures. Listener-driven automation does not verify physical touch, screen-reader focus, compact layout or human comprehension; perform EG-21–27 manually on current target builds as applicable.
+
 ## 5. Additional non-color and journal regression
 
-- [ ] Every unmatched/open connection marks a tile with !; completed puzzles have no false exclamation. Verify the result with grayscale, magnification and a device screen reader.
+- [ ] Every unmatched/open connection has a hollow-circle cue; completed puzzles have no false open-join marks. Verify the result with grayscale, magnification and a device screen reader.
 - [ ] The optional journal contains a real player choice and scene effect. It may name a current puzzle constraint only if the saved variant proves it, never a fabricated past effect for migrated older saves.
 - [ ] Expanded journal rows and translated hint notices remain readable at 320px and through font scaling.
 
@@ -145,8 +164,8 @@ For exact M1/M2 pass criteria, commands, retained logs and phone evidence, use [
 
 For each launch language:
 
-- Native speaker approves all 81 compact keys, actual runtime combinations and tone.
-- Screenshot test: language picker, board, ecological rule, decision cards, conversations, journal, end screen.
+- Native speaker approves all 124 compact keys, actual runtime combinations and tone.
+- Screenshot test: language picker, board, ecological rule, decision cards and uncommitted/confirmed previews, conversations, journal, end screen.
 - Correct font shaping, bidi order, line breaks and numerical placeholders, especially Arabic/Persian/Hebrew/Urdu, Hindi/Bengali/Tamil/Telugu and Thai.
 - Focus order, readable contrast, large touch targets and safe-area handling on small phones.
 - Do not enable a catalog merely because its JSON parses. The default English copy is also an editorial draft until tested with players.
@@ -159,13 +178,13 @@ For the 2.5D art option: compare same world state with 2D, record memory/CPU/GPU
 
 **Gate B: actual build.** Unity Editor compilation, scene launch, Android test APK or WebGL player runs; iOS local Xcode export/signing tested if targeting iOS.
 
-**Gate C: basic trustworthy play.** EG-01 through EG-20 relevant cases pass on target devices; privacy/security and accessibility issues triaged; progress can't silently disappear.
+**Gate C: basic trustworthy play.** EG-01 through EG-27 relevant cases pass on target devices; privacy/security and accessibility issues triaged; progress can't silently disappear.
 
 **Gate D: real player comprehension.** At least one small uncoached study with real target players; log failures and corrective actions.
 
 **Gate E: commercial decision.** Evidence of voluntary return, clear reason to choose over a polished competitor, plausible first distribution channel, game title cleared, ethical monetization strategy. Only this gate authorizes production/marketing claims.
 
-**Rollback path:** Keep prior git commit/tag and compatible local save fixtures; if later Unity build is broken, revert the code while noting that v3 save may not be readable by an older binary. Do not roll back gameplay without a save-format compatibility check. Do not delete player data or publish cloud changes to solve a rendering issue.
+**Rollback path:** Keep prior git commit/tag and compatible local save fixtures; if later Unity build is broken, revert the code while noting that a v4 save may not be readable by an older binary. Do not roll back gameplay without a save-format compatibility check. Do not delete player data or publish cloud changes to solve a rendering issue.
 
 ## 8. Who signs off?
 

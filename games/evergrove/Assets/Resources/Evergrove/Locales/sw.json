@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "Fen hufuata nyuki kati ya maua yako ya porini."
+    },
+    {
+      "key": "preview_title",
+      "value": "Kabla ya kuchagua"
+    },
+    {
+      "key": "preview_help",
+      "value": "Gusa kadi ili kulinganisha. Bustani yako itabadilika tu ukithibitisha."
+    },
+    {
+      "key": "preview_apply",
+      "value": "Fanya mabadiliko haya"
     }
   ]
 }

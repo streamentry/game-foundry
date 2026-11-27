@@ -484,6 +484,18 @@
     {
       "key": "memory_flowers_3",
       "value": "펜은 당신의 들꽃 사이를 날아다니는 벌들을 따라가요."
+    },
+    {
+      "key": "preview_title",
+      "value": "선택하기 전에"
+    },
+    {
+      "key": "preview_help",
+      "value": "카드를 눌러 비교해 보세요. 확인하기 전에는 정원이 바뀌지 않아요."
+    },
+    {
+      "key": "preview_apply",
+      "value": "이 변경 적용"
     }
   ]
 }
