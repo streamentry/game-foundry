@@ -15,11 +15,21 @@ namespace Evergrove.UnityClient
             var names = new List<string>();
             foreach (SudokuTechnique.Technique technique in new[] { SudokuTechnique.Technique.NakedSingle, SudokuTechnique.Technique.HiddenSingle })
                 if (SudokuBoard.TechniqueLog.Seen(technique)) names.Add(SudokuTechnique.Name(technique));
-            if (names.Count == 0) { RecipeRow(page); return; }
+            if (names.Count == 0) { RecipeRow(page); YearRow(page); return; }
             Text line = Label(page, "Ways you've solved", "Ways you've solved: " + string.Join(", ", names.ToArray()),
                 18, 0, Moss, TextAnchor.MiddleLeft);
             Emphasize(line);
             RecipeRow(page);
+            YearRow(page);
+        }
+
+        // ---- I312: the year has a shape. One line naming the chapters the seasons have opened so far.
+        private void YearRow(Transform page)
+        {
+            if (world == null) return;
+            string line = SeasonUnlocks.YearLine(world);
+            if (line == null) return;
+            Label(page, "This year", line, 18, 0, Moss, TextAnchor.MiddleLeft);
         }
 
         // ---- Item 75: the recipes found by cooking, once any is found (nothing is shown before that).
