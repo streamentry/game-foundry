@@ -154,6 +154,17 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>I271: the note Mira leaves when tending opens new river, naming the season it brought.</summary>
+        public static string RiverNote(Season season)
+        {
+            string came = season == Season.Spring ? "Spring came down with it, and the new bank is all blossom."
+                : season == Season.Autumn ? "Autumn came down with it; the new bank is gold already."
+                : season == Season.Winter ? "Winter came down with it. Even the new bank is frosted."
+                : "Summer came down with it, warm and green.";
+            return "The river runs further than it ever did. " + came +
+                "\nThere's new bank waiting for roots, whenever you like.";
+        }
+
         private static string HelpedWith(PuzzleKind kind)
         {
             switch (kind)

@@ -82,6 +82,7 @@ namespace Evergrove.UnityClient
         private const string AlmanacKey = "evergrove:almanac";
         private Almanac almanac = new Almanac();
         private bool almanacTab;
+        private bool familyTab; // I269: the book's family page
         // WCAG 2.3.3: motion triggered by play (pipe swing, bloom, butterfly,
         // glide) can be switched off. Off means snap, still and instant.
         private const string GentleMotionKey = "evergrove:gentle-motion:v1";
@@ -229,6 +230,7 @@ namespace Evergrove.UnityClient
             if (qaInMemoryOnly) { gardenNumber = 0; almanac = new Almanac(); }
 #endif
             RecordInAlmanac();
+            NotesLifecycle(false); // a cold start is an opening too (I275)
             PaintedVillage.ItemSprite = (family, nth) =>
             {
                 // The nth tree (or build, or flowers) in the village is the one
@@ -1734,6 +1736,7 @@ namespace Evergrove.UnityClient
                     LetterBox();
                     if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                     HubChrome();
+                    MaybeAskNotes();
                     titleScreen.transform.SetAsLastSibling();
                     return;
                 }
@@ -1750,6 +1753,7 @@ namespace Evergrove.UnityClient
                 SeedPurse();
                 LetterBox();
                 HubChrome();
+                MaybeAskNotes();
                 titleScreen.transform.SetAsLastSibling();
                 return;
             }
@@ -2029,6 +2033,13 @@ namespace Evergrove.UnityClient
                 fruitPicked = world.Fruit > fruitBefore; // trees bear fruit when tended (I229)
                 // After the story, every fourth solve opens more river (I220): home shows it (I223).
                 riverOpened = OpenReaches() > before;
+                // Mira leaves a note in the letterbox when the river opens (I271).
+                if (riverOpened && world.Completed &&
+                    world.KeepNote("Mira", NeighbourNotice.RiverNote(GardenSeason.AfterStory(world.PuzzlesSolved))))
+                {
+                    letterArrived = true;
+                    SaveWorld();
+                }
                 dropEarned = world.PuzzlesSolved > solvedBefore;
                 return earned;
             };
@@ -2237,6 +2248,7 @@ namespace Evergrove.UnityClient
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2), Bloomed = done,
                     HoldsPuzzle = !done && world.Mode == PlayMode.Living,
                     Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1,
+                    Together = visited.SolvedTogether(i), // I270: their family moments show when you visit
                     BloomNow = gentleMotion && helpedOnVisit.Count > 0 && helpedOnVisit[helpedOnVisit.Count - 1] == i });
             }
             for (int k = 0; k * 2 + 1 < planted.Length; k++)
@@ -2248,7 +2260,7 @@ namespace Evergrove.UnityClient
                 if (map.IsLand(bought[k * 2 + 1]))
                     items.Add(new GardenMapView.Placed { Art = MosseloraArt.Load(Nursery.Item(bought[k * 2]).Art),
                         Cell = bought[k * 2 + 1], Index = BoughtIndex + k, Family = Nursery.Family(bought[k * 2]),
-                        Bloomed = visited.BoughtSolved(k) });
+                        Bloomed = visited.BoughtSolved(k), Together = visited.SolvedTogether(BoughtIndex + k) });
             if (items.Count > 0)
             {
                 // Frame their newest thing, or the one you just helped with, blooming (I227).
@@ -3673,7 +3685,7 @@ namespace Evergrove.UnityClient
             Button menu = IconButton(chrome, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => {
                     if (menuOpen) SetMenu(false);
-                    else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; Rebuild(); }
+                    else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; Rebuild(); }
                     else ToggleFan(false);
                 }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
@@ -3786,6 +3798,7 @@ namespace Evergrove.UnityClient
             menuOpen = false;
             showJournal = true;
             almanacTab = almanac;
+            familyTab = false;
             journalOpenPage = -1;
             Rebuild();
             if (journalScroll != null) journalScroll.verticalNormalizedPosition = 1f;
@@ -5310,9 +5323,14 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
             RectTransform pageRoot = content;
             content = journalContent;
-            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; almanacTab = false; Rebuild(); });
+            SheetClose(journalContent, "Close journal", () => { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; Rebuild(); });
             content = pageRoot;
             JournalTabs();
+            if (familyTab)
+            {
+                FamilyPage();
+                return;
+            }
             if (almanacTab)
             {
                 AlmanacPage();
@@ -5454,12 +5472,17 @@ namespace Evergrove.UnityClient
             if (world.Mode != PlayMode.Living) { almanacTab = false; return; }
             Transform tabs = CenteredRowIn(journalContent, "Book tabs");
             tabs.GetComponent<HorizontalLayoutGroup>().spacing = 18;
+            bool pagesTab = !almanacTab && !familyTab;
             IconButton(tabs, "Our pages", GameLocalization.Text("journal_title"), MosseloraArt.IconJournal,
-                () => { almanacTab = false; journalOpenPage = -1; Rebuild(); }, 56,
-                almanacTab ? MosseloraTheme.QuietAction : MosseloraTheme.ForestAction, false, null, false, 0, 0, true);
+                () => { almanacTab = false; familyTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                pagesTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             Button almanacButton = IconButton(tabs, "Almanac", "Almanac", MosseloraArt.IconJournal,
-                () => { almanacTab = true; journalOpenPage = -1; Rebuild(); }, 56,
+                () => { almanacTab = true; familyTab = false; journalOpenPage = -1; Rebuild(); }, 56,
                 almanacTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            // The family page (I269): letters, help and puzzles played together.
+            IconButton(tabs, "Family in the garden", "Family in the garden", MosseloraArt.IconNeighbors,
+                () => { familyTab = true; almanacTab = false; journalOpenPage = -1; Rebuild(); }, 56,
+                familyTab ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             // The almanac's mark is a painted sapling, not a second book.
             Transform glyph = almanacButton.transform.Find("Icon");
             Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
@@ -5476,6 +5499,74 @@ namespace Evergrove.UnityClient
 
         // All 200 garden items: made ones painted, the rest as faint silhouettes.
         // Counts per neighbour, no rewards, no pressure (E2, I174).
+        // I269: the family layer, remembered truly from the save. No dates, no counts to beat.
+        private void FamilyPage()
+        {
+            var page = Card(journalContent, "Family in the garden", new Color(0f, 0f, 0f, 0f));
+            string[] letters = world.Letters, from = world.LetterFrom;
+            int[] helped = world.Helped, together = world.Together;
+            if (letters.Length == 0 && helped.Length == 0 && together.Length == 0)
+            {
+                Narrate(Label(page.transform, "Nothing yet",
+                    "When family write, help, or play a puzzle with you, it is kept here.", 18, 0, Moss,
+                    TextAnchor.MiddleCenter), true);
+                return;
+            }
+            if (letters.Length > 0)
+            {
+                FamilyHeading(page.transform, "letter-sealed", "Letters");
+                for (int i = letters.Length - 1; i >= 0 && i >= letters.Length - 6; i--)
+                {
+                    string first = letters[i].Split('\n')[0];
+                    if (first.Length > 48) first = first.Substring(0, 46).TrimEnd() + "\u2026";
+                    Narrate(Label(page.transform, "Letter from " + from[i], "\u2014 " + from[i] + ": \u201c" + first + "\u201d",
+                        17, 0, Ink, TextAnchor.MiddleLeft), true);
+                }
+            }
+            if (helped.Length > 0)
+            {
+                FamilyHeading(page.transform, MosseloraArt.IconNeighbors, "Helped");
+                int[] made = world.Choices;
+                foreach (int item in helped)
+                {
+                    if (item < 0 || item >= made.Length) continue;
+                    Narrate(Label(page.transform, "Helped with " + item,
+                        world.HelpedBy(item) + " helped with your " + ItemAt(item, made[item]).Name + ".",
+                        17, 0, Ink, TextAnchor.MiddleLeft), true);
+                }
+            }
+            if (together.Length > 0)
+            {
+                FamilyHeading(page.transform, MosseloraArt.IconNeighbors, "Played together");
+                int[] made = world.Choices, bought = world.Bought;
+                foreach (int thing in together)
+                {
+                    string name = thing < made.Length ? ItemAt(thing, made[thing]).Name
+                        : thing >= BoughtIndex && (thing - BoughtIndex) * 2 < bought.Length
+                            ? Nursery.Item(bought[(thing - BoughtIndex) * 2]).Name : null;
+                    if (name == null) continue;
+                    Narrate(Label(page.transform, "Together " + thing, "The " + name + ", taking turns.",
+                        17, 0, Ink, TextAnchor.MiddleLeft), true);
+                }
+            }
+        }
+
+        private void FamilyHeading(Transform page, string art, string words)
+        {
+            Transform head = CenteredRowIn(page, "Family heading");
+            head.GetComponent<HorizontalLayoutGroup>().spacing = 8;
+            var icon = Node("Mark", head);
+            var iconLayout = icon.AddComponent<LayoutElement>();
+            iconLayout.minWidth = iconLayout.preferredWidth = 34;
+            iconLayout.minHeight = iconLayout.preferredHeight = 34;
+            var iconImage = icon.AddComponent<Image>();
+            iconImage.sprite = MosseloraArt.Load(art);
+            iconImage.preserveAspect = true;
+            iconImage.raycastTarget = false;
+            if (art == MosseloraArt.IconNeighbors) iconImage.color = Leaf;
+            Emphasize(Label(head, words, words, 19, 0, Moss, TextAnchor.MiddleLeft));
+        }
+
         private void AlmanacPage()
         {
             var page = Card(journalContent, "The almanac", new Color(0f, 0f, 0f, 0f));
@@ -6399,6 +6490,34 @@ namespace Evergrove.UnityClient
                     Rebuild();
                 }, SettingToken, soundOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true);
+            // Garden notes (I277): one switch in plain sight, and the hour when it's on.
+            if (GardenNotes.Supported && world.Mode == PlayMode.Living)
+            {
+                row = Row(panel.transform, "Settings row 3");
+                Button notes = IconButton(row.transform, "Garden notes setting",
+                    GardenNotes.On ? "A note from the garden once a day: on" : "A note from the garden once a day: off",
+                    "letter-sealed", () => {
+                        if (GardenNotes.On) GardenNotes.TurnOff(); else GardenNotes.TurnOn(GardenNotes.Hour);
+                        Rebuild();
+                    }, SettingToken, GardenNotes.On ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                    false, null, false, 0, 0, true);
+                PaintedIcon(notes, GardenNotes.On ? 1f : 0.55f);
+                if (GardenNotes.On)
+                {
+                    Button hour = IconButton(row.transform, "Garden note hour",
+                        "Notes at " + GardenNotes.Hour + ":00", MosseloraArt.IconSun, () => {
+                            int[] hours = { 9, 15, 19 };
+                            int at = System.Array.IndexOf(hours, GardenNotes.Hour);
+                            GardenNotes.TurnOn(hours[(at + 1) % hours.Length]);
+                            Rebuild();
+                        }, SettingToken, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+                    Text when = Label(hour.transform, "Note hour", GardenNotes.Hour + ":00", 15, 0, Ink, TextAnchor.LowerCenter);
+                    when.GetComponent<LayoutElement>().ignoreLayout = true;
+                    Fill(when.rectTransform);
+                    when.rectTransform.offsetMin = new Vector2(0f, 4f);
+                    when.horizontalOverflow = HorizontalWrapMode.Overflow;
+                }
+            }
             // An even grid: every tile half the panel wide, the odd one out centred
             // at the same width, instead of widths set by each caption (I143).
             // Round tokens (I194): the picture and its on/off tone say it; the name is
@@ -7326,11 +7445,129 @@ namespace Evergrove.UnityClient
             PlayerPrefs.Save();
         }
 
-        private void OnApplicationPause(bool paused)
+        private void ResearchPause(bool paused)
         {
             if (!paused) RecordReturnDiaryOpen();
         }
 #endif
+
+        // Leaving or returning (I275): the one garden note is queued on the way out and
+        // cleared on the way back in.
+        private void OnApplicationPause(bool paused)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            ResearchPause(paused);
+#endif
+            NotesLifecycle(paused);
+        }
+
+        private void OnApplicationQuit() { NotesLifecycle(true); }
+
+        private void NotesLifecycle(bool leaving)
+        {
+            if (world == null) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly)
+            {
+                // The tour never schedules a real note; it logs what would be said.
+                GardenNote qa = GardenNote.For(world, UnreadLetters());
+                Debug.Log("MOSSELORA_GARDEN_NOTE_QA " + (qa == null ? "(nothing waiting)" : qa.From + ": " + qa.Body));
+                return;
+            }
+#endif
+            if (leaving) GardenNotes.Schedule(world, UnreadLetters());
+            else GardenNotes.Opened();
+        }
+
+        private bool UnreadLetters() { return PlayerPrefs.GetInt(LettersReadKey, 0) < world.Letters.Length; }
+
+        // A painted picture in a token keeps its colours (not tinted like a glyph).
+        private static void PaintedIcon(Button token, float alpha)
+        {
+            Transform icon = token != null ? token.transform.Find("Icon") : null;
+            if (icon != null) icon.GetComponent<Image>().color = new Color(1f, 1f, 1f, alpha);
+        }
+
+        // ---- I276: the soft ask, in the garden's own words, once there's a reason to want it.
+        private bool notesAskedThisSession;
+        private GameObject notesCard;
+
+        private void MaybeAskNotes()
+        {
+            if (!GardenNotes.Supported || GardenNotes.On || notesAskedThisSession || titleScreen == null) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (qaInMemoryOnly) return; // the tour shoots the ask on purpose (QaNotesAsk)
+#endif
+            if (world.Mode != PlayMode.Living || letterCard != null || familySheet != null || openCard != null) return;
+            int asked = GardenNotes.Asked;
+            bool reason = asked == 0 ? (world.Choices.Length >= 3 || PlayerPrefs.GetInt(LettersReadKey, 0) > 0)
+                : asked == 1 && world.PuzzlesSolved >= 10;
+            if (!reason) return;
+            notesAskedThisSession = true;
+            ShowNotesAsk();
+        }
+
+        private void ShowNotesAsk()
+        {
+            if (notesCard != null) Destroy(notesCard);
+            notesCard = Node("A note from the garden?", titleScreen.transform);
+            Fill(notesCard.GetComponent<RectTransform>());
+            notesCard.AddComponent<Image>().color = new Color(0.08f, 0.14f, 0.11f, 0.38f);
+            var paper = Node("Ask paper", notesCard.transform);
+            var paperRect = paper.GetComponent<RectTransform>();
+            paperRect.anchorMin = paperRect.anchorMax = new Vector2(0.5f, 0.5f);
+            paperRect.sizeDelta = new Vector2(Mathf.Min(PageWidth() + 6f, 420f), 0f);
+            var paperImage = paper.AddComponent<Image>();
+            MosseloraArt.PaperTile(paperImage, 22);
+            paperImage.color = new Color(0.99f, 0.97f, 0.9f, 1f);
+            MosseloraArt.Lift(paperImage, 4f, 0.22f);
+            var column = paper.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(22, 22, 18, 18);
+            column.spacing = 12;
+            column.childControlWidth = column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+            paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var envelope = Node("Envelope", paper.transform);
+            var envelopeLayout = envelope.AddComponent<LayoutElement>();
+            envelopeLayout.preferredHeight = envelopeLayout.minHeight = 64f;
+            var envelopeImage = envelope.AddComponent<Image>();
+            envelopeImage.sprite = MosseloraArt.Load("letter-sealed");
+            envelopeImage.preserveAspect = true;
+            envelopeImage.raycastTarget = false;
+            Narrate(Label(paper.transform, "The ask",
+                "Would you like a short note from the garden once a day, at a time you choose? Only when something's waiting.",
+                19, 0, Ink, TextAnchor.UpperCenter), true);
+            Transform times = CenteredRowIn(paper.transform, "Note times");
+            times.GetComponent<HorizontalLayoutGroup>().spacing = 12;
+            foreach (int hour in new[] { 9, 15, 19 })
+            {
+                int pick = hour;
+                // Each hour stands under its sun in ink (b293: white-on-paper hours were unreadable).
+                var hourColumn = Node("Hour " + hour, times);
+                var stack = hourColumn.AddComponent<VerticalLayoutGroup>();
+                stack.spacing = 4;
+                stack.childAlignment = TextAnchor.UpperCenter;
+                stack.childControlWidth = stack.childControlHeight = true;
+                stack.childForceExpandWidth = stack.childForceExpandHeight = false;
+                IconButton(hourColumn.transform, "Notes at " + hour + ":00", "Notes at " + hour + ":00", MosseloraArt.IconSun,
+                    () => { GardenNotes.TurnOn(pick); CloseNotesAsk(); PlayChime(); }, 64, MosseloraTheme.ForestAction,
+                    false, null, false, 0, 0, true);
+                Text when = Label(hourColumn.transform, "Hour", hour + ":00", 17, 0, Ink, TextAnchor.MiddleCenter);
+                when.horizontalOverflow = HorizontalWrapMode.Overflow;
+                Emphasize(when);
+            }
+            IconButton(times, "Not now", "Not now", MosseloraArt.IconCancel,
+                () => { GardenNotes.NotNow(); CloseNotesAsk(); }, 64, MosseloraTheme.QuietAction,
+                false, null, false, 0, 0, true);
+            semanticsDirty = true;
+        }
+
+        private void CloseNotesAsk()
+        {
+            if (notesCard != null) Destroy(notesCard);
+            notesCard = null;
+        }
 
         private void SaveWorld()
         {
@@ -7532,6 +7769,8 @@ namespace Evergrove.UnityClient
 
         internal void QaSolveTreePlay() { if (qaTreePlay != null) qaTreePlay.QaSolve(); }
         internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
+        internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
+        internal void QaCloseNotesAsk() { CloseNotesAsk(); }
         internal void QaTogetherTreePlay() { if (qaTreePlay != null) qaTreePlay.QaTogether(); }
 
         internal void QaEndTreePlay()

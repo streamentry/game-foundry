@@ -73,6 +73,23 @@ internal static class TogetherTests
         Saving();
         Tampering();
         Older();
+        // I271: a neighbour's note kept in the letterbox (through the same letters as family).
+        WorldModel notes = WorldModel.New(PlayMode.Living);
+        Expect(notes.KeepNote("Mira", "The river runs further now. Come and see the new bank."), "Mira's note kept");
+        Expect(notes.Letters.Length == 1 && notes.LetterFrom[0] == "Mira", "it is in the letterbox, from Mira");
+        Expect(!notes.KeepNote("", "words") && !notes.KeepNote("Mira", "") && !notes.KeepNote("Mira", new string('a', 400)),
+            "an empty sender, an empty or overlong note is refused");
+        Expect(!WorldModel.New(PlayMode.PuzzleOnly).KeepNote("Mira", "hello"), "only a living garden keeps notes");
+        int seedsBefore = notes.Seeds;
+        for (int n = 0; n < WorldModel.MaxLetters + 5; n++) notes.KeepNote("Orin", "Note " + n);
+        Expect(notes.Letters.Length == WorldModel.MaxLetters, "notes share the letterbox's cap, oldest leave first");
+        Expect(notes.Seeds == seedsBefore, "a note moves nothing");
+        WorldModel back;
+        Expect(WorldModel.TryRestore(notes.Export(), out back) && back.Letters.Length == WorldModel.MaxLetters,
+            "notes survive a save");
+        foreach (Season season in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
+            Expect(WorldModel.New(PlayMode.Living).KeepNote("Mira", NeighbourNotice.RiverNote(season)),
+                "Mira's river note is a valid letter in " + season);
         return assertions;
     }
 
