@@ -12,7 +12,9 @@ namespace Evergrove.Core
         ParcelSent = 5,
         ParcelOpened = 6,
         /// <summary>A good-neighbour pairing discovered for the first time (Pairings.cs: DiscoverPairing).</summary>
-        Pairing = 7
+        Pairing = 7,
+        /// <summary>A seasonal yield (summer seeds); reserved for the run-3 seasons branch, which routes through ChangeSeeds.</summary>
+        Season = 8
     }
 
     /// <summary>One line of the seed ledger: a change to the seed count and why it happened.</summary>
