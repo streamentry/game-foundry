@@ -85,7 +85,17 @@ internal static class NonogramTests
                 Expect(g.Solved, "line-solving alone completes the bed");
                 if (seed < 40) keys.Add(tier + ":" + Key(again));
             }
-        Expect(keys.Count > 100, "beds differ from seed to seed");
+        // Beds now come from a hand-drawn picture library (each picture plain or mirrored),
+        // so variety is bounded by the library, not by the seed space: the first 2 * count
+        // seeds of a tier must show at least one distinct bed per picture.
+        for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
+        {
+            var seen = new HashSet<string>();
+            for (int seed = 0; seed < 2 * NonogramPictures.Count(tier); seed++)
+                seen.Add(Key(new NonogramGame(seed, tier)));
+            Expect(seen.Count >= NonogramPictures.Count(tier), "beds differ from seed to seed");
+        }
+        Expect(keys.Count >= 3 * 8, "every tier deals several different beds");
 
         // Tapping cycles Empty -> Filled -> Marked -> Empty.
         var play = new NonogramGame(3, 0);
@@ -160,6 +170,200 @@ internal static class NonogramTests
         var hint = new NonogramGame(21, 2);
         int hc = hint.HintCell();
         Expect(hc >= 0 && hc < hint.Size * hint.Size, "a hint on a blank bed");
+        PictureTests();
         return assertions;
+    }
+
+    // ---- the picture library ----
+
+    private static bool[,] Grid(string[] rows)
+    {
+        var g = new bool[rows.Length, rows[0].Length];
+        for (int r = 0; r < rows.Length; r++)
+            for (int c = 0; c < rows[r].Length; c++) g[r, c] = rows[r][c] == '#';
+        return g;
+    }
+
+    private static int[] ClueOf(bool[,] g, int idx, bool row)
+    {
+        var runs = new List<int>();
+        int n = g.GetLength(0), run = 0;
+        for (int k = 0; k <= n; k++)
+        {
+            bool on = k < n && (row ? g[idx, k] : g[k, idx]);
+            if (on) run++;
+            else if (run > 0) { runs.Add(run); run = 0; }
+        }
+        return runs.ToArray();
+    }
+
+    // Every line of length n (true = plant) whose runs equal the clue.
+    private static List<bool[]> AllLines(int[] clue, int n)
+    {
+        var result = new List<bool[]>();
+        for (int mask = 0; mask < (1 << n); mask++)
+        {
+            var line = new bool[n];
+            var runs = new List<int>();
+            int run = 0;
+            for (int k = 0; k < n; k++) line[k] = (mask >> k & 1) == 1;
+            for (int k = 0; k <= n; k++)
+            {
+                if (k < n && line[k]) run++;
+                else if (run > 0) { runs.Add(run); run = 0; }
+            }
+            if (Same(runs.ToArray(), clue)) result.Add(line);
+        }
+        return result;
+    }
+
+    // Independent line solver for the tests: row and column deductions only, no guessing.
+    // Returns how many cells are still undecided when no line can say more (0 = solved by
+    // logic); matches reports that every decided cell agrees with the picture.
+    private static int LineSolveUndecided(bool[,] pic, out bool matches)
+    {
+        int n = pic.GetLength(0);
+        var known = new int[n, n]; // 0 unknown, 1 plant, 2 bare
+        var opts = new List<bool[]>[2 * n];
+        for (int i = 0; i < n; i++)
+        {
+            opts[i] = AllLines(ClueOf(pic, i, true), n);
+            opts[n + i] = AllLines(ClueOf(pic, i, false), n);
+        }
+        bool changed = true;
+        while (changed)
+        {
+            changed = false;
+            for (int pass = 0; pass < 2 * n; pass++)
+            {
+                bool isRow = pass < n;
+                int idx = isRow ? pass : pass - n;
+                var yes = new bool[n];
+                var no = new bool[n];
+                foreach (var o in opts[pass])
+                {
+                    bool fits = true;
+                    for (int k = 0; k < n && fits; k++)
+                    {
+                        int v = isRow ? known[idx, k] : known[k, idx];
+                        if ((v == 1 && !o[k]) || (v == 2 && o[k])) fits = false;
+                    }
+                    if (!fits) continue;
+                    for (int k = 0; k < n; k++) { if (o[k]) yes[k] = true; else no[k] = true; }
+                }
+                for (int k = 0; k < n; k++)
+                {
+                    int r = isRow ? idx : k, c = isRow ? k : idx;
+                    if (known[r, c] != 0 || (yes[k] && no[k])) continue;
+                    known[r, c] = yes[k] ? 1 : 2;
+                    changed = true;
+                }
+            }
+        }
+        int undecided = 0;
+        matches = true;
+        for (int r = 0; r < n; r++)
+            for (int c = 0; c < n; c++)
+            {
+                if (known[r, c] == 0) undecided++;
+                else if ((known[r, c] == 1) != pic[r, c]) matches = false;
+            }
+        return undecided;
+    }
+
+    private static string[] MirroredRows(string[] rows, bool mirror)
+    {
+        if (!mirror) return rows;
+        var result = new string[rows.Length];
+        for (int i = 0; i < rows.Length; i++)
+        {
+            var chars = rows[i].ToCharArray();
+            Array.Reverse(chars);
+            result[i] = new string(chars);
+        }
+        return result;
+    }
+
+    private static void PictureTests()
+    {
+        var names = new HashSet<string>();
+        for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
+        {
+            int n = NonogramGame.SizeFor(tier);
+            int count = NonogramPictures.Count(tier);
+            Expect(count >= 8, "at least eight pictures in tier " + tier);
+            var shapes = new HashSet<string>();
+            for (int i = 0; i < count; i++)
+            {
+                string name = NonogramPictures.Name(tier, i);
+                string[] rows = NonogramPictures.Rows(tier, i);
+                Expect(!string.IsNullOrEmpty(name) && name.StartsWith("a"), "short English name: " + name);
+                names.Add(name);
+                Expect(rows.Length == n, name + " has " + n + " rows");
+                var grid = Grid(rows);
+                int filled = 0;
+                for (int r = 0; r < n; r++)
+                {
+                    Expect(rows[r].Length == n, name + " row width");
+                    for (int c = 0; c < n; c++)
+                    {
+                        Expect(rows[r][c] == '#' || rows[r][c] == '.', name + " uses only # and .");
+                        if (grid[r, c]) filled++;
+                    }
+                    Expect(ClueOf(grid, r, true).Length > 0 && ClueOf(grid, r, false).Length > 0,
+                        name + " has no empty row or column");
+                }
+                Expect(filled >= n * 2 && filled <= n * n * 17 / 20, name + " is neither sparse nor a block");
+                Expect(shapes.Add(string.Join("/", rows)), name + " is not a duplicate picture");
+                bool matches;
+                Expect(LineSolveUndecided(grid, out matches) == 0 && matches,
+                    name + " (tier " + tier + ") is solved by row and column logic alone");
+            }
+            bool threw = false;
+            try { NonogramPictures.Rows(tier, count); } catch (ArgumentOutOfRangeException) { threw = true; }
+            Expect(threw, "picture index out of range refused");
+        }
+        Expect(names.Count >= 12, "a variety of garden subjects across tiers");
+        bool badTier = false;
+        try { NonogramPictures.Count(3); } catch (ArgumentOutOfRangeException) { badTier = true; }
+        Expect(badTier, "unknown tier refused by the library");
+
+        // The constructor picks a picture from the tier's library from the seed, evenly,
+        // plain or mirrored; every picture and both orientations come up.
+        for (int tier = 0; tier < TreePuzzles.Tiers; tier++)
+        {
+            int count = NonogramPictures.Count(tier), n = NonogramGame.SizeFor(tier);
+            var perPicture = new int[count];
+            var orientations = new HashSet<string>();
+            for (int seed = -count * 4; seed < count * 8; seed++)
+            {
+                var g = new NonogramGame(seed, tier);
+                var again = new NonogramGame(seed, tier);
+                Expect(g.PictureName == again.PictureName && g.PictureIndex == again.PictureIndex
+                    && g.Mirrored == again.Mirrored, "the seed picks deterministically");
+                Expect(g.PictureIndex >= 0 && g.PictureIndex < count, "picture index in range");
+                Expect(g.PictureName == NonogramPictures.Name(tier, g.PictureIndex), "PictureName is the library name");
+                if (seed >= 0) perPicture[g.PictureIndex]++;
+                orientations.Add(g.PictureIndex + (g.Mirrored ? "m" : "p"));
+                string[] rows = NonogramPictures.Rows(tier, g.PictureIndex);
+                for (int r = 0; r < n; r++)
+                    for (int c = 0; c < n; c++)
+                    {
+                        char want = rows[r][g.Mirrored ? n - 1 - c : c];
+                        Expect(g.Solution(r * n + c) == (want == '#'), "the bed draws the picked picture");
+                    }
+                bool matches;
+                Expect(LineSolveUndecided(Grid(MirroredRows(rows, g.Mirrored)), out matches) == 0 && matches,
+                    "each dealt bed is line-solvable");
+            }
+            int min = int.MaxValue, max = 0;
+            foreach (int v in perPicture) { min = Math.Min(min, v); max = Math.Max(max, v); }
+            Expect(min > 0 && max - min <= 1, "pictures are spread evenly across seeds in tier " + tier);
+            Expect(orientations.Count > count, "some pictures also come mirrored in tier " + tier);
+        }
+        Expect(new NonogramGame(5, 0).PictureName != new NonogramGame(6, 0).PictureName,
+            "neighbouring seeds draw different pictures");
+        var extreme = new NonogramGame(int.MinValue, 2);
+        Expect(extreme.PictureIndex >= 0 && extreme.PictureName.Length > 0, "extreme seeds still pick a picture");
     }
 }
