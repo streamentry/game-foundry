@@ -8562,6 +8562,7 @@ namespace Evergrove.UnityClient
 
         // I353: the day's weather for a living garden, with the light on; the tour may set it.
         private int qaWeather = -1;
+        private bool qaRainbow; // I364 tour; read by shipping code, so declared outside the dev-only block
         private Weather TodayWeather(WorldModel garden)
         {
             if (!DayLightOn || garden == null || garden.Mode != PlayMode.Living) return Weather.Fair;
@@ -9076,7 +9077,6 @@ namespace Evergrove.UnityClient
         internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
         internal void QaSetClock(int hour) { qaClockHour = hour; }
         internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
-        private bool qaRainbow;
         internal void QaRainbow(bool on) { qaRainbow = on; } // I364 tour
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }
         internal void QaTogetherTreePlay() { if (qaTreePlay != null) qaTreePlay.QaTogether(); }
