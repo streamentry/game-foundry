@@ -167,6 +167,20 @@ namespace Evergrove.UnityClient
             }
             // I338: in winter, snow lies on the ground: a soft white veil over the painting,
             // under every thing, so the things stand out against it.
+            // I354/I356: a rainy day greys and cools the light; a hot day warms it.
+            if (WeatherNow == Weather.Rainy || WeatherNow == Weather.Hot)
+            {
+                var sky = new GameObject(WeatherNow == Weather.Rainy ? "Rainy light" : "Hot light", typeof(RectTransform));
+                sky.transform.SetParent(land.transform, false);
+                var skyRect = (RectTransform)sky.transform;
+                skyRect.anchorMin = Vector2.zero;
+                skyRect.anchorMax = Vector2.one;
+                skyRect.offsetMin = skyRect.offsetMax = Vector2.zero;
+                var wash = sky.AddComponent<Image>();
+                // b314 tour: the hot day read as an ordinary summer one; warmer, and rain a touch greyer.
+                wash.color = WeatherNow == Weather.Rainy ? new Color(0.45f, 0.52f, 0.62f, 0.22f) : new Color(1f, 0.78f, 0.42f, 0.20f);
+                wash.raycastTarget = false;
+            }
             if (SeasonLook.SnowLying(SeasonNow) > 0f)
             {
                 var snow = new GameObject("Snow lying", typeof(RectTransform));
@@ -176,7 +190,7 @@ namespace Evergrove.UnityClient
                 snowRect.anchorMax = Vector2.one;
                 snowRect.offsetMin = snowRect.offsetMax = Vector2.zero;
                 var veil = snow.AddComponent<Image>();
-                veil.color = new Color(0.97f, 0.98f, 1f, SeasonLook.SnowLying(SeasonNow));
+                veil.color = new Color(0.97f, 0.98f, 1f, SeasonLook.SnowLying(SeasonNow) + (WeatherNow == Weather.Snowy ? 0.12f : 0f));
                 veil.raycastTarget = false;
             }
             if (Tint.a > 0.005f)
@@ -201,6 +215,17 @@ namespace Evergrove.UnityClient
                 fliesRect.anchorMax = Vector2.one;
                 fliesRect.offsetMin = fliesRect.offsetMax = Vector2.zero;
                 flies.AddComponent<FireflyDrift>().Moving = FirefliesMove;
+            }
+            // I354–I356: the day's weather over the garden (motion only): rain, gusts or heat.
+            if (FirefliesMove && (WeatherNow == Weather.Rainy || WeatherNow == Weather.Windy || WeatherNow == Weather.Hot))
+            {
+                var weather = new GameObject("Weather " + WeatherNow, typeof(RectTransform));
+                weather.transform.SetParent(host.transform, false);
+                var weatherRect = (RectTransform)weather.transform;
+                weatherRect.anchorMin = Vector2.zero;
+                weatherRect.anchorMax = Vector2.one;
+                weatherRect.offsetMin = weatherRect.offsetMax = Vector2.zero;
+                weather.AddComponent<WeatherLayer>().Kind = WeatherNow;
             }
             // I341: summer by day: dappled sunlight drifts slowly over the garden.
             if (SeasonNow == Season.Summer && Dark < 0.005f && FirefliesMove)
@@ -1221,6 +1246,90 @@ namespace Evergrove.UnityClient
         public static bool BeesOut, BirdsOut; // I325, I326
         public static int CatBy = -1;          // I335: a thing's index, -2 by the door, -1 none
         public static Season SeasonNow = Season.Summer; // I338: the garden's season, set before a build
+        public static Weather WeatherNow = Weather.Fair; // I353: the day's weather, set before a build
+
+        /// <summary>
+        /// I354–I356: rain falling on a slant; faint gusts of wind sweeping across; or heat
+        /// shimmering up in slow, clear bands. Calm in every case: weather, never a storm.
+        /// </summary>
+        private sealed class WeatherLayer : MonoBehaviour
+        {
+            public Weather Kind;
+            private RectTransform[] bits;
+            private Image[] images;
+            private float[] x0, speed, phase;
+            private float clock, wide, high;
+
+            private void Start()
+            {
+                var rect = (RectTransform)transform;
+                wide = Mathf.Max(1f, rect.rect.width);
+                high = Mathf.Max(1f, rect.rect.height);
+                var rng = new System.Random(353 + (int)Kind);
+                int count = Kind == Weather.Rainy ? 70 : Kind == Weather.Windy ? 9 : 6;
+                bits = new RectTransform[count];
+                images = new Image[count];
+                x0 = new float[count]; speed = new float[count]; phase = new float[count];
+                for (int i = 0; i < count; i++)
+                {
+                    var node = new GameObject(Kind == Weather.Rainy ? "Rain" : Kind == Weather.Windy ? "Gust" : "Heat", typeof(RectTransform));
+                    node.transform.SetParent(transform, false);
+                    bits[i] = (RectTransform)node.transform;
+                    bits[i].anchorMin = bits[i].anchorMax = new Vector2(0f, 1f);
+                    images[i] = node.AddComponent<Image>();
+                    images[i].raycastTarget = false;
+                    if (Kind == Weather.Rainy)
+                    {
+                        bits[i].sizeDelta = new Vector2(2.6f, 18f + (float)rng.NextDouble() * 12f);
+                        bits[i].localRotation = Quaternion.Euler(0f, 0f, -12f);
+                        images[i].sprite = MosseloraArt.Rounded(2);
+                        images[i].color = new Color(0.84f, 0.90f, 0.98f, 0.72f);
+                        speed[i] = 520f + (float)rng.NextDouble() * 220f;
+                    }
+                    else if (Kind == Weather.Windy)
+                    {
+                        bits[i].sizeDelta = new Vector2(70f + (float)rng.NextDouble() * 90f, 2.5f);
+                        images[i].sprite = MosseloraArt.Rounded(2);
+                        speed[i] = 260f + (float)rng.NextDouble() * 160f;
+                    }
+                    else
+                    {
+                        bits[i].sizeDelta = new Vector2(wide * 0.9f, 26f);
+                        images[i].sprite = MosseloraArt.SoftGlow();
+                        speed[i] = 14f + (float)rng.NextDouble() * 10f;
+                    }
+                    x0[i] = (float)rng.NextDouble() * wide;
+                    phase[i] = (float)rng.NextDouble() * high;
+                }
+            }
+
+            private void Update()
+            {
+                if (bits == null) return;
+                clock += Time.unscaledDeltaTime;
+                for (int i = 0; i < bits.Length; i++)
+                {
+                    if (Kind == Weather.Rainy)
+                    {
+                        float y = (phase[i] + clock * speed[i]) % (high + 40f);
+                        bits[i].anchoredPosition = new Vector2(x0[i] + y * 0.21f % wide, -y);
+                    }
+                    else if (Kind == Weather.Windy)
+                    {
+                        float x = (x0[i] + clock * speed[i]) % (wide + 200f) - 100f;
+                        float life = Mathf.Repeat(clock * 0.4f + i * 0.37f, 1f);
+                        bits[i].anchoredPosition = new Vector2(x, -phase[i]);
+                        images[i].color = new Color(1f, 1f, 1f, Mathf.Sin(life * Mathf.PI) * 0.35f);
+                    }
+                    else
+                    {
+                        float y = (phase[i] + clock * speed[i]) % (high + 30f);
+                        bits[i].anchoredPosition = new Vector2(wide * 0.5f + Mathf.Sin(clock * 0.8f + i) * 12f, -(high - y));
+                        images[i].color = new Color(1f, 0.96f, 0.86f, 0.20f * Mathf.Sin(Mathf.Clamp01(y / high) * Mathf.PI));
+                    }
+                }
+            }
+        }
 
         /// <summary>A leaf bobbing on the stream (I342).</summary>
         private sealed class Afloat : MonoBehaviour
@@ -1555,7 +1664,7 @@ namespace Evergrove.UnityClient
                 wide = Mathf.Max(1f, rect.rect.width);
                 high = Mathf.Max(1f, rect.rect.height);
                 var rng = new System.Random(527);
-                int count = SeasonLook.DriftCount(Kind); // I338–I340: enough to feel, never a blizzard
+                int count = Mathf.Max(SeasonLook.DriftCount(Kind), Kind == Drift.Snow ? DayWeather.SnowfallCount(WeatherNow) : 0); // I357: snowy days snow harder
                 bits = new RectTransform[count];
                 x0 = new float[count]; speed = new float[count]; sway = new float[count]; phase = new float[count];
                 for (int i = 0; i < count; i++)
@@ -1593,7 +1702,7 @@ namespace Evergrove.UnityClient
                 for (int i = 0; i < bits.Length; i++)
                 {
                     float fall = (phase[i] + clock * speed[i]) % (high + 40f) - 20f;
-                    float drift = clock * 8f; // a light breeze from the left
+                    float drift = clock * 8f * DayWeather.WindStrength(WeatherNow) * DayWeather.WindStrength(WeatherNow); // I355: blown on windy days
                     float x = Mathf.Repeat(x0[i] + drift + Mathf.Sin(clock * 0.9f + i) * sway[i], wide);
                     bits[i].anchoredPosition = new Vector2(x, -fall);
                     if (Kind != Drift.Snow) bits[i].localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 1.3f + i * 2f) * 50f);
@@ -1693,7 +1802,8 @@ namespace Evergrove.UnityClient
             {
                 clock += Time.unscaledDeltaTime;
                 float gust = 0.6f + 0.4f * Mathf.Sin(clock * 0.21f + Phase * 0.3f); // the breeze rises and falls
-                transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 1.1f + Phase) * 1.8f * gust);
+                float wind = DayWeather.WindStrength(WeatherNow); // I355: windy days lean harder
+                transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 1.1f * Mathf.Sqrt(wind) + Phase) * 1.8f * gust * wind);
             }
         }
 

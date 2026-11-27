@@ -1,6 +1,6 @@
 namespace Evergrove.Core
 {
-    public enum AmbientVoice { Birds, Crickets, Wind, Water }
+    public enum AmbientVoice { Birds, Crickets, Wind, Water, Rain }
 
     /// <summary>
     /// I316 (idea 49, after ambient Japanese puzzle games where sound is a place): what you
@@ -25,6 +25,19 @@ namespace Evergrove.Core
         }
 
         /// <summary>Average quiet between two sounds of a voice, in seconds.</summary>
+        /// <summary>I354–I356: the day's weather leads the voice half the time or more.</summary>
+        public static AmbientVoice? WeatherVoice(Weather weather, DayPhase phase)
+        {
+            bool dark = phase == DayPhase.Dusk || phase == DayPhase.Night;
+            switch (weather)
+            {
+                case Weather.Rainy: return AmbientVoice.Rain;
+                case Weather.Windy: case Weather.Snowy: return AmbientVoice.Wind;
+                case Weather.Hot: return dark ? (AmbientVoice?)null : AmbientVoice.Crickets;
+                default: return null;
+            }
+        }
+
         public static float SecondsBetween(AmbientVoice voice)
         {
             switch (voice)
@@ -32,6 +45,7 @@ namespace Evergrove.Core
                 case AmbientVoice.Birds: return 7f;
                 case AmbientVoice.Crickets: return 4f;
                 case AmbientVoice.Wind: return 11f;
+                case AmbientVoice.Rain: return 2.6f; // I354: patter, close together
                 default: return 9f;
             }
         }

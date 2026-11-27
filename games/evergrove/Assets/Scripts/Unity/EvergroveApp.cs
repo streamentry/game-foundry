@@ -3235,6 +3235,9 @@ namespace Evergrove.UnityClient
                     ". I saw the flag go up this morning.";
             string noticed = NeighbourNotice.Line(villager, world);
             if (noticed != null) return noticed;
+            // I357: nothing new to tell, but it's raining, snowing, windy or hot: they say so.
+            string weatherLine = world.Mode == PlayMode.Living ? DayWeather.Remark(TodayWeather(world)) : null;
+            if (weatherLine != null) return weatherLine;
             // Nothing new and true to tell: they may notice the light instead (I281).
             string hourLine = HourRemark(villager);
             if (hourLine != null) return hourLine;
@@ -8198,6 +8201,15 @@ namespace Evergrove.UnityClient
 
         private DayPhase CurrentPhase() { Now(out int hour, out int minute); return DayLight.PhaseAt(hour, minute); }
 
+        // I353: the day's weather for a living garden, with the light on; the tour may set it.
+        private int qaWeather = -1;
+        private Weather TodayWeather(WorldModel garden)
+        {
+            if (!DayLightOn || garden == null || garden.Mode != PlayMode.Living) return Weather.Fair;
+            if (qaWeather >= 0) return (Weather)qaWeather;
+            return DayWeather.For(DateTime.Now.Date, GardenSeason.For(garden), garden.Garden);
+        }
+
         private void ApplyDayLight(WorldModel garden)
         {
             Now(out int hour, out int minute);
@@ -8216,6 +8228,7 @@ namespace Evergrove.UnityClient
             GardenMapView.BirdsOut = Visitors.Welcomes(garden, Visitor.Birds) && Visitors.Out(Visitor.Birds, visitSeason, visitPhase);
             GardenMapView.CatBy = GardenCat.NapBy(garden, visitPhase); // I335
             GardenMapView.SeasonNow = garden != null && garden.Mode == PlayMode.Living ? visitSeason : Season.Summer; // I338
+            GardenMapView.WeatherNow = TodayWeather(garden); // I353
             // I295: the season's drift by day; it follows the season even with the light switch off.
             bool living = garden != null && garden.Mode == PlayMode.Living;
             GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),
@@ -8683,6 +8696,7 @@ namespace Evergrove.UnityClient
         internal void QaHintTreePlay() { if (qaTreePlay != null) qaTreePlay.QaHint(); }
         internal void QaNotesAsk() { if (titleScreen != null) ShowNotesAsk(); }
         internal void QaSetClock(int hour) { qaClockHour = hour; }
+        internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }
         internal void QaTogetherTreePlay() { if (qaTreePlay != null) qaTreePlay.QaTogether(); }
         internal void QaFourTurnsTreePlay() { if (qaTreePlay != null) qaTreePlay.QaFourTurns(); }
@@ -8855,6 +8869,8 @@ namespace Evergrove.UnityClient
             DayPhase phase = DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day;
             AmbientVoice[] voices = Soundscape.For(GardenSeason.For(world), phase);
             AmbientVoice voice = voices[ambientDice.Next(voices.Length)];
+            AmbientVoice? weatherVoice = Soundscape.WeatherVoice(TodayWeather(world), phase); // I354–I356
+            if (weatherVoice.HasValue && ambientDice.NextDouble() < 0.6) voice = weatherVoice.Value;
             if (nextAmbient > 0f) sound.PlayOneShot(GardenSounds.Ambient(voice, ambientDice.Next(3)), 0.55f);
             nextAmbient = now + Soundscape.SecondsBetween(voice) * (0.6f + 0.8f * (float)ambientDice.NextDouble());
         }

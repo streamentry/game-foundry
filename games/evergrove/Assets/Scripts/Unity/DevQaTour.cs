@@ -96,6 +96,7 @@ namespace Evergrove.UnityClient
             if (app == null) throw new InvalidOperationException("EvergroveApp was not created");
             // A fixed clock (I282): shots compare build to build whatever time the tour runs.
             app.QaSetClock(13);
+            app.QaSetWeather((int)Weather.Fair); // I353: tours never depend on today's real weather
             // Picture rules show the first few times per device (I254/I262): every tour sees them.
             foreach (string kind in new[] { "water", "pairs", "mosaic", "nonogram", "sudoku", "plots", "streampath", "mahjong" })
                 PlayerPrefs.DeleteKey("evergrove:rule-seen-" + kind);
@@ -784,6 +785,17 @@ namespace Evergrove.UnityClient
                 yield return new WaitForEndOfFrame();
                 SavePng(seasons[turn]);
                 app.QaShowHub(false);
+                // I354–I357: a day of each season's own weather: hot summer, windy autumn,
+                // snowy winter, rainy spring.
+                Weather[] dayOf = { Weather.Hot, Weather.Windy, Weather.Snowy, Weather.Rainy };
+                app.QaSetWeather((int)dayOf[turn]);
+                app.QaShowHub(true);
+                for (int f = 0; f < 8; f++) yield return null;
+                yield return new WaitForSecondsRealtime(0.6f);
+                yield return new WaitForEndOfFrame();
+                SavePng("19w-" + dayOf[turn].ToString().ToLowerInvariant() + "-day.png");
+                app.QaShowHub(false);
+                app.QaSetWeather((int)Weather.Fair);
             }
 
             // I278-I282: the same garden at dawn, golden hour, dusk and night; Fen at night.
