@@ -150,6 +150,9 @@ namespace Evergrove.UnityClient
             string tail = words.TrimEnd(' ', '.', '!', '\n');
             if (!tail.EndsWith(sender, StringComparison.OrdinalIgnoreCase))
                 Emphasize(Label(paper.transform, "Letter from", "\u2014 " + sender, 19, 0, Leaf, TextAnchor.MiddleRight));
+            // Checklist 81: a neighbour's letter takes three reply chips, just above its actions.
+            int replyTo = Array.IndexOf(VillagerNames, sender);
+            if (replyTo >= 0 && world.Mode == PlayMode.Living) ReplyChipRow(paper.transform, replyTo);
             Transform row = CenteredRowIn(paper.transform, "Letter actions");
             if (fromNewest < letters.Length - 1)
                 IconButton(row, "Older letter", "Older letter", MosseloraArt.IconUndo, () => ShowLetter(letterShown + 1),
@@ -187,10 +190,86 @@ namespace Evergrove.UnityClient
             if (familySheet != null) familySheet.Prefill("Dear " + to + ",\n");
         }
 
+        // ---- Checklist 81: reply chips. Three icons, never free text; the reply is kept on this device only.
+        private const string ReplyKeyPrefix = "evergrove:reply:";
+        private Transform replyChipRow; // the open letter's chips; null when no neighbour letter is open
+
+        private void ReplyChipRow(Transform paper, int villager)
+        {
+            replyChipRow = CenteredRowIn(paper, "Reply chips");
+            foreach (ReplyChip chip in ReplyChips.Chips)
+            {
+                ReplyChip pick = chip;
+                IconButton(replyChipRow, "Reply chip " + chip, ReplyChips.Label(chip), ReplyChips.Icon(chip),
+                    () => ChooseReplyChip(villager, pick), 56, MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
+            }
+            RefreshReplyChips(villager);
+        }
+
+        // Tapping a chip saves the reply and shows it as chosen (a check mark, not colour alone). Nothing else.
+        private void ChooseReplyChip(int villager, ReplyChip chip)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return;
+            SaveReplies(ReplyChips.Choose(ReplyMemoryNow(), villager, chip, ReplyDayNow()));
+            RefreshReplyChips(villager);
+        }
+
+        private void RefreshReplyChips(int villager)
+        {
+            if (replyChipRow == null) return;
+            ReplyMemory memory = ReplyMemoryNow();
+            bool hasReply = memory.TryGet(villager, out ReplyNote note);
+            foreach (ReplyChip chip in ReplyChips.Chips)
+            {
+                Transform token = replyChipRow.Find("Reply chip " + chip);
+                if (token != null) MosseloraArt.StateMark(token, hasReply && note.Chip == chip, Mathf.Round(56f * 0.3f));
+            }
+        }
+
+        // A neighbour answers a reply once, within three days (ReplyChips.EchoDue); then it is used up.
+        // Once said, the answer stays that neighbour's words for the rest of the day in this garden:
+        // speaking to them asks NeighborSays more than once (the heard-line note, then the bubble), and
+        // the hub rebuilds often, so the answer must not be used up by the first ask and vanish.
+        private readonly System.Collections.Generic.Dictionary<int, string> replyEchoToday =
+            new System.Collections.Generic.Dictionary<int, string>();
+        private int replyEchoDay = int.MinValue, replyEchoGarden = int.MinValue;
+
+        private string ReplyEchoSaid(int villager)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return null;
+            int today = ReplyDayNow();
+            if (replyEchoDay != today || replyEchoGarden != world.Garden)
+            {
+                replyEchoToday.Clear();
+                replyEchoDay = today;
+                replyEchoGarden = world.Garden;
+            }
+            if (replyEchoToday.TryGetValue(villager, out string said)) return said;
+            ReplyMemory memory = ReplyMemoryNow();
+            if (!ReplyChips.EchoDue(memory, villager, today)) return null;
+            memory.TryGet(villager, out ReplyNote note);
+            string line = ReplyChips.Echo(villager, note.Chip);
+            if (line.Length == 0) return null;
+            SaveReplies(ReplyChips.MarkEchoed(memory, villager));
+            replyEchoToday[villager] = line;
+            return line;
+        }
+
+        private ReplyMemory ReplyMemoryNow() { return ReplyMemory.Parse(PlayerPrefs.GetString(ReplyKeyPrefix + world.Garden, "")); }
+
+        private void SaveReplies(ReplyMemory memory)
+        {
+            PlayerPrefs.SetString(ReplyKeyPrefix + world.Garden, memory.Serialize());
+            PlayerPrefs.Save();
+        }
+
+        private int ReplyDayNow() { return CompanionContext.DayNumberOf(CompanionToday()); }
+
         private void CloseLetter()
         {
             RetireSheet(letterCard, "Letter", false);
             letterCard = null;
+            replyChipRow = null;
             letterShown = -1;
             RefreshMaps(); // the unread dot goes
         }

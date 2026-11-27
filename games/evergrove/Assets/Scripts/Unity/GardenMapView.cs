@@ -1109,7 +1109,7 @@ namespace Evergrove.UnityClient
                     * (restingFlower ? 0.84f : 1f);
                 float aspectArt = item.Art.rect.width / Mathf.Max(1f, item.Art.rect.height);
                 rect.sizeDelta = new Vector2(tall * aspectArt, tall);
-                rect.anchoredPosition = at;
+                rect.anchoredPosition = at; SunShadow.Cast(rect, nodes); // checklist 22
                 var image = node.AddComponent<Image>();
                 image.sprite = item.Art;
                 image.preserveAspect = true;
