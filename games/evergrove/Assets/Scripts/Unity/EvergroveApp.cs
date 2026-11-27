@@ -924,7 +924,7 @@ namespace Evergrove.UnityClient
             saveWarningCaption.resizeTextForBestFit = true;
             saveWarningCaption.resizeTextMinSize = TextScale.Scale(12);
             saveWarningCaption.resizeTextMaxSize = TextScale.Scale(14);
-            saveWarningCaption.color = Hex("#983E37");
+            saveWarningCaption.color = MosseloraTheme.EarthInk;
             saveWarningCaption.alignment = TextAnchor.MiddleCenter;
             saveWarningCaption.raycastTarget = false;
             UpdateSaveWarning();
@@ -6140,6 +6140,7 @@ namespace Evergrove.UnityClient
 #endif
             BuildPostcard();
             BuildStallEntries(); // EvergroveApp.Market.cs: the stall and deeper boards (v1 #74 #79 #35)
+            BuildNameEntry(); // EvergroveApp.Name.cs: "Name your garden" (checklist 3)
             BuildGardenFileSection();
             if (!world.Completed && world.Round > 0 && !WorldStore.RecoveryBlocked)
             {
@@ -8000,7 +8001,7 @@ namespace Evergrove.UnityClient
                 "This run shows no village choices or story.", 12, 52, Ink);
             CreateMatchedInput(card.transform);
             if (matchedError.Length > 0)
-                Label(card.transform, "Schedule error", matchedError, 13, 36, Hex("#983E37"));
+                Label(card.transform, "Schedule error", matchedError, 13, 36, MosseloraTheme.EarthInk);
             if (!confirmMatchedReplace)
                 Button(card.transform, "Check matched schedule", "Check schedule", RequestMatchedStart, 50, true);
             else
@@ -8455,7 +8456,7 @@ namespace Evergrove.UnityClient
             }
             if (gardenNoticeKey.Length > 0)
                 Label(card.transform, "Garden file notice", GameLocalization.Text(gardenNoticeKey),
-                    13, 40, gardenNoticeIsError ? Hex("#983E37") : Moss);
+                    13, 40, gardenNoticeIsError ? MosseloraTheme.EarthInk : Moss);
         }
 
         private void SetGardenNotice(string key, bool isError)
@@ -8875,6 +8876,7 @@ namespace Evergrove.UnityClient
             column.childForceExpandWidth = true;
             column.childForceExpandHeight = false;
             paper.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            GardenNameLine(paper.transform); // EvergroveApp.Name.cs: the garden's name, as the sign's title (checklist 3)
             // The season, as its stone: the year at a glance.
             string[] stones = { "stone-spring", "stone-summer", "stone-autumn", "stone-winter" };
             CottageLine(paper.transform, MosseloraArt.Load(stones[(int)summary.Season]), summary.Season.ToString());
