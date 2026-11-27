@@ -16,6 +16,7 @@ namespace Evergrove.UnityClient
     /// </summary>
     public sealed partial class DevQaTour
     {
+        private const float ScanTolerance = 0.05f;
         private int touchSmall;
         private readonly HashSet<string> touchSmallKinds = new HashSet<string>();
 
@@ -26,7 +27,8 @@ namespace Evergrove.UnityClient
             {
                 if (!canvas.isRootCanvas || !canvas.enabled) continue;
                 var root = (RectTransform)canvas.transform;
-                foreach (RectTransform small in TouchTargets.Undersized(root))
+                // A hair of tolerance: layout floats put an exact 48 at 47.99, which is not a finding.
+                foreach (RectTransform small in TouchTargets.Undersized(root, TouchTargets.MinPt - ScanTolerance))
                 {
                     var hit = small.GetComponent<UnityEngine.UI.Graphic>();
                     Vector2 size = TouchTargets.TouchSize(hit, root);
