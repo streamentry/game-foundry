@@ -2864,6 +2864,7 @@ namespace Evergrove.UnityClient
                 // Plant a cutting a relative sent: it becomes a nursery plant of yours.
                 if (!map.CanPlace(layout, cell) || PlantedAt(cell)) return;
                 if (!world.PlantGift(giftPick, cell)) return;
+                RecordInAlmanac();
                 justBought = world.BoughtCount - 1;
                 giftPick = -1;
                 PlayChime();
@@ -2875,7 +2876,10 @@ namespace Evergrove.UnityClient
                 // Buy and plant from the nursery; it stays picked while you can afford another.
                 if (!map.CanPlace(layout, cell) || PlantedAt(cell)) return;
                 if (!world.Buy(nurseryKind, cell)) return;
+                RecordInAlmanac();
                 justBought = world.BoughtCount - 1;
+                // The slot restocks with its next plant (I240); keep it picked while affordable.
+                nurseryKind = world.NurseryStock(Nursery.Slot(nurseryKind));
                 if (world.Seeds < Nursery.Price(nurseryKind)) nurseryKind = -1;
                 PlayChime();
                 PlantDone();
@@ -3075,8 +3079,10 @@ namespace Evergrove.UnityClient
         // its price dimmed. Pick one, then tap the grass to buy and plant it.
         private void NurseryTokens(Transform row)
         {
-            for (int kind = 0; kind < Nursery.Kinds; kind++)
+            // One token per slot, showing what it has in stock now (I240: it restocks as you buy).
+            for (int slot = 0; slot < Nursery.Slots; slot++)
             {
+                int kind = world.NurseryStock(slot);
                 int pick = kind;
                 GardenItem plant = Nursery.Item(kind);
                 int price = Nursery.Price(kind);
@@ -3102,8 +3108,22 @@ namespace Evergrove.UnityClient
                 }
                 // A closed row still shows its price, greyed: you can see what you save for (I213).
                 PriceChip(token.transform, price.ToString(), affordable, open);
+                // Not yet in your almanac (I239): a small book on the token's shoulder.
+                if (!almanac.Has(plant)) NewToAlmanac(token.transform);
                 if (kind == nurseryKind && gentleMotion) BloomPulse.Add(token.gameObject, 0.9f, 0.06f);
             }
+        }
+
+        private void NewToAlmanac(Transform token)
+        {
+            Image disc = MosseloraArt.Ornament(token, "New to your almanac", MosseloraArt.Rounded(13), new Vector2(1f, 1f),
+                new Vector2(0.5f, 0.5f), new Vector2(26f, 26f), new Vector2(-8f, -8f));
+            if (disc == null) return;
+            disc.preserveAspect = false;
+            disc.color = new Color(0.98f, 0.95f, 0.86f, 1f);
+            Image book = MosseloraArt.Ornament(disc.transform, "Almanac mark", MosseloraArt.Load(MosseloraArt.IconJournal),
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(16f, 16f), Vector2.zero);
+            if (book != null) book.color = Leaf;
         }
 
         // A small chip on a nursery token's lower edge: the price, or a lock when the row is closed.
@@ -5350,6 +5370,10 @@ namespace Evergrove.UnityClient
             bool changed = false;
             for (int i = 0; i < made.Length && i < GardenCatalog.ChaptersPerGarden; i++)
                 changed |= almanac.Add(ItemAt(i, made[i]));
+            // Nursery plants and planted gifts from family are catalogue things too (I238).
+            int[] bought = world.Bought;
+            for (int k = 0; k * 2 + 1 < bought.Length; k++)
+                changed |= almanac.Add(Nursery.Item(bought[k * 2]));
             if (!changed) return;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (qaInMemoryOnly) return; // the tour never writes the player's almanac
@@ -5430,8 +5454,21 @@ namespace Evergrove.UnityClient
                     bool found = almanac.Has(item);
                     // Not yet made: a soft pencil silhouette of the same painting.
                     image.color = found ? Color.white : new Color(0.33f, 0.30f, 0.25f, 0.16f);
-                    image.raycastTarget = found;
-                    if (!found) continue;
+                    image.raycastTarget = true;
+                    if (!found)
+                    {
+                        // Where an unfound thing grows (I241); its name stays a surprise.
+                        int sold = Nursery.KindOf(item);
+                        bool now = sold >= 0 && world.Mode == PlayMode.Living &&
+                            world.NurseryStock(Nursery.Slot(sold)) == sold;
+                        string where = now ? "In the nursery now" : sold >= 0 ? "Comes to the nursery in time"
+                            : "In a garden yet to come";
+                        var hint = slot.AddComponent<Button>();
+                        hint.transition = Selectable.Transition.None;
+                        hint.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
+                            where, font, Ink, MosseloraTheme.CardFill));
+                        continue;
+                    }
                     var name = slot.AddComponent<Button>();
                     name.transition = Selectable.Transition.None;
                     string label = item.Name;

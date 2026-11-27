@@ -299,6 +299,16 @@ namespace Evergrove.UnityClient
             yield return new WaitForEndOfFrame();
             SavePng("17l-nursery-bought.png");
             app.QaCloseBasket();
+            // I238/I242: the poplar you bought is in your almanac now.
+            app.QaShowHub(false);
+            Press("Open menu");
+            for (int f = 0; f < 8; f++) yield return null;
+            Press("Almanac");
+            for (int f = 0; f < 8; f++) yield return null;
+            yield return new WaitForEndOfFrame();
+            SavePng("17l2-almanac-after-buying.png");
+            Press("Close journal");
+            for (int f = 0; f < 4; f++) yield return null;
             app.QaEndTreePlay();
             // Family parcels (I215): send 50 seeds with a letter; then open one from Nan.
             FamilySheet family = app.QaFamily();

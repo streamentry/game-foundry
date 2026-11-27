@@ -181,10 +181,20 @@ namespace Evergrove.Core
             return false;
         }
 
-        /// <summary>Buys one plant of <paramref name="kind"/> and stands it on a cell. All or nothing.</summary>
+        /// <summary>I240: the kind the nursery offers in a slot now (-1 for an unknown slot).</summary>
+        public int NurseryStock(int slot)
+        {
+            return slot < 0 || slot >= Nursery.Slots ? -1 : Nursery.InStock(slot, state.bought);
+        }
+
+        /// <summary>
+        /// Buys one plant of <paramref name="kind"/> and stands it on a cell. All or nothing.
+        /// I240: only the kind a slot currently offers can be bought.
+        /// </summary>
         public bool Buy(int kind, int cell)
         {
-            if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds || !RowOpen(Nursery.Row(kind)) ||
+            if (Mode != PlayMode.Living || kind < 0 || kind >= Nursery.Kinds ||
+                NurseryStock(Nursery.Slot(kind)) != kind || !RowOpen(Nursery.Row(kind)) ||
                 state.seeds < Nursery.Price(kind) || cell < 0 || cell >= MaxMapCell || BoughtCount >= MaxBought)
                 return false;
             int[] next = new int[state.bought.Length + 2];

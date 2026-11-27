@@ -1905,6 +1905,7 @@ internal static class Program
             PlantingTests();
             assertions += TreePuzzleTests.Run();
             assertions += NurseryTests.Run();
+            assertions += NurseryRestockTests.Run();
             assertions += PairsTests.Run();
             assertions += MosaicTests.Run();
             assertions += NoticeTests.Run();
