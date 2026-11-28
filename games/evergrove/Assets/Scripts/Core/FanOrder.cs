@@ -32,6 +32,20 @@ namespace Evergrove.Core
             return IndexOf(Arrange(usual, lastUsed), token);
         }
 
+        /// <summary>
+        /// Checklist 11: how many fan tokens go down one column in <paramref name="room"/> points (cells of
+        /// <paramref name="cell"/> with <paramref name="gap"/> between): at least one, at most all
+        /// <paramref name="tokens"/>, so a short screen wraps the fan into more columns instead of losing tokens.
+        /// </summary>
+        public static int RowsThatFit(float room, float cell, float gap, int tokens)
+        {
+            int all = Math.Max(1, tokens);
+            if (!(cell > 0f) || float.IsNaN(room)) return all;
+            double fit = Math.Floor((room + Math.Max(0f, gap)) / (cell + Math.Max(0f, gap)));
+            int rows = fit < 1 ? 1 : fit > all ? all : (int)fit;
+            return rows;
+        }
+
         private static int IndexOf(IList<string> names, string name)
         {
             for (int i = 0; i < names.Count; i++)

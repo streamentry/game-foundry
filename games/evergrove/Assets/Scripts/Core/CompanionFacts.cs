@@ -126,6 +126,8 @@ namespace Evergrove.Core
         /// <summary>The keeper of a puzzle just solved taking turns, or -1.</summary>
         public int TogetherKeeper { get; }
         public PuzzleKind TogetherKind { get; }
+        /// <summary>How many people took turns on that puzzle (2 when not said; 3 or 4 for a group).</summary>
+        public int TogetherPlayers { get; }
         /// <summary>The painted map, for where things stand; null when unavailable.</summary>
         public GardenMap Map { get; }
         /// <summary>I419: device-only counts of the hour (phase) you come, or null.</summary>
@@ -134,8 +136,9 @@ namespace Evergrove.Core
         public CompanionContext(DateTime today, DateTime? lastSeen = null, int lettersRead = 0,
             Weather weather = Weather.Fair, bool lightOn = false, DayPhase phase = DayPhase.Day,
             int fruitJustGivenTo = -1, int togetherKeeper = -1, PuzzleKind togetherKind = PuzzleKind.Water,
-            GardenMap map = null, int[] hourCounts = null, DateTime? localNow = null)
+            GardenMap map = null, int[] hourCounts = null, int togetherPlayers = 2, DateTime? localNow = null)
         {
+            TogetherPlayers = togetherPlayers;
             HourCounts = hourCounts == null ? null : Array.AsReadOnly((int[])hourCounts.Clone());
             Today = today.Date;
             LocalNow = localNow;
@@ -204,7 +207,7 @@ namespace Evergrove.Core
                 if (context.TogetherKeeper == v)
                     facts.Add(Make(FactKind.SolvedTogether, v, "together:" + context.TogetherKind + ":" + world.PuzzlesSolved,
                         OwnDoingWeight + WaitingWeight, false, true, 1 * Step, "puzzle", context.TogetherKind.ToString(),
-                        "work", WorkOf(context.TogetherKind)));
+                        "work", WorkOf(context.TogetherKind), "players", context.TogetherPlayers.ToString(CultureInfo.InvariantCulture)));
                 Gifts(world, v, facts);
                 Arrival(world, v, facts);
                 Solved(world, v, facts);
@@ -580,7 +583,7 @@ namespace Evergrove.Core
                   .Append(context.LettersRead).Append(';').Append((int)context.Weather).Append(';')
                   .Append(context.LightOn ? 1 : 0).Append(';').Append((int)context.Phase).Append(';')
                   .Append(context.FruitJustGivenTo).Append(';').Append(context.TogetherKeeper).Append(';')
-                  .Append((int)context.TogetherKind).Append(';');
+                  .Append((int)context.TogetherKind).Append(';').Append(context.TogetherPlayers).Append(';');
                 if (context.Map == null) sb.Append("no-map;");
                 else sb.Append(context.Map.Rows).Append(',').Append(context.Map.Columns).Append(',')
                     .Append(context.Map.Reaches).Append(';');

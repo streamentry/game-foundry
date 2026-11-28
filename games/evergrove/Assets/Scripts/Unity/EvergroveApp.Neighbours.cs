@@ -300,6 +300,7 @@ namespace Evergrove.UnityClient
                 hourCounts: living ? HourCounts() : null,
                 togetherKeeper: togetherKeeper,
                 togetherKind: togetherKind,
+                togetherPlayers: togetherPlayers,
                 map: living ? LoadGardenMap() : null);
         }
 

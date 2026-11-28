@@ -580,7 +580,7 @@ internal static class Program
             }
             Expect(taps == profile.minimumClockwiseTaps,
                 "independent clockwise tap count matches metadata");
-            Expect(profile.forcedMoveCount == null && profile.observedMedianSeconds == null &&
+            Expect(profile.forcedMoveCount != null && profile.observedMedianSeconds == null &&
                 profile.observedP90Seconds == null && profile.observedHintRate == null &&
                 profile.humanReviewer == null, "not-yet-observed human and logic metrics remain null");
             Expect((profile.anchoredTile.HasValue) == (profile.variant != 0),
@@ -1958,6 +1958,10 @@ internal static class Program
             assertions += NeighbourWalkTests.Run(); // checklist 24
             assertions += FanOrderTests.Run(); // checklist 15
             assertions += StretchWindowTests.Run(); // checklist 50
+            assertions += MenuFoldTests.Run(); // checklist 11
+            assertions += PuzzleChainTests.Run(); // checklist 38
+            assertions += BoardZoomTests.Run(); // checklist 91
+            assertions += LazyStretchTests.Run(); // checklist 50
             assertions += FileSizeTests.Run();
             assertions += RiverTravelTests.Run();
             assertions += ColourCueTests.Run();
@@ -2004,6 +2008,25 @@ internal static class Program
             assertions += DifficultyTests.Run();
             assertions += EconomyTests.Run();
             assertions += EconomySimulationTests.Run();
+            assertions += RootedBoardsTests.Run(); // vision run 20261128-0855
+            assertions += LandmarkCauseTests.Run();
+            assertions += FlowOrderTests.Run();
+            assertions += DeductionDepthTests.Run();
+            assertions += TurnPaletteTests.Run();
+            assertions += SpokenTurnTests.Run();
+            assertions += LanternThingTests.Run();
+            assertions += TogetherCountTests.Run();
+            assertions += GardenCompareTests.Run();
+            assertions += RootedDepthTests.Run();
+            assertions += ReconsiderTruthTests.Run();
+            assertions += TurnBackTests.Run();
+            assertions += ThemeContrastTests.Run();
+            assertions += ForkBoardsTests.Run();
+            assertions += ThingStoryTests.Run();
+            assertions += TableSetTests.Run();
+            assertions += ColourVisionTests.Run();
+            assertions += TileOpeningsTests.Run();
+            assertions += GardenFileHeaderTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

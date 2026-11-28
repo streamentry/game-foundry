@@ -24,12 +24,12 @@ namespace Evergrove.UnityClient
             return cells;
         }
 
-        public static void Place(RectTransform land, List<RectTransform> nodes, GardenMap map, float cellW, float cellH, int[] cells)
+        public static void Place(RectTransform land, List<RectTransform> nodes, GardenMap map, float cellW, float cellH, int[] cells, System.Func<int, bool> near = null)
         {
             for (int reach = 0; cells != null && reach < cells.Length; reach++)
             {
                 int cell = cells[reach];
-                if (cell < 0 || cell >= map.CellCount) continue;
+                if (cell < 0 || cell >= map.CellCount || (near != null && !near(cell))) continue; // checklist 50: only the stretches in the window
                 int kind = reach % 2 == 0 ? 4 : 5;
                 var night = new GameObject(kind == 4 ? "A moth, by the lamp" : "A frog, at the water's edge", typeof(RectTransform));
                 night.transform.SetParent(land, false);

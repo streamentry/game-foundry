@@ -65,7 +65,7 @@ This makes the existing rule inspectable; it adds no puzzle topology, simulated 
 
 | Action | Valid when | Effect | Side notes |
 | --- | --- | --- | --- |
-| `Rotate(tile)` | Not completed/solved; tile index valid and not anchored | Cycle orientation, capture previous board, recompute solved | A tap on the protected tile is rejected |
+| `Rotate(tile)` | Not completed/solved; tile index valid and not anchored | Cycle orientation, capture previous board, recompute solved | A tap on the protected tile is rejected and explained: in English and Living mode, when the current variant matches the last saved choice, `LandmarkCause.For` names the choice and the board it was made on ("Your footbridge from First Bend holds this pipe in place."); otherwise the localized generic rule |
 | `GuideOneConnection()` | Active unsolved board | Fix the first misaligned tile; increment cumulative hints | Not a multi-step automated solution |
 | `Undo()` | Current board has a previous snapshot | Pop one prior board from the ten-step history; clear staged hint | Undo does not reimburse the hint counter |
 | `Restart()` | Non-completed run | Restore `CurrentPuzzle.Initial` including fixed anchors; clear undo and staged hint | Keeps committed choices and world variant |
@@ -147,3 +147,24 @@ Changing chapter 1 to **Flowers** must change chapter 2's layout. Reloading, res
 The .NET suite checks the base 12 boards, 33 transformed puzzles' unique solutions, anchoring, replay, branch-specific save/restore, migration, gameplay and language invariants. See [build/QA](BUILD_AND_QA.md).
 
 **Missing systemic depth, if the research warrants it:** true coupled water/soil/plant dynamics; spatially local growth and resource constraints; meaningful opportunity costs; neighboring households that react to changing shared routes; independent agents whose goals influence reachable outcomes; bounded event chains; coherent rollback/migration. Define one testable game mechanic first, not a generic “AI world” infrastructure.
+
+
+**Solve bloom (vision run 20261128-0855):** with gentle motion on, the finishing bloom reaches each tile in the order water travels along the solved stream (`FlowOrder.StepsFromSpring`, 0.07 s per step), not by straight-line distance from the spring. Reduced motion shows no bloom.
+
+**Forced moves (vision run 20261128-0927):** `PuzzleProfile.forcedMoveCount` is now filled by `DeductionDepth.ForcedMoves`: arc consistency over edge and neighbour agreement, with the protected tile pinned. On every authored board and variant, every rotatable tile is forced (9 of 9 or 16 of 16 on the base boards), so local deduction alone solves all 45 boards and the number does not yet separate them. It is a gate for future mechanics (root stones, ecology), not a difficulty label.
+
+**Lantern letter names your thing (vision run 20261128-0927):** in Living mode with at least one saved choice, the dusk lantern letter names the thing from the latest choice (`DayRhythm.LanternWords(day, world)`, via `GardenCatalog.For`). Otherwise the generic letter is unchanged.
+
+**Take turns (vision run 20261128-0927):** the keeper's remark after a shared solve counts the table: two players hear the original line, three or four hear "The three of you…" or "The four of you…" (`NeighbourNotice.TogetherLine(kind, players)`). The count lives in memory only and is never saved. The four turn colours come from `TurnPalette` in four lightness steps (smallest pairwise contrast 1.36:1, was 1.03:1). The take-turns token has one hidden screen-reader caption, updated each turn ("Second player's turn, of three.", `TakeTurns.Spoken`).
+
+**Root stones and depth (vision run 20261128-1001):** `RootedDepth` runs the same arc-consistency deduction on root-stone boards (`RootedBoards`, not wired into play) and counts the guesses a deduce-then-guess search needs. For seeds 0–199, every one-root board (15 of 15 pipes) and every two-root board (14 of 14) is fully forced by deduction, with zero guesses. Root stones change a board's shape but not the reasoning it needs; depth must come from elsewhere.
+
+**Undo hands the turn back (vision run 20261128-1001):** while taking turns, undo and redo set the turn to whoever's it was at that undo step (`TurnLedger`, session-only, never saved). Not every recorded step passes the turn (lifting a piece, a reshuffle, a multi-step hint), so the turn is looked up by step, not stepped back once per undo. Changing the number of players clears the ledger.
+
+**Forked streams and depth (vision run 20261128-1101):** `ForkBoards` (not wired into play) builds 5×5 boards whose answer is a branching stream: a spanning tree with three-way fork tiles, no four-way tiles, at least three forks, one unique answer. For seeds 0–99, 100 boards were made (4–9 forks, median 6). Arc-consistency deduction fully solves 86 of them; 14 need guessing (1 guess: 2 boards, 2–5: 11, 6: 1). Forks are the first measured mechanic that sometimes breaks local forcing.
+
+**The table stays set (vision run 20261128-1101):** the take-turns player count carries from one board to the next for the rest of the app session (a static field, never saved). After each board finished together, the next board starts on the next person round the table (`TakeTurns.StartingTurn`), and the undo ledger records that starting turn. Setting the token back to alone ends the table.
+
+**Tile openings and thing captions (vision run 20261128-1101):** in English, each puzzle tile's screen-reader label adds which way it opens (`TileOpenings.Words`: "Opens up and right."). Holding a chosen thing on the garden map shows `ThingStory` ("Quince tree, chosen after stream 3. Four streams have run past it since."), in Living mode only; plantings, bought things, visited gardens and other languages keep the family label.
+
+**Reconsidering takes the thing's marks with it (vision run 20261128-1001):** `ReconsiderLatestChoice` now also removes the reconsidered thing's "solved together" and "helped by" marks. Before, they stayed on that index: the next thing chosen inherited them, and a save written in between failed validation on reload.

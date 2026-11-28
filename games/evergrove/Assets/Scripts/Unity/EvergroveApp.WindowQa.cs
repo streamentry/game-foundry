@@ -27,6 +27,14 @@ namespace Evergrove.UnityClient
             return window != null ? window.LiveCount() : -1;
         }
 
+        // How many RectTransforms the hub's map has built under its land, active or not (-1 without a map).
+        internal int QaHubBuilt()
+        {
+            if (hubMapView == null) return -1;
+            var land = hubMapView.transform.Find("Garden plot");
+            return land != null ? land.GetComponentsInChildren<RectTransform>(true).Length - 1 : -1;
+        }
+
         internal int QaHubStretches() { return gardenMap != null ? gardenMap.Reaches : 0; }
     }
 }

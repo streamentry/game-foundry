@@ -157,10 +157,14 @@ internal static class FirstMinutesAuditTests
         new Badge("NewToAlmanac", "New to your almanac", "almanac.Add("),
         // B3 Neighbour speech mark on the hub: clears when the player talks to them (HeardKey written).
         new Badge("PortraitButton", "Has something new to say", "SetString(HeardKey + villagerIndex"),
-        // B4 Unread letter envelope on the letterbox: clears when the letter is opened.
-        new Badge("LetterBox", "Unread letter", "SetInt(LettersReadKey, letters.Length)"),
+        // B4 Unread letter dot on the menu button (checklist 11: the letterbox moved to the fan): clears when the letter is opened.
+        new Badge("MenuLetterCue", "Has a new letter", "SetInt(LettersReadKey, letters.Length)"),
+        // B4 again, on the Letters token in the fan: its sealed envelope is up while a letter is unread.
+        new Badge("ToggleFan", "Unread letter", "SetInt(LettersReadKey, letters.Length)"),
         // B5 Gift ribbon on a relative's cutting in the basket: clears when it is planted (PlantGift).
         new Badge("GiftTokens", "Ribbon", "world.PlantGift("),
+        // B5b The same waiting cutting, as a dot on the menu button (checklist 11 folded the basket): clears when planted.
+        new Badge("MenuGiftCue", "A gift is waiting", "world.PlantGift("),
     };
 
     // Named nodes that look badge-like but are not notification badges. Each has a reason.

@@ -34,24 +34,18 @@ namespace Evergrove.UnityClient
         // last 20 seed movements (world.Ledger, newest first), so nothing in the purse is a mystery.
         private GameObject seedBookSheet;
 
-        // The purse becomes a button: tap opens the seed book; the spoken name gives the count.
-        // Called from SeedPurse in place of the old non-raycast body.
-        private void SeedPurseTap(GameObject purse, Image body)
+        // The purse is read-only (checklist 11): no button, no raycast. The seed book opens from the
+        // corner fan's "Seed book" token. The hidden "Caption" child is what screen readers speak
+        // (ScreenReaderBridge.CaptionOf), so the count stays spoken.
+        private void SeedPurseSpeech(GameObject purse)
         {
-            body.raycastTarget = true;
-            var tap = purse.AddComponent<Button>();
-            tap.targetGraphic = body;
-            tap.colors = PressTint();
-            tap.onClick.AddListener(OpenSeedBook);
-            LongPressCaption.Attach(purse, "Seeds you have, " + world.Seeds + ". Opens the seed book.", font);
-            // A hidden "Caption" child is what screen readers speak (ScreenReaderBridge.CaptionOf).
             var spoken = new GameObject("Caption", typeof(RectTransform));
             spoken.transform.SetParent(purse.transform, false);
             spoken.AddComponent<LayoutElement>().ignoreLayout = true;
             Text text = spoken.AddComponent<Text>();
             text.font = font;
             text.fontSize = 14;
-            text.text = "Seeds you have, " + world.Seeds + ". Opens the seed book.";
+            text.text = "Seeds you have, " + world.Seeds + ".";
             text.color = new Color(0f, 0f, 0f, 0f);
             text.raycastTarget = false;
         }

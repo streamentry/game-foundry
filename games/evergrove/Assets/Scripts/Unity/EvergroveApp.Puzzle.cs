@@ -136,6 +136,7 @@ namespace Evergrove.UnityClient
             // turning-arrow mark: "tap turns a tile", shown rather than told (I138).
             int firstTurn = world.Round == 0 && !world.CanUndo && !world.Solved
                 ? HintPlanner.SelectTarget(puzzle, rotations) : -1;
+            int[] flowSteps = celebrateSolve ? FlowOrder.StepsFromSpring(puzzle, rotations) : null;
             for (int index = 0; index < puzzle.CellCount; index++)
             {
                 int tappedIndex = index;
@@ -167,11 +168,8 @@ namespace Evergrove.UnityClient
                 if (settle) SettleIn.Add(tileNode, 0.03f + index * 0.035f);
                 else if (celebrateSolve)
                 {
-                    // The finished creek blooms outward from the spring, tile by tile.
-                    int spring = Array.IndexOf(puzzle.Kinds, PipeKind.End);
-                    int steps = spring < 0 ? 0 :
-                        Mathf.Abs(index / puzzle.Size - spring / puzzle.Size) +
-                        Mathf.Abs(index % puzzle.Size - spring % puzzle.Size);
+                    // The finished creek blooms along the stream the player made, tile by tile.
+                    int steps = flowSteps != null && flowSteps[index] >= 0 ? flowSteps[index] : 0;
                     if (gentleMotion) BloomPulse.Add(tileNode, 0.08f + steps * 0.07f);
                 }
                 visibleTiles[index] = tile;

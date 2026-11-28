@@ -32,6 +32,12 @@ namespace Evergrove.UnityClient
                 {
                     Label(card.transform, "Garden replace warning", GameLocalization.Text("garden_replace"),
                         13, 40, Ink);
+                    if (pendingGardenRestore != null)
+                    {
+                        string[] compare = GardenCompare.Lines(world, pendingGardenRestore);
+                        for (int i = 0; i < compare.Length; i++)
+                            Label(card.transform, "Garden restore compare " + i, compare[i], 13, 40, Ink);
+                    }
                     // I219: restoring is what the player came to do, not an erasure: the button
                     // names the restore, in the restore's own colour; the warning above stays.
                     IconButton(card.transform, "Confirm garden restore", GameLocalization.Text("garden_restore"),
@@ -54,7 +60,7 @@ namespace Evergrove.UnityClient
         private void CopyGardenFile()
         {
             string stamp = DateTime.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture);
-            GUIUtility.systemCopyBuffer = GardenTransfer.Export(world, stamp);
+            GUIUtility.systemCopyBuffer = GardenTransfer.ExportForPeople(world, stamp);
             gardenRestoreConfirm = false;
             pendingGardenRestore = null;
             SetGardenNotice("garden_copied", false);

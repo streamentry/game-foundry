@@ -27,6 +27,7 @@ internal static class FanOrderTests
         UnknownOrBlankChangesNothing();
         InputIsNeverChanged();
         EveryTokenWhenUsedComesFirst();
+        RowsThatFitWrapTheFan();
         AppRemembersAndArranges();
         TourLogsTheSecondTap();
         RegisteredInTheSuite();
@@ -73,6 +74,23 @@ internal static class FanOrderTests
             int after = FanOrder.Place(Usual, token, token);
             Expect(after == 0 && after <= before, token + " is never further after being used");
         }
+    }
+
+    // Checklist 11: a short screen wraps the fan into more columns instead of pushing tokens off screen.
+    private static void RowsThatFitWrapTheFan()
+    {
+        Expect(FanOrder.RowsThatFit(1000f, 64f, 12f, 7) == 7, "a tall screen keeps one column of all seven");
+        Expect(FanOrder.RowsThatFit(64f, 64f, 12f, 7) == 1, "room for exactly one token gives one row");
+        Expect(FanOrder.RowsThatFit(215f, 64f, 12f, 7) == 2 && FanOrder.RowsThatFit(216f, 64f, 12f, 7) == 3,
+            "rows step exactly where the next token (plus its gap) fits");
+        Expect(FanOrder.RowsThatFit(-50f, 64f, 12f, 7) == 1, "no room still shows one row (never zero)");
+        Expect(FanOrder.RowsThatFit(float.NaN, 64f, 12f, 7) == 7 && FanOrder.RowsThatFit(300f, 0f, 12f, 7) == 7,
+            "bad input keeps a single column");
+        Expect(FanOrder.RowsThatFit(300f, 64f, 12f, 0) == 1, "no tokens, one row");
+        string menu = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Menu.cs");
+        Expect(menu.Contains("stack.startAxis = GridLayoutGroup.Axis.Vertical;") &&
+               menu.Contains("stack.constraintCount = FanOrder.RowsThatFit(room, FanCell, FanGap, tokens.Count);"),
+            "the fan fills down, then wraps, by the rows that fit");
     }
 
     private static void AppRemembersAndArranges()

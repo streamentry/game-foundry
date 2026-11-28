@@ -24,10 +24,31 @@ namespace Evergrove.Core
             return (turn + 1) % players;
         }
 
+        /// <summary>
+        /// Whose turn a new board starts on: after each board finished together, the next person
+        /// round the table starts, so everyone gets a first move. Alone, or out of range, the first player.
+        /// </summary>
+        public static int StartingTurn(int boardsTogether, int players)
+        {
+            if (players <= 1 || players > MaxPlayers || boardsTogether < 0) return 0;
+            return boardsTogether % players;
+        }
+
         /// <summary>I302: the hint glows as an offer on every turn but the first player's.</summary>
         public static bool OfferHint(int turn, int players)
         {
             return players > 1 && turn > 0 && turn < players;
+        }
+
+        /// <summary>The line a screen reader says about whose turn it is; never throws.</summary>
+        public static string Spoken(int turn, int players)
+        {
+            if (players <= 1) return "Playing alone.";
+            int count = players > MaxPlayers ? MaxPlayers : players;
+            int who = ((turn % count) + count) % count;
+            string[] ordinals = { "First", "Second", "Third", "Fourth" };
+            string[] counts = { "two", "three", "four" };
+            return ordinals[who] + " player's turn, of " + counts[count - 2] + ".";
         }
     }
 }

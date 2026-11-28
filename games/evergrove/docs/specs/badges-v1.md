@@ -12,8 +12,9 @@ name that is not listed here, on a missing clear path, on a count, and on a red 
 | B1b | "Has a new memory" dot on the menu button | menu button, hub and garden chrome (`MarkUnreadMemory`, `MenuSeenKey`) | dot, no number | a memory added since the menu was last opened | opening the menu (`ToggleFan` writes `menu-seen` and removes the dot) | paper with sprig, no red |
 | B2 | "New to your almanac" disc | nursery token (`NewToAlmanac`) | disc with book icon, no number | the plant is not yet in the almanac | the plant enters the almanac (`RecordInAlmanac`, `almanac.Add`) | cream with leaf-green icon |
 | B3 | "Has something new to say" speech mark | neighbour portrait on the hub (`PortraitButton`) | speech icon, no number | the neighbour's line differs from the last one heard | talking to them (`OpenConversation` writes `heard-`) | paper with water-channel icon |
-| B4 | "Unread letter" envelope | letterbox on the garden (`LetterBox`) | sealed envelope, no number | a letter has not been opened | opening the letter (`ShowLetter` writes `letters-read`) | painted art |
+| B4 | "Unread letter" envelope and dot | Letters token in the menu fan (sealed envelope, `ToggleFan`) and a dot on the menu button (`MenuLetterCue`, "Has a new letter"); the letterbox left home in checklist 11 | sealed envelope or dot, no number | a letter has not been opened | opening the letter (`ShowLetter` writes `letters-read`) | painted art; honey dot |
 | B5 | "Ribbon" on a relative's cutting | basket gift token (`GiftTokens`) | small ribbon, no number | a cutting sent by family is waiting to be planted | planting it (`WorldModel.PlantGift` removes it from the gifts) | honey (was red, changed in I16 badge pass) |
+| B5b | "A gift is waiting" dot on the menu button | menu button on home (`MenuGiftCue`); the basket folded into the fan in checklist 11 | dot, no number; not shown while the letter dot is up | a cutting sent by family is waiting to be planted | planting it (`WorldModel.PlantGift` removes it from the gifts) | honey dot |
 
 ## Removed in this pass
 
@@ -25,7 +26,7 @@ name that is not listed here, on a missing clear path, on a count, and on a red 
 | Node | Why it is not a badge |
 |------|-----------------------|
 | Settings values "Text size 150%" and "Board size 1.2x" | setting values, not alerts |
-| Seed and fruit counts in the purse | inventory, not a notification |
+| Seed and fruit counts in the purse (read-only label, no tap; checklist 11) | inventory, not a notification |
 | Family sheet step dots ("Step 1 of 3") | pagination inside a sheet |
 | "Saved" confirmation mark | transient save confirmation, fades after about 1.2 s |
 | Icons inside badges ("Sprig mark", "Speech mark", "Almanac mark", "Sealed letter") | parts of B1, B2, B3 and B4 |

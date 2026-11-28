@@ -22,12 +22,15 @@ namespace Evergrove.UnityClient
             foreach (bool on in new[] { false, true })
             {
                 StretchWindow.Enabled = on;
+                var clock = System.Diagnostics.Stopwatch.StartNew();
                 app.QaShowHub(false);
                 app.QaShowHub(true);
+                clock.Stop();
                 for (int f = 0; f < 10; f++) yield return null;
                 System.GC.Collect();
                 yield return null;
                 string pass = on ? "on" : "off";
+                Debug.Log("MOSSELORA_WINDOW " + pass + " layoutMs " + clock.Elapsed.TotalMilliseconds.ToString("0.0"));
                 Debug.Log("MOSSELORA_WINDOW " + pass + " stretches " + app.QaHubStretches());
                 for (int step = 0; step <= StretchesScrolled; step++)
                 {
@@ -36,7 +39,7 @@ namespace Evergrove.UnityClient
                     Debug.Log("MOSSELORA_WINDOW " + pass + " step " + step +
                         " heapKB " + (System.GC.GetTotalMemory(false) / 1024) +
                         " unityKB " + (Profiler.GetTotalAllocatedMemoryLong() / 1024) +
-                        " live " + app.QaHubLive());
+                        " live " + app.QaHubLive() + " built " + app.QaHubBuilt());
                     if (on && (step == 0 || step == 15 || step == StretchesScrolled))
                     {
                         yield return new WaitForEndOfFrame();

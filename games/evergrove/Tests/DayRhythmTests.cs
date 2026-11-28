@@ -187,9 +187,9 @@ internal static class DayRhythmTests
         string view = ReadEvergrove("Assets/Scripts/Unity/GardenMapView.cs");
         string place = ReadEvergrove("Assets/Scripts/Unity/GardenNightCreatures.cs");
         Expect(view.Contains("view.nightCells = GardenNightCreatures.Take();"), "the view takes the night cells once, when it is made");
-        Expect(view.Contains("GardenNightCreatures.Place(land, nodes, map, cellW, cellH, nightCells);"), "each layout places the kept cells");
+        Expect(view.Contains("GardenNightCreatures.Place(land, nodes, map, cellW, cellH, nightCells, NearCell);"), "each layout places the kept cells near the window");
         Expect(!place.Contains("Cells = null;\n            for"), "Place does not clear the cells it is given");
-        Expect(place.Contains("public static void Place(RectTransform land, List<RectTransform> nodes, GardenMap map, float cellW, float cellH, int[] cells)"),
+        Expect(place.Contains("public static void Place(RectTransform land, List<RectTransform> nodes, GardenMap map, float cellW, float cellH, int[] cells, System.Func<int, bool> near = null)"),
             "Place is handed the view's cells");
     }
 

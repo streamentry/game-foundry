@@ -483,6 +483,8 @@ internal static class HonestCompanionTests
         foreach (PuzzleKind kind in Enum.GetValues(typeof(PuzzleKind)))
         {
             Add(hits, "NeighbourNotice.TogetherLine", NeighbourNotice.TogetherLine(kind));
+            Add(hits, "NeighbourNotice.TogetherLine(3)", NeighbourNotice.TogetherLine(kind, 3));
+            Add(hits, "NeighbourNotice.TogetherLine(4)", NeighbourNotice.TogetherLine(kind, 4));
             Add(hits, "NeighbourNotice.KindWord", NeighbourNotice.KindWord(kind));
         }
 

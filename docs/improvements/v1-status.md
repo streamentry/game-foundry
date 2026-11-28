@@ -146,3 +146,34 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Core suite (`dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release`, exit 0): "Evergrove C# tests passed: 1765932 assertions". The three READY-TO-TICK test groups run inside this suite and passed with it.
 - `python3 tools/check_evergrove_docs.py`: "Evergrove documentation contract: 12 documents, 145 verified local links, 12 puzzles, v4 saves, 30 language choices, 127 keys."
 - Not run: the Unity editor, tours, and any device. No class above depends on them except where stated.
+
+## Vision run 20261128-0855 (outside the v1 checklist)
+
+- Protected pipe names its cause: `LandmarkCause` (Living mode, English, truth-guarded like the journal). Tests: `LandmarkCauseTests`. Tour and device: not run.
+- Solve bloom follows the real stream: `FlowOrder`. Tests: `FlowOrderTests` (all 12 boards and 33 variants). Tour and device: not run.
+- Restore card compares both gardens: `GardenCompare`. Tests: `GardenCompareTests`. Tour and device: not run.
+- Root-stone solver gate (depth proposal C1, gate K5), not wired: `RootedBoards`. 200/200 unique 4x4 boards for one and for two roots. Tests: `RootedBoardsTests`.
+
+## Vision run 20261128-0927 (outside the v1 checklist)
+
+- Forced moves measured: `DeductionDepth` fills `forcedMoveCount`; every authored board is fully forced by local deduction (a depth finding, not a label). Tests: `DeductionDepthTests`, puzzle catalog regenerated.
+- Lantern letter names the latest chosen thing, truth-guarded (Living mode, a saved choice). Tests: `LanternThingTests`. Tour and device: not run.
+- Together remark counts three or four players truthfully; two keep the old line. Tests: `TogetherCountTests`, `HonestCompanionTests`. Tour and device: not run.
+- Turn colours in four lightness steps (`TurnPalette`, min contrast 1.36:1). Tests: `TurnPaletteTests`. Greyscale screenshot: not run.
+- Spoken turn caption on the take-turns token (`TakeTurns.Spoken`, `TreePlay.Turns.cs`). Tests: `SpokenTurnTests`. VoiceOver/TalkBack: not run.
+
+## Vision run 20261128-1001 (outside the v1 checklist)
+
+- Root-stone depth measured: `RootedDepth` finds every 1- and 2-root board fully forced with zero guesses (C1 adds shape, not reasoning). Tests: `RootedDepthTests`.
+- Reconsider takes the thing's "solved together" and "helped by" marks with it; fixes a save that failed validation after reconsidering a helped thing. Tests: `ReconsiderTruthTests`. Tour and device: not run.
+- Undo and redo hand the turn back by step (`TurnLedger`, items 39 and 48). Tests: `TurnBackTests`. Tour and device: not run.
+- Pipe channels and ink proven against every tile and panel they sit on (`ThemeContrastTests`, item 92). No colour changed.
+- Copied garden file starts with a plain header line; import accepts it or not (`GardenTransfer.ExportForPeople`). Tests: `GardenFileHeaderTests`. Tour and device: not run.
+
+## Vision run 20261128-1101 (outside the v1 checklist)
+
+- Forked streams measured: `ForkBoards` (5×5, three-way forks, not wired) yields 100/100 unique boards; 14 of 100 need guessing after deduction, the first mechanic to break local forcing. Tests: `ForkBoardsTests`.
+- Holding a chosen thing on the map tells its story in streams ("chosen after stream 3…"), Living mode and English only (`ThingStory`). Tests: `ThingStoryTests`. Tour and device: not run.
+- Take turns keeps the table's size across boards for the session and rotates who starts (`TakeTurns.StartingTurn`, never saved). Tests: `TableSetTests`. Tour and device: not run.
+- Water vs dry channel colour check under three colour-vision simulations (`ColourVision`, item 92): **finding, not fixed**: contrast 1.00–1.22:1, hue-only difference. Tests: `ColourVisionTests` (locks today's distance). Art review needed.
+- Screen-reader tile labels say which way each pipe opens, English only (`TileOpenings`, item 93). Tests: `TileOpeningsTests`. VoiceOver/TalkBack: not run.
