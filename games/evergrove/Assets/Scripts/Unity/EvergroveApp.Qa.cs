@@ -217,6 +217,12 @@ namespace Evergrove.UnityClient
         internal void QaSetClock(int hour) { qaClockHour = hour; }
         internal void QaSetDay(int offset) { qaDayOffset = offset; spokenThisVisit.Clear(); spokenVariant.Clear(); } // SC02 tour: a new day, a new visit
         internal string QaNeighborSays(int villager) { return NeighborSays(villager); }
+        // CP40: the top three candidates behind a remark, for the tour's QA log (dev-only).
+        internal string QaCompanionExplain(int villager)
+        {
+            return string.Join(" | ", CompanionRanker.Explain(CompanionFactsNow(), CompanionMemoryNow(), villager,
+                CompanionNow().DayNumber, world.Garden, CompanionCanSay, 3));
+        }
         internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
         internal void QaRainbow(bool on) { qaRainbow = on; } // I364 tour
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }

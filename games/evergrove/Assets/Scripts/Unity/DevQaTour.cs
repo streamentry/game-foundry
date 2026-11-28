@@ -912,6 +912,7 @@ namespace Evergrove.UnityClient
                 for (int v = 0; v < 3; v++)
                 {
                     Debug.Log("MOSSELORA_COMPANION day " + (day + 1) + " " + who[v] + ": " + app.QaNeighborSays(v));
+                    Debug.Log("MOSSELORA_COMPANION_WHY day " + (day + 1) + " " + who[v] + ": " + app.QaCompanionExplain(v)); // CP40
                     app.QaTalk(v);
                     for (int f = 0; f < 4; f++) yield return null;
                     if (day == 7)

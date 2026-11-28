@@ -207,8 +207,13 @@ namespace Evergrove.UnityClient
             CompanionContext context = CompanionNow();
             spokenThisVisit.TryGetValue(villager, out string spoken);
             return CompanionRanker.Pick(CompanionFactsNow(), CompanionMemoryNow(), villager,
-                context.DayNumber, world.Garden, spoken,
-                (fact, who) => CompanionLocale.CanSay(GameLocalization.Current, LineBankNow(), fact, who)); // SC04/SC06
+                context.DayNumber, world.Garden, spoken, CompanionCanSay); // SC04/SC06
+        }
+
+        // CP40: the sayable check the pick and the QA explain share, so the log reads the same rule.
+        private bool CompanionCanSay(Fact fact, int who)
+        {
+            return CompanionLocale.CanSay(GameLocalization.Current, LineBankNow(), fact, who);
         }
 
         // CP38: the parsed memory is reused while its storage key and raw PlayerPrefs string are unchanged.
