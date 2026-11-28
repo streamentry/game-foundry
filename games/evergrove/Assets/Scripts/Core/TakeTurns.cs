@@ -82,5 +82,18 @@ namespace Evergrove.Core
         {
             return OfferHint(turn, players) ? "Hint offered." : "";
         }
+
+        /// <summary>
+        /// Idea 3 (vision run 20261128-1502): the line a screen reader says when a board is solved while
+        /// playing together, e.g. "Solved together, all three of you." Alone, nothing. Counts above four
+        /// read as four. Never throws.
+        /// </summary>
+        public static string SpokenSolved(int players)
+        {
+            if (players <= 1) return "";
+            if (players == 2) return "Solved together, both of you.";
+            if (players == 3) return "Solved together, all three of you.";
+            return "Solved together, all four of you.";
+        }
     }
 }

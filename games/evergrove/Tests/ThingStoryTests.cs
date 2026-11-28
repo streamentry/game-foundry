@@ -116,9 +116,36 @@ internal static class ThingStoryTests
         world.SolveTree(0);
         Expect(world.MarkTogether(0), "a solved grown thing can be marked together");
         Expect(ThingStory.For(world, 0, "oak") ==
-            ThingStory.Line("oak", 0, 3) + " You solved it together.", "marked thing gets the together sentence");
+            ThingStory.Line("oak", 0, 3) + " You finished its puzzle. You solved it together.",
+            "marked thing gets the finished and together sentences in order");
         Expect(ThingStory.For(world, 1, "oak") == ThingStory.Line("oak", 1, 3), "unmarked thing keeps its sentence");
         Expect(!ThingStory.For(world, 1, "oak").Contains("together"), "no together sentence on unmarked thing");
+
+        // Pure finished/together overload: all four combinations, plus blank and out-of-range input.
+        string plain = ThingStory.Line("oak", 0, 2);
+        Expect(ThingStory.Line("oak", 0, 2, false, false) == plain, "finished false, together false: plain line");
+        Expect(ThingStory.Line("oak", 0, 2, true, false) == plain + " You finished its puzzle.",
+            "finished only adds the finished sentence");
+        Expect(ThingStory.Line("oak", 0, 2, false, true) == plain, "together without finished adds nothing");
+        Expect(ThingStory.Line("oak", 0, 2, true, true) ==
+            plain + " You finished its puzzle. You solved it together.", "finished and together add both sentences in order");
+        Expect(ThingStory.Line(null, 0, 2, true, true) == "" && ThingStory.Line("  ", 0, 2, true, false) == "",
+            "blank name gives no finished/together line");
+        Expect(ThingStory.Line("oak", 5, 2, true, true) == "" && ThingStory.Line("oak", -1, 2, true, false) == "",
+            "out-of-range index gives no finished/together line");
+
+        // A chosen thing whose puzzle is unsolved says nothing about a puzzle; solving it adds the finished sentence.
+        WorldModel fresh = WorldModel.New(PlayMode.Living);
+        Solve(fresh);
+        Expect(fresh.Choose(VillageChoice.Bridge), "fresh: first choice accepted");
+        string bridgeLine = ThingStory.Line("bridge", 0, 1);
+        Expect(ThingStory.For(fresh, 0, "bridge") == bridgeLine, "unsolved chosen thing: no puzzle sentence");
+        Expect(fresh.SolveTree(0) > 0 && fresh.TreeSolved(0), "fresh: the chosen thing's puzzle is solved");
+        Expect(ThingStory.For(fresh, 0, "bridge") == bridgeLine + " You finished its puzzle.",
+            "solved chosen thing ends with the finished sentence");
+        Expect(fresh.MarkTogether(0), "fresh: solved thing marked together");
+        Expect(ThingStory.For(fresh, 0, "bridge") == bridgeLine + " You finished its puzzle. You solved it together.",
+            "solved and together: both sentences, finished first");
 
         // Puzzle-only and matched worlds stay empty even with a together mark attempt (refused there).
         Expect(!puzzle.MarkTogether(0) && ThingStory.For(puzzle, 0, "oak") == "", "puzzle-only: no together caption");

@@ -17,16 +17,19 @@ namespace Evergrove.Core
     /// </summary>
     public static class SeasonLook
     {
-        /// <param name="flowerIndex">A flower's catalogue index, to know its own season; -1 if unknown.</param>
-        public static ThingLook For(Season season, VillageChoice family, int flowerIndex)
+        /// <param name="catalogueIndex">The thing's catalogue index within its family (a tree or a flower); -1 if unknown.</param>
+        public static ThingLook For(Season season, VillageChoice family, int catalogueIndex)
         {
             if (family == VillageChoice.ShadeTree)
+            {
+                if (GardenCatalog.IsEvergreenTree(catalogueIndex)) return ThingLook.Full; // evergreens keep their green
                 return season == Season.Spring ? ThingLook.Blossom : season == Season.Autumn ? ThingLook.Turning
                     : season == Season.Winter ? ThingLook.Resting : ThingLook.Full;
+            }
             if (family == VillageChoice.Flowers)
             {
                 if (season != Season.Winter) return ThingLook.Full;
-                bool winterFlower = flowerIndex >= 0 && Array.IndexOf(GardenCatalog.FlowersOf(Season.Winter), flowerIndex) >= 0;
+                bool winterFlower = catalogueIndex >= 0 && Array.IndexOf(GardenCatalog.FlowersOf(Season.Winter), catalogueIndex) >= 0;
                 return winterFlower ? ThingLook.Full : ThingLook.Resting;
             }
             return ThingLook.Full;

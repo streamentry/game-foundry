@@ -125,6 +125,35 @@ namespace Evergrove.UnityClient
             else ledger.Record(tracked.UndoSteps, turn);
         }
 
+        /// <summary>
+        /// Idea 3: a board solved while playing together. The filled pips show everyone lit, the disc
+        /// pulses as before, and the turn caption says "Solved together, ...". Nothing repaints after this.
+        /// </summary>
+        private void TableSolved()
+        {
+            if (!together) return;
+            if (turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
+            if (pips != null)
+                for (int p = 0; p < pips.Length && p < players; p++)
+                {
+                    pips[p].sprite = MosseloraArt.Rounded(8);
+                    pips[p].color = MosseloraTheme.EarthInk;
+                    if (gentle) BloomPulse.Add(pips[p].gameObject, 0.2f + 0.06f * p, 0.25f);
+                }
+            if (turnDiscs == null || turnDiscs.Length == 0 || turnDiscs[0] == null) return;
+            Transform token = turnDiscs[0].transform;
+            Transform caption = token.Find("Turn caption");
+            if (caption == null)
+            {
+                if (uiFont == null) return; // the card isn't built yet
+                Hidden(token, "", uiFont);
+                caption = token.GetChild(token.childCount - 1);
+                caption.name = "Turn caption";
+            }
+            Text text = caption.GetComponent<Text>();
+            if (text != null) text.text = TakeTurns.SpokenSolved(players);
+        }
+
         /// <summary>Idea 5: the hint token says "Hint offered." while its offer glows. One hidden caption, reused.</summary>
         private void SpeakHint(Transform token)
         {

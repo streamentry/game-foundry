@@ -33,7 +33,7 @@ namespace Evergrove.UnityClient
             public bool Together;        // I265: solved taking turns: two small discs, sage and honey
             public bool Crowned;         // I292: a replay solved at the deepest tier: a second, outer ring
             public float Grown;          // I300: drawn this much larger as replays deepen it (0 or 1: its own size)
-            public bool Watered; public int FlowerIndex; public string Caption; // I338: a flower's catalogue index + 1 (0: not a flower or unknown). Watered: checklist 38's day mark. Caption: ThingStory long-press line (null: family label)
+            public bool Watered; public int FlowerIndex; public string Caption; // I338: catalogue index + 1 for flowers and trees (0: neither, or unknown). Watered: checklist 38's day mark. Caption: ThingStory long-press line (null: family label)
         }
 
         private static float HeightInCells(VillageChoice family)

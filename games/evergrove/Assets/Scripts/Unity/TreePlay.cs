@@ -529,7 +529,7 @@ namespace Evergrove.UnityClient
             SettleIntoThing();
             OfferToSend();
             rewardText.text = "+" + (fruitReward > 0 ? fruitReward : earned);
-            if (together && turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
+            TableSolved();
             if (board != null)
             {
                 board.Lock(); ChainCause.Show(cardRect, uiFont, gentle); // checklist 38
@@ -968,7 +968,7 @@ namespace Evergrove.UnityClient
         private void Paint()
         {
             int[] now = water.Rotations;
-            PipeInsight insight = PipeRules.Inspect(puzzle, now);
+            PipeInsight insight = PipeRules.Inspect(puzzle, now); SpeakReach(insight);
             for (int i = 0; i < tiles.Length; i++)
             {
                 tiles[i].color = MosseloraTheme.TileFill(solved, insight.Flowing[i], false, 0, -1, i, puzzle.Size);
