@@ -30,6 +30,7 @@ internal static class CompanionRankerTests
         Visits();
         Sharing();
         Variants();
+        GoldenHash();
         MemoryText();
         ScriptedWeek();
         return assertions;
@@ -176,6 +177,23 @@ internal static class CompanionRankerTests
         Expect(CompanionRanker.Variant(FactKind.FruitGiven, 1, 3, garden, 13, "d", three) == 0, "all heard: the longest ago");
         Expect(CompanionRanker.Variant(FactKind.FruitGiven, 1, 3, garden, 30, "d", three) >= 0, "after 14 days, any");
         Expect(CompanionRanker.Variant(FactKind.FruitGiven, 1, 0, garden, 13, "d", three) == -1, "no wordings: -1");
+    }
+
+    // CP04: golden values for Hash (FNV-1a over UTF-16 code units of "garden|day|key"). Expected values
+    // were computed independently in Python from the same algorithm, so a refactor that changes the
+    // hash (and so reshuffles every tour) fails here. Null key hashes as "".
+    private static void GoldenHash()
+    {
+        Expect(CompanionRanker.Hash(0, 0, "") == 0x982B0665u, "golden: (0,0,\"\")");
+        Expect(CompanionRanker.Hash(1, 9800, "fruit:0:1") == 0x6DB2F08Cu, "golden: (1,9800,fruit:0:1)");
+        Expect(CompanionRanker.Hash(-3, 12345, "letter:Anh:1") == 0x11806A24u, "golden: (-3,12345,letter:Anh:1)");
+        Expect(CompanionRanker.Hash(7, 1, null) == 0x23955933u, "golden: (7,1,null)");
+        // "Gärten" written with an escape so the source encoding can't change the input.
+        Expect(CompanionRanker.Hash(2, 500, "pairing-found:Gärten") == 0x95D39275u, "golden: non-ASCII key");
+        Expect(CompanionRanker.Hash(4, 77, new string('q', 200)) == 0x0DC9388Du, "golden: 200-char key");
+        // Variant with an empty memory is Hash % count: 7 wordings, start at 4.
+        Expect(CompanionRanker.Variant(FactKind.FruitGiven, 0, 7, 2, 9800, "fruit:0:1", CompanionMemory.Empty) == 4,
+            "golden: Variant with empty memory starts at hash % count");
     }
 
     private static void MemoryText()
