@@ -211,9 +211,21 @@ namespace Evergrove.UnityClient
                 (fact, who) => CompanionLocale.CanSay(GameLocalization.Current, LineBankNow(), fact, who)); // SC04/SC06
         }
 
+        // CP38: the parsed memory is reused while its storage key and raw PlayerPrefs string are unchanged.
+        // CompanionMemory is immutable, so sharing the instance is safe. A redraw asks for it several times.
+        private CompanionMemory companionMemory;
+        private string companionMemoryKey;
+        private string companionMemoryRaw;
+
         private CompanionMemory CompanionMemoryNow()
         {
-            return CompanionMemory.Parse(PlayerPrefs.GetString(CompanionMemory.StorageKey(world.Garden, GameLocalization.Current), ""));
+            string key = CompanionMemory.StorageKey(world.Garden, GameLocalization.Current);
+            string raw = PlayerPrefs.GetString(key, "");
+            if (companionMemory != null && key == companionMemoryKey && raw == companionMemoryRaw) return companionMemory;
+            companionMemory = CompanionMemory.Parse(raw);
+            companionMemoryKey = key;
+            companionMemoryRaw = raw;
+            return companionMemory;
         }
 
         // Called when a conversation opens: the remark is now heard, and is theirs for this visit.
@@ -225,7 +237,13 @@ namespace Evergrove.UnityClient
             spokenVariant[villager] = variant;
             CompanionMemory memory = CompanionMemoryNow().With(
                 new Heard(CompanionContext.DayNumberOf(CompanionToday()), villager, said.Kind, variant, said.Key));
-            PlayerPrefs.SetString(CompanionMemory.StorageKey(world.Garden, GameLocalization.Current), memory.Serialize());
+            string key = CompanionMemory.StorageKey(world.Garden, GameLocalization.Current);
+            string raw = memory.Serialize();
+            PlayerPrefs.SetString(key, raw);
+            // CP38: the next read hits the cache rather than re-parsing what was just written.
+            companionMemory = memory;
+            companionMemoryKey = key;
+            companionMemoryRaw = raw;
         }
 
         // CP37: the fact list, built once per rebuild. A redraw asks for it 6-8 times (CompanionPick runs

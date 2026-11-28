@@ -73,7 +73,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 ### E. In the app
 
 - [ ] **CP37 Facts once per rebuild.** The app computes the fact list once per frame, not once per neighbour. Done: CompanionFacts.Signature (pure; every input For reads, Time.frameCount appended on the Unity side) keys a per-frame cache behind CompanionFactsNow, tested in CompanionSignatureTests; four call sites moved to it; Unity compile 0 errors.
-- [ ] **CP38 Memory parsed once.** The app reuses the parsed memory while the stored string hasn't changed.
+- [x] **CP38 Memory parsed once.** The app reuses the parsed memory while the stored string hasn't changed. Done: CompanionMemoryNow caches the parsed memory keyed by storage key and raw PlayerPrefs string, and CompanionHeard refreshes the cache after writing; no other code writes or clears the key (CP41 adds the garden reset). Unity compile 0 errors; C# suite passes (Unity glue only, so no new unit test).
 - [ ] **CP39 What the neighbours said, for a playtest.** `CompanionMemory.ToReadable(...)` plus a development-only control that copies it to the clipboard. Nothing leaves the phone unless the participant pastes it.
 - [ ] **CP40 QA log explains.** In development builds, the `MOSSELORA_COMPANION` log adds the top three candidates from `Explain`.
 - [ ] **CP41 A fresh garden forgets.** Starting a garden over clears that garden's companion memory.
