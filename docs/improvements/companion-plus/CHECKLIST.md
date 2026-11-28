@@ -63,7 +63,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 
 ### D. Localization and safety
 
-- [ ] **CP31 Slot localizer hook.** `CompanionLocale` accepts an optional translator for slot values. With none, nothing changes. With one, a translated slot becomes sayable.
+- [x] **CP31 Slot localizer hook.** `CompanionLocale` accepts an optional translator for slot values. With none, nothing changes. With one, a translated slot becomes sayable. Done: CompanionLocale takes an optional SlotTranslator in CanSay and Words; with none nothing changes, with one a translated slot is sayable and the French bank line speaks, English ignores it. Tested in CompanionLocaleTests.cs.
 - [ ] **CP32 Counts read right.** No composed line says "1 things" or "0 …": `CompanionFacts.Words` and every count slot are checked for one and many.
 - [ ] **CP33 A typed name is tidy.** A family name is trimmed, kept to 24 characters, and stripped of control characters and braces before it fills a slot.
 - [ ] **CP34 No slot injection.** A name like `{thing}` is filled as text, never expanded.
