@@ -26,6 +26,7 @@ internal static class CompanionSimulatorTests
         assertions = 0;
         TranscriptIsCompleteAndDeterministic();
         SameMemoryGivesSameTranscript();
+        NoRepeatedWording();
         return assertions;
     }
 
@@ -39,9 +40,10 @@ internal static class CompanionSimulatorTests
         return LineBank.Parse(File.ReadAllText(Path.Combine(Root(), "games/evergrove/Assets/Resources/Evergrove/Lines/en.json")));
     }
 
-    private static IReadOnlyList<SimLine> Simulate(WorldModel world, LineBank bank, CompanionMemory memory = null)
+    private static IReadOnlyList<SimLine> Simulate(WorldModel world, LineBank bank, CompanionMemory memory = null,
+        Func<int, CompanionContext> contextFor = null, int days = 7)
     {
-        return CompanionSimulator.Run(world, ContextFor, 7, bank, CompanionLocale.English, memory);
+        return CompanionSimulator.Run(world, contextFor ?? ContextFor, days, bank, CompanionLocale.English, memory);
     }
 
     private static string Render(IReadOnlyList<SimLine> transcript)
@@ -89,6 +91,53 @@ internal static class CompanionSimulatorTests
         IReadOnlyList<SimLine> b = Simulate(world, bank, seed);
         Expect(Render(a) == Render(b), "the same memory gives the same transcript");
         Expect(seed.Count == 1, "the caller's memory is not changed by a run");
+    }
+
+    // CP12: every weather and every phase in turn, so the qualifier groups (WeatherToday.*, Hour.*) all come up.
+    private static CompanionContext VariedContextFor(int day)
+    {
+        var weathers = (Weather[])Enum.GetValues(typeof(Weather));
+        var phases = (DayPhase[])Enum.GetValues(typeof(DayPhase));
+        return new CompanionContext(Start.AddDays(day), weather: weathers[day % weathers.Length], lightOn: true,
+            phase: phases[day % phases.Length]);
+    }
+
+    private static void NoRepeatedWording()
+    {
+        const int Days = 30;
+        LineBank bank = LoadBank();
+        int checkedLines = 0;
+        var repeats = new List<string>();
+        foreach (int grown in new[] { 3, 6, 9, 12 })
+        {
+            WorldModel world = CompanionFactsTests.Grown(grown);
+            world.SolveTree(0);
+            world.SolveTree(3);
+            IReadOnlyList<SimLine> transcript = Simulate(world, bank, null, VariedContextFor, Days);
+            checkedLines += transcript.Count;
+            for (int speaker = 0; speaker < 3; speaker++)
+            {
+                var seen = new List<SimLine>();
+                foreach (SimLine line in transcript)
+                {
+                    if (line.Speaker != speaker) continue;
+                    foreach (SimLine earlier in seen)
+                    {
+                        if (earlier.Words != line.Words) continue;
+                        int gap = line.Day - earlier.Day;
+                        if (gap < CompanionRanker.VariantDays)
+                            repeats.Add("garden " + grown + ", speaker " + speaker + ": \"" + line.Words + "\" repeated after " + gap +
+                                " day(s) (" + earlier.Key + " on day " + earlier.Day + ", " + line.Key + " on day " + line.Day +
+                                "; " + CompanionRanker.VariantDays + " days required)");
+                    }
+                    seen.Add(line);
+                }
+            }
+        }
+        Expect(checkedLines > 0, "the varied simulation says something to check");
+        Expect(repeats.Count == 0, "no-repeat check over " + checkedLines + " lines: " + string.Join(" | ", repeats));
+        Console.WriteLine("Companion simulator CP12: " + checkedLines + " transcript lines over " + Days + " days, none repeated within " +
+            CompanionRanker.VariantDays + " days per speaker.");
     }
 
     private static string KeysOf(IReadOnlyList<Fact> facts)

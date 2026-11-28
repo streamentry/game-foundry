@@ -118,6 +118,18 @@ namespace Evergrove.Core
             return false;
         }
 
+        /// <summary>
+        /// CP12: this key was heard within the last <paramref name="days"/> days with no wording to vary
+        /// (a fixed sentence, variant -1): saying it again would repeat the same words.
+        /// </summary>
+        public bool UnvariedWithin(string key, int today, int days)
+        {
+            string clean = Clean(key);
+            foreach (Heard h in heard)
+                if (h.Key == clean && h.Variant < 0 && Age(h.Day, today) < days) return true;
+            return false;
+        }
+
         /// <summary>The last day this wording was heard, or int.MinValue.</summary>
         public int LastHeard(FactKind kind, int speaker, int variant)
         {
