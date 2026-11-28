@@ -90,10 +90,10 @@ internal static class ThumbReachTests
         string hub = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Hub.cs");
         string controls = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Controls.cs");
         string layout = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Layout.cs");
-        Expect(menu.Contains("PlaceChrome(menu, new Vector2(0f, 0f), new Vector2(MenuInset, MenuInset));"),
-            "the game's menu button is anchored at the bottom-left, inset from the safe area");
+        Expect(menu.Contains("PlaceChrome(menu, MenuCornerAnchor, new Vector2(MenuSideOffset, MenuInset));"),
+            "the game's menu button is anchored at its hand's bottom corner (bottom-left unless right-handed), inset from the safe area");
         Expect(menu.Contains("internal const float MenuInset = 14f, MenuSize = 54f;"), "the inset is 14 pt and the button 54 pt");
-        Expect(hub.Contains("PlaceChrome(menu, new Vector2(0f, 0f), new Vector2(MenuInset, MenuInset));") &&
+        Expect(hub.Contains("PlaceChrome(menu, MenuCornerAnchor, new Vector2(MenuSideOffset, MenuInset));") &&
                hub.Contains("rect.anchorMin = new Vector2(safe.xMin / w, safe.yMin / h);"),
             "the hub's menu button sits in a bar on the bottom safe edge, at the bottom-left");
         Expect(!hub.Contains("PlaceChrome(menu, new Vector2(0f, 1f)") && !menu.Contains("PlaceChrome(menu, new Vector2(0f, 1f)"),
@@ -112,12 +112,12 @@ internal static class ThumbReachTests
     private static void FanOpensUpward()
     {
         string menu = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Menu.cs");
-        Expect(menu.Contains("stack.startCorner = GridLayoutGroup.Corner.LowerLeft;") &&
-               menu.Contains("stack.childAlignment = TextAnchor.LowerLeft;"),
-            "the fan's grid fills from the lower-left, so the first token is nearest the button");
-        Expect(menu.Contains("columnRect.pivot = new Vector2(0f, 0f);"), "the fan's pivot is its bottom-left");
-        Expect(menu.Contains("columnRect.position = corners[1] + new Vector3(0f, 12f * canvasRoot.lossyScale.y, 0f);"),
-            "the fan hangs one gap above the button's top-left corner");
+        Expect(menu.Contains("stack.startCorner = onRight ? GridLayoutGroup.Corner.LowerRight : GridLayoutGroup.Corner.LowerLeft;") &&
+               menu.Contains("stack.childAlignment = onRight ? TextAnchor.LowerRight : TextAnchor.LowerLeft;"),
+            "the fan's grid fills from the lower corner on the menu's side, so the first token is nearest the button");
+        Expect(menu.Contains("columnRect.pivot = new Vector2(onRight ? 1f : 0f, 0f);"), "the fan's pivot is its bottom corner on the menu's side");
+        Expect(menu.Contains("columnRect.position = corners[onRight ? 2 : 1] + new Vector3(0f, 12f * canvasRoot.lossyScale.y, 0f);"),
+            "the fan hangs one gap above the button's top corner on the menu's side");
         Expect(menu.Contains("float room = (screenCorners[1].y - columnRect.position.y)"),
             "the room is measured from the fan's foot up to the top of the screen");
         int arrange = menu.IndexOf("tokens = ArrangeFan(tokens);", StringComparison.Ordinal);

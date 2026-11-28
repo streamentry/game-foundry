@@ -88,11 +88,11 @@ internal static class FanOrderTests
             "bad input keeps a single column");
         Expect(FanOrder.RowsThatFit(300f, 64f, 12f, 0) == 1, "no tokens, one row");
         string menu = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Menu.cs");
-        // Checklist 94: the fan opens upward from the bottom-left menu button, so it fills from the bottom.
+        // Checklist 94 and 5: the fan opens upward from the menu button (bottom-left, or bottom-right for a right hand).
         Expect(menu.Contains("stack.startAxis = GridLayoutGroup.Axis.Vertical;") &&
-               menu.Contains("stack.startCorner = GridLayoutGroup.Corner.LowerLeft;") &&
+               menu.Contains("stack.startCorner = onRight ? GridLayoutGroup.Corner.LowerRight : GridLayoutGroup.Corner.LowerLeft;") &&
                menu.Contains("stack.constraintCount = FanOrder.RowsThatFit(room, FanCell, FanGap, tokens.Count);"),
-            "the fan fills up from its bottom-left corner, then wraps, by the rows that fit");
+            "the fan fills up from the menu's bottom corner, then wraps, by the rows that fit");
     }
 
     private static void AppRemembersAndArranges()

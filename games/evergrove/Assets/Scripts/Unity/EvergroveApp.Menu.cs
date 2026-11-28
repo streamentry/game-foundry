@@ -20,7 +20,8 @@ namespace Evergrove.UnityClient
         private void HandleBackGesture()
         {
             if (!BackKeyPressed()) return;
-            if (letterCard != null) CloseLetter();
+            if (handSheet != null) DeclineHand();
+            else if (letterCard != null) CloseLetter();
             else if (familySheet != null) familySheet.Close();
             else if (seedBookSheet != null) CloseSeedBook();
             else if (marketSheet != null) CloseMarketSheet();
@@ -112,7 +113,7 @@ namespace Evergrove.UnityClient
                     else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; waysTab = false; Rebuild(); }
                     else ToggleFan(false);
                 }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 0f), new Vector2(MenuInset, MenuInset)); // checklist 94: bottom-left, one thumb
+            PlaceChrome(menu, MenuCornerAnchor, new Vector2(MenuSideOffset, MenuInset)); // checklist 94 and 5: bottom corner for the hand
             if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu, MenuSeenKey);
         }
 
@@ -170,8 +171,10 @@ namespace Evergrove.UnityClient
             var columnRect = column.GetComponent<RectTransform>();
             Rect safe = Screen.safeArea;
             float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
-            columnRect.anchorMin = columnRect.anchorMax = new Vector2(safe.xMin / w, safe.yMin / h);
-            columnRect.pivot = new Vector2(0f, 0f);
+            // Checklist 5: a right hand's menu sits bottom-right, so the fan hangs from that side instead.
+            bool onRight = MenuOnRight;
+            columnRect.anchorMin = columnRect.anchorMax = new Vector2((onRight ? safe.xMax : safe.xMin) / w, safe.yMin / h);
+            columnRect.pivot = new Vector2(onRight ? 1f : 0f, 0f);
             // Checklist 94: the fan opens upward from the bottom-left menu button. Its bottom-left corner sits
             // just above the button (set below, once the button's place is known), so the token used last is
             // first, nearest the thumb, and the rest climb toward the top of the screen.
@@ -181,9 +184,9 @@ namespace Evergrove.UnityClient
             var stack = column.AddComponent<GridLayoutGroup>();
             stack.cellSize = new Vector2(FanCell, FanCell);
             stack.spacing = new Vector2(FanGap, FanGap);
-            stack.startCorner = GridLayoutGroup.Corner.LowerLeft;
+            stack.startCorner = onRight ? GridLayoutGroup.Corner.LowerRight : GridLayoutGroup.Corner.LowerLeft;
             stack.startAxis = GridLayoutGroup.Axis.Vertical;
-            stack.childAlignment = TextAnchor.LowerLeft;
+            stack.childAlignment = onRight ? TextAnchor.LowerRight : TextAnchor.LowerLeft;
             stack.constraint = GridLayoutGroup.Constraint.FixedRowCount;
             stack.constraintCount = 99; // set below, once the fan hangs from the corner button
             var fit = column.AddComponent<ContentSizeFitter>();
@@ -280,7 +283,7 @@ namespace Evergrove.UnityClient
                 {
                     var corners = new Vector3[4];
                     ((RectTransform)corner.transform).GetWorldCorners(corners);
-                    columnRect.position = corners[1] + new Vector3(0f, 12f * canvasRoot.lossyScale.y, 0f);
+                    columnRect.position = corners[onRight ? 2 : 1] + new Vector3(0f, 12f * canvasRoot.lossyScale.y, 0f);
                     break;
                 }
             // How many tokens fit up the screen from here, below the top of the safe area.

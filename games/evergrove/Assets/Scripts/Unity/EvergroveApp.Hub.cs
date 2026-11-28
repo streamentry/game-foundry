@@ -165,44 +165,14 @@ namespace Evergrove.UnityClient
                 KeeperLine(stack.transform, "Last memory", hubRecall);
             if (worldHome)
             {
-                // I204: a thing you've grown, picked up, holds its own puzzle: the big
-                // token becomes that thing, and plays its puzzle.
+                // I204, checklist 13: a thing you've grown, picked up, holds its own puzzle. Its Play and
+                // Move tokens sit beside it on the map (ThingActions.cs), so no bottom play token here.
                 int held = world.Mode == PlayMode.Living && mapInHand >= 0 && mapInHand < world.Choices.Length
                     ? mapInHand : -1;
                 int heldPlant = world.Mode == PlayMode.Living && heldBought >= 0 && heldBought < world.BoughtCount
                     ? heldBought : -1;
                 if (held >= 0 || heldPlant >= 0)
                 {
-                    Transform heldRow = CenteredRowIn(stack.transform, "Play row");
-                    int heldKind = heldPlant >= 0 ? world.Bought[heldPlant * 2] : -1;
-                    string heldName = heldPlant >= 0 ? Nursery.Item(heldKind).Name : ItemAt(held, world.Choices[held]).Name;
-                    Button thing = IconButton(heldRow, "Play its puzzle", heldName,
-                        MosseloraArt.IconContinue, () => { if (heldPlant >= 0) OpenBoughtPlay(heldPlant); else OpenTreePlay(held); },
-                        96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
-                    Transform glyph = thing.transform.Find("Icon");
-                    Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
-                    Sprite heldArt = heldPlant >= 0 ? MosseloraArt.Load(Nursery.Item(heldKind).Art)
-                        : ItemArt(held, world.Choices[held]);
-                    if (glyphImage != null && heldArt != null)
-                    {
-                        glyphImage.sprite = heldArt;
-                        glyphImage.color = Color.white;
-                        var glyphSize = glyph.GetComponent<LayoutElement>();
-                        glyphSize.minWidth = glyphSize.preferredWidth = 64f;
-                        glyphSize.minHeight = glyphSize.preferredHeight = 64f;
-                        // A small round "play" mark on the token's lower right.
-                        Image disc = MosseloraArt.Ornament(thing.transform, "Plays", MosseloraArt.Rounded(16),
-                            new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(-4f, 4f));
-                        if (disc != null)
-                        {
-                            disc.preserveAspect = false;
-                            disc.color = MosseloraTheme.WaterAction;
-                            Image playMark = MosseloraArt.Ornament(disc.transform, "Play mark", MosseloraArt.Load(MosseloraArt.IconContinue),
-                                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(20f, 20f), Vector2.zero);
-                            if (playMark != null) playMark.color = Color.white;
-                        }
-                    }
-                    if (gentleMotion) BloomPulse.Add(thing.gameObject, 0.2f, 0.06f);
                     SeedPurse();
                     DayRhythmTokens(titleScreen.transform); // checklist 54
                     if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
@@ -357,7 +327,7 @@ namespace Evergrove.UnityClient
             rect.anchoredPosition = Vector2.zero;
             Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => ToggleFan(true), 54, MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 0f), new Vector2(MenuInset, MenuInset));
+            PlaceChrome(menu, MenuCornerAnchor, new Vector2(MenuSideOffset, MenuInset));
             if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu, MenuSeenKey);
             MenuLetterCue(menu); // checklist 11: the letter's arrival and unread dot live on the menu button
             MenuGiftCue(menu); // checklist 11 (B5b): a cutting waiting in the folded basket

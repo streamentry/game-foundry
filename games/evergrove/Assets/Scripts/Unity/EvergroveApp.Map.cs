@@ -54,7 +54,14 @@ namespace Evergrove.UnityClient
             GardenMapView view = GardenMapView.Build(window, plot, map, hubItems, zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldDecor >= 0 ? DecorIndex + heldDecor : heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
                 (justPlanted >= 0 || justBought >= 0) && gentleMotion,
-                GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
+                GreenedShare(0), -1f, (land, point) =>
+                {
+                    // Neighbours stand on the map; the held thing's Play and Move tokens sit beside it
+                    // (checklist 13). The tokens are not returned with the neighbours: the map treats what
+                    // it is given as people (footprints in snow, stepping off signs), so they manage themselves.
+                    ThingActionsOnMap(land, point);
+                    return NeighborsOnMap(land, point, map, true);
+                },
                 0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;
             celebrateKeeper = -1; // I424: once

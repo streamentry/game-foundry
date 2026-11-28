@@ -318,7 +318,7 @@ namespace Evergrove.UnityClient
             rect.pivot = new Vector2(0.5f, 0f);
             // Checklist 94: the row starts right of the bottom-left menu button, so the button is never covered.
             rect.sizeDelta = new Vector2(-34f - MenuReserve, rowHeight);
-            rect.anchoredPosition = new Vector2(MenuReserve / 2f, 14f);
+            rect.anchoredPosition = new Vector2(MenuReserveOffset, 14f); // checklist 5: the reserve sits on the menu's far side
             keep.transform.SetSiblingIndex(Mathf.Min(index, content.childCount - 1));
         }
     }
