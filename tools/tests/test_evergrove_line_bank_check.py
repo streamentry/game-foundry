@@ -1,4 +1,4 @@
-"""Offline tests for the Mosselora companion line bank checker (CP22 near-duplicates, CP24 length).
+"""Offline tests for the Mosselora companion line bank checker (CP22 near-duplicates, CP24 length, CP25 punctuation).
 
 Uses synthetic banks and rules in temporary directories; never reads the shipped bank.
 """
@@ -155,6 +155,75 @@ class ReadableLengthTests(unittest.TestCase):
         self.assertEqual(1, code)
         self.assertIn("FAIL en.json: FruitGiven/0 #2", out)
         self.assertIn("6 words", out)
+
+
+class PunctuationTests(unittest.TestCase):
+    """CP25: double spaces, leading or trailing spaces, closing punctuation, mixed quote styles, space before punctuation."""
+
+    def _problems(self, line: str) -> list[str]:
+        return checker.punctuation_problems(line)
+
+    def test_double_space_fires(self) -> None:
+        self.assertTrue(any("double space" in p for p in self._problems("Rain  falls.")))
+
+    def test_double_space_silent_on_single_spaces(self) -> None:
+        self.assertEqual([], self._problems("Rain falls."))
+
+    def test_leading_or_trailing_space_fires(self) -> None:
+        self.assertTrue(any("leading or trailing" in p for p in self._problems(" Rain falls.")))
+        self.assertTrue(any("leading or trailing" in p for p in self._problems("Rain falls. ")))
+        self.assertTrue(any("leading or trailing" in p for p in self._problems("Rain falls.\n")))
+
+    def test_leading_or_trailing_space_silent_when_trimmed(self) -> None:
+        self.assertEqual([], self._problems("Rain falls."))
+
+    def test_missing_closing_punctuation_fires(self) -> None:
+        self.assertTrue(any("closing" in p for p in self._problems("Rain falls")))
+        self.assertTrue(any("closing" in p for p in self._problems("Rain falls,")))
+        self.assertTrue(any("closing" in p for p in self._problems("I see {thing}")))
+
+    def test_closing_punctuation_silent_for_end_marks(self) -> None:
+        for line in ["Rain falls.", "Is it raining?", "Rain falls\u2026", "Rain falls!"]:
+            self.assertEqual([], self._problems(line), line)
+
+    def test_closing_quote_or_bracket_after_end_mark_is_silent(self) -> None:
+        for line in ['He said "rain falls."', "She said \u201crain falls.\u201d", "(Rain falls.)", "It fell [again.]"]:
+            self.assertEqual([], self._problems(line), line)
+
+    def test_closing_quote_without_end_mark_fires(self) -> None:
+        self.assertTrue(any("closing" in p for p in self._problems('He said "rain falls"')))
+
+    def test_mixed_straight_and_curly_quotes_fires(self) -> None:
+        self.assertTrue(any("mixes" in p for p in self._problems('He said "hi." and \u2018bye.\u2019')))
+
+    def test_straight_apostrophe_with_curly_double_quotes_fires(self) -> None:
+        self.assertTrue(any("mixes" in p for p in self._problems("Don't go, \u201clove\u201d.")))
+
+    def test_curly_apostrophe_with_straight_double_quotes_fires(self) -> None:
+        self.assertTrue(any("mixes" in p for p in self._problems('Don\u2019t go, "love".')))
+
+    def test_one_quote_style_is_silent(self) -> None:
+        for line in ["Don't go, friend.", "He said \u201chi.\u201d", "He said \"hi.\"", "It\u2019s fine."]:
+            self.assertEqual([], self._problems(line), line)
+
+    def test_space_before_punctuation_fires(self) -> None:
+        for line in ["Rain , falls.", "Rain falls .", "Rain falls ;", "Rain falls :", "Rain falls ?"]:
+            self.assertTrue(any("before" in p for p in self._problems(line)), line)
+
+    def test_space_before_punctuation_silent_when_attached(self) -> None:
+        for line in ["Rain, falls.", "Rain falls\u2026", "Rain falls: wet.", "Wait; then rain falls."]:
+            self.assertEqual([], self._problems(line), line)
+
+    def test_check_line_reports_punctuation_problems(self) -> None:
+        problems = checker.check_line("FruitGiven", "0", "Rain  falls", SYNTHETIC_RULES)
+        self.assertTrue(any("double space" in p for p in problems), problems)
+        self.assertTrue(any("closing" in p for p in problems), problems)
+
+    def test_main_fails_on_punctuation_problem(self) -> None:
+        bank = {"FruitGiven": {"0": [DIFFERENT_A, "Rain falls  today."]}}
+        code, out = StrictFlagTests._run_bank(bank, SYNTHETIC_RULES)
+        self.assertEqual(1, code)
+        self.assertIn("FAIL en.json: FruitGiven/0 #2 double space", out)
 
 
 class StrictFlagTests(unittest.TestCase):

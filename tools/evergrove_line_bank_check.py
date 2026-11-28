@@ -8,7 +8,8 @@ run in the C# tests (Tests/LineBankTests.cs); both read games/evergrove/docs/spe
 Rules: every {slot} is one its fact kind fills; at most maxChars characters once filled with the
 longest real values; no "!"; no banned, child-unsafe or time-claim phrases; a {slot} is never a
 sentence's first word, never follows "a"/"an", and {thing} is never a verb's subject; no digits;
-no duplicates; at least the kind's minimum per voice (and per qualifier value, for kinds keyed
+no duplicates; CP25 punctuation (no double or edge spaces, a closing . ! ? or ellipsis, no mixing straight
+and curly quotes, no space before , . ! ? ; :); at least the kind's minimum per voice (and per qualifier value, for kinds keyed
 "Kind.Value" such as "WeatherToday.Rainy"); only the voices that speak a kind.
 
 Warnings (printed as "warning: ...") do not fail the run. Near-duplicates: two lines in one group
@@ -36,6 +37,12 @@ SLOT = re.compile(r"\{([^{}]*)\}")
 # CP22: a slot such as {thing} stays one token; other punctuation is dropped; stop words are kept.
 TOKEN = re.compile(r"\{[^{}]*\}|[^\W_]+(?:'[^\W_]+)*")
 NEAR_DUPLICATE = 0.75
+# CP25: a line may end with one of these, optionally followed by closing quotes or brackets.
+END_MARKS = (".", "!", "?", "\u2026")
+CLOSERS = "\"'\u201d\u2019)]\u00bb"
+STRAIGHT_QUOTES = "'\""
+CURLY_QUOTES = "\u2018\u2019\u201c\u201d"
+SPACE_BEFORE_PUNCTUATION = re.compile(r"\s[,.!?;:]")
 
 
 def word_hit(text: str, phrase: str) -> bool:
@@ -47,14 +54,32 @@ def split_key(key: str) -> tuple[str, str | None]:
     return kind, (qualifier or None)
 
 
+def punctuation_problems(line: str) -> list[str]:
+    """CP25: punctuation hygiene. A curly apostrophe (\u2019) and a straight one (') count as mixing quote
+    styles when the same line also has straight double quotes, so one line uses one quote style."""
+    problems = []
+    if "  " in line:
+        problems.append("double space")
+    if line != line.strip():
+        problems.append("leading or trailing space")
+    if line.strip() and not line.rstrip(CLOSERS).endswith(END_MARKS):
+        problems.append("no closing . ! ? or \u2026 (a closing quote or bracket may follow it)")
+    if any(c in line for c in STRAIGHT_QUOTES) and any(c in line for c in CURLY_QUOTES):
+        problems.append("mixes straight (' \") and curly (\u2018 \u2019 \u201c \u201d) quotes")
+    if SPACE_BEFORE_PUNCTUATION.search(line):
+        problems.append("space before , . ! ? ; or :")
+    return problems
+
+
 def check_line(kind: str, voice: str, line: str, rules: dict) -> list[str]:
     problems = []
     spec = rules["kinds"].get(kind)
     if spec is None:
         return [f"unknown fact kind {kind}"]
     allowed = spec["slots"]
-    if line != line.strip() or not line:
-        problems.append("empty or untrimmed")
+    if not line.strip():
+        problems.append("empty")
+    problems += punctuation_problems(line)
     if "\n" in line:
         problems.append("line break")
     used = SLOT.findall(line)
