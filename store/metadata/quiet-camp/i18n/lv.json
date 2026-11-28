@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Telti un koki",
+ "keywords": "mežs,loģika,režģis,ciparu mīkla,bezsaistē",
+ "short_description": "Novieto teltis, saskaņo rindu summas un nesaskar tās.",
+ "description": "Novieto tieši vienu telti blakus katram kokam, izpildi katras rindas un kolonnas summu un glabā teltis nesaskarē, arī pa diagonāli. Atrisini astoņas oriģinālas, unikāli atrisināmas 5×5 un 6×6 tāfeles.\n\nAtzīmē zāli, atsauc, restartē un saglabā progresu šajā ierīcē. Taimera vai punktu soda nav."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Përdor çdo vijë një herë",
+ "keywords": "graf,itinerar,enigmë lidhjesh,lidh pikat,euler,logjikë",
+ "short_description": "Planifiko një itinerar që përdor çdo lidhje një herë.",
+ "description": "Përdor çdo lidhje të dukshme saktësisht një herë. Mund të kalosh sërish nëpër pikat; kryqëzimet pa pikë nuk janë nyje. Zgjidh tetë tabela origjinale grafesh duke gjurmuar ose duke prekur butonat e mëdhenj me pika. Zhbëj, rifillo, rishiko tabelat e mëparshme dhe vazhdo itinerarin dhe përparimin e hapur lokalisht."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Numëro çfarë shikon",
+ "keywords": "kurodoko,dukshmëri,vijë shikimi,të zeza të bardha,errëso,logjikë,numër,rrjet,enigmë",
+ "short_description": "Errëso katrorë që çdo numër të shohë saktësisht aq katrorë të bardhë.",
+ "description": "Errëso disa katrorë të zinj në mënyrë që katrorët e zinj të mos prekin njëri-tjetrin përgjatë një skaji dhe të gjithë katrorët e bardhë të mbeten të lidhur. Çdo katror me numër numëron katrorët e bardhë që mund të shohë në rreshtin dhe kolonën e vet, duke përfshirë veten, dhe duhet të përputhet me numrin e tij.\n\nPreke një katror bosh për të kaluar ndërmjet të zezës, të bardhës dhe të panjohurës. Shenjat me numra mbeten fikse, dhe teksti në ekran tregon cilat vija shikimi ose lidhje thyejnë rregullat.\n\nGjashtë tabela origjinale, secila hapet kur zgjidhet ajo para saj. Zhbërja dhe Rifillimi janë gjithmonë të disponueshme, nuk ka kohëmatës dhe përparimi ruhet në këtë pajisje. Luhet pa internet. Pa reklama, pa llogari dhe pa mbledhje të dhënash."
+}

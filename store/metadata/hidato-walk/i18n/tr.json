@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sayı yolu bulmacaları",
+ "keywords": "hidoku,sayı yolu,zincir,ardışık,ızgara,mantık",
+ "short_description": "1 ila 16'yı, her sayı bir sonrakine değen bir zincirde yerleştir.",
+ "description": "1 ila 16 sayılarını 4×4 ızgaraya her biri tam bir kez gelecek şekilde yerleştir; ardışık her çift yatay, dikey ya da çapraz olarak birbirine değmelidir. Verilmiş sayılar yerlerinde kalır.\n\nDüzenlenebilir bir hücreye dokun ve tuş takımından bir sayı seç. Sil, bir hücreyi temizler.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

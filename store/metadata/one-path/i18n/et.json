@@ -1,0 +1,8 @@
+{
+ "lang": "et",
+ "status": "machine translation — native review pending",
+ "subtitle": "Kasuta iga joont üks kord",
+ "keywords": "graaf,servamõistatus,punktide ühendamine,euleri,loogika",
+ "short_description": "Plaani marsruut, mis kasutab iga ühendust täpselt üks kord.",
+ "description": "Kasuta iga nähtavat ühendust täpselt üks kord. Punktidest võib uuesti läbi minna; punktita ristumised ei ole sõlmed. Lahenda kaheksa algupärast graafilauda, jälgides joont või vajutades suuri punktinuppe. Võta tagasi, alusta uuesti, külasta varasemaid laudu ning jätka kohaliku marsruudi ja avatud edenemisega."
+}

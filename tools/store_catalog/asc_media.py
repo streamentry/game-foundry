@@ -52,13 +52,23 @@ def upload(set_id: str, png: Path) -> None:
               {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()})
 
 
+def clear_set(set_id: str) -> None:
+    for shot in asc.get(f"/v1/appScreenshotSets/{set_id}/appScreenshots?limit=50")["data"]:
+        asc.request("DELETE", f"/v1/appScreenshots/{shot['id']}")
+
+
 def main(argv: list[str]) -> int:
+    replace = "--replace" in argv
+    argv = [a for a in argv if a != "--replace"]
     apps = json.loads(Path(argv[0]).read_text())
     out = Path(os.environ["STORE_OUT"])
     for game in select(argv[1:]):
         shots = sorted((out / game.slug / "shots" / "apple").glob("*.png"))
         try:
             set_id, existing = screenshot_set(en_us_localization(apps[game.slug]["apple_id"]))
+            if replace and existing:
+                clear_set(set_id)
+                existing = 0
             if existing >= len(shots):
                 print(game.slug, "skip", existing, flush=True)
                 continue

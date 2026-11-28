@@ -84,3 +84,5 @@ fights the icon. Iterate at most 3 times.
 ## 6. Report (≤ 15 lines)
 Palette (4 key hexes), signature motion, files changed, test results per file
 (checks/failures), screenshot path, anything not done.
+
+**Do not spawn sub-agents or use the Agent/Task tool. Do all the work yourself.**

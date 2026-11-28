@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Gjej flotën e fshehur",
+ "keywords": "anijet,flotë,detare,hartë,logjikë,rrjet,enigmë,sonar",
+ "short_description": "Gjej flotën e fshehur në një hartë 5×5 me ndihmën e totaleve të rreshtave.",
+ "description": "Gjej një flotë të vogël në një hartë 5×5: një anije tre qeliza e gjatë, një dy qeliza dhe një anije me një qelizë. Asnjë dy anije nuk mund të prekin njëra-tjetrën, as diagonalisht, dhe totalet e çdo rreshti dhe kolone duhet të përputhen.\n\nPreke një katror për të shënuar një anije, prek sërish për një shënim uji, dhe përsëri për ta pastruar. Totalet aktuale dhe ato të synuara qëndrojnë të dukshme pranë çdo rreshti dhe kolone.\n\nGjashtë tabela origjinale, secila hapet kur zgjidhet ajo para saj. Zhbërja dhe Rifillimi janë gjithmonë të disponueshme, nuk ka kohëmatës dhe përparimi ruhet në këtë pajisje. Luhet pa internet. Pa reklama, pa llogari dhe pa mbledhje të dhënash."
+}

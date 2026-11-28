@@ -1,0 +1,8 @@
+{
+ "lang": "et",
+ "status": "machine translation — native review pending",
+ "subtitle": "Liida tipu poole",
+ "keywords": "summad,liitmine,matemaatika,kivid,loogika",
+ "short_description": "Koosta püramiid uuesti paari hajutatud vihje põhjal.",
+ "description": "Leia piramiidi põhjas neli numbrit 1 kuni 9. Igaüks kuuest kivist piramiidi põhjast kõrgemal on võrdne kahe vahetult tema all oleva kivi summaga, ja mõned vihjesildid on fikseeritud, et sind juhendada.\n\nVali põhjakivi ja sisesta number; kivid kõrgemal näitavad oma summasid, kui edeneb.\n\nKuus algupärast mängulauda, millest igaüks avab järgmise, kui see on lahendatud. Võta tagasi ja Alusta uuesti on alati saadaval, taimerit ei ole ning edenemine salvestub sellesse seadmesse. Mängib võrguühenduseta. Reklaame, kontot ega andmekogumist ei ole."
+}

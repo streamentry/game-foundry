@@ -1,0 +1,8 @@
+{
+ "lang": "lt",
+ "status": "machine translation — native review pending",
+ "subtitle": "Kiekvieną liniją po kartą",
+ "keywords": "grafas,kraštinių galvosūkis,taškų jungimas,eulerio,logika",
+ "short_description": "Suplanuok maršrutą, naudojantį kiekvieną jungtį tiksliai kartą.",
+ "description": "Naudok kiekvieną matomą jungtį tiksliai vieną kartą. Taškais galima eiti pakartotinai; sankryžos be taško nėra mazgai. Išspręsk aštuonias originalias grafų lentas sekdamas liniją arba paliesdamas didelius taškų mygtukus. Atšauk, pradėk iš naujo, grįžk prie ankstesnių lentų ir tęsk savo vietinį maršrutą bei atrakintą eigą."
+}

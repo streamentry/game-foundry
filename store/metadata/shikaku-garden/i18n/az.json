@@ -1,0 +1,8 @@
+{
+ "lang": "az",
+ "status": "machine translation — native review pending",
+ "subtitle": "Düzbucaqlı məntiq tapmacası",
+ "keywords": "düzbucaqlı,rəqəm tapmacası,məntiq,şəbəkə,sahə,həndəsə",
+ "short_description": "Şəbəkəni ipucunun ölçüsündə düzbucaqlılara bölün.",
+ "description": "Şəbəkəni düzbucaqlılara bölün. Hər düzbucaqlı lövhənin içində qalmalı, dəqiq bir ipucu ehtiva etməli və həmin ipucun göstərdiyi sayda xananı örtməlidir. Səkkiz orijinal lövhəni künclərə toxunaraq seçmə, geri alma, yenidən başlama, açılmış irəliləyiş və yerli saxlama ilə həll edin. Vaxt məhdudiyyəti yoxdur."
+}

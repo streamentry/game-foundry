@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Katru līniju pa vienam reizi",
+ "keywords": "grafs,malu mīkla,punktu savienošana,eilera,loģika",
+ "short_description": "Plāno maršrutu, kas izmanto katru savienojumu tieši vienreiz.",
+ "description": "Izmanto katru redzamo savienojumu tieši vienreiz. Punktus var apmeklēt atkārtoti; krustojumi bez punkta nav mezgli. Atrisini astoņas oriģinālas grafu tāfeles, sekojot līnijai vai pieskaroties lielām punktu pogām. Atsaukt, restartēt, atgriezties pie iepriekšējām tāfelēm un turpināt savu lokālo maršrutu un atvērto progresu."
+}

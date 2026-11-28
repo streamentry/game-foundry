@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Atrodi slepeno floti",
+ "keywords": "flote,karte,loģika,režģis,mīkla,sonārs",
+ "short_description": "Atrodi slepenu floti 5×5 kartē pēc rindu un kolonnu summām.",
+ "description": "Atrodi nelielu floti 5×5 kartē: vienu kuģi trīs šūnu garumā, vienu divu šūnu garumā un vienu vienas šūnas kuģi. Neviens kuģis nedrīkst pieskarties citam, pat diagonāli, un katras rindas un kolonnas summai jāsakrīt.\n\nPieskaries kvadrātam, lai atzīmētu kuģi, vēlreiz – lai pievienotu ūdens piezīmi, un vēl reizi – lai notīrītu. Pašreizējās un mērķa summas redzamas blakus katrai rindai un kolonnai.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

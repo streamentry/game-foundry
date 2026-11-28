@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zgjidh shumat e kryqëzuara",
+ "keywords": "kryqëzim numrash,shuma,logjikë,aritmetikë,rrjet,enigmë",
+ "short_description": "Zgjidh shumat e kryqëzuara me një panel të qartë të qelizës.",
+ "description": "Plotëso çdo varg Kakuro me shifra nga 1 deri në 9 në mënyrë që totali i tij të përputhet me shenjën; mos përsërit asnjë shifër brenda një vargu. Zgjidh tetë tabela origjinale 5×5 për të hapur tjetrën. Paneli Compass tregon totalet horizontale dhe vertikale dhe shifrat e mundshme lokalisht për qelizën e zgjedhur. Zhbërja, fshirja, rifillimi dhe përparimi lokal janë të përfshira."
+}

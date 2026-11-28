@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Eşitsizlik sayı bulmacaları",
+ "keywords": "eşitsizlik,büyüktür,küçüktür,latin karesi,mantık,ızgara",
+ "short_description": "4×4 ızgarayı 1 ila 4 ile doldur, eşitsizlik işaretlerine uy.",
+ "description": "4×4 ızgarayı 1 ila 4 sayılarıyla doldur; her sayı her satır ve sütunda bir kez yer alsın ve yan yana komşu hücreler arasındaki her büyüktür ya da küçüktür işareti doğru olsun.\n\nDüzenlenebilir bir hücreye, sonra dört büyük rakam düğmesinden birine dokun. Sil ve Sonraki her zaman görünür.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

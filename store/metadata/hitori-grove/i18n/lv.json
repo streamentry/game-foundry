@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nokrāso atkārtotos ciparus",
+ "keywords": "nokrāsošana,atkārtoti cipari,savienots,loģika,režģis",
+ "short_description": "Nokrāso atkārtotos ciparus, neizjaucot tāfeli.",
+ "description": "Nokrāso kvadrātus tā, lai neviens cipars nekādā rindā vai kolonnā starp nenokrāsotajiem kvadrātiem neparādītos vairāk nekā vienreiz. Nokrāsotie kvadrāti nekad nedrīkst pieskarties pa malu, un visiem nenokrāsotajiem kvadrātiem jāpaliek saistītiem vienā grupā.\n\nPieskaries numurētai šūnai, lai pārslēgtu starp nokrāsošanu, piezīmi un neatzīmētu.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

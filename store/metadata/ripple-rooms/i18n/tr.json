@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aralıklı sayı odaları",
+ "keywords": "bölgeler,aralık,mesafe,sayı,mantık,ızgara",
+ "short_description": "Düzensiz odaları, tekrar eden sayılar mesafe koruyacak şekilde doldur.",
+ "description": "Her düzensiz odayı, boyutuna kadar olan sayılarla doldur. Aynı k sayısı bir satır ya da sütunda iki kez görünüyorsa, aralarında en az k kare olmalıdır.\n\nBir kareye dokun ve büyük düğmelerden 1 ile 4 arasında bir rakam gir. Her kare, sayının yanında oda harfini ve oda boyutunu gösterir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "et",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmeetilised puurid",
+ "keywords": "kenken,calcudoku,aritmeetika,matemaatika,ladina ruut,loogika",
+ "short_description": "Täida 4×4 ruudustik nii, et iga puur jõuaks oma aritmeetilise sihtmärgini.",
+ "description": "Täida 4×4 ruudustik numbritega 1 kuni 4 nii, et ükski number ei korduks reas ega veerus. Iga värviline puur näitab sihtmärki, mis tuleb summast, korrutisest, vahest, jagatisest või ühest väärtusest, ja puuri numbrid peavad selle saavutama.\n\nPuuduta ruutu ja seejärel numbrit suurel klahvistikul. Kustuta tühjendab ruudu.\n\nKuus algupärast mängulauda, millest igaüks avab järgmise, kui see on lahendatud. Võta tagasi ja Alusta uuesti on alati saadaval, taimerit ei ole ning edenemine salvestub sellesse seadmesse. Mängib võrguühenduseta. Reklaame, kontot ega andmekogumist ei ole."
+}

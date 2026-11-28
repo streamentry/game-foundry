@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nokta ipuçlu sayı bulmacası",
+ "keywords": "nokta,beyaz nokta,siyah nokta,oran,latin karesi,mantık",
+ "short_description": "Beyaz ve siyah noktalarla 4×4 ızgarayı 1 ila 4 ile doldur.",
+ "description": "4×4 ızgarayı 1 ila 4 ile doldur; her rakam her satır ve sütunda bir kez yer alsın. İki kare arasındaki beyaz nokta, rakamların ardışık olduğunu; siyah nokta ise birinin diğerinin tam iki katı olduğunu gösterir. Nokta olmayan kenarların ipucu yoktur.\n\nDüzenlenebilir bir kareye, sonra dört tuşlu büyük tuş takımından bir rakama dokun. Karelerin içindeki etiketler ve denetleyici her noktayı okumana yardımcı olur.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

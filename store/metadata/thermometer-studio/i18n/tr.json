@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Termometreleri doldur",
+ "keywords": "tüpler,doldurma,toplamlar,satırlar,sütunlar,mantık,ızgara",
+ "short_description": "Tüpleri ampulden doldur; satır ve sütun toplamları tutsun.",
+ "description": "Sekiz iki hücreli tüpün her birini ampulden ucuna doğru doldur, asla tersi yönde değil. Satır ve sütun toplamları, o çizgideki kaç hücrenin dolu olduğunu gösterir.\n\nAmpule dokunarak ilk parçasını doldur ya da uca dokunarak ikisini birden doldur. Aynı noktaya tekrar dokunarak tüpü boşalt.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

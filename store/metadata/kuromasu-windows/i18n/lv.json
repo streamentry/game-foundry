@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Saskaiti, ko redzi",
+ "keywords": "kurodoko,redzamība,redzes līnija,melns balts,nokrāsošana,loģika",
+ "short_description": "Nokrāso kvadrātus tā, lai katrs cipars redzētu tieši tik baltus kvadrātus.",
+ "description": "Nokrāso dažus kvadrātus melnus tā, lai melnie nekad nesaskartos pa malu un visi baltie paliktu savienoti. Katrs numurēts kvadrāts saskaita baltos kvadrātus, ko redz savā rindā un kolonnā, ieskaitot pats sevi, un skaitam jāsakrīt ar tā ciparu.\n\nPieskaries tukšam kvadrātam, lai pārslēgtu starp melnu, baltu un nezināmu. Cipari paliek fiksēti, un ekrāna teksts norāda, kuras redzes līnijas vai savienojumi pārkāpj noteikumus.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

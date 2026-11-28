@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Eşleşen çiftleri bağla",
+ "keywords": "akış,bağlantı,çiftler,harfler,mantık,ızgara",
+ "short_description": "Her harf çiftini tüm ızgarayı dolduran bir rota ile bağla.",
+ "description": "4×4 ızgaradaki kareler üzerinden her eşleşen harf çiftini bir rota ile bağla. Rotalar kesişemez ya da dallanamaz ve birlikte her kareyi kaplamalıdır.\n\nBoş karelere dokunarak Rota A, Rota B ve boş arasında geçiş yap. Sabit uçlar daireyle işaretlenir ve her rotanın kendi harfi ve rengi vardır.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Net çapraz ipuçları",
+ "keywords": "çapraz sayılar,toplamlar,mantık,aritmetik,ızgara",
+ "short_description": "Net hücre denetleyicisiyle çapraz toplamları çöz.",
+ "description": "Her Kakuro dizisini, toplamı ipucuyla eşleşecek şekilde 1–9 rakamlarıyla doldur; aynı dizide bir rakamı tekrar etme. Sekiz özgün 5×5 tahtayı çözerek bir sonrakini aç. Compass denetleyicisi seçili hücre için yatay ve dikey toplamları ile yerel olarak mümkün rakamları gösterir. Geri al, sil, yeniden başlat ve yerel ilerleme dahildir."
+}

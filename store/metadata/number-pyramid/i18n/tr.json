@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "En tepeye doğru topla",
+ "keywords": "toplam,toplama,matematik,taş,mantık,rakamlar,ızgara",
+ "short_description": "Birkaç dağınık ipucundan bir sayı piramidini yeniden kur.",
+ "description": "Bir piramidin tabanı boyunca 1 ile 9 arasındaki dört rakamı bul. Tabanın üstündeki altı taşın her biri, hemen altındaki iki taşın toplamına eşittir ve yol göstermesi için bazı ipucu etiketleri sabittir.\n\nTabandaki bir taşı seç ve bir rakam gir; üstteki taşlar ilerledikçe toplamlarını gösterir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

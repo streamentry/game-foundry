@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Enigma me lartësi ndërtesash",
+ "keywords": "kulla,lartësi,dukshmëri,katror latin,numër,logjikë,rrjet,enigmë",
+ "short_description": "Vendos lartësitë e ndërtesave që çdo shenjë skaji të numërohet saktë.",
+ "description": "Plotëso një rrjet 4×4 me lartësi ndërtesash nga 1 deri në 4, pa përsëritur asnjë lartësi në rresht ose kolonë. Çdo numër përreth skajit tregon sa ndërtesa janë të dukshme nga ai drejtim, sepse ndërtesat më të larta fshehin ato më të shkurtra.\n\nZgjidh një katror dhe shkruaj një lartësi nga 1 deri në 4. Fshi pastron një katror.\n\nGjashtë tabela origjinale, secila hapet kur zgjidhet ajo para saj. Zhbërja dhe Rifillimi janë gjithmonë të disponueshme, nuk ka kohëmatës dhe përparimi ruhet në këtë pajisje. Luhet pa internet. Pa reklama, pa llogari dhe pa mbledhje të dhënash."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Açık her hücreyi aydınlat",
+ "keywords": "aydınlatma,lamba,mantık,ızgara,bulmaca,duvar sayıları",
+ "short_description": "Her açık hücre aydınlanacak şekilde lambalar yerleştir.",
+ "description": "4×4 tahtaya lambaları öyle yerleştir ki her açık hücre aydınlansın, hiçbir iki lamba birbirini aydınlatmasın ve her numaralı duvar tam olarak o kadar lambaya dokunsun.\n\nBir açık hücreye dokunarak lamba, çapraz not ve boş arasında geçiş yap. Aydınlanan hücreler ilerledikçe vurgulanır.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

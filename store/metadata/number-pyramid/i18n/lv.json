@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Saskaiti ceļā uz virsotni",
+ "keywords": "summas,saskaitīšana,matemātika,akmeņi,loģika",
+ "short_description": "Atjauno ciparu piramīdu no dažiem izkaisītiem mājieniem.",
+ "description": "Atrodi četrus ciparus no 1 līdz 9 piramīdas pamatnē. Katrs no sešiem akmeņiem virs pamatnes ir vienāds ar diviem tieši zem tā esošo akmeņu summu, un daži norādes uzraksti ir fiksēti, lai tevi vadītu.\n\nIzvēlies pamatnes akmeni un ievadi ciparu; augšējie akmeņi rāda savas summas, kad virzies.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

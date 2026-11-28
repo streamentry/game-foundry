@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ishuj dhe det",
+ "keywords": "ishuj,det,tokë,i lidhur,logjikë,numër,rrjet,enigmë,ujë",
+ "short_description": "Ndaj një zonë 4×4 në det dhe ishuj me madhësi të saktë.",
+ "description": "Shëno çdo katror të një zone 4×4 si det ose tokë. Çdo ishull me numër ka saktësisht aq katrorë dhe përmban një shenjë të vetme; deti formon një trup të vetëm të lidhur, dhe asnjë bllok 2×2 nuk mund të jetë tërësisht det.\n\nPreke një katror bosh për të kaluar ndërmjet detit, tokës dhe bosh. Katrorët me shenjë janë fikse.\n\nGjashtë tabela origjinale, secila hapet kur zgjidhet ajo para saj. Zhbërja dhe Rifillimi janë gjithmonë të disponueshme, nuk ka kohëmatës dhe përparimi ruhet në këtë pajisje. Luhet pa internet. Pa reklama, pa llogari dhe pa mbledhje të dhënash."
+}

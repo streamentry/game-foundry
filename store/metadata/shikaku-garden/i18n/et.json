@@ -1,0 +1,8 @@
+{
+ "lang": "et",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ristkülikute loogikamõistatus",
+ "keywords": "alad,pindala,geomeetria,loogika,ruudustik",
+ "short_description": "Jaga ruudustik vihjete suuruste järgi ristkülikuteks.",
+ "description": "Jaga ruudustik ristkülikuteks. Iga ristkülik peab jääma laua sisse, sisaldama täpselt ühte vihjet ja katma selle vihje näitamise arvu ruute. Lahenda kaheksa algupärast lauda puudutusega nurkade valimise, tagasivõtu, uuesti alustamise, avanenud edenemise ja kohalike salvestustega. Taimerit ei ole."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Seferinde bir harf değiştir",
+ "keywords": "harfler,kelime dağarcığı,yazım,adımlar,dil,bulmaca",
+ "short_description": "Bir İngilizce kelimeden diğerine, her adımda bir harfle tırman.",
+ "description": "Bir İngilizce kelimeyle başla ve yalnızca sunulan kelime kartlarını kullanarak her seferinde tam olarak bir harf değiştirerek hedef kelimeye ulaş. Her tahta, en kısa rotanın uzunluğu olan tam bir adım bütçesi verir.\n\nUygun bir sonraki kelime kartına dokun. Mevcut merdiven, hedef ve adım sayın ekranda kalır.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Çadır ve ağaç bulmacası",
+ "keywords": "orman,mantık,ızgara,sayı bulmacası,çevrimdışı",
+ "short_description": "Çadırları yerleştir, satır toplamlarını tut ve birbirine değdirme.",
+ "description": "Her ağacın yanına tam olarak bir çadır yerleştir, her satır ve sütun toplamını sağla ve çadırları birbirine değdirmeden tut; çapraz komşular dahil. Sekiz özgün, tek çözümlü 5×5 ve 6×6 tahtayı çöz.\n\nÇimleri işaretle, geri al, yeniden başlat ve ilerlemeni bu cihazda tut. Zamanlayıcı ya da puan cezası yoktur."
+}

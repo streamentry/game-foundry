@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Atrodi slēptos vārdus",
+ "keywords": "slēpts,burti,vārdu krājums,pareizrakstība,valoda,mīkla,režģis",
+ "short_description": "Atrodi trīs mērķa vārdus 6×6 burtu režģī.",
+ "description": "Atrodi trīs mērķa vārdus, kas paslēpti 6×6 burtu režģī. Katrs vārds stiepjas pa taisnu līniju horizontāli, vertikāli vai diagonāli un parādās tieši vienreiz.\n\nPieskaries vārda pirmajam un pēdējam burtam jebkurā no abiem virzieniem. Atrastie vārdi paliek izcelti.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

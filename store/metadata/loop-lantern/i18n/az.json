@@ -1,0 +1,8 @@
+{
+ "lang": "az",
+ "status": "machine translation — native review pending",
+ "subtitle": "Bir qapalı döngə çəkin",
+ "keywords": "slitherlink,hasar,kənarlar,xətt,məntiq,rəqəm,şəbəkə,tapmaca",
+ "short_description": "Hər kənar sayı ipucunu ödəyən tək bir döngə çəkin.",
+ "description": "Şəbəkə xətləri boyunca heç bir budaq və ya kəsişmə olmadan bir qapalı döngə çəkin. Hər rəqəmli kvadrat dörd tərəfindən neçəsinin döngə tərəfindən istifadə olunduğunu göstərir.\n\nKvadrata toxunun, sonra dörd böyük Yuxarı, Sağ, Aşağı və Sol düymələrindən birinə basaraq həmin kənarı əlavə edin və ya silin.\n\nAltı orijinal lövhə, hər biri həll edildikdə növbətisini açır. Geri al və Yenidən başla həmişə əlçatandır, vaxt məhdudiyyəti yoxdur və irəliləyişiniz bu cihazda saxlanılır. Oflayn oynanılır. Reklam, hesab və məlumat toplanması yoxdur."
+}

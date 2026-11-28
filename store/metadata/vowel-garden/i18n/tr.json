@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Eksik sesli harfleri geri koy",
+ "keywords": "eksik harfler,cümleler,kelimeler,anagram,dil,yazım",
+ "short_description": "İngilizce kısa cümlelerdeki eksik sesli harfleri tamamla.",
+ "description": "Her İngilizce cümle, sesli harfleri çıkarılmış ve yalnızca ünsüzleri kalmış halde görünür. Konu ipucunu kullanarak her boşluğa A, E, I, O veya U harfini yerleştir ve cümleyi geri getir.\n\nBir boşluğa dokun, sonra büyük A, E, I, O, U tuş takımından bir harf seç. Sil, bir boşluğu temizler.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

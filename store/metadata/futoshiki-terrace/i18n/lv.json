@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nevienādību ciparu mīklas",
+ "keywords": "nevienādība,lielāks,mazāks,latīņu kvadrāts,loģika",
+ "short_description": "Aizpildi 4×4 režģi ar cipariem 1–4, ievērojot nevienādību zīmes.",
+ "description": "Aizpildi 4×4 režģi ar cipariem no 1 līdz 4 tā, lai katrs parādās vienreiz katrā rindā un kolonnā, un katra lielāka vai mazāka zīme starp blakus šūnām būtu patiesa.\n\nPieskaries rediģējamai šūnai un tad vienai no četrām lielajām ciparu pogām. Dzēst un Nākamā vienmēr ir redzamas.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

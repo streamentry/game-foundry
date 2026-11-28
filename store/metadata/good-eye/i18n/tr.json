@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Şekil bölme bulmacası",
+ "keywords": "şekil,alan,geometri,tahmin,günlük,mantık",
+ "short_description": "Özgün bir şekli böldükten sonra iki alanı karşılaştır.",
+ "description": "Özgün bir şekli bölmek için bir çizgi seç ve kesimden sonra iki alanın ne kadar eşite yakın olduğuna bak. Kesimden önce konumunu ve açısını ayarla. Alıştırma kısa bir yön ipucu sunar; Daily Five, UTC saatine göre beş tur verir ve ilk deneme puanlarını korur. Tohumlu alıştırma ve ilerleme bu cihazda kaydedilir."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Secīgu ciparu mīklas",
+ "keywords": "zīmes,secība,latīņu kvadrāts,loģika,režģis",
+ "short_description": "Aizpildi 4×4 režģi, kur zīmes rāda blakus secīgus ciparus.",
+ "description": "Aizpildi 4×4 režģi ar cipariem no 1 līdz 4 tā, lai katrs cipars parādās vienreiz katrā rindā un kolonnā. Atzīmēta mala starp diviem kvadrātiem nozīmē, ka to cipari ir secīgi, bet neatzīmēta mala nozīmē, ka tie nav.\n\nIzvēlies kvadrātu un ievadi ciparu no 1 līdz 4. Bultiņas kvadrātos norāda atzīmētās malas pa labi un zemāk.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

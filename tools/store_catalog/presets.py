@@ -13,7 +13,7 @@ from pathlib import Path
 
 from catalog import TEAM_ID, VERSION_NAME, Game, select
 
-BUILD_NUMBER = 2
+BUILD_NUMBER = 3
 
 COMMON = '''runnable=false
 advanced_options=false

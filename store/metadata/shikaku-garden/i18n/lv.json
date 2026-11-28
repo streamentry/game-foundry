@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Taisnstūru loģikas mīkla",
+ "keywords": "laukumi,ģeometrija,loģika,režģis,ciparu mīkla",
+ "short_description": "Sadali režģi taisnstūros, kuru izmērs atbilst mājieniem.",
+ "description": "Sadali režģi taisnstūros. Katram taisnstūrim jāpaliek tāfeles iekšienē, jāsatur tieši viens mājiens un jāaizņem tik šūnu, cik norāda šis mājiens. Atrisini astoņas oriģinālas tāfeles ar stūru izvēli pieskaroties, atsauc, restartē, atver progresu un saglabā lokāli. Taimera nav."
+}

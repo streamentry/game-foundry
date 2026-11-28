@@ -1,0 +1,8 @@
+{
+ "lang": "et",
+ "status": "machine translation — native review pending",
+ "subtitle": "Selged ristvihjed",
+ "keywords": "ristsummad,summad,loogika,aritmeetika,ruudustik",
+ "short_description": "Lahenda ristsummad selge lahtri-inspektoriga.",
+ "description": "Täida iga Kakuro rida numbritega 1–9 nii, et selle summa vastaks vihjele; ühe rea sees ära korda numbrit. Lahenda kaheksa algupärast 5×5 mänguvälja, et avada järgmine. Compass-inspektor näitab valitud lahtri horisontaal- ja vertikaalsummasid ning kohapeal võimalikke numbreid. Sisaldab tagasivõttu, kustutamist, uuesti alustamist ja kohalikku edenemist."
+}

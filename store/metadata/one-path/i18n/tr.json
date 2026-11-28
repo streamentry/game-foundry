@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Her bağlantıyı bir kez kullan",
+ "keywords": "çizge,kenar bulmacası,noktaları birleştir,euler,mantık",
+ "short_description": "Her bağlantıyı bir kez kullanan bir rota planla.",
+ "description": "Görünür her bağlantıyı tam olarak bir kez kullan. Noktaların üzerinden tekrar geçebilirsin; noktası olmayan kesişimler düğüm sayılmaz. Sekiz özgün çizge tahtasını rotayı izleyerek ya da büyük nokta düğmelerine dokunarak çöz. Geri al, yeniden başlat, önceki tahtalara dön ve yerel rotanı ile açılmış ilerlemeni sürdür."
+}

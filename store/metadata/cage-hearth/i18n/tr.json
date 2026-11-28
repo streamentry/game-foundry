@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmetik kafes bulmacaları",
+ "keywords": "kenken,calcudoku,aritmetik,matematik,latin karesi,mantık",
+ "short_description": "4×4 ızgarayı her kafesin aritmetik hedefine ulaşacak şekilde doldur.",
+ "description": "4×4 ızgarayı 1 ila 4 ile doldur; hiçbir rakam satır ya da sütunda tekrar etmesin. Her renkli kafes; toplam, çarpım, fark, bölüm veya tek bir değerden oluşan bir hedef gösterir ve içindeki rakamlar bu hedefe ulaşmalıdır.\n\nBir hücreye, sonra büyük tuş takımından bir rakama dokun. Sil, bir hücreyi temizler.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

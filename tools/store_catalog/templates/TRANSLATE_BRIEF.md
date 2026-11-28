@@ -29,3 +29,5 @@ Rules
 
 Finish by running `python3 tools/store_catalog/check_i18n.py <your langs>` and fix until it
 prints `0 problems`. Report only the checker's final line.
+
+**Do not spawn sub-agents or use the Agent/Task tool. Do all the work yourself.**

@@ -1,0 +1,8 @@
+{
+ "lang": "et",
+ "status": "machine translation — native review pending",
+ "subtitle": "Järjestikused numbrid",
+ "keywords": "märgised,jada,ladina ruut,loogika,ruudustik",
+ "short_description": "Täida 4×4 ruudustik, kus märgised näitavad järjestikuseid naabreid.",
+ "description": "Täida 4×4 ruudustik numbritega 1 kuni 4 nii, et iga number esineb igas reas ja veerus täpselt üks kord. Kahe ruudu vahelisel märgitud servaküljel tähendab see, et nende numbrid on järjestikused; märkimata serv tähendab, et ei ole.\n\nVali ruut ja sisesta number 1 kuni 4. Ruutude sees olevad nooled näitavad paremale ja alla märgitud servi.\n\nKuus algupärast mängulauda, millest igaüks avab järgmise, kui see on lahendatud. Võta tagasi ja Alusta uuesti on alati saadaval, taimerit ei ole ning edenemine salvestub sellesse seadmesse. Mängib võrguühenduseta. Reklaame, kontot ega andmekogumist ei ole."
+}

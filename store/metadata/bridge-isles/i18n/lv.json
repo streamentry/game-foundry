@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Savieno salas ar tiltiem",
+ "keywords": "hashi,savienojums,loģika,cipari,mīkla,tīkls",
+ "short_description": "Savieno numurētās salas ar tiltiem, lai katrs cipars izpildītos.",
+ "description": "Savieno numurētās salas ar nulli, vienu vai divus taisnus tiltiem tā, lai katra sala būtu saistīta tieši ar tik tiltiem, cik norāda tās cipars, tilti nekrustotos un visas salas veidotu vienu tīklu.\n\nPieskaries vienai salai un tad citai, lai pārslēgtu tiltu starp tām. Lielas pogas ar salu burtiem piedāvā alternatīvu precīzam pieskārienam tāfelē.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

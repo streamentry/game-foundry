@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ciparu ceļa mīklas",
+ "keywords": "hidoku,ciparu ceļš,ķēde,secība,režģis,loģika",
+ "short_description": "Novieto 1 līdz 16 ķēdē, kur katrs cipars pieskaras nākamajam.",
+ "description": "Novieto ciparus no 1 līdz 16 4×4 režģī, katru tieši vienreiz, tā lai katrs secīgs pāris pieskartos horizontāli, vertikāli vai diagonāli. Jau dotie cipari paliek savās vietās.\n\nPieskaries rediģējamai šūnai un izvēlies ciparu tastatūrā. Dzēst notīra šūnu.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Klasik 3×3 kaydırmalı bulmaca",
+ "keywords": "numaralı,sekiz bulmaca,on beş bulmaca,sıra,uzamsal,mantık",
+ "short_description": "Numaralı parçaları her seferinde bir hamleyle sıraya diz.",
+ "description": "3×3 tahtadaki numaralı parçaları boş alana kaydırarak 1'den 8'e kadar sırayla okunana kadar düzenle. Karışık başlangıçlar çözümden birkaç hamle ile on dört hamle arasında uzaklıktadır.\n\nBoş kareye bitişik bir parçaya dokunarak kaydır. Geri Al ve Yeniden Başlat her zaman kullanılabilir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

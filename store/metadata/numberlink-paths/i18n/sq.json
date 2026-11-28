@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Lidh çiftet përputhëse",
+ "keywords": "rrjedhë,çifte,itinerar,linjë,logjikë,shkronja,rrjet,enigmë",
+ "short_description": "Bashko çdo çift me shkronja me një itinerar që mbush gjithë rrjetin.",
+ "description": "Lidh çdo çift shkronjash të njëjta me një itinerar përgjatë katrorëve të një rrjeti 4×4. Itinerarët nuk mund të kryqëzohen ose degëzohen, dhe ndërmjet të dyve duhet të mbulojnë çdo katror.\n\nPreke katrorët bosh për të kaluar ndërmjet itinerarit A, itinerarit B dhe bosh. Pikat fikse të fillimit dhe mbarimit shënohen me rrathë, dhe çdo itinerar ka shkronjën dhe ngjyrën e vet.\n\nGjashtë tabela origjinale, secila hapet kur zgjidhet ajo para saj. Zhbërja dhe Rifillimi janë gjithmonë të disponueshme, nuk ka kohëmatës dhe përparimi ruhet në këtë pajisje. Luhet pa internet. Pa reklama, pa llogari dhe pa mbledhje të dhënash."
+}

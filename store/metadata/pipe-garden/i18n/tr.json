@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Bağlamak için boruları çevir",
+ "keywords": "tesisat,boru,döndürme,bağlantı,akış,su,mantık",
+ "short_description": "Su uçtan uca akana kadar boru parçalarını çevir.",
+ "description": "3×3 tahtadaki dokuz boru parçasını, bir ucundan diğerine kesintisiz ve sızdırmaz tek bir rota oluşturana kadar döndür.\n\nBir parçaya dokunarak döndür. Kıvrımlar ve uç parçaları dört konuma, düz parçalar iki konuma sahiptir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

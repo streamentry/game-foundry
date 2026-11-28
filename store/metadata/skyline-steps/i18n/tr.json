@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Bina yüksekliği bulmacaları",
+ "keywords": "gökdelen,kuleler,yükseklik,görünürlük,latin karesi,mantık",
+ "short_description": "Her kenar ipucu doğru sayılsın diye bina yükseklikleri yerleştir.",
+ "description": "4×4 ızgarayı 1 ila 4 arasındaki bina yükseklikleriyle doldur; bir satır ya da sütunda aynı yükseklik tekrarlanmasın. Kenarlardaki her sayı, o yönden kaç binanın göründüğünü gösterir; çünkü daha uzun binalar arkalarındaki kısa binaları gizler.\n\nBir kareye dokun ve 1 ile 4 arasında bir yükseklik gir. Sil, bir kareyi temizler.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

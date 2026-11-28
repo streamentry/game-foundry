@@ -1,0 +1,8 @@
+{
+ "lang": "lt",
+ "status": "machine translation — native review pending",
+ "subtitle": "Stačiakampių galvosūkis",
+ "keywords": "plotas,geometrija,logika,tinklelis,skaičių galvosūkis",
+ "short_description": "Padalyk tinklelį į stačiakampius, atitinkančius užuominų dydžius.",
+ "description": "Padalyk tinklelį į stačiakampius. Kiekvienas stačiakampis turi tilpti lentos ribose, turėti tiksliai vieną užuominą ir apimti tiek langelių, kiek rodo ta užuomina. Išspręsk aštuonias originalias lentas, pasirinkdamas kampus palietimais, su atšaukimu, paleidimu iš naujo, atrakinta eiga ir vietiniais išsaugojimais. Laikmačio nėra."
+}

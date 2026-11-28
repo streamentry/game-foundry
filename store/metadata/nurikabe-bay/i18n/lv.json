@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Salu un jūras mīklas",
+ "keywords": "salas,jūra,zeme,savienots,loģika,ūdens",
+ "short_description": "Sadali 4×4 līci jūrā un pareizā izmēra salās.",
+ "description": "Atzīmē katru 4×4 līča kvadrātu kā jūru vai zemi. Katrai numurētai salai ir tieši tik kvadrātu un viens mājiens; jūra veido vienu savienotu apgabalu, un neviens 2×2 bloks nedrīkst būt pilnībā jūra.\n\nPieskaries tukšam kvadrātam, lai pārslēgtu starp jūru, zemi un tukšu. Mājienu kvadrāti ir fiksēti.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

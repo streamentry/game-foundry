@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Skaidri krusteniski mājieni",
+ "keywords": "krustenisks,summas,loģika,aritmētika,režģis",
+ "short_description": "Atrisini krustenisko summas ar skaidru šūnu pārbaudītāju.",
+ "description": "Aizpildi katru Kakuro virkni ar cipariem no 1 līdz 9 tā, lai tās summa atbilstu norādei; vienā virknē neatkārto ciparu. Atrisini astoņas oriģinālas 5×5 tāfeles, lai atvērtu nākamo. Compass pārbaudītājs rāda izvēlētās šūnas horizontālās un vertikālās summas un lokāli iespējamos ciparus. Ietver atsaukšanu, dzēšanu, restartu un lokālu progresu."
+}

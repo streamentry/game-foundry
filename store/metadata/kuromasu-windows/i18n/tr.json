@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Gördüklerini say",
+ "keywords": "kurodoko,görünürlük,görüş hattı,siyah beyaz,karartma,mantık",
+ "short_description": "Her sayı tam olarak o kadar beyaz kare görsün diye karart.",
+ "description": "Bazı kareleri siyaha boyayarak siyah karelerin hiçbir zaman kenar paylaşmamasını ve bütün beyaz karelerin bağlı kalmasını sağla. Her numaralı kare, kendisi dahil olmak üzere satırında ve sütununda görebildiği beyaz kareleri sayar ve bu sayı numarasıyla eşleşmelidir.\n\nBoş bir kareye dokunarak siyah, beyaz ve bilinmeyen arasında geçiş yap. Sayılar sabit kalır; ekrandaki metin hangi görüş hatlarının ya da bağlantıların kuralları bozduğunu gösterir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

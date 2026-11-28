@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Kelimeler iki yönde okunsun",
+ "keywords": "çapraz bulmaca,harfler,kelime dağarcığı,yazım,simetri",
+ "short_description": "Satır ve sütunlar eşleşsin diye üç kelimeyi diz.",
+ "description": "Üç İngilizce 3 harfli kelimeyi 3×3 kareye öyle diz ki her sütun, karşılık gelen satırla aynı kelimeyi okusun.\n\nYerleştirilmemiş kelime kartlarına üstten alta sırayla dokun; tahta her satırı yerleştirdikçe gösterir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

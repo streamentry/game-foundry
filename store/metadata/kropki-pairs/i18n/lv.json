@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Punktu mājienu mīkla",
+ "keywords": "punkti,baltais punkts,melnais punkts,attiecība,loģika",
+ "short_description": "Aizpildi 4×4 režģi ar cipariem 1–4 pēc baltajiem un melnajiem punktiem.",
+ "description": "Aizpildi 4×4 režģi ar cipariem no 1 līdz 4 tā, lai katrs cipars rindā un kolonnā parādītos vienreiz. Balts punkts starp diviem kvadrātiem nozīmē, ka cipari ir secīgi; melns punkts nozīmē, ka viens ir tieši divreiz lielāks par otru. Malas bez punkta nav mājiens.\n\nPieskaries rediģējamam kvadrātam un tad ciparam lielajā četru taustiņu paneļa. Uzraksti kvadrātos un pārbaudītājs palīdz nolasīt katru punktu.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

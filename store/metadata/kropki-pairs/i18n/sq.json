@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Enigma me pika shenjë",
+ "keywords": "pika,pikë e zezë,pikë e bardhë,radhazi,raport,katror latin,numra,logjikë,enigmë",
+ "short_description": "Plotëso rrjetin 4×4 me 1 deri në 4, sipas pikave të bardha dhe të zeza.",
+ "description": "Plotëso një rrjet 4×4 me 1 deri në 4 në mënyrë që çdo shifër të shfaqet një herë në çdo rresht dhe kolonë. Një pikë e bardhë ndërmjet dy katrorëve do të thotë se shifrat janë radhazi; një pikë e zezë do të thotë se njëra është saktësisht dyfishi i tjetrës. Skajet pa pikë nuk kanë udhëzim.\n\nPreke një katror të redaktueshëm, pastaj një shifër në tastierën e madhe me katër çelësa. Etiketat brenda katrorëve dhe një panel ndihmojnë të lexosh çdo pikë.\n\nGjashtë tabela origjinale, secila hapet kur zgjidhet ajo para saj. Zhbërja dhe Rifillimi janë gjithmonë të disponueshme, nuk ka kohëmatës dhe përparimi ruhet në këtë pajisje. Luhet pa internet. Pa reklama, pa llogari dhe pa mbledhje të dhënash."
+}

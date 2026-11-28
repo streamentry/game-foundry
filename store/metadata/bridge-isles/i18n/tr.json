@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Adaları köprülerle bağla",
+ "keywords": "köprü,ada,bağlantı,mantık,sayılar,bulmaca,ızgara",
+ "short_description": "Numaralı adaları köprülerle bağla; her sayı tutsun.",
+ "description": "Numaralı adaları sıfır, bir veya iki düz köprüyle bağla; her ada tam olarak kendi sayısı kadar köprüye sahip olsun, köprüler kesişmesin ve bütün adalar tek bir ağda birleşsin.\n\nBir adaya, sonra başka bir adaya dokunarak aralarındaki köprüyü değiştir. Büyük ada harfli düğmeler, tahtaya tam isabetle dokunmanın yerine geçebilir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

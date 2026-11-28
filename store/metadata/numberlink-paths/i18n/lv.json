@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Savieno atbilstošus pārus",
+ "keywords": "plūsma,savienojums,pāri,burti,loģika,režģis",
+ "short_description": "Savieno katru burtu pāri ar maršrutu, kas aizpilda visu režģi.",
+ "description": "Savieno katru atbilstošu burtu pāri ar maršrutu pa 4×4 režģa kvadrātiem. Maršruti nedrīkst krustoties vai zarot, un kopā tiem jāaptver katrs kvadrāts.\n\nPieskaries tukšiem kvadrātiem, lai pārslēgtu starp maršrutu A, maršrutu B un tukšu. Fiksētie galapunkti atzīmēti ar apļiem, un katram maršrutam ir savs burts un krāsa.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

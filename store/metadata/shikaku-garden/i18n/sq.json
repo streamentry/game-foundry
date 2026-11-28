@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Enigmë me drejtkëndësha",
+ "keywords": "drejtkëndësh,enigmë numrash,logjikë,rrjet,sipërfaqe,gjeometri",
+ "short_description": "Ndaj rrjetin në drejtkëndësha me madhësinë e treguar nga numri.",
+ "description": "Ndaj rrjetin në drejtkëndësha. Çdo drejtkëndësh duhet të qëndrojë brenda tabelës, të përmbajë saktësisht një shenjë dhe të mbulojë numrin e qelizave që tregon ajo shenjë. Zgjidh tetë tabela origjinale me qoshe që zgjidhen me prekje, me zhbërje, rifillim, progres të zhbllokuar dhe ruajtje lokale. Nuk ka kohëmatës."
+}

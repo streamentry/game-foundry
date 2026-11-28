@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Resmi ortaya çıkar",
+ "keywords": "picross,griddler,hanjie,resim,piksel,mantık,ızgara",
+ "short_description": "Satır ve sütun ipuçlarıyla gizli 5×5 resmi ortaya çıkar.",
+ "description": "5×5 ızgarayı her satır ve sütun ipuçlarıyla eşleşecek şekilde doldur: her sayı ardışık dolu hücrelerden oluşan bir blok anlamına gelir ve bloklar en az bir boş hücreyle ayrılır. Her tahta küçük bir piksel tasarımıdır.\n\nBir hücreye dokunarak doldur, tekrar dokunarak çarp, bir kez daha dokunarak temizle. Bütün on ipucu satırı görünür kalır.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmētiskas būru mīklas",
+ "keywords": "kenken,calcudoku,aritmētika,matemātika,latīņu kvadrāts,loģika",
+ "short_description": "Aizpildi 4×4 režģi tā, lai katrs būris sasniegtu aritmētisko mērķi.",
+ "description": "Aizpildi 4×4 režģi ar cipariem no 1 līdz 4 tā, lai neviens cipars neatkārtotos rindā vai kolonnā. Katrs krāsains būris rāda mērķi, kas veidots no summas, reizinājuma, starpības, dalījuma vai vienas vērtības, un būra cipariem tam jāsasniedz.\n\nPieskaries šūnai un pēc tam ciparam lielajā tastatūrā. Dzēst notīra šūnu.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "sq",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ndriço çdo qelizë të hapur",
+ "keywords": "ndriço,llambë,ndriçim,logjikë,rrjet,enigmë,numra muri",
+ "short_description": "Vendos llamba që çdo qelizë e hapur të ndriçohet, pa dy llamba që shihen.",
+ "description": "Vendos llamba në një tabelë 4×4 në mënyrë që çdo qelizë e hapur të jetë e ndriçuar, asnjë dy llamba të mos ndriçojnë njëra-tjetrën dhe çdo mur me numër të prekë saktësisht aq llamba sa tregon numri.\n\nPreke një qelizë të hapur për të kaluar ndërmjet llambës, shënimit me kryq dhe bosh; qelizat e ndriçuara theksohen ndërsa lëviz.\n\nGjashtë tabela origjinale, secila hapet kur zgjidhet ajo para saj. Zhbërja dhe Rifillimi janë gjithmonë të disponueshme, nuk ka kohëmatës dhe përparimi ruhet në këtë pajisje. Luhet pa internet. Pa reklama, pa llogari dhe pa mbledhje të dhënash."
+}

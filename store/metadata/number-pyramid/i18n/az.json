@@ -1,0 +1,8 @@
+{
+ "lang": "az",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zirvəyə toplayaraq çatın",
+ "keywords": "cəmlər,toplama,riyaziyyat,daşlar,məntiq,rəqəmlər,şəbəkə,tapmaca",
+ "short_description": "Bir neçə səpələnmiş ipuc əsasında rəqəm piramidasını bərpa edin.",
+ "description": "Piramidanın alt hissəsindəki dörd rəqəmi, 1-dən 9-a qədər tapın. Yuxarıdakı altı daşın hər biri birbaşa altındakı iki daşın cəminə bərabərdir, bir neçə ipucu etiketi isə sizə istiqamət vermək üçün sabitdir.\n\nAlt daşı seçin və rəqəm daxil edin; yuxarıdakı daşlar irəlilədikcə cəmlərini göstərir.\n\nAltı orijinal lövhə, hər biri həll edildikdə növbətisini açır. Geri al və Yenidən başla həmişə əlçatandır, vaxt məhdudiyyəti yoxdur və irəliləyişiniz bu cihazda saxlanılır. Oflayn oynanılır. Reklam, hesab və məlumat toplanması yoxdur."
+}

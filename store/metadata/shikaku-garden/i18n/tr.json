@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Dikdörtgen mantık bulmacası",
+ "keywords": "alan,geometri,mantık,ızgara,sayı bulmacası",
+ "short_description": "Izgarayı ipucu boyutlarında dikdörtgenlere böl.",
+ "description": "Izgarayı dikdörtgenlere böl. Her dikdörtgen tahtanın içinde kalmalı, tam olarak bir ipucu içermeli ve o ipucunun gösterdiği sayıda hücreyi kaplamalıdır. Dokunarak köşe seçimi, geri al, yeniden başlat, açılan ilerleme ve yerel kayıtlarla sekiz özgün tahtayı çöz. Zamanlayıcı yoktur."
+}

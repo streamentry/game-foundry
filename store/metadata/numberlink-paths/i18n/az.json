@@ -1,0 +1,8 @@
+{
+ "lang": "az",
+ "status": "machine translation — native review pending",
+ "subtitle": "Uyğun cütləri birləşdirin",
+ "keywords": "axın,birləşdirmək,cütlər,marşrutlar,xətt,məntiq,hərflər,şəbəkə,tapmaca",
+ "short_description": "Hər hərfli cütü bütün şəbəkəni dolduran marşrutla birləşdirin.",
+ "description": "4×4 şəbəkənin kvadratları boyunca hər uyğun hərf cütünü marşrutla birləşdirin. Marşrutlar kəsişməməli və ya budaqlanmamalıdır və ikisi birlikdə hər kvadratı örtməlidir.\n\nBoş kvadratlara toxunaraq A marşrutu, B marşrutu və boş arasında keçin. Sabit son nöqtələr dairələrlə işarələnir və hər marşrutun öz hərfi və rəngi var.\n\nAltı orijinal lövhə, hər biri həll edildikdə növbətisini açır. Geri al və Yenidən başla həmişə əlçatandır, vaxt məhdudiyyəti yoxdur və irəliləyişiniz bu cihazda saxlanılır. Oflayn oynanılır. Reklam, hesab və məlumat toplanması yoxdur."
+}

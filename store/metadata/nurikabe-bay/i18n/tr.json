@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ada ve deniz bulmacaları",
+ "keywords": "ada,deniz,kara,bağlantı,mantık,sayılar,ızgara,su",
+ "short_description": "4×4 bir alanı deniz ve tam boyutlu adalara ayır.",
+ "description": "4×4 alandaki her kareyi deniz ya da kara olarak işaretle. Numaralı her ada tam olarak o kadar kare içerir ve tek bir ipucu barındırır; deniz tek, bağlı bir bölge oluşturur ve hiçbir 2×2 blok tamamen deniz olamaz.\n\nBoş bir kareye dokunarak deniz, kara ve boş arasında geçiş yap. İpucu kareleri sabittir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "lv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Istabas ar atstarpēm",
+ "keywords": "reģioni,atstarpe,attālums,cipari,loģika,režģis",
+ "short_description": "Aizpildi neregulārus apgabalus tā, lai atkārtoti cipari turētu attālumu.",
+ "description": "Aizpildi katru neregulāro apgabalu ar cipariem no 1 līdz tā izmēram. Ja tas pats cipars k parādās divreiz rindā vai kolonnā, starp tiem jābūt vismaz k kvadrātiem.\n\nPieskaries kvadrātam un ievadi ciparu no 1 līdz 4 lielajās pogās. Katrs kvadrāts blakus ciparam rāda sava apgabala burtu un izmēru.\n\nSešas oriģinālas tāfeles; katra atver nākamo, kad ir atrisināta. Atsaukt un Sākt no jauna vienmēr ir pieejami, taimera nav, un progress tiek saglabāts šajā ierīcē. Darbojas bezsaistē. Bez reklāmām, bez konta, bez datu vākšanas."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "az",
+ "status": "machine translation — native review pending",
+ "subtitle": "Adaları körpülərlə bağlayın",
+ "keywords": "hashi,hashiwokakero,birləşdirmək,məntiq,rəqəm,tapmaca,şəbəkə,nömrə",
+ "short_description": "Nömrəli adaları elə bağlayın ki, hər nömrə tam ödənilsin.",
+ "description": "Nömrəli adaları sıfır, bir və ya iki düz körpü ilə birləşdirin ki, hər ada məhz öz nömrəsi qədər bağlantıya malik olsun, heç bir körpü kəsişməsin və bütün adalar vahid şəbəkədə birləşsin.\n\nBir adaya, sonra başqa birinə toxunaraq aralarındakı körpünü dəyişin. Böyük ada hərf düymələri lövhəyə dəqiq toxunmağa alternativ təqdim edir.\n\nAltı orijinal lövhə, hər biri həll edildikdə növbətisini açır. Geri al və Yenidən başla həmişə əlçatandır, vaxt məhdudiyyəti yoxdur və irəliləyişiniz bu cihazda saxlanılır. Oflayn oynanılır. Reklam, hesab və məlumat toplanması yoxdur."
+}

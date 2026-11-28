@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Gizli filoyu bul",
+ "keywords": "filo,harita,mantık,ızgara,bulmaca,sonar",
+ "short_description": "5×5 haritada satır ve sütun toplamlarıyla gizli filoyu bul.",
+ "description": "5×5 bir haritada küçük bir filoyu bul: üç hücrelik bir gemi, iki hücrelik bir gemi ve tek hücrelik bir gemi. Hiçbir gemi bir diğerine dokunmamalı, çapraz olarak bile, ve her satır ile sütunun toplamı tutmalıdır.\n\nBir kareye dokunarak gemi işaretle, tekrar dokunarak su notu koy, bir kez daha dokunarak temizle. Mevcut ve hedef toplamlar her satır ve sütunun yanında görünür kalır.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

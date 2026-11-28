@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Günlük ikili bulmacalar",
+ "keywords": "ikili,binairo,mantık,sayı bulmacası,günlük,ızgara",
+ "short_description": "İpuçları ve yerel ilerlemeyle ikili ızgaraları çöz.",
+ "description": "Günlük 4×4 Takuzu bulmacasını ya da serbest 4×4 ve 6×6 tahtaları oyna. Satır ve sütunlar dengeli olmalı; bir sırada üç aynı sayı olmamalı ve tamamlanmış satırlar tekrar etmemeli. İpuçlarını, geri almayı, yinelemeyi ve yeniden başlatmayı kullan. İlerleme yerel olarak kaydedilir."
+}

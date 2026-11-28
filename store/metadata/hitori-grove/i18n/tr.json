@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tekrarlayan sayıları karart",
+ "keywords": "karartma,tekrar eden sayılar,bağlantı,mantık,ızgara",
+ "short_description": "Tahtayı parçalamadan tekrarlayan sayıları karart.",
+ "description": "Kareleri öyle karart ki karartılmamış kareler arasında hiçbir sayı bir satır ya da sütunda birden fazla görünmesin. Karartılmış kareler kenardan asla birbirine değmesin ve karartılmamış bütün kareler tek bir grup olarak bağlı kalsın.\n\nNumaralı bir hücreye dokunarak karartma, not ve işaretsiz arasında geçiş yap.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

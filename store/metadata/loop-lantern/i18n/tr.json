@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tek kapalı döngü çiz",
+ "keywords": "slitherlink,çitler,kenarlar,çizgi,mantık,sayılar",
+ "short_description": "Her kenar sayısı ipucunu sağlayan tek bir döngü çiz.",
+ "description": "Izgara çizgileri boyunca tek bir kapalı döngü çiz; dallanmasın ve kendini kesmesin. Her numaralı kare, döngünün dört kenarından kaçını kullandığını gösterir.\n\nBir kareye, sonra Üst, Sağ, Alt veya Sol büyük düğmelerinden birine dokunarak o kenarı ekle ya da kaldır.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Yıldız yerleştirme bulmacaları",
+ "keywords": "bölgeler,satırlar,sütunlar,mantık,ızgara,takımyıldız",
+ "short_description": "Her satır, sütun ve bölgeye bir yıldız koy; birbirine değmesinler.",
+ "description": "Izgaraya yıldızları öyle yerleştir ki her satır, her sütun ve her etiketli bölge tam olarak bir yıldız içersin ve hiçbir iki yıldız birbirine değmesin, çapraz olarak bile.\n\nBir kareye dokunarak yıldız, nokta ve boş arasında geçiş yap; noktalar elediğin kareler için notlardır.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}

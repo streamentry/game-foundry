@@ -1,0 +1,8 @@
+{
+ "lang": "tr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ardışık sayı bulmacaları",
+ "keywords": "işaretler,dizi,latin karesi,mantık,ızgara",
+ "short_description": "İşaretlerin komşu ardışık sayıları gösterdiği 4×4 ızgarayı doldur.",
+ "description": "4×4 ızgarayı 1 ila 4 ile doldur; her rakam her satır ve sütunda bir kez yer alsın. İki kare arasındaki işaretli kenar, rakamların ardışık olduğu; işaretsiz kenar ise ardışık olmadığı anlamına gelir.\n\nBir kare seç ve 1 ile 4 arasında bir rakam gir. Karelerin içindeki oklar sağa ve aşağı işaretli kenarları gösterir.\n\nHer biri bitirildiğinde bir sonrakini açan altı özgün tahta. Geri Al ve Yeniden Başlat her zaman kullanılabilir, zamanlayıcı yoktur ve ilerlemeniz bu cihazda kaydedilir. Çevrimdışı oynanır. Reklam yok, hesap yok, veri toplama yok."
+}
