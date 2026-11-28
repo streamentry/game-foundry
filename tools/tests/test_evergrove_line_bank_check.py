@@ -270,6 +270,51 @@ class SharedLineTests(unittest.TestCase):
         self.assertEqual([], checker.shared_lines("en.json", bank))
 
 
+class ReportTests(unittest.TestCase):
+    """CP27: --report prints a markdown coverage table after the checks; the exit code does not change."""
+
+    BANK = {
+        "FruitGiven": {"0": ["One two three.", "Four five."], "any": ["Six."]},
+        "WeatherToday.Rainy": {"1": ["Rain falls on the old river."]},
+    }
+    RULES = {**SYNTHETIC_RULES, "kinds": {
+        "FruitGiven": {"slots": ["thing"], "voices": {"0": None, "any": None}, "min": 0, "minEach": 0},
+        "WeatherToday": {"slots": [], "voices": {"1": ["Rainy"]}, "qualifier": "weather", "min": 0, "minEach": 0},
+    }}
+
+    def test_table_header_present(self) -> None:
+        table = checker.coverage_table([self.BANK])
+        self.assertIn("| Group | Voice 0 | Voice 1 | Voice 2 | Any | Avg words | Longest (words) |", table.splitlines())
+        self.assertIn("| --- | --- | --- | --- | --- | --- | --- |", table.splitlines())
+
+    def test_known_bank_gives_expected_rows_and_total(self) -> None:
+        lines = checker.coverage_table([self.BANK]).splitlines()
+        self.assertIn("| FruitGiven | 2 |  |  | 1 | 2.0 | 3 |", lines)
+        self.assertIn("| WeatherToday.Rainy |  | 1 |  |  | 6.0 | 6 |", lines)
+        self.assertEqual("| Total | 2 | 1 |  | 1 | 3.0 | 6 |", lines[-1])
+
+    def test_groups_are_sorted(self) -> None:
+        lines = checker.coverage_table([self.BANK]).splitlines()
+        rows = [line.split("|")[1].strip() for line in lines[2:]]
+        self.assertEqual(["FruitGiven", "WeatherToday.Rainy", "Total"], rows)
+
+    def test_main_prints_table_with_report_flag(self) -> None:
+        code, out = StrictFlagTests._run_bank(self.BANK, self.RULES, "--report")
+        self.assertEqual(0, code)
+        self.assertIn("| Group | Voice 0 | Voice 1 | Voice 2 | Any | Avg words | Longest (words) |", out)
+        self.assertIn("| Total | 2 | 1 |  | 1 | 3.0 | 6 |", out)
+
+    def test_main_prints_no_table_without_report_flag(self) -> None:
+        code, out = StrictFlagTests._run_bank(self.BANK, self.RULES)
+        self.assertEqual(0, code)
+        self.assertNotIn("| Group |", out)
+
+    def test_report_does_not_change_exit_code(self) -> None:
+        bank = {"FruitGiven": {"0": ["One two three four five six."]}}
+        code, _ = StrictFlagTests._run_bank(bank, {**SYNTHETIC_RULES, "maxWords": 5}, "--report")
+        self.assertEqual(1, code)
+
+
 class StrictFlagTests(unittest.TestCase):
     @staticmethod
     def _run_bank(bank: dict, rules: dict, *args: str) -> tuple[int, str]:

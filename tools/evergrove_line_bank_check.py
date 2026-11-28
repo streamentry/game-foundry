@@ -16,7 +16,11 @@ Warnings (printed as "warning: ...") do not fail the run. Near-duplicates: two l
 and voice whose word sets have Jaccard similarity >= 0.75 (CP22). More than 5 lines in one group and
 voice starting with the same word also warns (CP23).
 
-Usage: tools/evergrove_line_bank_check.py [--review] [--complete] [--strict]
+CP27: --report prints a GitHub-flavoured markdown coverage table after the checks (one row per group,
+sorted; line counts per voice, the "any" voice, average and longest raw line in words, then a Total row).
+It never changes the exit code.
+
+Usage: tools/evergrove_line_bank_check.py [--review] [--complete] [--strict] [--report]
 Exit 0 when every line passes, 1 otherwise. --strict turns warnings into problems.
 Never calls a network service.
 """
@@ -230,6 +234,39 @@ def opening_words(name: str, bank: dict) -> list[str]:
     return warnings
 
 
+# CP27: columns of the coverage table; a voice cell is blank when the group has no lines for that voice.
+REPORT_VOICES = ("0", "1", "2", "any")
+REPORT_HEADER = "| Group | Voice 0 | Voice 1 | Voice 2 | Any | Avg words | Longest (words) |"
+
+
+def _report_row(label: str, counts: dict[str, int], words: list[int]) -> str:
+    cells = [str(counts[v]) if counts.get(v) else "" for v in REPORT_VOICES]
+    average = f"{sum(words) / len(words):.1f}" if words else ""
+    longest = str(max(words)) if words else ""
+    return "| " + " | ".join([label, *cells, average, longest]) + " |"
+
+
+def coverage_table(banks: list[dict]) -> str:
+    """CP27: markdown table over the raw lines (a {slot} counts as one word), one row per bank key sorted,
+    then a Total row. Average words is one decimal; blank when a group has no lines."""
+    groups: dict[str, tuple[dict[str, int], list[int]]] = {}
+    total_counts: dict[str, int] = {}
+    total_words: list[int] = []
+    for bank in banks:
+        for key, voices in bank.items():
+            counts, words = groups.setdefault(key, ({}, []))
+            for voice, lines in voices.items():
+                counts[voice] = counts.get(voice, 0) + len(lines)
+                total_counts[voice] = total_counts.get(voice, 0) + len(lines)
+                row_words = [len(line.split()) for line in lines]
+                words.extend(row_words)
+                total_words.extend(row_words)
+    rows = [REPORT_HEADER, "| " + " | ".join(["---"] * 7) + " |"]
+    rows += [_report_row(key, *groups[key]) for key in sorted(groups)]
+    rows.append(_report_row("Total", total_counts, total_words))
+    return "\n".join(rows)
+
+
 VOICE_HEADING = re.compile(r"^##\s+.*\(voice\s+(\d|any)\)(?:\s*·\s*(\w+))?\s*$")
 ITEM = re.compile(r"^\d+\.\s+(.*\S)\s*$")
 
@@ -259,11 +296,13 @@ def main() -> int:
     parser.add_argument("--review", action="store_true", help="also check docs/improvements/review drafts")
     parser.add_argument("--complete", action="store_true", help="the English bank must cover every kind in the rules")
     parser.add_argument("--strict", action="store_true", help="treat warnings (near-duplicates) as problems")
+    parser.add_argument("--report", action="store_true", help="print a markdown coverage table after the checks (CP27)")
     args = parser.parse_args()
     rules = json.loads(RULES.read_text(encoding="utf-8"))
     problems: list[str] = []
     warnings: list[str] = []
     counted = 0
+    shipped: list[dict] = []
     for bank_path in sorted(BANKS.glob("*.json")):
         try:
             bank = json.loads(bank_path.read_text(encoding="utf-8"))
@@ -274,6 +313,7 @@ def main() -> int:
             problems.append(f"{bank_path.name}: not an object")
             continue
         problems += check_bank(bank_path.name, bank, rules, args.complete and bank_path.name == "en.json")
+        shipped.append(bank)
         warnings += near_duplicates(bank_path.name, bank)
         warnings += opening_words(bank_path.name, bank)
         if bank_path.name != "en.json":
@@ -300,6 +340,9 @@ def main() -> int:
     for w in warnings:
         print("warning: " + w)
     print(f"Companion line bank: {counted} lines checked, {len(problems)} problems, {len(warnings)} warnings.")
+    if args.report:
+        print()
+        print(coverage_table(shipped))
     return 1 if problems else 0
 
 
