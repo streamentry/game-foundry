@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Numere consecutive",
+ "keywords": "consecutiv,pătrat latin,marcaje laturi,șir,număr,logică,grilă,puzzle",
+ "short_description": "Completează o grilă 4×4 unde marcajele arată vecinii consecutivi.",
+ "description": "Completează o grilă 4×4 cu cifrele 1 la 4, astfel încât fiecare cifră să apară o singură dată pe fiecare rând și coloană. O latură marcată între două pătrate înseamnă că cifrele lor sunt consecutive, iar o latură nemarcată înseamnă că nu sunt.\n\nSelectează un pătrat și introdu o cifră de la 1 la 4. Săgețile din pătrate indică laturile marcate spre dreapta și în jos.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

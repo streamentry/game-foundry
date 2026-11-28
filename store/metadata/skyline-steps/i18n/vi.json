@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố chiều cao tòa nhà",
+ "keywords": "tòa nhà,tháp,chiều cao,tầm nhìn,hình vuông latin,số,logic,lưới,câu đố",
+ "short_description": "Đặt chiều cao các tòa nhà sao cho mọi gợi ý ở cạnh đều đúng.",
+ "description": "Điền chiều cao tòa nhà từ 1 đến 4 vào lưới 4×4, không lặp lại chiều cao trong cùng một hàng hoặc cột. Mỗi số quanh viền cho biết có bao nhiêu tòa nhà nhìn thấy được từ hướng đó, vì tòa cao hơn che khuất tòa thấp phía sau.\n\nChọn một ô và nhập chiều cao từ 1 đến 4. Nút Xóa sẽ xóa một ô.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

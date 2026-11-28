@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Skugga de upprepade talen",
+ "keywords": "skugga,dubbletter,upprepade tal,sammanhängande,logik,tal,rutnät,pussel",
+ "short_description": "Skugga upprepade tal utan att dela upp brädet i delar.",
+ "description": "Skugga rutor så att inget tal förekommer mer än en gång i någon rad eller kolumn bland de oskuggade rutorna. Skuggade rutor får aldrig röra varandra längs en kant, och alla oskuggade rutor måste förbli sammanhängande som en grupp.\n\nTryck på en numrerad ruta för att växla mellan skugga, anteckning och omarkerad.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

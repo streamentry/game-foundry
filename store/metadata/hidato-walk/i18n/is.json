@@ -1,0 +1,8 @@
+{
+ "lang": "is",
+ "status": "machine translation — native review pending",
+ "subtitle": "Talnabrautaþrautir",
+ "keywords": "hidoku,talnabraut,keðja,samfelld,röð,rist,rökfræði,þraut",
+ "short_description": "Settu 1 til 16 í keðju þar sem hver tala snertir þá næstu.",
+ "description": "Settu tölurnar 1 til 16 á 4×4-rist, hverja nákvæmlega einu sinni, þannig að sérhvert samliggjandi par snertist lárétt, lóðrétt eða á ská. Gefnu tölurnar eiga að vera þar sem þær eru.\n\nBankaðu á reit sem hægt er að breyta og veldu tölu á talnaborðinu. Eyða hreinsar reit.\n\nSex upprunalegar þrautir; hver ný opnast þegar sú fyrri er leyst. Afturkalla og Byrja upp á nýtt eru alltaf til staðar, það er enginn tímamælir og framvinda þín vistast á þessu tæki. Virkar án nettengingar. Engar auglýsingar, enginn aðgangur, engin gagnasöfnun."
+}

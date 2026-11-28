@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Gợi ý giao nhau rõ ràng",
+ "keywords": "lưới số,tổng,logic,số học,lưới,câu đố",
+ "short_description": "Giải các tổng giao nhau với bảng kiểm tra ô rõ ràng.",
+ "description": "Điền các chữ số 1–9 vào mỗi dãy Kakuro sao cho tổng khớp với gợi ý; không lặp lại chữ số trong cùng một dãy. Giải tám bảng gốc 5×5 để mở bảng tiếp theo. Bảng kiểm tra Compass hiển thị tổng theo hàng ngang và hàng dọc, cùng các chữ số khả thi cục bộ của ô đang chọn. Có sẵn Hoàn tác, xóa, chơi lại và tiến trình lưu cục bộ."
+}

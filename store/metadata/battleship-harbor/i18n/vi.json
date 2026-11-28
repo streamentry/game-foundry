@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tìm hạm đội ẩn",
+ "keywords": "tàu chiến,hạm đội,hải quân,biểu đồ,logic,lưới,câu đố,sonar",
+ "short_description": "Xác định vị trí hạm đội ẩn trên biểu đồ 5×5 nhờ tổng của từng hàng và cột.",
+ "description": "Tìm một hạm đội nhỏ trên biểu đồ 5×5: một tàu dài ba ô, một tàu dài hai ô và một tàu một ô. Không có hai tàu nào được chạm nhau, kể cả theo đường chéo, và tổng của mỗi hàng và cột phải khớp.\n\nChạm vào một ô để đánh dấu tàu, chạm lần nữa để ghi chú nước, và lần nữa để xóa. Tổng hiện tại và tổng mục tiêu luôn hiển thị bên cạnh mỗi hàng và cột.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

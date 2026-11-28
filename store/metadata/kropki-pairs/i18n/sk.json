@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hlavolamy s bodkami",
+ "keywords": "bodky,biela bodka,čierna bodka,po sebe idúce,pomer,latinský štvorec,čísla,logika",
+ "short_description": "Vyplňte mriežku 4×4 číslami 1 až 4 podľa bielych a čiernych bodiek.",
+ "description": "Vyplňte mriežku 4×4 číslami 1 až 4 tak, aby sa každá číslica v riadku a stĺpci vyskytla raz. Biela bodka medzi dvoma políčkami znamená, že číslice idú po sebe; čierna bodka znamená, že jedna je presne dvojnásobkom druhej. Hrany bez bodky nenesú žiadnu podmienku.\n\nKlepnite na upraviteľné políčko a potom na číslicu na veľkej štvorkovej klávesnici. Popisky v políčkach a panel pomôžu čítať jednotlivé bodky.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

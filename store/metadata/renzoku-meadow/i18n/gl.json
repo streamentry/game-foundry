@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Números consecutivos",
+ "keywords": "consecutivos,cadrado latino,marcas,secuencia,lóxica,cuadrícula,crebacabezas",
+ "short_description": "Enche unha cuadrícula 4×4 onde as marcas indican veciños consecutivos.",
+ "description": "Enche unha cuadrícula de 4×4 cos números do 1 ao 4 para que cada díxito aparezca unha vez en cada fila e columna. Unha aresta marcada entre dous cadrados indica que os seus díxitos son consecutivos, e unha aresta sen marcar indica que non o son.\n\nSelecciona un cadrado e introduce un díxito do 1 ao 4. As frechas dentro dos cadrados apuntan ás arestas marcadas á dereita e por baixo.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "sl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Jasni križni namigi",
+ "keywords": "križne vsote,vsote,logika,aritmetika,mreža,uganka",
+ "short_description": "Reši križajoče vsote s pregledovalnikom polj.",
+ "description": "V vsak niz Kakuro vpiši števke od 1 do 9 tako, da se njihova vsota ujema z namigom; ena števka se v nizu ne sme ponoviti. Reši osem izvirnih plošč 5×5, da odkleneš naslednjo. Pregledovalnik Compass prikazuje vsote po vodoravni in navpični smeri ter možne števke za izbrano polje. Vključeni so razveljavitev, brisanje, ponastavitev in lokalni napredek."
+}

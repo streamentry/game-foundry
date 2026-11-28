@@ -1,0 +1,8 @@
+{
+ "lang": "ms",
+ "status": "machine translation — native review pending",
+ "subtitle": "Isi tiub mengikut mentol",
+ "keywords": "tiub,isi,jumlah,baris,lajur,logik,nombor,grid,teka-teki",
+ "short_description": "Isi tiub dari mentol supaya jumlah baris dan lajur sepadan.",
+ "description": "Isi setiap daripada lapan tiub termometer dua sel dari mentolnya ke hujungnya, tidak sekali-kali sebaliknya. Jumlah baris dan lajur menunjukkan berapa banyak sel dalam setiap garisan yang telah diisi.\n\nKetik mentol untuk mengisi segmen pertamanya, atau ketik hujung untuk mengisi kedua-duanya. Ketik tempat yang sama sekali lagi untuk mengosongkan tiub.\n\nEnam papan asal, setiap satu membuka papan seterusnya selepas diselesaikan. Buat asal dan Mula Semula sentiasa tersedia, tiada pemasa, dan kemajuan anda disimpan pada peranti ini. Dimainkan secara luar talian. Tiada iklan, tiada akaun, tiada pengumpulan data."
+}

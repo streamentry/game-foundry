@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle-uri cu înălțimi",
+ "keywords": "zgârie-nori,turnuri,înălțimi,vizibilitate,pătrat latin,logică,puzzle",
+ "short_description": "Așază înălțimile clădirilor ca fiecare indiciu de pe margine să fie corect.",
+ "description": "Completează o grilă 4×4 cu înălțimile clădirilor de la 1 la 4, fără să repeți o înălțime pe un rând sau o coloană. Fiecare număr de pe margine arată câte clădiri se văd din direcția respectivă, deoarece clădirile mai înalte le ascund pe cele mai scurte din spate.\n\nSelectează un pătrat și introdu o înălțime de la 1 la 4. Șterge golește un pătrat.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

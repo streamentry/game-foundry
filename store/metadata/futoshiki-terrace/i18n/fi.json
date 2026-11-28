@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Epäyhtälöpulmat numeroilla",
+ "keywords": "epäyhtälö,suurempi kuin,pienempi kuin,latinalainen neliö,numero,logiikka,ruudukko,palapeli",
+ "short_description": "Täytä 4×4-ruudukko luvuilla 1–4 noudattaen epäyhtälömerkkejä.",
+ "description": "Täytä 4×4-ruudukko luvuilla 1–4 niin, että jokainen luku esiintyy kerran jokaisella rivillä ja sarakkeella ja jokainen vierekkäisten ruutujen suurempi- tai pienempi-kuin-merkki pitää paikkansa.\n\nNapauta muokattavaa ruutua ja sitten yhtä neljästä suuresta numeropainikkeesta. Tyhjennä ja Seuraava ovat aina näkyvissä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Egymást követő számrejtvények",
+ "keywords": "egymást követő,latin négyzet,élszámok,sorozat,szám,logika,rács,rejtvény",
+ "short_description": "Töltsd ki a 4×4-es rácsot, ahol a jelölések egymást követő számokat mutatnak.",
+ "description": "Töltsd ki a 4×4-es rácsot 1-től 4-ig úgy, hogy minden számjegy egyszer szerepeljen minden sorban és oszlopban. A két négyzet közötti jelölt él azt jelenti, hogy a számjegyek egymást követik, a jelöletlen él pedig azt, hogy nem.\n\nVálassz egy négyzetet, és írj be egy 1 és 4 közötti számjegyet. A négyzetekben lévő nyilak mutatják a jelölt éleket jobbra és lefelé.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

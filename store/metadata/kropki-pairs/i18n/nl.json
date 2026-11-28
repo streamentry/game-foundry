@@ -1,0 +1,8 @@
+{
+ "lang": "nl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Getalpuzzels met stippen",
+ "keywords": "stippen,zwarte stip,witte stip,opeenvolgend,verhouding,latijns vierkant,getal,logica",
+ "short_description": "Vul een raster van 4×4 met 1 tot 4, geleid door witte en zwarte stippen.",
+ "description": "Vul een raster van 4×4 met 1 tot 4 zodat elk cijfer precies één keer voorkomt in elke rij en kolom. Een witte stip tussen twee vakjes betekent dat de cijfers opeenvolgend zijn; een zwarte stip betekent dat het ene cijfer precies twee keer het andere is. Randen zonder stip bevatten geen aanwijzing.\n\nTik op een bewerkbaar vakje en kies daarna een cijfer op het grote toetsenblok met vier toetsen. Labels in de vakjes en een inspecteur helpen je elke stip te lezen.\n\nZes originele borden; elk bord ontgrendelt het volgende zodra het is opgelost. Ongedaan maken en Opnieuw beginnen zijn altijd beschikbaar, er is geen timer, en je voortgang wordt op dit apparaat opgeslagen. Werkt offline. Geen advertenties, geen account, geen gegevensverzameling."
+}

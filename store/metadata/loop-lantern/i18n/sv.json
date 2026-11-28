@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rita en sluten slinga",
+ "keywords": "slitherlink,staket,kanter,linje,logik,tal,rutnät,pussel",
+ "short_description": "Rita en enda slinga som uppfyller varje kantledtråd.",
+ "description": "Rita en sluten slinga längs rutnätslinjerna som aldrig grenar sig eller korsar sig själv. Varje numrerad ruta säger hur många av dess fyra sidor slingan använder.\n\nTryck på en ruta och tryck sedan på en av de fyra stora knapparna Upp, Höger, Ner eller Vänster för att lägga till eller ta bort den kanten.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

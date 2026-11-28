@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Lilimin ang paulit-ulit",
+ "keywords": "lilim,duplikado,paulit-ulit na numero,konektado,lohika,numero,grid,palaisipan",
+ "short_description": "Lagyan ng lilim ang paulit-ulit na numero nang hindi nahahati ang board.",
+ "description": "Lagyan ng lilim ang mga parisukat para walang numerong lumitaw nang higit sa isang beses sa anumang hilera o kolum sa mga hindi may lilim na parisukat. Hindi maaaring magdikit sa gilid ang mga may lilim na parisukat, at ang lahat ng hindi may lilim ay dapat manatiling magkakakonekta bilang iisang grupo.\n\nI-tap ang may-numerong cell para dumaan sa lilim, tala, at walang marka.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

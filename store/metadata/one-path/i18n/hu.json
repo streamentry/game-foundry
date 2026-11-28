@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Egyszer használd a vonalakat",
+ "keywords": "gráf,bejárás,élrejtvény,pontok összekötése,euler-bejárás,logika",
+ "short_description": "Tervezz útvonalat, amely minden összeköttetést pontosan egyszer használ.",
+ "description": "Minden látható összeköttetést pontosan egyszer használj. Pontokat újra érinthetsz; a pont nélküli kereszteződések nem csomópontok. Nyolc eredeti gráftáblát oldhatsz meg a vonalak követésével vagy nagy pontgombokra koppintva. Visszavonás, újrakezdés, korábbi táblák megnyitása, valamint a helyi útvonal és a feloldott haladás folytatása is elérhető."
+}

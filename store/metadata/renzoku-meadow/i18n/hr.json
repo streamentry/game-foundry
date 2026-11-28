@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zagonetke uzastopnih brojeva",
+ "keywords": "uzastopni,latinski kvadrat,oznake rubova,niz,brojevi,logika,mreža,zagonetka",
+ "short_description": "Popuni mrežu 4×4 gdje oznake pokazuju uzastopne susjede.",
+ "description": "Popuni mrežu 4×4 brojevima od 1 do 4 tako da se svaki pojavi jednom u svakom retku i stupcu. Označeni rub između dva polja znači da su njihove znamenke uzastopne, a neoznačeni rub znači da nisu.\n\nOdaberi polje i unesi broj od 1 do 4. Strelice unutar polja pokazuju označene rubove desno i dolje.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

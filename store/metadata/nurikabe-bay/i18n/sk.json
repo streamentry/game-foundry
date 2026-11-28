@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ostrovy a more v zálive",
+ "keywords": "ostrovy,more,pevnina,súvislosť,logika,čísla,mriežka,hlavolam",
+ "short_description": "Roztrieďte mriežku 4×4 na more a ostrovy presnej veľkosti.",
+ "description": "Označte každé políčko mriežky 4×4 ako more alebo pevninu. Každý očíslovaný ostrov má presne toľko políčok a obsahuje jedno číslo, more tvorí jedno súvislé teleso a žiadny štvorec 2×2 nesmie byť celý z mora.\n\nKlepnutím na prázdne políčko prepínate more, pevninu a prázdny stav. Políčka s číslami sú pevné.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

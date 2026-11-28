@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Suma o teu camiño ata o cume",
+ "keywords": "somas,adición,matemáticas,aritmética,pedras,lóxica,díxitos,crebacabezas",
+ "short_description": "Reconstrúe unha pirámide de números a partir de poucas pistas dispersas.",
+ "description": "Atopa os catro díxitos, do 1 ao 9, ao longo da base dunha pirámide. Cada unha das seis pedras de enriba é igual á suma das dúas que están directamente debaixo, e algunhas etiquetas de pista están fixas para guiarte.\n\nSelecciona unha pedra da base e introduce un díxito; as pedras de enriba mostran as súas sumas a medida que avanzas.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

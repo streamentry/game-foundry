@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Använd varje linje en gång",
+ "keywords": "graf,rutt,kantpussel,koppla punkter,eulerstig,logik",
+ "short_description": "Planera en rutt som använder varje förbindelse exakt en gång.",
+ "description": "Använd varje synlig förbindelse exakt en gång. Du får besöka punkter flera gånger; korsningar utan punkt är inga knutpunkter. Lös åtta originala grafbanor genom att spåra rutten eller trycka på stora punktknappar. Ångra, starta om, gå tillbaka till tidigare banor och återuppta din lokala rutt och upplåsta framsteg."
+}

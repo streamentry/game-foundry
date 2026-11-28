@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Dùng mỗi đường đúng một lần",
+ "keywords": "đồ thị,lộ trình,câu đố cạnh,nối chấm,đường euler,logic",
+ "short_description": "Lập lộ trình đi qua mọi đường nối đúng một lần.",
+ "description": "Dùng mỗi đường nối nhìn thấy được đúng một lần. Bạn có thể đi qua lại các chấm; các điểm giao nhau không có chấm không phải là điểm nối. Giải tám bảng đồ thị gốc bằng cách vạch đường hoặc chạm vào các nút chấm lớn. Có thể hoàn tác, chơi lại, quay về các bảng trước đó, và tiếp tục lộ trình cục bộ cùng tiến trình đã mở khóa."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Világítsd meg a cellákat",
+ "keywords": "lámpák,fény,izzó,logika,rács,falszámok,rejtvény",
+ "short_description": "Helyezz lámpákat, hogy minden nyitott cella világos legyen.",
+ "description": "Helyezz lámpákat egy 4×4-es táblára úgy, hogy minden nyitott cella megvilágított legyen, két lámpa ne világítson egymásra, és minden számozott fal pontosan annyi lámpához érjen, amennyit jelöl.\n\nKoppints egy nyitott cellára: a jelölés lámpára, kereszt jelzésre, majd üresre vált. A megvilágított cellák menet közben kiemelkednek.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Piirrä yksi suljettu silmukka",
+ "keywords": "slitherlink,aidat,reunat,viiva,logiikka,numero,ruudukko,palapeli",
+ "short_description": "Piirrä yksi silmukka, joka täyttää jokaisen reunavihjeen.",
+ "description": "Piirrä yksi suljettu silmukka ruudukon viivoja pitkin siten, että se ei haarau eikä risteä itsensä kanssa. Jokainen numeroitu ruutu kertoo, montako sen neljästä sivusta silmukka käyttää.\n\nNapauta ruutua ja paina sitten yhtä neljästä suuresta painikkeesta Ylös, Oikea, Alas tai Vasen lisätäksesi tai poistaaksesi reunan.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

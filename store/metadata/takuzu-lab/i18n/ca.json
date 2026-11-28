@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles binaris diaris",
+ "keywords": "binari,binairo,lògica,puzle numèric,diari,quadrícula",
+ "short_description": "Resol quadrícules binaries amb ajudes i progrés local.",
+ "description": "Juga un puzle diàri de Takuzu de 4×4 o taulers lliures de 4×4 i 6×6. Les files i columnes han d'estar equilibrades, cal evitar tres números iguals seguits i no es poden repetir línies completades. Fes servir ajudes, desfer, refer i reiniciar. El progrés es desa localment."
+}

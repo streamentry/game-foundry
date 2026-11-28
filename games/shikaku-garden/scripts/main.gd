@@ -4,13 +4,22 @@ extends Control
 const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/rectangle_rules.gd")
 const Progress = preload("res://scripts/progress.gd")
+const Motion = preload("res://scripts/motion.gd")
 
+const SETTINGS_PATH: String = "user://settings.json"
 const PAPER = Color("#F7F7EF")
 const INK = Color("#293C36")
 const MUTED = Color("#54665E")
 const GREEN = Color("#277A65")
+const ACCENT_HOVER = Color("#185C4B")
 const PALE = Color("#E5EDDC")
+const SURFACE_ALT_HOVER = Color("#D5E1CE")
+const SURFACE_ALT_PRESSED = Color("#C4D6BA")
 const WHITE = Color("#FFFFFF")
+const GRID_STROKE = Color("#BDCFC1")
+const SUCCESS = Color("#2D6A4F")
+const ERROR = Color("#9E3E40")
+const GLOW = Color("#FFF1B8")
 const COLORS: Array = [
     Color("#D1E6CA"), Color("#F0D4AC"), Color("#D2E3ED"), Color("#ECD4D8"),
     Color("#DCCBEA"), Color("#F0E6B5"), Color("#C6E7DF"), Color("#E2DBCF")
@@ -21,6 +30,7 @@ var puzzle: Dictionary = {}
 var starting_cell: int = -1
 var cell_buttons: Array = []
 var grid: GridContainer
+var board_box: CenterContainer
 var heading: Label
 var status: Label
 var progress_label: Label
@@ -28,10 +38,13 @@ var next_button: Button
 var prev_button: Button
 var undo_button: Button
 var restart_button: Button
+var reduce_toggle: CheckButton
+var motion := Motion.new()
 
 
 func _ready() -> void:
     state = Progress.load_saved()
+    motion.reduced_motion = _load_reduced_motion()
     var linked: int = _linked_level()
     if linked >= 0:
         Progress.change_level(state, linked)
@@ -77,11 +90,21 @@ func _button(message: String, callback: Callable, primary: bool = false) -> Butt
     regular.set_corner_radius_all(12)
     regular.content_margin_left = 7
     regular.content_margin_right = 7
+    regular.shadow_size = 2
+    regular.shadow_color = Color(0, 0, 0, 0.12)
+    regular.shadow_offset = Vector2(0, 1)
     button.add_theme_stylebox_override("normal", regular)
     var hover: StyleBoxFlat = regular.duplicate()
-    hover.bg_color = Color("#185C4B") if primary else Color("#D5E1CE")
+    hover.bg_color = ACCENT_HOVER if primary else SURFACE_ALT_HOVER
     button.add_theme_stylebox_override("hover", hover)
-    button.add_theme_stylebox_override("pressed", hover)
+    var pressed: StyleBoxFlat = regular.duplicate()
+    pressed.bg_color = ACCENT_HOVER if primary else SURFACE_ALT_PRESSED
+    pressed.shadow_size = 0
+    button.add_theme_stylebox_override("pressed", pressed)
+    var disabled: StyleBoxFlat = regular.duplicate()
+    disabled.bg_color = Color(PALE.r, PALE.g, PALE.b, 0.55)
+    disabled.shadow_size = 0
+    button.add_theme_stylebox_override("disabled", disabled)
     var focus := StyleBoxFlat.new()
     focus.bg_color = Color.TRANSPARENT
     focus.border_color = GREEN
@@ -133,14 +156,14 @@ func _build_view() -> void:
     heading = _label("", 16, INK)
     column.add_child(heading)
 
-    var center := CenterContainer.new()
-    center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    column.add_child(center)
+    board_box = CenterContainer.new()
+    board_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    column.add_child(board_box)
 
     grid = GridContainer.new()
     grid.add_theme_constant_override("h_separation", 4)
     grid.add_theme_constant_override("v_separation", 4)
-    center.add_child(grid)
+    board_box.add_child(grid)
 
     progress_label = _label("", 16, INK, true)
     column.add_child(progress_label)
@@ -162,6 +185,17 @@ func _build_view() -> void:
     column.add_child(navigate)
 
     column.add_child(_button("Copy this challenge", _share))
+
+    reduce_toggle = CheckButton.new()
+    reduce_toggle.text = "Reduce motion"
+    reduce_toggle.accessibility_name = "Reduce motion"
+    reduce_toggle.custom_minimum_size = Vector2(0, 48)
+    reduce_toggle.add_theme_font_size_override("font_size", 16)
+    reduce_toggle.add_theme_color_override("font_color", INK)
+    reduce_toggle.set_pressed_no_signal(motion.reduced_motion)
+    reduce_toggle.toggled.connect(_set_reduced_motion)
+    column.add_child(reduce_toggle)
+
     column.add_child(_label("No clock, no guessing: make rectangles that do not overlap. Undo is always available.", 13, MUTED))
 
 
@@ -185,6 +219,7 @@ func _load_puzzle() -> void:
             grid.add_child(cell)
             cell_buttons.append(cell)
     _refresh()
+    motion.stagger_in(cell_buttons)
 
 
 func _clue_at(r: int, c: int) -> int:
@@ -202,18 +237,30 @@ func _region_index(r: int, c: int) -> int:
     return -1
 
 
+func _cells_in(rect: Array) -> Array:
+    var n: int = puzzle["size"]
+    var cells: Array = []
+    for r in range(rect[0], rect[0] + rect[2]):
+        for c in range(rect[1], rect[1] + rect[3]):
+            cells.append(cell_buttons[r * n + c])
+    return cells
+
+
 func _tap_cell(r: int, c: int) -> void:
     if Rules.complete(puzzle, state["rectangles"]):
         status.text = "All gardens are filled. Choose Next garden."
         return
     var n: int = puzzle["size"]
     var index: int = r * n + c
+    var cell: Button = cell_buttons[index]
     if starting_cell < 0:
         starting_cell = index
+        motion.press(cell)
         _refresh("First corner selected. Choose the opposite corner.")
         return
     if starting_cell == index:
         starting_cell = -1
+        motion.press(cell)
         _refresh("Selection cleared.")
         return
     var start: Vector2i = Vector2i(starting_cell % n, starting_cell / n)
@@ -224,7 +271,16 @@ func _tap_cell(r: int, c: int) -> void:
         starting_cell = -1
         Progress.mark_complete(state, puzzle)
         _save()
+        _refresh(str(outcome["message"]))
+        if Rules.complete(puzzle, state["rectangles"]):
+            motion.sweep(cell_buttons, GLOW)
+            motion.celebrate(self, board_box.get_global_rect().get_center(), [GREEN, SUCCESS, PAPER])
+        else:
+            motion.sweep(_cells_in(rect), GLOW)
+        return
     _refresh(str(outcome["message"]))
+    status.add_theme_color_override("font_color", ERROR)
+    motion.shake(cell)
 
 
 func _undo() -> void:
@@ -233,8 +289,12 @@ func _undo() -> void:
         _refresh("Corner selection cleared.")
         return
     if not state["rectangles"].is_empty():
-        state["rectangles"].pop_back()
+        var removed: Array = state["rectangles"].pop_back()
         _save()
+        _refresh("Last rectangle removed.")
+        for cell in _cells_in(removed):
+            motion.pop(cell)
+        return
     _refresh("Last rectangle removed.")
 
 
@@ -243,6 +303,7 @@ func _restart() -> void:
     state["rectangles"] = []
     _save()
     _refresh("Starting again. Try your first rectangle.")
+    motion.stagger_in(cell_buttons)
 
 
 func _next() -> void:
@@ -251,6 +312,7 @@ func _next() -> void:
     Progress.change_level(state, int(state["level"]) + 1)
     _save()
     _load_puzzle()
+    motion.slide_swap(board_box, 1)
 
 
 func _previous() -> void:
@@ -259,6 +321,7 @@ func _previous() -> void:
     Progress.change_level(state, int(state["level"]) - 1)
     _save()
     _load_puzzle()
+    motion.slide_swap(board_box, -1)
 
 
 func _refresh(message: String = "") -> void:
@@ -284,9 +347,9 @@ func _refresh(message: String = "") -> void:
                 "covered" if region >= 0 else "uncovered"]
             cell.accessibility_description = "Select this cell as a rectangle corner."
             var style := StyleBoxFlat.new()
-            style.bg_color = GREEN if selected else (COLORS[region % COLORS.size()] if region >= 0 else Color("#FFFFFF"))
+            style.bg_color = GREEN if selected else (COLORS[region % COLORS.size()] if region >= 0 else WHITE)
             style.set_corner_radius_all(7)
-            style.border_color = GREEN if selected else Color("#BDCFC1")
+            style.border_color = GREEN if selected else GRID_STROKE
             style.set_border_width_all(3 if selected else 1)
             for state_name in ["normal", "hover", "pressed"]:
                 cell.add_theme_stylebox_override(state_name, style)
@@ -303,8 +366,10 @@ func _refresh(message: String = "") -> void:
     restart_button.disabled = state["rectangles"].is_empty() and starting_cell < 0
     next_button.disabled = not Progress.can_advance(state)
     prev_button.disabled = int(state["level"]) == 0
+    status.add_theme_color_override("font_color", MUTED)
     if Rules.complete(puzzle, state["rectangles"]):
         status.text = "Beautifully done. Every square is covered."
+        status.add_theme_color_override("font_color", SUCCESS)
     elif not message.is_empty():
         status.text = message
     else:
@@ -314,6 +379,33 @@ func _refresh(message: String = "") -> void:
 func _save() -> void:
     if not Progress.save(state):
         push_warning("Shikaku Garden could not save locally. The board stays playable.")
+
+
+func _load_reduced_motion() -> bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return false
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return false
+    var json := JSON.new()
+    if json.parse(file.get_as_text()) != OK or typeof(json.data) != TYPE_DICTIONARY:
+        return false
+    return (json.data as Dictionary).get("reduced_motion", false) == true
+
+
+func _save_reduced_motion(on: bool) -> void:
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning("Shikaku Garden could not save the motion setting. It applies for this session.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": on}))
+    file.close()
+
+
+func _set_reduced_motion(on: bool) -> void:
+    motion.reduced_motion = on
+    reduce_toggle.set_pressed_no_signal(on)
+    _save_reduced_motion(on)
 
 
 func _share() -> void:

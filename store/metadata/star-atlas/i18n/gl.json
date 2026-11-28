@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Colocación de estrelas",
+ "keywords": "rexións,filas,columnas,lóxica,cuadrícula,constelación,crebacabezas",
+ "short_description": "Coloca unha estrela por fila, columna e rexión, sen que se toquen.",
+ "description": "Coloca estrelas na cuadrícula para que cada fila, cada columna e cada rexión etiquetada teña exactamente unha estrela, e ningunha dúas se toquen, nin en diagonal.\n\nToca un cadrado para alternar entre estrela, punto e baleiro; os puntos son notas para os cadrados que xa descartaches.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

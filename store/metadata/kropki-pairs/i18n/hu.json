@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pöttyös számrejtvények",
+ "keywords": "pöttyök,fehér pötty,fekete pötty,egymást követő,arány,latin négyzet,szám,logika,rejtvény",
+ "short_description": "Töltsd ki a 4×4-es rácsot 1-től 4-ig a fehér és fekete pöttyök alapján.",
+ "description": "Töltsd ki a 4×4-es rácsot 1-től 4-ig úgy, hogy minden számjegy egyszer szerepeljen minden sorban és oszlopban. Két négyzet közötti fehér pötty azt jelenti, hogy a számjegyek egymást követik; a fekete pötty azt, hogy az egyik pontosan a másik kétszerese. A pötty nélküli élek nem tartalmaznak információt.\n\nKoppints egy szerkeszthető négyzetre, majd egy számjegyre a nagy négyes billentyűzeten. A négyzetekbe írt címkék és egy ellenőrző segítenek értelmezni a pöttyöket.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

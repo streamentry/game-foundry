@@ -1,0 +1,8 @@
+{
+ "lang": "sl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Logična uganka s pravokotniki",
+ "keywords": "pravokotnik,številska uganka,logika,mreža,ploščina,geometrija",
+ "short_description": "Razdeli mrežo na pravokotnike z velikostmi iz namigov.",
+ "description": "Razdeli mrežo na pravokotnike. Vsak pravokotnik mora ostati znotraj plošče, vsebovati natanko en namig in pokrivati toliko polj, kolikor kaže ta namig. Reši osem izvirnih plošč z izbiro kotov s tapanjem; na voljo so razveljavitev, ponastavitev, odklepanje napredka in lokalno shranjevanje. Ni časovnika."
+}

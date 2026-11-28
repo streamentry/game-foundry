@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sčítejte cestu na vrchol",
+ "keywords": "součty,sčítání,matematika,počítání,kameny,logika,číslice,mřížka",
+ "short_description": "Poskládejte pyramidu čísel z několika rozptýlených nápověd.",
+ "description": "Najděte čtyři číslice 1 až 9 podél spodku pyramidy. Každý ze šesti kamenů nad nimi se rovná součtu dvou kamenů přímo pod ním a několik štítků s nápovědou je pevných, aby vás vedly.\n\nVyberte spodní kámen a zadejte číslici; kameny nad ním ukazují své součty, jak hrajete.\n\nŠest původních hracích plánů; každý odemkne další po vyřešení. Zpět a Začít znovu jsou vždy k dispozici, časovač není a váš postup se ukládá v tomto zařízení. Funguje offline. Bez reklam, bez účtu, bez sběru dat."
+}

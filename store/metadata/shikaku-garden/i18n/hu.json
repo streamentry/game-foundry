@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Téglalap logikai rejtvény",
+ "keywords": "téglalap,számrejtvény,logika,rács,terület,geometria",
+ "short_description": "Oszd fel a rácsot a számok méretének megfelelő téglalapokra.",
+ "description": "Oszd fel a rácsot téglalapokra. Minden téglalapnak a táblán belül kell maradnia, pontosan egy számot kell tartalmaznia, és annyi négyzetet kell lefednie, amennyit az a szám jelöl. Nyolc eredeti táblát oldhatsz meg koppintással kijelölt sarkokkal, visszavonással, újrakezdéssel, feloldható haladással és helyi mentéssel. Nincs időzítő."
+}

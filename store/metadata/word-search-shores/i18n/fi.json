@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Etsi piilotetut sanat",
+ "keywords": "sanahaku,etsi,kirjaimet,piilotettu,sanasto,oikeinkirjoitus,kieli,ruudukko,palapeli",
+ "short_description": "Etsi kolme kohdesanaa 6×6-kirjainruudukosta.",
+ "description": "Nämä englanninkieliset sanapulmat piilottavat kolme kohdesanaa 6×6-kirjainruudukkoon. Jokainen sana kulkee suoraan linjaa pitkin, vaakasuoraan, pystysuoraan tai vinottain, ja esiintyy täsmälleen kerran.\n\nNapauta sanan ensimmäistä ja viimeistä kirjainta, kummassa tahansa suunnassa. Löydetyt sanat jäävät korostetuiksi.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zagonetke otoka i mora",
+ "keywords": "otoci,more,kopno,povezano,logika,brojevi,mreža,voda,zagonetka",
+ "short_description": "Razvrstaj mrežu 4×4 na more i otoke točno zadane veličine.",
+ "description": "Označi svako polje mreže 4×4 kao more ili kopno. Svaki brojčani otok ima točno toliko polja i sadrži jedan broj, more čini jedno povezano tijelo, a nijedan blok 2×2 ne smije biti sav more.\n\nDodirni prazno polje da mijenjaš more, kopno i prazno. Polja s brojevima su fiksna.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

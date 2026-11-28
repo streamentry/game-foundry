@@ -7,11 +7,12 @@ signal node_selected(index: int)
 const Rules = preload("res://scripts/trail_rules.gd")
 const PAPER = Color("#F1E9DE")
 const OUTLINE = Color("#B9B6AD")
-const INK = Color("#3E3E40")
-const DONE = Color("#D07651")
+const INK = Color("#22393E")
+const TRAIL = Color("#A8711C")
+const CURRENT = Color("#A25138")
 const WARM = Color("#E7B488")
 const WHITE = Color("#FFFFFF")
-const HINT = Color("#2F7A72")
+const HINT = Color("#2A6F68")
 
 var graph: Dictionary = {}
 var path: Array = []
@@ -60,7 +61,7 @@ func _draw() -> void:
     for edge in graph["edges"]:
         var used: bool = _edge_used(edge[0], edge[1])
         draw_line(_point(graph["nodes"][edge[0]]), _point(graph["nodes"][edge[1]]),
-            DONE if used else OUTLINE, 7.0 if used else 4.0, true)
+            TRAIL if used else OUTLINE, 7.0 if used else 4.0, true)
 
     var endpoints: Array = Rules.odd_vertices(graph)
     var current: int = int(path[path.size() - 1]) if not path.is_empty() else -1
@@ -71,7 +72,7 @@ func _draw() -> void:
             draw_arc(center, 24.0, 0.0, TAU, 48, HINT, 4.0, true)
         var is_current: bool = i == current
         draw_circle(center, 22.0 if is_current else 20.0, INK)
-        draw_circle(center, 17.0 if is_current else 16.0, DONE if is_current else WARM)
+        draw_circle(center, 17.0 if is_current else 16.0, CURRENT if is_current else WARM)
         var label: String = char(65 + i)
         var font: Font = ThemeDB.fallback_font
         var text_size: Vector2 = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 19)

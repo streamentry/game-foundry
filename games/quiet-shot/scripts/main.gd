@@ -5,18 +5,29 @@ const Factory = preload("res://scripts/board_factory.gd")
 const Rules = preload("res://scripts/ray_rules.gd")
 const Progress = preload("res://scripts/progress.gd")
 const ShotBoard = preload("res://scripts/shot_board.gd")
+const Motion = preload("res://scripts/motion.gd")
+const Settings = preload("res://scripts/settings.gd")
 
-const PAPER = Color("#F2F7F7")
-const INK = Color("#183C45")
-const MUTED = Color("#4C6570")
-const ACCENT = Color("#247A8B")
-const WHITE = Color("#FFFFFF")
-const PALE = Color("#DAE8EB")
-const WARM = Color("#D3A06D")
+# DESIGN.md section 2 tokens.
+const PAPER = Color("#F7F2E8")        # bg
+const SURFACE = Color("#FFFDF8")      # surface
+const SURFACE_ALT = Color("#E9DFC8")  # surface_alt
+const INK = Color("#1C2A47")          # ink
+const MUTED = Color("#4F5878")        # ink_muted
+const ACCENT = Color("#F2B45B")       # accent
+const ACCENT_INK = Color("#14213D")   # accent_ink
+const ACCENT_PRESSED = Color("#D99A3F")
+const SUCCESS = Color("#2E7A5A")      # success
+const CORAL = Color("#E8674F")        # coral (celebration tile)
+const FOCUS = Color("#1C2A47")        # focus
+const MINT = Color("#8FD9B6")         # cleared target (celebration pieces)
 
 var state: Dictionary = {}
 var current: Dictionary = {}
 var result: Dictionary = {}
+var settings: Dictionary = {}
+var motion := Motion.new()
+var aim_buttons: Array = []
 var board
 var heading: Label
 var status: Label
@@ -30,11 +41,14 @@ var back_button: Button
 
 func _ready() -> void:
     state = Progress.load_saved()
+    settings = Settings.load_saved()
+    motion.reduced_motion = bool(settings["reduced_motion"])
     var linked_level: int = _query_level()
     if linked_level >= 0:
         Progress.set_level(state, linked_level)
     _build_ui()
     _load_level()
+    motion.stagger_in([board] + aim_buttons)
 
 
 func _query_level() -> int:
@@ -64,25 +78,30 @@ func _text(value: String, font_size: int, color: Color, centered: bool = false) 
 
 
 func _style(button: Button, primary: bool = false) -> void:
+    # DESIGN.md section 5: 12 px corners; primary = accent fill, others = surface_alt.
     var normal := StyleBoxFlat.new()
-    normal.bg_color = ACCENT if primary else PALE
+    normal.bg_color = ACCENT if primary else SURFACE_ALT
     normal.set_corner_radius_all(12)
     normal.content_margin_left = 6
     normal.content_margin_right = 6
     button.add_theme_stylebox_override("normal", normal)
-    var pressed: StyleBoxFlat = normal.duplicate()
-    pressed.bg_color = Color("#175466") if primary else Color("#C3DADD")
-    button.add_theme_stylebox_override("hover", pressed)
-    button.add_theme_stylebox_override("pressed", pressed)
+    var raised: StyleBoxFlat = normal.duplicate()
+    raised.bg_color = ACCENT_PRESSED if primary else Color("#D8CBAE")
+    button.add_theme_stylebox_override("hover", raised)
+    button.add_theme_stylebox_override("pressed", raised)
+    var disabled: StyleBoxFlat = normal.duplicate()
+    disabled.bg_color = SURFACE_ALT
+    disabled.bg_color.a = 0.55
+    button.add_theme_stylebox_override("disabled", disabled)
     var focus := StyleBoxFlat.new()
     focus.bg_color = Color.TRANSPARENT
-    focus.border_color = INK
+    focus.border_color = FOCUS
     focus.set_border_width_all(3)
     focus.set_corner_radius_all(12)
     button.add_theme_stylebox_override("focus", focus)
-    button.add_theme_color_override("font_color", WHITE if primary else INK)
-    button.add_theme_color_override("font_hover_color", WHITE if primary else INK)
-    button.add_theme_color_override("font_pressed_color", WHITE if primary else INK)
+    button.add_theme_color_override("font_color", ACCENT_INK if primary else INK)
+    button.add_theme_color_override("font_hover_color", ACCENT_INK if primary else INK)
+    button.add_theme_color_override("font_pressed_color", ACCENT_INK if primary else INK)
     button.add_theme_color_override("font_disabled_color", MUTED)
 
 
@@ -96,6 +115,8 @@ func _button(value: String, callback: Callable, primary: bool = false) -> Button
     button.add_theme_font_size_override("font_size", 16)
     _style(button, primary)
     button.pressed.connect(callback)
+    # Every tap gets the small press dip; the state change is never delayed by it.
+    button.pressed.connect(func() -> void: motion.press(button))
     return button
 
 
@@ -103,6 +124,36 @@ func _row() -> HBoxContainer:
     var row := HBoxContainer.new()
     row.add_theme_constant_override("separation", 9)
     return row
+
+
+func _motion_toggle() -> CheckButton:
+    var toggle := CheckButton.new()
+    toggle.text = "Reduce motion"
+    toggle.accessibility_name = "Reduce motion"
+    toggle.accessibility_description = "Turn off board animations and the celebration burst. Game state is unchanged."
+    toggle.custom_minimum_size = Vector2(0, 54)
+    toggle.focus_mode = Control.FOCUS_ALL
+    toggle.add_theme_font_size_override("font_size", 16)
+    toggle.add_theme_color_override("font_color", INK)
+    toggle.add_theme_color_override("font_hover_color", INK)
+    toggle.add_theme_color_override("font_pressed_color", INK)
+    toggle.add_theme_color_override("font_focus_color", INK)
+    var focus := StyleBoxFlat.new()
+    focus.bg_color = Color.TRANSPARENT
+    focus.border_color = FOCUS
+    focus.set_border_width_all(3)
+    focus.set_corner_radius_all(12)
+    toggle.add_theme_stylebox_override("focus", focus)
+    toggle.button_pressed = motion.reduced_motion
+    toggle.toggled.connect(_set_reduced_motion)
+    return toggle
+
+
+func _set_reduced_motion(on: bool) -> void:
+    motion.reduced_motion = on
+    settings["reduced_motion"] = on
+    if not Settings.save(settings):
+        push_warning("Quiet Shot could not save the motion setting; it applies for this session only.")
 
 
 func _build_ui() -> void:
@@ -156,6 +207,7 @@ func _build_ui() -> void:
         var btn := _button(instruction[0], _turn.bind(instruction[1]))
         btn.accessibility_description = "Adjust the shot by %s degrees" % str(instruction[1])
         aim_controls.add_child(btn)
+        aim_buttons.append(btn)
     column.add_child(aim_controls)
 
     status = _text("", 18, INK, true)
@@ -178,6 +230,7 @@ func _build_ui() -> void:
     travel.add_child(next_button)
     column.add_child(travel)
     column.add_child(_button("Copy challenge", _copy_challenge))
+    column.add_child(_motion_toggle())
     column.add_child(_text("Aim by tapping the board or using the four large adjustment buttons. You can retry as often as you want. Keyboard: ← / → and Enter.", 13, MUTED))
 
 
@@ -208,6 +261,10 @@ func _fire() -> void:
     result = Rules.simulate(current, float(state["angle"]))
     Progress.register_shot(state, bool(result["won"]))
     board.show_result(result)
+    # Result is already final; motion only settles the board visually.
+    motion.pop(board, 0.35)
+    if bool(result["won"]):
+        motion.celebrate(self, board.get_global_rect().get_center(), [ACCENT, SUCCESS, CORAL])
     _save()
     _refresh()
 
@@ -226,6 +283,7 @@ func _next() -> void:
     Progress.set_level(state, state["level"] + 1)
     _save()
     _load_level()
+    motion.slide_swap(board, 1)
 
 
 func _previous() -> void:
@@ -234,6 +292,7 @@ func _previous() -> void:
     Progress.set_level(state, state["level"] - 1)
     _save()
     _load_level()
+    motion.slide_swap(board, -1)
 
 
 func _refresh() -> void:

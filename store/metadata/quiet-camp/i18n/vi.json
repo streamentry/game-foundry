@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố lều và cây",
+ "keywords": "lều cây,logic,lưới,rừng,câu đố số,ngoại tuyến",
+ "short_description": "Đặt lều, khớp tổng hàng và tránh chạm nhau.",
+ "description": "Đặt đúng một lều cạnh mỗi cây, thỏa mãn tổng của mọi hàng và cột, và giữ các lều không chạm nhau, kể cả theo đường chéo. Giải tám bảng gốc 5×5 và 6×6 có lời giải duy nhất. Có thể đánh dấu cỏ, hoàn tác, chơi lại và giữ tiến trình trên thiết bị này. Không có đồng hồ đếm giờ hay trừ điểm."
+}

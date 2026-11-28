@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle-uri cu stele",
+ "keywords": "regiuni,rânduri,coloane,logică,grilă,constelație,cer,puzzle",
+ "short_description": "Așază o stea pe fiecare rând, coloană și regiune, fără să se atingă.",
+ "description": "Așază stele pe grilă astfel încât fiecare rând, fiecare coloană și fiecare regiune etichetată să conțină exact o stea, iar două stele să nu se atingă, nici măcar pe diagonală.\n\nAtinge un pătrat pentru a trece prin stea, punct și gol; punctele sunt note pentru pătratele pe care le-ai exclus.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

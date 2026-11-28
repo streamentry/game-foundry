@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Töltsd meg a hőmérőket",
+ "keywords": "csövek,töltés,összegek,sorok,oszlopok,logika,szám,rács,rejtvény",
+ "short_description": "Töltsd a csöveket a gömbtől, hogy a sor- és oszlopösszegek egyezzenek.",
+ "description": "Töltsd fel mind a nyolc kétcellás hőmérőt a gömbjétől a hegye felé, soha fordítva. A sorok és oszlopok összegei megmutatják, hány cella van kitöltve az adott sorban vagy oszlopban.\n\nKoppints a gömbre az első szakasz, vagy a hegyre mindkét szakasz kitöltéséhez. Ugyanarra a helyre újra koppintva a cső kiürül.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

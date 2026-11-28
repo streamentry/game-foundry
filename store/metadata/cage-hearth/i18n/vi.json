@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố lồng phép tính",
+ "keywords": "kenken,calcudoku,phép tính,toán,hình vuông latin,số,logic,câu đố",
+ "short_description": "Điền lưới 4×4 sao cho mỗi lồng đạt đúng giá trị phép tính.",
+ "description": "Điền các số 1 đến 4 vào lưới 4×4 sao cho không số nào lặp lại trong bất kỳ hàng hoặc cột nào. Mỗi lồng màu hiển thị một mục tiêu được tạo từ tổng, tích, hiệu, thương hoặc một giá trị đơn, và các số bên trong phải đạt đúng mục tiêu đó.\n\nChạm vào một ô, rồi nhập số trên bàn phím lớn. Nút Xóa sẽ xóa một ô.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

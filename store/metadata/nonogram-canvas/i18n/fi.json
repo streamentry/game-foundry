@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Paljasta kuva",
+ "keywords": "japanilainen pulma,picross,griddler,hanjie,maalaus numeroiden mukaan,pikseli,logiikka,ruudukko",
+ "short_description": "Käytä rivi- ja sarakevihjeitä piilotetun 5×5-kuvan paljastamiseen.",
+ "description": "Täytä 5×5-ruudukko niin, että jokainen rivi ja sarake vastaa omia vihjeitään: jokainen luku on yhtenäinen täytettyjen ruutujen lohko, ja lohkot erottaa toisistaan vähintään yksi tyhjä ruutu. Jokainen lauta on pieni pikselikuva.\n\nNapauta ruutua täyttääksesi sen, napauta uudelleen rastittaaksesi sen ja kolmannen kerran tyhjentääksesi sen. Kaikki kymmenen vihjerivien näkyvät koko ajan.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

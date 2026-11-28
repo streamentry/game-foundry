@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nối các cặp giống nhau",
+ "keywords": "nối,cặp,tuyến,lộ trình,logic,chữ cái,lưới,câu đố",
+ "short_description": "Nối từng cặp chữ bằng một tuyến lấp đầy toàn bộ lưới.",
+ "description": "Nối từng cặp chữ cái giống nhau bằng một tuyến đi qua các ô của lưới 4×4. Các tuyến không được giao nhau hoặc rẽ nhánh, và cùng nhau hai tuyến phải phủ kín mọi ô.\n\nChạm vào ô trống để luân phiên giữa tuyến A, tuyến B và ô trống. Các điểm đầu cố định được đánh dấu bằng vòng tròn, và mỗi tuyến có chữ cái và màu riêng.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

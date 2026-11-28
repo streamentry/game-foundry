@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hlavolam delenia tvarov",
+ "keywords": "tvar,plocha,geometria,rez,vizuálne,logika,denná výzva,odhad",
+ "short_description": "Porovnajte obe plochy po rozdelení pôvodného tvaru.",
+ "description": "Zvoľte čiaru, ktorou rozdelíte pôvodný tvar, a potom uvidíte, ako blízko sú obe plochy k rovnosti. Pred rezom upravte jej polohu a uhol. Precvičovanie ponúka krátku nápovedu k smeru; Denná päťka prináša päť kôl podľa času UTC a uchováva skóre prvého pokusu. Precvičovanie s pevne určenými zadaniami a postup sa ukladajú v tomto zariadení."
+}

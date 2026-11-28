@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Broji što vidiš",
+ "keywords": "kurodoko,vidljivost,linija pogleda,crno bijelo,zasjenjivanje,logika,brojevi,mreža,zagonetka",
+ "short_description": "Zasjeni polja tako da svaki broj vidi točno toliko bijelih polja.",
+ "description": "Zasjeni neka polja crnom bojom tako da se crna polja nikada ne dodiruju stranicom i da sva bijela polja ostanu povezana. Svaki brojčani kvadrat broji bijela polja koja vidi u svom retku i stupcu, uključujući sebe, i mora se podudarati s brojem.\n\nDodirni prazno polje da mijenjaš između crnog, bijelog i nepoznatog. Zadani brojevi ostaju fiksni, a tekst na zaslonu pokazuje koje linije pogleda ili veze krše pravila.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Bilangin ang nakikita mo",
+ "keywords": "kurodoko,nakikita,linya ng paningin,itim puti,lilim,lohika,numero,grid,palaisipan",
+ "short_description": "Lagyan ng lilim para tumugma ang bawat numero sa nakikitang puting cell.",
+ "description": "Lagyan ng itim na lilim ang ilang cell para hindi magdikit sa gilid ang mga itim na cell at manatiling magkakakonekta ang lahat ng puting cell. Ang bawat may-numerong cell ay bumibilang ng mga puting cell na nakikita nito sa sarili nitong hilera at kolum, kasama ang sarili, at dapat tumugma ito sa numero.\n\nI-tap ang blangkong cell para dumaan sa itim, puti, at hindi pa alam. Nananatili ang mga numerong clue, at ipinapakita sa screen kung aling linya ng paningin o koneksyon ang lumalabag sa mga tuntunin.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

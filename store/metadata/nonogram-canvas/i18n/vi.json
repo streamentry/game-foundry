@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Khám phá bức tranh",
+ "keywords": "picross,griddler,hanjie,tô màu theo số,bức tranh,điểm ảnh,logic,lưới,câu đố",
+ "short_description": "Dùng gợi ý hàng và cột để hé lộ bức tranh 5×5 ẩn.",
+ "description": "Điền lưới 5×5 sao cho mỗi hàng và cột khớp với các gợi ý: mỗi số là một khối ô đã tô liên tiếp, và các khối được ngăn cách bởi ít nhất một ô trống. Mỗi bảng là một hình điểm ảnh nhỏ.\n\nChạm vào một ô để tô, chạm lần nữa để đánh dấu X, và lần nữa để xóa. Cả mười dòng gợi ý luôn hiển thị.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Xoay ống để nối",
+ "keywords": "hệ thống ống,ống nước,xoay,nối,dòng chảy,nước,không gian,ô,logic,câu đố",
+ "short_description": "Xoay các ô ống cho đến khi nước chảy được từ đầu đến cuối.",
+ "description": "Xoay chín ô ống trên bảng 3×3 cho đến khi chúng tạo thành một tuyến liên tục, không rò rỉ, từ đầu này đến đầu kia.\n\nChạm vào một ô để xoay. Ống cong và ống đầu có bốn vị trí, còn ống thẳng có hai vị trí.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

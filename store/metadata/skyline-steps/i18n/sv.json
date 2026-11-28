@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pussel med tornhöjder",
+ "keywords": "skyskrapor,torn,höjder,sikt,latinsk kvadrat,tal,logik,rutnät,pussel",
+ "short_description": "Placera byggnadshöjder så att varje kantledtråd stämmer.",
+ "description": "Fyll ett 4×4-rutnät med byggnadshöjder 1 till 4 och upprepa aldrig en höjd i någon rad eller kolumn. Varje tal runt kanten anger hur många byggnader som syns från den riktningen, eftersom högre byggnader döljer lägre bakom sig.\n\nVälj en ruta och skriv en höjd från 1 till 4. Radera tömmer en ruta.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

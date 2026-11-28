@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmetiske burgåter",
+ "keywords": "kenken,calcudoku,bur,aritmetikk,matte,latinsk kvadrat,tall,gåte,logikk",
+ "short_description": "Fyll et 4×4-rutenett slik at hver bur når sitt aritmetiske mål.",
+ "description": "Fyll et 4×4-rutenett med 1 til 4 slik at ingen siffer gjentas i noen rad eller kolonne. Hver fargede bur viser et mål bygget av en sum, et produkt, en differanse, en kvotient eller én enkelt verdi, og sifrene inni må nå målet.\n\nTrykk på en rute og skriv deretter inn et siffer på det store tastaturet. Slett tømmer en rute.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

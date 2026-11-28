@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Denní binární hádanky",
+ "keywords": "binární,binairo,logika,číselná hádanka,denní,mřížka",
+ "short_description": "Řešte binární mřížky s nápovědami a místním postupem.",
+ "description": "Hrajte denní hádanku Takuzu 4×4 nebo volné desky 4×4 a 6×6. Řádky a sloupce musí být vyvážené, nesmí být tři stejné číslice za sebou a dokončené řádky se nesmějí opakovat. Používejte nápovědy, zpět, znovu a restart. Postup se ukládá lokálně."
+}

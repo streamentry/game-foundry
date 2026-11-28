@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Uneix parells iguals",
+ "keywords": "flux,connectar,parells,rutes,línia,lògica,lletres,quadrícula,trencaclosques,camí",
+ "short_description": "Uneix cada parell de lletres amb una ruta que ompli tota la quadrícula.",
+ "description": "Connecta cada parell de lletres iguals amb una ruta pels quadrats d'una quadrícula de 4×4. Les rutes no es poden creuar ni bifurcar, i entre totes dues han de cobrir tots els quadrats.\n\nToca les caselles en blanc per canviar entre ruta A, ruta B i buida. Els extrems fixos estan marcats amb cercles, i cada ruta té la seva pròpia lletra i el seu color.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Koppla ihop matchande par",
+ "keywords": "flöde,koppla,par,rutter,linje,logik,bokstäver,rutnät,pussel,väg",
+ "short_description": "Förbind varje bokstavspar med en väg som fyller hela rutnätet.",
+ "description": "Koppla varje par av matchande bokstäver med en väg längs rutorna i ett 4×4-rutnät. Vägarna får inte korsas eller grena sig, och tillsammans måste de två vägarna täcka varje ruta.\n\nTryck på tomma rutor för att växla mellan väg A, väg B och tom. Fasta ändpunkter markeras med cirklar, och varje väg har sin egen bokstav och färg.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

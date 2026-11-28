@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Použijte každou čáru jednou",
+ "keywords": "graf,trasa,hádanka hran,spojování teček,eulerovská cesta,logika",
+ "short_description": "Naplánujte trasu, která použije každé spojení právě jednou.",
+ "description": "Použijte každé viditelné spojení přesně jednou. Tečky můžete navštívit znovu; křížení bez tečky nejsou uzly. Vyřešte osm původních grafových desek sledováním trasy nebo klepáním na velká tlačítka s tečkami. Vracejte tahy, začněte znovu, procházejte předchozí desky a pokračujte v místní trase a odemčeném postupu."
+}

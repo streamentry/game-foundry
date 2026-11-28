@@ -1,0 +1,8 @@
+{
+ "lang": "sl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Poišči drugačen cvet",
+ "keywords": "roža,vzorec,vid,logika,iskanje razlik,uganka",
+ "short_description": "Poišči cvet z drugačno strukturo.",
+ "description": "Poišči en izviren cvet, katerega struktura se razlikuje od drugih. Plošče rastejo od 6 do 16 cvetov skozi dvanajst determinističnih krogov. Tapni za izbiro, vrni se k prejšnjim krogom, ponovno predvajaj vzorec in shrani napredek v tej napravi. Ni časovnika, kazenskih točk ali prisilnih nizov zaporednih uspehov."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zagonetke brojevnih putova",
+ "keywords": "hidoku,brojevni put,niz,uzastopni,mreža,logika,zagonetka,slijed",
+ "short_description": "Poredaj brojeve 1 do 16 u lanac u kojem se svaki broj dodiruje sa sljedećim.",
+ "description": "Postavi brojeve od 1 do 16 na mrežu 4×4 tako da se svaki pojavi točno jednom i da se svaka dva uzastopna broja dodiruju vodoravno, okomito ili dijagonalno. Zadani brojevi moraju ostati na svojim mjestima.\n\nDodirni polje koje se može uređivati i izaberi broj na tipkovnici. Brisanje čisti polje.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

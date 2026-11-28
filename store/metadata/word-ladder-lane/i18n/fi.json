@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Vaihda yksi kirjain kerrallaan",
+ "keywords": "kaksoissanat,kirjaimet,sanasto,oikeinkirjoitus,kieli,askeleet,palapeli",
+ "short_description": "Kiipeä sanasta toiseen, yksi kirjain askelta kohti.",
+ "description": "Nämä englanninkieliset sanapulmat alkavat yhdestä sanasta ja etenevät tavoitesanaan vaihtamalla tasan yhden kirjaimen kerrallaan, käyttäen vain tarjolla olevia sanakortteja. Jokaisella laudalla on tarkka askelbudjetti, joka on lyhimmän reitin pituus.\n\nNapauta sallittua seuraavaa sanakorttia. Nykyinen tikkaat, tavoite ja askelmäärä näkyvät näytöllä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

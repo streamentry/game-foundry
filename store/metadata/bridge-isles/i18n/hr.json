@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Poveži otoke mostovima",
+ "keywords": "hashi,hashiwokakero,spajanje,logika,brojevi,zagonetka,mreža,arhipelag",
+ "short_description": "Spoji brojčane otoke mostovima tako da svaki broj bude zadovoljen.",
+ "description": "Poveži brojčane otoke s nula, jednim ili dva ravna mosta tako da svaki otok dobije točno svoj broj, nijedan most ne presijeca drugi i svi otoci budu povezani u jednu mrežu.\n\nDodirni jedan otok, pa drugi da mijenjaš most između njih. Veliki gumbi s oznakama otoka nude alternativu preciznom dodirivanju ploče.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Koble sammen like par",
+ "keywords": "flyt,koble,par,ruter,linje,logikk,bokstaver,rutenett,gåte,sti",
+ "short_description": "Forbind hvert bokstavpar med en rute som fyller hele rutenettet.",
+ "description": "Koble hvert par av like bokstaver med en rute langs rutene i et 4×4-rutenett. Ruter kan ikke krysse eller forgrene seg, og sammen må de to rutene dekke hver eneste rute.\n\nTrykk på tomme ruter for å bytte mellom rute A, rute B og tom. Faste endepunkter er merket med sirkler, og hver rute har sin egen bokstav og farge.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

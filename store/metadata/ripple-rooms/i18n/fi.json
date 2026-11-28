@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Numerohuoneet välimatkoilla",
+ "keywords": "alueet,välimatka,etäisyys,numero,logiikka,ruudukko,palapeli",
+ "short_description": "Täytä epäsäännölliset huoneet niin, että toistuvat numerot pitävät välinsä.",
+ "description": "Täytä jokainen epäsäännöllinen huone numeroilla 1 huoneen kokoon asti. Jos sama numero k esiintyy kahdesti rivillä tai sarakkeella, niiden välissä on oltava vähintään k ruutua.\n\nNapauta ruutua ja kirjoita numero 1–4 suurilla painikkeilla. Jokainen ruutu näyttää huoneensa kirjaimen ja huoneen koon numeron vieressä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

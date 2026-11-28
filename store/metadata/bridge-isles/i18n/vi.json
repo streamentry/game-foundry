@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nối đảo bằng cầu",
+ "keywords": "hashi,hashiwokakero,liên kết,đảo,nối,logic,số,câu đố",
+ "short_description": "Nối các đảo có số bằng cầu sao cho mỗi con số được thỏa mãn.",
+ "description": "Nối các đảo có số bằng không, một hoặc hai cây cầu thẳng sao cho mỗi đảo có đúng số cầu như ghi trên đảo, không có cầu nào giao nhau, và mọi đảo đều thuộc về một mạng lưới liên thông.\n\nChạm vào một đảo rồi chạm vào đảo khác để chuyển đổi cầu giữa chúng. Các nút chữ cái đảo lớn là lựa chọn thay thế để không phải chạm chính xác lên bảng.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

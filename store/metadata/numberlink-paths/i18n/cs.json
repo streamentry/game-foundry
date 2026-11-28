@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Spojte shodné dvojice",
+ "keywords": "tok,spojit,dvojice,trasy,čára,logika,písmena,mřížka,hádanka,cesta",
+ "short_description": "Spojte každou dvojici písmen trasou, která vyplní celou mřížku.",
+ "description": "Spojte každou dvojici stejných písmen trasou vedenou po polích mřížky 4×4. Trasy se nesmějí křížit ani větvit a dohromady musí pokrýt každé pole.\n\nKlepáním na prázdná pole přepínáte mezi trasou A, trasou B a prázdným polem. Pevné koncové body jsou označeny kroužky a každá trasa má své písmeno a barvu.\n\nŠest původních hracích plánů; každý odemkne další po vyřešení. Zpět a Začít znovu jsou vždy k dispozici, časovač není a váš postup se ukládá v tomto zařízení. Funguje offline. Bez reklam, bez účtu, bez sběru dat."
+}

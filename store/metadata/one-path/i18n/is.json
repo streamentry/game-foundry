@@ -1,0 +1,8 @@
+{
+ "lang": "is",
+ "status": "machine translation — native review pending",
+ "subtitle": "Notaðu hverja línu einu sinni",
+ "keywords": "graf,leið,kantaþraut,tengja punkta,eulerslóð,rökfræði",
+ "short_description": "Skipuleggðu leið sem notar hverja tengingu nákvæmlega einu sinni.",
+ "description": "Notaðu hverja sýnilega tengingu nákvæmlega einu sinni. Þú mátt heimsækja punkta aftur; krossanir án punkts eru ekki vegamót. Leystu átta upprunaleg grafaborð með því að rekja leiðina eða banka á stóra punkthnappa. Afturkallaðu, byrjaðu upp á nýtt, skoðaðu fyrri borð aftur og haltu áfram með staðbundna leið og opnaða framvindu."
+}

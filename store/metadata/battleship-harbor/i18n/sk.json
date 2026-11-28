@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nájdite skrytú flotilu",
+ "keywords": "lode,flotila,námorný,mapa,logika,mriežka,hlavolam,sonar",
+ "short_description": "Nájdite skrytú flotilu na mape 5×5 pomocou súčtov riadkov a stĺpcov.",
+ "description": "Nájdite malú flotilu na mape 5×5: jednu loď dlhú tri políčka, jednu dvojpoľovú a jednu jednopoľovú. Žiadne dve lode sa nesmú dotýkať, ani uhlopriečne, a súčty každého riadka a stĺpca musia sedieť.\n\nKlepnutím na políčko označíte loď, ďalším klepnutím vodu a tretím značku vymažete. Aktuálne a cieľové súčty zostávajú viditeľné vedľa každého riadka a stĺpca.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

@@ -84,6 +84,35 @@ static func complete(level:Dictionary,entries:Array)->bool:
             if next>=0 and not seen.has(next):todo.append(next)
     return seen.size()==9
 
+## Read-only: tiles reachable from the source endpoint through matching ports.
+## Used only for drawing water; never changes state or completion.
+static func connected(level:Dictionary,entries:Array)->Array:
+    var out:Array=[]
+    out.resize(9)
+    out.fill(false)
+    if not valid_entries(level,entries):
+        return out
+    var source:int=-1
+    for i in range(9):
+        if level["types"][i]=="E":
+            source=i
+            break
+    if source<0:
+        return out
+    var todo:Array=[source]
+    while not todo.is_empty():
+        var here:int=int(todo.pop_back())
+        if out[here]:
+            continue
+        out[here]=true
+        for d in ports(str(level["types"][here]),int(entries[here])):
+            var next:int=neighbor(here,int(d))
+            if next < 0 or out[next]:
+                continue
+            if ports(str(level["types"][next]),int(entries[next])).has((int(d)+2)%4):
+                todo.append(next)
+    return out
+
 static func status(level:Dictionary,entries:Array)->String:
     if complete(level,entries):return "All nine pipes form one connected route. Flow complete!"
     var matches:int=0

@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Gåder med følgende tal",
+ "keywords": "på hinanden følgende,latinsk kvadrat,kantmærker,rækkefølge,tal,logik,gitter,gåde",
+ "short_description": "Udfyld et 4×4-gitter, hvor mærker viser på hinanden følgende naboer.",
+ "description": "Udfyld et 4×4-gitter med 1 til 4, så hvert ciffer optræder én gang i hver række og kolonne. En markeret kant mellem to felter betyder, at deres cifre er på hinanden følgende; en umarkeret kant betyder, at de ikke er det.\n\nVælg et felt og indtast et ciffer fra 1 til 4. Pile i felterne peger på de markerede kanter til højre og nedad.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

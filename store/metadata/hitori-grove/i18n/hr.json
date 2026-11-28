@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zasjeni ponovljene brojeve",
+ "keywords": "zasjenjivanje,duplikati,ponovljeni brojevi,povezano,logika,brojevi,mreža,zagonetka",
+ "short_description": "Zasjeni ponovljene brojeve, a da ploča ostane povezana u jednu cjelinu.",
+ "description": "Zasjeni polja tako da se nijedan broj među nezasjenjenim poljima ne pojavi više od jednom u retku ni stupcu. Zasjenjena polja se nikada ne smiju dodirivati stranicom, a sva nezasjenjena polja moraju ostati povezana u jednu skupinu.\n\nDodirni brojčano polje da mijenjaš između zasjenjenog, označenog bilješkom i neoznačenog stanja.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

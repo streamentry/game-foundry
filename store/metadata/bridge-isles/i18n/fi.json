@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Yhdistä saaret silloilla",
+ "keywords": "hashi,hashiwokakero,sillat,saaret,yhdistä,logiikka,numero,palapeli",
+ "short_description": "Yhdistä numeroidut saaret silloilla niin, että jokainen luku täyttyy.",
+ "description": "Yhdistä numeroidut saaret nollalla, yhdellä tai kahdella suoralla sillalla niin, että jokainen saari saa tasan oman lukunsa, sillat eivät risteä ja kaikki saaret liittyvät yhdeksi verkoksi.\n\nNapauta yhtä saarta ja sitten toista vaihtaaksesi niiden välisen sillan. Suuret saarikirjainpainikkeet ovat vaihtoehto laudalle osumiseen tarkasti.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

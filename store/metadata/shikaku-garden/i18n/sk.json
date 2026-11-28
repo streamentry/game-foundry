@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Obdĺžnikové hlavolamy",
+ "keywords": "obdĺžniky,číselný hlavolam,logika,mriežka,plocha,geometria",
+ "short_description": "Rozdeľte mriežku na obdĺžniky s veľkosťou podľa čísel.",
+ "description": "Rozdeľte mriežku na obdĺžniky. Každý obdĺžnik musí zostať v rámci plochy, obsahovať presne jedno číslo a pokrývať toľko políčok, koľko ukazuje toto číslo. Vyriešte osem pôvodných plôch s výberom rohov klepnutím, Späť, začatím znova, odomknutým postupom a lokálnym ukladaním. Nie je tu časovač."
+}

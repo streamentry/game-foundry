@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Svaku liniju koristi jednom",
+ "keywords": "graf,ruta,zagonetka s rubovima,spoji točke,eulerov trag,logika",
+ "short_description": "Isplaniraj rutu koja koristi svaku vezu točno jednom.",
+ "description": "Koristi svaku vidljivu vezu točno jednom. Možeš ponovno proći kroz točke; križanja bez točke nisu čvorovi. Riješi osam originalnih grafova tako da prateći liniju prstom ili dodirujući velike gumbe s točkama. Poništi, ponovno pokreni, vrati se na ranije ploče i nastavi lokalnu rutu i otključani napredak."
+}

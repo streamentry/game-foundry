@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Găsește flota ascunsă",
+ "keywords": "flotă,naval,hartă,logică,grilă,puzzle,sonar",
+ "short_description": "Localizează o flotă ascunsă pe o hartă 5×5 după totalurile de rând și coloană.",
+ "description": "Găsește o mică flotă pe o hartă 5×5: o navă de trei celule, una de două celule și una de o singură celulă. Nicio navă nu se poate atinge, nici măcar pe diagonală, iar totalurile fiecărui rând și coloană trebuie să se potrivească.\n\nAtinge un pătrat pentru a marca o navă, atinge din nou pentru o notă de apă și încă o dată pentru a șterge. Totalurile curente și cele țintă rămân vizibile lângă fiecare rând și coloană.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

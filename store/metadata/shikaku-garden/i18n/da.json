@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rektangellogik-gåde",
+ "keywords": "rektangel,talgåde,logik,gitter,areal,geometri",
+ "short_description": "Del gitteret i rektangler med størrelser efter ledetrådene.",
+ "description": "Del gitteret i rektangler. Hvert rektangel skal ligge inden for brættet, indeholde præcis én ledetråd og dække det antal felter, ledetråden viser. Løs otte originale bræt med hjørner, du vælger ved at trykke, med fortryd, start forfra, oplåst progression og lokale gemninger. Der er ingen timer."
+}

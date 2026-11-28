@@ -2,13 +2,15 @@ extends Button
 ## Original vector bloom card. No textures or external image assets.
 ## Visible differences are structural: count/shape/ring/leaves/center mark.
 
-const INK = Color("#443B43")
-const PINK = Color("#D58C90")
-const PALE = Color("#F5C9BB")
-const TEAL = Color("#4D8578")
+## Tokens from games/odd-bloom/DESIGN.md section 2 (petal, petal_pale, leaf olive, centre).
+const INK = Color("#3A1B2B")
+const PINK = Color("#EDC46E")
+const PALE = Color("#F7E3B3")
+const TEAL = Color("#5E7D4F")
 const CREAM = Color("#FFF8EE")
-const WRONG = Color("#947B7B")
-const CORRECT = Color("#247965")
+const WRONG = Color("#A3332B")
+const CORRECT = Color("#2E6B4E")
+const CENTER = Color("#B4603B")
 
 var motif: Dictionary = {}
 var ordinal: int = 0
@@ -79,7 +81,7 @@ func _draw() -> void:
     if int(motif["rings"]) == 2:
         draw_arc(center, side * 0.068, 0.0, TAU, 32, INK, maxf(1.5, side * 0.027), true)
     if int(motif["mark"]) == 0:
-        draw_circle(center, side * 0.022, INK)
+        draw_circle(center, side * 0.022, CENTER)
     else:
         var delta: float = side * 0.035
         draw_line(center - Vector2(delta, delta), center + Vector2(delta, delta), INK, maxf(2.0, side * 0.025), true)

@@ -51,7 +51,7 @@ disabled state, not only by tint.
 | Body / instructions | 15 px | regular | Line height default |
 | Button label | 17 px | semi-bold | Min height 54 px |
 | Cell digit | 19 px | bold | Editable and fixed |
-| Cell inequality marks | 11 px | regular | Under digit, `ink_muted` |
+| Inequality chevrons | ~26 % of cell (≈18 px) | bold stroke 4.5 px, 1 px darker outline | Drawn in the 14 px gap between related cells, not inside cells |
 | Status / feedback | 14 px | regular | Minimum readable size on 414 px width |
 | Helper | 13 px | regular | `ink_muted` |
 
@@ -67,8 +67,10 @@ Font: system default. Text scales with the system setting; no fixed-height text 
 
 ## 5. Components
 
-- **Board cell (editable):** `surface` fill, 1 px `#B5C3AC` border, radius 12 px. Digit in `ink`; a
-  small `ink_muted` line below for inequality marks like `→2`.
+- **Board cell (editable):** `surface` fill, 1 px `#B5C3AC` border, radius 12 px. Digit in `ink` only. Each inequality is a
+  chevron centred in the gap between its two cells, pointing toward the smaller number: gold while
+  unknown, `success` when satisfied, `error` when broken (status text still states the conflict).
+  Cell tooltips and accessibility descriptions list the relations in words.
   - normal: as above · hover: unchanged fill with border `accent` · pressed: fill `pale` · focus: 3 px
     `focus` ring · disabled (fixed): `surface_alt` fill, no border change, not tappable.
 - **Board cell (selected):** `pale` fill, 3 px `accent` border.

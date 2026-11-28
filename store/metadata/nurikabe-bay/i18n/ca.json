@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles d'illes i mar",
+ "keywords": "illes,mar,terra,connectat,lògica,nombres,quadrícula,trencaclosques,aigua",
+ "short_description": "Classifica una badia de 4×4 en mar i illes de la mida exacta.",
+ "description": "Marca cada casella d'una badia de 4×4 com a mar o terra. Cada illa numerada té exactament aquest nombre de caselles i conté una sola pista, el mar forma un únic cos connectat i cap bloc de 2×2 no pot ser tot mar.\n\nToca una casella en blanc per canviar entre mar, terra i buida. Les caselles de pista són fixes.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

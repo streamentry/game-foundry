@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Il·lumina cada casella oberta",
+ "keywords": "llum,llanterna,bombeta,il·luminar,lògica,quadrícula,trencaclosques,parets numerades",
+ "short_description": "Col·loca llums per il·luminar totes les caselles sense que cap llum es vegi.",
+ "description": "Col·loca llums en un tauler de 4×4 de manera que cada casella oberta quedi il·luminada, cap llum no il·lumini una altra i cada paret numerada toqui exactament aquest nombre de llums.\n\nToca una casella oberta per canviar entre llum, nota de creu i buida; les caselles il·luminades es ressalten mentre jugues.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

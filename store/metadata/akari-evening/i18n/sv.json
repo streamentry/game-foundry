@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Lys upp varje öppen ruta",
+ "keywords": "lampa,glödlampa,belysa,logik,rutnät,pussel,väggtal,lyser upp",
+ "short_description": "Placera lampor så alla öppna rutor lyser och ingen lampa lyser på en annan.",
+ "description": "Placera lampor på ett 4×4-bord så att varje öppen ruta lyses upp, inga två lampor lyser på varandra och varje numrerad vägg rör exakt så många lampor som dess siffra anger.\n\nTryck på en öppen ruta för att växla mellan lampa, krysanteckning och tom; upplysta rutor markeras när du spelar.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

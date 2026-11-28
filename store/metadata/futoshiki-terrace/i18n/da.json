@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ulighedsgåder med tal",
+ "keywords": "ulighed,større end,mindre end,latinsk kvadrat,tal,logik,gitter,gåde",
+ "short_description": "Udfyld et 4×4-gitter med 1 til 4 og overhold ulighedstegnene.",
+ "description": "Udfyld et 4×4-gitter med tallene 1 til 4, så hvert tal optræder præcis én gang i hver række og kolonne, og hvert større-end- eller mindre-end-tegn mellem nabofelter passer.\n\nTryk på et redigerbart felt og derefter på en af fire store talknapper. Slet og Næste er altid synlige.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

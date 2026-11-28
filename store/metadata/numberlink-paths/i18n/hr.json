@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Spoji jednake parove",
+ "keywords": "tok,povezivanje,parovi,rute,linija,logika,slova,mreža,zagonetka,put",
+ "short_description": "Spoji svaki par slova rutom koja ispunjava cijelu mrežu.",
+ "description": "Spoji svaka dva jednaka slova rutom duž polja mreže 4×4. Rute se ne smiju presijecati ni grananti, a zajedno moraju prekrivati svako polje.\n\nDodirni prazna polja da mijenjaš rutu A, rutu B i prazno. Fiksne krajnje točke označene su krugovima, a svaka ruta ima svoje slovo i boju.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

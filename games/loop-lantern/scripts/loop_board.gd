@@ -2,22 +2,47 @@ extends Control
 ## Original vector square-and-edge board; tap a square to select it.
 signal cell_chosen(index: int)
 
-const PAPER = Color("#FDF8F0")
-const INK = Color("#4C414A")
-const GUIDES = Color("#D7C9C2")
-const HIGHLIGHT = Color("#F6E5C6")
-const LOOP = Color("#A6534F")
-const WHITE = Color("#FFFFFF")
+## Palette harmonised with icon.png: plum ground, gold line, lavender guides.
+const PAPER = Color("#3B1450")
+const INK = Color("#F7EFDC")
+const GUIDES = Color("#8A6FA3")
+const LOOP = Color("#FDD241")
+const DOTS = Color("#C9B3DE")
+const CURSOR_FILL = Color(1.0, 0.82, 0.26, 0.22)
+const CURSOR_EDGE = Color("#FDD241")
 
 var level: Dictionary = {}
 var entries: Array = []
 var selected: int = 0
+## Visual-only selection square; a child Control so motion.gd can press/pop it.
+var cursor: Control
+
+func _ready() -> void:
+    cursor = Control.new()
+    cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    cursor.draw.connect(_draw_cursor)
+    add_child(cursor)
+    resized.connect(_place_cursor)
 
 func show_level(board: Dictionary, marks: Array, chosen: int) -> void:
     level = board
     entries = marks.duplicate()
     selected = chosen
     queue_redraw()
+    _place_cursor()
+
+func _place_cursor() -> void:
+    if cursor == null:
+        return
+    var cell: float = _side() / 3.0
+    cursor.position = _origin() + Vector2(selected % 3, int(selected / 3)) * cell
+    cursor.size = Vector2.ONE * cell
+    cursor.visible = not level.is_empty()
+    cursor.queue_redraw()
+
+func _draw_cursor() -> void:
+    cursor.draw_rect(Rect2(Vector2.ZERO, cursor.size), CURSOR_FILL)
+    cursor.draw_rect(Rect2(Vector2.ZERO, cursor.size), CURSOR_EDGE, false, 3.0)
 
 func _side() -> float:
     return maxf(1.0, minf(size.x - 22.0, size.y - 22.0))
@@ -33,9 +58,6 @@ func _draw() -> void:
         return
     draw_rect(Rect2(_origin(), Vector2.ONE * _side()), PAPER)
     var cell: float = _side() / 3.0
-    var r: int = int(selected / 3)
-    var c: int = selected % 3
-    draw_rect(Rect2(_origin() + Vector2(c, r) * cell, Vector2.ONE * cell), HIGHLIGHT)
     var font: Font = ThemeDB.fallback_font
     for id in range(9):
         var clue: int = int(level["clues"][id])
@@ -54,7 +76,7 @@ func _draw() -> void:
             LOOP if int(entries[edge_id]) == 1 else GUIDES,
             7.0 if int(entries[edge_id]) == 1 else 2.0, true)
     for point in range(16):
-        draw_circle(_vertex(point), 3.5, INK)
+        draw_circle(_vertex(point), 3.5, DOTS)
 
 func _edge_endpoints(id: int) -> Array:
     var i: int = 0

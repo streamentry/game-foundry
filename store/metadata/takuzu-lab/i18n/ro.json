@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle-uri binare zilnice",
+ "keywords": "binar,binairo,logică,puzzle numeric,zilnic,grilă",
+ "short_description": "Rezolvă grile binare cu indicii și progres local.",
+ "description": "Joacă un puzzle Takuzu 4×4 zilnic sau table libere de 4×4 și 6×6. Rândurile și coloanele trebuie să fie echilibrate, fără trei cifre identice una după alta, iar liniile complete nu se pot repeta. Folosește indicii, anulare, refacere și repornire. Progresul se salvează local."
+}

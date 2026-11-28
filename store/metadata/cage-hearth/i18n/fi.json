@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmeettiset häkkipulmat",
+ "keywords": "kenken,calcudoku,häkit,aritmetiikka,matematiikka,latinalainen neliö,numero,palapeli",
+ "short_description": "Täytä 4×4-ruudukko niin, että jokainen häkki saavuttaa tavoitteensa.",
+ "description": "Täytä 4×4-ruudukko luvuilla 1–4 niin, ettei yksikään numero toistu rivillä tai sarakkeessa. Jokaisen värillisen häkin tavoite on muodostettu summasta, tulosta, erotuksesta, osamäärästä tai yksittäisestä arvosta, ja häkin numeroiden on saavutettava se.\n\nNapauta ruutua ja kirjoita sitten numero suurella näppäimistöllä. Tyhjennä poistaa ruudun sisällön.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

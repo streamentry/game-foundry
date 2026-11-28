@@ -4,15 +4,17 @@ extends Control
 signal angle_changed(degrees: float)
 
 const Rules = preload("res://scripts/ray_rules.gd")
-const SURFACE = Color("#E7F1F0")
-const GRID = Color("#D6E7E5")
-const INK = Color("#23454B")
-const GUIDE = Color("#348B92")
-const TARGET = Color("#E7AA63")
-const CLEARED = Color("#5A9E8A")
-const MIRROR = Color("#355C70")
-const TRAIL = Color("#196E83")
-const WHITE = Color("#FFFFFF")
+# Tokens from DESIGN.md section 2 (icon-derived playfield).
+const SURFACE = Color("#2A3B63")      # playfield
+const GRID = Color("#3A4D7A")         # playfield_grid
+const INK = Color("#1C2A47")          # ink (target rings, launch outline)
+const GUIDE = Color("#F2B45B")        # accent (launch guide)
+const TARGET = Color("#F6EEDC")       # cream (unhit target disc)
+const CLEARED = Color("#8FD9B6")      # mint (cleared target disc)
+const MIRROR = Color("#F6EEDC")       # cream (mirror bars)
+const TRAIL = Color("#F2B45B")        # trail (amber)
+const CORAL = Color("#E8674F")        # coral (launch ball)
+const WHITE = Color("#F6EEDC")        # cream, used for the launch-dot highlight
 
 var level: Dictionary = {}
 var angle: float = -45.0
@@ -73,7 +75,6 @@ func _draw() -> void:
 
     for mirror in level["mirrors"]:
         draw_line(_point(mirror["a"]), _point(mirror["b"]), MIRROR, 9.0, true)
-        draw_line(_point(mirror["a"]), _point(mirror["b"]), Color("#B9E0E4"), 3.0, true)
 
     var hit: Array = shot.get("hit", [])
     var radius: float = float(level["radius"]) * _square()
@@ -83,10 +84,10 @@ func _draw() -> void:
         draw_circle(center, radius + 3.0, INK)
         draw_circle(center, radius, CLEARED if succeeded else TARGET)
         if succeeded:
-            draw_line(center + Vector2(-8, 0), center + Vector2(-2, 7), WHITE, 3.0, true)
-            draw_line(center + Vector2(-2, 7), center + Vector2(10, -9), WHITE, 3.0, true)
+            draw_line(center + Vector2(-8, 0), center + Vector2(-2, 7), INK, 3.0, true)
+            draw_line(center + Vector2(-2, 7), center + Vector2(10, -9), INK, 3.0, true)
         else:
-            draw_arc(center, radius * 0.55, 0.0, TAU, 32, WHITE, 2.0, true)
+            draw_arc(center, radius * 0.55, 0.0, TAU, 32, INK, 2.0, true)
 
     var launch: Vector2 = _point(Rules.START)
     if shot.is_empty():
@@ -101,7 +102,8 @@ func _draw() -> void:
             draw_circle(_point(path[path.size() - 1]), 6.0, TRAIL)
 
     draw_circle(launch, 11.0, INK)
-    draw_circle(launch, 6.0, WHITE)
+    draw_circle(launch, 9.0, CORAL)
+    draw_circle(launch + Vector2(-3, -3), 2.5, WHITE)
 
 
 func _from_pointer(pos: Vector2) -> void:

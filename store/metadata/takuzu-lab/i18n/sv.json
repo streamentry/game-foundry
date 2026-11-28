@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Dagliga binära pussel",
+ "keywords": "binärt,binairo,logik,sifferpussel,dagligen,rutnät",
+ "short_description": "Lös binära rutnät med tips och lokala framsteg.",
+ "description": "Spela ett dagligt Takuzu-pussel på 4×4 eller fria bana på 4×4 och 6×6. Rader och kolumner måste vara i balans, tre identiska siffror i rad får inte förekomma, och färdiga rader får inte upprepas. Använd tips, ångra, gör om och starta om. Framsteg sparas lokalt."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle-uri cu cuști aritmetice",
+ "keywords": "kenken,calcudoku,aritmetică,matematică,pătrat latin,număr,logică,puzzle",
+ "short_description": "Completează o grilă 4×4 astfel încât fiecare cușcă să atingă ținta aritmetică.",
+ "description": "Completează o grilă 4×4 cu cifrele 1 la 4, astfel încât nicio cifră să nu se repete pe rând sau pe coloană. Fiecare cușcă colorată arată o țintă formată dintr-o sumă, un produs, o diferență, un cât sau o valoare unică, iar cifrele din interior trebuie să o atingă.\n\nAtinge o celulă, apoi introdu o cifră de pe tastatura mare. Șterge golește o celulă.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

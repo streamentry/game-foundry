@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Alakfelosztó rejtvény",
+ "keywords": "alak,rejtvény,terület,geometria,felosztás,vizuális,logika,napi,becslés",
+ "short_description": "Hasonlítsd össze a két területet, miután egy eredeti alakot kettévágsz.",
+ "description": "Válassz egy vonalat, amely két részre osztja az eredeti alakot, majd nézd meg, mennyire egyenlő a két terület. A vágás előtt állítsd be a vonal helyzetét és szögét. A gyakorlás rövid irányjelzést ad, a Napi öt pedig öt UTC-alapú fordulót kínál, és megőrzi az első próbálkozás pontszámait. Az ismételhető gyakorlás és a haladás ezen az eszközön mentődik."
+}

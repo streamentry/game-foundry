@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hitta den dolda flottan",
+ "keywords": "slagskepp,flotta,fartyg,marin,karta,logik,rutnät,pussel,sonar",
+ "short_description": "Hitta en dold flotta på en 5×5-karta med hjälp av rad- och kolumnsummor.",
+ "description": "Hitta en liten flotta på en 5×5-karta: ett fartyg tre rutor långt, ett två rutor långt och ett fartyg på en ruta. Inga två fartyg får röra varandra, inte ens diagonalt, och varje rad- och kolumnsumma måste stämma.\n\nTryck på en ruta för att markera ett fartyg, tryck igen för en vattenanteckning och en gång till för att rensa den. Aktuell och måltal syns bredvid varje rad och kolumn.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

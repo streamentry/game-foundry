@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Palaisipang aritmetika",
+ "keywords": "kenken,calcudoku,grupo,aritmetika,matematika,latin square,numero,palaisipan,lohika",
+ "short_description": "Punan ang 4×4 na grid para maabot ng bawat grupo ang target nitong aritmetika.",
+ "description": "Punan ang 4×4 na grid ng 1 hanggang 4 para walang numerong maulit sa anumang hilera o kolum. Ang bawat kulay na grupo ay may target na galing sa suma, produkto, pagkakaiba, hati, o iisang halaga, at dapat maabot ito ng mga numerong nasa loob.\n\nI-tap ang cell, pagkatapos maglagay ng digit sa malaking keypad. Binubura ng Erase ang isang cell.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

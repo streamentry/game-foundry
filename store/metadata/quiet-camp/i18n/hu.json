@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sátrak és fák rejtvény",
+ "keywords": "sátrak,fák,logika,rács,erdő,számrejtvény,offline",
+ "short_description": "Helyezz sátrakat, illeszd a sorösszegeket, és ne érintkezzenek.",
+ "description": "Helyezz pontosan egy sátrat minden fa mellé, teljesítsd az összes sor- és oszlopösszeget, és ne érintkezzenek a sátrak, átlósan sem. Nyolc eredeti, egyértelműen megoldható 5×5-ös és 6×6-os táblát oldhatsz meg.\n\nFüvet jelölhetsz, visszavonhatsz és újrakezdhetsz, a haladásod pedig ezen az eszközön marad meg. Nincs időzítő és pontlevonás."
+}

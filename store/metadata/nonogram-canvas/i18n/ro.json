@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Descoperă imaginea",
+ "keywords": "picross,griddler,hanjie,pictură cu numere,imagine,pixeli,logică,grilă,puzzle",
+ "short_description": "Folosește indiciile de rând și coloană pentru a descoperi o imagine 5×5.",
+ "description": "Completează o grilă 5×5 astfel încât fiecare rând și coloană să corespundă indiciilor: fiecare număr este un bloc de celule consecutive completate, iar blocurile sunt separate de cel puțin o celulă goală. Fiecare tablă este un mic desen din pixeli.\n\nAtinge o celulă pentru a o completa, atinge din nou pentru a o bifa drept goală și încă o dată pentru a o șterge. Toate cele zece linii de indicii rămân vizibile.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

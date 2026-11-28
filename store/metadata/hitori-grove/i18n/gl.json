@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sombrea os números repetidos",
+ "keywords": "sombrear,duplicados,números repetidos,conexión,lóxica,cuadrícula,crebacabezas",
+ "short_description": "Sombrea números repetidos sen partir o taboleiro en anacos.",
+ "description": "Sombrea cadrados de xeito que ningún número aparezca máis dunha vez en cada fila ou columna entre os cadrados sen sombrear. Os cadrados sombreados nunca poden tocarse por un bordo, e todos os cadrados sen sombrear deben seguir conectados como un único grupo.\n\nToca unha cela numerada para alternar entre sombreado, nota e sen marcar.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle cu corturi și copaci",
+ "keywords": "corturi,copaci,logică,grilă,pădure,puzzle numeric,offline",
+ "short_description": "Așază corturi, potrivește totalurile pe rânduri și evită atingerea.",
+ "description": "Așază exact un cort lângă fiecare copac, respectă totalurile pentru fiecare rând și coloană și nu lăsa corturile să se atingă, nici măcar pe diagonală. Rezolvă opt table originale 5×5 și 6×6, fiecare cu soluție unică. Marchează iarba, anulează, repornește și păstrează progresul pe acest dispozitiv. Nu există cronometru sau penalizare de scor."
+}

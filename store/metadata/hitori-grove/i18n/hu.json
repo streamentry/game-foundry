@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Árnyékold a megismétlődőket",
+ "keywords": "árnyékolás,ismétlődő számok,összefüggő,logika,szám,rács,rejtvény",
+ "short_description": "Árnyékolj ismétlődő számokat úgy, hogy a tábla ne essen szét.",
+ "description": "Árnyékolj le cellákat úgy, hogy egy szám se szerepeljen többször egy sorban vagy oszlopban a nem árnyékolt cellák között. Az árnyékolt cellák élük mentén sosem érhetnek egymáshoz, és az összes nem árnyékolt cellának egyetlen összefüggő csoportot kell alkotnia.\n\nKoppints egy számozott cellára az árnyékolt, a jegyzetelt és a jelöletlen állapot közötti váltáshoz.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

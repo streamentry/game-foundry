@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hviezdy v každom riadku",
+ "keywords": "oblasti,riadky,stĺpce,logika,mriežka,súhvezdia,nedotýkanie,hlavolam",
+ "short_description": "Umiestnite jednu hviezdu do každého riadka, stĺpca a oblasti bez dotyku.",
+ "description": "Umiestnite hviezdy na mriežku tak, aby každý riadok, každý stĺpec a každá označená oblasť obsahovali presne jednu hviezdu a žiadne dve sa nedotýkali, ani uhlopriečne.\n\nKlepnutím na políčko prepínate hviezdu, bodku a prázdny stav; bodky sú poznámky pre políčka, ktoré ste vylúčili.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

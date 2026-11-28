@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hádanky s rozmístěním hvězd",
+ "keywords": "hvězdy,regiony,řádky,sloupce,logika,mřížka,souhvězdí,hádanka",
+ "short_description": "Umístěte jednu hvězdu do každého řádku, sloupce a regionu, aniž by se dotýkaly.",
+ "description": "Umístěte hvězdy na mřížku tak, aby každý řádek, každý sloupec a každý označený region měl přesně jednu hvězdu a žádné dvě hvězdy se nedotýkaly, ani úhlopříčně.\n\nKlepnutím na pole přepínáte mezi hvězdou, tečkou a prázdným polem; tečky jsou poznámky k polím, která jste vyloučili.\n\nŠest původních hracích plánů; každý odemkne další po vyřešení. Zpět a Začít znovu jsou vždy k dispozici, časovač není a váš postup se ukládá v tomto zařízení. Funguje offline. Bez reklam, bez účtu, bez sběru dat."
+}

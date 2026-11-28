@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Fes servir cada línia un cop",
+ "keywords": "graf,ruta,puzle d'arestes,unir punts,camí euleri,lògica",
+ "short_description": "Planeja una ruta que faci servir cada connexió una sola vegada.",
+ "description": "Fes servir cada connexió visible exactament una vegada. Pots tornar a passar pels punts; els encreuaments sense punt no són unions. Resol vuit taulers de graf originals traçant el recorregut o tocant els botons grans de punts. Desfer, reiniciar, revisitar taulers anteriors i reprendre la ruta local i el progrés desbloquejat."
+}

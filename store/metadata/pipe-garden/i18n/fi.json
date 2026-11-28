@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Käännä putket yhteen",
+ "keywords": "putkityö,putket,kääntäminen,yhdistäminen,virtaus,vesi,tilallinen,laatat,logiikka,palapeli",
+ "short_description": "Käännä putkilaattoja, kunnes vesi voi virrata päästä päähän.",
+ "description": "Käännä yhdeksää putkilaattaa 3×3-laudalla, kunnes ne muodostavat yhden yhtenäisen, vuotamattoman reitin toisesta päästä toiseen.\n\nNapauta laattaa kääntääksesi sen. Mutkilla ja päätepaloilla on neljä asentoa, suorilla paloilla kaksi.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

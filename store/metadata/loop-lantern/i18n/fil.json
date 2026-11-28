@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Gumuhit ng isang saradong loop",
+ "keywords": "slitherlink,bakod,gilid,linya,lohika,numero,grid,palaisipan",
+ "short_description": "Gumuhit ng iisang loop na tumutugon sa bawat clue ng bilang ng gilid.",
+ "description": "Gumuhit ng isang saradong loop sa kahabaan ng linya ng grid na hindi nagsasanga at hindi nagsasalubong sa sarili. Ipinapakita ng bawat may-numerong parisukat kung ilan sa apat nitong gilid ang ginagamit ng loop.\n\nI-tap ang parisukat, pagkatapos pindutin ang isa sa apat na malalaking button na Top, Right, Bottom o Left para idagdag o alisin ang gilid na iyon.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

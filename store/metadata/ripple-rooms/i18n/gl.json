@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Salas con separación",
+ "keywords": "rexións,separación,distancia,números,lóxica,cuadrícula,crebacabezas",
+ "short_description": "Enche salas irregulares para que os números repetidos garden distancia.",
+ "description": "Enche cada sala irregular cos números do 1 ata o seu tamaño. Se o mesmo número k aparece dúas veces nunha fila ou columna, debe haber polo menos k cadrados entre os dous.\n\nToca un cadrado e introduce un díxito do 1 ao 4 nos botóns grandes. Cada cadrado mostra a letra da sala e o seu tamaño xunto ao número.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

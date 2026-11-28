@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Klasszikus 3×3-as csempe",
+ "keywords": "számozott,nyolcas rejtvény,tizenöt rejtvény,sorrend,térbeli,logika,játék",
+ "short_description": "Csúsztasd a számozott lapokat sorba, egyszerre egy lépéssel.",
+ "description": "Csúsztasd a számozott csempéket a 3×3-as táblán az üres helyre, amíg 1-től 8-ig sorrendben nem állnak. A kevert kiindulópontok a megoldástól néhány lépésre vagy tizennégy lépésre lehetnek.\n\nKoppints az üres mezőhöz közeli csempére az eltoláshoz. A visszavonás és az újrakezdés mindig elérhető.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

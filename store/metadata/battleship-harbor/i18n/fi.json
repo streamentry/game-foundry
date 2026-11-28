@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Löydä piilotettu laivasto",
+ "keywords": "laivanupotus,laivat,laivasto,merisota,kartta,logiikka,ruudukko,palapeli,sonar",
+ "short_description": "Etsi piilotettu laivasto 5×5-kartalta rivi- ja sarakesummien avulla.",
+ "description": "Etsi pieni laivasto 5×5-kartalta: yksi laiva on kolme ruutua pitkä, yksi kaksi ruutua pitkä ja yksi yhden ruudun laiva. Kaksi laivaa ei saa koskettaa toisiaan, ei edes vinottain, ja jokaisen rivin ja sarakkeen summan on täsmättävä.\n\nNapauta ruutua merkitäksesi laivan, napauta uudelleen vesimerkintää varten ja kolmannen kerran tyhjentääksesi ruudun. Nykyiset ja tavoitesummat näkyvät jokaisen rivin ja sarakkeen vieressä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

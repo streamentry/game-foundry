@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Kösd össze a szigeteket",
+ "keywords": "hashi,hashiwokakero,összekötés,logika,szám,tengeri,rejtvény",
+ "short_description": "Kösd össze a számozott szigeteket hidakkal, hogy minden szám teljesüljön.",
+ "description": "Kösd össze a számozott szigeteket nulla, egy vagy két egyenes híddal úgy, hogy minden sziget pontosan annyi hidat kapjon, amennyit jelöl, a hidak ne keresztezzék egymást, és az összes sziget egyetlen hálózatba kerüljön.\n\nKoppints egy szigetre, majd egy másikra a köztük lévő híd váltásához. A nagy szigetbetű-gombok alternatívát adnak a pontos koppintáshoz a táblán.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

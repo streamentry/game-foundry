@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzle de tendes i arbres",
+ "keywords": "tendes arbres,puzle lògic,quadrícula,bosc,puzle numèric,sense connexió",
+ "short_description": "Col·loca tendes, fes coincidir els totals de files i evita que es toquin.",
+ "description": "Col·loca exactament una tenda al costat de cada arbre, compleix tots els totals de files i columnes i evita que les tendes es toquin, també en diagonal. Resol vuit taulers originals de 5×5 i 6×6 amb solució única. Marca l'herba, desfer, reinicia i desa el progrés en aquest dispositiu. No hi ha temporitzador ni penalització de puntuació."
+}

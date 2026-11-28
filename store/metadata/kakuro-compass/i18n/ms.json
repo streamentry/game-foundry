@@ -1,0 +1,8 @@
+{
+ "lang": "ms",
+ "status": "machine translation — native review pending",
+ "subtitle": "Jelaskan petunjuk bersilang",
+ "keywords": "silang nombor,hasil tambah,logik,aritmetik,grid,teka-teki",
+ "short_description": "Selesaikan hasil tambah bersilang dengan pemeriksa sel yang jelas.",
+ "description": "Isi setiap larian Kakuro dengan digit 1–9 supaya jumlahnya sepadan dengan petunjuk; jangan ulang digit dalam satu larian. Selesaikan lapan papan asal 5×5 untuk membuka yang seterusnya. Pemeriksa Compass menunjukkan jumlah mendatar dan menegak serta digit yang mungkin secara setempat untuk sel yang dipilih. Buat asal, padam, mula semula dan kemajuan setempat disertakan."
+}

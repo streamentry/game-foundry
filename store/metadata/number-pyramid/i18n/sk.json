@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sčítajte cestu k vrcholu",
+ "keywords": "súčty,sčítanie,matematika,aritmetika,kamene,logika,číslice,mriežka",
+ "short_description": "Obnovte pyramídu čísel z pár roztrúsených nápoved.",
+ "description": "Nájdite štyri číslice od 1 do 9 pozdĺž spodku pyramídy. Každý zo šiestich kameňov nad nimi sa rovná súčtu dvoch kameňov priamo pod ním a niekoľko popisov je pevne zadaných ako nápoveda.\n\nVyberte spodný kameň a zadajte číslicu; kamene nad ním ukazujú svoje súčty, ako postupujete.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

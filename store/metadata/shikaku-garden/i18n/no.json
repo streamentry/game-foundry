@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rektangel-logikkgåte",
+ "keywords": "rektangel,tallgåte,logikk,rutenett,areal,geometri",
+ "short_description": "Del rutenettet i rektangler med størrelse etter ledetrådene.",
+ "description": "Del rutenettet i rektangler. Hvert rektangel må ligge innenfor brettet, inneholde nøyaktig én ledetråd og dekke så mange ruter som ledetråden viser. Løs åtte originale brett med hjørner du velger ved å trykke, med angre, start på nytt, låst fremdrift og lokal lagring. Det er ingen tidtaker."
+}

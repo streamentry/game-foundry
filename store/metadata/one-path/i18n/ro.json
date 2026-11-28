@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Fiecare linie, o singură dată",
+ "keywords": "graf,rută,puzzle muchii,unește punctele,circuit euler,logică",
+ "short_description": "Planifică o rută care folosește fiecare legătură exact o dată.",
+ "description": "Folosește fiecare legătură vizibilă exact o dată. Poți revizita puncte; încrucișările fără punct nu sunt joncțiuni. Rezolvă opt table grafice originale trasând sau atingând butoane mari cu puncte. Anulează, repornește, revino la tablele anterioare și reia ruta locală și progresul deblocat."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Místnosti s rozestupy",
+ "keywords": "oblasti,rozestup,vzdálenost,čísla,logika,mřížka,hádanka",
+ "short_description": "Vyplňte nepravidelné místnosti tak, aby opakovaná čísla měla odstup.",
+ "description": "Vyplňte každou nepravidelnou místnost čísly od 1 do její velikosti. Pokud se stejné číslo k objeví dvakrát v řádku nebo sloupci, musí mezi nimi být alespoň k polí.\n\nKlepněte na pole a zadejte číslo 1 až 4 velkými tlačítky. Každé pole ukazuje vedle čísla písmeno místnosti a její velikost.\n\nŠest původních hracích plánů; každý odemkne další po vyřešení. Zpět a Začít znovu jsou vždy k dispozici, časovač není a váš postup se ukládá v tomto zařízení. Funguje offline. Bez reklam, bez účtu, bez sběru dat."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "nl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Vind de verborgen vloot",
+ "keywords": "slagschepen,schepen,vloot,marine,kaart,logica,raster,puzzel,sonar",
+ "short_description": "Zoek een verborgen vloot op een kaart van 5×5 met rij- en kolomtotalen.",
+ "description": "Zoek een kleine vloot op een kaart van 5×5: één schip van drie vakjes lang, één van twee vakjes en één schip van één vakje. Geen twee schepen mogen elkaar raken, ook niet diagonaal, en elk rij- en kolomtotaal moet kloppen.\n\nTik op een vakje om een schip te markeren, nogmaals tikken voor een watermarkering, en nog een keer om het te wissen. Het huidige en het doeltotaal blijven naast elke rij en kolom zichtbaar.\n\nZes originele borden; elk bord ontgrendelt het volgende zodra het is opgelost. Ongedaan maken en Opnieuw beginnen zijn altijd beschikbaar, er is geen timer, en je voortgang wordt op dit apparaat opgeslagen. Werkt offline. Geen advertenties, geen account, geen gegevensverzameling."
+}

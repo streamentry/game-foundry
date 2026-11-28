@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Täytä lämpömittarit",
+ "keywords": "lämpömittarit,putket,täyttö,summat,rivit,sarakkeet,logiikka,numero,ruudukko,palapeli",
+ "short_description": "Täytä putket pallosta alkaen, jotta rivi- ja sarakesummat täsmäävät.",
+ "description": "Täytä jokainen kahdeksasta kaksiruutuisesta lämpömittarista pallosta kohti kärkeä, ei koskaan toisin päin. Rivi- ja sarakesummat näyttävät, kuinka monta ruutua kussakin linjassa on täytetty.\n\nNapauta palloa täyttääksesi sen ensimmäisen osan tai kärkeä täyttääksesi molemmat. Napauta samaa kohtaa uudelleen tyhjentääksesi putken.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

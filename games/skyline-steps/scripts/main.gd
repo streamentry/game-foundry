@@ -3,12 +3,22 @@ extends Control
 const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/rules.gd")
 const Progress = preload("res://scripts/progress.gd")
-const PAPER = Color("#F6F7FB")
-const INK = Color("#293649")
-const ACCENT = Color("#586F97")
-const PALE = Color("#E1E9F7")
-const FIXED = Color("#DDE2F2")
-const WHITE = Color("#FFFFFF")
+const Motion = preload("res://scripts/motion.gd")
+const SETTINGS_PATH: String = "user://settings.json"
+# Colour tokens, mirrored in games/skyline-steps/DESIGN.md. Drawn from the icon:
+# night navy ink, amber and orange accents, cream paper.
+const PAPER = Color("#FAF4E8")
+const SURFACE = Color("#FFFDF7")
+const SURFACE_ALT = Color("#EFE5CF")
+const PEER = Color("#F5EDDB")
+const SELECTED = Color("#FBD6A0")
+const INK = Color("#1E2847")
+const INK_MUTED = Color("#555C73")
+const ACCENT = Color("#EE8E45")
+const ERROR = Color("#A8322A")
+const SUCCESS = Color("#2E6F4E")
+const FOCUS = Color("#1E2847")
+const BORDER = Color("#555C73")
 
 var state: Dictionary = {}
 var level: Dictionary = {}
@@ -16,18 +26,22 @@ var selected: int = -1
 var history: Array = []
 var cells: Array = []
 var grid: GridContainer
+var board_box: Control
 var heading: Label
 var progress_label: Label
 var feedback: Label
 var undo_button: Button
 var prev_button: Button
 var next_button: Button
+var reduced_motion_toggle: CheckButton
+var motion := Motion.new()
 
 func _ready() -> void:
     state = Progress.load_saved()
     var link: int = _linked_level()
     if link >= 0:
         Progress.set_level(state, link)
+    motion.reduced_motion = _load_reduced_motion()
     _build_ui()
     _load_level()
 
@@ -45,6 +59,33 @@ func _linked_level() -> int:
                 return result
     return -1
 
+## Reduce-motion preference lives in user://settings.json, separate from progress.
+func _load_reduced_motion() -> bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return false
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return false
+    var parser := JSON.new()
+    if parser.parse(file.get_as_text()) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+        return false
+    var value: Variant = parser.data.get("reduced_motion", false)
+    return typeof(value) == TYPE_BOOL and value
+
+func _save_reduced_motion() -> void:
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning("Skyline Steps could not save settings locally.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": motion.reduced_motion}))
+    file.close()
+
+func set_reduced_motion(enabled: bool) -> void:
+    motion.reduced_motion = enabled
+    _save_reduced_motion()
+    if reduced_motion_toggle != null and reduced_motion_toggle.button_pressed != enabled:
+        reduced_motion_toggle.set_pressed_no_signal(enabled)
+
 func _label(value: String, size_px: int, color: Color = INK, centered: bool = false) -> Label:
     var item := Label.new()
     item.text = value
@@ -56,21 +97,29 @@ func _label(value: String, size_px: int, color: Color = INK, centered: bool = fa
         item.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     return item
 
-func _style_button(item: Button, background: Color, foreground: Color) -> void:
-    var normal := StyleBoxFlat.new()
-    normal.bg_color = background
-    normal.border_color = Color("#BAC5BC")
-    normal.set_border_width_all(1)
-    normal.set_corner_radius_all(10)
-    for mode in ["normal", "hover", "pressed", "disabled"]:
-        item.add_theme_stylebox_override(mode, normal)
-    var focus := StyleBoxFlat.new()
-    focus.bg_color = Color.TRANSPARENT
-    focus.border_color = ACCENT
-    focus.set_border_width_all(3)
-    focus.set_corner_radius_all(10)
-    item.add_theme_stylebox_override("focus", focus)
-    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
+func _box(background: Color, border: Color, border_width: int, shadow: int) -> StyleBoxFlat:
+    var box := StyleBoxFlat.new()
+    box.bg_color = background
+    box.border_color = border
+    box.set_border_width_all(border_width)
+    box.set_corner_radius_all(12)
+    if shadow > 0:
+        box.shadow_size = shadow
+        box.shadow_color = Color(INK.r, INK.g, INK.b, 0.18)
+        box.shadow_offset = Vector2(0, 2)
+    return box
+
+## Every state has its own style: normal, hover, pressed, focus, disabled.
+## Raised controls cast a soft shadow; pressed controls sink (no shadow, darker fill).
+func _style_button(item: Button, background: Color, foreground: Color, raised: bool = true,
+        border: Color = BORDER, border_width: int = 1) -> void:
+    var shadow: int = 3 if raised else 0
+    item.add_theme_stylebox_override("normal", _box(background, border, border_width, shadow))
+    item.add_theme_stylebox_override("hover", _box(background.lightened(0.05), border, border_width, shadow))
+    item.add_theme_stylebox_override("pressed", _box(background.darkened(0.08), border, 2, 0))
+    item.add_theme_stylebox_override("disabled", _box(background, border, border_width, 0))
+    item.add_theme_stylebox_override("focus", _box(Color.TRANSPARENT, FOCUS, 3, 0))
+    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color"]:
         item.add_theme_color_override(mode, foreground)
 
 func _button(text_value: String, callback: Callable, primary: bool = false) -> Button:
@@ -80,7 +129,7 @@ func _button(text_value: String, callback: Callable, primary: bool = false) -> B
     button.custom_minimum_size = Vector2(0, 54)
     button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     button.add_theme_font_size_override("font_size", 17)
-    _style_button(button, ACCENT if primary else PALE, WHITE if primary else INK)
+    _style_button(button, ACCENT if primary else SURFACE, INK)
     button.pressed.connect(callback)
     return button
 
@@ -108,19 +157,19 @@ func _build_ui() -> void:
     column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     column.add_theme_constant_override("separation", 12)
     margin.add_child(column)
-    column.add_child(_label("SKYLINE STEPS / VISIBLE HEIGHTS", 12, ACCENT))
+    column.add_child(_label("SKYLINE STEPS / VISIBLE HEIGHTS", 12, INK_MUTED))
     column.add_child(_label("See the city from every side.", 27))
     column.add_child(_label("Each row and column has buildings 1–4. Taller buildings hide smaller ones behind them. Numbers around the edge say how many you can see.", 15))
     heading = _label("", 16)
     column.add_child(heading)
-    var centered := CenterContainer.new()
-    centered.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    column.add_child(centered)
+    board_box = CenterContainer.new()
+    board_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    column.add_child(board_box)
     grid = GridContainer.new()
     grid.columns = 6
     grid.add_theme_constant_override("h_separation", 3)
     grid.add_theme_constant_override("v_separation", 3)
-    centered.add_child(grid)
+    board_box.add_child(grid)
     progress_label = _label("", 15)
     column.add_child(progress_label)
     feedback = _label("", 15)
@@ -146,7 +195,16 @@ func _build_ui() -> void:
     navigation.add_child(next_button)
     column.add_child(navigation)
     column.add_child(_button("Copy this challenge", _share))
-    column.add_child(_label("Top/bottom and left/right numbers are visibility counts. A dash means the clue is omitted. No timer or forced assistance.", 13))
+    reduced_motion_toggle = CheckButton.new()
+    reduced_motion_toggle.text = "Reduce motion"
+    reduced_motion_toggle.accessibility_name = "Reduce motion"
+    reduced_motion_toggle.custom_minimum_size = Vector2(0, 48)
+    reduced_motion_toggle.add_theme_font_size_override("font_size", 16)
+    reduced_motion_toggle.add_theme_color_override("font_color", INK)
+    reduced_motion_toggle.button_pressed = motion.reduced_motion
+    reduced_motion_toggle.toggled.connect(set_reduced_motion)
+    column.add_child(reduced_motion_toggle)
+    column.add_child(_label("Top/bottom and left/right numbers are visibility counts. A dash means the clue is omitted. No timer or forced assistance.", 13, INK_MUTED))
 
 func _clue(label: String) -> Label:
     var item := _label(label, 18, INK, true)
@@ -191,16 +249,21 @@ func _load_level() -> void:
     grid.add_child(_clue(""))
 
     _refresh()
+    motion.stagger_in(cells)
 
 func _select(index: int) -> void:
     if int(Rules.blank(level)[index]) != 0:
         return
     selected = index
+    motion.press(cells[index])
     _refresh()
 
 func _enter(digit: int) -> void:
     if selected < 0 or int(state["entries"][selected]) == digit:
         return
+    var was_conflict: bool = _is_conflict(Rules.status(level, state["entries"]))
+    var was_solved: bool = Rules.complete(level, state["entries"])
+    var lines_before: Dictionary = _resolved_lines()
     history.append(state["entries"].duplicate())
     if history.size() > 50:
         history.pop_front()
@@ -209,6 +272,64 @@ func _enter(digit: int) -> void:
         return
     _save()
     _refresh()
+    if Rules.complete(level, state["entries"]) and not was_solved:
+        motion.celebrate(self, board_box.get_global_rect().get_center(), [ACCENT, SUCCESS, SURFACE])
+        motion.sweep(cells)
+        return
+    if _is_conflict(Rules.status(level, state["entries"])) and not was_conflict:
+        motion.shake(cells[selected])
+    var fresh_lines: Array = _new_lines(lines_before, _resolved_lines())
+    if fresh_lines.is_empty():
+        motion.pop(cells[selected])
+    for ids in fresh_lines:
+        var line_cells: Array = []
+        for id in ids:
+            line_cells.append(cells[id])
+        motion.sweep(line_cells)
+
+func _line_ids(n: int, vertical: bool) -> Array:
+    var ids: Array = []
+    for i in range(4):
+        ids.append(i * 4 + n if vertical else n * 4 + i)
+    return ids
+
+## Rows and columns that are full, distinct and match any clue on their two ends.
+## Keyed "r<n>" / "c<n>" so a newly resolved line can be told apart from an old one.
+func _resolved_lines() -> Dictionary:
+    var found: Dictionary = {}
+    for n in range(4):
+        for vertical in [false, true]:
+            var ids: Array = _line_ids(n, vertical)
+            var values: Array = []
+            var distinct: Dictionary = {}
+            for id in ids:
+                var v: int = int(state["entries"][id])
+                values.append(v)
+                distinct[v] = true
+            if distinct.has(0) or distinct.size() != 4:
+                continue
+            var backward: Array = values.duplicate()
+            backward.reverse()
+            var near: int = int(level["side"][0 if vertical else 2][n])
+            var far: int = int(level["side"][1 if vertical else 3][n])
+            if near > 0 and Rules.visible_heights(values) != near:
+                continue
+            if far > 0 and Rules.visible_heights(backward) != far:
+                continue
+            found["%s%d" % ["c" if vertical else "r", n]] = ids
+    return found
+
+func _new_lines(before: Dictionary, after: Dictionary) -> Array:
+    var fresh: Array = []
+    for key in after:
+        if not before.has(key):
+            fresh.append(after[key])
+    return fresh
+
+## A conflict is a repeated height in a line or a finished line that misses its clue.
+## Detected from the existing status message so the rule text stays the single source.
+func _is_conflict(message: String) -> bool:
+    return message.begins_with("Each row") or message.begins_with("A complete")
 
 func _undo() -> void:
     if history.is_empty():
@@ -222,6 +343,7 @@ func _restart() -> void:
     state["entries"] = Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 func _next() -> void:
     if not Progress.can_advance(state):
@@ -229,6 +351,7 @@ func _next() -> void:
     Progress.set_level(state, int(state["level"]) + 1)
     _save()
     _load_level()
+    motion.slide_swap(board_box, 1)
 
 func _previous() -> void:
     if int(state["level"]) <= 0:
@@ -236,6 +359,7 @@ func _previous() -> void:
     Progress.set_level(state, int(state["level"]) - 1)
     _save()
     _load_level()
+    motion.slide_swap(board_box, -1)
 
 func _cage_at(id: int) -> Dictionary:
     for cage in level.get("cages", []):
@@ -247,25 +371,39 @@ func _refresh() -> void:
     heading.text = "PUZZLE %d OF %d  •  %s" % [
         int(state["level"]) + 1, Factory.COUNT, str(level["name"])]
     var filled: int = 0
+    var blanks: Array = Rules.blank(level)
     for id in range(16):
         var cell: Button = cells[id]
         var digit: int = int(state["entries"][id])
-        var fixed: bool = int(Rules.blank(level)[id]) != 0
+        var fixed: bool = int(blanks[id]) != 0
         if digit > 0:
             filled += 1
+        var peer: bool = selected >= 0 and (int(id / 4) == int(selected / 4) or id % 4 == selected % 4)
+        var background: Color = SURFACE
+        if fixed:
+            background = SURFACE_ALT
+        elif id == selected:
+            background = SELECTED
+        elif peer:
+            background = PEER
         cell.disabled = fixed
-        var background: Color = PALE if fixed else WHITE
-        var caption: String = ""
-
-        if id == selected:
-            background = Color("#C4E3DD") if not fixed else FIXED
-        cell.text = caption + (str(digit) if digit > 0 else "·")
-        cell.accessibility_name = "Row %d, column %d, %s" % [
+        cell.text = str(digit) if digit > 0 else "·"
+        cell.accessibility_name = "Row %d, column %d, %s%s%s" % [
             int(id / 4) + 1, id % 4 + 1,
-            str(digit) if digit > 0 else "empty"]
-        _style_button(cell, background, INK)
+            str(digit) if digit > 0 else "empty",
+            ", given" if fixed else "",
+            ", selected" if id == selected else ""]
+        _style_button(cell, background, INK, false, INK if id == selected else BORDER,
+            3 if id == selected else 1)
     progress_label.text = "%d of 16 squares filled" % filled
-    feedback.text = Rules.status(level, state["entries"])
+    var message: String = Rules.status(level, state["entries"])
+    feedback.text = message
+    var color: Color = INK
+    if Rules.complete(level, state["entries"]):
+        color = SUCCESS
+    elif _is_conflict(message):
+        color = ERROR
+    feedback.add_theme_color_override("font_color", color)
     undo_button.disabled = history.is_empty()
     prev_button.disabled = int(state["level"]) == 0
     next_button.disabled = not Progress.can_advance(state)

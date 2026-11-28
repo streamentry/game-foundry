@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Brojevne zagonetke s točkama",
+ "keywords": "točke,bijela točka,crna točka,uzastopni,omjer,latinski kvadrat,brojevi,logika,zagonetka",
+ "short_description": "Popuni mrežu 4×4 brojevima 1 do 4 prema bijelim i crnim točkama.",
+ "description": "Popuni mrežu 4×4 brojevima od 1 do 4 tako da se svaka znamenka u svakom retku i stupcu pojavi jednom. Bijela točka između dva polja znači da su brojevi uzastopni, a crna točka znači da je jedan točno dvostruko veći od drugoga. Rubovi bez točke nemaju nikakav uvjet.\n\nDodirni polje koje se može uređivati, pa izaberi broj na velikoj tipkovnici s četiri tipke. Oznake unutar polja i pregled pomažu ti čitati svaku točku.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

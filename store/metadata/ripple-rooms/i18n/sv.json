@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Talrum med avstånd",
+ "keywords": "regioner,avstånd,mellanrum,tal,logik,rutnät,pussel",
+ "short_description": "Fyll oregelbundna rum så att upprepade tal håller sitt avstånd.",
+ "description": "Fyll varje oregelbundet rum med talen 1 upp till dess storlek. Om samma tal k förekommer två gånger i en rad eller kolumn måste minst k rutor ligga mellan dem.\n\nTryck på en ruta och skriv en siffra från 1 till 4 med de stora knapparna. Varje ruta visar sin rumsbokstav och rumsstorlek bredvid talet.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

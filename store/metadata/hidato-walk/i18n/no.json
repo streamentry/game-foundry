@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tallsti-gåter",
+ "keywords": "hidoku,tallsti,kjede,etterfølgende,rekke,rutenett,logikk,gåte",
+ "short_description": "Plasser 1 til 16 i en kjede der hvert tall berører det neste.",
+ "description": "Plasser tallene 1 til 16 på et 4×4-rutenett, hvert nøyaktig én gang, slik at hvert påfølgende par berører hverandre horisontalt, vertikalt eller diagonalt. De gitte tallene må bli værende der de står.\n\nTrykk på en redigerbar rute og velg et tall på tastaturet. Slett tømmer en rute.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

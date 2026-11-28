@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tårnhøydegåter",
+ "keywords": "skyskrapere,tårn,høyder,sikt,latinsk kvadrat,tall,logikk,rutenett,gåte",
+ "short_description": "Plasser bygningshøyder slik at hver kantledetråd stemmer.",
+ "description": "Fyll et 4×4-rutenett med bygningshøyder fra 1 til 4, og gjenta aldri en høyde i en rad eller kolonne. Hvert tall langs kanten forteller hvor mange bygninger som er synlige fra den retningen, siden høyere bygninger skjuler lavere bak seg.\n\nVelg en rute og skriv inn en høyde fra 1 til 4. Slett tømmer en rute.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

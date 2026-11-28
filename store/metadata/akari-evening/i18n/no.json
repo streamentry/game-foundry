@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Lys opp hver åpne rute",
+ "keywords": "lys,lampe,pære,belyse,logikk,rutenett,gåte,veltall",
+ "short_description": "Plasser lamper så alle åpne ruter lyser og ingen lamper skinner på hverandre.",
+ "description": "Plasser lamper på et 4×4-brett slik at hver åpen rute lyses opp, ingen to lamper skinner på hverandre, og hver nummererte vegg berører nøyaktig så mange lamper som tallet viser.\n\nTrykk på en åpen rute for å bytte mellom lampe, krysnotat og tom; opplyste ruter fremheves underveis.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

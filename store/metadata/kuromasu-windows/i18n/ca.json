@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Compta el que pots veure",
+ "keywords": "kurodoko,visibilitat,línia de visió,negre blanc,ombrejar,lògica,nombres,trencaclosques",
+ "short_description": "Ombreja caselles perquè cada número vegi exactament aquest nombre de blanques.",
+ "description": "Ombreja algunes caselles de negre de manera que les caselles negres mai no comparteixin vora i totes les blanques quedin connectades. Cada casella numerada compta les caselles blanques que pot veure a la seva fila i columna, incloent-hi ella mateixa, i ha de coincidir amb el seu número.\n\nToca una casella en blanc per canviar entre negra, blanca i desconeguda. Les pistes numerades queden fixes, i el text de la pantalla t'indica quines línies de visió o connexions trenquen les regles.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

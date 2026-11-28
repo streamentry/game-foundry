@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sindihan ang lahat ng cell",
+ "keywords": "ilawan,lampara,bombilya,lohika,grid,palaisipan,numero sa pader",
+ "short_description": "Maglagay ng lampara para maliwanagan ang bawat cell, walang nagkakatapatan.",
+ "description": "Maglagay ng mga lampara sa 4×4 na board para maliwanagan ang bawat bukas na cell, walang dalawang lampara ang nagliliwanagan sa isa't isa, at ang bawat may numerong pader ay may eksaktong ganoong bilang ng katabing lampara.\n\nI-tap ang bukas na cell para dumaan sa lampara, cross note, at walang laman. Naka-highlight ang mga naiilawan na cell habang naglalaro ka.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

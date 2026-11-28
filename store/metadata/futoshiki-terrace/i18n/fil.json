@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Palaisipang may paghahambing",
+ "keywords": "hindi pantay,mas malaki,mas maliit,latin square,numero,lohika,grid,palaisipan",
+ "short_description": "Punan ang 4×4 grid ng 1–4 ayon sa mga tanda ng mas malaki at mas maliit.",
+ "description": "Punan ang 4×4 na grid ng mga numerong 1 hanggang 4 para lumitaw ang bawat isa nang isang beses sa bawat hilera at kolum, habang tama ang bawat tandang mas malaki o mas maliit sa pagitan ng magkatabing cell.\n\nI-tap ang cell na maaaring baguhin, pagkatapos ang isa sa apat na malalaking button ng digit. Nakikita palagi ang Erase at Next.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

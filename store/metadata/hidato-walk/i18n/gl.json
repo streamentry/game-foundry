@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Cadeas de números",
+ "keywords": "hidoku,cadea numérica,consecutivo,secuencia,cuadrícula,lóxica,crebacabezas",
+ "short_description": "Coloca do 1 ao 16 nunha cadea onde cada número toque o seguinte.",
+ "description": "Coloca os números do 1 ao 16 nunha cuadrícula de 4×4, cada un exactamente unha vez, de xeito que cada par consecutivo se toque na horizontal, na vertical ou en diagonal. Os números xa dados deben manterse onde están.\n\nToca unha cela editable e escolle un número no teclado. Borrar elimina o contido dunha cela.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Peräkkäisten numeroiden pulmat",
+ "keywords": "peräkkäinen,latinalainen neliö,reunamerkit,jono,numero,logiikka,ruudukko,palapeli",
+ "short_description": "Täytä 4×4-ruudukko, jossa merkinnät osoittavat peräkkäiset naapurit.",
+ "description": "Täytä 4×4-ruudukko luvuilla 1–4 niin, että jokainen numero esiintyy kerran jokaisella rivillä ja sarakkeella. Kahden ruudun välinen merkitty reuna tarkoittaa, että niiden numerot ovat peräkkäisiä; merkitsemätön reuna tarkoittaa, että eivät ole.\n\nValitse ruutu ja kirjoita numero 1–4. Ruutujen sisällä olevat nuolet osoittavat merkityt reunat oikealle ja alaspäin.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tendas e árbores",
+ "keywords": "tendas,árbores,lóxica,cuadrícula,bosque,crebacabezas,sen conexión",
+ "short_description": "Coloca tendas, iguala os totais das filas e evita que se toquen.",
+ "description": "Coloca exactamente unha tenda xunto a cada árbore, cumpre todos os totais de filas e columnas e evita que as tendas se toquen, tamén en diagonal. Resolve oito taboleiros orixinais de 5×5 e 6×6 con solución única. Marca a herba, desfai, reinicia e conserva o progreso neste dispositivo. Non hai cronómetro nin penalización de puntuación."
+}

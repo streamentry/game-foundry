@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Desenează o buclă închisă",
+ "keywords": "slitherlink,garduri,laturi,linie,logică,număr,grilă,puzzle",
+ "short_description": "Desenează o singură buclă care respectă fiecare indiciu de laturi.",
+ "description": "Desenează o singură buclă închisă de-a lungul liniilor grilei, care nu se ramifică și nu se intersectează. Fiecare pătrat numerotat îți spune câte dintre cele patru laturi ale sale folosește bucla.\n\nAtinge un pătrat, apoi apasă unul dintre cele patru butoane mari Sus, Dreapta, Jos sau Stânga pentru a adăuga sau elimina latura respectivă.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

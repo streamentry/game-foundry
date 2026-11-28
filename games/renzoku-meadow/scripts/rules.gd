@@ -21,6 +21,23 @@ static func _edges()->Array:
         if p<12:out.append([p,p+4])
     return out
 
+## Every neighbouring pair, as [a, b] with a < b (horizontal, then vertical).
+static func edges()->Array:
+    return _edges()
+
+## True when the shared edge between cells a and b carries a dot (difference must be 1).
+static func marked(level:Dictionary,a:int,b:int)->bool:
+    for pair in level["dots"]:
+        if int(pair[0])==a and int(pair[1])==b:return true
+    return false
+
+## "open" = a cell is still empty; "ok" = both filled and the edge rule holds;
+## "bad" = both filled and the edge rule is broken (a missing dot is also a break).
+static func edge_state(level:Dictionary,entries:Array,a:int,b:int)->String:
+    if int(entries[a])==0 or int(entries[b])==0:return "open"
+    var consecutive:bool=absi(int(entries[a])-int(entries[b]))==1
+    return "ok" if consecutive==marked(level,a,b) else "bad"
+
 static func valid_level(level:Dictionary)->bool:
     if int(level.get("size",-1))!=4 or typeof(level.get("dots"))!=TYPE_ARRAY or typeof(level.get("givens"))!=TYPE_ARRAY:return false
     var possibilities:Dictionary={}

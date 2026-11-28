@@ -1,0 +1,8 @@
+{
+ "lang": "pl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Czytelne sumy krzyżowe",
+ "keywords": "sumy krzyżowe,sumy,logika,rachunki,siatka,łamigłówka",
+ "short_description": "Rozwiązuj sumy krzyżowe dzięki przejrzystemu podglądowi pola.",
+ "description": "Wypełnij każdy ciąg Kakuro cyframi od 1 do 9 tak, aby suma zgadzała się ze wskazówką; nie powtarzaj cyfry w tym samym ciągu. Rozwiąż osiem oryginalnych plansz 5×5, aby odblokować następną. Inspektor Compass pokazuje sumy poziome i pionowe oraz cyfry możliwe lokalnie dla wybranego pola. Cofanie, wymazywanie, restart i lokalny postęp są w zestawie."
+}

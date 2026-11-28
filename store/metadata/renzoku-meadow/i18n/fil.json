@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Palaisipang magkasunod",
+ "keywords": "magkasunod,latin square,marka sa gilid,pagkakasunod,numero,lohika,grid,palaisipan",
+ "short_description": "Punan ang 4×4 na grid kung saan ipinapakita ng mga marka ang magkasunod.",
+ "description": "Punan ang 4×4 na grid ng 1 hanggang 4 para lumitaw ang bawat digit nang isang beses sa bawat hilera at kolum. Ang may markang gilid sa pagitan ng dalawang parisukat ay nangangahulugang magkasunod ang kanilang mga digit; ang walang markang gilid ay nangangahulugang hindi.\n\nPumili ng parisukat at maglagay ng digit mula 1 hanggang 4. Ang mga arrow sa loob ng parisukat ay tumuturo sa mga may markang gilid sa kanan at sa ibaba.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

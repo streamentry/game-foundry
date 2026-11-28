@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Đếm những gì bạn thấy",
+ "keywords": "tầm nhìn,đường ngắm,đen trắng,tô đen,logic,số,lưới,câu đố",
+ "short_description": "Tô đen các ô để mỗi số nhìn thấy đúng số ô trắng đó.",
+ "description": "Tô đen một số ô sao cho các ô đen không chạm nhau theo cạnh và mọi ô trắng vẫn liên thông. Mỗi ô có số đếm số ô trắng nhìn thấy được theo hàng và cột của nó, kể cả chính nó, và phải khớp với con số đó.\n\nChạm vào ô trống để luân phiên giữa đen, trắng và chưa xác định. Các ô gợi ý có số được giữ cố định, và chữ trên màn hình cho biết đường ngắm hoặc kết nối nào đang vi phạm luật.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

@@ -3,14 +3,25 @@ extends Control
 const Factory=preload("res://scripts/level_factory.gd")
 const Rules=preload("res://scripts/rules.gd")
 const Progress=preload("res://scripts/progress.gd")
+const Motion=preload("res://scripts/motion.gd")
+const SETTINGS_PATH:String="user://settings.json"
 const MODE:String="pyramid"
 const TITLE:String="Number Pyramid"
-const PAPER:Color=Color("#F8F4E9")
-const INK:Color=Color("#4C3C35")
-const ACCENT:Color=Color("#A56743")
-const SOFT:Color=Color("#F0DFCC")
-const WHITE:Color=Color("#FFFFFF")
+const PAPER:Color=Color("#F7EDDA")
+const SURFACE:Color=Color("#FCEDCC")
+const SURFACE_ALT:Color=Color("#EBCFA6")
+const INK:Color=Color("#451901")
+const INK_MUTED:Color=Color("#6B4A33")
+const ACCENT:Color=Color("#A65A2A")
+const ACCENT_INK:Color=Color("#FFFFFF")
+const SUCCESS:Color=Color("#2F6B3A")
+const ERROR:Color=Color("#9E3E40")
+const FOCUS:Color=Color("#6E3210")
+const GLOW:Color=Color("#F6D9A8")
 
+var motion:=Motion.new()
+var reduce_toggle:CheckButton
+var board_items:Array=[]
 var state:Dictionary={}
 var level:Dictionary={}
 var history:Array=[]
@@ -29,8 +40,35 @@ var undo_button:Button
 
 func _ready()->void:
     state=Progress.load_saved()
+    _load_settings()
     _build_ui()
     _load_level()
+
+func _load_settings()->void:
+    motion.reduced_motion=false
+    if not FileAccess.file_exists(SETTINGS_PATH):return
+    var file:=FileAccess.open(SETTINGS_PATH,FileAccess.READ)
+    if file==null:return
+    var parser:=JSON.new()
+    if parser.parse(file.get_as_text())!=OK or typeof(parser.data)!=TYPE_DICTIONARY:return
+    motion.reduced_motion=bool(parser.data.get("reduced_motion",false))
+
+func _save_settings()->void:
+    var file:=FileAccess.open(SETTINGS_PATH,FileAccess.WRITE)
+    if file==null:
+        push_warning(TITLE+" could not save its display settings.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion":motion.reduced_motion}))
+    file.close()
+
+func set_reduced_motion(on:bool)->void:
+    motion.reduced_motion=on
+    if reduce_toggle!=null and reduce_toggle.button_pressed!=on:
+        reduce_toggle.set_pressed_no_signal(on)
+    _save_settings()
+
+func _on_reduce_toggled(on:bool)->void:
+    set_reduced_motion(on)
 
 func _label(value:String,px:int,color:Color=INK)->Label:
     var item:=Label.new()
@@ -40,22 +78,35 @@ func _label(value:String,px:int,color:Color=INK)->Label:
     item.add_theme_color_override("font_color",color)
     return item
 
+func _tint(background:Color,mode:String)->Color:
+    match mode:
+        "hover":return background.lerp(Color.WHITE,0.08)
+        "pressed":return background.darkened(0.07)
+        _:return background
+
 func _style(item:Button,background:Color,color:Color,focused:bool=false)->void:
-    var shape:=StyleBoxFlat.new()
-    shape.bg_color=background
-    shape.border_color=ACCENT if focused else Color("#BDCCBE")
-    shape.set_border_width_all(3 if focused else 1)
-    shape.set_corner_radius_all(11)
     for mode in ["normal","hover","pressed","disabled"]:
+        var shape:=StyleBoxFlat.new()
+        shape.bg_color=_tint(background,mode)
+        shape.border_color=ACCENT if focused else Color("#CDB18F")
+        shape.set_border_width_all(3 if focused else 1)
+        shape.set_corner_radius_all(12)
+        var pressed:bool=mode=="pressed"
+        shape.shadow_color=Color(0.27,0.1,0.0,0.06 if pressed else 0.16)
+        shape.shadow_size=1 if pressed else 4
+        shape.shadow_offset=Vector2(0,1 if pressed else 2)
         item.add_theme_stylebox_override(mode,shape)
-    var focus:=StyleBoxFlat.new()
-    focus.bg_color=Color.TRANSPARENT
-    focus.border_color=ACCENT
-    focus.set_border_width_all(3)
-    focus.set_corner_radius_all(11)
-    item.add_theme_stylebox_override("focus",focus)
+    item.add_theme_stylebox_override("focus",_focus_ring())
     for mode in ["font_color","font_hover_color","font_pressed_color","font_disabled_color"]:
         item.add_theme_color_override(mode,color)
+
+func _focus_ring()->StyleBoxFlat:
+    var ring:=StyleBoxFlat.new()
+    ring.bg_color=Color.TRANSPARENT
+    ring.border_color=FOCUS
+    ring.set_border_width_all(3)
+    ring.set_corner_radius_all(12)
+    return ring
 
 func _button(value:String,action:Callable,primary:bool=false)->Button:
     var item:=Button.new()
@@ -64,7 +115,7 @@ func _button(value:String,action:Callable,primary:bool=false)->Button:
     item.custom_minimum_size=Vector2(0,54)
     item.size_flags_horizontal=Control.SIZE_EXPAND_FILL
     item.add_theme_font_size_override("font_size",17)
-    _style(item,ACCENT if primary else SOFT,WHITE if primary else INK)
+    _style(item,ACCENT if primary else SURFACE_ALT,ACCENT_INK if primary else INK)
     item.pressed.connect(action)
     return item
 
@@ -91,7 +142,7 @@ func _build_ui()->void:
     var column:=VBoxContainer.new()
     margin.add_child(column)
     column.add_theme_constant_override("separation",12)
-    column.add_child(_label("NUMBER PYRAMID / STONES OF SUM",12,ACCENT))
+    column.add_child(_label("NUMBER PYRAMID / STONES OF SUM",12,INK_MUTED))
     column.add_child(_label("Build from the foundation.",27))
     column.add_child(_label("Every upper stone is the sum of the two below it. Use the scattered printed clues to reconstruct the four bottom numbers (1–9).",15))
     heading=_label("",16)
@@ -106,7 +157,7 @@ func _build_ui()->void:
     grid.add_theme_constant_override("h_separation",3)
     grid.add_theme_constant_override("v_separation",4)
     holder.add_child(grid)
-    preview=_label("",16,ACCENT)
+    preview=_label("",16,INK_MUTED)
     column.add_child(preview)
     progress_label=_label("",15)
     column.add_child(progress_label)
@@ -123,6 +174,19 @@ func _build_ui()->void:
         keypad.add_child(_button(str(labels[i]),_enter.bind(i+1),true))
     column.add_child(keypad)
     column.add_child(_label("The top pyramid numbers are calculated from your entries; printed clues stay fixed. There is no timer or penalty.",13))
+    reduce_toggle=CheckButton.new()
+    reduce_toggle.text="Reduce motion"
+    reduce_toggle.accessibility_name="Reduce motion"
+    reduce_toggle.custom_minimum_size=Vector2(0,48)
+    reduce_toggle.add_theme_font_size_override("font_size",16)
+    reduce_toggle.add_theme_color_override("font_color",INK)
+    reduce_toggle.add_theme_color_override("font_hover_color",INK)
+    reduce_toggle.add_theme_color_override("font_pressed_color",INK)
+    reduce_toggle.add_theme_color_override("font_focus_color",INK)
+    reduce_toggle.add_theme_stylebox_override("focus",_focus_ring())
+    reduce_toggle.set_pressed_no_signal(motion.reduced_motion)
+    reduce_toggle.toggled.connect(_on_reduce_toggled)
+    column.add_child(reduce_toggle)
     var actions:=_row()
     undo_button=_button("Undo",_undo)
     actions.add_child(undo_button)
@@ -160,6 +224,7 @@ func _load_level()->void:
     holder.add_child(grid)
     cells.clear()
     upper_cells.clear()
+    board_items.clear()
     if MODE=="renzoku":
         var fixed:Dictionary={}
         for i in range(16):
@@ -194,13 +259,18 @@ func _load_level()->void:
                 row.add_child(item)
                 upper_cells[int(pos)]=item
                 if int(pos)<4:cells.append(item)
+                board_items.append(item)
         selected=Rules.blank(level).find(0)
         if selected<0:selected=0
+    if board_items.is_empty():
+        board_items=cells.duplicate()
     _refresh()
+    motion.stagger_in(board_items)
 
 func _select(index:int)->void:
     if MODE=="pyramid" and (index>=4 or Rules.clues(level).has(index)):return
     if MODE=="renzoku" and {}.has(index):return
+    if index>=0 and index<cells.size():motion.press(cells[index])
     selected=index
     _refresh()
 
@@ -209,11 +279,24 @@ func _enter(value:int)->void:
     if int(state["entries"][selected])==value:return
     history.append(state["entries"].duplicate())
     if history.size()>60:history.pop_front()
+    var cell:Control=cells[selected] if selected<cells.size() else null
     if not Progress.update(state,selected,value):
         history.pop_back()
+        if cell!=null:motion.shake(cell)
         return
     _save()
     _refresh()
+    if cell!=null:motion.pop(cell)
+    if Rules.complete(level,state["entries"]):
+        _celebrate()
+
+func _celebrate()->void:
+    # Foundation first, then the wave climbs the pyramid row by row.
+    var wave:Array=cells.duplicate()
+    for row in [[7,8],[4,5,6],[9]]:
+        for pos in row:wave.append(upper_cells[pos])
+    motion.sweep(wave,GLOW)
+    motion.celebrate(self,holder.get_global_rect().get_center(),[ACCENT,SUCCESS,SURFACE_ALT])
 
 func _undo()->void:
     if history.is_empty():return
@@ -226,18 +309,21 @@ func _restart()->void:
     state["entries"]=Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(board_items)
 
 func _next()->void:
     if not Progress.can_advance(state):return
     Progress.set_level(state,int(state["level"])+1)
     _save()
     _load_level()
+    motion.slide_swap(holder,1)
 
 func _previous()->void:
     if int(state["level"])==0:return
     Progress.set_level(state,int(state["level"])-1)
     _save()
     _load_level()
+    motion.slide_swap(holder,-1)
 
 func _refresh()->void:
     heading.text="PUZZLE %d OF %d  •  %s"%[int(state["level"])+1,Factory.COUNT,str(level["name"])]
@@ -257,7 +343,7 @@ func _refresh()->void:
             item.text=(str(val) if val>0 else "·")+("\n"+" ".join(marks) if not marks.is_empty() else "")
             item.accessibility_name="Row %d column %d, %s%s"%[
                 int(i/4)+1,i%4+1,str(val) if val>0 else "empty",", consecutive neighbors "+str(marks)]
-            _style(item,SOFT if item.disabled else WHITE,INK,i==selected)
+            _style(item,SURFACE_ALT if item.disabled else SURFACE,INK,i==selected)
         progress_label.text="%d/16 numbers entered"%filled
         preview.text="Selected row %d, column %d. Dots indicate difference 1."%[int(selected/4)+1,selected%4+1]
     elif MODE=="vowel":
@@ -287,10 +373,11 @@ func _refresh()->void:
             item.text=str(known[i]) if known.has(i) else (str(number) if visible else "?")
             item.disabled=i>=4 or known.has(i)
             item.accessibility_name="Stone %d, %s%s"%[i,item.text," clue" if known.has(i) else ""]
-            _style(item,SOFT if known.has(i) else WHITE,INK,i==selected)
+            _style(item,SURFACE_ALT if known.has(i) else SURFACE,INK,i==selected)
         progress_label.text="%d/4 bottom stones filled"%filled
         preview.text="The pyramid uses adjacent sums; numbers above update as you build."
     feedback.text=Rules.status(level,state["entries"])
+    feedback.add_theme_color_override("font_color",SUCCESS if Rules.complete(level,state["entries"]) else INK)
     undo_button.disabled=history.is_empty()
     next_button.disabled=not Progress.can_advance(state)
     prev_button.disabled=int(state["level"])==0

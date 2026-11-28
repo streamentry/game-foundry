@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ostrovy a moře",
+ "keywords": "ostrovy,moře,země,souvislost,logika,čísla,mřížka,hádanka,voda",
+ "short_description": "Roztřiďte záliv 4×4 na moře a ostrovy přesné velikosti.",
+ "description": "Označte každé pole zálivu 4×4 jako moře nebo souš. Každý očíslovaný ostrov má přesně tolik polí a obsahuje jednu nápovědu, moře tvoří jeden souvislý celek a žádný blok 2×2 nesmí být celý z moře.\n\nKlepnutím na prázdné pole přepínáte mezi mořem, souší a prázdným polem. Pole s nápovědou jsou pevná.\n\nŠest původních hracích plánů; každý odemkne další po vyřešení. Zpět a Začít znovu jsou vždy k dispozici, časovač není a váš postup se ukládá v tomto zařízení. Funguje offline. Bez reklam, bez účtu, bez sběru dat."
+}

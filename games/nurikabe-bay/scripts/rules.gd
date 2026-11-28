@@ -161,3 +161,24 @@ static func count_solutions(level: Dictionary, limit: int = 2) -> int:
             if count >= limit:
                 return count
     return count
+
+## Read-only feedback helper (does not change any rule): clue cell id -> sorted cells
+## of each island whose land component holds exactly one clue and has that clue's size.
+static func sized_islands(level: Dictionary, entries: Array) -> Dictionary:
+    var result: Dictionary = {}
+    if not valid_entries(level, entries):
+        return result
+    var known: Dictionary = clues_by_cell(level)
+    var seen: Dictionary = {}
+    for id in range(16):
+        if int(entries[id]) != 2 or seen.has(id):
+            continue
+        var island: Array = _component(entries, id, 2, seen)
+        var clue_cells: Array = []
+        for cell in island:
+            if known.has(cell):
+                clue_cells.append(cell)
+        if clue_cells.size() == 1 and island.size() == int(known[clue_cells[0]]):
+            island.sort()
+            result[clue_cells[0]] = island
+    return result

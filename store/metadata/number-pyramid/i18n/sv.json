@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Addera dig till toppen",
+ "keywords": "summor,addition,matte,räkning,stenar,logik,siffror,rutnät",
+ "short_description": "Bygg upp en pyramid av tal utifrån några spridda ledtrådar.",
+ "description": "Hitta de fyra siffrorna 1 till 9 längs pyramidens botten. Varje av de sex stenarna ovanför är lika med summan av de två som ligger direkt under, och några ledtrådsetiketter är fasta för att guida dig.\n\nVälj en bottensten och skriv en siffra; stenarna ovanför visar sina summor när du spelar.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Umple termometrele",
+ "keywords": "tuburi,umplere,totaluri,rânduri,coloane,logică,număr,grilă,puzzle",
+ "short_description": "Umple tuburile de la bec astfel încât totalurile rândurilor să se potrivească.",
+ "description": "Umple fiecare dintre cele opt termometre cu două celule, de la bulb spre vârf, niciodată invers. Totalurile de pe rânduri și coloane arată câte celule din fiecare linie sunt umplute.\n\nAtinge un bulb pentru a umple primul segment sau atinge un vârf pentru a umple ambele. Atinge din nou același loc pentru a goli tubul.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

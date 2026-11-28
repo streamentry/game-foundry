@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Laske tiesi huipulle",
+ "keywords": "summat,yhteenlasku,matematiikka,laskut,kivet,logiikka,numerot,ruudukko",
+ "short_description": "Rakenna lukupyramidi muutamista hajallaan olevista vihjeistä.",
+ "description": "Löydä pyramidin pohjalla olevat neljä numeroa 1–9. Jokainen kuudesta kivestä sen yläpuolella on suoraan alla olevien kahden luvun summa, ja muutama vihjetarra on kiinteä, jotta osaat edetä.\n\nValitse pohjakivi ja kirjoita numero; yläpuoliset kivet näyttävät summansa pelatessasi.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

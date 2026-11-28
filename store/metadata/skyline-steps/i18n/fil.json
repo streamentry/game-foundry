@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Palaisipan sa taas ng tore",
+ "keywords": "skyscraper,tore,taas,nakikita,latin square,numero,lohika,grid,palaisipan",
+ "short_description": "Ilagay ang taas ng gusali para tama ang bilang ng bawat clue sa gilid.",
+ "description": "Punan ang 4×4 na grid ng taas ng gusali mula 1 hanggang 4, at huwag ulitin ang taas sa anumang hilera o kolum. Ang bawat numero sa paligid ng gilid ay nagsasabi kung ilang gusali ang nakikita mula sa direksyong iyon, dahil ang mas matataas na gusali ay nagtatago ng mas maliliit sa likod nila.\n\nPumili ng parisukat at maglagay ng taas mula 1 hanggang 4. Binubura ng Erase ang isang parisukat.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

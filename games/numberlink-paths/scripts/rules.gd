@@ -107,6 +107,18 @@ static func status(level: Dictionary, entries: Array) -> String:
             return "A route branches or loops back into an endpoint. Undo a mark."
     return "Connect both matching endpoints. Cover every square without branches."
 
+## Read-only queries for feedback (motion and conflict colour). They never change
+## what counts as a solution; `complete` and `status` remain the only verdicts.
+static func branches_at(level: Dictionary, entries: Array, index: int) -> bool:
+    if index < 0 or index >= 16 or int(entries[index]) == 0:
+        return false
+    return _degree(entries, index) > (1 if endpoint_map(level).has(index) else 2)
+
+static func route_complete(level: Dictionary, entries: Array, color: int) -> bool:
+    if not valid_entries(level, entries):
+        return false
+    return _is_single_route(entries, endpoint_map(level), color)
+
 static func count_solutions(level: Dictionary, limit: int = 2) -> int:
     if not valid_level(level):
         return 0

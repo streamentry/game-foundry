@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Paikutin ang mga tubo",
+ "keywords": "pagtutubero,tubo,paikot,kumonekta,daloy,tubig,spatial,tile,lohika,palaisipan",
+ "short_description": "Ikot ang mga tile ng tubo hanggang dumaloy ang tubig mula dulo hanggang dulo.",
+ "description": "Paikutin ang siyam na tile ng tubo sa 3×3 na board para makabuo ng iisang tuloy-tuloy at walang tagas na ruta mula sa isang dulo hanggang sa kabila.\n\nI-tap ang tile para paikutin ito. May apat na posisyon ang mga kurba at dulong piyesa, at dalawa ang tuwid na piyesa.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

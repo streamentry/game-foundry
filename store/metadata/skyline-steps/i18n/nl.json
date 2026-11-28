@@ -1,0 +1,8 @@
+{
+ "lang": "nl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzels met torenhoogten",
+ "keywords": "wolkenkrabbers,torens,hoogten,zicht,latijns vierkant,getal,logica,raster,puzzel",
+ "short_description": "Plaats gebouwhoogten zodat elke randaanwijzing klopt.",
+ "description": "Vul een raster van 4×4 met gebouwhoogten van 1 tot 4 en herhaal geen hoogte in een rij of kolom. Elk getal langs de rand vertelt hoeveel gebouwen je vanuit die richting ziet, want hogere gebouwen verbergen lagere erachter.\n\nSelecteer een vakje en voer een hoogte van 1 tot 4 in. Wissen maakt een vakje leeg.\n\nZes originele borden; elk bord ontgrendelt het volgende zodra het is opgelost. Ongedaan maken en Opnieuw beginnen zijn altijd beschikbaar, er is geen timer, en je voortgang wordt op dit apparaat opgeslagen. Werkt offline. Geen advertenties, geen account, geen gegevensverzameling."
+}

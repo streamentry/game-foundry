@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rektangelpussel",
+ "keywords": "rektangel,sifferpussel,logik,rutnät,yta,geometri",
+ "short_description": "Dela rutnätet i rektanglar med rätt storlek enligt ledtrådarna.",
+ "description": "Dela rutnätet i rektanglar. Varje rektangel måste ligga inom brädet, innehålla exakt en ledtråd och täcka så många rutor som ledtråden anger. Lös åtta originalbanor med hörn som väljs genom att trycka, med ångra, starta om, upplåst progression och lokala sparningar. Det finns ingen timer."
+}

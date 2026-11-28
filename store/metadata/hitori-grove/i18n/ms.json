@@ -1,0 +1,8 @@
+{
+ "lang": "ms",
+ "status": "machine translation — native review pending",
+ "subtitle": "Lorekkan nombor berulang",
+ "keywords": "lorek,pendua,nombor berulang,bersambung,logik,nombor,grid,teka-teki",
+ "short_description": "Lorekkan nombor berulang tanpa memecahkan papan kepada bahagian-bahagian.",
+ "description": "Lorekkan segi empat supaya tiada nombor muncul lebih daripada sekali dalam mana-mana baris atau lajur di antara segi empat yang tidak dilorek. Segi empat yang dilorek tidak boleh bersentuhan di sepanjang tepi, dan semua segi empat yang tidak dilorek mesti kekal bersambung sebagai satu kumpulan.\n\nKetik sel bernombor untuk bertukar antara lorek, nota simpan dan tidak ditanda.\n\nEnam papan asal, setiap satu membuka papan seterusnya selepas diselesaikan. Buat asal dan Mula Semula sentiasa tersedia, tiada pemasa, dan kemajuan anda disimpan pada peranti ini. Dimainkan secara luar talian. Tiada iklan, tiada akaun, tiada pengumpulan data."
+}

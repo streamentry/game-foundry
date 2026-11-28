@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Prehľadné súčty v krížení",
+ "keywords": "krížové súčty,súčty,logika,aritmetika,mriežka,hlavolam",
+ "short_description": "Vyriešte krížové súčty s prehľadným panelom výberu políčka.",
+ "description": "Vyplňte každý úsek Kakuro číslicami 1 až 9 tak, aby ich súčet zodpovedal zadaniu; v jednom úseku sa žiadna číslica nesmie opakovať. Vyriešte osem pôvodných plôch 5×5 a odomknite ďalšiu. Panel Compass zobrazuje súčty v smere vodorovne a zvisle a číslice, ktoré sú pre vybrané políčko lokálne možné. Súčasťou sú Späť, vymazanie, začať znova a lokálne uložený postup."
+}

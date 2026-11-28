@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles de números consecutius",
+ "keywords": "consecutius,quadrat llatí,marques de vora,seqüència,nombres,lògica,quadrícula,trencaclosques",
+ "short_description": "Omple una quadrícula de 4×4 on les marques indiquen veïns consecutius.",
+ "description": "Omple una quadrícula de 4×4 amb l'1 al 4 de manera que cada dígit aparegui una vegada a cada fila i columna. Una vora marcada entre dues caselles vol dir que els seus dígits són consecutius, i una vora sense marca vol dir que no ho són.\n\nSelecciona una casella i introdueix un dígit de l'1 al 4. Les fletxes dins de les caselles assenyalen les vores marcades a la dreta i a sota.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

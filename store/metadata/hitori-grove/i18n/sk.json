@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zatieňte opakujúce sa čísla",
+ "keywords": "zatieňovanie,duplicity,opakujúce čísla,súvislosť,logika,čísla,mriežka,hlavolam",
+ "short_description": "Zatieňte opakujúce sa čísla tak, aby sa plocha nerozpadla na časti.",
+ "description": "Zatieňte políčka tak, aby sa žiadne číslo v riadku ani stĺpci medzi nezatienenými políčkami neopakovalo. Zatienené políčka sa nesmú dotýkať hranou a všetky nezatienené políčka musia tvoriť jednu súvislú skupinu.\n\nKlepnite na políčko s číslom a prepínajte medzi zatienením, poznámkou a neoznačeným stavom.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

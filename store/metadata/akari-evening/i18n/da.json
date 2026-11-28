@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Lys hvert åbent felt op",
+ "keywords": "lys,lampe,pære,belys,logik,gitter,gåde,vægtal",
+ "short_description": "Placer lamper, så alle åbne felter lyser, og ingen lamper lyser på hinanden.",
+ "description": "Placer lamper på et 4×4-bræt, så hvert åbent felt er oplyst, ingen to lamper lyser på hinanden, og hver nummererede væg rører præcis så mange lamper, som tallet angiver.\n\nTryk på et åbent felt for at skifte mellem lampe, krydsnotat og tomt; oplyste felter fremhæves undervejs.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

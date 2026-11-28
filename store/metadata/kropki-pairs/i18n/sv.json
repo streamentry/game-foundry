@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pussel med punktledtrådar",
+ "keywords": "punkter,svart punkt,vit punkt,följd,kvot,latinsk kvadrat,tal,logik",
+ "short_description": "Fyll ett 4×4-rutnät med 1 till 4, vägledd av vita och svarta punkter.",
+ "description": "Fyll ett 4×4-rutnät med 1 till 4 så att varje siffra förekommer en gång i varje rad och kolumn. En vit punkt mellan två rutor betyder att siffrorna är på varandra följande; en svart punkt betyder att den ena är exakt dubbelt så stor som den andra. Kanter utan punkt har ingen ledtråd.\n\nTryck på en redigerbar ruta och sedan på en siffra på den stora knappsatsen med fyra tangenter. Etiketter i rutorna och en inspektör hjälper dig att läsa varje punkt.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

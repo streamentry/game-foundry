@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Jasné křížové nápovědy",
+ "keywords": "křížové součty,součty,logika,počítání,mřížka,hádanka",
+ "short_description": "Řešte křížící se součty s přehledným inspektorem buněk.",
+ "description": "Vyplňte každou úsečku Kakuro číslicemi 1 až 9 tak, aby jejich součet odpovídal zadání; v jedné úsečce neopakujte číslici. Vyřešte osm původních desek 5×5 a odemkněte další. Inspektor Compass ukazuje vodorovné a svislé součty a lokálně možné číslice pro vybranou buňku. Součástí jsou zpět, vymazání, restart a lokální postup."
+}

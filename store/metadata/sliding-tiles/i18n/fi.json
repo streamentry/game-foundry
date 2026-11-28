@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Klassinen 3×3-liukupulma",
+ "keywords": "liu'uta,numeroitu,kahdeksan pulma,15-pulma,järjestys,tilallinen,logiikka,peli",
+ "short_description": "Liu'uta numeroidut laatat järjestykseen yksi siirto kerrallaan.",
+ "description": "Liu'uta numeroituja laattoja 3×3-laudalla tyhjään tilaan, kunnes ne ovat järjestyksessä 1–8. Sekoitetut aloitukset vaihtelevat muutamasta siirrosta neljäntoista siirtoon ratkaisusta.\n\nNapauta tyhjän ruudun vieressä olevaa laattaa liu'uttaaksesi sen. Kumoa ja Aloita alusta ovat aina käytettävissä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

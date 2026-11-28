@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Crebacabezas aritméticos",
+ "keywords": "kenken,calcudoku,aritmética,matemáticas,cadrado latino,números,lóxica",
+ "short_description": "Enche unha cuadrícula 4×4 para que cada gaiola cumpra o seu cálculo.",
+ "description": "Enche unha cuadrícula de 4×4 cos díxitos do 1 ao 4 sen repetir ningún en ningunha fila nin columna. Cada gaiola de cor mostra un obxectivo formado por unha suma, produto, diferenza, cociente ou un valor único, e os díxitos dentro deben alcanzalo.\n\nToca unha cela e despois introduce un díxito no teclado grande. Borrar elimina o contido dunha cela.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

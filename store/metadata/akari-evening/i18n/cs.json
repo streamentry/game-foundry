@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Osvěťte každé otevřené pole",
+ "keywords": "lampy,světlo,žárovka,osvětlit,logika,mřížka,hádanka,čísla ve zdech",
+ "short_description": "Umístěte lampy tak, aby svítila všechna otevřená pole a lampy si nesvítily.",
+ "description": "Umístěte lampy na desku 4×4 tak, aby byla osvětlena každá otevřená buňka, žádné dvě lampy na sebe nesvítily a každá očíslovaná zeď se dotýkala přesně tolika lamp, kolik ukazuje její číslo.\n\nKlepnutím na otevřenou buňku přepínáte mezi lampou, křížkem a prázdnou buňkou; osvětlené buňky jsou při hraní zvýrazněny.\n\nŠest původních hracích plánů; každý odemkne další po vyřešení. Zpět a Začít znovu jsou vždy k dispozici, časovač není a váš postup se ukládá v tomto zařízení. Funguje offline. Bez reklam, bez účtu, bez sběru dat."
+}

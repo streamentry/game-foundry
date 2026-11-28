@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố đặt sao",
+ "keywords": "chòm,vùng,hàng,cột,logic,lưới,thiên văn,câu đố",
+ "short_description": "Đặt một ngôi sao mỗi hàng, cột và vùng, không chạm nhau.",
+ "description": "Đặt các ngôi sao lên lưới sao cho mỗi hàng, mỗi cột và mỗi vùng có nhãn đều có đúng một ngôi sao, và không có hai ngôi sao nào chạm nhau, kể cả theo đường chéo.\n\nChạm vào một ô để luân phiên giữa ngôi sao, chấm và ô trống; chấm là ghi chú cho các ô bạn đã loại trừ.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

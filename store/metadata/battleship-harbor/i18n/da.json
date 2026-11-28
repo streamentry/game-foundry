@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Find den skjulte flåde",
+ "keywords": "slagskibe,skibe,flåde,søværn,kort,logik,gitter,gåde,sonar",
+ "short_description": "Find en skjult flåde på et 5×5-kort ud fra række- og kolonnesummer.",
+ "description": "Find en lille flåde på et 5×5-kort: ét skib tre felter langt, ét to felter langt og ét skib på et felt. Ingen to skibe må røre hinanden, heller ikke diagonalt, og hver række- og kolonnesum skal passe.\n\nTryk på et felt for at markere et skib, tryk igen for en vandnotat og en gang til for at rydde det. De aktuelle og målsummer vises ved siden af hver række og kolonne.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

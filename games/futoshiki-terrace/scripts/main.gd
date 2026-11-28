@@ -5,6 +5,8 @@ const Rules = preload("res://scripts/rules.gd")
 const Progress = preload("res://scripts/progress.gd")
 const Motion = preload("res://scripts/motion.gd")
 const SETTINGS_PATH: String = "user://settings.json"
+const GAP: int = 14
+const BOARD_PX: int = 4 * 70 + 3 * 14
 
 # Tokens from DESIGN.md section 2 (drawn from the icon's olive, gold and ivory).
 const PAPER = Color("#F8F2DC")
@@ -31,6 +33,7 @@ var selected: int = -1
 var history: Array = []
 var cells: Array = []
 var grid: GridContainer
+var board_overlay: Control
 var board_holder: CenterContainer
 var heading: Label
 var inspector: Label
@@ -141,11 +144,21 @@ func _build_ui() -> void:
     column.add_child(heading)
     board_holder = CenterContainer.new()
     column.add_child(board_holder)
+    var board := Control.new()
+    board.custom_minimum_size = Vector2(BOARD_PX, BOARD_PX)
+    board_holder.add_child(board)
     grid = GridContainer.new()
     grid.columns = 4
-    grid.add_theme_constant_override("h_separation", 5)
-    grid.add_theme_constant_override("v_separation", 5)
-    board_holder.add_child(grid)
+    grid.add_theme_constant_override("h_separation", GAP)
+    grid.add_theme_constant_override("v_separation", GAP)
+    grid.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    board.add_child(grid)
+    board_overlay = Control.new()
+    board_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    board_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    board_overlay.draw.connect(_on_overlay_draw.bind(board_overlay))
+    board.add_child(board_overlay)
+    grid.resized.connect(board_overlay.queue_redraw)
     progress_label = _label("", 15)
     column.add_child(progress_label)
     inspector = _label("", 15)
@@ -181,7 +194,7 @@ func _build_ui() -> void:
     feedback = _label("", 14)
     column.add_child(feedback)
     column.add_child(_button("Copy this challenge", _share))
-    column.add_child(_label("A small → or ↓ inequality inside a square compares it with the adjacent square to its right or below. Select a square to read all its relationships.", 13))
+    column.add_child(_label("A chevron between two squares points toward the smaller number. Gold: not yet known. Green: satisfied. Red: broken. Select a square to read its relationships.", 13))
 
 func _load_level() -> void:
     level = Factory.make(int(state["level"]))
@@ -325,12 +338,10 @@ func _refresh() -> void:
         var entry: int = int(state["entries"][i])
         if entry > 0:
             filled += 1
-        var comparison: PackedStringArray = []
-        for relation in level["inequalities"]:
-            if int(relation[0]) == i:
-                comparison.append(("→" if int(relation[1]) == i + 1 else "↓") + str(relation[2]))
-        cell.text = (str(entry) if entry != 0 else "·") + ("\n" + " ".join(comparison) if not comparison.is_empty() else "")
-        cell.accessibility_description = ("Fixed clue" if fixed else "Editable") + ", value " + (str(entry) if entry > 0 else "empty")
+        var phrases: PackedStringArray = _relation_phrases(i)
+        cell.text = str(entry) if entry != 0 else "·"
+        cell.tooltip_text = "; ".join(phrases)
+        cell.accessibility_description = ("Fixed clue" if fixed else "Editable") + ", value " + (str(entry) if entry > 0 else "empty") + ("; " + "; ".join(phrases) if not phrases.is_empty() else "")
     progress_label.text = "%d of 16 numbers filled" % filled
     var connections: PackedStringArray = []
     for relation in level["inequalities"]:
@@ -350,6 +361,65 @@ func _refresh() -> void:
     undo_button.disabled = history.is_empty()
     next_button.disabled = not Progress.can_advance(state)
     prev_button.disabled = int(state["level"]) == 0
+    board_overlay.queue_redraw()
+
+## Chevrons drawn in the gap between each related pair, from the cells' live rects.
+func _on_overlay_draw(overlay: Control) -> void:
+    if cells.size() != 16:
+        return
+    var origin: Vector2 = overlay.get_global_rect().position
+    var values: Array = state["entries"]
+    for relation in level["inequalities"]:
+        var a: int = int(relation[0])
+        var b: int = int(relation[1])
+        var sign_text: String = str(relation[2])
+        var rect_a: Rect2 = cells[a].get_global_rect()
+        rect_a.position -= origin
+        var rect_b: Rect2 = cells[b].get_global_rect()
+        rect_b.position -= origin
+        var reach: float = 0.13 * rect_a.size.x  # half of ~26 % of the cell size
+        var depth: float = 5.5
+        var points := PackedVector2Array()
+        if b == a + 1:
+            var x: float = (rect_a.end.x + rect_b.position.x) / 2.0
+            var y: float = rect_a.get_center().y
+            var apex_x: float = x - depth if sign_text == "<" else x + depth
+            var back_x: float = x + depth if sign_text == "<" else x - depth
+            points = PackedVector2Array([Vector2(back_x, y - reach), Vector2(apex_x, y), Vector2(back_x, y + reach)])
+        else:
+            var cx: float = rect_a.get_center().x
+            var gap_y: float = (rect_a.end.y + rect_b.position.y) / 2.0
+            var apex_y: float = gap_y - depth if sign_text == "<" else gap_y + depth
+            var back_y: float = gap_y + depth if sign_text == "<" else gap_y - depth
+            points = PackedVector2Array([Vector2(cx - reach, back_y), Vector2(cx, apex_y), Vector2(cx + reach, back_y)])
+        var fill: Color = GOLD
+        var edge: Color = Color("#6E5414")
+        var va: int = int(values[a])
+        var vb: int = int(values[b])
+        if va != 0 and vb != 0:
+            if (va < vb) == (sign_text == "<"):
+                fill = SUCCESS
+                edge = Color("#1B3A0C")
+            else:
+                fill = ERROR
+                edge = Color("#5E2224")
+        overlay.draw_polyline(points, edge, 6.5, true)
+        overlay.draw_polyline(points, fill, 4.5, true)
+
+func _relation_phrases(index: int) -> PackedStringArray:
+    var phrases: PackedStringArray = []
+    for relation in level["inequalities"]:
+        var a: int = int(relation[0])
+        var b: int = int(relation[1])
+        var sign_text: String = str(relation[2])
+        if a == index:
+            phrases.append("%s %s" % ["less than" if sign_text == "<" else "greater than", _square_name(b)])
+        elif b == index:
+            phrases.append("%s %s" % ["greater than" if sign_text == "<" else "less than", _square_name(a)])
+    return phrases
+
+func _square_name(index: int) -> String:
+    return "row %d, column %d" % [int(index / 4) + 1, index % 4 + 1]
 
 func _save() -> void:
     if not Progress.save(state):

@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Finn den skjulte flåten",
+ "keywords": "slagskip,flåte,skip,marine,kart,logikk,rutenett,gåte,sonar",
+ "short_description": "Finn en skjult flåte på et 5×5-kart ved hjelp av rad- og kolonnesummer.",
+ "description": "Finn en liten flåte på et 5×5-kart: ett skip tre ruter langt, ett to ruter langt og ett skip på én rute. Ingen to skip kan berøre hverandre, heller ikke diagonalt, og hver rad- og kolonnesum må stemme.\n\nTrykk på en rute for å merke et skip, trykk igjen for et vannnotat og en gang til for å fjerne det. Gjeldende og måltall vises ved siden av hver rad og kolonne.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

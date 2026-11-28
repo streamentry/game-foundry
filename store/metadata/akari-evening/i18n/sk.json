@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Osvetlite všetky voľné polia",
+ "keywords": "osvetľovanie,lampy,logika,mriežka,čísla na stenách,hlavolam,logická hra",
+ "short_description": "Umiestnite lampy tak, aby svietilo každé voľné pole a žiadne dve sa nevideli.",
+ "description": "Na mriežku 4×4 umiestnite lampy tak, aby bolo osvetlené každé voľné políčko, žiadne dve lampy na seba nesvietili a každá očíslovaná stena sa dotýkala presne toľkých lámp, aké číslo nesie.\n\nKlepnutím na voľné políčko prepínate medzi lampou, poznámkou krížikom a prázdnym stavom. Osvetlené políčka sa zvýrazňujú, ako postupujete.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "ms",
+ "status": "machine translation — native review pending",
+ "subtitle": "Teka-teki nombor berturutan",
+ "keywords": "berturutan,segi empat latin,tanda tepi,jujukan,nombor,logik,grid,teka-teki",
+ "short_description": "Isi grid 4×4 apabila tanda menunjukkan jiran yang berturutan.",
+ "description": "Isi grid 4×4 dengan 1 hingga 4 supaya setiap digit muncul sekali dalam setiap baris dan lajur. Tepi yang bertanda antara dua segi empat bermakna digit mereka berturutan, dan tepi yang tidak bertanda bermakna tidak.\n\nPilih satu segi empat dan masukkan digit 1 hingga 4. Anak panah di dalam segi empat menunjukkan tepi bertanda di sebelah kanan dan bawah.\n\nEnam papan asal, setiap satu membuka papan seterusnya selepas diselesaikan. Buat asal dan Mula Semula sentiasa tersedia, tiada pemasa, dan kemajuan anda disimpan pada peranti ini. Dimainkan secara luar talian. Tiada iklan, tiada akaun, tiada pengumpulan data."
+}

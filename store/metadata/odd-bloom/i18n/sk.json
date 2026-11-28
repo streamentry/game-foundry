@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nájdite iný kvet",
+ "keywords": "kvet,vzor,vizuálne,logika,hľadanie rozdielov,hlavolam,štruktúra",
+ "short_description": "Nájdite kvet s inou štruktúrou.",
+ "description": "Nájdite jediný pôvodný kvet, ktorého štruktúra sa líši od ostatných. Plochy rastú od 6 do 16 kvetov počas dvanástich deterministických kôl. Klepnutím vyberiete, môžete sa vrátiť k skorším kolám, zopakovať vzor a postup sa ukladá v tomto zariadení. Nie je tu časovač, trest za skóre ani vynútená séria."
+}

@@ -3,18 +3,29 @@ extends Control
 const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/rules.gd")
 const Progress = preload("res://scripts/progress.gd")
+const Motion = preload("res://scripts/motion.gd")
 
 const MODE: String = "numberlink-paths"
 const TITLE: String = "Numberlink Paths"
-const PAPER: Color = Color("#FAF8F0")
-const INK: Color = Color("#28434D")
-const ACCENT: Color = Color("#255C75")
-const SECONDARY: Color = Color("#9D6749")
-const SOFT: Color = Color("#E5EEDF")
-const WHITE: Color = Color("#FFFFFF")
+const SETTINGS_PATH: String = "user://settings.json"
+# Design tokens (see games/numberlink-paths/DESIGN.md). Route A teal, route B amber, both from the icon.
+const PAPER: Color = Color("#FAF8F0")     # bg
+const WHITE: Color = Color("#FFFFFF")     # surface
+const SOFT: Color = Color("#DFEDEA")      # surface_alt
+const INK: Color = Color("#1D3F46")       # ink
+const MUTED: Color = Color("#4D6670")     # ink_muted
+const ACCENT: Color = Color("#1E5F68")    # accent, route A
+const SECONDARY: Color = Color("#A6520E") # route B, focus ring
+const SUCCESS: Color = Color("#2D6A4F")   # success
+const ERROR: Color = Color("#A23B2C")     # error, conflict outline
+const BORDER: Color = Color("#7A9493")    # idle cell and control outline
+const RADIUS: int = 12
 const CELL_SIDE: int = 76
 
 var state: Dictionary = {}
+var motion := Motion.new()
+var reduced_motion: bool = false
+var reduce_check: CheckButton
 var level: Dictionary = {}
 var history: Array = []
 var selected: int = -1
@@ -32,6 +43,8 @@ var prev_button: Button
 
 func _ready() -> void:
     state = Progress.load_saved()
+    reduced_motion = _load_reduced_motion()
+    motion.reduced_motion = reduced_motion
     var linked: int = _linked_level()
     if linked >= 0:
         Progress.set_level(state, linked)
@@ -63,21 +76,32 @@ func _label(value: String, px: int, color: Color = INK, center: bool = false) ->
         item.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     return item
 
-func _style(item: Button, background: Color, foreground: Color, active: bool = false) -> void:
-    var normal := StyleBoxFlat.new()
-    normal.bg_color = background
-    normal.border_color = ACCENT if active else Color("#B5C2BE")
-    normal.set_border_width_all(3 if active else 1)
-    normal.set_corner_radius_all(9)
-    for mode in ["normal", "hover", "pressed", "disabled"]:
-        item.add_theme_stylebox_override(mode, normal)
+func _box(background: Color, border: Color, width: int, raised: bool) -> StyleBoxFlat:
+    var box := StyleBoxFlat.new()
+    box.bg_color = background
+    box.border_color = border
+    box.set_border_width_all(width)
+    box.set_corner_radius_all(RADIUS)
+    # Subtle lift on resting surfaces only; pressed states sit flush.
+    box.shadow_color = Color(0.11, 0.25, 0.27, 0.16) if raised else Color(0, 0, 0, 0)
+    box.shadow_size = 4 if raised else 0
+    box.shadow_offset = Vector2(0, 2)
+    return box
+
+func _style(item: Button, background: Color, foreground: Color, active: bool = false, conflict: bool = false) -> void:
+    var border: Color = ERROR if conflict else (ACCENT if active else BORDER)
+    var width: int = 3 if (active or conflict) else 1
+    item.add_theme_stylebox_override("normal", _box(background, border, width, true))
+    item.add_theme_stylebox_override("hover", _box(background.darkened(0.05), border, width, true))
+    item.add_theme_stylebox_override("pressed", _box(background.darkened(0.12), border, width, false))
+    item.add_theme_stylebox_override("disabled", _box(background, border, width, false))
     var focus := StyleBoxFlat.new()
     focus.bg_color = Color.TRANSPARENT
     focus.border_color = SECONDARY
     focus.set_border_width_all(3)
-    focus.set_corner_radius_all(9)
+    focus.set_corner_radius_all(RADIUS)
     item.add_theme_stylebox_override("focus", focus)
-    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
+    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color"]:
         item.add_theme_color_override(mode, foreground)
 
 func _button(value: String, callback: Callable, primary: bool = false) -> Button:
@@ -156,6 +180,15 @@ func _build_ui() -> void:
     nav.add_child(prev_button)
     nav.add_child(next_button)
     column.add_child(nav)
+    reduce_check = CheckButton.new()
+    reduce_check.text = "Reduce motion"
+    reduce_check.accessibility_name = "Reduce motion"
+    reduce_check.custom_minimum_size = Vector2(0, 54)
+    reduce_check.add_theme_font_size_override("font_size", 16)
+    reduce_check.add_theme_color_override("font_color", INK)
+    reduce_check.set_pressed_no_signal(reduced_motion)
+    reduce_check.toggled.connect(set_reduced_motion)
+    column.add_child(reduce_check)
     column.add_child(_button("Copy this challenge", _share))
     column.add_child(_label("Independent rules, no timer, no account, no ads or tracking. Mobile accessibility needs a real-device check.", 13))
 
@@ -203,14 +236,17 @@ func _load_level() -> void:
         for index in range(n * n):
             _add_cell(index)
     _refresh()
+    motion.stagger_in(cells)
 
 func _tap(index: int) -> void:
     if int(Rules.blank(level)[index]) != 0:
         return
+    motion.press(cells[index])
     if MODE in ["kropki-pairs", "ripple-rooms"]:
         selected = index
         _refresh()
         return
+    var before: Array = _route_states(state["entries"])
     history.append(state["entries"].duplicate())
     if history.size() > 60:
         history.pop_front()
@@ -220,6 +256,51 @@ func _tap(index: int) -> void:
         return
     _save()
     _refresh()
+    _animate_change(index, before)
+
+## Which routes (colour 1 and 2) currently form a complete single path.
+func _route_states(entries: Array) -> Array:
+    return [Rules.route_complete(level, entries, 1), Rules.route_complete(level, entries, 2)]
+
+## Feedback after a placed mark. Game state is already final; this only animates it.
+## Solved: sweep the whole board and celebrate. Branch: shake the cell. A route newly
+## closed: seal it with a wave that runs along the line in path order.
+func _animate_change(index: int, before: Array) -> void:
+    var cell: Control = cells[index]
+    motion.pop(cell)
+    if Rules.complete(level, state["entries"]):
+        motion.sweep(cells, Color(1.0, 0.97, 0.88))
+        motion.celebrate(self, grid.get_global_rect().get_center(), [ACCENT, SUCCESS, SECONDARY])
+        return
+    if Rules.branches_at(level, state["entries"], index):
+        motion.shake(cell)
+        return
+    var after: Array = _route_states(state["entries"])
+    for color in [1, 2]:
+        if after[color - 1] and not before[color - 1]:
+            var glow := Color(0.80, 0.92, 0.90) if color == 1 else Color(1.0, 0.86, 0.70)
+            motion.sweep(_route_cells(color), glow)
+
+## Cells of one route in path order, starting at its first endpoint.
+func _route_cells(color: int) -> Array:
+    var entries: Array = state["entries"]
+    var here: int = -1
+    for pair in level["endpoints"]:
+        if int(pair[1]) == color:
+            here = int(pair[0])
+            break
+    var ordered: Array = []
+    var seen: Dictionary = {}
+    while here >= 0:
+        ordered.append(cells[here])
+        seen[here] = true
+        var next_cell: int = -1
+        for other in Rules.neighbors(here):
+            if int(entries[other]) == color and not seen.has(other):
+                next_cell = other
+                break
+        here = next_cell
+    return ordered
 
 func _enter(value: int) -> void:
     if MODE not in ["kropki-pairs", "ripple-rooms"]:
@@ -247,6 +328,7 @@ func _restart() -> void:
     state["entries"] = Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 func _next() -> void:
     if not Progress.can_advance(state):
@@ -254,6 +336,7 @@ func _next() -> void:
     Progress.set_level(state, int(state["level"]) + 1)
     _save()
     _load_level()
+    motion.slide_swap(grid, 1)
 
 func _previous() -> void:
     if int(state["level"]) <= 0:
@@ -261,6 +344,7 @@ func _previous() -> void:
     Progress.set_level(state, int(state["level"]) - 1)
     _save()
     _load_level()
+    motion.slide_swap(grid, -1)
 
 func _lookup_fixed(index: int) -> bool:
     return int(Rules.blank(level)[index]) != 0
@@ -325,6 +409,7 @@ func _refresh() -> void:
         int(state["level"]) + 1, Factory.COUNT, str(level["name"])]
     var filled: int = 0
     var ships: int = 0
+    var conflicts: int = 0
     var current_rows: Array = [0,0,0,0,0]
     var current_cols: Array = [0,0,0,0,0]
     for index in range(cells.size()):
@@ -340,7 +425,10 @@ func _refresh() -> void:
         item.disabled = fixed
         item.text = _cell_caption(index, value)
         var colors: Array = _cell_colors(index, value)
-        _style(item, colors[0], colors[1], index == selected and MODE in ["kropki-pairs","ripple-rooms"])
+        var conflict: bool = MODE == "numberlink-paths" and Rules.branches_at(level, state["entries"], index)
+        if conflict:
+            conflicts += 1
+        _style(item, colors[0], colors[1], index == selected and MODE in ["kropki-pairs","ripple-rooms"], conflict)
         item.accessibility_name = "Row %d, column %d, %s%s" % [
             int(index / n) + 1, index % n + 1,
             "fixed " if fixed else "editable ", item.text.replace("\n", " ")]
@@ -376,6 +464,7 @@ func _refresh() -> void:
     else:
         info_label.text = "Changes are reversible. No precision swipe is required."
     status_label.text = Rules.status(level, state["entries"])
+    status_label.add_theme_color_override("font_color", ERROR if conflicts > 0 else INK)
     undo_button.disabled = history.is_empty()
     next_button.disabled = not Progress.can_advance(state)
     prev_button.disabled = int(state["level"]) == 0
@@ -383,6 +472,31 @@ func _refresh() -> void:
 func _save() -> void:
     if not Progress.save(state):
         push_warning(TITLE + " could not save progress locally.")
+
+## Reduce-motion preference lives in its own settings file; progress format is untouched.
+func _load_reduced_motion() -> bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return false
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return false
+    var parser := JSON.new()
+    if parser.parse(file.get_as_text()) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+        return false
+    var value: Variant = (parser.data as Dictionary).get("reduced_motion", false)
+    return typeof(value) == TYPE_BOOL and bool(value)
+
+func set_reduced_motion(on: bool) -> void:
+    reduced_motion = on
+    motion.reduced_motion = on
+    if reduce_check != null:
+        reduce_check.set_pressed_no_signal(on)
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning(TITLE + " could not save the motion setting.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": on}))
+    file.close()
 
 func _share() -> void:
     var message: String = TITLE + ": can you solve puzzle %d?" % (int(state["level"]) + 1)

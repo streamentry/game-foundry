@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Saaret ja meri -pulmat",
+ "keywords": "saaret,meri,maa,yhtenäinen,logiikka,numero,ruudukko,palapeli,vesi",
+ "short_description": "Lajittele 4×4-lahti mereen ja tarkkaan mitoitettuihin saariin.",
+ "description": "Merkitse jokainen 4×4-lahden ruutu mereksi tai maaksi. Jokaisen numeroidun saaren koko on tasan niin monta ruutua, ja siinä on yksi vihje; meri muodostaa yhden yhtenäisen alueen, eikä mikään 2×2-lohko saa olla pelkkää merta.\n\nNapauta tyhjää ruutua vaihtaaksesi meren, maan ja tyhjän välillä. Vihjeruudut ovat kiinteitä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

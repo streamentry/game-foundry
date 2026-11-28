@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Számold, amit látsz",
+ "keywords": "kurodoko,láthatóság,látóvonal,fekete fehér,árnyék,logika,szám,rács,rejtvény",
+ "short_description": "Árnyékolj úgy, hogy minden szám pontosan annyi fehér mezőt lásson.",
+ "description": "Árnyékolj néhány négyzetet feketére úgy, hogy a fekete négyzetek ne érintsenek egymást élük mentén, az összes fehér négyzet pedig összefüggő maradjon. Minden számozott négyzet a sorában és oszlopában látható fehér négyzeteket számolja, saját magát is beleértve, és ennek egyeznie kell a számmal.\n\nKoppints egy üres négyzetre a fekete, fehér és ismeretlen állapot közötti váltáshoz. A számozott mezők rögzítettek, a képernyőn lévő szöveg pedig megmondja, mely látóvonalak vagy kapcsolatok sértik a szabályokat.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Gåter med prikkledetråder",
+ "keywords": "prikker,svart prikk,hvit prikk,etterfølgende,forhold,latinsk kvadrat,tall,logikk",
+ "short_description": "Fyll et 4×4-rutenett med 1 til 4, veiledet av hvite og svarte prikker.",
+ "description": "Fyll et 4×4-rutenett med 1 til 4 slik at hvert siffer forekommer én gang i hver rad og kolonne. En hvit prikk mellom to ruter betyr at sifrene er etterfølgende; en svart prikk betyr at det ene sifferet er nøyaktig dobbelt så stort som det andre. Kanter uten prikk har ingen ledetråd.\n\nTrykk på en redigerbar rute og deretter på et siffer på den store firetastersblokken. Etiketter inne i rutene og en inspektør hjelper deg å lese hver prikk.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

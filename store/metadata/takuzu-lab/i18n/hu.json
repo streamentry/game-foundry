@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Napi bináris rejtvények",
+ "keywords": "bináris,binairo,logika,számrejtvény,napi,rács",
+ "short_description": "Oldj meg bináris rácsokat tippekkel és helyi haladással.",
+ "description": "Játssz a napi 4×4-es Takuzu-rejtvénnyel, vagy válassz szabad 4×4-es és 6×6-os táblát. A sorok és oszlopok legyenek kiegyensúlyozottak, ne legyen három azonos szám egymás mellett, és ne legyen két azonos kész sor. Használj tippeket, visszavonást, ismétlést és újrakezdést. A haladás helyben mentődik."
+}

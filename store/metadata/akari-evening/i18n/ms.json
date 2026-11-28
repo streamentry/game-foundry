@@ -1,0 +1,8 @@
+{
+ "lang": "ms",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nyalakan setiap sel terbuka",
+ "keywords": "lampu,mentol,menyala,cahaya,logik,grid,teka-teki,nombor dinding",
+ "short_description": "Letakkan lampu supaya setiap sel terbuka terang dan tiada lampu saling nampak.",
+ "description": "Letakkan lampu pada papan 4×4 supaya setiap sel terbuka terang, tiada dua lampu saling menyinari, dan setiap dinding bernombor bersentuhan tepat dengan bilangan lampu itu.\n\nKetik sel terbuka untuk bertukar antara lampu, nota silang dan kosong; sel yang terang akan diserlahkan semasa anda bermain.\n\nEnam papan asal, setiap satu membuka papan seterusnya selepas diselesaikan. Buat asal dan Mula Semula sentiasa tersedia, tiada pemasa, dan kemajuan anda disimpan pada peranti ini. Dimainkan secara luar talian. Tiada iklan, tiada akaun, tiada pengumpulan data."
+}

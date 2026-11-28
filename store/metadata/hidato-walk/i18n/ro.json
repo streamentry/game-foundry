@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle-uri cu trasee de numere",
+ "keywords": "hidoku,traseu numeric,lanț,consecutiv,secvență,grilă,logică,puzzle",
+ "short_description": "Așază 1 până la 16 într-un lanț în care fiecare număr atinge următorul.",
+ "description": "Așază numerele 1 la 16 pe o grilă 4×4, fiecare exact o dată, astfel încât fiecare pereche consecutivă să se atingă pe orizontală, verticală sau diagonală. Numerele deja date trebuie să rămână pe loc.\n\nAtinge o celulă editabilă și alege un număr de pe tastatură. Șterge golește o celulă.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

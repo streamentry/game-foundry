@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Suorakulmiologiikkapulma",
+ "keywords": "suorakulmio,numeropulma,logiikka,ruudukko,pinta-ala,geometria",
+ "short_description": "Jaa ruudukko suorakulmioihin, joiden koko vastaa vihjeitä.",
+ "description": "Jaa ruudukko suorakulmioihin. Jokaisen suorakulmion on pysyttävä laudan sisällä, sisällettävä täsmälleen yksi vihje ja peitettävä niin monta ruutua kuin vihje osoittaa. Ratkaise kahdeksan alkuperäistä lautaa napauttamalla kulmia valitaksesi, käyttäen kumoa-, aloita alusta-, avautuvaa etenemistä ja paikallisia tallennuksia. Ajastinta ei ole."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Varjosta toistuvat numerot",
+ "keywords": "varjostus,kaksoiskappaleet,toistuvat numerot,yhtenäinen,logiikka,numero,ruudukko,palapeli",
+ "short_description": "Varjosta toistuvat numerot rikkomatta laudan yhtenäisyyttä.",
+ "description": "Varjosta ruutuja niin, että mikään numero ei esiinny useammin kuin kerran minkään rivin tai sarakkeen varjostamattomissa ruuduissa. Varjostetut ruudut eivät saa koskettaa toisiaan reunoja pitkin, ja kaikkien varjostamattomien ruutujen on pysyttävä yhtenä ryhmänä.\n\nNapauta numeroitua ruutua vaihtaaksesi varjostuksen, merkinnän ja merkitsemättömän välillä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

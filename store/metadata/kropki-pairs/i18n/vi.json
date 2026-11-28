@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố số với gợi ý chấm",
+ "keywords": "chấm,chấm đen,chấm trắng,liên tiếp,tỉ lệ,hình vuông latin,số,logic",
+ "short_description": "Điền lưới 4×4 bằng 1 đến 4, theo gợi ý từ các chấm trắng và đen.",
+ "description": "Điền các số 1 đến 4 vào lưới 4×4 sao cho mỗi chữ số xuất hiện một lần trong mỗi hàng và cột. Chấm trắng giữa hai ô nghĩa là hai chữ số liên tiếp; chấm đen nghĩa là một số gấp đôi số kia. Cạnh không có chấm thì không có gợi ý.\n\nChạm vào một ô có thể chỉnh sửa, rồi chọn một chữ số trên bàn phím bốn nút lớn. Nhãn trong các ô và bảng kiểm tra giúp bạn đọc từng chấm.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

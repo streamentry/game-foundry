@@ -1,0 +1,8 @@
+{
+ "lang": "sl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Vsako črto enkrat uporabi",
+ "keywords": "graf,trasa,uganka povezav,poveži pike,eulerjeva veriga,logika",
+ "short_description": "Načrtuj pot, ki uporabi vsako povezavo natanko enkrat.",
+ "description": "Vsako vidno povezavo uporabi natanko enkrat. Lahko se vračaš k pikam; križišča brez pike niso odcepi. Reši osem izvirnih grafičnih plošč tako, da slediš poti ali tapaš velike tipke s pikami. Razveljavi, ponastavi, se vrni k prejšnjim ploščam in nadaljuj lokalno traso ter odklenjen napredek."
+}

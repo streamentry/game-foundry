@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố nhị phân hằng ngày",
+ "keywords": "nhị phân,binairo,logic,câu đố số,hằng ngày,lưới",
+ "short_description": "Giải lưới nhị phân với gợi ý và tiến trình cục bộ.",
+ "description": "Chơi câu đố Takuzu 4×4 hằng ngày hoặc các bảng tự do 4×4 và 6×6. Mỗi hàng và cột phải cân bằng, không có ba số giống nhau liên tiếp trong một hàng, và không có dòng hoàn chỉnh nào trùng lặp. Dùng gợi ý, hoàn tác, làm lại và chơi lại. Tiến trình được lưu cục bộ."
+}

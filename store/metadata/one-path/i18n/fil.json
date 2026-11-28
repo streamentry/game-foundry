@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Isang beses ang bawat linya",
+ "keywords": "graph,ruta,palaisipan sa gilid,ikonekta ang tuldok,landas ni Euler,lohika",
+ "short_description": "Magplano ng ruta na gumagamit ng bawat koneksyon nang isang beses.",
+ "description": "Gamitin nang eksaktong isang beses ang bawat nakikitang koneksyon. Maaari kang dumaan muli sa mga tuldok; ang mga tawiran na walang tuldok ay hindi junction. Lutasin ang walong orihinal na graph board sa pamamagitan ng pag-trace o pag-tap sa malalaking button ng tuldok. Maaaring i-undo, i-restart, balikan ang mga naunang board, at ipagpatuloy ang lokal mong ruta at mga nabuksang progreso."
+}

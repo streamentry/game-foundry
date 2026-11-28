@@ -1,0 +1,8 @@
+{
+ "lang": "pl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Łamigłówki z kropkami",
+ "keywords": "kropki,czarna kropka,biała kropka,kolejne,stosunek,kwadrat łaciński,liczby,logika",
+ "short_description": "Wypełnij siatkę 4×4 cyframi 1–4, kierując się białymi i czarnymi kropkami.",
+ "description": "Wypełnij siatkę 4×4 cyframi od 1 do 4 tak, aby każda cyfra pojawiała się raz w każdym wierszu i kolumnie. Biała kropka między dwoma polami oznacza, że cyfry są kolejne; czarna kropka oznacza, że jedna z nich jest dokładnie dwa razy większa od drugiej. Krawędzie bez kropki nie zawierają wskazówki.\n\nDotknij edytowalnego pola, a następnie cyfry na dużej klawiaturze z czterema klawiszami. Etykiety w polach i inspektor pomagają odczytać każdą kropkę.\n\nSześć oryginalnych plansz; każda kolejna odblokowuje się po rozwiązaniu poprzedniej. Cofnij i Zacznij od nowa są zawsze dostępne, nie ma zegara, a Twój postęp zapisuje się na tym urządzeniu. Działa offline. Bez reklam, bez konta, bez zbierania danych."
+}

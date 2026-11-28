@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Szavak mindkét irányban",
+ "keywords": "keresztrejtvény,betűk,rács,szókincs,helyesírás,nyelv,szimmetria,rejtvény,angol",
+ "short_description": "Rendezz három angol szót úgy, hogy sorok és oszlopok egyezzenek.",
+ "description": "Rendezz három angol, 3 betűs szót 3×3-as négyzetbe úgy, hogy minden oszlop ugyanazt a szót olvassa, mint a megfelelő sor.\n\nKoppints a még le nem helyezett szókártyákra felülről lefelé; a tábla minden sort megmutat, amint elhelyezed.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

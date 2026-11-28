@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tæl det du kan se",
+ "keywords": "kurodoko,sigtelinje,udsyn,sort hvid,skravér,logik,tal,gitter",
+ "short_description": "Skravér felter, så hvert tal ser præcis så mange hvide felter, som det angiver.",
+ "description": "Gør nogle felter sorte, så sorte felter aldrig deler en kant, og alle hvide felter forbliver sammenhængende. Hvert nummereret felt tæller de hvide felter, det kan se i sin række og kolonne, inklusive sig selv, og tallet skal passe.\n\nTryk på et tomt felt for at skifte mellem sort, hvid og ukendt. Nummererede ledetråde står fast, og teksten på skærmen fortæller, hvilke sigtelinjer eller forbindelser der bryder reglerne.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

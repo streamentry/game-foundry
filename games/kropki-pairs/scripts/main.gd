@@ -3,17 +3,28 @@ extends Control
 const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/rules.gd")
 const Progress = preload("res://scripts/progress.gd")
+const Motion = preload("res://scripts/motion.gd")
+const DotOverlay = preload("res://scripts/dot_overlay.gd")
 
 const MODE: String = "kropki-pairs"
 const TITLE: String = "Kropki Pairs"
-const PAPER: Color = Color("#F7F7F5")
-const INK: Color = Color("#24364D")
-const ACCENT: Color = Color("#5268A5")
+const PAPER: Color = Color("#F3F4F8")
+const INK: Color = Color("#242949")
+const INK_MUTED: Color = Color("#4A5170")
+const ACCENT: Color = Color("#4D547F")
 const SECONDARY: Color = Color("#896C49")
-const SOFT: Color = Color("#E6ECF7")
+const FOCUS: Color = Color("#9A6A00")
+const GOLD: Color = Color("#EABB3A")
+const SUCCESS: Color = Color("#1E6B55")
+const ERROR: Color = Color("#A3322E")
+const SOFT: Color = Color("#E3E7F2")
 const WHITE: Color = Color("#FFFFFF")
 const CELL_SIDE: int = 76
+const SETTINGS_PATH: String = "user://settings.json"
 
+var motion := Motion.new()
+var dot_overlay = null
+var reduced_motion_pref: bool = false
 var state: Dictionary = {}
 var level: Dictionary = {}
 var history: Array = []
@@ -32,11 +43,40 @@ var prev_button: Button
 
 func _ready() -> void:
     state = Progress.load_saved()
+    _load_settings()
+    motion.reduced_motion = reduced_motion_pref
     var linked: int = _linked_level()
     if linked >= 0:
         Progress.set_level(state, linked)
     _build_ui()
     _load_level()
+
+func _load_settings() -> void:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return
+    var parser := JSON.new()
+    if parser.parse(file.get_as_text()) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+        return
+    var stored: Variant = parser.data.get("reduced_motion", false)
+    if typeof(stored) == TYPE_BOOL:
+        reduced_motion_pref = stored
+
+func _save_settings() -> bool:
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        return false
+    file.store_string(JSON.stringify({"reduced_motion": reduced_motion_pref}))
+    file.close()
+    return true
+
+func _set_reduced_motion(on: bool) -> void:
+    reduced_motion_pref = on
+    motion.reduced_motion = on
+    if not _save_settings():
+        push_warning(TITLE + " could not save the motion setting.")
 
 func _linked_level() -> int:
     if not OS.has_feature("web"):
@@ -63,22 +103,40 @@ func _label(value: String, px: int, color: Color = INK, center: bool = false) ->
         item.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     return item
 
-func _style(item: Button, background: Color, foreground: Color, active: bool = false) -> void:
-    var normal := StyleBoxFlat.new()
-    normal.bg_color = background
-    normal.border_color = ACCENT if active else Color("#B5C2BE")
-    normal.set_border_width_all(3 if active else 1)
-    normal.set_corner_radius_all(9)
-    for mode in ["normal", "hover", "pressed", "disabled"]:
-        item.add_theme_stylebox_override(mode, normal)
+func _box(fill: Color, border: Color, border_px: int, radius: int, shadow: int) -> StyleBoxFlat:
+    var box := StyleBoxFlat.new()
+    box.bg_color = fill
+    box.border_color = border
+    box.set_border_width_all(border_px)
+    box.set_corner_radius_all(radius)
+    if shadow > 0:
+        box.shadow_color = Color(INK, 0.25)
+        box.shadow_size = shadow
+        box.shadow_offset = Vector2(0, 2)
+    return box
+
+## Distinct normal / hover / pressed / focus / disabled looks. Raised surfaces (primary
+## buttons, the selected cell) get a soft shadow; the pressed state drops it.
+func _style(item: Button, background: Color, foreground: Color, active: bool = false, raised: bool = false) -> void:
+    var border: Color = ACCENT if active else Color("#B5C2BE")
+    var border_px: int = 3 if active else 1
+    var radius: int = 12 if raised else 10
+    var shadow: int = 4 if (raised or active) else 0
+    item.add_theme_stylebox_override("normal", _box(background, border, border_px, radius, shadow))
+    item.add_theme_stylebox_override("hover", _box(background.darkened(0.06), border, border_px, radius, shadow))
+    item.add_theme_stylebox_override("pressed", _box(background.darkened(0.12), border, border_px, radius, 0))
+    item.add_theme_stylebox_override("disabled", _box(background, border, border_px, radius, shadow))
     var focus := StyleBoxFlat.new()
     focus.bg_color = Color.TRANSPARENT
-    focus.border_color = SECONDARY
+    focus.border_color = FOCUS
     focus.set_border_width_all(3)
-    focus.set_corner_radius_all(9)
+    focus.set_corner_radius_all(radius)
     item.add_theme_stylebox_override("focus", focus)
-    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
-        item.add_theme_color_override(mode, foreground)
+    item.add_theme_color_override("font_color", foreground)
+    item.add_theme_color_override("font_hover_color", foreground)
+    item.add_theme_color_override("font_pressed_color", foreground)
+    item.add_theme_color_override("font_focus_color", foreground)
+    item.add_theme_color_override("font_disabled_color", foreground)
 
 func _button(value: String, callback: Callable, primary: bool = false) -> Button:
     var item := Button.new()
@@ -87,7 +145,7 @@ func _button(value: String, callback: Callable, primary: bool = false) -> Button
     item.custom_minimum_size = Vector2(0, 54)
     item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     item.add_theme_font_size_override("font_size", 16)
-    _style(item, ACCENT if primary else SOFT, WHITE if primary else INK)
+    _style(item, ACCENT if primary else SOFT, WHITE if primary else INK, false, primary)
     item.pressed.connect(callback)
     return item
 
@@ -117,15 +175,15 @@ func _build_ui() -> void:
     margin.add_child(column)
     column.add_child(_label("KROPKI PAIRS / DOT LOGIC", 12, ACCENT))
     column.add_child(_label("Numbers in conversation.", 28))
-    column.add_child(_label("Each row and column uses 1–4 once. W between squares means consecutive; B means one number exactly doubles the other.", 15))
+    column.add_child(_label("Each row and column uses 1–4 once. A white dot between squares means consecutive numbers; a black dot means one number exactly doubles the other.", 15))
     heading = _label("", 16)
     column.add_child(heading)
     var centered := CenterContainer.new()
     centered.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     column.add_child(centered)
     grid = GridContainer.new()
-    grid.add_theme_constant_override("h_separation", 4)
-    grid.add_theme_constant_override("v_separation", 4)
+    grid.add_theme_constant_override("h_separation", 14)
+    grid.add_theme_constant_override("v_separation", 14)
     centered.add_child(grid)
     progress_label = _label("", 15)
     column.add_child(progress_label)
@@ -142,7 +200,7 @@ func _build_ui() -> void:
         for digit in range(1, 5):
             keypad.add_child(_button(str(digit), _enter.bind(digit), true))
         column.add_child(keypad)
-    column.add_child(_label("Arrows show which neighboring square a dot refers to. Unmarked edges have no constraint in this beginner variant.", 14))
+    column.add_child(_label("Each dot sits between the two squares it links. Edges without a dot have no constraint in this beginner variant.", 14, INK_MUTED))
     var actions := _row()
     undo_button = _button("Undo", _undo)
     actions.add_child(undo_button)
@@ -150,6 +208,17 @@ func _build_ui() -> void:
         actions.add_child(_button("Erase", _enter.bind(0)))
     actions.add_child(_button("Restart", _restart))
     column.add_child(actions)
+    var motion_toggle := CheckButton.new()
+    motion_toggle.text = "Reduce motion"
+    motion_toggle.custom_minimum_size = Vector2(0, 48)
+    motion_toggle.add_theme_font_size_override("font_size", 16)
+    motion_toggle.add_theme_color_override("font_color", INK)
+    motion_toggle.add_theme_color_override("font_hover_color", INK)
+    motion_toggle.add_theme_color_override("font_pressed_color", INK)
+    motion_toggle.add_theme_color_override("font_focus_color", INK)
+    motion_toggle.button_pressed = reduced_motion_pref
+    motion_toggle.toggled.connect(_set_reduced_motion)
+    column.add_child(motion_toggle)
     var nav := _row()
     prev_button = _button("Previous", _previous)
     next_button = _button("Next puzzle", _next, true)
@@ -157,7 +226,45 @@ func _build_ui() -> void:
     nav.add_child(next_button)
     column.add_child(nav)
     column.add_child(_button("Copy this challenge", _share))
-    column.add_child(_label("Independent rules, no timer, no account, no ads or tracking. Mobile accessibility needs a real-device check.", 13))
+    column.add_child(_label("Independent rules, no timer, no account, no ads or tracking. Mobile accessibility needs a real-device check.", 13, INK_MUTED))
+    dot_overlay = DotOverlay.new()
+    dot_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    dot_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(dot_overlay)
+    grid.resized.connect(dot_overlay.queue_redraw)
+    scroll.get_v_scroll_bar().value_changed.connect(_on_scrolled)
+
+func _on_scrolled(_value: float) -> void:
+    dot_overlay.queue_redraw()
+
+func _update_overlay() -> void:
+    if MODE != "kropki-pairs":
+        return
+    dot_overlay.cells = cells
+    dot_overlay.dots = level["dots"]
+    dot_overlay.entries = state["entries"]
+    dot_overlay.queue_redraw()
+
+## Plain-words relation for one cell, used for tooltip and screen readers.
+func _relation_text(index: int) -> String:
+    var parts: PackedStringArray = []
+    for dot in level["dots"]:
+        var a: int = int(dot[0])
+        var b: int = int(dot[1])
+        if index != a and index != b:
+            continue
+        var other: int = b if index == a else a
+        var direction: String = "below"
+        if other == index + 1:
+            direction = "to the right"
+        elif other == index - 1:
+            direction = "to the left"
+        elif other < index:
+            direction = "above"
+        var colour: String = "white dot" if str(dot[2]) == "W" else "black dot"
+        var meaning: String = "consecutive" if str(dot[2]) == "W" else "double"
+        parts.append("%s %s: %s" % [colour, direction, meaning])
+    return "; ".join(parts)
 
 func _clue() -> Label:
     var item := _label("", 14, INK, true)
@@ -203,12 +310,16 @@ func _load_level() -> void:
         for index in range(n * n):
             _add_cell(index)
     _refresh()
+    motion.stagger_in(cells)
+    # Cell rects are only final after the first layout pass; redraw the dot overlay then.
+    dot_overlay.call_deferred("queue_redraw")
 
 func _tap(index: int) -> void:
     if int(Rules.blank(level)[index]) != 0:
         return
     if MODE in ["kropki-pairs", "ripple-rooms"]:
         selected = index
+        motion.press(cells[index])
         _refresh()
         return
     history.append(state["entries"].duplicate())
@@ -232,8 +343,56 @@ func _enter(value: int) -> void:
     if not Progress.update(state, selected, value):
         history.pop_back()
         return
+    var before: Array = history.back()
+    var placed: Control = cells[selected]
     _save()
     _refresh()
+    motion.pop(placed)
+    if value != 0 and _conflicted(state["entries"]) and not _conflicted(before):
+        motion.shake(placed)
+    _sweep_new_seals(before, state["entries"])
+    if Rules.complete(level, state["entries"]) and not Rules.complete(level, before):
+        _celebrate()
+
+func _conflicted(entries: Array) -> bool:
+    return Rules.status(level, entries).begins_with("Repeated")
+
+## A row or column is "sealed" when all four squares hold distinct values 1-4.
+## Returns {"r0".."r3", "c0".."c3": Array of cell indices} for every sealed line.
+func _sealed_lines(entries: Array) -> Dictionary:
+    var lines: Dictionary = {}
+    for k in range(4):
+        var row: Array = [k * 4, k * 4 + 1, k * 4 + 2, k * 4 + 3]
+        var col: Array = [k, k + 4, k + 8, k + 12]
+        if _is_sealed(entries, row):
+            lines["r%d" % k] = row
+        if _is_sealed(entries, col):
+            lines["c%d" % k] = col
+    return lines
+
+func _is_sealed(entries: Array, indices: Array) -> bool:
+    var seen: Dictionary = {}
+    for i in indices:
+        var v: int = int(entries[i])
+        if v == 0 or seen.has(v):
+            return false
+        seen[v] = true
+    return true
+
+func _sweep_new_seals(before: Array, after: Array) -> void:
+    var was: Dictionary = _sealed_lines(before)
+    var now: Dictionary = _sealed_lines(after)
+    for key in now:
+        if was.has(key):
+            continue
+        var group: Array = []
+        for i in now[key]:
+            group.append(cells[i])
+        motion.sweep(group, GOLD)
+
+func _celebrate() -> void:
+    motion.sweep(cells, GOLD)
+    motion.celebrate(self, grid.get_global_rect().get_center(), [ACCENT, SUCCESS, WHITE])
 
 func _undo() -> void:
     if history.is_empty():
@@ -247,6 +406,7 @@ func _restart() -> void:
     state["entries"] = Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 func _next() -> void:
     if not Progress.can_advance(state):
@@ -254,6 +414,7 @@ func _next() -> void:
     Progress.set_level(state, int(state["level"]) + 1)
     _save()
     _load_level()
+    motion.slide_swap(grid, 1)
 
 func _previous() -> void:
     if int(state["level"]) <= 0:
@@ -261,6 +422,7 @@ func _previous() -> void:
     Progress.set_level(state, int(state["level"]) - 1)
     _save()
     _load_level()
+    motion.slide_swap(grid, -1)
 
 func _lookup_fixed(index: int) -> bool:
     return int(Rules.blank(level)[index]) != 0
@@ -269,12 +431,7 @@ func _cell_caption(index: int, value: int) -> String:
     if MODE == "numberlink-paths":
         return ("A" if value == 1 else ("B" if value == 2 else "·")) + ("\n● END" if _lookup_fixed(index) else "")
     if MODE == "kropki-pairs":
-        var arrows: PackedStringArray = []
-        for dot in level["dots"]:
-            if int(dot[0]) == index:
-                var symbol: String = "→" if int(dot[1]) == index + 1 else "↓"
-                arrows.append(symbol + str(dot[2]))
-        return (str(value) if value > 0 else "·") + ("\n" + " ".join(arrows) if not arrows.is_empty() else "")
+        return str(value) if value > 0 else "·"
     if MODE == "ripple-rooms":
         var region: int = 0
         var size: int = 0
@@ -347,6 +504,11 @@ func _refresh() -> void:
         item.accessibility_description = (
             "Tap to select, then use keypad" if MODE in ["kropki-pairs","ripple-rooms"]
             else "Tap to cycle marks; fixed endpoints or numbered clues cannot change")
+        if MODE == "kropki-pairs":
+            var relation: String = _relation_text(index)
+            item.tooltip_text = relation
+            if relation != "":
+                item.accessibility_description += ". " + relation
     if MODE == "battleship-harbor":
         for i in range(5):
             top_counts[i].text = "%d/%d" % [int(current_cols[i]), int(level["cols"][i])]
@@ -375,10 +537,18 @@ func _refresh() -> void:
             int(selected / 4) + 1, selected % 4 + 1, room_name]
     else:
         info_label.text = "Changes are reversible. No precision swipe is required."
-    status_label.text = Rules.status(level, state["entries"])
+    _update_overlay()
+    var status_text: String = Rules.status(level, state["entries"])
+    var sealed_count: int = _sealed_lines(state["entries"]).size()
+    if sealed_count > 0 and not Rules.complete(level, state["entries"]):
+        status_text += " %d row or column sealed." % sealed_count
+    status_label.text = status_text
     undo_button.disabled = history.is_empty()
+    undo_button.modulate.a = 0.5 if undo_button.disabled else 1.0
     next_button.disabled = not Progress.can_advance(state)
+    next_button.modulate.a = 0.5 if next_button.disabled else 1.0
     prev_button.disabled = int(state["level"]) == 0
+    prev_button.modulate.a = 0.5 if prev_button.disabled else 1.0
 
 func _save() -> void:
     if not Progress.save(state):

@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Palaisipang hugis-parihaba",
+ "keywords": "parihaba,numero,lohika,grid,lawak,heometriya",
+ "short_description": "Hatiin ang grid sa mga parihabang tugma sa laki ng bawat clue.",
+ "description": "Hatiin ang grid sa mga parihaba. Bawat parihaba ay dapat nasa loob ng board, maglaman ng eksaktong isang clue, at sakupin ang bilang ng cell na ipinapakita ng clue na iyon. Lutasin ang walong orihinal na board gamit ang pag-tap sa sulok para pumili, undo, restart, unti-unting pagbubukas ng progreso, at lokal na pag-save. Walang timer."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Riješi ukrštene zbrojeve",
+ "keywords": "ukršteni brojevi,zbrojevi,logika,aritmetika,mreža,zagonetka",
+ "short_description": "Riješi ukrštene zbrojeve uz jasan pregled odabranog polja.",
+ "description": "Popuni svaki Kakuro niz znamenkama 1 do 9 tako da zbroj odgovara broju uz niz; unutar niza se znamenka ne smije ponoviti. Riješi osam originalnih ploča 5×5 da otključaš sljedeću. Pregled Compass prikazuje zbrojeve vodoravnih i okomitih nizova te znamenke koje su za odabrano polje lokalno moguće. Uključeni su poništavanje, brisanje, ponovno pokretanje i lokalno spremanje napretka."
+}

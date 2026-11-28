@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Troba la flota oculta",
+ "keywords": "batalla naval,vaixells,flota,naval,quadrícula,lògica,trencaclosques,sonar",
+ "short_description": "Troba la flota oculta en un mapa de 5×5 amb els totals de files i columnes.",
+ "description": "Troba una petita flota en un mapa de 5×5: un vaixell de tres caselles, un de dues i un de una sola casella. Cap dos vaixells no es poden tocar, ni en diagonal, i els totals de cada fila i columna han de coincidir.\n\nToca una casella per marcar-hi un vaixell, torna a tocar-la per posar-hi una nota d'aigua i una tercera vegada per esborrar-la. Els totals actuals i els objectius es mantenen visibles al costat de cada fila i columna.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

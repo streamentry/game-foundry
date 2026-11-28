@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmetika u kavezima",
+ "keywords": "kenken,calcudoku,zbroj,umnožak,matematika,latinski kvadrat,brojevi,logika,zagonetka",
+ "short_description": "Popuni mrežu 4×4 tako da svaki obojeni dio postigne zadani aritmetički cilj.",
+ "description": "Popuni mrežu 4×4 brojevima od 1 do 4 tako da se nijedan broj ne ponavlja u retku ni stupcu. Svaki obojeni kavez prikazuje cilj izveden iz zbroja, umnoška, razlike, količnika ili jedne vrijednosti, a brojevi unutra moraju ga postići.\n\nDodirni polje, pa unesi broj na velikoj tipkovnici. Brisanje čisti polje.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

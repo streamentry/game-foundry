@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tornien korkeuspulmat",
+ "keywords": "pilvenpiirtäjät,tornit,korkeudet,näkyvyys,latinalainen neliö,numero,logiikka,palapeli",
+ "short_description": "Aseta rakennusten korkeudet niin, että jokainen reunavihje pitää paikkansa.",
+ "description": "Täytä 4×4-ruudukko rakennusten korkeuksilla 1–4 äläkä koskaan toista korkeutta rivillä tai sarakkeella. Reunan jokainen luku kertoo, montako rakennusta näkyy kyseiseltä suunnalta, koska korkeammat rakennukset peittävät matalammat takanaan.\n\nValitse ruutu ja kirjoita korkeus 1–4. Tyhjennä poistaa ruudun sisällön.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

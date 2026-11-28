@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Räkna det du kan se",
+ "keywords": "kurodoko,siktlinje,syn,svart vit,skugga,logik,tal,rutnät",
+ "short_description": "Skugga rutor så att varje tal ser exakt så många vita rutor som det anger.",
+ "description": "Gör vissa rutor svarta så att svarta rutor aldrig delar en kant och alla vita rutor förblir sammanhängande. Varje numrerad ruta räknar de vita rutor den ser i sin rad och kolumn, inklusive sig själv, och antalet måste stämma med talet.\n\nTryck på en tom ruta för att växla mellan svart, vit och okänd. Numrerade ledtrådar står fast, och texten på skärmen visar vilka siktlinjer eller förbindelser som bryter reglerna.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

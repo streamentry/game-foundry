@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Otkrij sliku",
+ "keywords": "picross,griddler,hanjie,bojanje po brojevima,slika,pikseli,logika,mreža,zagonetka",
+ "short_description": "Koristi brojeve redaka i stupaca da otkriješ skrivenu sliku 5×5.",
+ "description": "Popuni mrežu 5×5 tako da svaki redak i stupac odgovara svojim brojevima: svaki broj je blok uzastopno popunjenih polja, a blokovi su odvojeni barem jednim praznim poljem. Svaka ploča je mali pikselni crtež.\n\nDodirni polje da ga popuniš, još jednom da ga prekrižiš i treći put da ga očistiš. Svih deset linija s brojevima ostaje vidljivo.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

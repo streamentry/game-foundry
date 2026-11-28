@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Găsește floarea diferită",
+ "keywords": "petale,model,vizual,logică,diferență,puzzle",
+ "short_description": "Găsește floarea a cărei structură diferă de celelalte.",
+ "description": "Găsește singura floare originală a cărei structură diferă de celelalte. Tablele cresc de la 6 la 16 flori pe parcursul a douăsprezece runde deterministe. Atinge pentru a alege, revino la rundele anterioare, reia un model și salvează progresul pe acest dispozitiv. Nu există cronometru, penalizare de scor sau serie obligatorie."
+}

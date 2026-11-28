@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmetiske burgåder",
+ "keywords": "kenken,calcudoku,bure,aritmetik,matematik,latinsk kvadrat,tal,gåde,logik",
+ "short_description": "Udfyld et 4×4-gitter, så hver bur når sit aritmetiske mål.",
+ "description": "Udfyld et 4×4-gitter med 1 til 4, så intet ciffer gentages i nogen række eller kolonne. Hver farvet bur viser et mål bygget af en sum, et produkt, en differens, en kvotient eller en enkelt værdi, og cifrene i buret skal nå målet.\n\nTryk på en celle og indtast derefter et ciffer på det store talltastatur. Slet rydder en celle.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

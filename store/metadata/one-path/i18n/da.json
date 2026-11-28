@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Brug hver linje én gang",
+ "keywords": "graf,rute,kantgåde,forbind prikker,eulersti,logik",
+ "short_description": "Planlæg en rute, der bruger hver forbindelse præcis én gang.",
+ "description": "Brug hver synlige forbindelse præcis én gang. Du må besøge prikker flere gange; krydsninger uden prik er ikke knudepunkter. Løs otte originale grafbræt ved at spore ruten eller trykke på store prikknapper. Fortryd, start forfra, gense tidligere bræt og genoptag din lokale rute og dine oplåste fremskridt."
+}

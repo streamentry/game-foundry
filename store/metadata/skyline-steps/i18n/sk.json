@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hlavolamy s výškou budov",
+ "keywords": "mrakodrapy,veže,výšky,viditeľnosť,latinský štvorec,čísla,logika,mriežka",
+ "short_description": "Umiestnite výšky budov tak, aby každé číslo na okraji sedelo.",
+ "description": "Vyplňte mriežku 4×4 výškami budov od 1 do 4 tak, aby sa žiadna výška v riadku ani stĺpci nezopakovala. Každé číslo okolo okraja ukazuje, koľko budov je odtiaľ vidieť, pretože vyššie budovy zakrývajú nižšie za sebou.\n\nVyberte políčko a zadajte výšku 1 až 4. Vymazať odstráni obsah políčka.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

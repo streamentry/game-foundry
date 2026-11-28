@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố logic hình chữ nhật",
+ "keywords": "hình chữ nhật,câu đố số,logic,lưới,diện tích,hình học",
+ "short_description": "Chia lưới thành các hình chữ nhật đúng kích thước gợi ý.",
+ "description": "Chia lưới thành các hình chữ nhật. Mỗi hình chữ nhật phải nằm trong bảng, chứa đúng một gợi ý và bao phủ đúng số ô mà gợi ý đó ghi. Giải tám bảng gốc với các góc được chọn bằng cách chạm, có hoàn tác, chơi lại, tiến trình mở khóa và lưu cục bộ. Không có đồng hồ đếm giờ."
+}

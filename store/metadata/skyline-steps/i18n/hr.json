@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zagonetke visine tornjeva",
+ "keywords": "neboderi,tornjevi,visine,vidljivost,latinski kvadrat,brojevi,logika,mreža,zagonetka",
+ "short_description": "Postavi visine zgrada tako da se svaki rubni broj točno broji.",
+ "description": "Popuni mrežu 4×4 visinama zgrada od 1 do 4, bez ponavljanja visine u retku ili stupcu. Svaki broj uz rub govori koliko se zgrada vidi iz tog smjera, jer više zgrade skrivaju niže iza sebe.\n\nOdaberi polje i unesi visinu od 1 do 4. Brisanje čisti polje.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

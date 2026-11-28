@@ -4,13 +4,22 @@ extends Control
 const Factory = preload("res://scripts/pattern_factory.gd")
 const Progress = preload("res://scripts/progress.gd")
 const Card = preload("res://scripts/bloom_card.gd")
+const Motion = preload("res://scripts/motion.gd")
+const SETTINGS_PATH: String = "user://settings.json"
 
-const PAPER = Color("#FCF5EC")
-const INK = Color("#40343B")
-const MUTED = Color("#62565D")
-const ACCENT = Color("#A55263")
+# Tokens from games/odd-bloom/DESIGN.md section 2.
+const PAPER = Color("#FBF3E6")
+const SURFACE = Color("#FFFDF8")
+const INK = Color("#3A1B2B")
+const MUTED = Color("#6A4D5C")
+const ACCENT = Color("#8A2F57")
+const ACCENT_HOVER = Color("#6E2446")
 const WHITE = Color("#FFFFFF")
-const PALE = Color("#F5DFDD")
+const PALE = Color("#F4E6D3")
+const PALE_HOVER = Color("#EBD6BE")
+const SUCCESS = Color("#2E6B4E")
+const PETAL_PALE = Color("#F7E3B3")
+const DISABLED = Color("#E9DCCB")
 
 var state: Dictionary = {}
 var board: Dictionary = {}
@@ -22,15 +31,53 @@ var progress_label: Label
 var next_button: Button
 var prev_button: Button
 var retry_button: Button
+var reduce_toggle: CheckButton
+var motion := Motion.new()
+var reduced_motion: bool = false
 
 
 func _ready() -> void:
     state = Progress.load_saved()
+    reduced_motion = _load_settings()
+    motion.reduced_motion = reduced_motion
     var linked: int = _linked_round()
     if linked >= 0:
         Progress.set_round(state, linked)
     _build_view()
     _load_round()
+
+
+func _load_settings() -> bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return false
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return false
+    var parser := JSON.new()
+    if parser.parse(file.get_as_text()) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+        return false
+    return typeof(parser.data.get("reduced_motion")) == TYPE_BOOL and bool(parser.data["reduced_motion"])
+
+
+func _save_settings() -> void:
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning("Odd Bloom could not save settings locally; play can continue.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": reduced_motion}))
+    file.close()
+
+
+func _set_reduced_motion(on: bool) -> void:
+    reduced_motion = on
+    motion.reduced_motion = on
+    if reduce_toggle != null and reduce_toggle.button_pressed != on:
+        reduce_toggle.set_pressed_no_signal(on)
+    _save_settings()
+
+
+func _on_reduce_toggled(on: bool) -> void:
+    _set_reduced_motion(on)
 
 
 func _linked_round() -> int:
@@ -72,19 +119,29 @@ func _button(text_value: String, callback: Callable, primary: bool = false) -> B
     item.add_theme_color_override("font_disabled_color", MUTED)
     var regular := StyleBoxFlat.new()
     regular.bg_color = ACCENT if primary else PALE
-    regular.set_corner_radius_all(12)
+    regular.set_corner_radius_all(14)
     regular.content_margin_left = 7
     regular.content_margin_right = 7
+    if primary:
+        regular.shadow_color = Color(ACCENT, 0.2)
+        regular.shadow_size = 4
+        regular.shadow_offset = Vector2(0, 2)
     item.add_theme_stylebox_override("normal", regular)
     var hover: StyleBoxFlat = regular.duplicate()
-    hover.bg_color = Color("#793C4B") if primary else Color("#EACFCC")
+    hover.bg_color = ACCENT_HOVER if primary else PALE_HOVER
     item.add_theme_stylebox_override("hover", hover)
-    item.add_theme_stylebox_override("pressed", hover)
+    var pressed: StyleBoxFlat = hover.duplicate()
+    pressed.shadow_size = 0
+    item.add_theme_stylebox_override("pressed", pressed)
+    var disabled := regular.duplicate()
+    disabled.bg_color = DISABLED
+    disabled.shadow_size = 0
+    item.add_theme_stylebox_override("disabled", disabled)
     var focus := StyleBoxFlat.new()
     focus.bg_color = Color.TRANSPARENT
     focus.border_color = ACCENT
     focus.set_border_width_all(3)
-    focus.set_corner_radius_all(12)
+    focus.set_corner_radius_all(14)
     item.add_theme_stylebox_override("focus", focus)
     item.pressed.connect(callback)
     return item
@@ -150,12 +207,24 @@ func _build_view() -> void:
     retry_button = _button("Try this pattern again", _restart)
     column.add_child(retry_button)
     column.add_child(_button("Copy this challenge", _share))
+    reduce_toggle = CheckButton.new()
+    reduce_toggle.text = "Reduce motion"
+    reduce_toggle.accessibility_name = "Reduce motion"
+    reduce_toggle.custom_minimum_size = Vector2(0, 54)
+    reduce_toggle.add_theme_font_size_override("font_size", 16)
+    reduce_toggle.add_theme_color_override("font_color", INK)
+    reduce_toggle.add_theme_color_override("font_hover_color", INK)
+    reduce_toggle.add_theme_color_override("font_pressed_color", INK)
+    reduce_toggle.add_theme_color_override("font_focus_color", INK)
+    reduce_toggle.set_pressed_no_signal(reduced_motion)
+    reduce_toggle.toggled.connect(_on_reduce_toggled)
+    column.add_child(reduce_toggle)
     column.add_child(_label("Petal shapes, number of petals, leaves and center marks can differ. The right answer is never based on color alone.", 13, MUTED))
 
 
 func _card_style(button: Button) -> void:
     var normal := StyleBoxFlat.new()
-    normal.bg_color = WHITE
+    normal.bg_color = SURFACE
     normal.border_color = Color("#DDC8C6")
     normal.set_border_width_all(2)
     normal.set_corner_radius_all(13)
@@ -169,7 +238,8 @@ func _card_style(button: Button) -> void:
     button.add_theme_stylebox_override("focus", focus)
 
 
-func _load_round() -> void:
+## direction 0 = fresh pattern or replay (board intro); +1 / -1 = next / previous slide.
+func _load_round(direction: int = 0) -> void:
     board = Factory.make(state["round"])
     for child in card_grid.get_children():
         card_grid.remove_child(child)
@@ -188,9 +258,16 @@ func _load_round() -> void:
         card_grid.add_child(tile)
         cards.append(tile)
     _refresh()
+    if direction == 0:
+        motion.stagger_in(cards)
+    else:
+        motion.slide_swap(card_grid, direction)
 
 
 func _choose(index: int) -> void:
+    if index < 0 or index >= cards.size():
+        return
+    motion.press(cards[index])
     var choice: Dictionary = Progress.choose(state, index)
     if not choice["accepted"]:
         return
@@ -198,8 +275,12 @@ func _choose(index: int) -> void:
     if choice["correct"]:
         _refresh("You found it in %d %s!" % [
             state["tried"].size(), "tap" if state["tried"].size() == 1 else "taps"])
+        motion.pop(cards[index])
+        motion.sweep(cards, PETAL_PALE)
+        motion.celebrate(self, card_grid.get_global_rect().get_center(), [ACCENT, SUCCESS, SURFACE])
     else:
         _refresh("That one matches the others. Look again.")
+        motion.shake(cards[index])
 
 
 func _restart() -> void:
@@ -213,7 +294,7 @@ func _next() -> void:
         return
     Progress.set_round(state, int(state["round"]) + 1)
     _save()
-    _load_round()
+    _load_round(1)
 
 
 func _previous() -> void:
@@ -221,7 +302,7 @@ func _previous() -> void:
         return
     Progress.set_round(state, int(state["round"]) - 1)
     _save()
-    _load_round()
+    _load_round(-1)
 
 
 func _refresh(message: String = "") -> void:

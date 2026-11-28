@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Crebacabezas de illas e mar",
+ "keywords": "illas,mar,terra,conectado,lóxica,números,cuadrícula,crebacabezas,auga",
+ "short_description": "Separa unha baía 4×4 en mar e illas de tamaño exacto.",
+ "description": "Marca cada cadrado dunha baía de 4×4 como mar ou terra. Cada illa numerada ten exactamente tantos cadrados como indica, contén unha única pista, o mar forma un único corpo conectado e ningún bloque de 2×2 pode ser todo mar.\n\nToca un cadrado en branco para alternar entre mar, terra e baleiro. Os cadrados de pista quedan fixos.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

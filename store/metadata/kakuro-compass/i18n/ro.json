@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sume încrucișate clare",
+ "keywords": "cifre încrucișate,sume,logică,aritmetică,grilă,puzzle",
+ "short_description": "Rezolvă sumele încrucișate cu un inspector clar al celulelor.",
+ "description": "Completează fiecare serie Kakuro cu cifre de la 1 la 9, astfel încât totalul să corespundă indiciului; nu repeta o cifră în aceeași serie. Rezolvă opt table originale 5×5 pentru a debloca următoarea. Inspectorul Compass arată totalurile pe orizontală și verticală și cifrele posibile local pentru celula selectată. Sunt incluse anularea, ștergerea, repornirea și progresul local."
+}

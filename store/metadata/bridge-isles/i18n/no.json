@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Koble øyer med broer",
+ "keywords": "hashi,hashiwokakero,broer,øyer,koble,logikk,tall,gåte",
+ "short_description": "Koble nummererte øyer med broer slik at hvert tall stemmer.",
+ "description": "Koble nummererte øyer med null, én eller to rette broer slik at hver øy får nøyaktig sitt tall, ingen broer krysser hverandre, og alle øyene blir forbundet i ett nettverk.\n\nTrykk på én øy og deretter på en annen for å bytte broen mellom dem. Store knapper med øybokstaver er et alternativ til å trykke nøyaktig på brettet.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

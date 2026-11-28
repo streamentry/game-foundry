@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Crebacabezas de torres",
+ "keywords": "rañaceos,torres,alturas,visibilidade,cadrado latino,lóxica,crebacabezas",
+ "short_description": "Coloca alturas de edificios para que cada pista da beira conte ben.",
+ "description": "Enche unha cuadrícula de 4×4 con alturas de edificios do 1 ao 4, sen repetir unha altura en ningunha fila ou columna. Cada número ao bordo indica cantos edificios se ven desde esa dirección, xa que os máis altos tapan os máis baixos.\n\nSelecciona un cadrado e introduce unha altura do 1 ao 4. Borrar elimina un cadrado.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

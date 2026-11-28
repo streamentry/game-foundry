@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Daglige binære gåter",
+ "keywords": "binær,binairo,logikk,tallgåte,daglig,rutenett",
+ "short_description": "Løs binære rutenett med hint og lokal fremgang.",
+ "description": "Spill en daglig Takuzu-gåte på 4×4 eller frie brett på 4×4 og 6×6. Rader og kolonner må være i balanse, det må ikke være tre like tall på rad, og fullførte linjer kan ikke gjentas. Bruk hint, angre, gjør om og start på nytt. Fremgangen lagres lokalt."
+}

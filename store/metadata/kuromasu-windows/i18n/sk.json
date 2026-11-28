@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Počítajte, čo vidíte",
+ "keywords": "kurodoko,viditeľnosť,zorná čiara,čierne biele,zatienenie,logika,čísla,mriežka",
+ "short_description": "Zatieňte políčka tak, aby každé číslo videlo presne toľko bielych políčok.",
+ "description": "Zatieňte niektoré políčka čierno tak, aby sa čierne políčka navzájom nedotýkali hranou a všetky biele políčka zostali súvislé. Každé očíslované políčko spočíta biele políčka, ktoré vidí vo svojom riadku a stĺpci vrátane seba samého, a musí to byť presne jeho číslo.\n\nKlepnite na prázdne políčko a prepínajte medzi čiernou, bielou a neurčitou farbou. Očíslované políčka zostávajú pevné a text na obrazovke ukazuje, ktoré zorné čiary alebo spojenia porušujú pravidlá.\n\nŠesť pôvodných hracích plôch, pričom každú ďalšiu odomknete vyriešením predchádzajúcej. Tlačidlá Späť a Začať znova sú vždy k dispozícii, časovač tu nie je a váš postup sa ukladá v tomto zariadení. Hrá sa offline. Bez reklám, bez účtu a bez zberu údajov."
+}

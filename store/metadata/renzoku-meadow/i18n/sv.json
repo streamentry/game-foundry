@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Följande tal",
+ "keywords": "följd,latinsk kvadrat,kantmarkeringar,sekvens,tal,logik,rutnät,pussel",
+ "short_description": "Fyll ett 4×4-rutnät där markeringar visar intilliggande följande tal.",
+ "description": "Fyll ett 4×4-rutnät med 1 till 4 så att varje siffra förekommer en gång i varje rad och kolumn. En markerad kant mellan två rutor betyder att deras siffror är på varandra följande; en omarkerad kant betyder att de inte är det.\n\nVälj en ruta och skriv en siffra från 1 till 4. Pilar i rutorna pekar ut de markerade kanterna till höger och nedåt.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

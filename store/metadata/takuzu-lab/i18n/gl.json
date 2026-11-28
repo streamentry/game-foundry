@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Binarios diarios",
+ "keywords": "binario,binairo,lóxica,crebacabezas,diario,cuadrícula",
+ "short_description": "Resolve cuadrículas binarias con pistas e progreso local.",
+ "description": "Xoga un crebacabezas Takuzu diario de 4×4 ou taboleiros libres de 4×4 e 6×6. As filas e as columnas deben equilibrarse, evita tres números iguais seguidos e non repitas liñas completas idénticas. Usa pistas, desfacer, refacer e reiniciar. O progreso gárdase localmente."
+}

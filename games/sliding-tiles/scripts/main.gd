@@ -3,13 +3,28 @@ extends Control
 const Factory=preload("res://scripts/level_factory.gd")
 const Rules=preload("res://scripts/rules.gd")
 const Progress=preload("res://scripts/progress.gd")
+const Motion=preload("res://scripts/motion.gd")
 const MODE:String="sliding"
 const TITLE:String="Sliding Tiles"
-const PAPER:Color=Color("#F4F1EC")
-const INK:Color=Color("#3F3B35")
-const ACCENT:Color=Color("#6F6B58")
-const SOFT:Color=Color("#E3DFD2")
-const WHITE:Color=Color("#FFFFFF")
+const SETTINGS_PATH:String="user://settings.json"
+const SLIDE_SECONDS:float=0.14
+# Warm walnut and wood palette sampled from icon.png (see DESIGN.md).
+const BG:Color=Color("#3C2418")
+const SURFACE:Color=Color("#54361E")
+const SURFACE_ALT:Color=Color("#5C3A22")
+const INK:Color=Color("#F6E7C8")
+const ACCENT:Color=Color("#E0A458")
+const DARK:Color=Color("#3C2418")
+const TILE:Color=Color("#EACCA2")
+const TILE_INK:Color=Color("#784E2A")
+const EDGE:Color=Color("#7A5238")
+const FOCUS:Color=Color("#FFD27A")
+const SUCCESS:Color=Color("#B5D08A")
+const ALERT:Color=Color("#F2977F")
+# Legacy names still referenced by the inactive mode branches below.
+const PAPER:Color=BG
+const SOFT:Color=SURFACE_ALT
+const WHITE:Color=TILE
 
 var state:Dictionary={}
 var level:Dictionary={}
@@ -22,9 +37,15 @@ var progress_label:Label
 var next_button:Button
 var prev_button:Button
 var undo_button:Button
+var tray:PanelContainer
+var reduce_motion:CheckButton
+var settings:Dictionary={}
+var motion:=Motion.new()
 
 func _ready()->void:
     state=Progress.load_saved()
+    settings=_load_settings()
+    motion.reduced_motion=bool(settings["reduced_motion"])
     _build_ui()
     _load_level()
 
@@ -39,16 +60,28 @@ func _label(value:String,px:int,color:Color=INK)->Label:
 func _style(item:Button,bg:Color,ink:Color,active:bool=false)->void:
     var shape:=StyleBoxFlat.new()
     shape.bg_color=bg
-    shape.border_color=ACCENT if active else Color("#C0CBC4")
+    shape.border_color=ACCENT if active else EDGE
     shape.set_border_width_all(3 if active else 1)
-    shape.set_corner_radius_all(11)
-    for mode in ["normal","hover","pressed","disabled"]:
-        item.add_theme_stylebox_override(mode,shape)
+    shape.set_corner_radius_all(12)
+    var raised:bool=bg!=BG
+    shape.shadow_color=Color(0,0,0,0.35)
+    shape.shadow_size=4 if raised else 0
+    shape.shadow_offset=Vector2(0,2)
+    var hover:=shape.duplicate() as StyleBoxFlat
+    hover.bg_color=bg.lightened(0.06)
+    var pressed:=shape.duplicate() as StyleBoxFlat
+    pressed.bg_color=bg.darkened(0.08)
+    pressed.shadow_size=1 if raised else 0
+    pressed.shadow_offset=Vector2(0,1)
+    item.add_theme_stylebox_override("normal",shape)
+    item.add_theme_stylebox_override("hover",hover)
+    item.add_theme_stylebox_override("pressed",pressed)
+    item.add_theme_stylebox_override("disabled",shape)
     var focus:=StyleBoxFlat.new()
     focus.bg_color=Color.TRANSPARENT
-    focus.border_color=ACCENT
+    focus.border_color=FOCUS
     focus.set_border_width_all(3)
-    focus.set_corner_radius_all(11)
+    focus.set_corner_radius_all(12)
     item.add_theme_stylebox_override("focus",focus)
     for mode in ["font_color","font_hover_color","font_pressed_color","font_disabled_color"]:
         item.add_theme_color_override(mode,ink)
@@ -60,7 +93,7 @@ func _button(title:String,cb:Callable,primary:bool=false)->Button:
     button.custom_minimum_size=Vector2(0,54)
     button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
     button.add_theme_font_size_override("font_size",17)
-    _style(button,ACCENT if primary else SOFT,WHITE if primary else INK)
+    _style(button,ACCENT if primary else SURFACE_ALT,DARK if primary else INK)
     button.pressed.connect(cb)
     return button
 
@@ -97,7 +130,10 @@ func _build_ui()->void:
     grid=GridContainer.new()
     grid.add_theme_constant_override("h_separation",4)
     grid.add_theme_constant_override("v_separation",4)
-    center.add_child(grid)
+    tray=PanelContainer.new()
+    tray.add_theme_stylebox_override("panel",_tray_style())
+    center.add_child(tray)
+    tray.add_child(grid)
     progress_label=_label("",15)
     column.add_child(progress_label)
     status_label=_label("",15)
@@ -114,6 +150,16 @@ func _build_ui()->void:
     nav.add_child(prev_button)
     nav.add_child(next_button)
     column.add_child(nav)
+    reduce_motion=CheckButton.new()
+    reduce_motion.text="Reduce motion"
+    reduce_motion.accessibility_name="Reduce motion"
+    reduce_motion.custom_minimum_size=Vector2(0,48)
+    reduce_motion.add_theme_font_size_override("font_size",17)
+    for mode in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+        reduce_motion.add_theme_color_override(mode,INK)
+    reduce_motion.button_pressed=motion.reduced_motion
+    reduce_motion.toggled.connect(_on_reduce_motion_toggled)
+    column.add_child(reduce_motion)
     column.add_child(_button("Copy challenge",_share))
     column.add_child(_label("No timer, account, ad SDK or cloud data. Real-phone accessibility testing remains necessary.",13))
 
@@ -153,6 +199,7 @@ func _load_level()->void:
             grid.add_child(item)
             cells.append(item)
     _refresh()
+    motion.stagger_in(cells)
 
 func _tap(index:int)->void:
     if MODE=="akari" and int(Rules.blank(level)[index])==3:return
@@ -168,33 +215,42 @@ func _tap(index:int)->void:
         success=false
     if not success:
         history.pop_back()
+        motion.shake(cells[index])
         return
     _save()
     _refresh()
+    if MODE=="sliding":
+        _animate_move(index,history.back())
 
 func _undo()->void:
     if history.is_empty():return
+    var current:Array=state["entries"]
     state["entries"]=history.pop_back()
     _save()
     _refresh()
+    if MODE=="sliding":
+        _slide_between(state["entries"].find(0),current.find(0))
 
 func _restart()->void:
     history.clear()
     state["entries"]=Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 func _next()->void:
     if not Progress.can_advance(state):return
     Progress.set_level(state,int(state["level"])+1)
     _save()
     _load_level()
+    motion.slide_swap(tray,1)
 
 func _previous()->void:
     if int(state["level"])==0:return
     Progress.set_level(state,int(state["level"])-1)
     _save()
     _load_level()
+    motion.slide_swap(tray,-1)
 
 func _pipe_mark(kind:String,orientation:int)->String:
     if kind=="E":return ["↑","→","↓","←"][orientation-1]
@@ -239,11 +295,12 @@ func _refresh()->void:
         elif MODE=="sliding":
             tile=" " if value==0 else str(value)
             if value==0:
-                background=SOFT
+                background=BG
                 fixed=true
             else:
                 highlighted=Rules.adjacent(i,state["entries"].find(0))
-                background=WHITE if highlighted else SOFT
+                background=TILE
+                foreground=TILE_INK
                 fixed=not highlighted
         if value>0 and not fixed:filled+=1
         item.text=tile
@@ -275,3 +332,80 @@ func _share()->void:
             challenge+="\n"+str(base)+"?level="+str(int(state["level"])+1)
     DisplayServer.clipboard_set(challenge)
     status_label.text="Challenge text prepared where clipboard access allows."
+
+func _tray_style()->StyleBoxFlat:
+    var shape:=StyleBoxFlat.new()
+    shape.bg_color=SURFACE
+    shape.set_corner_radius_all(16)
+    shape.set_content_margin_all(12)
+    shape.shadow_color=Color(0,0,0,0.3)
+    shape.shadow_size=8
+    shape.shadow_offset=Vector2(0,4)
+    return shape
+
+func _load_settings()->Dictionary:
+    var result:Dictionary={"reduced_motion":false}
+    if not FileAccess.file_exists(SETTINGS_PATH):return result
+    var file:=FileAccess.open(SETTINGS_PATH,FileAccess.READ)
+    if file==null:return result
+    var parser:=JSON.new()
+    if parser.parse(file.get_as_text())!=OK:return result
+    if typeof(parser.data)==TYPE_DICTIONARY:
+        result["reduced_motion"]=(parser.data as Dictionary).get("reduced_motion",false)==true
+    return result
+
+func _save_settings()->void:
+    var file:=FileAccess.open(SETTINGS_PATH,FileAccess.WRITE)
+    if file==null:
+        push_warning(TITLE+" could not save display settings.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion":motion.reduced_motion}))
+    file.close()
+
+func _on_reduce_motion_toggled(on:bool)->void:
+    motion.reduced_motion=on
+    _save_settings()
+
+func _row_done(entries:Array,row:int)->bool:
+    for col in range(3):
+        if int(entries[row*3+col])!=int(Rules.GOAL[row*3+col]):return false
+    return true
+
+## Visual only: the moved tile starts at its old slot and tweens into the new one.
+## Game state already holds the final board; reduced motion snaps at once.
+func _slide_between(from_slot:int,to_slot:int)->void:
+    if from_slot<0 or to_slot<0 or from_slot==to_slot:return
+    var n:int=int(level["size"])
+    var pitch:=Vector2(cells[0].custom_minimum_size.x+grid.get_theme_constant("h_separation"),
+        cells[0].custom_minimum_size.y+grid.get_theme_constant("v_separation"))
+    var from_pos:=Vector2(float(from_slot%n),float(int(from_slot/float(n))))*pitch
+    var to_pos:=Vector2(float(to_slot%n),float(int(to_slot/float(n))))*pitch
+    _slide_tile(cells[to_slot],from_pos-to_pos)
+
+func _slide_tile(cell:Button,from_offset:Vector2)->void:
+    cell.offset_transform_enabled=true
+    if cell.has_meta(&"_m_slide"):
+        var old:Variant=cell.get_meta(&"_m_slide")
+        if old is Tween and (old as Tween).is_valid():(old as Tween).kill()
+    if motion.reduced_motion or not cell.is_inside_tree():
+        cell.offset_transform_position=Vector2.ZERO
+        return
+    cell.offset_transform_position=from_offset
+    var tw:=cell.create_tween()
+    cell.set_meta(&"_m_slide",tw)
+    tw.tween_property(cell,"offset_transform_position",Vector2.ZERO,SLIDE_SECONDS) \
+        .set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+func _animate_move(index:int,prior:Array)->void:
+    var entries:Array=state["entries"]
+    var dest:int=prior.find(0)
+    motion.press(cells[index])
+    motion.pop(cells[dest])
+    _slide_between(index,dest)
+    if Rules.complete(level,entries):
+        motion.sweep(cells,FOCUS)
+        motion.celebrate(self,tray.get_global_rect().get_center(),[ACCENT,SUCCESS,TILE])
+        return
+    for row in range(3):
+        if not _row_done(prior,row) and _row_done(entries,row):
+            motion.sweep([cells[row*3],cells[row*3+1],cells[row*3+2]],FOCUS)

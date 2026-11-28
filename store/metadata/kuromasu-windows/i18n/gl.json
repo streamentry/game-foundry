@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Conta o que podes ver",
+ "keywords": "kurodoko,visibilidade,liña de visión,negro,branco,sombrear,lóxica,crebacabezas",
+ "short_description": "Sombrea cadrados para que cada número vexa tantos brancos como indica.",
+ "description": "Sombrea algúns cadrados en negro de xeito que os cadrados negros nunca compartan bordo e todos os brancos permanezan conectados. Cada cadrado numerado conta os cadrados brancos que pode ver na súa fila e columna, incluído el mesmo, e debe coincidir co seu número.\n\nToca un cadrado en branco para alternar entre negro, branco e descoñecido. As pistas numeradas quedan fixas, e o texto na pantalla indica que liñas de visión ou conexións rompen as regras.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

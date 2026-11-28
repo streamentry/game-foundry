@@ -109,6 +109,9 @@ static func _partial(level:Dictionary,entries:Array)->bool:
                 return false
     return true
 
+static func conflicts(level:Dictionary,entries:Array)->bool:
+    return not _partial(level,entries)
+
 static func complete(level:Dictionary,entries:Array)->bool:
     if not valid_entries(level,entries):
         return false

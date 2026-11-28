@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Fyll termometrarna",
+ "keywords": "termometrar,rör,fylla,totaler,rader,kolumner,logik,tal,rutnät,pussel",
+ "short_description": "Fyll rör från kulan så att rad- och kolumnsummorna stämmer.",
+ "description": "Fyll var och en av åtta tvårutiga termometrar från kulan mot spetsen, aldrig åt andra hållet. Rad- och kolumnsummorna visar hur många rutor i varje linje som är fyllda.\n\nTryck på en kula för att fylla dess första segment, eller på en spets för att fylla båda. Tryck på samma ställe igen för att tömma röret.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

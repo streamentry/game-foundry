@@ -1,0 +1,8 @@
+{
+ "lang": "nl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Opeenvolgende getallen",
+ "keywords": "opeenvolgend,latijns vierkant,randmarkeringen,reeks,getal,logica,raster,puzzel",
+ "short_description": "Vul een raster van 4×4 waarin markeringen opeenvolgende buren aangeven.",
+ "description": "Vul een raster van 4×4 met 1 tot 4 zodat elk cijfer precies één keer voorkomt in elke rij en kolom. Een gemarkeerde rand tussen twee vakjes betekent dat hun cijfers opeenvolgend zijn; een niet-gemarkeerde rand betekent dat ze dat niet zijn.\n\nSelecteer een vakje en voer een cijfer van 1 tot 4 in. Pijltjes in de vakjes wijzen naar de gemarkeerde randen rechts en onder.\n\nZes originele borden; elk bord ontgrendelt het volgende zodra het is opgelost. Ongedaan maken en Opnieuw beginnen zijn altijd beschikbaar, er is geen timer, en je voortgang wordt op dit apparaat opgeslagen. Werkt offline. Geen advertenties, geen account, geen gegevensverzameling."
+}

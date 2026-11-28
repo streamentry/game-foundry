@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sumas cruzadas claras",
+ "keywords": "cruce numérico,sumas,lóxica,aritmética,cuadrícula,crebacabezas",
+ "short_description": "Resolve sumas cruzadas cun inspector de celas claro.",
+ "description": "Enche cada tramo de Kakuro cos díxitos do 1 ao 9 para que o total coincida coa pista; non repitas un díxito dentro dun tramo. Resolve oito taboleiros orixinais de 5×5 para desbloquear o seguinte. O inspector Compass mostra os totais horizontais e verticais e os díxitos localmente posibles para a cela seleccionada. Incúléense desfacer, borrar, reiniciar e o progreso local."
+}

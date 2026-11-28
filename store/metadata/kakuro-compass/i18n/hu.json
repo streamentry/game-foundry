@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Keresztösszeg-rejtvények",
+ "keywords": "keresztösszeg,számkereszt,összegek,logika,aritmetika,rács,rejtvény",
+ "short_description": "Oldd meg a keresztező összegeket egy átlátható cellaellenőrzővel.",
+ "description": "Tölts ki minden Kakuro-sort 1–9 közötti számjegyekkel úgy, hogy az összegük egyezzen a megadott számmal, és egy számjegy se ismétlődjön egy sávon belül. Nyolc eredeti 5×5-ös táblát kell megoldanod a következő feloldásához.\n\nA Compass ellenőrző megmutatja a vízszintes és a függőleges összegeket, valamint a kiválasztott cellában lehetséges számjegyeket. A visszavonás, a törlés, az újrakezdés és a helyi haladás mind elérhető."
+}

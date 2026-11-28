@@ -1,0 +1,17 @@
+extends RefCounted
+## Thermometer Studio color tokens, taken from the icon (see DESIGN.md section 2).
+const BG := Color("#6B1D2B")
+const SURFACE := Color("#FBF4E4")
+const SURFACE_HOVER := Color("#FFF9EE")
+const SURFACE_ALT := Color("#F2E3C8")
+const INK := Color("#3A0E18")
+const INK_MUTED := Color("#6B3F4A")
+const ACCENT := Color("#F08CA0")
+const ACCENT_HOVER := Color("#F7A6B6")
+const ACCENT_PRESSED := Color("#E07A90")
+const ACCENT_INK := Color("#3A0E18")
+const HIGHLIGHT := Color("#FFD6DE")
+const SUCCESS := Color("#2E6B4F")
+const ERROR := Color("#9B1C2C")
+const FOCUS := Color("#FFD27A")
+const TEXT_ON_BG := Color("#FBF4E4")

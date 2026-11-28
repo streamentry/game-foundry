@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Selkeät ristikkovihjeet",
+ "keywords": "numeroristikko,summat,logiikka,laskeminen,ruudukko,palapeli",
+ "short_description": "Ratkaise ristikkäiset summat selkeällä solutarkastelijalla.",
+ "description": "Täytä jokainen Kakuro-jono numeroilla 1–9 niin, että summa vastaa vihjettä; älä toista numeroa samassa jonossa. Ratkaise kahdeksan alkuperäistä 5×5-lautaa avataksesi seuraavan. Compass-tarkastelija näyttää vaaka- ja pystysummat sekä valitun ruudun paikallisesti mahdolliset numerot. Kumoa, tyhjennä, aloita alusta ja paikallinen edistyminen ovat mukana."
+}

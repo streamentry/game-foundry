@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zagonetka pravokutnika",
+ "keywords": "pravokutnik,brojevna zagonetka,logika,mreža,površina,geometrija",
+ "short_description": "Podijeli mrežu na pravokutnike zadanih veličina.",
+ "description": "Podijeli mrežu na pravokutnike. Svaki pravokutnik mora ostati unutar ploče, sadržavati točno jedan broj i pokrivati onoliko polja koliko taj broj označava. Riješi osam originalnih ploča uz odabir kutova dodirom, poništavanje, ponovno pokretanje, otključani napredak i lokalno spremanje. Nema vremenskog ograničenja."
+}

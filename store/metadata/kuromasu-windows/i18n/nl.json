@@ -1,0 +1,8 @@
+{
+ "lang": "nl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tel wat je kunt zien",
+ "keywords": "kurodoko,zichtlijn,zicht,zwart wit,arceren,logica,getal,raster",
+ "short_description": "Arceer vakjes zodat elk getal precies zoveel witte vakjes ziet als het aangeeft.",
+ "description": "Maak sommige vakjes zwart zodat zwarte vakjes elkaar nooit langs een zijde raken en alle witte vakjes verbonden blijven. Elk genummerd vakje telt de witte vakjes die het ziet in zijn rij en kolom, inclusief zichzelf, en dat moet overeenkomen met zijn getal.\n\nTik op een leeg vakje om te wisselen tussen zwart, wit en onbekend. Genummerde aanwijzingen blijven vast staan, en de tekst op het scherm laat zien welke zichtlijnen of verbindingen de regels breken.\n\nZes originele borden; elk bord ontgrendelt het volgende zodra het is opgelost. Ongedaan maken en Opnieuw beginnen zijn altijd beschikbaar, er is geen timer, en je voortgang wordt op dit apparaat opgeslagen. Werkt offline. Geen advertenties, geen account, geen gegevensverzameling."
+}

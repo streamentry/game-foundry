@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Talvägspussel",
+ "keywords": "hidoku,talväg,kedja,följd,rad,rutnät,logik,pussel",
+ "short_description": "Placera 1 till 16 i en kedja där varje tal rör nästa.",
+ "description": "Placera talen 1 till 16 på ett 4×4-rutnät, var och en exakt en gång, så att varje följande par rör varandra horisontellt, vertikalt eller diagonalt. De givna talen måste stå kvar där de är.\n\nTryck på en redigerbar ruta och välj ett tal på knappsatsen. Radera tömmer en ruta.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

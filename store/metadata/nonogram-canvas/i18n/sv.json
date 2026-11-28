@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Avslöja bilden",
+ "keywords": "japanskt pussel,picross,griddler,hanjie,måla med siffror,pixel,logik,rutnät",
+ "short_description": "Använd rad- och kolumnledtrådar för att avslöja en dold 5×5-bild.",
+ "description": "Fyll ett 5×5-rutnät så att varje rad och kolumn stämmer med sina ledtrådar: varje tal är ett block av sammanhängande ifyllda rutor, och blocken skiljs åt av minst en tom ruta. Varje bana är en liten pixelbild.\n\nTryck på en ruta för att fylla den, tryck igen för att kryssa över den och en gång till för att rensa den. Alla tio ledtrådsrader syns hela tiden.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

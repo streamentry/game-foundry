@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Revela a imaxe",
+ "keywords": "picross,griddler,hanjie,pintar por números,imaxe,píxel,lóxica,cuadrícula,crebacabezas",
+ "short_description": "Usa as pistas de filas e columnas para revelar unha imaxe 5×5 oculta.",
+ "description": "Enche unha cuadrícula de 5×5 para que cada fila e cada columna coincidan coas súas pistas: cada número é un bloque de celas consecutivas cheas, e os bloques están separados por polo menos unha cela baleira. Cada taboleiro é un pequeno deseño de píxeles.\n\nToca unha cela para enchela, volve tocala para tachala e outra vez para limpala. As dez liñas de pistas permanecen visibles.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

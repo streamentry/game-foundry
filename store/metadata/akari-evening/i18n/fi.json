@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Valaise jokainen avoin ruutu",
+ "keywords": "valo,lamppu,hehku,valaista,logiikka,ruudukko,palapeli,seinänumerot",
+ "short_description": "Sijoita lamput niin, että jokainen avoin ruutu valaistuu.",
+ "description": "Sijoita lamput 4×4-laudalle niin, että jokainen avoin ruutu on valaistu, mikään kaksi lamppua ei valaise toisiaan ja jokainen numeroitu seinä koskettaa juuri niin monta lamppua kuin sen luku osoittaa.\n\nNapauta avointa ruutua vaihtaaksesi lampun, ristimerkin ja tyhjän välillä; valaistut ruudut korostuvat pelin edetessä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

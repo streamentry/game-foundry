@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Silid ng numero, may espasyo",
+ "keywords": "rehiyon,espasyo,distansya,numero,lohika,grid,palaisipan",
+ "short_description": "Punan ang iregular na silid para may layo ang mga paulit-ulit na numero.",
+ "description": "Punan ang bawat iregular na silid ng mga numerong 1 hanggang sa laki nito. Kung lumitaw ang parehong numerong k nang dalawang beses sa isang hilera o kolum, dapat may hindi bababa sa k na parisukat sa pagitan ng dalawa.\n\nI-tap ang parisukat at maglagay ng digit mula 1 hanggang 4 gamit ang malalaking button. Ipinapakita ng bawat parisukat ang letra ng silid nito at ang laki ng silid sa tabi ng numero.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

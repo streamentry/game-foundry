@@ -1,0 +1,8 @@
+{
+ "lang": "sl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Štej, kaj lahko vidiš",
+ "keywords": "kurodoko,vidnost,vidna črta,črno belo,zatemnitev,logika,številke,mreža,uganka",
+ "short_description": "Zatemni polja tako, da vsaka številka vidi natanko toliko belih polj.",
+ "description": "Zatemni nekatera polja črno tako, da se črna polja nikoli ne dotikajo vzdolž roba in so vsa bela polja povezana. Vsako oštevilčeno polje šteje bela polja, ki jih vidi v svoji vrstici in stolpcu, vključno s seboj, in mora ujemati s številko.\n\nTapni prazno polje, da preklapljaš med črnim, belim in neznanim stanjem. Oštevilčeni namigi ostanejo na mestu, besedilo na zaslonu pa pove, katera vidna črta ali povezava krši pravila.\n\nŠest izvirnih plošč, vsaka odklene naslednjo, ko jo rešiš. Razveljavi in Ponastavi sta vedno na voljo, časovnika ni, napredek pa se shrani v tej napravi. Deluje brez povezave. Brez oglasov, brez računa in brez zbiranja podatkov."
+}

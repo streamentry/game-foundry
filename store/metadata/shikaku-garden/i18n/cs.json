@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hádanka obdélníků",
+ "keywords": "obdélník,číselná hádanka,logika,mřížka,plocha,geometrie",
+ "short_description": "Rozdělte mřížku na obdélníky s velikostí podle nápověd.",
+ "description": "Rozdělte mřížku na obdélníky. Každý obdélník musí ležet uvnitř desky, obsahovat přesně jednu nápovědu a pokrývat tolik polí, kolik nápověda ukazuje. Vyřešte osm původních desek, rohy vybíráte klepnutím; k dispozici jsou zpět, restart, odemykání postupu a místní ukládání. Není zde časovač."
+}

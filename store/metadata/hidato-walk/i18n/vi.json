@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố đường số",
+ "keywords": "hidoku,đường số,chuỗi,liên tiếp,dãy số,lưới,logic,câu đố",
+ "short_description": "Đặt các số 1 đến 16 thành một chuỗi, mỗi số chạm số kế tiếp.",
+ "description": "Đặt các số 1 đến 16 vào lưới 4×4, mỗi số đúng một lần, sao cho mọi cặp số liên tiếp chạm nhau theo chiều ngang, dọc hoặc chéo. Các số đã cho phải giữ nguyên vị trí.\n\nChạm vào một ô có thể chỉnh sửa và chọn một số trên bàn phím số. Nút Xóa sẽ xóa một ô.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

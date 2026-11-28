@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles de números amb punts",
+ "keywords": "punts,punt negre,punt blanc,consecutius,proporció,quadrat llatí,nombres,lògica,trencaclosques",
+ "short_description": "Omple una quadrícula de 4×4 amb l'1 al 4, guiat per punts blancs i negres.",
+ "description": "Omple una quadrícula de 4×4 amb l'1 al 4 de manera que cada dígit aparegui una vegada a cada fila i columna. Un punt blanc entre dues caselles vol dir que els dígits són consecutius; un punt negre vol dir que un és exactament el doble de l'altre. Les vores sense punt no porten cap pista.\n\nToca una casella editable i després un dígit del teclat gran de quatre tecles. Les etiquetes dins de les caselles i un inspector t'ajuden a llegir cada punt.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

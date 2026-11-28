@@ -1,0 +1,8 @@
+{
+ "lang": "nl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Verbind bijpassende paren",
+ "keywords": "stromen,verbinden,paren,routes,lijn,logica,letters,raster,puzzel,pad",
+ "short_description": "Verbind elk letterpaar met een route die het hele raster vult.",
+ "description": "Verbind elk paar bijpassende letters met een route langs de vakjes van een raster van 4×4. Routes mogen elkaar niet kruisen of vertakken, en samen moeten de twee routes elk vakje bedekken.\n\nTik op lege vakjes om te wisselen tussen route A, route B en leeg. Vaste eindpunten zijn gemarkeerd met cirkels, en elke route heeft zijn eigen letter en kleur.\n\nZes originele borden; elk bord ontgrendelt het volgende zodra het is opgelost. Ongedaan maken en Opnieuw beginnen zijn altijd beschikbaar, er is geen timer, en je voortgang wordt op dit apparaat opgeslagen. Werkt offline. Geen advertenties, geen account, geen gegevensverzameling."
+}

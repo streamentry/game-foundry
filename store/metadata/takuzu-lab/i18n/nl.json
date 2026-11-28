@@ -1,0 +1,8 @@
+{
+ "lang": "nl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Dagelijkse binaire puzzels",
+ "keywords": "binair,binairo,logica,getalpuzzel,dagelijks,raster",
+ "short_description": "Los binaire rasters op met hints en lokale voortgang.",
+ "description": "Speel een dagelijkse Takuzu-puzzel van 4×4 of vrije borden van 4×4 en 6×6. Rijen en kolommen moeten in balans zijn, er mogen niet drie gelijke cijfers na elkaar staan, en voltooide regels mogen niet dubbel voorkomen. Gebruik hints, ongedaan maken, opnieuw uitvoeren en opnieuw beginnen. Voortgang wordt lokaal opgeslagen."
+}

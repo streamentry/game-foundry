@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ô số 3×3 cổ điển",
+ "keywords": "trượt,đánh số,tám ô,mười lăm ô,thứ tự,không gian,logic,trò chơi",
+ "short_description": "Trượt các ô số về đúng thứ tự, mỗi lần một nước.",
+ "description": "Trượt các ô số trên bảng 3×3 vào khoảng trống cho đến khi chúng xếp đúng thứ tự từ 1 đến 8. Các thế cờ xáo trộn ban đầu cách lời giải từ vài nước đến mười bốn nước.\n\nChạm vào ô nằm cạnh ô trống để trượt nó. Có sẵn Hoàn tác và Chơi lại.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

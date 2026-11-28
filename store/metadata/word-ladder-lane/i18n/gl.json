@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Cambia unha letra por vez",
+ "keywords": "dobletes,letras,palabras,vocabulario,ortografía,inglés,pasos,crebacabezas",
+ "short_description": "Sobe dunha palabra a outra, cambiando unha letra por paso.",
+ "description": "Parte dunha palabra e chega á palabra meta cambiando exactamente unha letra de cada vez, usando só as tarxetas de palabras dispoñibles. Estes crebacabezas están en inglés. Cada taboleiro dá un límite exacto de pasos: a lonxitude da ruta máis curta.\n\nToca unha tarxeta de palabra seguinte válida. A escada actual, a meta e o contador de pasos permanecen na pantalla.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

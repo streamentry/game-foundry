@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Vẽ một vòng khép kín",
+ "keywords": "slitherlink,hàng rào,cạnh,nét vẽ,logic,số,lưới,câu đố",
+ "short_description": "Vẽ một vòng duy nhất thỏa mãn mọi gợi ý số cạnh.",
+ "description": "Vẽ một vòng khép kín duy nhất dọc theo các đường lưới, không phân nhánh và không tự cắt. Mỗi ô có số cho biết vòng đi qua bao nhiêu trong bốn cạnh của ô đó.\n\nChạm vào một ô, rồi nhấn một trong bốn nút lớn Trên, Phải, Dưới hoặc Trái để thêm hoặc bỏ cạnh đó.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

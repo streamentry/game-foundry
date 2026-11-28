@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Đổ đầy nhiệt kế",
+ "keywords": "nhiệt kế,ống,đổ đầy,tổng,hàng,cột,logic,số,lưới,câu đố",
+ "short_description": "Đổ đầy ống từ bầu nhiệt để tổng hàng và cột khớp nhau.",
+ "description": "Đổ đầy tám nhiệt kế hai ô từ bầu về phía đầu nhọn, không bao giờ làm ngược lại. Tổng của hàng và cột cho biết mỗi dãy có bao nhiêu ô đã được đổ đầy.\n\nChạm vào bầu để đổ đoạn đầu tiên, hoặc chạm vào đầu nhọn để đổ cả hai đoạn. Chạm lại đúng vị trí đó để làm rỗng ống.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

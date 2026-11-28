@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Øer og havgåder",
+ "keywords": "øer,hav,land,sammenhængende,logik,tal,gitter,gåde,vand",
+ "short_description": "Sortér en 4×4-bugt i hav og øer med præcis størrelse.",
+ "description": "Markér hvert felt i en 4×4-bugt som hav eller land. Hver nummererede ø har præcis så mange felter og indeholder én ledetråd, havet danner ét sammenhængende område, og ingen 2×2-blok må være helt hav.\n\nTryk på et tomt felt for at skifte mellem hav, land og tomt. Ledetrådsfelterne er faste.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

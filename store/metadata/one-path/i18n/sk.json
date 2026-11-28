@@ -1,0 +1,8 @@
+{
+ "lang": "sk",
+ "status": "machine translation — native review pending",
+ "subtitle": "Každú čiaru raz použite",
+ "keywords": "graf,trasa,hlavolam s hranami,spojte body,eulerovský ťah,logika",
+ "short_description": "Naplánujte trasu, ktorá použije každé spojenie presne raz.",
+ "description": "Použite každé viditeľné spojenie presne raz. Body môžete navštíviť opakovane; kríženia bez bodu nie sú križovatky. Vyriešte osem pôvodných grafových plôch tak, že trasu prejdete alebo klepnete na veľké tlačidlá s bodmi. Môžete použiť Späť, začať znova, vrátiť sa k skorším plochám a pokračovať v lokálne uloženej trase a odomknutom postupe."
+}

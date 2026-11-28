@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Đổi một chữ cái mỗi lần",
+ "keywords": "doublets,chữ cái,từ vựng,chính tả,tiếng Anh,bước,câu đố",
+ "short_description": "Đổi từng chữ cái tiếng Anh để leo từ từ này sang từ đích.",
+ "description": "Bắt đầu từ một từ tiếng Anh và đi đến từ đích bằng cách đổi đúng một chữ cái mỗi lần, chỉ dùng các thẻ từ tiếng Anh đang có. Mỗi bảng có một số bước cố định bằng độ dài của lộ trình ngắn nhất.\n\nChạm vào thẻ từ kế tiếp hợp lệ. Bậc thang hiện tại, đích và số bước của bạn luôn hiển thị trên màn hình.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

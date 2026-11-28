@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Avslør bildet",
+ "keywords": "japansk gåte,picross,griddler,hanjie,mal etter tall,piksel,logikk,rutenett",
+ "short_description": "Bruk rad- og kolonneledetråder for å avsløre et skjult 5×5-bilde.",
+ "description": "Fyll et 5×5-rutenett slik at hver rad og kolonne samsvarer med ledetrådene: hvert tall er en blokk av sammenhengende fylte ruter, og blokkene er skilt av minst én tom rute. Hvert brett er en liten pikseltegning.\n\nTrykk på en rute for å fylle den, trykk igjen for å krysse den av, og en gang til for å tømme den. Alle ti ledetrådlinjene er synlige hele tiden.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

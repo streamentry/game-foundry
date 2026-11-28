@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tydliga korsade ledtrådar",
+ "keywords": "talkorsord,summor,logik,räkning,rutnät,pussel",
+ "short_description": "Lös korsande summor med en tydlig cellinspektör.",
+ "description": "Fyll varje Kakuro-led med siffrorna 1–9 så att summan stämmer med ledtråden; upprepa inte en siffra inom samma led. Lös åtta originalbanor på 5×5 för att låsa upp nästa. Compass-inspektören visar tvärgående och lodräta summor samt lokalt möjliga siffror för vald ruta. Ångra, radera, starta om och lokala framsteg ingår."
+}

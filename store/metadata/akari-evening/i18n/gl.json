@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Acende cada cela aberta",
+ "keywords": "acender,lámpada,lóxica,cuadrícula,iluminar,parede,números,crebacabezas",
+ "short_description": "Coloca lámpadas para iluminar cada cela sen que dús se vexan.",
+ "description": "Coloca lámpadas nun taboleiro de 4×4 para que todas as celas abertas queden iluminadas, ningunha lámpada ilumine outra e cada parede numerada toque exactamente ese número de lámpadas.\n\nToca unha cela aberta para alternar entre lámpada, nota de cruz e baleira; as celas iluminadas resáltanse a medida que avanzas.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Atopa a frota escondida",
+ "keywords": "barcos,frota,naval,cartas,lóxica,cuadrícula,sonar,crebacabezas",
+ "short_description": "Localiza unha frota oculta nunha carta de 5×5 con totais de filas e columnas.",
+ "description": "Atopa unha pequena frota nunha carta de 5×5: un barco de tres casas, outro de dous e un de unha soa. Dous barcos non poden tocarse, nin en diagonal, e os totais de cada fila e columna deben coincidir.\n\nToca unha casilla para marcar un barco, volve tocala para anotar auga e outra vez para limpala. Os totais actuais e os obxectivos móstranse xunto a cada fila e columna.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

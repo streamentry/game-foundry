@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Usa cada liña unha vez",
+ "keywords": "grafo,ruta,arestas,unir puntos,trazo euleriano,lóxica,crebacabezas",
+ "short_description": "Planifica unha ruta que use cada conexión unha vez.",
+ "description": "Usa cada conexión visible exactamente unha vez. Podes volver a pasar polos puntos; os cruces sen punto non son unións. Resolve oito taboleiros de grafo orixinais trazando a ruta ou tocando botóns grandes de puntos. Desfai, reinicia, volve a taboleiros anteriores e retoma a túa ruta local e o progreso desbloqueado."
+}

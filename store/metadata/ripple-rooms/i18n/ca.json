@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sales numèriques espaiades",
+ "keywords": "regions,espai,distància,nombres,lògica,quadrícula,trencaclosques",
+ "short_description": "Omple sales irregulars perquè els números repetits mantinguin la distància.",
+ "description": "Omple cada sala irregular amb els números de l'1 fins a la seva mida. Si un mateix número k apareix dues vegades en una fila o columna, hi han d'haver almenys k caselles entre les dues.\n\nToca una casella i introdueix un dígit de l'1 al 4 amb els botons grans. Cada casella mostra la lletra de la seva sala i la mida de la sala al costat del número.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

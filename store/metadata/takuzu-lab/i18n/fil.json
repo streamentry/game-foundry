@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pang-araw-araw na binary",
+ "keywords": "binary,binairo,lohika,palaisipan ng numero,araw-araw,grid",
+ "short_description": "Lutasin ang binary na grid na may hint at lokal na progreso.",
+ "description": "Maglaro ng pang-araw-araw na 4×4 na palaisipang Takuzu, o malayang 4×4 at 6×6 na board. Dapat magkapantay ang mga hilera at kolum, iwasan ang tatlong magkakasunod na magkaparehong numero, at iwasan ang mga magkaparehong kumpletong linya. Gamitin ang hint, undo, redo, at restart. Lokal na nase-save ang progreso."
+}

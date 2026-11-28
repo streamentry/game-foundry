@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmetikai ketrec-rejtvények",
+ "keywords": "kenken,calcudoku,aritmetika,matek,latin négyzet,szám,rejtvény,logika",
+ "short_description": "Töltsd ki a 4×4-es rácsot, hogy minden csoport elérje a műveleti célját.",
+ "description": "Töltsd ki a 4×4-es rácsot az 1-től 4-ig terjedő számokkal úgy, hogy egy szám se ismétlődjön egy sorban vagy oszlopban. Minden színes csoport egy célt mutat, amelyet összeg, szorzat, különbség, hányados vagy egyetlen érték alkot, és a benne lévő számoknak ki kell adniuk ezt.\n\nKoppints egy cellára, majd írj be egy számot a nagy billentyűzeten. A Törlés gomb kiüríti a cellát.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

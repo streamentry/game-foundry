@@ -1,0 +1,8 @@
+{
+ "lang": "ms",
+ "status": "machine translation — native review pending",
+ "subtitle": "Teka-teki segi empat tepat",
+ "keywords": "segi empat tepat,teka-teki nombor,logik,grid,luas,geometri",
+ "short_description": "Bahagikan grid kepada segi empat tepat bersaiz petunjuk.",
+ "description": "Bahagikan grid kepada segi empat tepat. Setiap segi empat mesti kekal di dalam papan, mengandungi tepat satu petunjuk, dan meliputi bilangan sel yang ditunjukkan oleh petunjuk itu. Selesaikan lapan papan asal dengan penjuru yang dipilih dengan ketikan, buat asal, mula semula, pembukaan berperingkat, dan simpanan setempat. Tiada pemasa."
+}

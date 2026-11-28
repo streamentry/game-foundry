@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Talrum med afstand",
+ "keywords": "områder,afstand,mellemrum,tal,logik,gitter,gåde",
+ "short_description": "Udfyld uregelmæssige rum, så gentagne tal holder deres afstand.",
+ "description": "Udfyld hvert uregelmæssigt rum med tallene 1 op til rummets størrelse. Hvis det samme tal k optræder to gange i en række eller kolonne, skal mindst k felter ligge mellem dem.\n\nTryk på et felt og indtast et ciffer fra 1 til 4 med de store knapper. Hvert felt viser sin rumbogstav og rumstørrelse ved siden af tallet.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

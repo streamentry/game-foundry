@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Yhdistä samanväriset parit",
+ "keywords": "virta,yhdistä,parit,reitit,viiva,logiikka,kirjaimet,ruudukko,palapeli,polku",
+ "short_description": "Yhdistä jokainen kirjainpari reitillä, joka täyttää koko ruudukon.",
+ "description": "Yhdistä jokainen kirjainpari reitillä 4×4-ruudukon ruutuja pitkin. Reitit eivät saa risteä tai haarautua, ja yhdessä kahden reitin on peitettävä jokainen ruutu.\n\nNapauta tyhjiä ruutuja vaihtaaksesi reitin A, reitin B ja tyhjän välillä. Kiinteät päätepisteet on merkitty ympyröillä, ja jokaisella reitillä on oma kirjaimensa ja värinsä.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ibunyag ang larawan",
+ "keywords": "picross,griddler,hanjie,pintura ayon sa numero,larawan,pixel,lohika,grid,palaisipan",
+ "short_description": "Gamitin ang clue ng hilera at kolum para ibunyag ang nakatagong 5×5 na larawan.",
+ "description": "Punan ang 5×5 na grid para tumugma ang bawat hilera at kolum sa run clue nito: bawat numero ay isang bloke ng magkakasunod na napunang cell, at may kahit isang blangkong cell sa pagitan ng mga bloke. Maliit na pixel na disenyo ang bawat board.\n\nI-tap ang cell para punan ito, i-tap muli para i-cross out, at muli para burahin. Nananatiling nakikita ang sampung linya ng clue.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "cs",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hádanky s výškou věží",
+ "keywords": "mrakodrapy,věže,výšky,výhled,latinský čtverec,čísla,logika,mřížka",
+ "short_description": "Umístěte výšky budov tak, aby každá nápověda na okraji seděla.",
+ "description": "Vyplňte mřížku 4×4 výškami budov 1 až 4 a nikdy neopakujte výšku v řádku ani sloupci. Každé číslo na okraji říká, kolik budov je vidět z daného směru, protože vyšší budovy zakrývají nižší za sebou.\n\nVyberte pole a zadejte výšku 1 až 4. Vymazat smaže pole.\n\nŠest původních hracích plánů; každý odemkne další po vyřešení. Zpět a Začít znovu jsou vždy k dispozici, časovač není a váš postup se ukládá v tomto zařízení. Funguje offline. Bez reklam, bez účtu, bez sběru dat."
+}

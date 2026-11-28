@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Unește perechile identice",
+ "keywords": "flux,conectare,perechi,rute,linie,logică,litere,grilă,puzzle",
+ "short_description": "Unește fiecare pereche cu litere printr-o rută care umple întreaga grilă.",
+ "description": "Conectează fiecare pereche de litere identice printr-o rută de-a lungul pătratelor unei grile 4×4. Rutele nu se pot intersecta sau ramifica, iar împreună trebuie să acopere fiecare pătrat.\n\nAtinge pătratele goale pentru a trece prin ruta A, ruta B și gol. Capetele fixe sunt marcate cu cercuri, iar fiecare rută are propria literă și culoare.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

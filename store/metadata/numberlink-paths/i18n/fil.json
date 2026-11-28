@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ikonekta ang magkapares",
+ "keywords": "daloy,kumonekta,pares,ruta,linya,lohika,letra,grid,palaisipan,landas",
+ "short_description": "Pagdugtungin ang bawat pares ng letra sa ruta na pumupuno sa buong grid.",
+ "description": "Ikonekta ang bawat pares ng magkatugmang letra sa pamamagitan ng ruta sa mga parisukat ng 4×4 na grid. Hindi maaaring magsalubong o magsanga ang mga ruta, at sa kanilang pinagsama ay dapat masakop ang bawat parisukat.\n\nI-tap ang blangkong parisukat para dumaan sa ruta A, ruta B, at blangko. Minamarkahan ng bilog ang mga nakapirming dulo, at may sariling letra at kulay ang bawat ruta.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

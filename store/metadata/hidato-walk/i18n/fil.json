@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Palaisipan sa landas ng numero",
+ "keywords": "hidoku,landas ng numero,kadena,magkasunod,pagkakasunod,grid,lohika,palaisipan",
+ "short_description": "Ilagay ang 1 hanggang 16 sa kadena na magkakadikit ang bawat magkasunod.",
+ "description": "Ilagay ang mga numerong 1 hanggang 16 sa 4×4 na grid, isang beses lang bawat isa, para magdikit ang bawat magkasunod na pares nang pahalang, patayo o pahilis. Dapat manatili sa kanilang puwesto ang mga numerong ibinigay na.\n\nI-tap ang cell na maaaring punan at pumili ng numero sa keypad. Binubura ng Erase ang isang cell.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

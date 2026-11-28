@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Keresd meg a rejtett flottát",
+ "keywords": "hajók,flotta,tengerészet,térkép,logika,rács,rejtvény,szonár",
+ "short_description": "Találd meg a rejtett flottát az 5×5-ös térképen, összegek alapján.",
+ "description": "Keress egy kis flottát egy 5×5-ös térképen: egy három, egy két és egy egy cella hosszú hajó van. A hajók nem érhetnek egymáshoz, még átlósan sem, és minden sor- és oszlopösszegnek egyeznie kell a megadottal.\n\nKoppints egy mezőre a hajó jelöléséhez, újabb koppintással a víz jelzéséhez, a harmadikkal pedig törléshez. Az aktuális és a célösszeg minden sor és oszlop mellett látható.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

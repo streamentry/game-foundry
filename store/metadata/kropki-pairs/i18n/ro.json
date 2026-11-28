@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle-uri cu indicii punctate",
+ "keywords": "puncte,punct negru,punct alb,consecutiv,raport,pătrat latin,logică,puzzle",
+ "short_description": "Completează o grilă 4×4 cu cifre de la 1 la 4, ghidat de puncte albe și negre.",
+ "description": "Completează o grilă 4×4 cu cifrele 1 la 4, astfel încât fiecare cifră să apară o singură dată pe fiecare rând și coloană. Un punct alb între două pătrate înseamnă că cifrele sunt consecutive; un punct negru înseamnă că una este exact dublul celeilalte. Laturile fără punct nu au niciun indiciu.\n\nAtinge un pătrat editabil, apoi o cifră de pe tastatura mare cu patru taste. Etichetele din pătrate și un inspector te ajută să citești fiecare punct.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Brojevne sobe s razmakom",
+ "keywords": "područja,razmak,udaljenost,brojevi,logika,mreža,zagonetka",
+ "short_description": "Popuni nepravilne sobe tako da ponovljeni brojevi zadrže razmak.",
+ "description": "Popuni svaku nepravilnu sobu brojevima od 1 do njezine veličine. Ako se isti broj k pojavi dvaput u retku ili stupcu, između njih mora biti najmanje k polja.\n\nDodirni polje i unesi broj od 1 do 4 na velikim gumbima. Uz broj svako polje pokazuje oznaku sobe i njezinu veličinu.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

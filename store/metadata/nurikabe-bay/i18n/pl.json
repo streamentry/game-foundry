@@ -1,0 +1,8 @@
+{
+ "lang": "pl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Wyspy i morze",
+ "keywords": "wyspy,morze,ląd,spójność,logika,liczby,siatka,łamigłówka,woda",
+ "short_description": "Podziel zatokę 4×4 na morze i wyspy o dokładnie określonej wielkości.",
+ "description": "Oznacz każde pole zatoki 4×4 jako morze lub ląd. Każda ponumerowana wyspa ma dokładnie tyle pól i zawiera jedną wskazówkę, morze tworzy jeden spójny obszar, a żaden blok 2×2 nie może być w całości morzem.\n\nDotknij puste pole, aby przełączać między morzem, lądem i pustym polem. Pola ze wskazówkami są stałe.\n\nSześć oryginalnych plansz; każda kolejna odblokowuje się po rozwiązaniu poprzedniej. Cofnij i Zacznij od nowa są zawsze dostępne, nie ma zegara, a Twój postęp zapisuje się na tym urządzeniu. Działa offline. Bez reklam, bez konta, bez zbierania danych."
+}

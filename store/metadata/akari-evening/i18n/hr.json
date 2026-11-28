@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Osvijetli svako otvoreno polje",
+ "keywords": "svjetiljke,žarulje,logika,mreža,brojevi,zagonetka,osvjetljenje,zidovi",
+ "short_description": "Osvijetli sva polja svjetiljkama, bez dviju koje se međusobno vide.",
+ "description": "Postavi svjetiljke na ploču 4×4 tako da svako otvoreno polje bude osvijetljeno, nijedne dvije svjetiljke ne osvjetljavaju jedna drugu, a svaki brojčani zid dodiruje točno toliko svjetiljki.\n\nDodirni otvoreno polje da mijenjaš između svjetiljke, oznake križića i praznog polja; osvijetljena polja označena su dok igraš.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

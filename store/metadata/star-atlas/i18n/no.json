@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Stjerneplasseringsgåter",
+ "keywords": "stjerner,regioner,rader,kolonner,logikk,rutenett,stjernebilde,gåte",
+ "short_description": "Plasser én stjerne per rad, kolonne og region, uten å berøre hverandre.",
+ "description": "Plasser stjerner på rutenettet slik at hver rad, hver kolonne og hver merket region har nøyaktig én stjerne, og ingen to stjerner berører hverandre, heller ikke diagonalt.\n\nTrykk på en rute for å bytte mellom stjerne, prikk og tom; prikker er notater for ruter du har utelukket.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Phòng số có khoảng cách",
+ "keywords": "vùng,khoảng cách,khoảng trống,số,logic,lưới,câu đố",
+ "short_description": "Điền các phòng bất quy tắc để số lặp lại giữ đúng khoảng cách.",
+ "description": "Điền mỗi phòng bất quy tắc bằng các số từ 1 đến kích thước của phòng. Nếu cùng một số k xuất hiện hai lần trong một hàng hoặc cột, phải có ít nhất k ô nằm giữa hai số đó.\n\nChạm vào một ô và nhập chữ số từ 1 đến 4 bằng các nút lớn. Mỗi ô hiển thị chữ cái phòng và kích thước phòng bên cạnh số.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

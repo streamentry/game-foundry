@@ -1,0 +1,8 @@
+{
+ "lang": "hr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zagonetke sa zvijezdama",
+ "keywords": "regije,retci,stupci,logika,mreža,sazviježđe,zagonetka",
+ "short_description": "Postavi jednu zvijezdu po retku, stupcu i regiji, bez dodirivanja.",
+ "description": "Postavi zvijezde na mrežu tako da svaki redak, svaki stupac i svaka označena regija sadrže točno jednu zvijezdu, a nijedne dvije se ne dodiruju, ni dijagonalno.\n\nDodirni polje da mijenjaš zvijezdu, točku i prazno; točke su bilješke za polja koja si isključio.\n\nŠest originalnih ploča, a svaka otključava sljedeću kad je riješiš. Poništi i Ponovno pokreni uvijek su dostupni, nema vremenskog ograničenja, a napredak se sprema na ovom uređaju. Radi bez interneta. Bez oglasa, bez računa i bez prikupljanja podataka."
+}

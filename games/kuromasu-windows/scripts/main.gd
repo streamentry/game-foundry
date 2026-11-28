@@ -3,15 +3,25 @@ extends Control
 const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/rules.gd")
 const Progress = preload("res://scripts/progress.gd")
+const Motion = preload("res://scripts/motion.gd")
 
 const MODE: String = "kuromasu-windows"
 const TITLE: String = "Kuromasu Windows"
-const PAPER: Color = Color("#F8F4EC")
-const INK: Color = Color("#333D45")
-const ACCENT: Color = Color("#4C5565")
-const SECONDARY: Color = Color("#C5A46C")
-const SOFT: Color = Color("#EAE4D8")
-const WHITE: Color = Color("#FFFFFF")
+const SETTINGS_PATH: String = "user://settings.json"
+## Palette follows icon.png: plum ground, rose lit cells, dark shaded cells.
+const PAPER: Color = Color("#2A0A31")        # background
+const INK: Color = Color("#FFF4F8")          # text, 14.3:1 on SOFT
+const ACCENT: Color = Color("#F58DB9")       # lit (white) cell and primary fill
+const ACCENT_INK: Color = Color("#2A0A31")   # text on ACCENT and CLUE, 7.9:1
+const SECONDARY: Color = Color("#FFE3A3")    # focus ring (gold), never a state
+const SOFT: Color = Color("#3B1442")         # surface: unknown cells, secondary buttons
+const SURFACE_ALT: Color = Color("#4F1E57")
+const SHADE: Color = Color("#12030F")        # black (shaded) cell
+const INK_MUTED: Color = Color("#E3B9D2")
+const CLUE: Color = Color("#FFD3E6")         # fixed numbered clue
+const SUCCESS: Color = Color("#9BE7C4")
+const ERROR: Color = Color("#FF9E8C")
+const WHITE: Color = Color("#FFFFFF")        # legacy modes only
 const CELL_SIDE: int = 76
 
 var state: Dictionary = {}
@@ -29,14 +39,47 @@ var info_label: Label
 var undo_button: Button
 var next_button: Button
 var prev_button: Button
+var reduce_toggle: CheckButton
+var board_holder: CenterContainer
+var motion := Motion.new()
 
 func _ready() -> void:
     state = Progress.load_saved()
     var linked: int = _linked_level()
     if linked >= 0:
         Progress.set_level(state, linked)
+    _load_settings()
     _build_ui()
     _load_level()
+    motion.stagger_in(cells)
+
+func _load_settings() -> void:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return
+    var parser := JSON.new()
+    if parser.parse(file.get_as_text()) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+        return
+    var saved: Variant = parser.data.get("reduced_motion", null)
+    if typeof(saved) == TYPE_BOOL:
+        motion.reduced_motion = saved
+
+func _save_settings() -> bool:
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        return false
+    file.store_string(JSON.stringify({"reduced_motion": motion.reduced_motion}))
+    file.close()
+    return true
+
+func set_reduced_motion(on: bool) -> void:
+    motion.reduced_motion = on
+    if reduce_toggle != null and reduce_toggle.button_pressed != on:
+        reduce_toggle.button_pressed = on
+    if not _save_settings():
+        push_warning(TITLE + " could not save the motion setting.")
 
 func _linked_level() -> int:
     if not OS.has_feature("web"):
@@ -63,22 +106,34 @@ func _label(value: String, px: int, color: Color = INK, center: bool = false) ->
         item.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     return item
 
-func _style(item: Button, background: Color, foreground: Color, active: bool = false) -> void:
-    var normal := StyleBoxFlat.new()
-    normal.bg_color = background
-    normal.border_color = ACCENT if active else Color("#B5C2BE")
-    normal.set_border_width_all(3 if active else 1)
-    normal.set_corner_radius_all(9)
-    for mode in ["normal", "hover", "pressed", "disabled"]:
-        item.add_theme_stylebox_override(mode, normal)
-    var focus := StyleBoxFlat.new()
-    focus.bg_color = Color.TRANSPARENT
-    focus.border_color = SECONDARY
-    focus.set_border_width_all(3)
-    focus.set_corner_radius_all(9)
-    item.add_theme_stylebox_override("focus", focus)
-    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
-        item.add_theme_color_override(mode, foreground)
+func _box(background: Color, border: Color, width: int, raised: bool) -> StyleBoxFlat:
+    var box := StyleBoxFlat.new()
+    box.bg_color = background
+    box.border_color = border
+    box.set_border_width_all(width)
+    box.set_corner_radius_all(12)
+    if raised:
+        box.shadow_color = Color(0, 0, 0, 0.35)
+        box.shadow_size = 4
+        box.shadow_offset = Vector2(0, 2)
+    return box
+
+## Cells use the default (no dimming, no shadow); buttons pass raised and dim_disabled.
+func _style(item: Button, background: Color, foreground: Color, active: bool = false,
+        raised: bool = false, dim_disabled: bool = false) -> void:
+    var border: Color = ACCENT if active else Color(INK_MUTED, 0.35)
+    var width: int = 3 if active else 1
+    item.add_theme_stylebox_override("normal", _box(background, border, width, raised))
+    item.add_theme_stylebox_override("hover", _box(background.lightened(0.08), border, width, raised))
+    item.add_theme_stylebox_override("pressed", _box(background.darkened(0.10), border, width, false))
+    var disabled_fill: Color = Color(background, 0.5) if dim_disabled else background
+    item.add_theme_stylebox_override("disabled", _box(disabled_fill, border, width, false))
+    item.add_theme_stylebox_override("focus", _box(Color.TRANSPARENT, SECONDARY, 3, false))
+    item.add_theme_color_override("font_color", foreground)
+    item.add_theme_color_override("font_hover_color", foreground)
+    item.add_theme_color_override("font_pressed_color", foreground)
+    item.add_theme_color_override("font_disabled_color",
+        Color(foreground, 0.6) if dim_disabled else foreground)
 
 func _button(value: String, callback: Callable, primary: bool = false) -> Button:
     var item := Button.new()
@@ -87,7 +142,10 @@ func _button(value: String, callback: Callable, primary: bool = false) -> Button
     item.custom_minimum_size = Vector2(0, 54)
     item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     item.add_theme_font_size_override("font_size", 16)
-    _style(item, ACCENT if primary else SOFT, WHITE if primary else INK)
+    if primary:
+        _style(item, ACCENT, ACCENT_INK, false, true, true)
+    else:
+        _style(item, SOFT, INK, false, true, true)
     item.pressed.connect(callback)
     return item
 
@@ -115,18 +173,18 @@ func _build_ui() -> void:
     column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     column.add_theme_constant_override("separation", 12)
     margin.add_child(column)
-    column.add_child(_label("KUROMASU WINDOWS / WHITE SPACE", 12, ACCENT))
+    column.add_child(_label("KUROMASU WINDOWS / WHITE SPACE", 12, INK_MUTED))
     column.add_child(_label("See around the corners.", 28))
     column.add_child(_label("Shade black cells without black neighbors sharing an edge. All white squares stay connected. Each number counts visible white squares in its row and column, including itself.", 15))
     heading = _label("", 16)
     column.add_child(heading)
-    var centered := CenterContainer.new()
-    centered.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    column.add_child(centered)
+    board_holder = CenterContainer.new()
+    board_holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    column.add_child(board_holder)
     grid = GridContainer.new()
     grid.add_theme_constant_override("h_separation", 4)
     grid.add_theme_constant_override("v_separation", 4)
-    centered.add_child(grid)
+    board_holder.add_child(grid)
     progress_label = _label("", 15)
     column.add_child(progress_label)
     status_label = _label("", 15)
@@ -156,6 +214,17 @@ func _build_ui() -> void:
     nav.add_child(prev_button)
     nav.add_child(next_button)
     column.add_child(nav)
+    reduce_toggle = CheckButton.new()
+    reduce_toggle.text = "Reduce motion"
+    reduce_toggle.accessibility_name = "Reduce motion"
+    reduce_toggle.custom_minimum_size = Vector2(0, 48)
+    reduce_toggle.button_pressed = motion.reduced_motion
+    reduce_toggle.add_theme_font_size_override("font_size", 16)
+    reduce_toggle.add_theme_color_override("font_color", INK)
+    reduce_toggle.add_theme_color_override("font_hover_color", INK)
+    reduce_toggle.add_theme_color_override("font_pressed_color", INK)
+    reduce_toggle.toggled.connect(set_reduced_motion)
+    column.add_child(reduce_toggle)
     column.add_child(_button("Copy this challenge", _share))
     column.add_child(_label("Independent rules, no timer, no account, no ads or tracking. Mobile accessibility needs a real-device check.", 13))
 
@@ -215,11 +284,28 @@ func _tap(index: int) -> void:
     if history.size() > 60:
         history.pop_front()
     var next_value: int = (int(state["entries"][index]) + 1) % 3
+    var was_done: bool = Rules.complete(level, state["entries"])
     if not Progress.update(state, index, next_value):
         history.pop_back()
         return
     _save()
     _refresh()
+    _animate_tap(index, next_value, was_done)
+
+func _animate_tap(index: int, value: int, was_done: bool) -> void:
+    var cell: Control = cells[index]
+    motion.pop(cell)
+    if value == 1 and _touches_black(index):
+        motion.shake(cell)
+    if not was_done and Rules.complete(level, state["entries"]):
+        motion.sweep(cells, SECONDARY)
+        motion.celebrate(self, board_holder.get_global_rect().get_center(), [ACCENT, SUCCESS, SECONDARY])
+
+func _touches_black(index: int) -> bool:
+    for q in Rules.neighbors(index):
+        if int(state["entries"][q]) == 1:
+            return true
+    return false
 
 func _enter(value: int) -> void:
     if MODE not in ["kropki-pairs", "ripple-rooms"]:
@@ -247,6 +333,7 @@ func _restart() -> void:
     state["entries"] = Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 func _next() -> void:
     if not Progress.can_advance(state):
@@ -254,6 +341,7 @@ func _next() -> void:
     Progress.set_level(state, int(state["level"]) + 1)
     _save()
     _load_level()
+    motion.slide_swap(board_holder, 1)
 
 func _previous() -> void:
     if int(state["level"]) <= 0:
@@ -261,6 +349,7 @@ func _previous() -> void:
     Progress.set_level(state, int(state["level"]) - 1)
     _save()
     _load_level()
+    motion.slide_swap(board_holder, -1)
 
 func _lookup_fixed(index: int) -> bool:
     return int(Rules.blank(level)[index]) != 0
@@ -308,10 +397,13 @@ func _cell_colors(index: int, value: int) -> Array:
             if level["rooms"][i].has(index):
                 return [palette[i % palette.size()], INK]
     if MODE == "kuromasu-windows":
+        if _lookup_fixed(index):
+            return [CLUE, ACCENT_INK]
         if value == 1:
-            return [ACCENT, WHITE]
+            return [SHADE, INK]
         if value == 2:
-            return [Color("#F7F1E3"), INK]
+            return [ACCENT, ACCENT_INK]
+        return [SOFT, INK]
     if MODE == "battleship-harbor":
         if value == 1:
             return [ACCENT, WHITE]
@@ -375,7 +467,7 @@ func _refresh() -> void:
             int(selected / 4) + 1, selected % 4 + 1, room_name]
     else:
         info_label.text = "Changes are reversible. No precision swipe is required."
-    status_label.text = Rules.status(level, state["entries"])
+    _set_status(Rules.status(level, state["entries"]))
     undo_button.disabled = history.is_empty()
     next_button.disabled = not Progress.can_advance(state)
     prev_button.disabled = int(state["level"]) == 0
@@ -391,4 +483,13 @@ func _share() -> void:
         if typeof(base) == TYPE_STRING and str(base).begins_with("http"):
             message += "\n" + str(base) + "?level=" + str(int(state["level"]) + 1)
     DisplayServer.clipboard_set(message)
-    status_label.text = "Challenge text prepared. Clipboard access may vary."
+    _set_status("Challenge text prepared. Clipboard access may vary.")
+
+func _set_status(message: String) -> void:
+    status_label.text = message
+    var color: Color = INK
+    if message.begins_with("All numbered"):
+        color = SUCCESS
+    elif message.begins_with("Two black") or message.begins_with("All white") or message.begins_with("One numbered"):
+        color = ERROR
+    status_label.add_theme_color_override("font_color", color)

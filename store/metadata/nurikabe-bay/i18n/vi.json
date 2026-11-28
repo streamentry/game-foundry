@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố đảo và biển",
+ "keywords": "đảo,biển,đất liền,liên thông,logic,số,lưới,câu đố,nước",
+ "short_description": "Phân loại vịnh 4×4 thành biển và các đảo đúng kích thước.",
+ "description": "Đánh dấu mọi ô của vịnh 4×4 là biển hoặc đất liền. Mỗi đảo có số có đúng bấy nhiêu ô và chứa một gợi ý, biển tạo thành một khối liên thông duy nhất, và không có khối 2×2 nào toàn biển.\n\nChạm vào ô trống để luân phiên giữa biển, đất liền và trống. Các ô gợi ý được cố định.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

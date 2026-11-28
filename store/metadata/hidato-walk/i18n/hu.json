@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Számsor-rejtvények",
+ "keywords": "hidoku,számút,lánc,egymás utáni,sorozat,rács,logika,rejtvény",
+ "short_description": "Írd az 1–16 számokat láncba, ahol minden szám érinti a következőt.",
+ "description": "Helyezd el az 1-től 16-ig terjedő számokat egy 4×4-es rácson, mindegyiket pontosan egyszer, úgy, hogy minden egymást követő számpár vízszintesen, függőlegesen vagy átlósan érintkezzen. A már megadott számok maradjanak a helyükön.\n\nKoppints egy szerkeszthető cellára, majd válassz egy számot a billentyűzeten. A Törlés gomb kiüríti a cellát.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

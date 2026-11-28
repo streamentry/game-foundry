@@ -1,0 +1,8 @@
+{
+ "lang": "nl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Getalpadpuzzels",
+ "keywords": "hidoku,getalpad,keten,opeenvolgend,rij,raster,logica,puzzel",
+ "short_description": "Plaats 1 tot 16 in een keten waarin elk getal het volgende raakt.",
+ "description": "Plaats de getallen 1 tot 16 op een raster van 4×4, elk precies één keer, zodat elk opeenvolgend paar horizontaal, verticaal of diagonaal aan elkaar grenst. De al gegeven getallen blijven op hun plek.\n\nTik op een bewerkbare cel en kies een getal op het toetsenbord. Wissen maakt een cel leeg.\n\nZes originele borden; elk bord ontgrendelt het volgende zodra het is opgelost. Ongedaan maken en Opnieuw beginnen zijn altijd beschikbaar, er is geen timer, en je voortgang wordt op dit apparaat opgeslagen. Werkt offline. Geen advertenties, geen account, geen gegevensverzameling."
+}

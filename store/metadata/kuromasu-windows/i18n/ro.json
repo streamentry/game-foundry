@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Numără ce poți vedea",
+ "keywords": "kurodoko,vizibilitate,linie de vedere,alb negru,umbrire,logică,număr,grilă,puzzle",
+ "short_description": "Umbrește pătrate astfel încât fiecare număr să vadă exact atâtea pătrate albe.",
+ "description": "Umbrește unele pătrate în negru, astfel încât pătratele negre să nu aibă niciodată o latură comună, iar toate cele albe să rămână conectate. Fiecare pătrat numerotat numără pătratele albe pe care le vede pe rândul și coloana sa, inclusiv pe sine, și trebuie să se potrivească cu numărul.\n\nAtinge un pătrat gol pentru a trece prin negru, alb și necunoscut. Indiciile numerotate rămân fixe, iar textul de pe ecran arată ce linii de vedere sau conexiuni încalcă regulile.\n\nȘase table originale, fiecare deblocând-o pe următoarea după ce este rezolvată. Anulează și Repornește sunt mereu disponibile, nu există cronometru, iar progresul se salvează pe acest dispozitiv. Se joacă offline. Fără reclame, fără cont, fără colectare de date."
+}

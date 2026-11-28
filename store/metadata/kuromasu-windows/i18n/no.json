@@ -1,0 +1,8 @@
+{
+ "lang": "no",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tell det du kan se",
+ "keywords": "kurodoko,siktlinje,synsfelt,svart hvit,skygge,logikk,tall,rutenett",
+ "short_description": "Skyggelegg ruter slik at hvert tall ser akkurat antallet hvite ruter det viser.",
+ "description": "Gjør noen ruter svarte slik at svarte ruter aldri deler en kant og alle hvite ruter forblir sammenhengende. Hver nummererte rute teller de hvite rutene den ser i sin rad og kolonne, inkludert seg selv, og antallet må stemme med tallet.\n\nTrykk på en tom rute for å bytte mellom svart, hvit og ukjent. Nummererte ledetråder står fast, og teksten på skjermen forteller hvilke siktlinjer eller forbindelser som bryter reglene.\n\nSeks originale brett; hvert brett låser opp neste når det er løst. Angre og Start på nytt er alltid tilgjengelig, det finnes ingen tidtaker, og fremgangen din lagres på denne enheten. Fungerer uten nett. Ingen annonser, ingen konto, ingen datainnsamling."
+}

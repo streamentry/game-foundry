@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tô đen các số trùng",
+ "keywords": "tô đen,trùng lặp,số lặp lại,liên thông,logic,số,lưới,câu đố",
+ "short_description": "Tô đen các số lặp lại mà không làm bảng bị tách rời.",
+ "description": "Tô đen các ô sao cho trong số các ô chưa tô, không số nào xuất hiện quá một lần trong cùng một hàng hoặc cột. Các ô đã tô không bao giờ được chạm nhau theo cạnh, và mọi ô chưa tô phải liên thông thành một nhóm.\n\nChạm vào một ô có số để luân phiên giữa tô đen, ghi chú giữ lại và chưa đánh dấu.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

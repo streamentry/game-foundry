@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Palaisipang may tuldok na clue",
+ "keywords": "tuldok,puting tuldok,itim na tuldok,magkasunod,ratio,latin square,numero,lohika,palaisipan",
+ "short_description": "Punan ang 4×4 na grid ng 1 hanggang 4, gabayan ng puti at itim na tuldok.",
+ "description": "Punan ang 4×4 na grid ng 1 hanggang 4 para lumitaw ang bawat digit nang isang beses sa bawat hilera at kolum. Ang puting tuldok sa pagitan ng dalawang parisukat ay nangangahulugang magkasunod ang mga digit; ang itim na tuldok ay nangangahulugang eksaktong doble ang isa sa isa. Ang gilid na walang tuldok ay walang clue.\n\nI-tap ang parisukat na maaaring punan, pagkatapos ang digit sa malaking pad na apat ang susi. Nakakatulong ang mga label sa loob ng parisukat at ang inspector para basahin ang bawat tuldok.\n\nAnim na orihinal na board, bawat isa ay nabubuksan ang susunod kapag nalutas. Palaging available ang Undo at Restart, walang timer, at naka-save sa device na ito ang iyong progreso. Gumagana offline. Walang ad, walang account, at walang pangongolekta ng data."
+}

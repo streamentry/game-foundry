@@ -1,0 +1,8 @@
+{
+ "lang": "fi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Laske mitä näet",
+ "keywords": "kurodoko,näkölinja,näkyvyys,musta valkoinen,varjostus,logiikka,numero,ruudukko",
+ "short_description": "Varjosta ruutuja, jotta jokainen numero näkee oikean määrän valkoisia ruutuja.",
+ "description": "Tee joistakin ruuduista mustia niin, että mustat ruudut eivät koskaan jaa reunaa ja kaikki valkoiset ruudut pysyvät yhtenäisinä. Jokainen numeroitu ruutu laskee rivillään ja sarakkeellaan näkemänsä valkoiset ruudut itse mukaan lukien, ja määrän on vastattava lukua.\n\nNapauta tyhjää ruutua vaihtaaksesi mustan, valkoisen ja tuntemattoman välillä. Numeroidut vihjeet pysyvät paikoillaan, ja näytöllä kerrotaan, mitkä näkölinjat tai yhteydet rikkovat säännöt.\n\nKuusi alkuperäistä pelilautaa; jokainen ratkaistu lauta avaa seuraavan. Kumoa ja Aloita alusta ovat aina käytettävissä, ajastinta ei ole, ja edistymisesi tallentuu tälle laitteelle. Toimii offline-tilassa. Ei mainoksia, ei tiliä, ei tietojen keruuta."
+}

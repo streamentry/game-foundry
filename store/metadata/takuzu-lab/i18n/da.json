@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Daglige binære gåder",
+ "keywords": "binær,binairo,logik,talgåde,daglig,gitter",
+ "short_description": "Løs binære gitre med hints og lokale fremskridt.",
+ "description": "Spil en daglig Takuzu-gåde på 4×4 eller frie bræt på 4×4 og 6×6. Rækker og kolonner skal balancere, der må ikke være tre ens tal i træk, og færdige linjer må ikke gentages. Brug hints, fortryd, gentag og start forfra. Fremskridt gemmes lokalt."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rajzolj egy zárt hurkot",
+ "keywords": "slitherlink,kerítések,élek,vonal,logika,szám,rács,rejtvény",
+ "short_description": "Rajzolj egyetlen hurkot, amely minden élszám-feltételnek megfelel.",
+ "description": "Rajzolj egyetlen zárt hurkot a rácsvonalak mentén úgy, hogy az ne ágazzon el és ne keresztezze önmagát. Minden számozott négyzet megmondja, hogy négy oldalából hányat használ a hurok.\n\nKoppints egy négyzetre, majd nyomd meg a négy nagy gomb valamelyikét (Felső, Jobb, Alsó vagy Bal), hogy hozzáadd vagy eltávolítsd az adott élt.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

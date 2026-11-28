@@ -1,0 +1,8 @@
+{
+ "lang": "sv",
+ "status": "machine translation — native review pending",
+ "subtitle": "Aritmetiska burpussel",
+ "keywords": "kenken,calcudoku,burar,aritmetik,matte,latinsk kvadrat,tal,pussel,logik",
+ "short_description": "Fyll ett 4×4-rutnät så att varje bur når sitt aritmetiska mål.",
+ "description": "Fyll ett 4×4-rutnät med 1 till 4 så att ingen siffra upprepas i någon rad eller kolumn. Varje färgad bur visar ett mål som bygger på en summa, produkt, differens, kvot eller ett enskilt värde, och siffrorna i buren måste nå målet.\n\nTryck på en ruta och skriv sedan en siffra på den stora knappsatsen. Radera tömmer en ruta.\n\nSex originala banor; varje bana låser upp nästa när den är löst. Ångra och Starta om finns alltid tillgängliga, det finns ingen timer, och dina framsteg sparas på den här enheten. Fungerar offline. Inga annonser, inget konto, ingen datainsamling."
+}

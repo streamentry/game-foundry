@@ -1,0 +1,8 @@
+{
+ "lang": "fil",
+ "status": "machine translation — native review pending",
+ "subtitle": "Linawin ang magkakrus na clue",
+ "keywords": "krus na numero,kabuuan,lohika,aritmetika,grid,palaisipan",
+ "short_description": "Lutasin ang magkakrus na suma gamit ang malinaw na Compass inspector.",
+ "description": "Punan ang bawat Kakuro run ng digit na 1–9 para tumugma ang kabuuan sa clue; huwag ulitin ang digit sa loob ng isang run. Lutasin ang walong orihinal na 5×5 na board para mabuksan ang susunod. Ipinapakita ng Compass inspector ang kabuuang pahalang at patayo, at ang mga digit na posible sa napiling cell. Kasama ang undo, erase, restart, at lokal na progreso."
+}

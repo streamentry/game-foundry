@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Afslør billedet",
+ "keywords": "japansk gåde,picross,griddler,hanjie,mal efter tal,pixel,logik,gitter",
+ "short_description": "Brug række- og kolonneledetråde til at afsløre et skjult 5×5-billede.",
+ "description": "Udfyld et 5×5-gitter, så hver række og kolonne matcher sine ledetråde: hvert tal er en blok af sammenhængende udfyldte felter, og blokkene adskilles af mindst ét tomt felt. Hvert bræt er en lille pixeltegning.\n\nTryk på et felt for at udfylde det, tryk igen for at krydse det over og endnu en gang for at rydde det. Alle ti ledetrådslinjer er synlige hele tiden.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

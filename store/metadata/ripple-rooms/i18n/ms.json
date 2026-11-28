@@ -1,0 +1,8 @@
+{
+ "lang": "ms",
+ "status": "machine translation — native review pending",
+ "subtitle": "Bilik nombor dengan jarak",
+ "keywords": "rantau,jarak,jauh,nombor,logik,grid,teka-teki",
+ "short_description": "Isi bilik tidak sekata supaya nombor berulang mengekalkan jaraknya.",
+ "description": "Isi setiap bilik tidak sekata dengan nombor 1 hingga bersamaan saiz bilik itu. Jika nombor yang sama k muncul dua kali dalam satu baris atau lajur, sekurang-kurangnya k segi empat mesti berada di antara kedua-duanya.\n\nKetik satu segi empat dan masukkan digit 1 hingga 4 pada butang besar. Setiap segi empat menunjukkan huruf bilik dan saiz bilik di sebelah nombor.\n\nEnam papan asal, setiap satu membuka papan seterusnya selepas diselesaikan. Buat asal dan Mula Semula sentiasa tersedia, tiada pemasa, dan kemajuan anda disimpan pada peranti ini. Dimainkan secara luar talian. Tiada iklan, tiada akaun, tiada pengumpulan data."
+}

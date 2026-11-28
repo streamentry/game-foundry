@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Cộng đường lên đỉnh",
+ "keywords": "tổng,cộng,toán,số học,viên đá,logic,chữ số,lưới,câu đố",
+ "short_description": "Dựng lại kim tự tháp số từ vài gợi ý rải rác.",
+ "description": "Tìm bốn chữ số từ 1 đến 9 dọc theo đáy kim tự tháp. Mỗi viên đá trong sáu viên phía trên bằng tổng của hai viên ngay bên dưới, và một vài nhãn gợi ý được cố định để dẫn đường.\n\nChọn một viên đá ở đáy và nhập một chữ số; các viên đá phía trên hiển thị tổng của chúng khi bạn chơi.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "hu",
+ "status": "machine translation — native review pending",
+ "subtitle": "Forgasd a csöveket",
+ "keywords": "vízvezeték,forgatás,összekötés,áramlás,víz,térbeli,csempe,logika,rejtvény",
+ "short_description": "Forgasd a csempéket, amíg a víz a végéig folyhat.",
+ "description": "Forgasd a kilenc csőcsempét egy 3×3-as táblán úgy, hogy egyetlen folytonos, szivárgásmentes útvonal vezessen az egyik végétől a másikig.\n\nKoppints egy csempére az elforgatáshoz. A kanyarok és a végelemek négy állásúak, az egyenes darabok két állásúak.\n\nHat eredeti tábla van, és mindegyiket az előző megoldása nyitja meg. A visszavonás és az újrakezdés mindig elérhető, nincs időzítő, a haladás pedig ezen az eszközön mentődik. Offline is játszható. Nincs hirdetés, fiók és adatgyűjtés."
+}

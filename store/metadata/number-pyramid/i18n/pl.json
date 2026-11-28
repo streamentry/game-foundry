@@ -1,0 +1,8 @@
+{
+ "lang": "pl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Dodawaj drogę na szczyt",
+ "keywords": "sumy,dodawanie,matematyka,rachunki,kamienie,logika,cyfry,siatka",
+ "short_description": "Odtwórz piramidę liczb na podstawie kilku rozrzuconych wskazówek.",
+ "description": "Znajdź cztery cyfry od 1 do 9 wzdłuż dolnej części piramidy. Każdy z sześciu kamieni powyżej jest równy sumie dwóch bezpośrednio pod nim, a kilka etykiet ze wskazówkami jest stałych, by cię prowadzić.\n\nWybierz dolny kamień i wpisz cyfrę; kamienie wyżej pokazują swoje sumy w trakcie gry.\n\nSześć oryginalnych plansz; każda kolejna odblokowuje się po rozwiązaniu poprzedniej. Cofnij i Zacznij od nowa są zawsze dostępne, nie ma zegara, a Twój postęp zapisuje się na tym urządzeniu. Działa offline. Bez reklam, bez konta, bez zbierania danych."
+}

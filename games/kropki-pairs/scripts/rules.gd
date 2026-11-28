@@ -102,7 +102,7 @@ static func status(level:Dictionary, entries:Array) -> String:
         return "All white/black dots and Latin rows agree. Solved!"
     if not _partial(level,entries):
         return "Repeated number or broken W/B dot rule."
-    return "W: consecutive. B: double. Unmarked edges are unconstrained."
+    return "White dot: consecutive. Black dot: double. Edges without a dot are unconstrained."
 
 static func count_solutions(level:Dictionary, limit:int=2) -> int:
     if not valid_level(level):

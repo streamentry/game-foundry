@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Descobreix la imatge",
+ "keywords": "picross,griddler,hanjie,pintar per números,imatge,píxel,lògica,quadrícula,trencaclosques",
+ "short_description": "Fes servir les pistes de files i columnes per revelar una imatge de 5×5.",
+ "description": "Omple una quadrícula de 5×5 perquè cada fila i columna coincideixi amb les seves pistes de blocs: cada número és un bloc de caselles consecutives plenes, i els blocs estan separats per almenys una casella buida. Cada tauler és un petit disseny de píxels.\n\nToca una casella per omplir-la, torna a tocar-la per marcar-la amb una creu i una tercera vegada per buidar-la. Les deu línies de pistes es mantenen visibles.\n\nSis taulers originals, cadascun desbloqueja el següent quan el resols. Desfer i Reinicia estan sempre disponibles, no hi ha temporitzador i el progrés es desa en aquest dispositiu. Funciona sense connexió. Sense anuncis, sense compte i sense recollida de dades."
+}

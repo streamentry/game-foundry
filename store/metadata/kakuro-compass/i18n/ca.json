@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pistes creuades clares",
+ "keywords": "nombres creuats,sumes,lògica,aritmètica,quadrícula,trencaclosques",
+ "short_description": "Resol sumes creuades amb un inspector de cel·les clar.",
+ "description": "Omple cada sèrie de Kakuro amb dígits de l'1 al 9 perquè la suma coincideixi amb la pista; no repeteixis un dígit dins d'una sèrie. Resol vuit taulers originals de 5×5 per desbloquejar el següent. L'inspector Compass mostra els totals horitzontals i verticals i els dígits localment possibles per a la cel·la seleccionada. Hi ha desfer, esborrar, reiniciar i progrés local inclosos."
+}

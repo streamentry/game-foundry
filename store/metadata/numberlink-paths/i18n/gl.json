@@ -1,0 +1,8 @@
+{
+ "lang": "gl",
+ "status": "machine translation — native review pending",
+ "subtitle": "Une os pares iguais",
+ "keywords": "fluxo,conectar,pares,rutas,liña,lóxica,letras,crebacabezas",
+ "short_description": "Une cada par de letras cunha ruta que cubra toda a cuadrícula.",
+ "description": "Conecta cada par de letras iguais cunha ruta que siga os cadrados dunha cuadrícula de 4×4. As rutas non poden cruzarse nin ramificarse, e entre as dúas deben cubrir todos os cadrados.\n\nToca os cadrados en branco para alternar entre ruta A, ruta B e baleiro. Os extremos fixos márcanse con círculos, e cada ruta ten a súa letra e cor.\n\nSeis taboleiros orixinais, e cada un desbloquea o seguinte ao resolverse. Desfacer e Reiniciar están sempre dispoñibles, non hai cronómetro e o progreso gárdase neste dispositivo. Funciona sen conexión. Sen anuncios, sen conta e sen recompilación de datos."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "da",
+ "status": "machine translation — native review pending",
+ "subtitle": "Forbind matchende par",
+ "keywords": "flow,forbind,par,ruter,linje,logik,bogstaver,gitter,gåde,sti",
+ "short_description": "Forbind hvert bogstavpar med en rute, der fylder hele gitteret.",
+ "description": "Forbind hvert par af matchende bogstaver med en rute langs felterne i et 4×4-gitter. Ruter må ikke krydse eller forgrene sig, og tilsammen skal de to ruter dække hvert eneste felt.\n\nTryk på tomme felter for at skifte mellem rute A, rute B og tom. Faste endepunkter er markeret med cirkler, og hver rute har sit eget bogstav og sin egen farve.\n\nSeks originale bræt; hvert bræt låser det næste op, når det er løst. Fortryd og Start forfra er altid tilgængelige, der er ingen timer, og dine fremskridt gemmes på denne enhed. Virker offline. Ingen annoncer, ingen konto, ingen dataindsamling."
+}

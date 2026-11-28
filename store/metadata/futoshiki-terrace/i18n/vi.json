@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Câu đố dấu bất đẳng thức",
+ "keywords": "bất đẳng thức,lớn hơn,nhỏ hơn,hình vuông latin,số,logic,lưới,câu đố",
+ "short_description": "Điền lưới 4×4 bằng các số 1 đến 4, tuân theo các dấu so sánh.",
+ "description": "Điền các số 1 đến 4 vào lưới 4×4 sao cho mỗi số xuất hiện đúng một lần trong mỗi hàng và cột, đồng thời mọi dấu lớn hơn hoặc nhỏ hơn giữa hai ô liền kề đều đúng.\n\nChạm vào một ô có thể chỉnh sửa, rồi chọn một trong bốn nút chữ số lớn. Nút Xóa và Tiếp theo luôn hiển thị.\n\nSáu bảng gốc, mỗi bảng mở bảng tiếp theo khi hoàn thành. Luôn có Hoàn tác và Chơi lại, không có đồng hồ đếm giờ, và tiến trình được lưu trên thiết bị này. Chơi được khi ngoại tuyến. Không quảng cáo, không cần tài khoản, không thu thập dữ liệu."
+}

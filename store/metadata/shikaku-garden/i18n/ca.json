@@ -1,0 +1,8 @@
+{
+ "lang": "ca",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzle lògic de rectangles",
+ "keywords": "rectangle,puzle numèric,lògica,quadrícula,àrea,geometria",
+ "short_description": "Divideix la quadrícula en rectangles de la mida de cada pista.",
+ "description": "Divideix la quadrícula en rectangles. Cada rectangle ha de quedar dins del tauler, contenir exactament una pista i cobrir el nombre de caselles que indica aquesta pista. Resol vuit taulers originals amb cantonades que es seleccionen tocant, desfer, reiniciar, progressió desbloquejada i desats locals. No hi ha temporitzador."
+}

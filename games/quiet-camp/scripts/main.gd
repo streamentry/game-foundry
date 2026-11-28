@@ -7,6 +7,8 @@ const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/tent_rules.gd")
 const Progress = preload("res://scripts/progress.gd")
 const CampCell = preload("res://scripts/camp_cell.gd")
+const Motion = preload("res://scripts/motion.gd")
+const Settings = preload("res://scripts/settings.gd")
 
 const PAPER = Color("#F4F8EF")
 const INK = Color("#273F37")
@@ -18,6 +20,9 @@ const GROUND = Color("#FDFBF3")
 const FOREST_BG = Color("#CCE0D1")
 const TENT_BG = Color("#F4DCCB")
 const WARNING = Color("#9A5244")
+const FOREST_PALE = Color("#78A489")
+const SHADOW = Color(0.153, 0.247, 0.216, 0.22)
+const SWEEP_GLOW = Color(0.86, 1.0, 0.92)
 
 var state: Dictionary = {}
 var level: Dictionary = {}
@@ -32,10 +37,13 @@ var progress_label: Label
 var undo_button: Button
 var next_button: Button
 var prev_button: Button
+var reduce_toggle: CheckButton
+var motion := Motion.new()
 
 
 func _ready() -> void:
     state = Progress.load_saved()
+    motion.reduced_motion = Settings.load_reduced_motion()
     var linked: int = _linked_level()
     if linked >= 0:
         Progress.change_level(state, linked)
@@ -70,6 +78,37 @@ func _text(message: String, size_px: int, color: Color = INK, centered: bool = f
     return item
 
 
+## Raised surface: rounded, with a soft shadow that disappears when pressed.
+func _raised(bg: Color) -> StyleBoxFlat:
+    var style := StyleBoxFlat.new()
+    style.bg_color = bg
+    style.set_corner_radius_all(12)
+    style.content_margin_left = 7
+    style.content_margin_right = 7
+    style.shadow_color = SHADOW
+    style.shadow_size = 4
+    style.shadow_offset = Vector2(0, 2)
+    return style
+
+
+func _flat(bg: Color) -> StyleBoxFlat:
+    var style := _raised(bg)
+    style.shadow_size = 0
+    style.shadow_offset = Vector2.ZERO
+    return style
+
+
+## Focus ring drawn outside the control so it reads on both paper and accent fills.
+func _focus_ring(radius: int) -> StyleBoxFlat:
+    var ring := StyleBoxFlat.new()
+    ring.draw_center = false
+    ring.border_color = ACCENT
+    ring.set_border_width_all(3)
+    ring.set_corner_radius_all(radius)
+    ring.set_expand_margin_all(3)
+    return ring
+
+
 func _button(message: String, callback: Callable, primary: bool = false) -> Button:
     var item := Button.new()
     item.text = message
@@ -77,21 +116,11 @@ func _button(message: String, callback: Callable, primary: bool = false) -> Butt
     item.custom_minimum_size = Vector2(0, 54)
     item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     item.add_theme_font_size_override("font_size", 16)
-    var style := StyleBoxFlat.new()
-    style.bg_color = ACCENT if primary else PALE
-    style.set_corner_radius_all(12)
-    style.content_margin_left = 7
-    style.content_margin_right = 7
-    var hover: StyleBoxFlat = style.duplicate()
-    hover.bg_color = Color("#245341") if primary else Color("#CFDDCA")
-    for mode in ["normal", "hover", "pressed"]:
-        item.add_theme_stylebox_override(mode, style if mode == "normal" else hover)
-    var focus := StyleBoxFlat.new()
-    focus.bg_color = Color.TRANSPARENT
-    focus.border_color = INK
-    focus.set_border_width_all(3)
-    focus.set_corner_radius_all(12)
-    item.add_theme_stylebox_override("focus", focus)
+    item.add_theme_stylebox_override("normal", _raised(ACCENT if primary else PALE))
+    item.add_theme_stylebox_override("hover", _raised(Color("#245341") if primary else Color("#CFDDCA")))
+    item.add_theme_stylebox_override("pressed", _flat(Color("#1C4236") if primary else Color("#BFD2BC")))
+    item.add_theme_stylebox_override("disabled", _flat(Color("#DCE4D9")))
+    item.add_theme_stylebox_override("focus", _focus_ring(12))
     for mode in ["font_color", "font_hover_color", "font_pressed_color"]:
         item.add_theme_color_override(mode, WHITE if primary else INK)
     item.add_theme_color_override("font_disabled_color", MUTED)
@@ -156,6 +185,19 @@ func _build_ui() -> void:
     actions.add_child(_button("Restart", _restart))
     column.add_child(actions)
 
+    reduce_toggle = CheckButton.new()
+    reduce_toggle.text = "Reduce motion"
+    reduce_toggle.accessibility_name = "Reduce motion"
+    reduce_toggle.custom_minimum_size = Vector2(0, 54)
+    reduce_toggle.add_theme_font_size_override("font_size", 16)
+    reduce_toggle.add_theme_color_override("font_color", INK)
+    reduce_toggle.add_theme_color_override("font_hover_color", INK)
+    reduce_toggle.add_theme_color_override("font_pressed_color", INK)
+    reduce_toggle.add_theme_stylebox_override("focus", _focus_ring(12))
+    reduce_toggle.button_pressed = motion.reduced_motion
+    reduce_toggle.toggled.connect(set_reduced_motion)
+    column.add_child(reduce_toggle)
+
     var navigation := _row()
     prev_button = _button("Previous", _previous)
     next_button = _button("Next clearing", _next, true)
@@ -205,27 +247,37 @@ func _load_level() -> void:
         grid.add_child(count_label)
         right_counts.append(count_label)
     _refresh()
+    motion.stagger_in(cells)
 
 
-func _cell_style(item: Button, mark: int) -> void:
+func _cell_box(bg: Color) -> StyleBoxFlat:
     var style := StyleBoxFlat.new()
-    style.bg_color = FOREST_BG if mark == -1 else (TENT_BG if mark == 1 else GROUND)
+    style.bg_color = bg
     style.border_color = Color("#A7C0AB")
     style.set_border_width_all(1)
-    style.set_corner_radius_all(7)
-    for mode in ["normal", "hover", "pressed", "disabled"]:
-        item.add_theme_stylebox_override(mode, style)
-    var focus := StyleBoxFlat.new()
-    focus.bg_color = Color.TRANSPARENT
-    focus.border_color = ACCENT
-    focus.set_border_width_all(3)
-    focus.set_corner_radius_all(7)
-    item.add_theme_stylebox_override("focus", focus)
+    style.set_corner_radius_all(10)
+    return style
+
+
+## Fixed trees keep one look in every state; tents and blanks get distinct hover and pressed tints.
+func _cell_style(item: Button, mark: int) -> void:
+    var base: Color = FOREST_BG if mark == -1 else (TENT_BG if mark == 1 else GROUND)
+    var hover: Color = base if mark == -1 else (Color("#EFCDB8") if mark == 1 else Color("#F7F4E6"))
+    var pressed: Color = base if mark == -1 else (Color("#E9BFA5") if mark == 1 else Color("#EEEAD8"))
+    item.add_theme_stylebox_override("normal", _cell_box(base))
+    item.add_theme_stylebox_override("disabled", _cell_box(base))
+    item.add_theme_stylebox_override("hover", _cell_box(hover))
+    item.add_theme_stylebox_override("pressed", _cell_box(pressed))
+    item.add_theme_stylebox_override("focus", _focus_ring(10))
 
 
 func _tap(index: int) -> void:
     if level["trees"].has(index):
         return
+    var cell: Button = cells[index]
+    motion.press(cell)
+    var was_solved: bool = Rules.complete(level, state["marks"])
+    var was_lines: Dictionary = _line_matches(state["marks"])
     history.append(state["marks"].duplicate())
     if history.size() > 50:
         history.pop_front()
@@ -234,6 +286,55 @@ func _tap(index: int) -> void:
         return
     _save()
     _refresh()
+    motion.pop(cell)
+    if int(state["marks"][index]) == 1 and _has_conflict():
+        motion.shake(cell)
+    if Rules.complete(level, state["marks"]):
+        if not was_solved:
+            _celebrate()
+    else:
+        _sweep_new_lines(was_lines)
+
+
+## Rows and columns whose tent count has just reached its target get a light sweep.
+func _sweep_new_lines(was: Dictionary) -> void:
+    var now: Dictionary = _line_matches(state["marks"])
+    var n: int = int(level["size"])
+    for r in range(n):
+        if now["rows"][r] and not was["rows"][r]:
+            var row_cells: Array = []
+            for c in range(n):
+                row_cells.append(cells[r * n + c])
+            motion.sweep(row_cells, SWEEP_GLOW)
+    for c in range(n):
+        if now["cols"][c] and not was["cols"][c]:
+            var col_cells: Array = []
+            for r in range(n):
+                col_cells.append(cells[r * n + c])
+            motion.sweep(col_cells, SWEEP_GLOW)
+
+
+func _celebrate() -> void:
+    motion.sweep(cells, SWEEP_GLOW)
+    motion.celebrate(self, grid.get_global_rect().get_center(), [ACCENT, FOREST_PALE, GROUND])
+
+
+func _line_matches(marks: Array) -> Dictionary:
+    var n: int = int(level["size"])
+    var counts: Dictionary = Rules.line_counts(level, Rules.tents_from_marks(marks))
+    var rows: Array = []
+    var cols: Array = []
+    for i in range(n):
+        rows.append(counts["rows"][i] == level["rows"][i])
+        cols.append(counts["cols"][i] == level["cols"][i])
+    return {"rows": rows, "cols": cols}
+
+
+## True when the status cue reports a rule violation the last tap may have caused.
+func _has_conflict() -> bool:
+    var message: String = Rules.status(level, state["marks"])
+    return message.begins_with("Too many") or message.begins_with("Two tents") \
+        or message.begins_with("Those tents")
 
 
 func _undo() -> void:
@@ -249,6 +350,7 @@ func _restart() -> void:
     state["marks"] = Rules.blank_marks(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 
 func _previous() -> void:
@@ -257,6 +359,7 @@ func _previous() -> void:
     Progress.change_level(state, int(state["level"]) - 1)
     _save()
     _load_level()
+    motion.slide_swap(grid, -1)
 
 
 func _next() -> void:
@@ -265,6 +368,15 @@ func _next() -> void:
     Progress.change_level(state, int(state["level"]) + 1)
     _save()
     _load_level()
+    motion.slide_swap(grid, 1)
+
+
+func set_reduced_motion(on: bool) -> void:
+    motion.reduced_motion = on
+    if reduce_toggle != null and reduce_toggle.button_pressed != on:
+        reduce_toggle.button_pressed = on
+    if not Settings.save_reduced_motion(on):
+        push_warning("Quiet Camp could not save the motion setting locally.")
 
 
 func _refresh() -> void:

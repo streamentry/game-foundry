@@ -1,0 +1,8 @@
+{
+ "lang": "vi",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tìm bông hoa khác biệt",
+ "keywords": "bông,mẫu hình,thị giác,logic,tìm khác biệt,câu đố",
+ "short_description": "Tìm bông hoa có cấu trúc khác với những bông còn lại.",
+ "description": "Tìm một bông hoa gốc duy nhất có cấu trúc khác với các bông còn lại. Các bảng tăng từ 6 đến 16 bông qua mười hai vòng có tính xác định. Chạm để chọn, quay lại các vòng trước, phát lại một mẫu và lưu tiến trình trên thiết bị này. Không có đồng hồ đếm giờ, không trừ điểm và không bắt buộc duy trì chuỗi liên tiếp."
+}

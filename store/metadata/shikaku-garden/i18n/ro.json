@@ -1,0 +1,8 @@
+{
+ "lang": "ro",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle logic cu dreptunghiuri",
+ "keywords": "dreptunghi,puzzle numeric,logică,grilă,arie,geometrie",
+ "short_description": "Împarte grila în dreptunghiuri cu mărimea indicată de cifre.",
+ "description": "Împarte grila în dreptunghiuri. Fiecare dreptunghi trebuie să rămână în interiorul tablei, să conțină exact un indiciu și să acopere numărul de celule indicat de acesta. Rezolvă opt table originale, cu colțuri selectate prin atingere, anulare, repornire, progres deblocat și salvări locale. Nu există cronometru."
+}

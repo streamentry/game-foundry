@@ -5,13 +5,24 @@ const Factory = preload("res://scripts/graph_factory.gd")
 const Rules = preload("res://scripts/trail_rules.gd")
 const Progress = preload("res://scripts/progress.gd")
 const GraphBoard = preload("res://scripts/graph_board.gd")
+const Motion = preload("res://scripts/motion.gd")
+const SETTINGS_PATH: String = "user://settings.json"
 
+## Design tokens (games/one-path/DESIGN.md section 2).
 const PAPER = Color("#FBF4EB")
-const INK = Color("#34363B")
-const MUTED = Color("#605F60")
+const SURFACE = Color("#F1E9DE")
+const INK = Color("#22393E")
+const MUTED = Color("#5A5552")
 const ACCENT = Color("#A25138")
+const ACCENT_HOVER = Color("#8A4330")
 const WHITE = Color("#FFFFFF")
 const PALE = Color("#F0DFD2")
+const HOVER = Color("#E1CEBF")
+const DISABLED = Color("#EAE0D4")
+const SUCCESS = Color("#2A6F68")
+const ERROR = Color("#9B2C2C")
+const FOCUS = Color("#2A6F68")
+const GLOW = Color("#F6D98A")
 
 var state: Dictionary = {}
 var graph: Dictionary = {}
@@ -23,7 +34,9 @@ var next_button: Button
 var undo_button: Button
 var restart_button: Button
 var back_button: Button
+var reduce_motion_toggle: CheckButton
 var node_buttons: Array = []
+var motion := Motion.new()
 
 
 func _ready() -> void:
@@ -31,6 +44,7 @@ func _ready() -> void:
     var share_level: int = _query_level()
     if share_level >= 0:
         Progress.set_level(state, share_level)
+    motion.reduced_motion = _load_settings()
     _build_ui()
     _load_level()
 
@@ -78,14 +92,26 @@ func _button(value: String, callback: Callable, primary: bool = false) -> Button
     style.set_corner_radius_all(12)
     style.content_margin_left = 6
     style.content_margin_right = 6
+    style.shadow_color = Color(0.13, 0.22, 0.24, 0.18)
+    style.shadow_size = 4
+    style.shadow_offset = Vector2(0, 2)
     button.add_theme_stylebox_override("normal", style)
-    var active: StyleBoxFlat = style.duplicate()
-    active.bg_color = Color("#793A2C") if primary else Color("#E1CEBF")
-    button.add_theme_stylebox_override("hover", active)
-    button.add_theme_stylebox_override("pressed", active)
+    var hover: StyleBoxFlat = style.duplicate()
+    hover.bg_color = ACCENT_HOVER if primary else HOVER
+    button.add_theme_stylebox_override("hover", hover)
+    # Pressed sinks: smaller shadow, nudged down, so a tap reads as a physical press.
+    var pressed: StyleBoxFlat = hover.duplicate()
+    pressed.shadow_size = 1
+    pressed.shadow_offset = Vector2(0, 1)
+    button.add_theme_stylebox_override("pressed", pressed)
+    var disabled: StyleBoxFlat = style.duplicate()
+    disabled.bg_color = DISABLED
+    disabled.shadow_size = 0
+    disabled.shadow_offset = Vector2.ZERO
+    button.add_theme_stylebox_override("disabled", disabled)
     var focus := StyleBoxFlat.new()
     focus.bg_color = Color.TRANSPARENT
-    focus.border_color = INK
+    focus.border_color = FOCUS
     focus.set_border_width_all(3)
     focus.set_corner_radius_all(12)
     button.add_theme_stylebox_override("focus", focus)
@@ -173,6 +199,17 @@ func _build_ui() -> void:
     travel.add_child(next_button)
     column.add_child(travel)
 
+    reduce_motion_toggle = CheckButton.new()
+    reduce_motion_toggle.text = "Reduce motion"
+    reduce_motion_toggle.accessibility_name = "Reduce motion"
+    reduce_motion_toggle.accessibility_description = "Turns off board animations. Puzzle rules are unchanged."
+    reduce_motion_toggle.add_theme_font_size_override("font_size", 16)
+    for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+        reduce_motion_toggle.add_theme_color_override(color_name, INK)
+    reduce_motion_toggle.button_pressed = motion.reduced_motion
+    reduce_motion_toggle.toggled.connect(_set_reduced_motion)
+    column.add_child(reduce_motion_toggle)
+
     column.add_child(_button("Copy challenge", _share))
     column.add_child(_label("Highlighted end dots show where an open trail can begin. A crossing is never a turn unless there is a dot.", 13, MUTED))
 
@@ -182,17 +219,26 @@ func _load_level() -> void:
     board.show_graph(graph, state["path"])
     for i in range(node_buttons.size()):
         node_buttons[i].visible = i < graph["nodes"].size()
+    motion.stagger_in(_visible_dots())
     _refresh()
 
 
 func _select_node(index: int) -> void:
+    var dot := _dot(index)
     var result: Dictionary = Rules.attempt(graph, state["path"], index)
+    if dot != null:
+        motion.press(dot)
     if result["ok"]:
         board.update_path(state["path"])
+        if dot != null:
+            motion.pop(dot)
         if Rules.complete(graph, state["path"]):
             Progress.record_win(state)
+            _celebrate()
         _save()
-    _refresh(str(result["message"]))
+    else:
+        motion.shake(board)
+    _refresh(str(result["message"]), not result["ok"])
 
 
 func _undo() -> void:
@@ -205,6 +251,7 @@ func _undo() -> void:
 func _restart() -> void:
     state["path"] = []
     board.update_path(state["path"])
+    motion.stagger_in(_visible_dots())
     _save()
     _refresh("Start again. Choose any valid starting dot.")
 
@@ -215,6 +262,7 @@ func _next() -> void:
     Progress.set_level(state, state["level"] + 1)
     _save()
     _load_level()
+    motion.slide_swap(board, 1)
 
 
 func _previous() -> void:
@@ -223,9 +271,52 @@ func _previous() -> void:
     Progress.set_level(state, state["level"] - 1)
     _save()
     _load_level()
+    motion.slide_swap(board, -1)
 
 
-func _refresh(message: String = "") -> void:
+func _dot(index: int) -> Control:
+    if index < 0 or index >= node_buttons.size() or not node_buttons[index].visible:
+        return null
+    return node_buttons[index]
+
+
+func _visible_dots() -> Array:
+    var dots: Array = []
+    for button in node_buttons:
+        if button.visible:
+            dots.append(button)
+    return dots
+
+
+func _celebrate() -> void:
+    motion.sweep(_visible_dots(), GLOW)
+    motion.celebrate(self, board.get_global_rect().get_center(), [ACCENT, SUCCESS, SURFACE])
+
+
+func _load_settings() -> bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return false
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return false
+    var parser := JSON.new()
+    if parser.parse(file.get_as_text()) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+        return false
+    var value: Variant = (parser.data as Dictionary).get("reduced_motion", false)
+    return typeof(value) == TYPE_BOOL and bool(value)
+
+
+func _set_reduced_motion(on: bool) -> void:
+    motion.reduced_motion = on
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning("One Path reduce-motion setting could not be saved; it applies for this session.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": on}))
+    file.close()
+
+
+func _refresh(message: String = "", is_error: bool = false) -> void:
     name_label.text = "PUZZLE %d OF %d  •  %s" % [state["level"] + 1, Factory.COUNT, graph["name"]]
     var done: int = maxi(0, state["path"].size() - 1)
     progress_label.text = "%d of %d lines connected" % [done, graph["edges"].size()]
@@ -233,15 +324,23 @@ func _refresh(message: String = "") -> void:
     restart_button.disabled = state["path"].is_empty()
     next_button.disabled = not Progress.can_advance(state)
     back_button.disabled = state["level"] == 0
+    var color: Color = MUTED
     if Rules.complete(graph, state["path"]):
         status_label.text = "Complete! Every line used exactly once."
+        color = SUCCESS
     elif not message.is_empty():
         status_label.text = message
+        color = ERROR if is_error else MUTED
     elif state["path"].is_empty():
         status_label.text = graph["tip"]
     else:
         var options: Array = Rules.available(graph, state["path"])
-        status_label.text = "Dead end. Undo a step." if options.is_empty() else "Choose another connected dot."
+        if options.is_empty():
+            status_label.text = "Dead end. Undo a step."
+            color = ERROR
+        else:
+            status_label.text = "Choose another connected dot."
+    status_label.add_theme_color_override("font_color", color)
 
 
 func _save() -> void:
