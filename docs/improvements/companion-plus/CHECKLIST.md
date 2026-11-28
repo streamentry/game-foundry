@@ -72,7 +72,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 
 ### E. In the app
 
-- [ ] **CP37 Facts once per rebuild.** The app computes the fact list once per frame, not once per neighbour.
+- [ ] **CP37 Facts once per rebuild.** The app computes the fact list once per frame, not once per neighbour. Done: CompanionFacts.Signature (pure; every input For reads, Time.frameCount appended on the Unity side) keys a per-frame cache behind CompanionFactsNow, tested in CompanionSignatureTests; four call sites moved to it; Unity compile 0 errors.
 - [ ] **CP38 Memory parsed once.** The app reuses the parsed memory while the stored string hasn't changed.
 - [ ] **CP39 What the neighbours said, for a playtest.** `CompanionMemory.ToReadable(...)` plus a development-only control that copies it to the clipboard. Nothing leaves the phone unless the participant pastes it.
 - [ ] **CP40 QA log explains.** In development builds, the `MOSSELORA_COMPANION` log adds the top three candidates from `Explain`.

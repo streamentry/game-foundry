@@ -220,7 +220,7 @@ namespace Evergrove.UnityClient
                 // I351 (run 3, P9): after the story, the big arrow plays what's waiting, whose picture
                 // peeks from the token. SC05: the ranker picks it (family help first, then a new
                 // arrival), else the newest thing still holding its first puzzle, as before.
-                CompanionAttention.Target arrow = CompanionAttention.ArrowTarget(world, CompanionFacts.For(world, CompanionNow()),
+                CompanionAttention.Target arrow = CompanionAttention.ArrowTarget(world, CompanionFactsNow(),
                     CompanionContext.DayNumberOf(CompanionToday()));
                 int waitingBought = arrow.Bought, waitingThing = arrow.Thing;
                 Button playToken = IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")

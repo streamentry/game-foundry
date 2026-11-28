@@ -206,7 +206,7 @@ namespace Evergrove.UnityClient
             if (visitGarden != world.Garden) { spokenThisVisit.Clear(); spokenVariant.Clear(); visitGarden = world.Garden; }
             CompanionContext context = CompanionNow();
             spokenThisVisit.TryGetValue(villager, out string spoken);
-            return CompanionRanker.Pick(CompanionFacts.For(world, context), CompanionMemoryNow(), villager,
+            return CompanionRanker.Pick(CompanionFactsNow(), CompanionMemoryNow(), villager,
                 context.DayNumber, world.Garden, spoken,
                 (fact, who) => CompanionLocale.CanSay(GameLocalization.Current, LineBankNow(), fact, who)); // SC04/SC06
         }
@@ -226,6 +226,24 @@ namespace Evergrove.UnityClient
             CompanionMemory memory = CompanionMemoryNow().With(
                 new Heard(CompanionContext.DayNumberOf(CompanionToday()), villager, said.Kind, variant, said.Key));
             PlayerPrefs.SetString(CompanionMemory.StorageKey(world.Garden, GameLocalization.Current), memory.Serialize());
+        }
+
+        // CP37: the fact list, built once per rebuild. A redraw asks for it 6-8 times (CompanionPick runs
+        // once per neighbour), so the last list is kept while its signature and the frame are unchanged.
+        // The signature covers every input For reads, so a stale list cannot be served.
+        private System.Collections.Generic.IReadOnlyList<Fact> companionFacts;
+        private string companionFactsKey;
+
+        private System.Collections.Generic.IReadOnlyList<Fact> CompanionFactsNow()
+        {
+            CompanionContext context = CompanionNow();
+            string key = CompanionFacts.Signature(world, context) + "#" + Time.frameCount;
+            if (companionFacts == null || key != companionFactsKey)
+            {
+                companionFacts = CompanionFacts.For(world, context);
+                companionFactsKey = key;
+            }
+            return companionFacts;
         }
 
         // What the companion needs that the save doesn't hold (SC01).

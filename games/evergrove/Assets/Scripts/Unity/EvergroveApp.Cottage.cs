@@ -95,7 +95,7 @@ namespace Evergrove.UnityClient
                 if (nearest == null || wish.Have * nearest.Need > nearest.Have * wish.Need) { nearest = wish; nearestWho = villager; }
             }
             if (nearest != null) cottageLines.Add(CottageItem.Wish);
-            foreach (CottageItem item in CompanionAttention.CottageOrder(cottageLines, CompanionFacts.For(world, CompanionNow()),
+            foreach (CottageItem item in CompanionAttention.CottageOrder(cottageLines, CompanionFactsNow(),
                          CompanionContext.DayNumberOf(CompanionToday()), world.Garden))
                 switch (item)
                 {

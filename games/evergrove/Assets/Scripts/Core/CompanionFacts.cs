@@ -518,6 +518,74 @@ namespace Evergrove.Core
             return text;
         }
 
+        /// <summary>
+        /// CP37: a pure fingerprint of every input <see cref="For"/> reads, so a cached fact list is never stale.
+        /// Equal signatures mean equal facts. Free text is length-prefixed, so no value can imitate another.
+        /// The Unity side appends Time.frameCount. Hour counts are the whole vector, not a sum: two different
+        /// vectors can share a total.
+        /// </summary>
+        public static string Signature(WorldModel world, CompanionContext context)
+        {
+            var sb = new StringBuilder();
+            if (world == null) sb.Append("no-world;");
+            else
+            {
+                // PuzzlesSolved and NewestSolvedThing cover the solves (they only grow); the rest are the arrays For reads.
+                sb.Append("w:").Append((int)world.Mode).Append(';').Append(world.Garden).Append(';')
+                  .Append(world.Round).Append(';').Append(world.Completed ? 1 : 0).Append(';')
+                  .Append(world.PuzzlesSolved).Append(';').Append(world.NewestSolvedThing).Append(';')
+                  .Append(world.PairingsFound).Append(';').Append(world.YieldTaken).Append(';')
+                  .Append(world.LastFruitTo).Append(';')
+                  .Append(world.FruitGivenTo(0)).Append(',').Append(world.FruitGivenTo(1)).Append(',')
+                  .Append(world.FruitGivenTo(2)).Append(';');
+                Ints(sb, world.Choices);
+                Ints(sb, world.Placements);
+                Ints(sb, world.Gifts);
+                Ints(sb, world.Bought);
+                Ints(sb, world.Helped);
+                Texts(sb, world.Letters);
+                Texts(sb, world.LetterFrom);
+                Texts(sb, world.HelpedFrom);
+                Text(sb, world.GardenName);
+            }
+            if (context == null) sb.Append("no-context;");
+            else
+            {
+                sb.Append("c:").Append(CompanionContext.DayNumberOf(context.Today)).Append(';')
+                  .Append(context.LastSeen.HasValue ? CompanionContext.DayNumberOf(context.LastSeen.Value) : -1).Append(';')
+                  .Append(context.LettersRead).Append(';').Append((int)context.Weather).Append(';')
+                  .Append(context.LightOn ? 1 : 0).Append(';').Append((int)context.Phase).Append(';')
+                  .Append(context.FruitJustGivenTo).Append(';').Append(context.TogetherKeeper).Append(';')
+                  .Append((int)context.TogetherKind).Append(';');
+                if (context.Map == null) sb.Append("no-map;");
+                else sb.Append(context.Map.Rows).Append(',').Append(context.Map.Columns).Append(',')
+                    .Append(context.Map.Reaches).Append(';');
+                if (context.HourCounts == null) sb.Append("no-hours;");
+                else Ints(sb, context.HourCounts);
+            }
+            return sb.ToString();
+        }
+
+        private static void Ints(StringBuilder sb, IReadOnlyList<int> values)
+        {
+            sb.Append('[').Append(values.Count);
+            foreach (int v in values) sb.Append(',').Append(v);
+            sb.Append("];");
+        }
+
+        private static void Texts(StringBuilder sb, IReadOnlyList<string> values)
+        {
+            sb.Append('[').Append(values.Count).Append(';');
+            foreach (string v in values) Text(sb, v);
+            sb.Append("];");
+        }
+
+        private static void Text(StringBuilder sb, string value)
+        {
+            if (value == null) sb.Append("-;");
+            else sb.Append(value.Length).Append(':').Append(value).Append(';');
+        }
+
         private static string Num(int n)
         {
             return n.ToString(CultureInfo.InvariantCulture);
