@@ -177,3 +177,10 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Take turns keeps the table's size across boards for the session and rotates who starts (`TakeTurns.StartingTurn`, never saved). Tests: `TableSetTests`. Tour and device: not run.
 - Water vs dry channel colour check under three colour-vision simulations (`ColourVision`, item 92): **finding, not fixed**: contrast 1.00–1.22:1, hue-only difference. Tests: `ColourVisionTests` (locks today's distance). Art review needed.
 - Screen-reader tile labels say which way each pipe opens, English only (`TileOpenings`, item 93). Tests: `TileOpeningsTests`. VoiceOver/TalkBack: not run.
+
+## Vision run 20261128-1201 (outside the v1 checklist)
+
+- 6×6 fork boards measured: `ForkBoards.Generate(seed, 6)`, 40/40 unique, 7 of 40 need a guess (5×5: 14 of 100); size is not the depth lever. Tests: `ForkBoardsTests`.
+- A thing solved together says so in its map caption ("You solved it together."), from the save's together marks only. Tests: `ThingStoryTests`. Tour and device: not run.
+- Wet pipe channels darkened to `WetPipe` #104953 (item 92): wet vs dry ≥ 1.54:1 under all four colour-vision simulations (was 1.00–1.22:1). Tests: `ColourVisionTests`, `ThemeContrastTests`. On-screen look: not checked.
+- The spring's screen-reader label names the outlets, English only (`OutletWords`, item 93). Tests: `OutletWordsTests`. VoiceOver/TalkBack: not run.

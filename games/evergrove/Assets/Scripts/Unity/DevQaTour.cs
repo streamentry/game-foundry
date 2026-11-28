@@ -890,6 +890,7 @@ namespace Evergrove.UnityClient
             yield return ReachShots(); // checklist 94 (DevQaTour.Reach.cs)
             yield return ThingActionShots(); // checklist 13 (DevQaTour.ThingActions.cs)
             yield return HandShots(); // checklist 5 (DevQaTour.Hand.cs)
+            yield return StretchShots(); // checklist 42 (DevQaTour.Stretches.cs)
             // Smart companion (SC02): a scripted week. Nine things grown, two tended, a letter from
             // Anh; one visit a day, each neighbour spoken to once; then each neighbour on day eight.
             WorldModel week = WorldModel.New(PlayMode.Living);
@@ -917,8 +918,7 @@ namespace Evergrove.UnityClient
                 if (day == 2) week.SolveTree(2); // something new mid-week
                 for (int v = 0; v < 3; v++)
                 {
-                    Debug.Log("MOSSELORA_COMPANION day " + (day + 1) + " " + who[v] + ": " + app.QaNeighborSays(v));
-                    Debug.Log("MOSSELORA_COMPANION_WHY day " + (day + 1) + " " + who[v] + ": " + app.QaCompanionExplain(v)); // CP40
+                    app.QaLogCompanion(day + 1, who[v], v); // CP40: said, then why
                     app.QaTalk(v);
                     for (int f = 0; f < 4; f++) yield return null;
                     if (day == 7)

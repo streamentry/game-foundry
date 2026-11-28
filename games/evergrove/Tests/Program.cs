@@ -1968,6 +1968,7 @@ internal static class Program
             assertions += HandednessTests.Run(); // checklist 5
             assertions += SwipeCloseTests.Run(); // checklist 94 (swipe to close)
             assertions += CardFootTests.Run(); // checklist 94 (card foot, fan reach)
+            assertions += StretchCharacterTests.Run(); // checklist 42
             assertions += FileSizeTests.Run();
             assertions += RiverTravelTests.Run();
             assertions += ColourCueTests.Run();
@@ -2033,6 +2034,7 @@ internal static class Program
             assertions += ColourVisionTests.Run();
             assertions += TileOpeningsTests.Run();
             assertions += GardenFileHeaderTests.Run();
+            assertions += OutletWordsTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

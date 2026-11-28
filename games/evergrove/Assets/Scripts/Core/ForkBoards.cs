@@ -4,24 +4,30 @@ using System.Collections.Generic;
 namespace Evergrove.Core
 {
     /// <summary>
-    /// A 5x5 fork-tile board (solver gate only, not wired into the game). Each cell holds a
-    /// 4-bit port mask: bit d is set when the tile has a port toward direction d
+    /// A square fork-tile board, 4x4 to 6x6 (solver gate only, not wired into the game). Each cell
+    /// holds a 4-bit port mask: bit d is set when the tile has a port toward direction d
     /// (0 north, 1 east, 2 south, 3 west). A solved board is a spanning tree of the grid.
     /// </summary>
     public sealed class ForkBoard
     {
+        /// <summary>Default edge length (5x5).</summary>
         public const int Edge = 5;
         public const int Cells = Edge * Edge;
+        public const int MinEdge = 4;
+        public const int MaxEdge = 6;
 
-        public readonly int Size;
+        public readonly int Size; // edge length
         public readonly int[] Solution; // port mask per cell
         public readonly int[] Initial;  // scrambled masks, each a rotation of the solution mask
 
         public ForkBoard(int[] solution, int[] initial)
         {
-            if (solution == null || initial == null || solution.Length != Cells || initial.Length != Cells)
+            if (solution == null || initial == null)
                 throw new ArgumentException("A fork board needs one mask per cell.");
-            Size = Edge;
+            int size = EdgeOf(solution.Length);
+            if (size == 0 || initial.Length != solution.Length)
+                throw new ArgumentException("A fork board needs one mask per cell of a square grid, 4x4 to 6x6.");
+            Size = size;
             Solution = (int[])solution.Clone();
             Initial = (int[])initial.Clone();
             int forks = 0;
@@ -29,8 +35,19 @@ namespace Evergrove.Core
             ForkCount = forks;
         }
 
+        /// <summary>Number of cells on this board (Size squared).</summary>
+        public int CellCount => Size * Size;
+
         /// <summary>Solution tiles with three ports (T-shaped forks).</summary>
         public int ForkCount { get; }
+
+        /// <summary>The edge length for a square cell count from MinEdge to MaxEdge, or 0 otherwise.</summary>
+        public static int EdgeOf(int cellCount)
+        {
+            for (int edge = MinEdge; edge <= MaxEdge; edge++)
+                if (edge * edge == cellCount) return edge;
+            return 0;
+        }
     }
 
     /// <summary>
@@ -41,18 +58,24 @@ namespace Evergrove.Core
     /// </summary>
     public static class ForkBoards
     {
-        private const int Cells = ForkBoard.Cells;
-        private const int Edge = ForkBoard.Edge;
         private const int Attempts = 300;
         private const int NodeBudget = 2000000;
 
-        /// <summary>Deterministic per seed. Null if no board with a unique answer was found.</summary>
+        /// <summary>Deterministic per seed on the default 5x5 board. Null if no unique board was found.</summary>
         public static ForkBoard Generate(int seed)
         {
+            return Generate(seed, ForkBoard.Edge);
+        }
+
+        /// <summary>Deterministic per seed and edge (4 to 6). Null if no board with a unique answer was found.</summary>
+        public static ForkBoard Generate(int seed, int edge)
+        {
+            if (edge < ForkBoard.MinEdge || edge > ForkBoard.MaxEdge)
+                throw new ArgumentOutOfRangeException(nameof(edge));
             for (int attempt = 0; attempt < Attempts; attempt++)
             {
                 var random = new ForkRandom(Mix(seed, attempt));
-                int[] tree = RandomTree(random);
+                int[] tree = RandomTree(random, edge);
                 if (tree == null || ForkCountOf(tree) < 3) continue;
                 var board = new ForkBoard(tree, Scramble(tree, random));
                 if (CountWithinBudget(board, 2) == 1) return board;
@@ -73,10 +96,10 @@ namespace Evergrove.Core
         /// <summary>True when every cell has a rotation of its tile, no port leaks, and the ports form one tree.</summary>
         public static bool IsComplete(ForkBoard b, int[] masks)
         {
-            if (b == null || masks == null || masks.Length != Cells) return false;
-            for (int i = 0; i < Cells; i++)
+            if (b == null || masks == null || masks.Length != b.CellCount) return false;
+            for (int i = 0; i < masks.Length; i++)
                 if (masks[i] < 0 || masks[i] > 15 || Canonical(masks[i]) != Canonical(b.Solution[i])) return false;
-            return CountLeaks(masks) == 0 && IsTree(masks);
+            return CountLeaks(masks, b.Size) == 0 && IsTree(masks, b.Size);
         }
 
         /// <summary>Arc consistency over orientations. Throws if the true orientation is ever removed.</summary>
@@ -94,7 +117,7 @@ namespace Evergrove.Core
             bool[][] settled = Candidates(b);
             bool[][] initial = InitialCandidates(b);
             int forced = 0;
-            for (int i = 0; i < Cells; i++)
+            for (int i = 0; i < settled.Length; i++)
                 if (CountTrue(initial[i]) > 1 && CountTrue(settled[i]) == 1) forced++;
             return forced;
         }
@@ -164,16 +187,17 @@ namespace Evergrove.Core
 
         private static int[] CompleteAssignment(ForkBoard b, bool[][] candidates)
         {
-            var masks = new int[Cells];
-            for (int i = 0; i < Cells; i++)
+            var masks = new int[b.CellCount];
+            for (int i = 0; i < masks.Length; i++)
                 masks[i] = Rotate(Canonical(b.Solution[i]), OnlyTrue(candidates[i]));
             return IsComplete(b, masks) ? masks : null;
         }
 
         private static bool[][] InitialCandidates(ForkBoard b)
         {
-            var candidates = new bool[Cells][];
-            for (int i = 0; i < Cells; i++)
+            int cells = b.CellCount;
+            var candidates = new bool[cells][];
+            for (int i = 0; i < cells; i++)
             {
                 int tileBase = Canonical(b.Solution[i]);
                 candidates[i] = new bool[4];
@@ -190,7 +214,7 @@ namespace Evergrove.Core
             while (changed)
             {
                 changed = false;
-                for (int i = 0; i < Cells; i++)
+                for (int i = 0; i < candidates.Length; i++)
                 {
                     int tileBase = Canonical(b.Solution[i]);
                     for (int r = 0; r < 4; r++)
@@ -214,7 +238,7 @@ namespace Evergrove.Core
             for (int d = 0; d < 4; d++)
             {
                 bool port = HasPort(mask, d);
-                int j = Neighbor(cell, d);
+                int j = Neighbor(b.Size, cell, d);
                 if (j < 0)
                 {
                     if (port) return false;
@@ -237,7 +261,7 @@ namespace Evergrove.Core
         private static int CountWithinBudget(ForkBoard b, int stopAt)
         {
             var tally = new Tally();
-            CountSearch(b, new int[Cells], 0, stopAt, tally);
+            CountSearch(b, new int[b.CellCount], 0, stopAt, tally);
             return tally.OverBudget ? -1 : tally.Count;
         }
 
@@ -249,9 +273,9 @@ namespace Evergrove.Core
                 tally.OverBudget = true;
                 return;
             }
-            if (index == Cells)
+            if (index == masks.Length)
             {
-                if (IsTree(masks)) tally.Count++;
+                if (IsTree(masks, b.Size)) tally.Count++;
                 return;
             }
             int tileBase = Canonical(b.Solution[index]);
@@ -259,19 +283,19 @@ namespace Evergrove.Core
             {
                 if (!IsFirstRotation(tileBase, r)) continue;
                 int mask = Rotate(tileBase, r);
-                if (!FitsSoFar(masks, index, mask)) continue;
+                if (!FitsSoFar(masks, b.Size, index, mask)) continue;
                 masks[index] = mask;
                 CountSearch(b, masks, index + 1, stopAt, tally);
             }
         }
 
         // Checks each port of the new cell against the edge or an already placed north/west neighbour.
-        private static bool FitsSoFar(int[] masks, int index, int mask)
+        private static bool FitsSoFar(int[] masks, int edge, int index, int mask)
         {
             for (int d = 0; d < 4; d++)
             {
                 bool port = HasPort(mask, d);
-                int j = Neighbor(index, d);
+                int j = Neighbor(edge, index, d);
                 if (j < 0)
                 {
                     if (port) return false;
@@ -284,18 +308,18 @@ namespace Evergrove.Core
             return true;
         }
 
-        private static bool IsTree(int[] masks)
+        private static bool IsTree(int[] masks, int edge)
         {
             int ports = 0;
             foreach (int mask in masks) ports += PortCount(mask);
-            if (ports % 2 != 0 || ports / 2 != Cells - 1) return false;
-            return Reached(masks) == Cells;
+            if (ports % 2 != 0 || ports / 2 != masks.Length - 1) return false;
+            return Reached(masks, edge) == masks.Length;
         }
 
         // Cells reachable from cell 0 through ports that meet a matching port.
-        private static int Reached(int[] masks)
+        private static int Reached(int[] masks, int edge)
         {
-            var seen = new bool[Cells];
+            var seen = new bool[masks.Length];
             var pending = new Stack<int>();
             seen[0] = true;
             pending.Push(0);
@@ -306,7 +330,7 @@ namespace Evergrove.Core
                 reached++;
                 for (int d = 0; d < 4; d++)
                 {
-                    int j = Neighbor(i, d);
+                    int j = Neighbor(edge, i, d);
                     if (j < 0 || seen[j] || !HasPort(masks[i], d) || !HasPort(masks[j], (d + 2) % 4)) continue;
                     seen[j] = true;
                     pending.Push(j);
@@ -315,32 +339,33 @@ namespace Evergrove.Core
             return reached;
         }
 
-        private static int CountLeaks(int[] masks)
+        private static int CountLeaks(int[] masks, int edge)
         {
             int leaks = 0;
-            for (int i = 0; i < Cells; i++)
+            for (int i = 0; i < masks.Length; i++)
                 for (int d = 0; d < 4; d++)
                 {
                     if (!HasPort(masks[i], d)) continue;
-                    int j = Neighbor(i, d);
+                    int j = Neighbor(edge, i, d);
                     if (j < 0 || !HasPort(masks[j], (d + 2) % 4)) leaks++;
                 }
             return leaks;
         }
 
         // Randomized Prim growth from a random cell. Returns null if any tile gets four ports.
-        private static int[] RandomTree(ForkRandom random)
+        private static int[] RandomTree(ForkRandom random, int edge)
         {
-            var masks = new int[Cells];
-            var inTree = new bool[Cells];
-            var frontier = new int[Cells * 4];
-            inTree[random.Next(Cells)] = true;
-            for (int added = 1; added < Cells; added++)
+            int cells = edge * edge;
+            var masks = new int[cells];
+            var inTree = new bool[cells];
+            var frontier = new int[cells * 4];
+            inTree[random.Next(cells)] = true;
+            for (int added = 1; added < cells; added++)
             {
-                int count = Frontier(inTree, frontier);
+                int count = Frontier(inTree, frontier, edge);
                 int pick = frontier[random.Next(count)];
                 int from = pick / 4, d = pick % 4;
-                int to = Neighbor(from, d);
+                int to = Neighbor(edge, from, d);
                 masks[from] |= 1 << d;
                 masks[to] |= 1 << ((d + 2) % 4);
                 inTree[to] = true;
@@ -350,15 +375,15 @@ namespace Evergrove.Core
         }
 
         // Edges (from * 4 + direction) leaving the tree into cells not yet in it.
-        private static int Frontier(bool[] inTree, int[] frontier)
+        private static int Frontier(bool[] inTree, int[] frontier, int edge)
         {
             int count = 0;
-            for (int i = 0; i < Cells; i++)
+            for (int i = 0; i < inTree.Length; i++)
             {
                 if (!inTree[i]) continue;
                 for (int d = 0; d < 4; d++)
                 {
-                    int j = Neighbor(i, d);
+                    int j = Neighbor(edge, i, d);
                     if (j >= 0 && !inTree[j]) frontier[count++] = i * 4 + d;
                 }
             }
@@ -368,9 +393,9 @@ namespace Evergrove.Core
         // Each tile is a random rotation of its solution mask; at least one differs from the solution.
         private static int[] Scramble(int[] solution, ForkRandom random)
         {
-            var initial = new int[Cells];
+            var initial = new int[solution.Length];
             bool differs = false;
-            for (int i = 0; i < Cells; i++)
+            for (int i = 0; i < solution.Length; i++)
             {
                 initial[i] = Rotate(solution[i], random.Next(4));
                 if (initial[i] != solution[i]) differs = true;
@@ -389,7 +414,7 @@ namespace Evergrove.Core
         private static int FirstUndecided(bool[][] candidates)
         {
             int best = -1, bestCount = int.MaxValue;
-            for (int i = 0; i < Cells; i++)
+            for (int i = 0; i < candidates.Length; i++)
             {
                 int count = CountTrue(candidates[i]);
                 if (count > 1 && count < bestCount)
@@ -403,8 +428,8 @@ namespace Evergrove.Core
 
         private static bool[][] Copy(bool[][] candidates)
         {
-            var copy = new bool[Cells][];
-            for (int i = 0; i < Cells; i++) copy[i] = (bool[])candidates[i].Clone();
+            var copy = new bool[candidates.Length][];
+            for (int i = 0; i < candidates.Length; i++) copy[i] = (bool[])candidates[i].Clone();
             return copy;
         }
 
@@ -437,9 +462,9 @@ namespace Evergrove.Core
             throw new InvalidOperationException("Cell has no orientation left.");
         }
 
-        private static int Neighbor(int cell, int direction)
+        private static int Neighbor(int edge, int cell, int direction)
         {
-            int row = cell / Edge, col = cell % Edge;
+            int row = cell / edge, col = cell % edge;
             switch (direction)
             {
                 case 0: row--; break;
@@ -447,7 +472,7 @@ namespace Evergrove.Core
                 case 2: row++; break;
                 default: col--; break;
             }
-            return row >= 0 && row < Edge && col >= 0 && col < Edge ? row * Edge + col : -1;
+            return row >= 0 && row < edge && col >= 0 && col < edge ? row * edge + col : -1;
         }
 
         private static void RequireBoard(ForkBoard b)

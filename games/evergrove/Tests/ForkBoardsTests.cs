@@ -26,13 +26,104 @@ internal static class ForkBoardsTests
         {
             ForkBoard b = ForkBoards.Generate(seed);
             Expect(SameBoard(b, ForkBoards.Generate(seed)), "generation is deterministic");
+            Expect(SameBoard(b, ForkBoards.Generate(seed, ForkBoard.Edge)), "the default is the 5x5 board");
             if (b == null) continue;
             boards++;
             CheckBoard(b);
         }
         Expect(boards >= MinBoards, "enough boards generated across seeds");
         CheckHandMade();
+        RunSixByEdge();
         return assertions;
+    }
+
+    // Measured on 6x6 seeds 0..39 (see the locked constants below): how many boards generated,
+    // fork range, forced cells, how many needed a guess, and the worst guess count.
+    private const int SixSeeds = 40;
+    private const int SixEdge = 6;
+    private const int SixExpectedBoards = 40;
+    private const int SixExpectedMinForks = 7;
+    private const int SixExpectedMaxForks = 12;
+    private const int SixExpectedForced = 1394;
+    private const int SixExpectedNeedingGuess = 7;
+    private const int SixExpectedMaxGuesses = 4;
+
+    private static void RunSixByEdge()
+    {
+        int generated = 0, minForks = int.MaxValue, maxForks = 0;
+        int forced = 0, cells = 0, needingGuess = 0, maxGuesses = 0;
+        for (int seed = 0; seed < SixSeeds; seed++)
+        {
+            ForkBoard b = ForkBoards.Generate(seed, SixEdge);
+            Expect(SameBoard(b, ForkBoards.Generate(seed, SixEdge)), "6x6 generation is deterministic");
+            if (b == null) continue;
+            generated++;
+            Expect(b.Size == SixEdge && b.CellCount == 36, "6x6 board has 36 cells");
+            CheckBoard(b);
+            CheckSpanningTree(b);
+            minForks = Math.Min(minForks, b.ForkCount);
+            maxForks = Math.Max(maxForks, b.ForkCount);
+            forced += ForkBoards.ForcedMoves(b);
+            cells += b.CellCount;
+            int guesses = ForkBoards.Guesses(b);
+            if (guesses > 0) needingGuess++;
+            maxGuesses = Math.Max(maxGuesses, guesses);
+        }
+        Expect(cells == 36 * generated, "6x6 cell total is 36 per board");
+        Expect(generated == SixExpectedBoards, "6x6 generated board count is locked");
+        Expect(minForks == SixExpectedMinForks && maxForks == SixExpectedMaxForks, "6x6 fork range is locked");
+        Expect(forced == SixExpectedForced, "6x6 forced cell count is locked");
+        Expect(needingGuess == SixExpectedNeedingGuess, "6x6 boards needing a guess are locked");
+        Expect(maxGuesses == SixExpectedMaxGuesses, "6x6 maximum guesses is locked");
+        bool rejected = false;
+        try { ForkBoards.Generate(0, 3); }
+        catch (ArgumentOutOfRangeException) { rejected = true; }
+        Expect(rejected, "edges outside 4 to 6 are rejected");
+    }
+
+    // Independent check on the solution: every port matched, joins = cells - 1, all cells connected.
+    private static void CheckSpanningTree(ForkBoard b)
+    {
+        int n = b.Size, cells = b.CellCount, joins = 0;
+        for (int i = 0; i < cells; i++)
+            for (int d = 0; d < 4; d++)
+            {
+                if (((b.Solution[i] >> d) & 1) == 0) continue;
+                int j = Step(n, i, d);
+                Expect(j >= 0 && ((b.Solution[j] >> ((d + 2) % 4)) & 1) != 0, "every port is matched on the 6x6 solution");
+                if (d == 1 || d == 2) joins++;
+            }
+        Expect(joins == cells - 1, "6x6 solution has cells minus one joins");
+
+        var seen = new bool[cells];
+        var pending = new System.Collections.Generic.Stack<int>();
+        seen[0] = true;
+        pending.Push(0);
+        int reached = 0;
+        while (pending.Count > 0)
+        {
+            int i = pending.Pop();
+            reached++;
+            for (int d = 0; d < 4; d++)
+            {
+                if (((b.Solution[i] >> d) & 1) == 0) continue;
+                int j = Step(n, i, d);
+                if (j < 0 || seen[j]) continue;
+                seen[j] = true;
+                pending.Push(j);
+            }
+        }
+        Expect(reached == cells, "6x6 solution is connected");
+    }
+
+    private static int Step(int n, int cell, int d)
+    {
+        int row = cell / n, col = cell % n;
+        if (d == 0) row--;
+        else if (d == 1) col++;
+        else if (d == 2) row++;
+        else col--;
+        return row >= 0 && row < n && col >= 0 && col < n ? row * n + col : -1;
     }
 
     private static void CheckBoard(ForkBoard b)
@@ -44,12 +135,12 @@ internal static class ForkBoardsTests
         CheckInitialIsRotation(b);
 
         bool[][] candidates = ForkBoards.Candidates(b);
-        Expect(candidates.Length == ForkBoard.Cells, "one candidate row per cell");
-        for (int i = 0; i < ForkBoard.Cells; i++)
+        Expect(candidates.Length == b.CellCount, "one candidate row per cell");
+        for (int i = 0; i < b.CellCount; i++)
             Expect(HasSolutionCandidate(b, candidates, i), "candidates keep the solution orientation");
 
         int forced = ForkBoards.ForcedMoves(b);
-        Expect(forced >= 0 && forced <= ForkBoard.Cells, "forced moves are bounded by cell count");
+        Expect(forced >= 0 && forced <= b.CellCount, "forced moves are bounded by cell count");
         Expect(forced == ForkBoards.ForcedMoves(b), "forced moves are deterministic");
         Expect(ForkBoards.Guesses(b) >= 0, "guess count is non-negative");
 
@@ -59,7 +150,7 @@ internal static class ForkBoardsTests
 
     private static void CheckInitialIsRotation(ForkBoard b)
     {
-        for (int i = 0; i < ForkBoard.Cells; i++)
+        for (int i = 0; i < b.CellCount; i++)
             Expect(ForkBoards.Canonical(b.Initial[i]) == ForkBoards.Canonical(b.Solution[i]),
                 "each scrambled tile is a rotation of its solution tile");
     }

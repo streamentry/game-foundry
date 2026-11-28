@@ -223,6 +223,12 @@ namespace Evergrove.UnityClient
             return string.Join(" | ", CompanionRanker.Explain(CompanionFactsNow(), CompanionMemoryNow(), villager,
                 CompanionNow().DayNumber, world.Garden, CompanionCanSay, 3));
         }
+        // CP40: the tour's two companion log lines (what was said, then why), kept here so DevQaTour.cs stays in its line budget.
+        internal void QaLogCompanion(int day, string who, int villager)
+        {
+            Debug.Log("MOSSELORA_COMPANION day " + day + " " + who + ": " + QaNeighborSays(villager));
+            Debug.Log("MOSSELORA_COMPANION_WHY day " + day + " " + who + ": " + QaCompanionExplain(villager));
+        }
         internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
         internal void QaRainbow(bool on) { qaRainbow = on; } // I364 tour
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }

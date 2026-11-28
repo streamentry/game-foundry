@@ -29,7 +29,7 @@ internal static class ThemeContrastTests
         Dictionary<string, double> lum = ParseTheme(File.ReadAllText(ThemePath()));
 
         string[] tiles = { "DryTile", "WetTile", "SolvedTile", "AnchoredTile", "HintRowTile", "HintFocusTile" };
-        foreach (string channel in new[] { "DryChannel", "WaterChannel" })
+        foreach (string channel in new[] { "DryChannel", "WaterChannel", "WetPipe" })
             foreach (string tile in tiles)
                 AtLeast(lum, channel, tile, 3.0);
 

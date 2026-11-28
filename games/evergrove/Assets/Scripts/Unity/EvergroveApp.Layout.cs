@@ -40,6 +40,12 @@ namespace Evergrove.UnityClient
             {
                 string opens = TileOpenings.Words(puzzle.Kinds[index], world.Rotations[index]);
                 if (opens.Length > 0) label += " " + opens;
+                // The spring also says where the water must reach, so a blind player knows the outlets.
+                if (index == firstEnd)
+                {
+                    string outlets = OutletWords.For(puzzle);
+                    if (outlets.Length > 0) label += " " + outlets;
+                }
             }
             bool protectedTile = puzzle.IsAnchored(index);
             // The landmark sentence already says the pipe is protected and cannot rotate.

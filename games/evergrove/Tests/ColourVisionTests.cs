@@ -51,10 +51,9 @@ internal static class ColourVisionTests
         double[] water = theme["WaterChannel"];
         double[] dry = theme["DryChannel"];
         // Finding (2026-11-28): WaterChannel #18717F and DryChannel #9C5A38 are near-equal in
-        // luminance: WCAG contrast 1.06:1 normal, 1.18 protan, 1.22 deutan, 1.00 tritan. They differ
-        // in hue only, so the 1.5:1 bar is NOT met under any vision. Smallest same-hue fix found
-        // (not applied): water HLS lightness 0.296 -> 0.196, i.e. #104B54, giving 1.83 / 1.50 / 2.06 / 1.76.
-        // Until that colour change lands, assert only that the channels stay visibly distinct in RGB.
+        // luminance (WCAG 1.06 normal, 1.18 protan, 1.22 deutan, 1.00 tritan). The board's wet pipe
+        // is therefore WetPipe, a darker same-hue teal, checked below at 1.5:1. WaterChannel stays for
+        // icons, maps and marks, so only RGB distance is asserted for it here.
         foreach (ColourVision.Vision v in AllVisions())
         {
             double distance = Distance(ColourVision.Simulate(water[0], water[1], water[2], v),
@@ -62,6 +61,17 @@ internal static class ColourVisionTests
             Expect(distance >= MinChannelDistance,
                 "water and dry channels stay distinct in RGB under " + v + ", distance " +
                 distance.ToString("0.000", CultureInfo.InvariantCulture));
+        }
+
+        // The wet pipe on the board is WetPipe, a darker teal than WaterChannel, so its lightness
+        // differs from DryChannel under every simulation (1.5:1 bar).
+        double[] wet = theme["WetPipe"];
+        foreach (ColourVision.Vision v in AllVisions())
+        {
+            double contrast = ColourVision.ContrastUnder(v, wet, dry);
+            Expect(contrast >= 1.5,
+                "WetPipe and DryChannel contrast is at least 1.5:1 under " + v + ", was " +
+                contrast.ToString("0.000", CultureInfo.InvariantCulture));
         }
         return assertions;
     }
@@ -96,8 +106,8 @@ internal static class ColourVisionTests
                 int.Parse(hex.Substring(4, 2), NumberStyles.HexNumber) / 255.0,
             };
         }
-        Expect(colours.ContainsKey("WaterChannel") && colours.ContainsKey("DryChannel"),
-            "WaterChannel and DryChannel parsed from MosseloraTheme.cs");
+        Expect(colours.ContainsKey("WaterChannel") && colours.ContainsKey("DryChannel") && colours.ContainsKey("WetPipe"),
+            "WaterChannel, WetPipe and DryChannel parsed from MosseloraTheme.cs");
         return colours;
     }
 
