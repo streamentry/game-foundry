@@ -242,6 +242,24 @@ namespace Evergrove.Core
         }
 
         /// <summary>
+        /// CP41: every PlayerPrefs key one garden's memory can live under: English first, then each other
+        /// locale once. Forgetting a garden (a reset) deletes all of them, so no language keeps old remarks.
+        /// </summary>
+        public static IReadOnlyList<string> StorageKeysFor(int garden, IEnumerable<string> locales)
+        {
+            var keys = new List<string> { StorageKey(garden, CompanionLocale.English) };
+            var seen = new HashSet<string>(StringComparer.Ordinal) { keys[0] };
+            if (locales == null) return keys.AsReadOnly();
+            foreach (string locale in locales)
+            {
+                if (string.IsNullOrEmpty(locale)) continue;
+                string key = StorageKey(garden, locale);
+                if (seen.Add(key)) keys.Add(key);
+            }
+            return keys.AsReadOnly();
+        }
+
+        /// <summary>
         /// CP39: the playtest export, one line per remark, oldest first: "date · who · kind". Deliberately has
         /// no key and no wording (a key can carry a family member's typed name), so a participant can paste it.
         /// <paramref name="dateOfDay"/> turns a day number into a date; without it the day number is written.

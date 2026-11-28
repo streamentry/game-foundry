@@ -27,6 +27,7 @@ internal static class CompanionMemoryTests
         CapKeepsEverSaid();
         MemoryHelpers();
         StorageKeys();
+        StorageKeysForGarden();
         ToReadableExport();
         return assertions;
     }
@@ -326,5 +327,28 @@ internal static class CompanionMemoryTests
         Expect(CompanionMemory.StorageKey(3, "fr") != CompanionMemory.StorageKey(3, "en"), "French and English memories are distinct");
         Expect(CompanionMemory.StorageKey(3, "fr") != CompanionMemory.StorageKey(3, "fr-ca"), "distinct locales give distinct keys");
         Expect(CompanionMemory.StorageKey(3, "de") != CompanionMemory.StorageKey(3, "ja"), "two other languages do not share a key");
+    }
+
+    // CP41: a garden's memory is one key per language; forgetting it must reach every one of them.
+    // English is always included (it is the pre-CP36 key), each other locale once, case-insensitively.
+    private static void StorageKeysForGarden()
+    {
+        List<string> three = new List<string>(CompanionMemory.StorageKeysFor(3, new[] { "fr", "pt-BR" }));
+        Expect(three.Count == 3, "a garden has English plus one key per other locale");
+        Expect(three.Contains("evergrove:companion-heard:3"), "the English key is always included");
+        Expect(three.Contains(CompanionMemory.StorageKey(3, "fr")), "French's key is included");
+        Expect(three.Contains(CompanionMemory.StorageKey(3, "pt-BR")), "Portuguese's key is included");
+
+        List<string> dupes = new List<string>(CompanionMemory.StorageKeysFor(3, new[] { "en", "EN", "fr", "FR", "fr" }));
+        Expect(dupes.Count == 2, "English and repeated locales appear once each, ignoring case");
+
+        List<string> none = new List<string>(CompanionMemory.StorageKeysFor(3, new string[] { null, "" }));
+        Expect(none.Count == 1 && none[0] == "evergrove:companion-heard:3", "blank locales add nothing but English");
+
+        List<string> empty = new List<string>(CompanionMemory.StorageKeysFor(3, null));
+        Expect(empty.Count == 1 && empty[0] == "evergrove:companion-heard:3", "no locales still forgets English");
+
+        List<string> other = new List<string>(CompanionMemory.StorageKeysFor(4, new[] { "fr" }));
+        Expect(!other.Contains(CompanionMemory.StorageKey(3, "fr")), "another garden's keys are never listed");
     }
 }

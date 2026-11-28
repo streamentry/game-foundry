@@ -128,6 +128,7 @@ namespace Evergrove.UnityClient
                 Rebuild();
                 return;
             }
+            ForgetCompanion(world != null ? world.Garden : 0); // CP41: the discarded garden's neighbours forget it
             // A new garden meets the next twelve trees, flowers and builds (I172),
             // and remembers which garden it is in its own save (I178).
             gardenNumber = Mathf.Max(gardenNumber, world != null ? world.Garden : 0) + 1;

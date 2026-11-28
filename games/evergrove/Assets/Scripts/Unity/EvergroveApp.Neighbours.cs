@@ -251,6 +251,21 @@ namespace Evergrove.UnityClient
             companionMemoryRaw = raw;
         }
 
+        // CP41: a reset forgets this garden's companion memory in every language, and the visit state
+        // and parsed-memory cache that would otherwise still remember it.
+        private void ForgetCompanion(int garden)
+        {
+            var locales = new System.Collections.Generic.List<string>();
+            foreach (GameLanguage language in GameLocalization.Available) locales.Add(language.Code);
+            foreach (string key in CompanionMemory.StorageKeysFor(garden, locales)) PlayerPrefs.DeleteKey(key);
+            PlayerPrefs.Save();
+            companionMemory = null;
+            companionMemoryKey = null;
+            companionMemoryRaw = null;
+            spokenThisVisit.Clear();
+            spokenVariant.Clear();
+        }
+
         // CP37: the fact list, built once per rebuild. A redraw asks for it 6-8 times (CompanionPick runs
         // once per neighbour), so the last list is kept while its signature and the frame are unchanged.
         // The signature covers every input For reads, so a stale list cannot be served.
