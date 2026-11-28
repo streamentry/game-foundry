@@ -32,6 +32,7 @@ namespace Evergrove.UnityClient
             yield return new WaitForSecondsRealtime(0.4f);
             yield return new WaitForEndOfFrame();
             SavePng("26-fan-folded.png");
+            LogFanFit(); // every fan token on screen (landscape wraps into columns)
             Press("Open menu"); // folds the fan away
             for (int f = 0; f < 4; f++) yield return null;
         }
@@ -57,6 +58,21 @@ namespace Evergrove.UnityClient
                     if (t.name.StartsWith(garden, System.StringComparison.Ordinal)) return false;
             }
             return underHub;
+        }
+
+        // Counts fan tokens whose rect leaves the screen: 0 means every one can be reached.
+        private static void LogFanFit()
+        {
+            int tokens = 0, off = 0;
+            var corners = new Vector3[4];
+            foreach (RectTransform rect in FindObjectsByType<RectTransform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (rect.parent == null || rect.parent.name != "Fan column") continue;
+                tokens++;
+                rect.GetWorldCorners(corners);
+                if (corners[0].y < 0f || corners[1].y > Screen.height || corners[0].x < 0f || corners[2].x > Screen.width) off++;
+            }
+            Debug.Log("MOSSELORA_FAN_FIT tokens " + tokens + " offscreen " + off);
         }
     }
 }

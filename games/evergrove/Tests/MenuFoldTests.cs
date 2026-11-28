@@ -165,6 +165,8 @@ internal static class MenuFoldTests
             "the tour saves the hub at rest and the fan");
         string main = ReadEvergrove("Assets/Scripts/Unity/DevQaTour.cs");
         Expect(main.Contains("yield return RestShots(); // checklist 11 (DevQaTour.Rest.cs)"), "the tour runs RestShots");
+        Expect(rest.Contains("LogFanFit();") && rest.Contains("MOSSELORA_FAN_FIT tokens"),
+            "the tour counts fan tokens that leave the screen (landscape must wrap, not cut off)");
         Expect(main.Split('\n').Length - 1 <= 1177, "DevQaTour.cs stays within its 1177-line budget");
     }
 

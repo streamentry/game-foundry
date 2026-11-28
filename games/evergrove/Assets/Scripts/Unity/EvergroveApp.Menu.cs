@@ -119,6 +119,7 @@ namespace Evergrove.UnityClient
         // ---- I191: the fan menu. One corner button opens a column of round
         // tokens under it; a tap anywhere else folds it away again.
         private GameObject fan;
+        private const float FanCell = 64f, FanGap = 12f, FanFootMargin = 12f; // a fan token, the gap, room at the foot
 
         private void CloseFan()
         {
@@ -166,13 +167,17 @@ namespace Evergrove.UnityClient
             columnRect.anchorMin = columnRect.anchorMax = new Vector2(safe.xMin / w, safe.yMax / h);
             columnRect.pivot = new Vector2(0f, 1f);
             columnRect.anchoredPosition = new Vector2(10f, ChromeTop - 66f);
-            var stack = column.AddComponent<VerticalLayoutGroup>();
-            stack.spacing = 12;
+            // Checklist 11: the fan holds more tokens now (letters, basket, seed book), so it fills top to
+            // bottom and wraps into a second column when the screen is too short (landscape): every token
+            // stays on screen, and the one used last is still first, right under the corner button.
+            var stack = column.AddComponent<GridLayoutGroup>();
+            stack.cellSize = new Vector2(FanCell, FanCell);
+            stack.spacing = new Vector2(FanGap, FanGap);
+            stack.startCorner = GridLayoutGroup.Corner.UpperLeft;
+            stack.startAxis = GridLayoutGroup.Axis.Vertical;
             stack.childAlignment = TextAnchor.UpperLeft;
-            stack.childControlWidth = true;
-            stack.childControlHeight = true;
-            stack.childForceExpandWidth = false;
-            stack.childForceExpandHeight = false;
+            stack.constraint = GridLayoutGroup.Constraint.FixedRowCount;
+            stack.constraintCount = 99; // set below, once the fan hangs from the corner button
             var fit = column.AddComponent<ContentSizeFitter>();
             fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -232,6 +237,10 @@ namespace Evergrove.UnityClient
                     CloseFan();
                     ShowLetter(0);
                 });
+                // The painted letterbox keeps its own colours (a glyph's ink would make it a silhouette).
+                Transform letterGlyph = letters.transform.Find("Icon");
+                Image letterImage = letterGlyph != null ? letterGlyph.GetComponent<Image>() : null;
+                if (letterImage != null) { letterImage.color = Color.white; letterImage.preserveAspect = true; }
                 // An unread letter shows its sealed envelope on the token (the menu button wears a dot).
                 if (PlayerPrefs.GetInt(LettersReadKey, 0) < world.Letters.Length)
                     MosseloraArt.Ornament(letters.transform, "Unread letter", MosseloraArt.Load("letter-sealed"),
@@ -265,6 +274,12 @@ namespace Evergrove.UnityClient
                     columnRect.position = corners[0] + new Vector3(0f, -12f * canvasRoot.lossyScale.y, 0f);
                     break;
                 }
+            // How many tokens fit down the screen from here, above the foot of the safe area.
+            var screenCorners = new Vector3[4];
+            canvasRoot.GetWorldCorners(screenCorners);
+            float footMargin = safe.yMin / h * canvasRoot.rect.height + FanFootMargin;
+            float room = (columnRect.position.y - screenCorners[0].y) / Mathf.Max(0.0001f, canvasRoot.lossyScale.y) - footMargin;
+            stack.constraintCount = FanOrder.RowsThatFit(room, FanCell, FanGap, tokens.Count);
             if (gentleMotion)
                 for (int i = 0; i < tokens.Count; i++) StartCoroutine(FanIn(tokens[i], i * 0.045f));
             semanticsDirty = true;
