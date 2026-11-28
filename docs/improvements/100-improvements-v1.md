@@ -21,7 +21,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 ## B. Navigation: icons, one menu, nothing extra on screen
 
-- [ ] **11. One menu button.** Collapse every non-garden control into a single leaf button in the corner, opening to a radial or fan menu of icons. *Test:* count buttons visible at rest on the hub (target: no more than 2).
+- [x] **11. One menu button.** Collapse every non-garden control into a single leaf button in the corner, opening to a radial or fan menu of icons. *Test:* count buttons visible at rest on the hub (target: no more than 2).
 - [ ] **12. Icons that need no word.** Replace each remaining text button with a painted icon. Keep the word only as an accessibility label and a long-press caption. *Test:* icon-recognition card sort with 8 players aged 40+; any icon below 80% recognition gets redrawn.
 - [ ] **13. Context buttons appear where the thumb is.** A tapped thing shows its two actions beside it (play, move) and nothing else. *Test:* taps per action before and after.
 - [x] **14. Back is always the same place.** One back gesture and one back icon position across all sheets (FamilySheet, almanac, nursery). *Test:* tour shot audit of every sheet.
@@ -54,7 +54,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **35. A weekly deeper board.** One harder board each week per favourite kind, with no timer, and no penalty for skipping it. *Test:* generator proves uniqueness at the top tier.
 - [x] **36. Technique names.** When a player uses a known technique (a naked pair in seed sudoku), the almanac names it the first time. *Test:* the detector agrees with the solver on 1,000 boards.
 - [x] **37. Boards drawn from the player's own garden.** Mosaic and pictures-by-numbers boards use shapes of things the player grew. *Test:* generated boards are unique and solvable.
-- [ ] **38. Chains between puzzles.** Finishing a stream path waters plots; finishing plots feeds the nursery. Each link is one visible, logical cause. *Test:* the cause shows on screen within 2 s.
+- [x] **38. Chains between puzzles.** Finishing a stream path waters plots; finishing plots feeds the nursery. Each link is one visible, logical cause. *Test:* the cause shows on screen within 2 s.
 - [x] **39. Undo everywhere, without limit.** Every board gets unlimited undo and redo with a visible step count. *Test:* a property test that undo restores the exact state.
 - [x] **40. Mistakes shown kindly.** Show conflicts only on request (a lens icon), never automatically in red. *Test:* setting persists; no red anywhere.
 
