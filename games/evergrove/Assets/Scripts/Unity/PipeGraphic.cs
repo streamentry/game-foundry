@@ -65,7 +65,7 @@ namespace Evergrove.UnityClient
             // Non-color cue (WCAG 1.4.1): connected channels carry a solid,
             // wider water stripe along each arm; dry channels carry a
             // segmented, broken stripe. Same arm geometry and hit area.
-            Color32 outer = completed ? new Color32(22, 132, 146, 255) :
+            Color32 outer = completed ? (Color32)MosseloraTheme.SolvedPipe :
                 hasWater ? (Color32)MosseloraTheme.WetPipe :
                 (Color32)MosseloraTheme.DryChannel;
             Color32 collar = completed ? new Color32(16, 96, 108, 255) :

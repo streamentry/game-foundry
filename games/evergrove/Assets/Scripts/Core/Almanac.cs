@@ -71,8 +71,10 @@ namespace Evergrove.Core
 
         /// <summary>
         /// Vision run 20261128-1901, idea 5: the keeper's line, plus one true sentence when this
-        /// garden's own choices made the item ("You chose it for this garden."). It only ever
-        /// adds a true sentence, never a negative one: a nursery copy in the garden stays silent.
+        /// garden's own choices made the item ("You chose it for this garden."). Vision run
+        /// 20261128-2001, idea 5: when that choice's puzzle was also solved together, one more true
+        /// sentence follows ("You solved its puzzle together."). It only ever adds true sentences,
+        /// never a negative one: a nursery copy in the garden stays silent.
         /// </summary>
         public static string KeeperLine(GardenItem item, WorldModel world)
         {
@@ -83,7 +85,9 @@ namespace Evergrove.Core
             for (int i = 0; i < choices.Length; i++)
             {
                 GardenItem made = GardenCatalog.For(garden, Math.Min(i, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)choices[i]);
-                if (made.Art == item.Art) return line + " You chose it for this garden.";
+                if (made.Art == item.Art)
+                    return line + " You chose it for this garden." +
+                        (world.SolvedTogether(i) ? " You solved its puzzle together." : "");
             }
             return line;
         }

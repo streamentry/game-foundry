@@ -2046,6 +2046,9 @@ internal static class Program
             assertions += TurnLedgerMoversTests.Run();
             assertions += TableCaptionTests.Run();
             assertions += AlmanacHereTests.Run();
+            assertions += LinkedForkPlayTests.Run();
+            assertions += NeighbourWordsTests.Run();
+            assertions += PostcardTogetherTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

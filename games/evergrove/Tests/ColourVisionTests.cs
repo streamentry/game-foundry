@@ -104,7 +104,53 @@ internal static class ColourVisionTests
                     fillDistance.ToString("0.000", CultureInfo.InvariantCulture));
             }
         }
+        AssertPipeInksStandOff(theme);
         return assertions;
+    }
+
+    // Vision run 20261128-2001 idea 4: every pipe ink stands off the tile it is drawn on, for every eye.
+    // PipeGraphic draws the outer channel as DryChannel (dry), WetPipe (wet) or a completed teal literal
+    // (solved); TileFill paints the tile beneath it, and TreePlay's hint paints a honey literal.
+    // Pairs checked (ink on fill), each under Normal, Protanopia, Deuteranopia and Tritanopia:
+    //   DryChannel on DryTile, DryChannel on AnchoredTile, DryChannel on the hint literal,
+    //   WetPipe on WetTile, WetPipe on AnchoredTile, WetPipe on the hint literal,
+    //   completed teal on SolvedTile, completed teal on AnchoredTile.
+    // Measured 2026-11-28, minimum over the four visions (normal, protan, deutan, tritan):
+    //   DryChannel/DryTile 4.229 (deutan); DryChannel/AnchoredTile 3.796 (deutan);
+    //   DryChannel/hint 4.274 (deutan); WetPipe/WetTile 8.099 (protan);
+    //   WetPipe/AnchoredTile 6.898 (protan); WetPipe/hint 7.836 (protan);
+    //   completed teal/SolvedTile 3.607 (protan); completed teal/AnchoredTile 2.949 (protan).
+    // Finding: the completed teal (then a #168492 literal in PipeGraphic) measured 2.949 on AnchoredTile
+    // under protanopia. It is now MosseloraTheme.SolvedPipe, darkened 3%; see the values below.
+    // The hint honey (0.98, 0.93, 0.74) is still an inline literal in TreePlay.cs, copied here.
+    private static void AssertPipeInksStandOff(Dictionary<string, double[]> theme)
+    {
+        double[] completedInk = theme["SolvedPipe"];
+        double[] hintFill = { 0.98, 0.93, 0.74 };
+        var pairs = new List<KeyValuePair<string, double[][]>>
+        {
+            new KeyValuePair<string, double[][]>("DryChannel on DryTile", new[] { theme["DryChannel"], theme["DryTile"] }),
+            new KeyValuePair<string, double[][]>("DryChannel on AnchoredTile", new[] { theme["DryChannel"], theme["AnchoredTile"] }),
+            new KeyValuePair<string, double[][]>("DryChannel on hint literal", new[] { theme["DryChannel"], hintFill }),
+            new KeyValuePair<string, double[][]>("WetPipe on WetTile", new[] { theme["WetPipe"], theme["WetTile"] }),
+            new KeyValuePair<string, double[][]>("WetPipe on AnchoredTile", new[] { theme["WetPipe"], theme["AnchoredTile"] }),
+            new KeyValuePair<string, double[][]>("WetPipe on hint literal", new[] { theme["WetPipe"], hintFill }),
+            new KeyValuePair<string, double[][]>("completed teal on SolvedTile", new[] { completedInk, theme["SolvedTile"] }),
+            new KeyValuePair<string, double[][]>("completed teal on AnchoredTile", new[] { completedInk, theme["AnchoredTile"] }),
+        };
+
+        var failures = new List<string>();
+        foreach (KeyValuePair<string, double[][]> pair in pairs)
+        {
+            double lowest = double.MaxValue;
+            foreach (ColourVision.Vision v in AllVisions())
+            {
+                double c = ColourVision.ContrastUnder(v, pair.Value[0], pair.Value[1]);
+                lowest = Math.Min(lowest, c);
+            }
+            if (lowest < 3.0) failures.Add(pair.Key + " " + lowest.ToString("0.000", CultureInfo.InvariantCulture));
+        }
+        Expect(failures.Count == 0, "pipe ink stands off its tile at 3:1 under every vision: " + string.Join("; ", failures));
     }
 
     private static double Distance(double[] a, double[] b)

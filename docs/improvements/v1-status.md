@@ -240,3 +240,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Holding the take-turns token says what a tap does ("Two at the table. Tap for three.", `TakeTurns.TableCaption`). Tests: `TableCaptionTests`. Tour and device: not run.
 - Seat pips grow with the text size, 9/11/13 points (`TurnPalette.PipSize`, `PipSpacing`). Tests: `TurnPaletteTests`. On-screen look at 150%: not checked.
 - A found item in the almanac adds "You chose it for this garden." when this garden's choices grew it (`Almanac.KeeperLine(item, world)`), English only. Tests: `AlmanacHereTests`. Tour and device: not run.
+
+## Vision run 20261128-2001 (outside the v1 checklist)
+
+- Axle board play model: `LinkedForkPlay` (tap turns both axle ends, undo, solved check; not wired). All 12 `DrawByLevel(12, 240)` boards solve by taps; fewest taps 23–41. Tests: `LinkedForkPlayTests`.
+- Neighbours name new things in correct English ("An oak, new in the garden.", not "A oak"); plurals and "apple press"/"vine trellis" handled (`ItemWords`, `NeighbourNotice.Arrival`/`Waiting`). Tests: `NeighbourWordsTests`. Tour and device: not run.
+- The text postcard names what was solved together ("Solved together: the quince tree and the footbridge.", `GardenPostcard`), from the save's together marks only, English only. Tests: `PostcardTogetherTests`. Share sheet on device: not run.
+- Pipe inks checked against every tile they sit on (item 92): **finding, fixed**: the finished-stream teal was 2.95:1 on the protected tile under protanopia; now `MosseloraTheme.SolvedPipe` #158190, ≥ 3:1 for every pair. Tests: `ColourVisionTests`. On-screen look: not checked.
+- The almanac adds "You solved its puzzle together." for a choice marked together (`Almanac.KeeperLine(item, world)`). Tests: `AlmanacHereTests`. Tour and device: not run.
