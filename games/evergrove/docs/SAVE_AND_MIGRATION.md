@@ -59,6 +59,8 @@ Final Living choice:
   round=12, solved=false, variant=0, rotations=[], choices.length=12
 ```
 
+Reconsider also drops the reconsidered thing's `together` and `helped`/`helpedFrom` entries (vision run 20261128-1001), so no mark survives on an index beyond `choices` (which `ReadHelped` rejects on load).
+
 PuzzleOnly advances after a win without a choice and always uses `boardVariant=0`. The on-screen memory interlude is **not** represented by an extra persisted enum: a kill/restart will resume chapter state, not necessarily replay the interlude.
 
 **Choice previews (2026-11-26)** are also transient. `VillageChoicePreview` evaluates a detached copy; it is never the object sent to `WorldStore.Save`. Only an explicit confirmation mutates the live world and requests a save. Closing, comparing, Undo, reset or replacing the world must not commit an old preview. After a relaunch, the last saved solved board remains available for a fresh choice. The v4 schema and all migrations are unchanged.
@@ -169,6 +171,8 @@ The canonical snapshot text is produced by hand-written string building, so the 
 | `ChecksumMismatch` | Recomputed checksum differs from the stored one. |
 | `InvalidSnapshot` | Snapshot missing, wrong JSON type, non-integer number, unknown key, or failing `WorldModel.TryRestore`. |
 
+The player's copy (`GardenTransfer.ExportForPeople`) starts with one plain-language header line, `Mosselora garden file: [name, ]N stream(s) restored. Keep all of this text to bring the garden back.`, followed by the unchanged envelope; the header is outside the checksummed envelope and the format version stays 1. Import skips any text before the first `{` when that prefix is at most 300 characters and contains no `}`, and otherwise reports `Malformed` as before.
+
 Gardens exported before EG-111 have no `history` key. Their checksum covers the pre-history text, so import also accepts that exact form when the parsed snapshot has no history; a snapshot carrying `history` must match the current text.
 
 Errors are checked in that order. Import always goes through `WorldModel.TryRestore`, so every snapshot version that `TryRestore` accepts (v1, v2, v3, v4) imports and migrates to the current version on the next export.
@@ -191,7 +195,7 @@ Errors are checked in that order. Import always goes through `WorldModel.TryRest
 
 Settings contains a **Garden file** card (below the puzzle, never on the primary path):
 
-- **Copy garden file** writes `GardenTransfer.Export(world, UTC timestamp)` to `GUIUtility.systemCopyBuffer`, then shows "Garden file copied. Keep it somewhere safe."
+- **Copy garden file** writes `GardenTransfer.ExportForPeople(world, UTC timestamp)` to `GUIUtility.systemCopyBuffer`, then shows "Garden file copied. Keep it somewhere safe."
 - **Restore from garden file** reads the system clipboard and runs `TryImport`. A failure shows one plain-language message per error (empty, not a garden file, newer version, damaged, too large). Nothing is replaced on failure.
 - A valid file is parsed into memory and waits for a second tap, **Confirm garden restore** ("This replaces your current garden."). Only then does the app replace the world and save it through `SaveWorld()` and `WorldStore`. Restore is hidden while an unreadable save blocks writes. The confirm card also lists both gardens from real save fields (`GardenCompare.Lines`: name, streams restored, things planted and bought, days played), plus "The file's garden is smaller than this phone's." when the file has fewer streams or things. English only.
 

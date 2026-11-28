@@ -131,7 +131,7 @@ namespace Evergrove.UnityClient
         {
             if (solved) return;
             players = TakeTurns.NextPlayers(players);
-            turn = 0;
+            turn = 0; ledger.Clear();
             PaintTurn();
         }
 
@@ -378,7 +378,7 @@ namespace Evergrove.UnityClient
             play.Build(rect, art, name, reward, font);
             // Take turns (I264): every move flips whose turn it is.
             Action inner = play.onTurn;
-            play.onTurn = () => { inner?.Invoke(); play.FlipTurn(); };
+            play.onTurn = () => { inner?.Invoke(); play.FlipTurn(); play.NoteTurn(); };
             play.TogetherRow();
             return play;
         }
