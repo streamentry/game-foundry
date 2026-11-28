@@ -27,12 +27,20 @@ internal static class CompanionSimulatorTests
         TranscriptIsCompleteAndDeterministic();
         SameMemoryGivesSameTranscript();
         NoRepeatedWording();
+        OnceIsOnce();
         return assertions;
     }
 
-    private static CompanionContext ContextFor(int day)
+    // CP13: the app gives the context the garden's painted map, so {where} fills and the bank speaks.
+    private static GardenMap MapFor(WorldModel world)
     {
-        return new CompanionContext(Start.AddDays(day), weather: Cycle[day % Cycle.Length], lightOn: true, phase: DayPhase.Day);
+        return GardenMap.River(10, 15, CompanionFactsTests.Mask(),
+            GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved));
+    }
+
+    private static CompanionContext ContextFor(int day, GardenMap map)
+    {
+        return new CompanionContext(Start.AddDays(day), weather: Cycle[day % Cycle.Length], lightOn: true, phase: DayPhase.Day, map: map);
     }
 
     private static LineBank LoadBank()
@@ -41,9 +49,10 @@ internal static class CompanionSimulatorTests
     }
 
     private static IReadOnlyList<SimLine> Simulate(WorldModel world, LineBank bank, CompanionMemory memory = null,
-        Func<int, CompanionContext> contextFor = null, int days = 7)
+        Func<int, GardenMap, CompanionContext> contextFor = null, int days = 7)
     {
-        return CompanionSimulator.Run(world, contextFor ?? ContextFor, days, bank, CompanionLocale.English, memory);
+        GardenMap map = MapFor(world);
+        return CompanionSimulator.Run(world, day => (contextFor ?? ContextFor)(day, map), days, bank, CompanionLocale.English, memory);
     }
 
     private static string Render(IReadOnlyList<SimLine> transcript)
@@ -60,7 +69,7 @@ internal static class CompanionSimulatorTests
         LineBank bank = LoadBank();
         WorldModel world = CompanionFactsTests.Grown(9);
         world.SolveTree(0);
-        Expect(CompanionSimulator.Run(world, ContextFor, 0, bank).Count == 0, "zero days is an empty transcript");
+        Expect(CompanionSimulator.Run(world, day => ContextFor(day, MapFor(world)), 0, bank).Count == 0, "zero days is an empty transcript");
 
         IReadOnlyList<SimLine> first = Simulate(world, bank);
         IReadOnlyList<SimLine> second = Simulate(world, bank);
@@ -75,9 +84,9 @@ internal static class CompanionSimulatorTests
         }
 
         // The simulator only reads: the world's own facts are the same after a run.
-        string factsBefore = KeysOf(CompanionFacts.For(world, ContextFor(0)));
+        string factsBefore = KeysOf(CompanionFacts.For(world, ContextFor(0, MapFor(world))));
         Simulate(world, bank);
-        Expect(KeysOf(CompanionFacts.For(world, ContextFor(0))) == factsBefore, "the world is not mutated");
+        Expect(KeysOf(CompanionFacts.For(world, ContextFor(0, MapFor(world)))) == factsBefore, "the world is not mutated");
     }
 
     private static void SameMemoryGivesSameTranscript()
@@ -94,12 +103,12 @@ internal static class CompanionSimulatorTests
     }
 
     // CP12: every weather and every phase in turn, so the qualifier groups (WeatherToday.*, Hour.*) all come up.
-    private static CompanionContext VariedContextFor(int day)
+    private static CompanionContext VariedContextFor(int day, GardenMap map)
     {
         var weathers = (Weather[])Enum.GetValues(typeof(Weather));
         var phases = (DayPhase[])Enum.GetValues(typeof(DayPhase));
         return new CompanionContext(Start.AddDays(day), weather: weathers[day % weathers.Length], lightOn: true,
-            phase: phases[day % phases.Length]);
+            phase: phases[day % phases.Length], map: map);
     }
 
     private static void NoRepeatedWording()
@@ -138,6 +147,51 @@ internal static class CompanionSimulatorTests
         Expect(repeats.Count == 0, "no-repeat check over " + checkedLines + " lines: " + string.Join(" | ", repeats));
         Console.WriteLine("Companion simulator CP12: " + checkedLines + " transcript lines over " + Days + " days, none repeated within " +
             CompanionRanker.VariantDays + " days per speaker.");
+    }
+
+    // CP13: news said once (SC04 Once facts) is said once across 120 simulated days, one date per day.
+    // A season turn comes from the save (the story's landscape, or the turns after it), not the date, so
+    // each garden's once-facts are fixed; the memory must still keep each to a single telling.
+    private static void OnceIsOnce()
+    {
+        const int Days = 120;
+        LineBank bank = LoadBank();
+        int onceSaid = 0, checkedLines = 0;
+        var repeats = new List<string>();
+        foreach (int grown in new[] { 3, 9, 12 })
+        {
+            WorldModel world = CompanionFactsTests.Grown(grown);
+            world.SolveTree(0);
+            world.SolveTree(3);
+            // Good-neighbour pairings found (the first four are open from the start) and the season's yield taken.
+            world.DiscoverPairing(Pairing.Grove);
+            world.DiscoverPairing(Pairing.Waterside);
+            world.TakeSeasonYield(world.PairingsFound);
+            GardenMap map = MapFor(world);
+
+            var onceKeys = new HashSet<string>();
+            for (int day = 0; day < Days; day++)
+                foreach (Fact f in CompanionFacts.For(world, ContextFor(day, map)))
+                    if (f.Once) onceKeys.Add(f.Key);
+
+            IReadOnlyList<SimLine> transcript = Simulate(world, bank, null, ContextFor, Days);
+            checkedLines += transcript.Count;
+            var sayings = new Dictionary<string, int>();
+            foreach (SimLine line in transcript)
+            {
+                if (!onceKeys.Contains(line.Key)) continue;
+                onceSaid++;
+                sayings.TryGetValue(line.Key, out int before);
+                sayings[line.Key] = before + 1;
+            }
+            foreach (KeyValuePair<string, int> said in sayings)
+                if (said.Value > 1)
+                    repeats.Add("garden " + grown + ": once-fact \"" + said.Key + "\" said " + said.Value + " times");
+        }
+        Expect(onceSaid > 0, "a once-fact was said, so the check is not vacuous");
+        Expect(repeats.Count == 0, "no once-fact said twice: " + string.Join(" | ", repeats));
+        Console.WriteLine("Companion simulator CP13: " + onceSaid + " once-fact lines in " + checkedLines + " lines over " + Days +
+            " days; none said twice.");
     }
 
     private static string KeysOf(IReadOnlyList<Fact> facts)

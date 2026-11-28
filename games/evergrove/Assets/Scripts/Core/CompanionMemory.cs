@@ -51,7 +51,8 @@ namespace Evergrove.Core
             var kept = new List<Heard>(heard.Length + 1);
             foreach (Heard h in heard)
             {
-                if (said.Day - h.Day >= KeepDays) continue;
+                // CP13: news said once stays said: its key outlives KeepDays, or it would be said again.
+                if (said.Day - h.Day >= KeepDays && !CompanionFacts.IsOnceKind(h.Kind)) continue;
                 // CP02: a remark dated after this one means the clock moved back; keep it, heard today.
                 kept.Add(h.Day > said.Day ? Redate(h, said.Day) : h);
             }

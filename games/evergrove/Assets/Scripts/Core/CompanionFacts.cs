@@ -405,6 +405,12 @@ namespace Evergrove.Core
                             "pairing", p.ToString(), LegacyOffSlot, "1")));
         }
 
+        /// <summary>CP13: the kinds said once for good. <see cref="Once"/> marks exactly these; memory keeps them past its window.</summary>
+        public static bool IsOnceKind(FactKind kind)
+        {
+            return kind == FactKind.WishProgress || kind == FactKind.SeasonTurned || kind == FactKind.YieldGiven || kind == FactKind.PairingFound;
+        }
+
         private static Fact Once(Fact f)
         {
             return new Fact(f.Kind, f.Keeper, f.Key, f.Slots, f.Weight, f.Waiting, f.Fresh, f.LegacyOrder, true);
