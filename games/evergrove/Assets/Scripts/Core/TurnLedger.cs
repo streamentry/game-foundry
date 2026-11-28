@@ -35,6 +35,34 @@ namespace Evergrove.Core
             return turn;
         }
 
+        /// <summary>
+        /// Vision run 20261128-1901, idea 2: how many distinct seats actually moved up to a step. Each recorded
+        /// move k (1 to step) was made by whoever held the turn at k - 1; key 0 is the opening turn, not a move.
+        /// Undone moves (keys above step) don't count. Zero when nothing was recorded; never throws.
+        /// </summary>
+        public int Movers(int step)
+        {
+            return MovedSeats(step).Count;
+        }
+
+        /// <summary>Whether a seat made at least one of the recorded moves up to a step (same rule as <see cref="Movers"/>).</summary>
+        public bool Moved(int seat, int step)
+        {
+            return MovedSeats(step).Contains(seat);
+        }
+
+        private HashSet<int> MovedSeats(int step)
+        {
+            var seats = new HashSet<int>();
+            foreach (KeyValuePair<int, int> note in afterStep)
+            {
+                if (note.Key < 1) continue;
+                if (note.Key > step) break;
+                seats.Add(At(note.Key - 1));
+            }
+            return seats;
+        }
+
         /// <summary>Forgets everything (the number of players changed, so turns restart with the first player).</summary>
         public void Clear() { afterStep.Clear(); }
     }

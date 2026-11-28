@@ -102,9 +102,9 @@ internal static class SpokenTurnTests
         Expect(turns.Contains("TakeTurns.Spoken(turn, players)"), "TreePlay speaks the turn through TakeTurns.Spoken");
         Expect(turns.Contains("token.Find(\"Turn caption\")"), "TreePlay reuses its single turn caption");
         string[] lines = treePlay.Split('\n');
-        Expect(Array.Exists(lines, l => l.Trim() == "internal int Players { get { return players; } }"),
+        Expect(Array.Exists(lines, l => l.Trim() == "internal int Players { get { return PlayedTogether ? Math.Min(players, MoversNow()) : 1; } }"),
             "Players has a line of its own");
-        Expect(!Array.Exists(lines, l => l.Contains("PlayedTogether") && l.Contains("internal int Players")),
+        Expect(!Array.Exists(lines, l => l.Contains("internal bool PlayedTogether") && l.Contains("internal int Players")),
             "Players is not on the same line as PlayedTogether");
 
         return assertions;

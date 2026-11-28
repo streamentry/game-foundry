@@ -15,6 +15,8 @@ namespace Evergrove.Core
     /// 4,4,6,8,9,10,11,12,13,14,15,17 with a largest step of 2 (vision run 20261128-1701). Nothing in the game reads these seeds.
     /// Reach does not set difficulty (vision run 20261128-1801): <see cref="WorkByReach"/> over 240 seeds gives mean work
     /// 6.29, 5.73, 6.63, 6.52, 6.44 at reach 2 to 6 (flat, mixed), and only single boards at reach 7 and 8 (both work 8).
+    /// No board in the drawn chapter is another turned or mirrored (vision run 20261128-1901): <see cref="DistinctShapes"/>
+    /// over DrawByLevel(12, 240) gives 12 distinct shapes among 12 boards.
     /// </summary>
     public static class LinkedForkChapter
     {
@@ -177,6 +179,98 @@ namespace Evergrove.Core
                 previous = current;
             }
             return largest;
+        }
+
+        /// <summary>
+        /// True when one of the eight symmetries of the square (four quarter turns, each optionally mirrored) maps
+        /// board a onto board b: every cell moves to its transformed position, its port mask is transformed the same
+        /// way, and the linked pair {A, B} maps onto the linked pair of b as an unordered pair. Boards of different
+        /// size, and null, are never the same shape. Deterministic; the inputs are not changed.
+        /// </summary>
+        public static bool SameShape(LinkedForkBoard a, LinkedForkBoard b)
+        {
+            if (a == null || b == null) return false;
+            if (a.Board.Size != b.Board.Size) return false;
+            for (int mirror = 0; mirror < 2; mirror++)
+            {
+                for (int turns = 0; turns < 4; turns++)
+                {
+                    if (MapsOnto(a, b, mirror == 1, turns)) return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// True when the boards generated from the two seeds have the same shape (see the board overload).
+        /// </summary>
+        public static bool SameShape(int seedA, int seedB)
+        {
+            return SameShape(LinkedForks.Generate(seedA), LinkedForks.Generate(seedB));
+        }
+
+        /// <summary>
+        /// Number of shape equivalence classes among the boards generated from the seeds. Seeds with no linked
+        /// board are skipped. Null or empty gives 0. Deterministic; the input is not changed.
+        /// </summary>
+        public static int DistinctShapes(int[] seeds)
+        {
+            if (seeds == null || seeds.Length == 0) return 0;
+            var representatives = new List<LinkedForkBoard>();
+            foreach (int seed in seeds)
+            {
+                LinkedForkBoard board = LinkedForks.Generate(seed);
+                if (board == null) continue;
+                bool known = false;
+                foreach (LinkedForkBoard representative in representatives)
+                {
+                    if (SameShape(representative, board))
+                    {
+                        known = true;
+                        break;
+                    }
+                }
+                if (!known) representatives.Add(board);
+            }
+            return representatives.Count;
+        }
+
+        // Mirror (left to right) first when set, then quarter turns clockwise. Maps every cell and mask of a onto b.
+        private static bool MapsOnto(LinkedForkBoard a, LinkedForkBoard b, bool mirror, int turns)
+        {
+            int edge = a.Board.Size;
+            int cells = a.Board.CellCount;
+            int[] solutionA = a.Board.Solution;
+            int[] solutionB = b.Board.Solution;
+            for (int i = 0; i < cells; i++)
+            {
+                int target = Place(i, edge, mirror, turns);
+                if (solutionB[target] != Turn(solutionA[i], mirror, turns)) return false;
+            }
+            int moved1 = Place(a.A, edge, mirror, turns);
+            int moved2 = Place(a.B, edge, mirror, turns);
+            return (moved1 == b.A && moved2 == b.B) || (moved1 == b.B && moved2 == b.A);
+        }
+
+        private static int Place(int cell, int edge, bool mirror, int turns)
+        {
+            int row = cell / edge;
+            int col = cell % edge;
+            if (mirror) col = edge - 1 - col;
+            for (int t = 0; t < turns; t++)
+            {
+                int oldRow = row;
+                row = col;
+                col = edge - 1 - oldRow;
+            }
+            return row * edge + col;
+        }
+
+        // Ports follow the board: a mirror swaps east and west, and a clockwise quarter turn moves each port one direction on.
+        private static int Turn(int mask, bool mirror, int turns)
+        {
+            if (mirror) mask = (mask & 5) | ((mask & 2) << 2) | ((mask & 8) >> 2);
+            return ForkBoards.Rotate(mask, turns);
         }
 
         /// <summary>

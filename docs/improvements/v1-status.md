@@ -232,3 +232,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Undo or redo while taking turns is spoken as a hand-back ("Back to Honey, second of three.", `TakeTurns.SpokenBack`). Tests: `SpokenTurnTests`. VoiceOver/TalkBack: not run.
 - The protected tile checked under colour-vision simulation: frame ≥ 8.6:1 on its tile, fill differs from dry/wet/solved tiles (lowest 0.105, tritanopia). No colour change. Tests: `ColourVisionTests`. On-screen look: not checked.
 - The restore card says when the file matches this phone's garden on name, streams, things and days (`GardenCompare.SameLine`). Tests: `GardenCompareTests`. Tour and device: not run.
+
+## Vision run 20261128-1901 (outside the v1 checklist)
+
+- Axle chapter shapes checked: `LinkedForkChapter.DistinctShapes` finds 12 distinct shapes among the 12 `DrawByLevel(12, 240)` boards; none is another turned or mirrored (not wired). Tests: `LinkedForkChapterTests`.
+- "Solved together" is saved only when two or more seats moved (`TurnLedger.Movers`, `TreePlay.PlayedTogether`); the solved moment lights only the seats that moved. Fixes a false together mark when one person solved alone at a set table. Tests: `TurnLedgerMoversTests`, `SolvedTogetherTests`, `SpokenTurnTests`. Tour and device: not run.
+- Holding the take-turns token says what a tap does ("Two at the table. Tap for three.", `TakeTurns.TableCaption`). Tests: `TableCaptionTests`. Tour and device: not run.
+- Seat pips grow with the text size, 9/11/13 points (`TurnPalette.PipSize`, `PipSpacing`). Tests: `TurnPaletteTests`. On-screen look at 150%: not checked.
+- A found item in the almanac adds "You chose it for this garden." when this garden's choices grew it (`Almanac.KeeperLine(item, world)`), English only. Tests: `AlmanacHereTests`. Tour and device: not run.

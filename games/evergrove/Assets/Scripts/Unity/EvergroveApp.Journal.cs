@@ -436,7 +436,7 @@ namespace Evergrove.UnityClient
                     name.transition = Selectable.Transition.None;
                     string label = item.Name;
                     // I304: its name, then a line from its keeper (true things only).
-                    string said = char.ToUpperInvariant(label[0]) + label.Substring(1) + "\n" + Almanac.KeeperLine(item);
+                    string said = char.ToUpperInvariant(label[0]) + label.Substring(1) + "\n" + Almanac.KeeperLine(item, world);
                     name.onClick.AddListener(() => RuleToast.Show(slot.GetComponent<RectTransform>(),
                         said, font, Ink, MosseloraTheme.CardFill));
                     LongPressCaption.Attach(slot, said, font);

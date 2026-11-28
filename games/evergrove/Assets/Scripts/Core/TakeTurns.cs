@@ -9,6 +9,19 @@ namespace Evergrove.Core
     {
         public const int MaxPlayers = 4;
 
+        /// <summary>
+        /// Vision run 20261128-1901, idea 3: the words a long-press on the take-turns token shows. Each names
+        /// what the next tap does, matching <see cref="NextPlayers"/>. Counts below one read as alone; above
+        /// four as four. Never throws.
+        /// </summary>
+        public static string TableCaption(int players)
+        {
+            if (players <= 1) return "Playing alone. Tap to take turns with someone.";
+            if (players == 2) return "Two at the table. Tap for three.";
+            if (players == 3) return "Three at the table. Tap for four.";
+            return "Four at the table. Tap to play alone.";
+        }
+
         /// <summary>The player count after a tap on the take-turns token.</summary>
         public static int NextPlayers(int players)
         {

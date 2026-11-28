@@ -20,6 +20,7 @@ internal static class LinkedForkChapterTests
     private static readonly int[] ExpectedWideWork = { 4, 4, 4, 4, 4, 6, 6, 6, 8, 8, 9, 17 };
     private static readonly int[] ExpectedSeeds = { 5, 15, 24, 35, 46, 2, 11, 37, 20, 47, 4, 3 };
     private static readonly int[] ExpectedWork = { 4, 4, 4, 4, 4, 6, 6, 6, 8, 8, 9, 17 };
+    private const int ExpectedDistinctShapes = 12;
     private const int ExpectedByLevelLargestStep = 2;
     private static readonly int[] ExpectedByLevelSeeds = { 5, 7, 0, 19, 4, 128, 70, 55, 51, 213, 111, 3 };
     private static readonly int[] ExpectedByLevelWork = { 4, 4, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17 };
@@ -206,7 +207,105 @@ internal static class LinkedForkChapterTests
         // reach 7 and 8 are single boards with work 8 (mean 8.00), which is too few to call a trend.
         Console.WriteLine("LinkedForkChapter reach: rows " + JoinRows(reach));
         Expect(SameRows(reach, ExpectedReach), "locked work by reach rows");
+
+        // Shape (vision run 20261128-1901): a board is the same shape as its turned or mirrored copy. The turns and
+        // mirrors below are written out here, not taken from the production helper, so the check is independent.
+        int[] shapeSeeds = LinkedForkChapter.DrawByLevel(Length, WideLimit);
+        LinkedForkBoard shapeBoard = LinkedForks.Generate(shapeSeeds[0]);
+        Expect(LinkedForkChapter.SameShape(shapeSeeds[0], shapeSeeds[0]), "a seed has the same shape as itself");
+        Expect(LinkedForkChapter.SameShape(shapeBoard, shapeBoard), "a board has the same shape as itself");
+        Expect(!LinkedForkChapter.SameShape((LinkedForkBoard)null, shapeBoard), "null has no shape");
+        for (int mirror = 0; mirror < 2; mirror++)
+        {
+            for (int turns = 0; turns < 4; turns++)
+            {
+                LinkedForkBoard copy = TurnedBoard(shapeBoard, mirror == 1, turns);
+                Expect(LinkedForkChapter.SameShape(shapeBoard, copy),
+                    "a turned or mirrored copy has the same shape (mirror " + mirror + ", turns " + turns + ")");
+            }
+        }
+
+        // One cell changed to a different mask: no longer the same shape.
+        int[] changedSolution = (int[])shapeBoard.Board.Solution.Clone();
+        int changedCell = -1;
+        for (int i = 0; i < changedSolution.Length && changedCell < 0; i++)
+        {
+            if (TurnedMask(changedSolution[i], false, 1) != changedSolution[i]) changedCell = i;
+        }
+        Expect(changedCell >= 0, "the board has a cell whose mask can change");
+        changedSolution[changedCell] = TurnedMask(changedSolution[changedCell], false, 1);
+        var changedBoard = new LinkedForkBoard(new ForkBoard(changedSolution, shapeBoard.Board.Initial), shapeBoard.A, shapeBoard.B);
+        Expect(!LinkedForkChapter.SameShape(shapeBoard, changedBoard), "one changed cell mask is a different shape");
+
+        // Pair moved to another non-adjacent cell: no longer the same shape.
+        int edge = shapeBoard.Board.Size;
+        int movedB = -1;
+        for (int c = 0; c < shapeBoard.Board.CellCount && movedB < 0; c++)
+        {
+            if (c == shapeBoard.A || c == shapeBoard.B) continue;
+            int rows = Math.Abs(c / edge - shapeBoard.A / edge);
+            int cols = Math.Abs(c % edge - shapeBoard.A % edge);
+            if (rows + cols > 1) movedB = c;
+        }
+        Expect(movedB >= 0, "another non-adjacent cell exists for the pair");
+        var movedBoard = new LinkedForkBoard(shapeBoard.Board, shapeBoard.A, movedB);
+        Expect(!LinkedForkChapter.SameShape(shapeBoard, movedBoard), "a pair moved to other cells is a different shape");
+
+        Expect(LinkedForkChapter.SameShape(shapeSeeds[0], shapeSeeds[0]) && LinkedForkChapter.DistinctShapes(new[] { shapeSeeds[0], shapeSeeds[0] }) == 1,
+            "a repeated seed is one shape");
+        Expect(LinkedForkChapter.DistinctShapes(null) == 0, "null seeds have no shapes");
+        Expect(LinkedForkChapter.DistinctShapes(new int[0]) == 0, "empty seeds have no shapes");
+
+        int distinctShapes = LinkedForkChapter.DistinctShapes(shapeSeeds);
+        Console.WriteLine("LinkedForkChapter shapes: " + distinctShapes + " distinct among " + shapeSeeds.Length + " by-level seeds " + Join(shapeSeeds));
+        Expect(distinctShapes == ExpectedDistinctShapes, "locked distinct shape count for the by-level chapter");
         return assertions;
+    }
+
+    // Independent of ForkBoards: a mirror swaps east and west, then each port turns one direction clockwise.
+    private static int TurnedMask(int mask, bool mirror, int quarterTurns)
+    {
+        int result = 0;
+        for (int d = 0; d < 4; d++)
+        {
+            if ((mask & (1 << d)) == 0) continue;
+            int dir = d;
+            if (mirror && (dir == 1 || dir == 3)) dir = 4 - dir;
+            dir = (dir + quarterTurns) % 4;
+            result |= 1 << dir;
+        }
+        return result;
+    }
+
+    // Independent of the production helper: a mirror flips columns, then each quarter turn moves a cell clockwise.
+    private static int TurnedCell(int cell, int edge, bool mirror, int quarterTurns)
+    {
+        int row = cell / edge;
+        int col = cell % edge;
+        if (mirror) col = edge - 1 - col;
+        for (int t = 0; t < quarterTurns; t++)
+        {
+            int oldRow = row;
+            row = col;
+            col = edge - 1 - oldRow;
+        }
+        return row * edge + col;
+    }
+
+    private static LinkedForkBoard TurnedBoard(LinkedForkBoard source, bool mirror, int quarterTurns)
+    {
+        int edge = source.Board.Size;
+        int cells = source.Board.CellCount;
+        var solution = new int[cells];
+        var initial = new int[cells];
+        for (int i = 0; i < cells; i++)
+        {
+            int target = TurnedCell(i, edge, mirror, quarterTurns);
+            solution[target] = TurnedMask(source.Board.Solution[i], mirror, quarterTurns);
+            initial[target] = TurnedMask(source.Board.Initial[i], mirror, quarterTurns);
+        }
+        return new LinkedForkBoard(new ForkBoard(solution, initial),
+            TurnedCell(source.A, edge, mirror, quarterTurns), TurnedCell(source.B, edge, mirror, quarterTurns));
     }
 
     private static bool SameRows(int[][] a, int[][] b)

@@ -34,6 +34,28 @@ namespace Evergrove.Core
         private static readonly string[] Names = { "sage", "honey", "sky", "rose" };
 
         /// <summary>
+        /// Vision run 20261128-1901, idea 4: the pip's side length in points, growing with the text scale
+        /// (9 below 125%, 11 from 125% to 149%, 13 at 150% and above).
+        /// </summary>
+        public static float PipSize(int textPercent)
+        {
+            if (textPercent >= 150) return 13f;
+            if (textPercent >= 125) return 11f;
+            return 9f;
+        }
+
+        /// <summary>
+        /// Vision run 20261128-1901, idea 4: the centre-to-centre step between pips in points, growing with the
+        /// text scale (12 below 125%, 14 from 125% to 149%, 16 at 150% and above).
+        /// </summary>
+        public static float PipSpacing(int textPercent)
+        {
+            if (textPercent >= 150) return 16f;
+            if (textPercent >= 125) return 14f;
+            return 12f;
+        }
+
+        /// <summary>
         /// The palette's own paint names, so a seat can be called by the colour its pip shows. Wraps like
         /// <see cref="Rgb"/>: the same index gives the same colour. Never throws.
         /// </summary>
