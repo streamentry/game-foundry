@@ -57,6 +57,12 @@ Constants: `FullReplaysPerDay` = 3, `SmallReplaysPerDay` = 5, `SmallReplayReward
 - First solves never touch the cap. Each thing or bought plant can be first-solved once, so the first solve of the day always pays in full.
 - Day 0 (or less) pays the uncapped replay reward. This exists for old saves and tests. Confirm the app always passes a real yyyymmdd; `EvergroveApp.cs` passes `day` to `SolveTree` and `SolveBought` (not verified here).
 
+## River by replays (checklist 41)
+
+- Stored as `riverReplays` (absent in older saves, so 0; clamped to 0..`MaxRiverReplays`, and 0 outside a Living garden). Never a stretch count: the save holds solves and replays only.
+- A replay counts when it is not a first solve and every story choice and bought plant is already solved (`WorldModel.NothingNewToSolve`). Replays made while anything is new do not count.
+- Every `GardenMap.ReplaysPerReach` (8) counted replays open one more stretch, on top of `ReachesFor`'s solve count. Seeds and the daily cap are unchanged: replays still pay as above and are never paid for with seeds.
+
 ## Gifts versus buying
 
 Gift price is `Price / 2` (`Nursery.GiftPrice`). Keepsake for yourself is the full price.

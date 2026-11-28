@@ -71,9 +71,9 @@ namespace Evergrove.Core
             if (villager == 0 && world.Completed)
             {
                 int all = world.PuzzlesSolved;
-                if (GardenMap.TowardNext(world.Choices.Length, true, all, out int have, out int need) && have == need - 1)
+                if (world.TowardNextStretch(out int have, out int need) && have == need - 1)
                     return "The mist downstream is thinning. One more thing tended and it will lift.";
-                if (have == 0 && GardenMap.ReachesFor(world.Choices.Length, true, all) > GardenMap.MaxReaches)
+                if (have == 0 && GardenMap.ReachesFor(world.Choices.Length, true, all, world.RiverReplays) > GardenMap.MaxReaches)
                     return "The river runs further than it ever did. " + SeasonCame(GardenSeason.AfterStory(all));
             }
             // Fruit you gave (I228): one true thank-you, only from the neighbour who got the

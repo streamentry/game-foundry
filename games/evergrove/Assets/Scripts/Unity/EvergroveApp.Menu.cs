@@ -112,14 +112,20 @@ namespace Evergrove.UnityClient
                     else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; waysTab = false; Rebuild(); }
                     else ToggleFan(false);
                 }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
+            PlaceChrome(menu, new Vector2(0f, 0f), new Vector2(MenuInset, MenuInset)); // checklist 94: bottom-left, one thumb
             if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu, MenuSeenKey);
         }
 
+        // ---- Checklist 94: the menu button sits in the bottom-left corner, inside the safe area, within one
+        // thumb's reach in both orientations (founder decision 2026-11-28). Bottom controls keep MenuReserve
+        // clear on their left so the two never overlap.
+        internal const float MenuInset = 14f, MenuSize = 54f;
+        internal const float MenuReserve = MenuInset + MenuSize + 12f;
+
         // ---- I191: the fan menu. One corner button opens a column of round
-        // tokens under it; a tap anywhere else folds it away again.
+        // tokens over it; a tap anywhere else folds it away again.
         private GameObject fan;
-        private const float FanCell = 64f, FanGap = 12f, FanFootMargin = 12f; // a fan token, the gap, room at the foot
+        private const float FanCell = 64f, FanGap = 12f, FanFootMargin = 12f; // a fan token, the gap, room at the top
 
         private void CloseFan()
         {
@@ -164,18 +170,20 @@ namespace Evergrove.UnityClient
             var columnRect = column.GetComponent<RectTransform>();
             Rect safe = Screen.safeArea;
             float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
-            columnRect.anchorMin = columnRect.anchorMax = new Vector2(safe.xMin / w, safe.yMax / h);
-            columnRect.pivot = new Vector2(0f, 1f);
-            columnRect.anchoredPosition = new Vector2(10f, ChromeTop - 66f);
-            // Checklist 11: the fan holds more tokens now (letters, basket, seed book), so it fills top to
-            // bottom and wraps into a second column when the screen is too short (landscape): every token
-            // stays on screen, and the one used last is still first, right under the corner button.
+            columnRect.anchorMin = columnRect.anchorMax = new Vector2(safe.xMin / w, safe.yMin / h);
+            columnRect.pivot = new Vector2(0f, 0f);
+            // Checklist 94: the fan opens upward from the bottom-left menu button. Its bottom-left corner sits
+            // just above the button (set below, once the button's place is known), so the token used last is
+            // first, nearest the thumb, and the rest climb toward the top of the screen.
+            // Checklist 11: the fan holds more tokens now (letters, basket, seed book), so it fills upward and
+            // wraps into a second column when the screen is too short (landscape): every token stays on
+            // screen, and the one used last is still first, right over the corner button.
             var stack = column.AddComponent<GridLayoutGroup>();
             stack.cellSize = new Vector2(FanCell, FanCell);
             stack.spacing = new Vector2(FanGap, FanGap);
-            stack.startCorner = GridLayoutGroup.Corner.UpperLeft;
+            stack.startCorner = GridLayoutGroup.Corner.LowerLeft;
             stack.startAxis = GridLayoutGroup.Axis.Vertical;
-            stack.childAlignment = TextAnchor.UpperLeft;
+            stack.childAlignment = TextAnchor.LowerLeft;
             stack.constraint = GridLayoutGroup.Constraint.FixedRowCount;
             stack.constraintCount = 99; // set below, once the fan hangs from the corner button
             var fit = column.AddComponent<ContentSizeFitter>();
@@ -265,20 +273,21 @@ namespace Evergrove.UnityClient
             tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
                 () => { CloseFan(); CloseTitle(); SetMenu(true); }));
             tokens = ArrangeFan(tokens); // checklist 15: the token used last opens first, nearest the thumb
-            // Hang the fan just under the corner button it came from.
+            // Hang the fan just above the corner button it came from: the column's bottom-left sits one gap
+            // above the button's top-left corner (GetWorldCorners: 0 bottom-left, 1 top-left).
             foreach (Button corner in canvasRoot.GetComponentsInChildren<Button>())
                 if (corner.name == "Open menu" && corner.gameObject.activeInHierarchy)
                 {
                     var corners = new Vector3[4];
                     ((RectTransform)corner.transform).GetWorldCorners(corners);
-                    columnRect.position = corners[0] + new Vector3(0f, -12f * canvasRoot.lossyScale.y, 0f);
+                    columnRect.position = corners[1] + new Vector3(0f, 12f * canvasRoot.lossyScale.y, 0f);
                     break;
                 }
-            // How many tokens fit down the screen from here, above the foot of the safe area.
+            // How many tokens fit up the screen from here, below the top of the safe area.
             var screenCorners = new Vector3[4];
             canvasRoot.GetWorldCorners(screenCorners);
-            float footMargin = safe.yMin / h * canvasRoot.rect.height + FanFootMargin;
-            float room = (columnRect.position.y - screenCorners[0].y) / Mathf.Max(0.0001f, canvasRoot.lossyScale.y) - footMargin;
+            float headMargin = (Mathf.Max(0f, Screen.height - safe.yMax) / h) * canvasRoot.rect.height + FanFootMargin;
+            float room = (screenCorners[1].y - columnRect.position.y) / Mathf.Max(0.0001f, canvasRoot.lossyScale.y) - headMargin;
             stack.constraintCount = FanOrder.RowsThatFit(room, FanCell, FanGap, tokens.Count);
             if (gentleMotion)
                 for (int i = 0; i < tokens.Count; i++) StartCoroutine(FanIn(tokens[i], i * 0.045f));

@@ -33,7 +33,7 @@ namespace Evergrove.Core
             int[] made = world.Choices;
             for (int i = 0; i < made.Length; i++) if (!world.TreeSolved(i)) waiting++;
             for (int k = 0; k < world.BoughtCount; k++) if (!world.BoughtSolved(k)) waiting++;
-            bool growing = GardenMap.TowardNext(made.Length, world.Completed, world.PuzzlesSolved, out int have, out int need);
+            bool growing = world.TowardNextStretch(out int have, out int need);
             return new CottageSummary
             {
                 Waiting = waiting,

@@ -36,7 +36,7 @@ namespace Evergrove.Core
             else if (villager == (int)VillageChoice.Bridge)
             {
                 need = 2;
-                have = Math.Max(0, GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved) - GardenMap.MaxReaches);
+                have = Math.Max(0, GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved, world.RiverReplays) - GardenMap.MaxReaches);
                 hope = "Orin hopes to see the river run two stretches further";
                 thanks = "Two new stretches of river. I walked the bank all the way down today, further than I've walked in years. Thank you for that.";
             }

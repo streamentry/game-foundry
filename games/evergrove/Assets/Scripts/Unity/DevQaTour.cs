@@ -887,6 +887,7 @@ namespace Evergrove.UnityClient
             yield return WindowShots(); // checklist 50 (DevQaTour.Window.cs)
             yield return RestShots(); // checklist 11 (DevQaTour.Rest.cs)
             yield return ZoomShots(); // checklist 91 (DevQaTour.Zoom.cs)
+            yield return ReachShots(); // checklist 94 (DevQaTour.Reach.cs)
             // Smart companion (SC02): a scripted week. Nine things grown, two tended, a letter from
             // Anh; one visit a day, each neighbour spoken to once; then each neighbour on day eight.
             WorldModel week = WorldModel.New(PlayMode.Living);

@@ -28,7 +28,7 @@ namespace Evergrove.Core
             int[] bought = world.Bought;
             string firstPlant = bought.Length >= 2 && bought[0] >= 0 && bought[0] < Nursery.Kinds
                 ? Nursery.Item(bought[0]).Art : "tree-00";
-            int reaches = GardenMap.ReachesFor(made.Length, world.Completed, world.PuzzlesSolved);
+            int reaches = GardenMap.ReachesFor(made.Length, world.Completed, world.PuzzlesSolved, world.RiverReplays);
             var shelf = new List<Keepsake>
             {
                 Make("letter-sealed", "Your first letter", world.Letters.Length > 0),

@@ -152,7 +152,7 @@ namespace Evergrove.UnityClient
             var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
             if (mask == null) return false;
             GardenMap map;
-            try { map = GardenMap.River(10, 15, mask.text.Trim(), GardenMap.ReachesFor(visited.Choices.Length, visited.Completed, visited.PuzzlesSolved)); }
+            try { map = GardenMap.River(10, 15, mask.text.Trim(), GardenMap.ReachesFor(visited.Choices.Length, visited.Completed, visited.PuzzlesSolved, visited.RiverReplays)); }
             catch (ArgumentException) { return false; }
             ApplyDayLight(visited); // your hour, their season
             // Their garden in its own season (I249): families see each other's year.
