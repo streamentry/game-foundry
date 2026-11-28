@@ -28,6 +28,7 @@ internal static class CompanionSimulatorTests
         SameMemoryGivesSameTranscript();
         NoRepeatedWording();
         OnceIsOnce();
+        NoStarvation();
         return assertions;
     }
 
@@ -192,6 +193,56 @@ internal static class CompanionSimulatorTests
         Expect(repeats.Count == 0, "no once-fact said twice: " + string.Join(" | ", repeats));
         Console.WriteLine("Companion simulator CP13: " + onceSaid + " once-fact lines in " + checkedLines + " lines over " + Days +
             " days; none said twice.");
+    }
+
+    // CP14: a neighbour who has something true and sayable on a day gets a line that day on at least 80% of
+    // those days, per garden and per neighbour. "Sayable" is independent of memory: a fact meant for the
+    // neighbour (or shared) that the bank or the legacy text can voice.
+    private static void NoStarvation()
+    {
+        const int Days = 30;
+        const double Threshold = 0.8;
+        LineBank bank = LoadBank();
+        var summary = new List<string>();
+        var failures = new List<string>();
+        foreach (int grown in new[] { 6, 9, 12 })
+        {
+            WorldModel world = CompanionFactsTests.Grown(grown);
+            world.SolveTree(0);
+            world.SolveTree(3);
+            GardenMap map = MapFor(world);
+            IReadOnlyList<SimLine> transcript = Simulate(world, bank, null, VariedContextFor, Days);
+            var spokeOn = new HashSet<string>();
+            foreach (SimLine line in transcript) spokeOn.Add(line.Day + "/" + line.Speaker);
+
+            for (int speaker = 0; speaker < 3; speaker++)
+            {
+                int sayableDays = 0, spokeDays = 0;
+                for (int d = 0; d < Days; d++)
+                {
+                    CompanionContext context = VariedContextFor(d, map);
+                    if (!HadSomethingSayable(CompanionFacts.For(world, context), bank, speaker)) continue;
+                    sayableDays++;
+                    if (spokeOn.Contains(context.DayNumber + "/" + speaker)) spokeDays++;
+                }
+                double percent = sayableDays == 0 ? 0 : 100.0 * spokeDays / sayableDays;
+                string cell = "garden " + grown + ", neighbour " + speaker + ": " + spokeDays + "/" + sayableDays + " = " +
+                    percent.ToString("F0", System.Globalization.CultureInfo.InvariantCulture) + "%";
+                summary.Add(cell);
+                Expect(sayableDays > 0, "CP14: the check is not vacuous (" + cell + ")");
+                if (sayableDays > 0 && spokeDays < Threshold * sayableDays) failures.Add(cell);
+            }
+        }
+        Expect(failures.Count == 0, "CP14: a neighbour with something to say speaks on at least 80% of those days; below: " +
+            string.Join(" | ", failures) + ". All: " + string.Join(" | ", summary));
+        Console.WriteLine("Companion simulator CP14: " + string.Join("; ", summary) + ".");
+    }
+
+    private static bool HadSomethingSayable(IReadOnlyList<Fact> facts, LineBank bank, int speaker)
+    {
+        foreach (Fact f in facts)
+            if (f.For(speaker) && CompanionLocale.CanSay(CompanionLocale.English, bank, f, speaker)) return true;
+        return false;
     }
 
     private static string KeysOf(IReadOnlyList<Fact> facts)
