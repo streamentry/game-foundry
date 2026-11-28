@@ -170,6 +170,7 @@ namespace Evergrove.UnityClient
         private bool riverOpened;   // the last solve opened a new stretch of river (I223)
         private TreePlay openCard;  // the puzzle card now open (I264: was it played together?)
         private PuzzleKind togetherKind;
+        private int togetherPlayers = 2; // how many took turns on it (2 until a group says otherwise)
         private int togetherKeeper = -1; // I266: the neighbour who'll say you played it together
         private bool dropEarned;    // the last solve was a first solve: a drop on the mist fills (I224)
         private bool fruitPicked;   // the last solve picked fruit from a tree (I229)

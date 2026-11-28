@@ -153,3 +153,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Solve bloom follows the real stream: `FlowOrder`. Tests: `FlowOrderTests` (all 12 boards and 33 variants). Tour and device: not run.
 - Restore card compares both gardens: `GardenCompare`. Tests: `GardenCompareTests`. Tour and device: not run.
 - Root-stone solver gate (depth proposal C1, gate K5), not wired: `RootedBoards`. 200/200 unique 4x4 boards for one and for two roots. Tests: `RootedBoardsTests`.
+
+## Vision run 20261128-0927 (outside the v1 checklist)
+
+- Forced moves measured: `DeductionDepth` fills `forcedMoveCount`; every authored board is fully forced by local deduction (a depth finding, not a label). Tests: `DeductionDepthTests`, puzzle catalog regenerated.
+- Lantern letter names the latest chosen thing, truth-guarded (Living mode, a saved choice). Tests: `LanternThingTests`. Tour and device: not run.
+- Together remark counts three or four players truthfully; two keep the old line. Tests: `TogetherCountTests`, `HonestCompanionTests`. Tour and device: not run.
+- Turn colours in four lightness steps (`TurnPalette`, min contrast 1.36:1). Tests: `TurnPaletteTests`. Greyscale screenshot: not run.
+- Spoken turn caption on the take-turns token (`TakeTurns.Spoken`, `TreePlay.Turns.cs`). Tests: `SpokenTurnTests`. VoiceOver/TalkBack: not run.

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace Evergrove.Core
 {
@@ -40,6 +41,29 @@ namespace Evergrove.Core
             return Letters[Math.Abs(dayStamp % Letters.Length)];
         }
 
+        /// <summary>
+        /// The lantern letter's words, naming the thing the player chose last when the save proves it.
+        /// Falls back to the generic letter when there is no such choice.
+        /// </summary>
+        public static string LanternWords(int dayStamp, WorldModel world)
+        {
+            string thing = LatestThing(world);
+            if (thing == null) return LanternWords(dayStamp);
+            string template = NamedLetters[Math.Abs(dayStamp % NamedLetters.Length)];
+            return string.Format(CultureInfo.InvariantCulture, template, thing);
+        }
+
+        /// <summary>The name of the thing from the most recent saved village choice, or null when the save shows none.</summary>
+        public static string LatestThing(WorldModel world)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return null;
+            int[] choices = world.Choices;
+            if (choices.Length == 0) return null;
+            int i = choices.Length - 1;
+            if (choices[i] < 0 || choices[i] > 2) return null;
+            return GardenCatalog.For(world.Garden, Math.Min(i, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)choices[i]).Name;
+        }
+
         /// <summary>The dew board's framing line, shown on the token.</summary>
         public const string DewBoardWords = "Dew on the grass this morning. A small board, if you fancy it.";
 
@@ -50,6 +74,13 @@ namespace Evergrove.Core
             "I've lit the lantern by the bridge tonight. The river is easy to hear from here. No need to write back.",
             "The lamp is lit on my step and the path is clear. Sit with it a while if you like. Nothing to answer.",
             "Dusk came down soft over the water. I thought of your garden and left you a light. Goodnight, neighbour.",
+        };
+
+        private static readonly string[] NamedLetters =
+        {
+            "I've hung the lantern by your {0} tonight. The river is easy to hear from there. No need to write back.",
+            "The lamp is lit beside your {0}, and the path is clear. Sit with it a while if you like.",
+            "Dusk came down soft over your {0}. I left you a light there. Goodnight, neighbour.",
         };
 
         private static bool ValidDay(int dayStamp)

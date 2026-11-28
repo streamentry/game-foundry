@@ -540,6 +540,7 @@ namespace Evergrove.UnityClient
                 {
                     SaveWorld();
                     togetherKind = kind; // I266: its keeper has news
+                    togetherPlayers = openCard.Players;
                     togetherKeeper = NeighbourNotice.OwnerOf(kind);
                 }
                 fruitPicked = world.Fruit > fruitBefore; // trees bear fruit when tended (I229)

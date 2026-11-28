@@ -16,7 +16,8 @@ namespace Evergrove.Core
             switch (fact.Kind)
             {
                 case FactKind.FruitGiven: return NeighbourNotice.Thanked(speaker);
-                case FactKind.SolvedTogether: return NeighbourNotice.TogetherLine(fact.EnumSlot<PuzzleKind>("puzzle"));
+                case FactKind.SolvedTogether:
+                    return NeighbourNotice.TogetherLine(fact.EnumSlot<PuzzleKind>("puzzle"), fact.IntSlotOr("players", 2));
                 case FactKind.WeatherWhileAway:
                     if (fact.Slot("letter") != null) return fact.Slot("letter"); // v1 #90
                     string since = DayWeather.SinceSentence(fact.Slot("weather"), fact.IntSlot("days"));

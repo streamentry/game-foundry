@@ -150,3 +150,9 @@ The .NET suite checks the base 12 boards, 33 transformed puzzles' unique solutio
 
 
 **Solve bloom (vision run 20261128-0855):** with gentle motion on, the finishing bloom reaches each tile in the order water travels along the solved stream (`FlowOrder.StepsFromSpring`, 0.07 s per step), not by straight-line distance from the spring. Reduced motion shows no bloom.
+
+**Forced moves (vision run 20261128-0927):** `PuzzleProfile.forcedMoveCount` is now filled by `DeductionDepth.ForcedMoves`: arc consistency over edge and neighbour agreement, with the protected tile pinned. On every authored board and variant, every rotatable tile is forced (9 of 9 or 16 of 16 on the base boards), so local deduction alone solves all 45 boards and the number does not yet separate them. It is a gate for future mechanics (root stones, ecology), not a difficulty label.
+
+**Lantern letter names your thing (vision run 20261128-0927):** in Living mode with at least one saved choice, the dusk lantern letter names the thing from the latest choice (`DayRhythm.LanternWords(day, world)`, via `GardenCatalog.For`). Otherwise the generic letter is unchanged.
+
+**Take turns (vision run 20261128-0927):** the keeper's remark after a shared solve counts the table: two players hear the original line, three or four hear "The three of you…" or "The four of you…" (`NeighbourNotice.TogetherLine(kind, players)`). The count lives in memory only and is never saved. The four turn colours come from `TurnPalette` in four lightness steps (smallest pairwise contrast 1.36:1, was 1.03:1). The take-turns token has one hidden screen-reader caption, updated each turn ("Second player's turn, of three.", `TakeTurns.Spoken`).

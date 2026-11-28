@@ -171,7 +171,7 @@ internal static class PuzzleChainTests
     private static void ViewFilesDidNotGrow()
     {
         // Checklist 20: these two are allowlisted and may only shrink; the chain adds calls, not lines.
-        Expect(Script("Unity/TreePlay.cs").Count(c => c == '\n') == 1100, "TreePlay.cs is still 1100 lines");
+        Expect(Script("Unity/TreePlay.cs").Count(c => c == '\n') == 1099, "TreePlay.cs is still 1099 lines");
         Expect(Script("Unity/GardenMapView.cs").Count(c => c == '\n') == 2362, "GardenMapView.cs is still 2362 lines");
         Expect(Script("Unity/GardenMapView.cs").Contains("ChainCause.Glisten(land, at, cellW, cellH, item.Kind, item.Watered && !held);"),
             "the watered mark is drawn on the map");
