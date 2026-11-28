@@ -179,7 +179,7 @@ namespace Evergrove.UnityClient
         }
 
         // Something arcs from mid-screen into where it's kept (I229 a pear into the
-        // purse, I237 a letter into the letterbox); its home swells once.
+        // purse, I237 a letter into the menu button); its home swells once.
         private IEnumerator FlyInto(RectTransform target, string art, Vector2 size)
         {
             Sprite sprite = MosseloraArt.Load(art);
@@ -201,7 +201,7 @@ namespace Evergrove.UnityClient
                 Vector3 end = target.TransformPoint(target.rect.center);
                 float k = Mathf.SmoothStep(0f, 1f, t);
                 Vector3 at = Vector3.Lerp(start, end, k);
-                at.y += Mathf.Sin(k * Mathf.PI) * lift; // tossed up, then down into the purse
+                at.y += Mathf.Sin(k * Mathf.PI) * lift; // tossed up, then down into its place
                 rect.position = at;
                 rect.localScale = Vector3.one * Mathf.Lerp(1.2f, 0.6f, k);
                 rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(k * Mathf.PI * 2f) * 14f);

@@ -224,6 +224,35 @@ namespace Evergrove.UnityClient
                 }
                 tokens.Add(look);
             }
+            // Checklist 11: the letterbox, the basket and the seed book moved here from home, so home keeps
+            // only the menu button and the play token. Each opens its own place and closes the fan.
+            if (living && titleScreen != null && world.Letters.Length > 0)
+            {
+                GameObject letters = FanToken(column.transform, "Letters", "Letters", "letterbox", () => {
+                    CloseFan();
+                    ShowLetter(0);
+                });
+                // An unread letter shows its sealed envelope on the token (the menu button wears a dot).
+                if (PlayerPrefs.GetInt(LettersReadKey, 0) < world.Letters.Length)
+                    MosseloraArt.Ornament(letters.transform, "Unread letter", MosseloraArt.Load("letter-sealed"),
+                        new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(30f, 24f), new Vector2(-2f, -2f));
+                tokens.Add(letters);
+            }
+            if (memories && titleScreen != null)
+            {
+                GameObject basket = FanToken(column.transform, "Basket", "Basket", "food-basket", () => {
+                    CloseFan();
+                    basketOpen = true; // the tray opens as the old basket toggle opened it
+                    basketKind = world.Choices.Length - 1;
+                    RefreshMaps();
+                });
+                BasketFanCue(basket.GetComponent<Button>());
+                tokens.Add(basket);
+                tokens.Add(FanToken(column.transform, "Seed book", "Seed book", TreePlay.SeedIcon, () => {
+                    CloseFan();
+                    OpenSeedBook(); // the seed book the purse used to open
+                }));
+            }
             tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
                 () => { CloseFan(); CloseTitle(); SetMenu(true); }));
             tokens = ArrangeFan(tokens); // checklist 15: the token used last opens first, nearest the thumb

@@ -204,7 +204,6 @@ namespace Evergrove.UnityClient
                     }
                     if (gentleMotion) BloomPulse.Add(thing.gameObject, 0.2f, 0.06f);
                     SeedPurse();
-                    LetterBox();
                     DayRhythmTokens(titleScreen.transform); // checklist 54
                     if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                     HubChrome();
@@ -239,7 +238,6 @@ namespace Evergrove.UnityClient
                         new Vector2(0.5f, 0.5f), new Vector2(44f, 44f), new Vector2(-4f, -4f));
                 if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
                 SeedPurse();
-                LetterBox();
                 DayRhythmTokens(titleScreen.transform); // checklist 54
                 HubChrome();
                 MaybeAskNotes();
@@ -363,6 +361,8 @@ namespace Evergrove.UnityClient
                 MosseloraArt.IconMenu, () => ToggleFan(true), 54, MosseloraTheme.QuietAction);
             PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
             if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu, MenuSeenKey);
+            MenuLetterCue(menu); // checklist 11: the letter's arrival and unread dot live on the menu button
+            MenuGiftCue(menu); // checklist 11 (B5b): a cutting waiting in the folded basket
         }
 
         // "Rainwater" with the painted landmark your last choice planted in it:
@@ -608,6 +608,9 @@ namespace Evergrove.UnityClient
                                 int reward, Func<int, Sprite[]> pictures, Action turned, Func<int> solved, Action closed)
         {
             TreePlay.IPuzzleBoard board = null;
+            // Checklist 38: what this board belongs to, for the chain line and the watered mark (own boards only).
+            ChainCause.Opening(kind, ownDealing && world != null, world != null && PuzzleChain.GardenHoldsPlots(world.Choices, world.Bought),
+                world != null && world.Mode == PlayMode.Living, world != null ? world.Garden : 0);
             boardLeaves = 0; // I336: set by kinds that measure their own logic
             switch (kind)
             {

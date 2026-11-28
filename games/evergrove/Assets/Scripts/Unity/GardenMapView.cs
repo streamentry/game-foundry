@@ -33,7 +33,7 @@ namespace Evergrove.UnityClient
             public bool Together;        // I265: solved taking turns: two small discs, sage and honey
             public bool Crowned;         // I292: a replay solved at the deepest tier: a second, outer ring
             public float Grown;          // I300: drawn this much larger as replays deepen it (0 or 1: its own size)
-            public int FlowerIndex;      // I338: a flower's catalogue index + 1 (0: not a flower or unknown)
+            public bool Watered; public int FlowerIndex;      // I338: a flower's catalogue index + 1 (0: not a flower or unknown). Watered: checklist 38's day mark
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -1046,7 +1046,7 @@ namespace Evergrove.UnityClient
                 if (item.Art == null || item.Cell < 0 || item.Cell >= map.CellCount) continue;
                 int column = item.Cell % map.Columns, row = item.Cell / map.Columns;
                 Vector2 at = new Vector2((column + 0.5f) * cellW, -(row + 0.78f) * cellH);
-                bool held = item.Index == inHand;
+                bool held = item.Index == inHand; ChainCause.Glisten(land, at, cellW, cellH, item.Kind, item.Watered && !held); // checklist 38
                 if (held)
                 {
                     // A soft ring on the ground: "this one is in your hand".

@@ -15,51 +15,47 @@ namespace Evergrove.UnityClient
 
         private int letterShown = -1;
         private GameObject letterCard;
-        private RectTransform letterboxRect;
-        private bool letterArrived; // a parcel with a letter was just opened: it flies into the box (I237)
+        private bool letterArrived; // a parcel with a letter was just opened: it flies into the menu button (I237)
 
-        // Under the seed purse, top right of home: always in view, wherever the
-        // river has taken you (I217: on the map by the cottage it was off-screen for
-        // anyone whose newest things are downstream).
-        private void LetterBox()
+        // Checklist 11: the letterbox left the hub for the corner fan (the Letters token). Home keeps
+        // no letter button; a letter that arrives flies into the menu button, and an unread letter
+        // marks that button with a dot. Called from HubChrome, after the menu button exists.
+        private void MenuLetterCue(Button menu)
         {
             string[] letters = world.Letters;
-            if (titleScreen == null || letters.Length == 0) return;
-            var node = Node("Letterbox", titleScreen.transform);
-            var rect = node.GetComponent<RectTransform>();
-            Rect safe = Screen.safeArea;
-            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
-            rect.anchorMin = rect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
-            rect.pivot = new Vector2(1f, 1f);
-            // A painted letterbox on its post (I233), not an app badge: a sealed
-            // envelope sits on top while a letter waits unread.
-            rect.sizeDelta = new Vector2(60f, 80f);
-            rect.anchoredPosition = new Vector2(-14f, -ChromeTop - 58f);
-            var box = node.AddComponent<Image>();
-            box.sprite = MosseloraArt.Load("letterbox");
-            box.preserveAspect = true;
-            MosseloraArt.Lift(box, 2f, 0.22f);
-            var button = node.AddComponent<Button>();
-            button.targetGraphic = box;
-            LongPressCaption.Attach(node, "Your letterbox. Tap to read the letters waiting for you.", font);
-            button.onClick.AddListener(() => ShowLetter(0));
-            PressSquash.Add(node);
-            letterboxRect = rect;
+            if (menu == null || letters.Length == 0) { letterArrived = false; return; }
+            if (letterArrived)
+            {
+                Haptics.Arrived();
+                if (gentleMotion) StartCoroutine(FlyInto(menu.GetComponent<RectTransform>(), "letter-sealed", new Vector2(64f, 50f)));
+            }
+            letterArrived = false;
             if (PlayerPrefs.GetInt(LettersReadKey, 0) < letters.Length)
             {
-                Image sealedLetter = MosseloraArt.Ornament(node.transform, "Unread letter", MosseloraArt.Load("letter-sealed"),
-                    new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(44f, 34f), new Vector2(-4f, -8f));
-                if (sealedLetter != null && gentleMotion) BloomPulse.Add(sealedLetter.gameObject, 0.6f, 0.08f);
+                Image dot = MosseloraArt.Ornament(menu.transform, "Has a new letter", MosseloraArt.Rounded(9),
+                    new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(18f, 18f), new Vector2(-3f, -3f));
+                if (dot != null)
+                {
+                    dot.preserveAspect = false;
+                    dot.color = new Color(0.93f, 0.72f, 0.36f, 1f);
+                    MosseloraArt.Lift(dot, 1.5f, 0.22f);
+                }
             }
-            if (letterArrived) Haptics.Arrived();
-            if (letterArrived && gentleMotion) StartCoroutine(FlyInto(rect, "letter-sealed", new Vector2(64f, 50f)));
-            letterArrived = false;
-            var caption = Node("Caption", node.transform);
-            caption.AddComponent<LayoutElement>().ignoreLayout = true;
-            var spoken = caption.AddComponent<Text>();
-            spoken.font = font;
-            spoken.color = new Color(0f, 0f, 0f, 0f);
-            spoken.text = letters.Length == 1 ? "A letter from " + world.LetterFrom[0] : letters.Length + " letters from family";
+        }
+
+        // Checklist 11 (B5b): with the basket folded into the fan, a relative's cutting waiting to be planted
+        // shows as a small honey dot on the menu button, under any letter dot. It goes when the cutting is
+        // planted (WorldModel.PlantGift empties the gifts). No number.
+        private void MenuGiftCue(Button menu)
+        {
+            if (menu == null || world == null || world.Mode != PlayMode.Living || world.Gifts.Length == 0) return;
+            if (menu.transform.Find("Has a new letter") != null) return; // one dot is enough
+            Image dot = MosseloraArt.Ornament(menu.transform, "A gift is waiting", MosseloraArt.Rounded(9),
+                new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(18f, 18f), new Vector2(-3f, -3f));
+            if (dot == null) return;
+            dot.preserveAspect = false;
+            dot.color = new Color(0.93f, 0.72f, 0.36f, 1f);
+            MosseloraArt.Lift(dot, 1.5f, 0.22f);
         }
 
         // Newest first: index 0 is the last letter received.
