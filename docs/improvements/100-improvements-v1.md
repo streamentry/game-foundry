@@ -69,7 +69,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **47. Build simple paths and bridges.** Place stepping stones that join areas, with Minecraft-like freedom kept at a gentle scale. *Test:* placement is grid-snapped and undoable.
 - [x] **48. Weather moves down the river.** Rain upstream today reaches you tomorrow, said by a neighbour. *Test:* same seed, same forecast.
 - [x] **49. Night creatures per stretch.** Owls, moths and frogs, visible only in the evening. Each is logged in "who visits" (I327). *Test:* a night tour shot per stretch.
-- [ ] **50. Performance budget for an endless world.** Only the visible stretch plus one on either side is built, and the rest is pooled. *Test:* memory flat after 30 stretches of scrolling.
+- [x] **50. Performance budget for an endless world.** Only the visible stretch plus one on either side is built, and the rest is pooled. *Test:* memory flat after 30 stretches of scrolling.
 
 ## F. A daily rhythm that is not a chore
 
