@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompicapi di altezze di torri",
+ "keywords": "grattacieli,torri,altezze,visibilità,quadrato latino,numeri,logica,griglia,rompicapo",
+ "short_description": "Disponi le altezze degli edifici in modo che ogni indizio sul bordo torni.",
+ "description": "Riempi una griglia 4×4 con altezze di edifici da 1 a 4, senza ripetere un'altezza in alcuna riga o colonna. Ogni numero sul bordo indica quanti edifici si vedono da quella direzione, poiché gli edifici più alti nascondono quelli più bassi dietro di loro.\n\nSeleziona una casella e inserisci un'altezza da 1 a 4. Cancella svuota una casella.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

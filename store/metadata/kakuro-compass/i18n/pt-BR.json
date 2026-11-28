@@ -1,0 +1,8 @@
+{
+ "lang": "pt-BR",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pistas que se cruzam",
+ "keywords": "soma cruzada,somas,lógica,aritmética,grade,quebra-cabeça",
+ "short_description": "Resolva somas cruzadas com um inspetor de casas claro.",
+ "description": "Preencha cada sequência de Kakuro com dígitos de 1 a 9 para que o total coincida com a pista; não repita um dígito na mesma sequência. Resolva oito tabuleiros originais 5×5 para liberar o próximo. O inspetor Compass mostra os totais na horizontal e na vertical e os dígitos localmente possíveis para a casa selecionada. Desfazer, apagar, reiniciar e progresso local estão incluídos."
+}

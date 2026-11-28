@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Casse-tête binaires du jour",
+ "keywords": "binaire,binairo,logique,casse-tête chiffré,quotidien,grille",
+ "short_description": "Résolvez des grilles binaires avec indices et progression locale.",
+ "description": "Jouez un casse-tête Takuzu quotidien de 4×4 ou des grilles libres de 4×4 et de 6×6. Les lignes et les colonnes doivent être équilibrées, éviter trois chiffres identiques de suite et éviter les lignes complètes en double. Utilisez les indices, annuler, rétablir et recommencer. La progression est enregistrée localement."
+}

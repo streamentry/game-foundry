@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzles de jaulas aritméticas",
+ "keywords": "kenken,calcudoku,jaulas,aritmética,matemática,quadrado latino,números,puzzle,lógica",
+ "short_description": "Preencha uma grelha 4×4 para cada jaula atingir o seu valor.",
+ "description": "Preencha uma grelha 4×4 com os números de 1 a 4, sem repetir nenhum dígito em qualquer linha ou coluna. Cada jaula colorida mostra um objetivo formado por uma soma, produto, diferença, quociente ou valor único, e os dígitos no interior têm de o atingir.\n\nToque numa célula e introduza um dígito no teclado grande. Apagar limpa uma célula.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

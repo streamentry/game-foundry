@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "game_slug": "ripple-rooms",
+  "source_commit": "5dc8efa8",
+  "source_note": "Listing master drafted from the current build's README, design notes and scripts; describes only implemented behavior.",
+  "status": "release candidate — owner review pending",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Ripple Rooms",
+    "subtitle": "Number rooms with spacing",
+    "description": "Fill each irregular room with the numbers 1 up to its size. If the same number k appears twice in a row or column, at least k squares must lie between the two.\n\nTap a square and enter a digit from 1 to 4 on the large buttons. Each square shows its room letter and room size beside the number.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "keywords": "regions,spacing,distance,number,logic,grid,puzzle",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/ripple-rooms/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
+  },
+  "google_play": {
+    "title": "Ripple Rooms",
+    "short_description": "Fill irregular rooms so repeated numbers keep their distance.",
+    "full_description": "Fill each irregular room with the numbers 1 up to its size. If the same number k appears twice in a row or column, at least k squares must lie between the two.\n\nTap a square and enter a digit from 1 to 4 on the large buttons. Each square shows its room letter and room size beside the number.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/ripple-rooms/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
+  },
+  "release_decisions": {
+    "bundle_id": "com.streamentry.ripplerooms",
+    "package_id": "com.streamentry.ripplerooms",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840300629",
+    "play_app_id": null
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

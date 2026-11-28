@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Cambia una letra cada vez",
+ "keywords": "dobletes,letras,palabras,vocabulario,ortografía,idioma,pasos,puzle",
+ "short_description": "Sube de una palabra a otra, una letra por paso, en puzles de palabras en inglés.",
+ "description": "Parte de una palabra y llega a la palabra meta cambiando exactamente una letra cada vez, usando solo las tarjetas de palabras disponibles. Son puzles de palabras en inglés. Cada tablero fija un presupuesto exacto de pasos: la longitud de la ruta más corta.\n\nToca una tarjeta de palabra siguiente válida. La escalera actual, la meta y tu cuenta de pasos permanecen en pantalla.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

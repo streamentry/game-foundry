@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Tents and Trees puzzle",
+ "keywords": "tents trees,logic puzzle,grid,forest,number puzzle,offline",
+ "short_description": "Place tents, match row totals, and avoid touching.",
+ "description": "Place exactly one tent next to each tree, satisfy every row and column total, and keep tents from touching, diagonally included. Solve eight original, uniquely solvable 5×5 and 6×6 boards. Mark grass, undo, restart, and keep your progress on this device. There is no timer or score penalty."
+}

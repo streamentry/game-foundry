@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Salas numeradas com distância",
+ "keywords": "regiões,espaçamento,distância,números,lógica,grelha,puzzle",
+ "short_description": "Preencha salas irregulares para os números repetidos guardarem distância.",
+ "description": "Preencha cada sala irregular com os números de 1 até ao seu tamanho. Se o mesmo número k aparecer duas vezes numa linha ou coluna, tem de haver pelo menos k casas entre os dois.\n\nToque numa casa e introduza um dígito de 1 a 4 nos botões grandes. Cada casa mostra a letra e o tamanho da sua sala junto ao número.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

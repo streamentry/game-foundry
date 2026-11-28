@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Chaque ligne une seule fois",
+ "keywords": "graphe,itinéraire,casse-tête d'arêtes,relier les points,chemin eulérien,logique",
+ "short_description": "Planifiez un itinéraire qui emprunte chaque liaison une fois.",
+ "description": "Utilisez chaque liaison visible exactement une fois. Vous pouvez repasser par les points ; les croisements sans point ne sont pas des jonctions. Résolvez huit graphes originaux en traçant ou en touchant de grands boutons de points. Annulez, recommencez, revenez aux grilles précédentes et reprenez votre itinéraire local et votre progression débloquée."
+}

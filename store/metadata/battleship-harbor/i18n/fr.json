@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Trouvez la flotte cachée",
+ "keywords": "bataille navale,bateaux,flotte,marine,carte,logique,grille,casse-tête,sonar",
+ "short_description": "Localisez une flotte cachée sur une carte 5×5 grâce aux totaux.",
+ "description": "Trouvez une petite flotte sur une carte 5×5 : un navire de trois cases, un de deux cases et un navire d'une seule case. Deux navires ne peuvent pas se toucher, même en diagonale, et chaque total de ligne et de colonne doit être respecté.\n\nTouchez une case pour marquer un navire, touchez à nouveau pour noter de l'eau, puis encore pour effacer. Le total actuel et le total à atteindre restent visibles à côté de chaque ligne et colonne.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

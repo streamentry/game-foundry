@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hans",
+ "status": "machine translation — native review pending",
+ "subtitle": "看清交叉线索",
+ "keywords": "数字纵横,和,逻辑,算术,网格,谜题",
+ "short_description": "借助清晰的单格检查器，解开交叉数字和。",
+ "description": "在每个数字纵横的数段中填入 1 至 9，使其总和与提示数字相等，且同一段内不得重复数字。解开八个原创 5×5 关卡即可解锁下一关。Compass 检查器会显示所选格子的横向与纵向总和，以及该格局部可行的数字。包含撤销、清除、重新开始和本地进度保存。"
+}

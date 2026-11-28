@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Placement d'étoiles",
+ "keywords": "étoiles,régions,lignes,colonnes,logique,grille,constellation,casse-tête",
+ "short_description": "Placez une étoile par ligne, colonne et région, sans contact.",
+ "description": "Placez des étoiles sur la grille de façon que chaque ligne, chaque colonne et chaque région étiquetée contienne exactement une étoile, et que deux étoiles ne se touchent jamais, même en diagonale.\n\nTouchez une case pour alterner entre étoile, point et vide; les points sont des notes pour les cases que vous avez écartées.\n\nSix grilles originales, chacune se déverrouillant une fois la précédente résolue. Les boutons Annuler et Recommencer sont toujours accessibles, il n'y a aucun minuteur, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

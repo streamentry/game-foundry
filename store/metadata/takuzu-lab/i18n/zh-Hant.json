@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hant",
+ "status": "machine translation — native review pending",
+ "subtitle": "每日二進位謎題",
+ "keywords": "二進位,邏輯,數字謎題,每日,網格",
+ "short_description": "解開二進位方格謎題，可使用提示並在本地儲存進度。",
+ "description": "每天可玩一道 4×4 二進位數獨謎題，也可玩自由選擇的 4×4 和 6×6 棋盤。每行和每列中的數字 0 與 1 必須數量均衡，同一行中不能出現連續三個相同數字，已完成的各行、各列也不能重複。可使用提示、復原、重做和重新開始。進度儲存在本地。"
+}

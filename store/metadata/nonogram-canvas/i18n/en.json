@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Reveal the picture",
+ "keywords": "picross,griddler,hanjie,paint by numbers,picture,pixel,logic,grid,puzzle",
+ "short_description": "Use row and column clues to reveal a hidden 5×5 picture.",
+ "description": "Fill a 5×5 grid so each row and column matches its run clues: each number is a block of consecutive filled cells, and blocks are separated by at least one empty cell. Each board is a small pixel design.\n\nTap a cell to fill it, tap again to cross it out, and again to clear it. All ten clue lines stay visible.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

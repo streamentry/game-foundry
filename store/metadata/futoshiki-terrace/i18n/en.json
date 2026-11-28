@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Inequality number puzzles",
+ "keywords": "inequality,greater than,less than,latin square,number,logic,grid,puzzle",
+ "short_description": "Fill a 4×4 grid with 1 to 4 while obeying the inequality signs.",
+ "description": "Fill a 4×4 grid with the numbers 1 to 4 so each appears once in every row and column, while every greater-than or less-than sign between neighbouring cells holds true.\n\nTap an editable cell, then one of four large digit buttons. Erase and Next are always visible.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

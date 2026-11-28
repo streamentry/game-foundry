@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hans",
+ "status": "machine translation — native review pending",
+ "subtitle": "每条线只走一次",
+ "keywords": "图形,路线,边线谜题,连点,欧拉路径,逻辑",
+ "short_description": "规划一条路线，使每条连线恰好经过一次。",
+ "description": "每条可见连线都只使用一次。节点可以重复经过；没有节点的交叉点不算连接点。通过描线或点按大号节点按钮，解开八个原创图形关卡。可撤销、重新开始、回看之前的关卡，并恢复本地路线和已解锁进度。"
+}

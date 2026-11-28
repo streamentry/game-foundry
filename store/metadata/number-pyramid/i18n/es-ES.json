@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Suma hasta la cima",
+ "keywords": "sumas,suma,matemáticas,aritmética,piedras,lógica,cifras,cuadrícula,puzle",
+ "short_description": "Reconstruye una pirámide de números a partir de unas pocas pistas.",
+ "description": "Encuentra las cuatro cifras, del 1 al 9, de la base de una pirámide. Cada una de las seis piedras superiores es igual a la suma de las dos que tiene justo debajo, y algunas etiquetas de pista son fijas para guiarte.\n\nSelecciona una piedra de la base y escribe una cifra; las piedras de arriba muestran sus sumas a medida que avanzas.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles de jaulas aritméticas",
+ "keywords": "kenken,calcudoku,jaulas,aritmética,matemáticas,cuadrado latino,números,puzle,lógica",
+ "short_description": "Rellena una cuadrícula de 4×4 para que cada jaula alcance su objetivo.",
+ "description": "Rellena una cuadrícula de 4×4 con los números del 1 al 4 sin repetir ninguna cifra en ninguna fila ni columna. Cada jaula de color muestra un objetivo formado por una suma, un producto, una diferencia, un cociente o un valor único, y las cifras de su interior deben alcanzarlo.\n\nToca una casilla y escribe una cifra en el teclado grande. Borrar vacía la casilla.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

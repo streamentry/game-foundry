@@ -99,6 +99,10 @@ static func complete(level: Dictionary, values: Array) -> bool:
             return false
     return _no_conflict(level, values)
 
+## Read-only query for UI feedback: true when the current entries already break a rule.
+static func conflicting(level: Dictionary, values: Array) -> bool:
+    return not _no_conflict(level, values)
+
 static func status(level: Dictionary, values: Array) -> String:
     if complete(level, values):
         return "Every inequality and row/column is satisfied."

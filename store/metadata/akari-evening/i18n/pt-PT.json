@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ilumine todas as células",
+ "keywords": "luz,lâmpada,candeeiro,iluminar,lógica,grelha,puzzle,números nas paredes",
+ "short_description": "Coloque lâmpadas para iluminar tudo, sem que duas se vejam.",
+ "description": "Coloque lâmpadas num tabuleiro 4×4 de modo que todas as células livres fiquem iluminadas, que não haja duas lâmpadas a iluminar-se uma à outra e que cada parede numerada toque exatamente no número indicado de lâmpadas.\n\nToque numa célula livre para alternar entre lâmpada, cruz de nota e vazio; as células iluminadas ficam realçadas à medida que joga.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

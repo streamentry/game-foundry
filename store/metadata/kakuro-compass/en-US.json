@@ -9,28 +9,31 @@
     "name": "Kakuro Compass",
     "subtitle": "Clear crossing clues",
     "description": "Fill each Kakuro run with digits 1–9 so its total matches the clue; do not repeat a digit within a run. Solve eight original 5×5 boards to unlock the next. The Compass inspector shows across and down totals and locally feasible digits for the selected cell. Undo, erase, restart, and local progress are included.",
-    "keywords": "kakuro,number cross,sums,logic,arithmetic,grid,puzzle",
-    "support_url": null,
-    "privacy_policy_url": null
+    "keywords": "number cross,sums,logic,arithmetic,grid,puzzle",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/kakuro-compass/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
   },
   "google_play": {
     "title": "Kakuro Compass",
     "short_description": "Solve crossing sums with a clear cell inspector.",
     "full_description": "Fill each Kakuro run with digits 1–9 so its total matches the clue; do not repeat a digit within a run. Solve eight original 5×5 boards to unlock the next. The Compass inspector shows across and down totals and locally feasible digits for the selected cell. Undo, erase, restart, and local progress are included.",
-    "support_url": null,
-    "privacy_policy_url": null
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/kakuro-compass/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
   },
   "release_decisions": {
-    "bundle_id": null,
-    "package_id": null,
-    "version_name": null,
-    "version_code": null,
-    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
-    "territories": "unset",
-    "age_rating": "not completed",
-    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
-    "automatic_release": "requested; not configured",
-    "audience_fit_45_plus": "unknown"
+    "bundle_id": "com.streamentry.kakurocompass",
+    "package_id": "com.streamentry.kakurocompass",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840299757",
+    "play_app_id": "4973576986328695357"
   },
   "keyword_status": "draft terms; no keyword-demand evidence",
   "english_review": "not yet reviewed by the account owner"

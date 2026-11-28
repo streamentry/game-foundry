@@ -1,0 +1,8 @@
+{
+ "lang": "id",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pecahkan petunjuk silang",
+ "keywords": "kakuro,jumlah angka,logika,aritmetika,kisi,teka-teki",
+ "short_description": "Pecahkan jumlah silang dengan pemeriksa sel yang jelas.",
+ "description": "Isi setiap deret Kakuro dengan angka 1 sampai 9 sehingga totalnya sesuai dengan petunjuk, dan jangan ulangi angka dalam satu deret. Pecahkan delapan papan orisinal berukuran 5×5 untuk membuka berikutnya. Pemeriksa Compass menampilkan total mendatar dan menurun serta angka yang mungkin untuk sel terpilih. Urungkan, hapus, mulai ulang, dan kemajuan lokal tersedia."
+}

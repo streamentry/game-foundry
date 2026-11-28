@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompicapi aritmetici a gabbie",
+ "keywords": "kenken,calcudoku,gabbie,aritmetica,matematica,quadrato latino,numeri,rompicapo,logica",
+ "short_description": "Riempi una griglia 4×4 in modo che ogni gabbia raggiunga il suo obiettivo.",
+ "description": "Riempi una griglia 4×4 con le cifre da 1 a 4 senza ripetere nessuna cifra in alcuna riga o colonna. Ogni gabbia colorata indica un obiettivo ottenuto con somma, prodotto, differenza, quoziente o valore singolo, e le cifre al suo interno devono raggiungerlo.\n\nTocca una cella e poi inserisci una cifra sul grande tastierino. Cancella svuota una cella.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

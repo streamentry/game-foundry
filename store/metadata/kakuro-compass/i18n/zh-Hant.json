@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hant",
+ "status": "machine translation — native review pending",
+ "subtitle": "看清交叉線索",
+ "keywords": "數字縱橫,和,邏輯,算術,網格,謎題",
+ "short_description": "借助清楚的單格檢查器，解開交叉數字和。",
+ "description": "在每段數字縱橫中填入 1 至 9，使其總和與提示數字相等，且同一段內不得重複數字。解開八個原創 5×5 關卡即可解鎖下一關。Compass 檢查器會顯示所選格子的橫向與縱向總和，以及該格局部可行的數字。包含復原、清除、重新開始和本地進度儲存。"
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompicapi di isole e mare",
+ "keywords": "isole,mare,terra,connesso,logica,numeri,griglia,rompicapo,acqua",
+ "short_description": "Dividi una baia 4×4 in mare e isole della misura esatta.",
+ "description": "Segna ogni casella di una baia 4×4 come mare o terra. Ogni isola numerata ha esattamente quel numero di caselle e contiene un solo indizio, il mare forma un unico corpo collegato e nessun blocco 2×2 può essere interamente mare.\n\nTocca una casella vuota per passare tra mare, terra e vuota. Le caselle con indizio sono fisse.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

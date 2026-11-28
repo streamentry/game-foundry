@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Indices croisés limpides",
+ "keywords": "mots croisés de chiffres,sommes,logique,arithmétique,grille,casse-tête",
+ "short_description": "Résolvez des sommes croisées avec un inspecteur de case clair.",
+ "description": "Remplissez chaque suite du Kakuro avec les chiffres de 1 à 9 pour que son total corresponde à l'indice; ne répétez aucun chiffre dans une même suite. Résolvez huit grilles originales de 5×5 pour déverrouiller la suivante. L'inspecteur Compass affiche les totaux horizontaux et verticaux ainsi que les chiffres localement possibles pour la case sélectionnée. Annuler, effacer, recommencer et progression locale sont inclus."
+}

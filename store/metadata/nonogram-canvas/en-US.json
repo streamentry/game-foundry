@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "game_slug": "nonogram-canvas",
+  "source_commit": "5dc8efa8",
+  "source_note": "Listing master drafted from the current build's README, design notes and scripts; describes only implemented behavior.",
+  "status": "release candidate — owner review pending",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Nonogram Canvas",
+    "subtitle": "Reveal the picture",
+    "description": "Fill a 5×5 grid so each row and column matches its run clues: each number is a block of consecutive filled cells, and blocks are separated by at least one empty cell. Each board is a small pixel design.\n\nTap a cell to fill it, tap again to cross it out, and again to clear it. All ten clue lines stay visible.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "keywords": "picross,griddler,hanjie,paint by numbers,picture,pixel,logic,grid,puzzle",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/nonogram-canvas/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
+  },
+  "google_play": {
+    "title": "Nonogram Canvas",
+    "short_description": "Use row and column clues to reveal a hidden 5×5 picture.",
+    "full_description": "Fill a 5×5 grid so each row and column matches its run clues: each number is a block of consecutive filled cells, and blocks are separated by at least one empty cell. Each board is a small pixel design.\n\nTap a cell to fill it, tap again to cross it out, and again to clear it. All ten clue lines stay visible.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/nonogram-canvas/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
+  },
+  "release_decisions": {
+    "bundle_id": "com.streamentry.nonogramcanvas",
+    "package_id": "com.streamentry.nonogramcanvas",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840299854",
+    "play_app_id": "4975648021063860326"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

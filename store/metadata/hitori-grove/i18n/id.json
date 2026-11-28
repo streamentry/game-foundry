@@ -1,0 +1,8 @@
+{
+ "lang": "id",
+ "status": "machine translation — native review pending",
+ "subtitle": "Warnai angka yang berulang",
+ "keywords": "hitori,warnai,angka berulang,terhubung,logika,angka,kisi,teka-teki",
+ "short_description": "Warnai angka yang berulang tanpa memecah papan menjadi bagian terpisah.",
+ "description": "Warnai kotak sehingga tidak ada angka yang muncul lebih dari sekali di setiap baris atau kolom di antara kotak yang tidak diwarnai. Kotak yang diwarnai tidak boleh bersentuhan secara sisi, dan semua kotak yang tidak diwarnai harus tetap menjadi satu kelompok yang tersambung.\n\nKetuk sel bernomor untuk berganti antara warna, catatan, dan tidak ditandai.\n\nEnam papan orisinal, masing-masing membuka papan berikutnya setelah diselesaikan. Urungkan dan Mulai Ulang selalu tersedia, tidak ada pengatur waktu, dan kemajuan Anda disimpan di perangkat ini. Dapat dimainkan luring. Tanpa iklan, tanpa akun, tanpa pengumpulan data."
+}

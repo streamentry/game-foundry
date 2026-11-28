@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Casse-têtes îles et mer",
+ "keywords": "îles,mer,terre,connecté,logique,nombres,grille,casse-tête,eau",
+ "short_description": "Répartissez une baie 4×4 entre mer et îles de taille exacte.",
+ "description": "Marquez chaque case d'une baie 4×4 comme mer ou terre. Chaque île numérotée compte exactement ce nombre de cases et contient un seul indice, la mer forme un seul ensemble connecté, et aucun bloc 2×2 ne peut être entièrement de la mer.\n\nTouchez une case vide pour alterner entre mer, terre et vide. Les cases d'indice sont fixes.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

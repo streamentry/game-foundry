@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Link islands with bridges",
+ "keywords": "hashi,hashiwokakero,bridges,islands,connect,logic,number,puzzle",
+ "short_description": "Join numbered islands with bridges so each number is met.",
+ "description": "Connect numbered islands with zero, one or two straight bridges so that each island ends up with exactly its number, no bridges cross, and every island is joined into one network.\n\nTap one island and then another to cycle the bridge between them. Large island-letter controls offer an alternative to tapping precisely on the board.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

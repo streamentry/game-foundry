@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Daily binary puzzles",
+ "keywords": "binary,binairo,logic,number puzzle,daily,grid",
+ "short_description": "Solve binary grids with hints and local progress.",
+ "description": "Play a daily 4×4 Takuzu puzzle or free 4×4 and 6×6 boards. Rows and columns must balance, avoid three identical numbers in a row, and avoid duplicate completed lines. Use hints, undo, redo, and restart. Progress saves locally."
+}

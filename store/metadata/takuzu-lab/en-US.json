@@ -8,29 +8,32 @@
   "apple": {
     "name": "Takuzu Lab",
     "subtitle": "Daily binary puzzles",
-    "description": "Play a daily 4×4 Takuzu puzzle or free 4×4 and 6×6 boards. Rows and columns must balance, avoid three identical numbers in a row, and avoid duplicate completed lines. Use hints, undo, redo, and restart. Progress saves locally. This is an engineering reference, not an approved product.",
-    "keywords": "takuzu,binary,binairo,logic,number puzzle,daily,grid",
-    "support_url": null,
-    "privacy_policy_url": null
+    "description": "Play a daily 4×4 Takuzu puzzle or free 4×4 and 6×6 boards. Rows and columns must balance, avoid three identical numbers in a row, and avoid duplicate completed lines. Use hints, undo, redo, and restart. Progress saves locally.",
+    "keywords": "binary,binairo,logic,number puzzle,daily,grid",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/takuzu-lab/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
   },
   "google_play": {
     "title": "Takuzu Lab",
     "short_description": "Solve binary grids with hints and local progress.",
-    "full_description": "Play a daily 4×4 Takuzu puzzle or free 4×4 and 6×6 boards. Rows and columns must balance, avoid three identical numbers in a row, and avoid duplicate completed lines. Use hints, undo, redo, and restart. Progress saves locally. This is an engineering reference, not an approved product.",
-    "support_url": null,
-    "privacy_policy_url": null
+    "full_description": "Play a daily 4×4 Takuzu puzzle or free 4×4 and 6×6 boards. Rows and columns must balance, avoid three identical numbers in a row, and avoid duplicate completed lines. Use hints, undo, redo, and restart. Progress saves locally.",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/takuzu-lab/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
   },
   "release_decisions": {
-    "bundle_id": null,
-    "package_id": null,
-    "version_name": null,
-    "version_code": null,
-    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
-    "territories": "unset",
-    "age_rating": "not completed",
-    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
-    "automatic_release": "requested; not configured",
-    "audience_fit_45_plus": "unknown"
+    "bundle_id": "com.streamentry.takuzulab",
+    "package_id": "com.streamentry.takuzulab",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840301583",
+    "play_app_id": null
   },
   "keyword_status": "draft terms; no keyword-demand evidence",
   "english_review": "not yet reviewed by the account owner"

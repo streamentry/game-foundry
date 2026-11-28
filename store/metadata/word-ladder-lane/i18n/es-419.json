@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Cambia una letra a la vez",
+ "keywords": "dobletes,letras,palabras,vocabulario,ortografía,idioma,pasos,rompecabezas",
+ "short_description": "Pasa de una palabra a otra, cambiando una letra por paso.",
+ "description": "Parte de una palabra y llega a la palabra meta cambiando exactamente una letra a la vez, usando solo las tarjetas de palabras disponibles. Cada tablero da un presupuesto exacto de pasos, la longitud de la ruta más corta. Los rompecabezas son de palabras en inglés.\n\nToca una tarjeta de siguiente palabra válida. La escalera actual, la meta y tu cuenta de pasos permanecen en pantalla.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

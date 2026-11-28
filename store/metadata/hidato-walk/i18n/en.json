@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Number path puzzles",
+ "keywords": "hidoku,number path,chain,consecutive,sequence,grid,logic,puzzle",
+ "short_description": "Place 1 to 16 in a chain where each number touches the next.",
+ "description": "Place the numbers 1 to 16 on a 4×4 grid, each exactly once, so that every consecutive pair touches horizontally, vertically or diagonally. The numbers already given must stay where they are.\n\nTap an editable cell and choose a number on the keypad. Erase clears a cell.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

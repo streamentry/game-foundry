@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rätsel mit Folgezahlen",
+ "keywords": "aufeinanderfolgend,lateinisches Quadrat,Kantenmarkierungen,Folge,Zahlen,Logik,Gitter,Rätsel",
+ "short_description": "Fülle ein 4×4-Gitter, in dem Markierungen aufeinanderfolgende Nachbarn zeigen.",
+ "description": "Fülle ein 4×4-Gitter mit 1 bis 4, sodass jede Ziffer in jeder Zeile und Spalte genau einmal vorkommt. Eine markierte Kante zwischen zwei Feldern bedeutet, dass ihre Ziffern aufeinanderfolgen, eine unmarkierte Kante bedeutet, dass sie es nicht tun.\n\nWähle ein Feld und gib eine Ziffer von 1 bis 4 ein. Pfeile in den Feldern zeigen auf die markierten Kanten nach rechts und nach unten.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

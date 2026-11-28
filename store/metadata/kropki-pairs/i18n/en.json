@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Dot-clue number puzzles",
+ "keywords": "dots,black dot,white dot,consecutive,ratio,latin square,number,logic,puzzle",
+ "short_description": "Fill a 4×4 grid with 1 to 4, guided by white and black dots.",
+ "description": "Fill a 4×4 grid with 1 to 4 so each digit appears once in every row and column. A white dot between two squares means the digits are consecutive; a black dot means one is exactly double the other. Edges without a dot carry no clue.\n\nTap an editable square, then a digit on the large four-key pad. Labels inside the squares and an inspector help you read each dot.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

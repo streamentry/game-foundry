@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompecabezas binarios diarios",
+ "keywords": "binario,binairo,lógica,rompecabezas numérico,diario,cuadrícula",
+ "short_description": "Resuelve cuadrículas binarias con pistas y progreso local.",
+ "description": "Juega un Takuzu diario de 4×4 o tableros libres de 4×4 y 6×6. Las filas y columnas deben estar equilibradas, evita tres números idénticos seguidos y evita líneas completas duplicadas. Usa pistas, deshacer, rehacer y reiniciar. El progreso se guarda de forma local."
+}

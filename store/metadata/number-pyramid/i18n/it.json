@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Somma fino alla cima",
+ "keywords": "somme,addizione,matematica,aritmetica,pietre,logica,cifre,griglia,rompicapo",
+ "short_description": "Ricostruisci una piramide di numeri da pochi indizi sparsi.",
+ "description": "Trova le quattro cifre, da 1 a 9, alla base di una piramide. Ciascuna delle sei pietre sopra è uguale alla somma delle due direttamente sotto, e alcune etichette fisse ti guidano.\n\nSeleziona una pietra della base e inserisci una cifra; le pietre sopra mostrano le somme mentre procedi.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

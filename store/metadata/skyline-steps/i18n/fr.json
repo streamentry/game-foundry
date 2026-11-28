@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Casse-têtes de tours",
+ "keywords": "gratte-ciel,tours,hauteurs,visibilité,carré latin,nombres,logique,grille,casse-tête",
+ "short_description": "Placez des hauteurs d'immeubles pour que chaque indice de bord soit exact.",
+ "description": "Remplissez une grille 4×4 avec des hauteurs d'immeubles de 1 à 4, sans répéter une hauteur dans une ligne ou une colonne. Chaque nombre au bord indique combien d'immeubles sont visibles depuis cette direction, puisque les immeubles plus hauts cachent ceux qui sont derrière.\n\nSélectionnez une case et saisissez une hauteur de 1 à 4. Effacer vide une case.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzles numéricos com pontos",
+ "keywords": "pontos,ponto preto,ponto branco,consecutivos,razão,quadrado latino,números,lógica,puzzle",
+ "short_description": "Preencha uma grelha 4×4 com 1 a 4, guiado por pontos brancos e pretos.",
+ "description": "Preencha uma grelha 4×4 com os números de 1 a 4, de modo que cada dígito apareça uma só vez em cada linha e coluna. Um ponto branco entre duas casas significa que os dígitos são consecutivos; um ponto preto significa que um é exatamente o dobro do outro. Os lados sem ponto não dão qualquer pista.\n\nToque numa casa editável e depois num dígito no teclado grande de quatro teclas. Etiquetas dentro das casas e um inspetor ajudam a ler cada ponto.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

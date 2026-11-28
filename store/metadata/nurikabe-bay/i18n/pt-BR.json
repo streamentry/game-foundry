@@ -1,0 +1,8 @@
+{
+ "lang": "pt-BR",
+ "status": "machine translation — native review pending",
+ "subtitle": "Quebra-cabeças de ilhas e mar",
+ "keywords": "ilhas,mar,terra,conectado,lógica,números,grade,quebra-cabeça,água",
+ "short_description": "Divida uma baía 4×4 em mar e ilhas de tamanho exato.",
+ "description": "Marque cada quadrado de uma baía 4×4 como mar ou terra. Cada ilha numerada tem exatamente essa quantidade de quadrados e contém uma pista, o mar forma um único corpo conectado e nenhum bloco 2×2 pode ser todo de mar.\n\nToque em um quadrado vazio para alternar entre mar, terra e vazio. Os quadrados com pistas são fixos.\n\nSeis tabuleiros originais, cada um liberado ao resolver o anterior. Desfazer e Reiniciar estão sempre disponíveis, não há cronômetro e seu progresso é salvo neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem coleta de dados."
+}

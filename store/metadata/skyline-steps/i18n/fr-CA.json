@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Hauteurs de tours",
+ "keywords": "gratte-ciel,tours,hauteurs,visibilité,carré latin,chiffres,logique,grille,casse-tête",
+ "short_description": "Placez des hauteurs d'immeubles pour que chaque indice de bordure soit juste.",
+ "description": "Remplissez une grille de 4×4 avec des hauteurs d'immeubles de 1 à 4, sans jamais répéter une hauteur dans une ligne ou une colonne. Chaque nombre en bordure indique combien d'immeubles sont visibles depuis cette direction, puisque les immeubles plus hauts cachent ceux qui sont derrière.\n\nSélectionnez une case et entrez une hauteur de 1 à 4. Effacer vide une case.\n\nSix grilles originales, chacune se déverrouillant une fois la précédente résolue. Les boutons Annuler et Recommencer sont toujours accessibles, il n'y a aucun minuteur, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

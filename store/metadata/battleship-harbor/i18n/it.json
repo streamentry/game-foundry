@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Trova la flotta nascosta",
+ "keywords": "battaglia navale,navi,flotta,mappa,logica,griglia,rompicapo,sonar",
+ "short_description": "Trova la flotta nascosta su una mappa 5×5 con i totali di riga e colonna.",
+ "description": "Trova una piccola flotta su una mappa 5×5: una nave lunga tre celle, una lunga due e una di una sola cella. Due navi non possono toccarsi, nemmeno in diagonale, e i totali di ogni riga e colonna devono coincidere.\n\nTocca una casella per segnare una nave, toccala di nuovo per un appunto d'acqua e ancora per cancellarla. I totali attuali e quelli da raggiungere restano visibili accanto a ogni riga e colonna.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

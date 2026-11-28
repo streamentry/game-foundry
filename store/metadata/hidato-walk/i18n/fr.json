@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Casse-têtes de chemins",
+ "keywords": "hidoku,chemin de nombres,chaîne,consécutifs,suite,grille,logique,casse-tête",
+ "short_description": "Placez 1 à 16 en chaîne, chaque nombre touchant le suivant.",
+ "description": "Placez les nombres de 1 à 16 sur une grille 4×4, chacun exactement une fois, de sorte que chaque paire consécutive se touche horizontalement, verticalement ou en diagonale. Les nombres déjà donnés doivent rester à leur place.\n\nTouchez une case modifiable et choisissez un nombre sur le clavier. Effacer vide une case.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

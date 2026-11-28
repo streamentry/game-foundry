@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzle de retângulos",
+ "keywords": "retângulo,puzzle numérico,lógica,grelha,área,geometria",
+ "short_description": "Divida a grelha em retângulos com o tamanho das pistas.",
+ "description": "Divida a grelha em retângulos. Cada retângulo tem de ficar dentro do tabuleiro, conter exatamente uma pista e cobrir o número de células indicado por essa pista. Resolva oito tabuleiros originais com seleção de cantos por toque, anular, reiniciar, progressão desbloqueada e gravações locais. Não há temporizador."
+}

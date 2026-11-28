@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Revela la imagen",
+ "keywords": "picross,griddler,hanjie,pintar por números,imagen,píxel,lógica,cuadrícula",
+ "short_description": "Usa las pistas de filas y columnas para revelar una imagen oculta de 5×5.",
+ "description": "Llena una cuadrícula de 5×5 para que cada fila y columna coincida con sus pistas de tramos: cada número es un bloque de celdas llenas consecutivas, y los bloques se separan por al menos una celda vacía. Cada tablero es un pequeño diseño de píxeles.\n\nToca una celda para llenarla, tócala de nuevo para tacharla y otra vez para borrarla. Las diez líneas de pistas permanecen visibles.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

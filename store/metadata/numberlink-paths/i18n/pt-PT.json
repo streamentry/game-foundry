@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ligue os pares iguais",
+ "keywords": "fluxo,ligar,pares,percursos,linha,lógica,letras,grelha,puzzle,caminho",
+ "short_description": "Una cada par de letras com um percurso que preencha toda a grelha.",
+ "description": "Ligue cada par de letras iguais com um percurso pelas casas de uma grelha 4×4. Os percursos não podem cruzar-se nem ramificar-se e, em conjunto, os dois percursos têm de cobrir todas as casas.\n\nToque em casas em branco para alternar entre percurso A, percurso B e vazio. Os extremos fixos estão marcados com círculos e cada percurso tem a sua letra e cor.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

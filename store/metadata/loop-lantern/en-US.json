@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "game_slug": "loop-lantern",
+  "source_commit": "5dc8efa8",
+  "source_note": "Listing master drafted from the current build's README, design notes and scripts; describes only implemented behavior.",
+  "status": "release candidate — owner review pending",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Loop Lantern",
+    "subtitle": "Draw one closed loop",
+    "description": "Draw one closed loop along the grid lines that never branches or crosses itself. Each numbered square tells you how many of its four sides the loop uses.\n\nTap a square, then press one of four large Top, Right, Bottom or Left buttons to add or remove that edge.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "keywords": "slitherlink,fences,edges,line,logic,number,grid,puzzle",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/loop-lantern/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
+  },
+  "google_play": {
+    "title": "Loop Lantern",
+    "short_description": "Draw a single loop that satisfies every edge-count clue.",
+    "full_description": "Draw one closed loop along the grid lines that never branches or crosses itself. Each numbered square tells you how many of its four sides the loop uses.\n\nTap a square, then press one of four large Top, Right, Bottom or Left buttons to add or remove that edge.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/loop-lantern/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
+  },
+  "release_decisions": {
+    "bundle_id": "com.streamentry.looplantern",
+    "package_id": "com.streamentry.looplantern",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840299895",
+    "play_app_id": "4973280796964578004"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

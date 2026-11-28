@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles de colocar estrellas",
+ "keywords": "estrellas,regiones,filas,columnas,lógica,cuadrícula,constelación,puzle",
+ "short_description": "Coloca una estrella por fila, columna y región, sin que se toquen.",
+ "description": "Coloca estrellas en la cuadrícula de modo que cada fila, cada columna y cada región con letra tenga exactamente una estrella, y que dos estrellas nunca se toquen, ni siquiera en diagonal.\n\nToca una casilla para alternar entre estrella, punto y vacía; los puntos son notas de las casillas que has descartado.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

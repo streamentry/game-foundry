@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Posiziona le stelle",
+ "keywords": "stelle,regioni,righe,colonne,logica,griglia,costellazione,rompicapo",
+ "short_description": "Posiziona una stella per riga, colonna e regione, senza toccarsi.",
+ "description": "Posiziona le stelle sulla griglia in modo che ogni riga, ogni colonna e ogni regione etichettata contenga esattamente una stella e due stelle non si tocchino, nemmeno in diagonale.\n\nTocca una casella per passare tra stella, punto e vuota; i punti sono appunti per le caselle che hai escluso.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

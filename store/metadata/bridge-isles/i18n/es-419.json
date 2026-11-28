@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Une islas con puentes",
+ "keywords": "hashi,puentes,islas,conectar,lógica,números,rompecabezas",
+ "short_description": "Une las islas numeradas con puentes para cumplir cada número.",
+ "description": "Conecta islas numeradas con cero, uno o dos puentes rectos para que cada isla tenga exactamente su número, ningún puente se cruce y todas las islas queden unidas en una sola red.\n\nToca una isla y luego otra para alternar el puente entre ellas. Los grandes controles con letras de isla ofrecen una alternativa a tocar con precisión sobre el tablero.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

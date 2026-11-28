@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pistas que se cruzam",
+ "keywords": "soma cruzada,somas,lógica,aritmética,grelha,puzzle",
+ "short_description": "Resolva somas cruzadas com um inspetor de células claro.",
+ "description": "Preencha cada sequência de Kakuro com dígitos de 1 a 9 para que o total corresponda à pista; não repita um dígito na mesma sequência. Resolva oito tabuleiros 5×5 originais para desbloquear o seguinte. O inspetor Compass mostra os totais horizontais e verticais e os dígitos localmente possíveis para a célula selecionada. Inclui anular, apagar, reiniciar e progresso local."
+}

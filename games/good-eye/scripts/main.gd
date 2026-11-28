@@ -5,18 +5,27 @@ const Model = preload("res://scripts/game_state.gd")
 const Factory = preload("res://scripts/shape_factory.gd")
 const Save = preload("res://scripts/local_store.gd")
 const ShapeBoard = preload("res://scripts/shape_board.gd")
+const Motion = preload("res://scripts/motion.gd")
+const SETTINGS_PATH: String = "user://settings.json"
 
 const PAPER = Color("#F8F6EF")
 const INK = Color("#223D35")
 const MUTED = Color("#52675E")
 const ACCENT = Color("#24786D")
+const ACCENT_HOVER = Color("#1B5E54")
 const CREAM = Color("#EAE3D3")
+const CREAM_HOVER = Color("#E0D6C4")
 const DISABLED = Color("#DFE0D9")
+const SUCCESS = Color("#2E6B45")
+const ERROR = Color("#9E3E40")
 const WHITE = Color("#FFFFFF")
 
 var state: Dictionary = {}
 var board
+var motion := Motion.new()
 var _rng := RandomNumberGenerator.new()
+var reduce_motion_toggle: CheckButton
+var _intro_controls: Array = []
 
 var round_label: Label
 var result_label: Label
@@ -39,8 +48,42 @@ func _ready() -> void:
         state["practice_seed"] = shared_seed
         state["practice_percent"] = -1.0
         Save.write(state)
+    motion.reduced_motion = _read_reduce_motion()
     _build_view()
+    reduce_motion_toggle.set_pressed_no_signal(motion.reduced_motion)
     _load_round()
+
+
+## Player setting, kept separate from round progress: user://settings.json {"reduced_motion": bool}.
+func _read_reduce_motion() -> bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return false
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return false
+    var json := JSON.new()
+    if json.parse(file.get_as_text()) != OK or typeof(json.data) != TYPE_DICTIONARY:
+        return false
+    return bool(json.data.get("reduced_motion", false))
+
+
+func _write_reduce_motion(value: bool) -> void:
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning("Good Eye motion setting could not be saved.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": value}))
+    file.close()
+
+
+func _on_reduce_motion_toggled(value: bool) -> void:
+    motion.reduced_motion = value
+    _write_reduce_motion(value)
+
+
+func _set_status(text_value: String, is_error: bool = false) -> void:
+    status_label.text = text_value
+    status_label.add_theme_color_override("font_color", ERROR if is_error else MUTED)
 
 
 func _today_utc() -> String:
@@ -92,6 +135,7 @@ func _button(text_value: String, callback: Callable, primary: bool = false) -> B
     item.add_theme_color_override("font_pressed_color", WHITE if primary else INK)
     item.add_theme_color_override("font_disabled_color", MUTED)
     _style_button(item, primary)
+    item.pressed.connect(motion.press.bind(item))
     item.pressed.connect(callback)
     return item
 
@@ -102,12 +146,21 @@ func _style_button(item: Button, primary: bool) -> void:
     normal.set_corner_radius_all(14)
     normal.content_margin_left = 8.0
     normal.content_margin_right = 8.0
+    normal.shadow_color = Color(INK, 0.18)
+    normal.shadow_size = 3
+    normal.shadow_offset = Vector2(0, 2)
     item.add_theme_stylebox_override("normal", normal)
 
     var hover: StyleBoxFlat = normal.duplicate()
-    hover.bg_color = Color("#1B5E54") if primary else Color("#E0D6C4")
+    hover.bg_color = ACCENT_HOVER if primary else CREAM_HOVER
     item.add_theme_stylebox_override("hover", hover)
-    item.add_theme_stylebox_override("pressed", hover)
+
+    # Pressed sits lower on the surface: no shadow, a deeper fill.
+    var pressed: StyleBoxFlat = normal.duplicate()
+    pressed.bg_color = ACCENT_HOVER if primary else CREAM_HOVER
+    pressed.shadow_size = 0
+    pressed.shadow_offset = Vector2.ZERO
+    item.add_theme_stylebox_override("pressed", pressed)
 
     var disabled := StyleBoxFlat.new()
     disabled.bg_color = DISABLED
@@ -215,6 +268,22 @@ func _build_view() -> void:
     status_label = _label("", 13, MUTED, true)
     column.add_child(status_label)
     board.aim_changed.connect(_update_aim_feedback)
+
+    reduce_motion_toggle = CheckButton.new()
+    reduce_motion_toggle.text = "Reduce motion"
+    reduce_motion_toggle.accessibility_name = "Reduce motion"
+    reduce_motion_toggle.accessibility_description = "Turns off the small movements and the split animation. Results and controls are unchanged."
+    reduce_motion_toggle.custom_minimum_size = Vector2(0, 48)
+    reduce_motion_toggle.focus_mode = Control.FOCUS_ALL
+    reduce_motion_toggle.add_theme_font_size_override("font_size", 16)
+    reduce_motion_toggle.add_theme_color_override("font_color", INK)
+    reduce_motion_toggle.add_theme_color_override("font_hover_color", INK)
+    reduce_motion_toggle.add_theme_color_override("font_pressed_color", INK)
+    reduce_motion_toggle.toggled.connect(_on_reduce_motion_toggled)
+    column.add_child(reduce_motion_toggle)
+    _intro_controls = [practice_button, daily_button, move_back, turn_back, turn_forward,
+        move_forward, cut_button, next_button, retry_button]
+
     column.add_child(_label("Practice lets you retry the same shape. Daily Five saves the first cut. Keyboard: arrows + Enter.", 14, MUTED))
 
 
@@ -227,6 +296,9 @@ func _load_round() -> void:
     board.revealed = Model.revealed(state)
     board.queue_redraw()
     _refresh()
+    # Level load or restart: controls rise in reading order. The board is excluded so this
+    # intro never fights the slide_swap used for Next shape.
+    motion.stagger_in(_intro_controls)
 
 
 func _refresh() -> void:
@@ -258,33 +330,33 @@ func _refresh() -> void:
     result_label.text = "A  %.1f%%    /    B  %.1f%%" % [pct, 100.0 - pct]
     detail_label.text = "%.1f points from perfect  •  Eye score %.1f / 100" % [error, 100.0 - 2.0 * error]
     if daily and Model.daily_complete(state):
-        status_label.text = "Daily five complete. Average score %.1f / 100. Come back tomorrow." % Model.average_daily_score(state)
+        _set_status("Daily five complete. Average score %.1f / 100. Come back tomorrow." % Model.average_daily_score(state))
     elif daily:
-        status_label.text = "First attempt saved. Ready for the next shape?"
+        _set_status("First attempt saved. Ready for the next shape?")
     else:
-        status_label.text = "Try the same shape again, or move on."
+        _set_status("Try the same shape again, or move on.")
 
 
 func _update_aim_feedback() -> void:
     if status_label == null or state.is_empty() or Model.revealed(state):
         return
     if state["mode"] == "daily":
-        status_label.text = "Adjust the line before your first cut."
+        _set_status("Adjust the line before your first cut.")
         return
 
     var calculation: Dictionary = board.measure()
     if not calculation.get("valid", false):
-        status_label.text = "Keep the line crossing the shape."
+        _set_status("Keep the line crossing the shape.", true)
         return
 
     var percent_a: float = float(calculation["percent_a"])
     var error: float = absf(50.0 - percent_a)
     if error <= 2.0:
-        status_label.text = "Almost even. Cut when you're ready."
+        _set_status("Almost even. Cut when you're ready.")
     elif percent_a > 50.0:
-        status_label.text = "A side is larger. Try Move + to bring it closer to half."
+        _set_status("A side is larger. Try Move + to bring it closer to half.")
     else:
-        status_label.text = "B side is larger. Try Move − to bring it closer to half."
+        _set_status("B side is larger. Try Move − to bring it closer to half.")
 
 
 func _cut_shape() -> void:
@@ -292,21 +364,33 @@ func _cut_shape() -> void:
         return
     var calculation: Dictionary = board.measure()
     if not calculation.get("valid", false):
-        status_label.text = "Move the line so it crosses the shape and try again."
+        _set_status("Move the line so it crosses the shape and try again.", true)
+        motion.shake(board)
         return
     if Model.record_cut(state, float(calculation["percent_a"]), board.angle_degrees, board.offset):
         board.revealed = true
+        board.reveal_split(0.0 if motion.reduced_motion else Motion.SWEEP_MS / 1000.0)
         board.queue_redraw()
+        var error: float = absf(50.0 - float(calculation["percent_a"]))
+        # Celebrate only a near-perfect cut (eye score 98+), never every result.
+        if error <= 1.0:
+            motion.celebrate(self, board.get_global_rect().get_center(), [ACCENT, SUCCESS, PAPER])
         _persist()
         _refresh()
 
 
 func _move(amount: float) -> void:
+    var before: float = board.offset
     board.move_line(amount)
+    if board.offset != before:
+        motion.pop(board, 0.4)
 
 
 func _rotate(degrees: float) -> void:
+    var before: float = board.angle_degrees
     board.rotate_line(degrees)
+    if board.angle_degrees != before:
+        motion.pop(board, 0.4)
 
 
 func _switch_mode(mode: String) -> void:
@@ -319,6 +403,7 @@ func _next_shape() -> void:
     if Model.advance(state, _random_seed()):
         _persist()
         _load_round()
+        motion.slide_swap(board, 1)
 
 
 func _retry_shape() -> void:
@@ -348,13 +433,13 @@ func _unhandled_key_input(event: InputEvent) -> void:
         return
     match event.keycode:
         KEY_LEFT:
-            board.rotate_line(-10.0)
+            _rotate(-10.0)
         KEY_RIGHT:
-            board.rotate_line(10.0)
+            _rotate(10.0)
         KEY_UP:
-            board.move_line(-0.03)
+            _move(-0.03)
         KEY_DOWN:
-            board.move_line(0.03)
+            _move(0.03)
         KEY_ENTER, KEY_KP_ENTER:
             _cut_shape()
         _:

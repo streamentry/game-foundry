@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Verbinde Inseln mit Brücken",
+ "keywords": "Hashi,Hashiwokakero,Brücken,Inseln,verbinden,Logik,Zahlen,Rätsel",
+ "short_description": "Verbinde nummerierte Inseln mit Brücken, sodass jede Zahl erfüllt ist.",
+ "description": "Verbinde nummerierte Inseln mit null, einer oder zwei geraden Brücken, sodass jede Insel am Ende genau ihre Zahl erreicht, sich keine Brücken kreuzen und alle Inseln zu einem einzigen Netz verbunden sind.\n\nTippe auf eine Insel und dann auf eine andere, um die Brücke zwischen beiden durchzuschalten. Große Inselbuchstaben-Schaltflächen bieten eine Alternative, wenn das genaue Antippen auf dem Brett schwerfällt.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

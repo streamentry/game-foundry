@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Llena los termómetros",
+ "keywords": "termómetros,tubos,llenar,totales,filas,columnas,lógica,números,cuadrícula",
+ "short_description": "Llena los tubos desde el bulbo para que coincidan los totales.",
+ "description": "Llena cada uno de los ocho termómetros de dos celdas desde su bulbo hacia la punta, nunca al revés. Los totales de filas y columnas indican cuántas celdas de cada línea están llenas.\n\nToca un bulbo para llenar su primer segmento, o toca una punta para llenar ambos. Toca el mismo lugar otra vez para vaciar el tubo.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

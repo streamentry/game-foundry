@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompecabezas de alturas",
+ "keywords": "rascacielos,torres,alturas,visibilidad,cuadrado latino,números,lógica,cuadrícula",
+ "short_description": "Coloca alturas de edificios para que cada pista del borde sea correcta.",
+ "description": "Llena una cuadrícula de 4×4 con alturas de edificios del 1 al 4, sin repetir una altura en una fila o columna. Cada número del borde indica cuántos edificios se ven desde esa dirección, ya que los edificios más altos ocultan a los más bajos que están detrás.\n\nSelecciona una casilla e ingresa una altura del 1 al 4. Borrar vacía la casilla.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

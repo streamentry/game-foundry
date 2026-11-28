@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Star placement puzzles",
+ "keywords": "stars,regions,rows,columns,logic,grid,constellation,puzzle",
+ "short_description": "Place one star per row, column and region, never touching.",
+ "description": "Place stars on the grid so that every row, every column and every labelled region holds exactly one star, and no two stars touch, even diagonally.\n\nTap a square to cycle star, dot and blank; dots are notes for squares you have ruled out.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

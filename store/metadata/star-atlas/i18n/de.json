@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sternen-Platzierungsrätsel",
+ "keywords": "Sterne,Regionen,Zeilen,Spalten,Logik,Gitter,Sternbild,Rätsel",
+ "short_description": "Setze je einen Stern pro Zeile, Spalte und Region, ohne dass sie sich berühren.",
+ "description": "Setze Sterne so auf das Gitter, dass jede Zeile, jede Spalte und jede beschriftete Region genau einen Stern enthält und sich keine zwei Sterne berühren, auch nicht diagonal.\n\nTippe auf ein Feld, um zwischen Stern, Punkt und leer zu wechseln; Punkte sind Notizen für Felder, die du ausgeschlossen hast.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

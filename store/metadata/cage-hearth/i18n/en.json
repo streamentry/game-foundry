@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Arithmetic cage puzzles",
+ "keywords": "kenken,calcudoku,cages,arithmetic,math,latin square,number,puzzle,logic",
+ "short_description": "Fill a 4×4 grid so every cage reaches its arithmetic target.",
+ "description": "Fill a 4×4 grid with 1 to 4 so that no digit repeats in any row or column. Each coloured cage shows a target built from a sum, product, difference, quotient or single value, and the digits inside must reach it.\n\nTap a cell, then enter a digit on the large keypad. Erase clears a cell.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

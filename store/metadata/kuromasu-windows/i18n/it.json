@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Conta ciò che riesci a vedere",
+ "keywords": "kurodoko,visibilità,linea di vista,bianco nero,annerire,logica,numeri,griglia,rompicapo",
+ "short_description": "Annerisci: ogni numero vede esattamente quelle caselle bianche.",
+ "description": "Annerisci alcune caselle in modo che le nere non condividano mai un lato e che tutte le bianche restino collegate. Ogni casella numerata conta le caselle bianche che vede nella sua riga e colonna, compresa se stessa, e il totale deve coincidere con il suo numero.\n\nTocca una casella vuota per passare tra nera, bianca e sconosciuta. Gli indizi numerici restano fissi e un testo a schermo ti dice quali linee di vista o collegamenti violano le regole.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

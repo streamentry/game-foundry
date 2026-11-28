@@ -2,12 +2,12 @@ extends Control
 ## Large original vector island-map view with repeatable exact positions.
 signal island_pressed(index: int)
 
-const WATER = Color("#EDF5F5")
-const GUIDE = Color("#CDDADD")
-const INK = Color("#263F51")
-const BLUE = Color("#267C91")
-const PALE = Color("#FFFFFF")
-const RING = Color("#D9AC73")
+const WATER = Color("#E6F0EC")
+const GUIDE = Color("#C9D6CF")
+const INK = Color("#173B42")
+const BRIDGE = Color("#1E6E76")
+const GOLD = Color("#F2C46D")
+const FOCUS = Color("#B5770D")
 
 var level: Dictionary = {}
 var bridges: Array = []
@@ -44,16 +44,16 @@ func _draw() -> void:
         draw_line(a, b, GUIDE, 3.0, true)
         var strength: int = int(bridges[id])
         if strength == 1:
-            draw_line(a, b, BLUE, 7.0, true)
+            draw_line(a, b, BRIDGE, 7.0, true)
         elif strength == 2:
             var normal: Vector2 = (b - a).normalized().orthogonal() * 5.0
-            draw_line(a + normal, b + normal, BLUE, 5.0, true)
-            draw_line(a - normal, b - normal, BLUE, 5.0, true)
+            draw_line(a + normal, b + normal, BRIDGE, 5.0, true)
+            draw_line(a - normal, b - normal, BRIDGE, 5.0, true)
     var font: Font = ThemeDB.fallback_font
     for id in range(level["nodes"].size()):
         var p: Vector2 = _point(id)
-        draw_circle(p, 25.0 if id == selected else 23.0, RING if id == selected else INK)
-        draw_circle(p, 21.0 if id == selected else 19.0, PALE)
+        draw_circle(p, 25.0 if id == selected else 23.0, FOCUS if id == selected else INK)
+        draw_circle(p, 21.0 if id == selected else 19.0, GOLD)
         var text_value: String = str(level["clues"][id])
         var dimensions: Vector2 = font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1, 23)
         draw_string(font, p + Vector2(-dimensions.x * 0.5, dimensions.y * 0.35), text_value,

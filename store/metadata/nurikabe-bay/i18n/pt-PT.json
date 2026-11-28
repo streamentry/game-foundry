@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzles de ilhas e mar",
+ "keywords": "ilhas,mar,terra,ligado,lógica,números,grelha,puzzle,água",
+ "short_description": "Divida uma baía 4×4 em mar e ilhas de tamanho exato.",
+ "description": "Marque cada casa de uma baía 4×4 como mar ou terra. Cada ilha numerada tem exatamente esse número de casas e contém uma pista, o mar forma um único corpo ligado e nenhum bloco 2×2 pode ser todo mar.\n\nToque numa casa em branco para alternar entre mar, terra e vazio. As casas com pistas são fixas.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Find the hidden fleet",
+ "keywords": "battleships,ships,fleet,naval,chart,logic,grid,puzzle,sonar",
+ "short_description": "Locate a hidden fleet on a 5×5 chart using row and column totals.",
+ "description": "Find a small fleet on a 5×5 chart: one ship three cells long, one two cells long and one single-cell ship. No two ships may touch, even diagonally, and every row and column total must match.\n\nTap a square to mark a ship, tap again for a water note, and again to clear it. The current and target totals stay visible beside each row and column.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

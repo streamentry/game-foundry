@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Reliez les îles par des ponts",
+ "keywords": "hashi,hashiwokakero,ponts,îles,relier,logique,chiffres,casse-tête",
+ "short_description": "Reliez les îles numérotées par des ponts pour respecter chaque nombre.",
+ "description": "Reliez les îles numérotées par zéro, un ou deux ponts droits, de sorte que chaque île ait exactement son nombre de ponts, qu'aucun pont n'en croise un autre et que toutes les îles forment un seul réseau.\n\nTouchez une île, puis une autre, pour faire alterner le pont entre elles. De grands boutons portant la lettre des îles offrent une solution de rechange au toucher précis sur la grille.\n\nSix grilles originales, chacune se déverrouillant une fois la précédente résolue. Les boutons Annuler et Recommencer sont toujours accessibles, il n'y a aucun minuteur, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

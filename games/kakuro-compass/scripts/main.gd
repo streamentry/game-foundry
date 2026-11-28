@@ -1,26 +1,48 @@
 extends Control
 ## Playable no-timer Kakuro with a persistent visible intersection inspector.
 ## Every number preview is derived from the same exact-run rules as CI.
+## Motion is visual only (scripts/motion.gd); game state updates before any animation.
 
 const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/kakuro_rules.gd")
 const Progress = preload("res://scripts/progress.gd")
+const Motion = preload("res://scripts/motion.gd")
 
-const PAPER = Color("#F8F8F1")
-const INK = Color("#263B40")
-const MUTED = Color("#54696A")
-const NAVY = Color("#274D5B")
-const ACCENT = Color("#167F7A")
-const PALE = Color("#E5F0E9")
-const WHITE = Color("#FFFFFF")
-const CLUE = Color("#2D5360")
-const SELECTED = Color("#D0EEE8")
-const WARNING = Color("#9D4A38")
+const SETTINGS_PATH: String = "user://settings.json"
+const GRID_SIZE: int = 5
+const CELL_PX: int = 69
+
+# Navy, cream and gold, drawn from the icon. Tokens are documented in DESIGN.md section 2.
+const PAPER := Color("#F2E9D2")
+const SURFACE := Color("#FBF6E8")
+const SURFACE_HOVER := Color("#F6F0DE")
+const SURFACE_ALT := Color("#E6D9B8")
+const SECONDARY_HOVER := Color("#DCCBA6")
+const SECONDARY_PRESSED := Color("#CDB98E")
+const HAIRLINE := Color("#A7B3BD")
+const INK := Color("#0B1A3B")
+const INK_MUTED := Color("#4B4F63")
+const ACCENT := Color("#C9A24B")
+const ACCENT_HOVER := Color("#D9B25E")
+const ACCENT_PRESSED := Color("#B8903A")
+const CLUE := Color("#0E2550")
+const CLUE_INK := Color("#F6EDD2")
+const SELECTED := Color("#F4DE95")
+const PEER := Color("#EDE3C8")
+const SUCCESS := Color("#2F6B4A")
+const ERROR := Color("#9C2F2A")
+const FOCUS := Color("#0B1A3B")
+const SHADOW := Color(0.04, 0.10, 0.23, 0.16)
+const CLEAR := Color(0.0, 0.0, 0.0, 0.0)
 
 var state: Dictionary = {}
 var level: Dictionary = {}
 var selected: int = -1
 var history: Array = []
+var reduced_motion: bool = false
+var motion := Motion.new()
+var serif: SystemFont
+var board_frame: PanelContainer
 var board_grid: GridContainer
 var cells: Array = []
 var heading: Label
@@ -33,6 +55,7 @@ var feedback: Label
 var prev_button: Button
 var next_button: Button
 var undo_button: Button
+var reduce_toggle: CheckButton
 
 
 func _ready() -> void:
@@ -40,6 +63,9 @@ func _ready() -> void:
     var linked: int = _linked_level()
     if linked >= 0:
         Progress.set_level(state, linked)
+    _load_settings()
+    motion.reduced_motion = reduced_motion
+    serif = _make_serif()
     _build_ui()
     _load_level()
 
@@ -59,36 +85,96 @@ func _linked_level() -> int:
     return -1
 
 
-func _label(value: String, size_px: int, color: Color = INK, centered: bool = false) -> Label:
+func _load_settings() -> void:
+    reduced_motion = false
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return
+    var parser := JSON.new()
+    if parser.parse(file.get_as_text()) != OK:
+        return
+    if typeof(parser.data) == TYPE_DICTIONARY and typeof(parser.data.get("reduced_motion")) == TYPE_BOOL:
+        reduced_motion = bool(parser.data["reduced_motion"])
+
+
+func _save_settings() -> void:
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning("Kakuro Compass settings could not be saved.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": reduced_motion}))
+    file.close()
+
+
+func _set_reduced_motion(on: bool) -> void:
+    reduced_motion = on
+    motion.reduced_motion = on
+    if reduce_toggle != null:
+        reduce_toggle.set_pressed_no_signal(on)
+    _save_settings()
+
+
+func _make_serif() -> SystemFont:
+    var face := SystemFont.new()
+    face.font_names = PackedStringArray(["Georgia", "Times New Roman", "serif"])
+    face.font_weight = 700
+    return face
+
+
+## One rounded box. Margins are the content inset for buttons, frames and cards.
+func _box(bg: Color, border: Color = CLEAR, border_width: int = 0,
+        radius: int = 12, margin: int = 0) -> StyleBoxFlat:
+    var box := StyleBoxFlat.new()
+    box.bg_color = bg
+    box.border_color = border
+    box.set_border_width_all(border_width)
+    box.set_corner_radius_all(radius)
+    box.content_margin_left = margin
+    box.content_margin_right = margin
+    box.content_margin_top = margin
+    box.content_margin_bottom = margin
+    return box
+
+
+## Soft lift for raised surfaces (keypad, buttons, inspector card).
+func _raise(box: StyleBoxFlat, size_px: int) -> void:
+    box.shadow_color = SHADOW
+    box.shadow_size = size_px
+    box.shadow_offset = Vector2(0, 2)
+
+
+func _label(value: String, size_px: int, color: Color = INK,
+        centered: bool = false, face_serif: bool = false) -> Label:
     var label := Label.new()
     label.text = value
     label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     label.add_theme_font_size_override("font_size", size_px)
     label.add_theme_color_override("font_color", color)
+    if face_serif:
+        label.add_theme_font_override("font", serif)
     if centered:
         label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     return label
 
 
 func _style_button(item: Button, primary: bool = false) -> void:
-    var standard := StyleBoxFlat.new()
-    standard.bg_color = ACCENT if primary else PALE
-    standard.set_corner_radius_all(12)
-    standard.content_margin_left = 7
-    standard.content_margin_right = 7
-    var hover: StyleBoxFlat = standard.duplicate()
-    hover.bg_color = Color("#105F5D") if primary else Color("#CFDFD6")
-    var focus := StyleBoxFlat.new()
-    focus.bg_color = Color.TRANSPARENT
-    focus.border_color = ACCENT
-    focus.set_border_width_all(3)
-    focus.set_corner_radius_all(12)
-    for mode in ["normal", "hover", "pressed", "focus"]:
-        item.add_theme_stylebox_override(mode, focus if mode == "focus" else (standard if mode == "normal" else hover))
-    item.add_theme_color_override("font_color", WHITE if primary else INK)
-    item.add_theme_color_override("font_hover_color", WHITE if primary else INK)
-    item.add_theme_color_override("font_pressed_color", WHITE if primary else INK)
-    item.add_theme_color_override("font_disabled_color", MUTED)
+    var fill: Color = ACCENT if primary else SURFACE_ALT
+    var normal := _box(fill, CLEAR, 0, 12, 7)
+    _raise(normal, 4)
+    var hover := _box(ACCENT_HOVER if primary else SECONDARY_HOVER, CLEAR, 0, 12, 7)
+    _raise(hover, 6)
+    var pressed := _box(ACCENT_PRESSED if primary else SECONDARY_PRESSED, CLEAR, 0, 12, 7)
+    _raise(pressed, 1)
+    item.add_theme_stylebox_override("normal", normal)
+    item.add_theme_stylebox_override("hover", hover)
+    item.add_theme_stylebox_override("pressed", pressed)
+    item.add_theme_stylebox_override("disabled", _box(SURFACE_ALT, CLEAR, 0, 12, 7))
+    item.add_theme_stylebox_override("focus", _box(CLEAR, FOCUS, 3, 12, 7))
+    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+        item.add_theme_color_override(mode, INK)
+    item.add_theme_color_override("font_disabled_color", INK_MUTED)
 
 
 func _button(text_value: String, callback: Callable, primary: bool = false) -> Button:
@@ -98,15 +184,31 @@ func _button(text_value: String, callback: Callable, primary: bool = false) -> B
     item.custom_minimum_size = Vector2(0, 52)
     item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     item.add_theme_font_size_override("font_size", 17)
+    if text_value.is_valid_int():
+        item.add_theme_font_override("font", serif)
+        item.add_theme_font_size_override("font_size", 22)
     _style_button(item, primary)
     item.pressed.connect(callback)
     return item
+
+
+func _style_toggle(item: CheckButton) -> void:
+    item.add_theme_stylebox_override("focus", _box(CLEAR, FOCUS, 3, 12, 7))
+    item.add_theme_font_size_override("font_size", 16)
+    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+        item.add_theme_color_override(mode, INK)
 
 
 func _row() -> HBoxContainer:
     var item := HBoxContainer.new()
     item.add_theme_constant_override("separation", 8)
     return item
+
+
+func _card_box() -> StyleBoxFlat:
+    var card := _box(SURFACE, CLEAR, 0, 12, 14)
+    _raise(card, 4)
+    return card
 
 
 func _build_ui() -> void:
@@ -133,32 +235,41 @@ func _build_ui() -> void:
     column.add_theme_constant_override("separation", 10)
     margin.add_child(column)
 
-    column.add_child(_label("KAKURO COMPASS  /  CROSSING CLUES", 12, ACCENT))
-    column.add_child(_label("Two clues. One number.", 29))
-    column.add_child(_label("Fill 1–9. Each arrow is a sum; never repeat a number within one arrow run.", 15, MUTED))
+    column.add_child(_label("KAKURO COMPASS  /  CROSSING CLUES", 12, INK_MUTED))
+    column.add_child(_label("Two clues. One number.", 29, INK, false, true))
+    column.add_child(_label("Fill 1–9. Each arrow is a sum; never repeat a number within one arrow run.", 15, INK_MUTED))
 
     heading = _label("", 15, INK)
     column.add_child(heading)
     var center := CenterContainer.new()
     center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     column.add_child(center)
+    board_frame = PanelContainer.new()
+    board_frame.add_theme_stylebox_override("panel", _box(CLUE, CLEAR, 0, 14, 6))
+    center.add_child(board_frame)
     board_grid = GridContainer.new()
-    board_grid.columns = 5
+    board_grid.columns = GRID_SIZE
     board_grid.add_theme_constant_override("h_separation", 3)
     board_grid.add_theme_constant_override("v_separation", 3)
-    center.add_child(board_grid)
+    board_frame.add_child(board_grid)
 
     progress_label = _label("", 15, INK, true)
     column.add_child(progress_label)
 
-    inspector_title = _label("", 17, INK)
-    column.add_child(inspector_title)
-    inspector_across = _label("", 15, MUTED)
-    column.add_child(inspector_across)
-    inspector_down = _label("", 15, MUTED)
-    column.add_child(inspector_down)
-    inspector_both = _label("", 16, NAVY)
-    column.add_child(inspector_both)
+    var inspector_card := PanelContainer.new()
+    inspector_card.add_theme_stylebox_override("panel", _card_box())
+    column.add_child(inspector_card)
+    var inspector := VBoxContainer.new()
+    inspector.add_theme_constant_override("separation", 6)
+    inspector_card.add_child(inspector)
+    inspector_title = _label("", 17, INK, false, true)
+    inspector.add_child(inspector_title)
+    inspector_across = _label("", 15, INK_MUTED)
+    inspector.add_child(inspector_across)
+    inspector_down = _label("", 15, INK_MUTED)
+    inspector.add_child(inspector_down)
+    inspector_both = _label("", 16, INK)
+    inspector.add_child(inspector_both)
 
     var number_pad := GridContainer.new()
     number_pad.columns = 3
@@ -183,10 +294,19 @@ func _build_ui() -> void:
     navigation.add_child(next_button)
     column.add_child(navigation)
 
-    feedback = _label("", 14, MUTED, true)
+    reduce_toggle = CheckButton.new()
+    reduce_toggle.text = "Reduce motion"
+    reduce_toggle.accessibility_name = "Reduce motion"
+    _style_toggle(reduce_toggle)
+    reduce_toggle.set_pressed_no_signal(reduced_motion)
+    reduce_toggle.toggled.connect(_set_reduced_motion)
+    column.add_child(reduce_toggle)
+    column.add_child(_label("Turns off board motion and the solved burst. Every change still appears at once.", 13, INK_MUTED))
+
+    feedback = _label("", 14, INK_MUTED, true)
     column.add_child(feedback)
     column.add_child(_button("Copy this challenge", _share))
-    column.add_child(_label("Tap a light square. The Compass shows digits that can still satisfy each crossing sum. Green candidates pass both LOCAL constraints; they are not a revealed solution.", 13, MUTED))
+    column.add_child(_label("Tap a light square. The Compass shows digits that can still satisfy each crossing sum. Green candidates pass both LOCAL constraints; they are not a revealed solution.", 13, INK_MUTED))
 
 
 func _clue_description(index: int) -> Dictionary:
@@ -197,7 +317,8 @@ func _clue_description(index: int) -> Dictionary:
     return sums
 
 
-func _load_level() -> void:
+## slide_direction: 0 = fresh load or restart (cells fade in), +1 / -1 = next / previous board.
+func _load_level(slide_direction: int = 0) -> void:
     level = Factory.make(int(state["level"]))
     selected = -1
     history.clear()
@@ -205,44 +326,95 @@ func _load_level() -> void:
         board_grid.remove_child(child)
         child.queue_free()
     cells.clear()
-    var size_px: int = 69
     for index in range(int(level["size"]) * int(level["size"])):
         var item := Button.new()
-        item.custom_minimum_size = Vector2(size_px, size_px)
+        item.custom_minimum_size = Vector2(CELL_PX, CELL_PX)
         item.focus_mode = Control.FOCUS_ALL
-        item.add_theme_font_size_override("font_size", 22)
+        item.add_theme_font_override("font", serif)
+        item.add_theme_font_size_override("font_size", 24)
         item.pressed.connect(_select.bind(index))
         board_grid.add_child(item)
         cells.append(item)
         if selected == -1 and Rules.open_cell(level, index):
             selected = index
     _refresh()
+    if slide_direction != 0:
+        motion.slide_swap(board_frame, slide_direction)
+    else:
+        motion.stagger_in(cells)
 
 
-func _cell_style(item: Button, open: bool, active: bool) -> void:
-    var style := StyleBoxFlat.new()
-    style.bg_color = SELECTED if active else (WHITE if open else CLUE)
-    style.border_color = ACCENT if active else (Color("#A7C5C5") if open else INK)
-    style.set_border_width_all(3 if active else 1)
-    style.set_corner_radius_all(7)
-    for mode in ["normal", "hover", "pressed", "disabled"]:
-        item.add_theme_stylebox_override(mode, style)
-    var focus := StyleBoxFlat.new()
-    focus.bg_color = Color.TRANSPARENT
-    focus.border_color = ACCENT
-    focus.set_border_width_all(3)
-    focus.set_corner_radius_all(7)
-    item.add_theme_stylebox_override("focus", focus)
-    var color: Color = INK if open else WHITE
-    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
-        item.add_theme_color_override(mode, color)
+func _cell_style(item: Button, open: bool, active: bool, peer: bool) -> void:
+    var fill: Color = CLUE
+    var border: Color = CLUE
+    var border_width: int = 0
+    var ink: Color = CLUE_INK
+    var hover_fill: Color = CLUE
+    if open:
+        ink = INK
+        border = INK if active else HAIRLINE
+        border_width = 3 if active else 1
+        fill = SELECTED if active else (PEER if peer else SURFACE)
+        hover_fill = fill if active else SURFACE_HOVER
+    var normal := _box(fill, border, border_width, 7)
+    item.add_theme_stylebox_override("normal", normal)
+    item.add_theme_stylebox_override("hover", _box(hover_fill, border, border_width, 7))
+    item.add_theme_stylebox_override("pressed", _box(SELECTED if open else CLUE, border, border_width, 7))
+    item.add_theme_stylebox_override("disabled", normal)
+    item.add_theme_stylebox_override("focus", _box(CLEAR, FOCUS, 3, 7))
+    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color", "font_focus_color"]:
+        item.add_theme_color_override(mode, ink)
 
 
 func _select(index: int) -> void:
     if not Rules.open_cell(level, index):
         return
     selected = index
+    motion.press(cells[index])
     _refresh()
+
+
+## Runs whose cells are all filled and sum correctly (no repeats, exact target).
+func _completed_runs(entries: Array) -> Array:
+    var done: Array = []
+    for run_index in range(level["runs"].size()):
+        var run: Dictionary = level["runs"][run_index]
+        var filled: bool = true
+        for index in run["cells"]:
+            if int(entries[int(index)]) == 0:
+                filled = false
+                break
+        if filled and Rules.run_possible(run, entries):
+            done.append(run_index)
+    return done
+
+
+func _cells_of(indices: Array) -> Array:
+    var group: Array = []
+    for index in indices:
+        group.append(cells[int(index)])
+    return group
+
+
+func _open_cells() -> Array:
+    var group: Array = []
+    for index in range(cells.size()):
+        if Rules.open_cell(level, index):
+            group.append(cells[index])
+    return group
+
+
+## Cells sharing the selected cell's across and down runs.
+func _peer_indices() -> Dictionary:
+    var peers: Dictionary = {}
+    if selected < 0:
+        return peers
+    var crossing: Dictionary = Rules.intersecting(level, selected)
+    for direction in ["across", "down"]:
+        var run: Dictionary = crossing[direction]
+        for index in run.get("cells", []):
+            peers[int(index)] = true
+    return peers
 
 
 func _enter(digit: int) -> void:
@@ -250,12 +422,33 @@ func _enter(digit: int) -> void:
         return
     if int(state["entries"][selected]) == digit:
         return
+    var runs_before: Array = _completed_runs(state["entries"])
+    var was_solved: bool = Rules.complete(level, state["entries"])
     history.append(state["entries"].duplicate())
     if history.size() > 50:
         history.pop_front()
     Progress.place(state, selected, digit)
     _save()
     _refresh()
+    _react_to_entry(runs_before, was_solved)
+
+
+## Visual reaction only; the state above is already final.
+func _react_to_entry(runs_before: Array, was_solved: bool) -> void:
+    var entry_cell: Button = cells[selected]
+    motion.pop(entry_cell)
+    var crossing: Dictionary = Rules.intersecting(level, selected)
+    if not Rules.run_possible(crossing["across"], state["entries"]) \
+            or not Rules.run_possible(crossing["down"], state["entries"]):
+        motion.shake(entry_cell)
+    var solved_now: bool = Rules.complete(level, state["entries"]) and not was_solved
+    if solved_now:
+        motion.sweep(_open_cells(), ACCENT)
+        motion.celebrate(self, board_frame.get_global_rect().get_center(), [ACCENT, SUCCESS, SURFACE])
+        return
+    for run_index in _completed_runs(state["entries"]):
+        if not runs_before.has(run_index):
+            motion.sweep(_cells_of(level["runs"][run_index]["cells"]), ACCENT)
 
 
 func _undo() -> void:
@@ -271,6 +464,7 @@ func _restart() -> void:
     state["entries"] = Rules.empty_entries(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 
 func _previous() -> void:
@@ -278,7 +472,7 @@ func _previous() -> void:
         return
     Progress.set_level(state, int(state["level"]) - 1)
     _save()
-    _load_level()
+    _load_level(-1)
 
 
 func _next() -> void:
@@ -286,7 +480,7 @@ func _next() -> void:
         return
     Progress.set_level(state, int(state["level"]) + 1)
     _save()
-    _load_level()
+    _load_level(1)
 
 
 func _format_candidates(options: Array) -> String:
@@ -301,12 +495,13 @@ func _format_candidates(options: Array) -> String:
 func _refresh() -> void:
     heading.text = "BOARD %d OF %d  •  %s" % [
         int(state["level"]) + 1, Factory.COUNT, level["name"]]
+    var peers: Dictionary = _peer_indices()
     var filled: int = 0
     var total: int = 0
     for index in range(cells.size()):
         var item: Button = cells[index]
         var editable: bool = Rules.open_cell(level, index)
-        _cell_style(item, editable, index == selected)
+        _cell_style(item, editable, index == selected, peers.has(index))
         item.disabled = not editable
         if editable:
             total += 1
@@ -314,8 +509,9 @@ func _refresh() -> void:
             if number > 0:
                 filled += 1
             item.text = str(number) if number > 0 else ""
+            item.add_theme_font_size_override("font_size", 24)
             item.accessibility_name = "Row %d, column %d, %s" % [
-                int(index / 5) + 1, index % 5 + 1, ("digit %d" % number if number > 0 else "empty")]
+                int(index / GRID_SIZE) + 1, index % GRID_SIZE + 1, ("digit %d" % number if number > 0 else "empty")]
             item.accessibility_description = "Select this cell; the two crossing clues appear beneath the grid."
         else:
             var sums: Dictionary = _clue_description(index)
@@ -327,7 +523,7 @@ func _refresh() -> void:
             item.text = "\n".join(mark)
             item.add_theme_font_size_override("font_size", 15)
             item.accessibility_name = "Clue row %d, col %d: down %d, across %d" % [
-                int(index / 5) + 1, index % 5 + 1, sums["D"], sums["A"]]
+                int(index / GRID_SIZE) + 1, index % GRID_SIZE + 1, sums["D"], sums["A"]]
 
     progress_label.text = "%d of %d digits placed" % [filled, total]
     undo_button.disabled = history.is_empty()
@@ -338,7 +534,7 @@ func _refresh() -> void:
         var info: Dictionary = Rules.candidates(level, state["entries"], selected)
         var crossing: Dictionary = Rules.intersecting(level, selected)
         inspector_title.text = "Compass  •  row %d, column %d" % [
-            int(selected / 5) + 1, selected % 5 + 1]
+            int(selected / GRID_SIZE) + 1, selected % GRID_SIZE + 1]
         inspector_across.text = "→ Across %d: possible %s" % [
             crossing["across"]["target"], _format_candidates(info["across"])]
         inspector_down.text = "↓ Down %d: possible %s" % [
@@ -348,8 +544,7 @@ func _refresh() -> void:
     if Rules.complete(level, state["entries"]):
         feedback.text = "All crossing sums agree. You solved this puzzle!"
     else:
-        var status_text: String = Rules.status(level, state["entries"])
-        feedback.text = status_text
+        feedback.text = Rules.status(level, state["entries"])
 
 
 func _save() -> void:

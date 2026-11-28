@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Additionnez jusqu'au sommet",
+ "keywords": "sommes,addition,calcul,arithmétique,pierres,logique,chiffres,grille,casse-tête",
+ "short_description": "Reconstituez une pyramide de nombres à partir de quelques indices épars.",
+ "description": "Trouvez les quatre chiffres, de 1 à 9, à la base d'une pyramide. Chacune des six pierres au-dessus est égale à la somme des deux pierres situées juste en dessous, et quelques indices fixes vous guident.\n\nSélectionnez une pierre de la base et saisissez un chiffre ; les pierres du dessus affichent leurs sommes au fur et à mesure.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

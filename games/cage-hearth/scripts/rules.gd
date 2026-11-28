@@ -147,6 +147,13 @@ static func status(level: Dictionary, entries: Array) -> String:
         return "Check a repeated number or an impossible cage total."
     return "Every row/column uses 1–4; each outlined cage obeys its clue."
 
+## Read-only views for feedback (motion and status); no rule changes.
+static func has_conflict(level: Dictionary, entries: Array) -> bool:
+    return not _partial_ok(level, entries)
+
+static func cage_done(cage: Dictionary, entries: Array) -> bool:
+    return _cage_satisfied(cage, entries)
+
 static func count_solutions(level: Dictionary, limit: int = 2) -> int:
     if not valid_level(level):
         return 0

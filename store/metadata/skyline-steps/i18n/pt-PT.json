@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzles de alturas de torres",
+ "keywords": "arranha-céus,torres,alturas,visibilidade,quadrado latino,números,lógica,grelha,puzzle",
+ "short_description": "Coloque alturas de edifícios para cada pista do bordo estar certa.",
+ "description": "Preencha uma grelha 4×4 com alturas de edifícios de 1 a 4, sem repetir uma altura em qualquer linha ou coluna. Cada número à volta do bordo indica quantos edifícios se veem dessa direção, já que os edifícios mais altos escondem os mais baixos atrás de si.\n\nSelecione uma casa e introduza uma altura de 1 a 4. Apagar limpa uma casa.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

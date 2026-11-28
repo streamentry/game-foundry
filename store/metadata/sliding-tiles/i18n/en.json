@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Classic 3×3 tile puzzle",
+ "keywords": "slide,numbered,eight puzzle,15 puzzle,order,spatial,logic,game",
+ "short_description": "Slide numbered tiles into order, one move at a time.",
+ "description": "Slide the numbered tiles on a 3×3 board into the empty space until they read 1 to 8 in order. The scrambled starts range from a few moves away to fourteen moves from the solution.\n\nTap a tile next to the empty square to slide it. Undo and Restart are always available.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

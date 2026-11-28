@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzles de colocar estrelas",
+ "keywords": "estrelas,regiões,linhas,colunas,lógica,grelha,constelação,puzzle",
+ "short_description": "Coloque uma estrela por linha, coluna e região, sem que se toquem.",
+ "description": "Coloque estrelas na grelha de modo que cada linha, cada coluna e cada região identificada tenha exatamente uma estrela e que duas estrelas nunca se toquem, nem na diagonal.\n\nToque numa casa para alternar entre estrela, ponto e vazio; os pontos são notas para as casas que já eliminou.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

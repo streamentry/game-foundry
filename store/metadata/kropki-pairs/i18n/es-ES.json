@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles numéricos con puntos",
+ "keywords": "puntos,punto negro,punto blanco,consecutivos,razón,cuadrado latino,números,lógica,puzle",
+ "short_description": "Rellena una cuadrícula de 4×4 con 1 a 4 guiándote por puntos blancos y negros.",
+ "description": "Rellena una cuadrícula de 4×4 con los números del 1 al 4 de modo que cada cifra aparezca una vez en cada fila y columna. Un punto blanco entre dos casillas significa que sus cifras son consecutivas; un punto negro, que una es exactamente el doble de la otra. Los bordes sin punto no dan ninguna pista.\n\nToca una casilla editable y luego una cifra en el teclado grande de cuatro teclas. Las etiquetas dentro de las casillas y un inspector te ayudan a leer cada punto.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

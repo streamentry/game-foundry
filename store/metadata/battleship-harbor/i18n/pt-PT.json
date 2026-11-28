@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Encontre a frota escondida",
+ "keywords": "navios,frota,naval,carta,lógica,grelha,puzzle,sonar",
+ "short_description": "Localize uma frota escondida numa carta 5×5 com os totais das linhas e colunas.",
+ "description": "Encontre uma pequena frota numa carta 5×5: um navio com três células, um com duas e um de uma só célula. Dois navios não podem tocar-se, nem na diagonal, e os totais de cada linha e coluna têm de coincidir.\n\nToque numa casa para marcar um navio, toque outra vez para uma nota de água e mais uma vez para limpar. Os totais atuais e os objetivos ficam visíveis junto a cada linha e coluna.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

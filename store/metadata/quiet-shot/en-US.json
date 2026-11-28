@@ -9,28 +9,31 @@
     "name": "Quiet Shot",
     "subtitle": "One-shot mirror puzzle",
     "description": "Aim once, fire, and predict how a ray reflects from fixed mirrors to clear every target. Adjust your angle and retry without a timer. Explore eight original boards and save progress locally. A shot stops when targets are cleared, it leaves the board, or the four-reflection limit is reached.",
-    "keywords": "ricochet,ray,mirror,one shot,aim,physics,puzzle,spatial",
-    "support_url": null,
-    "privacy_policy_url": null
+    "keywords": "ricochet,ray,mirror,aim,physics,puzzle,spatial",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/quiet-shot/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
   },
   "google_play": {
     "title": "Quiet Shot",
     "short_description": "Aim once, predict reflections, and clear each board.",
     "full_description": "Aim once, fire, and predict how a ray reflects from fixed mirrors to clear every target. Adjust your angle and retry without a timer. Explore eight original boards and save progress locally. A shot stops when targets are cleared, it leaves the board, or the four-reflection limit is reached.",
-    "support_url": null,
-    "privacy_policy_url": null
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/quiet-shot/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
   },
   "release_decisions": {
-    "bundle_id": null,
-    "package_id": null,
-    "version_name": null,
-    "version_code": null,
-    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
-    "territories": "unset",
-    "age_rating": "not completed",
-    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
-    "automatic_release": "requested; not configured",
-    "audience_fit_45_plus": "unknown"
+    "bundle_id": "com.streamentry.quietshot",
+    "package_id": "com.streamentry.quietshot",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840300705",
+    "play_app_id": null
   },
   "keyword_status": "draft terms; no keyword-demand evidence",
   "english_review": "not yet reviewed by the account owner"

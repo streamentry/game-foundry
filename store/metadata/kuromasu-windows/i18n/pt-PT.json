@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Conte o que consegue ver",
+ "keywords": "kurodoko,visibilidade,linha de visão,preto,branco,sombrear,lógica,números,grelha,puzzle",
+ "short_description": "Sombreie casas para cada número ver exatamente essas casas brancas.",
+ "description": "Sombreie algumas casas de preto de modo que as casas pretas nunca partilhem um lado e todas as casas brancas fiquem ligadas. Cada casa numerada conta as casas brancas que consegue ver na sua linha e coluna, incluindo a própria, e tem de coincidir com o seu número.\n\nToque numa casa em branco para alternar entre preto, branco e desconhecido. As pistas numeradas ficam fixas e o texto no ecrã indica que linhas de visão ou ligações quebram as regras.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

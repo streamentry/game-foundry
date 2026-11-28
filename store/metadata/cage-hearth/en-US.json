@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "game_slug": "cage-hearth",
+  "source_commit": "5dc8efa8",
+  "source_note": "Listing master drafted from the current build's README, design notes and scripts; describes only implemented behavior.",
+  "status": "release candidate — owner review pending",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Cage Hearth",
+    "subtitle": "Arithmetic cage puzzles",
+    "description": "Fill a 4×4 grid with 1 to 4 so that no digit repeats in any row or column. Each coloured cage shows a target built from a sum, product, difference, quotient or single value, and the digits inside must reach it.\n\nTap a cell, then enter a digit on the large keypad. Erase clears a cell.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "keywords": "kenken,calcudoku,cages,arithmetic,math,latin square,number,puzzle,logic",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/cage-hearth/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
+  },
+  "google_play": {
+    "title": "Cage Hearth",
+    "short_description": "Fill a 4×4 grid so every cage reaches its arithmetic target.",
+    "full_description": "Fill a 4×4 grid with 1 to 4 so that no digit repeats in any row or column. Each coloured cage shows a target built from a sum, product, difference, quotient or single value, and the digits inside must reach it.\n\nTap a cell, then enter a digit on the large keypad. Erase clears a cell.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/cage-hearth/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
+  },
+  "release_decisions": {
+    "bundle_id": "com.streamentry.cagehearth",
+    "package_id": "com.streamentry.cagehearth",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840299254",
+    "play_app_id": "4972735154459079443"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "id",
+ "status": "machine translation — native review pending",
+ "subtitle": "Teka-teki persegi panjang",
+ "keywords": "persegi panjang,teka-teki angka,logika,kisi,luas,geometri",
+ "short_description": "Bagi kisi menjadi persegi panjang sesuai ukuran petunjuk.",
+ "description": "Bagi kisi menjadi persegi panjang. Setiap persegi panjang harus berada di dalam papan, memuat tepat satu petunjuk, dan menutupi jumlah sel yang ditunjukkan petunjuk tersebut. Pecahkan delapan papan orisinal dengan mengetuk sudut untuk memilih. Tersedia urungkan, mulai ulang, kemajuan yang terbuka bertahap, dan penyimpanan lokal. Tidak ada pengatur waktu."
+}

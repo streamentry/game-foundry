@@ -73,3 +73,6 @@ docs/research/raw/
 # Design-iteration screenshots stay local (large binaries); logs in docs/improvements/*.md reference them.
 docs/improvements/*.png
 docs/improvements/*.jpg
+
+# Godot Android build template (installed at export time)
+/games/*/android/

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "game_slug": "sliding-tiles",
+  "source_commit": "5dc8efa8",
+  "source_note": "Listing master drafted from the current build's README, design notes and scripts; describes only implemented behavior.",
+  "status": "release candidate — owner review pending",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Sliding Tiles: Quiet Slide",
+    "subtitle": "Classic 3×3 tile puzzle",
+    "description": "Slide the numbered tiles on a 3×3 board into the empty space until they read 1 to 8 in order. The scrambled starts range from a few moves away to fourteen moves from the solution.\n\nTap a tile next to the empty square to slide it. Undo and Restart are always available.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "keywords": "slide,numbered,eight puzzle,15 puzzle,order,spatial,logic,game",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/sliding-tiles/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
+  },
+  "google_play": {
+    "title": "Sliding Tiles",
+    "short_description": "Slide numbered tiles into order, one move at a time.",
+    "full_description": "Slide the numbered tiles on a 3×3 board into the empty space until they read 1 to 8 in order. The scrambled starts range from a few moves away to fourteen moves from the solution.\n\nTap a tile next to the empty square to slide it. Undo and Restart are always available.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/sliding-tiles/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
+  },
+  "release_decisions": {
+    "bundle_id": "com.streamentry.slidingtiles",
+    "package_id": "com.streamentry.slidingtiles",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840301246",
+    "play_app_id": null
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

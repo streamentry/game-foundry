@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Verbinde passende Paare",
+ "keywords": "Flow,verbinden,Paare,Wege,Linie,Logik,Buchstaben,Gitter,Rätsel,Pfad",
+ "short_description": "Verbinde jedes Buchstabenpaar mit einem Weg, der das ganze Gitter füllt.",
+ "description": "Verbinde jedes Paar gleicher Buchstaben mit einem Weg über die Felder eines 4×4-Gitters. Wege dürfen sich weder kreuzen noch verzweigen, und die beiden Wege zusammen müssen jedes Feld abdecken.\n\nTippe auf leere Felder, um zwischen Weg A, Weg B und leer zu wechseln. Feste Endpunkte sind mit Kreisen markiert, und jeder Weg hat seinen eigenen Buchstaben und seine eigene Farbe.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

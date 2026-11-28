@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Conecta los pares iguales",
+ "keywords": "flujo,conectar,pares,rutas,línea,lógica,letras,cuadrícula,camino",
+ "short_description": "Une cada par de letras con una ruta que llene toda la cuadrícula.",
+ "description": "Conecta cada par de letras iguales con una ruta por las casillas de una cuadrícula de 4×4. Las rutas no pueden cruzarse ni ramificarse, y entre todas deben cubrir cada casilla.\n\nToca casillas vacías para alternar entre la ruta A, la ruta B y vacía. Los extremos fijos están marcados con círculos, y cada ruta tiene su propia letra y color.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

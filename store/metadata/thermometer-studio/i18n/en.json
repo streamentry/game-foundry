@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Fill the thermometers",
+ "keywords": "thermometers,tubes,fill,totals,rows,columns,logic,number,grid,puzzle",
+ "short_description": "Fill tubes from the bulb so row and column totals match.",
+ "description": "Fill each of eight two-cell thermometers from its bulb toward its tip, never the other way round. The row and column totals show how many cells in each line are filled.\n\nTap a bulb to fill its first segment, or tap a tip to fill both. Tap the same spot again to empty the tube.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

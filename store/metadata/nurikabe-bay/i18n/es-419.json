@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompecabezas de islas y mar",
+ "keywords": "islas,mar,tierra,conectado,lógica,números,cuadrícula,agua",
+ "short_description": "Divide una bahía de 4×4 en mar e islas de tamaño exacto.",
+ "description": "Marca cada casilla de una bahía de 4×4 como mar o tierra. Cada isla numerada tiene exactamente esa cantidad de casillas y contiene una pista, el mar forma un solo cuerpo conectado y ningún bloque de 2×2 puede ser todo mar.\n\nToca una casilla vacía para alternar entre mar, tierra y vacía. Las casillas con pista son fijas.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

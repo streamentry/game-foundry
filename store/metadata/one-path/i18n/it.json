@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Usa ogni linea una sola volta",
+ "keywords": "grafo,percorso,rompicapo di spigoli,unisci i punti,cammino euleriano,logica",
+ "short_description": "Pianifica un percorso che usi ogni collegamento una volta sola.",
+ "description": "Usa ogni collegamento visibile esattamente una volta. Puoi tornare sui punti; gli incroci senza un punto non sono giunzioni. Risolvi otto tavole originali a grafo tracciando o toccando i grandi pulsanti dei punti. Annulla, ricomincia, rivedi le tavole precedenti e riprendi il tuo percorso locale e i progressi sbloccati."
+}

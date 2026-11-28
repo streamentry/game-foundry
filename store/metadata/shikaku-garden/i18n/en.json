@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Rectangle logic puzzle",
+ "keywords": "rectangle,number puzzle,logic,grid,area,geometry",
+ "short_description": "Divide the grid into clue-sized rectangles.",
+ "description": "Divide the grid into rectangles. Each rectangle must stay inside the board, contain exactly one clue, and cover the number of cells shown by that clue. Solve eight original boards with tap-to-select corners, undo, restart, unlocked progression, and local saves. There is no timer."
+}

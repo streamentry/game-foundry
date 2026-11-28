@@ -1,0 +1,8 @@
+{
+ "lang": "pt-BR",
+ "status": "machine translation — native review pending",
+ "subtitle": "Conte o que você enxerga",
+ "keywords": "kurodoko,visibilidade,linha de visão,preto e branco,sombrear,lógica,números,grade",
+ "short_description": "Sombreie quadrados: cada número vê exatamente essa quantidade de brancos.",
+ "description": "Sombreie alguns quadrados de preto para que os quadrados pretos nunca dividam uma borda e todos os brancos permaneçam conectados. Cada quadrado numerado conta os quadrados brancos que enxerga em sua linha e coluna, incluindo ele mesmo, e deve coincidir com seu número.\n\nToque em um quadrado vazio para alternar entre preto, branco e desconhecido. As pistas numeradas ficam fixas, e o texto na tela indica quais linhas de visão ou conexões quebram as regras.\n\nSeis tabuleiros originais, cada um liberado ao resolver o anterior. Desfazer e Reiniciar estão sempre disponíveis, não há cronômetro e seu progresso é salvo neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem coleta de dados."
+}

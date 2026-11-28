@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Use each line exactly once",
+ "keywords": "graph,route,edge puzzle,connect dots,euler trail,logic",
+ "short_description": "Plan a route that uses every connection once.",
+ "description": "Use each visible connection exactly once. You may revisit dots; crossings without a dot are not junctions. Solve eight original graph boards by tracing or tapping large dot buttons. Undo, restart, revisit earlier boards, and resume your local route and unlocked progress."
+}

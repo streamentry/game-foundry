@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompecabezas aritméticos",
+ "keywords": "kenken,calcudoku,jaulas,aritmética,matemática,cuadrado latino,números,lógica",
+ "short_description": "Llena una cuadrícula de 4×4 para que cada jaula alcance su objetivo.",
+ "description": "Llena una cuadrícula de 4×4 con los números del 1 al 4 sin repetir ningún dígito en una fila o columna. Cada jaula de color muestra un objetivo formado por una suma, producto, diferencia, cociente o valor único, y los dígitos que contiene deben alcanzarlo.\n\nToca una celda y luego ingresa un dígito en el teclado grande. Borrar vacía la celda.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

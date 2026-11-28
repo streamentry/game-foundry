@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Count what you can see",
+ "keywords": "kurodoko,visibility,sight line,black white,shade,logic,number,grid,puzzle",
+ "short_description": "Shade squares so each number sees exactly that many white squares.",
+ "description": "Shade some squares black so that black squares never share an edge and all white squares stay connected. Each numbered square counts the white squares it can see in its row and column, itself included, and must match its number.\n\nTap a blank square to cycle black, white and unknown. Numbered clues stay fixed, and on-screen text tells you which sight lines or connections break the rules.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

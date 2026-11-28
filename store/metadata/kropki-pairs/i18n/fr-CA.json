@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Casse-tête chiffres et points",
+ "keywords": "points,point noir,point blanc,consécutifs,rapport,carré latin,chiffres,logique",
+ "short_description": "Remplissez une grille de 4×4 avec 1 à 4, guidé par des points blancs et noirs.",
+ "description": "Remplissez une grille de 4×4 avec les chiffres de 1 à 4 de façon que chacun apparaisse une seule fois dans chaque ligne et chaque colonne. Un point blanc entre deux cases signifie que leurs chiffres sont consécutifs; un point noir signifie que l'un est exactement le double de l'autre. Une arête sans point ne donne aucun indice.\n\nTouchez une case modifiable, puis un chiffre sur le grand clavier à quatre touches. Les étiquettes dans les cases et un inspecteur vous aident à lire chaque point.\n\nSix grilles originales, chacune se déverrouillant une fois la précédente résolue. Les boutons Annuler et Recommencer sont toujours accessibles, il n'y a aucun minuteur, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

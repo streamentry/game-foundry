@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Rotate pipes to connect",
+ "keywords": "plumbing,pipes,rotate,connect,flow,water,spatial,tiles,logic,puzzle",
+ "short_description": "Turn the pipe tiles until water can run end to end.",
+ "description": "Rotate the nine pipe tiles on a 3×3 board until they form a single continuous, leak-free route from one end to the other.\n\nTap a tile to rotate it. Curves and end pieces have four positions and straight pieces have two.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

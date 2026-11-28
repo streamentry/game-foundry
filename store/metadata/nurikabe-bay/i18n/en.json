@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Islands and sea puzzles",
+ "keywords": "islands,sea,land,connected,logic,number,grid,puzzle,water",
+ "short_description": "Sort a 4×4 bay into sea and exactly sized islands.",
+ "description": "Mark every square of a 4×4 bay as sea or land. Each numbered island has exactly that many squares and contains one clue, the sea forms a single connected body, and no 2×2 block may be all sea.\n\nTap a blank square to cycle sea, land and empty. Clue squares are fixed.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

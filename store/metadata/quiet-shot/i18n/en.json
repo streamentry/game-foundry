@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "One-shot mirror puzzle",
+ "keywords": "ricochet,ray,mirror,aim,physics,puzzle,spatial",
+ "short_description": "Aim once, predict reflections, and clear each board.",
+ "description": "Aim once, fire, and predict how a ray reflects from fixed mirrors to clear every target. Adjust your angle and retry without a timer. Explore eight original boards and save progress locally. A shot stops when targets are cleared, it leaves the board, or the four-reflection limit is reached."
+}

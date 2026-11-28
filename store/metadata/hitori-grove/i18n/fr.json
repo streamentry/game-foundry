@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Noircissez les doublons",
+ "keywords": "noircir,doublons,nombres répétés,connecté,logique,nombres,grille,casse-tête",
+ "short_description": "Noircissez les nombres répétés sans morceler la grille.",
+ "description": "Noircissez des cases de sorte qu'aucun nombre n'apparaisse plus d'une fois dans une ligne ou une colonne parmi les cases non noircies. Les cases noircies ne peuvent jamais se toucher par un côté, et toutes les cases non noircies doivent rester connectées en un seul groupe.\n\nTouchez une case numérotée pour alterner entre noircie, repère et non marquée.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

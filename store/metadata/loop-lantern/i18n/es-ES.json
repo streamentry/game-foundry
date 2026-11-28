@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Dibuja un solo bucle cerrado",
+ "keywords": "slitherlink,vallas,aristas,línea,lógica,números,cuadrícula,puzle",
+ "short_description": "Dibuja un único bucle que cumpla todas las pistas de lados.",
+ "description": "Dibuja un bucle cerrado sobre las líneas de la cuadrícula que nunca se ramifique ni se cruce consigo mismo. Cada casilla numerada indica cuántos de sus cuatro lados usa el bucle.\n\nToca una casilla y pulsa uno de los cuatro botones grandes Arriba, Derecha, Abajo o Izquierda para añadir o quitar ese lado.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

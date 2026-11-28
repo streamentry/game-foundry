@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles de islas y mar",
+ "keywords": "islas,mar,tierra,conectado,lógica,números,cuadrícula,puzle,agua",
+ "short_description": "Reparte una bahía de 4×4 entre mar e islas de tamaño exacto.",
+ "description": "Marca cada casilla de una bahía de 4×4 como mar o tierra. Cada isla numerada tiene exactamente ese número de casillas y contiene una sola pista, el mar forma un único cuerpo conectado y ningún bloque de 2×2 puede ser todo mar.\n\nToca una casilla en blanco para alternar entre mar, tierra y vacía. Las casillas de pista son fijas.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

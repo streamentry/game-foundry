@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Remplissez les thermomètres",
+ "keywords": "thermomètres,tubes,remplir,totaux,lignes,colonnes,logique,nombres,grille,casse-tête",
+ "short_description": "Remplissez les tubes depuis le bulbe pour respecter les totaux.",
+ "description": "Remplissez chacun des huit thermomètres de deux cases depuis son bulbe vers son extrémité, jamais dans l'autre sens. Les totaux des lignes et colonnes indiquent combien de cases de chaque ligne sont remplies.\n\nTouchez un bulbe pour remplir son premier segment, ou une extrémité pour remplir les deux. Touchez à nouveau le même endroit pour vider le tube.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

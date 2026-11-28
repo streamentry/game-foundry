@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Percorsi numerici",
+ "keywords": "hidoku,percorso numerico,catena,consecutivi,sequenza,griglia,logica,rompicapo",
+ "short_description": "Disponi da 1 a 16 in una catena in cui ogni numero tocca il successivo.",
+ "description": "Disponi i numeri da 1 a 16 su una griglia 4×4, ciascuno una sola volta, in modo che ogni coppia consecutiva si tocchi in orizzontale, in verticale o in diagonale. I numeri già dati devono restare dove sono.\n\nTocca una cella modificabile e scegli un numero sul tastierino. Cancella svuota una cella.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

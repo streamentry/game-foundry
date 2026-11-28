@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Usa cada línea una vez",
+ "keywords": "grafo,ruta,trazo,unir puntos,camino euleriano,lógica",
+ "short_description": "Planifica una ruta que use cada conexión una sola vez.",
+ "description": "Usa cada conexión visible exactamente una vez. Puedes volver a pasar por los puntos; los cruces sin punto no son empalmes. Resuelve ocho tableros de grafos originales trazando o tocando los grandes botones de puntos. Deshaz, reinicia, vuelve a tableros anteriores y retoma tu ruta local y tu progreso desbloqueado."
+}

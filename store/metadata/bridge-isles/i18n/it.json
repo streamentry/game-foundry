@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Collega le isole con ponti",
+ "keywords": "hashi,hashiwokakero,ponti,isole,collegare,logica,numeri,rompicapo",
+ "short_description": "Unisci le isole numerate con ponti, così che ogni numero sia rispettato.",
+ "description": "Collega le isole numerate con zero, uno o due ponti rettilinei, in modo che ogni isola abbia esattamente il proprio numero di ponti, nessun ponte ne incroci un altro e tutte le isole formino un'unica rete.\n\nTocca un'isola e poi un'altra per cambiare il ponte tra loro. Grandi comandi con le lettere delle isole offrono un'alternativa al toccare con precisione sulla tavola.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

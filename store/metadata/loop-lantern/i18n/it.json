@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Disegna un unico anello chiuso",
+ "keywords": "slitherlink,recinti,bordi,linea,logica,numeri,griglia,rompicapo",
+ "short_description": "Disegna un solo anello che soddisfi ogni indizio sul numero di lati.",
+ "description": "Disegna un anello chiuso lungo le linee della griglia, senza ramificazioni né autointersezioni. Ogni casella numerata indica quanti dei suoi quattro lati vengono usati dall'anello.\n\nTocca una casella e premi uno dei quattro grandi pulsanti Alto, Destra, Basso o Sinistra per aggiungere o togliere quel lato.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Finde die versteckte Flotte",
+ "keywords": "Schiffe versenken,Schiffe,Flotte,Marine,Seekarte,Logik,Gitter,Rätsel,Sonar",
+ "short_description": "Finde eine versteckte Flotte auf einer 5×5-Karte mithilfe der Summen.",
+ "description": "Finde eine kleine Flotte auf einer 5×5-Karte: ein Schiff mit drei Feldern, eines mit zwei Feldern und ein Schiff mit nur einem Feld. Keine zwei Schiffe dürfen sich berühren, auch nicht diagonal, und jede Zeilen- und Spaltensumme muss stimmen.\n\nTippe auf ein Feld, um ein Schiff zu markieren, tippe erneut für eine Wasser-Notiz und noch einmal, um die Markierung zu löschen. Die aktuellen und die Zielsummen bleiben neben jeder Zeile und Spalte sichtbar.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Light every open cell",
+ "keywords": "light up,lamp,bulb,illuminate,logic,grid,puzzle,wall numbers",
+ "short_description": "Place lamps so every open cell is lit and no two lamps see each other.",
+ "description": "Place lamps on a 4×4 board so that every open cell is lit, no two lamps shine on each other, and each numbered wall touches exactly that many lamps.\n\nTap an open cell to cycle through lamp, cross note and empty; lit cells are highlighted as you go.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

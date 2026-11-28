@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Use cada linha uma só vez",
+ "keywords": "grafo,percurso,puzzle de arestas,ligar pontos,trilho de Euler,lógica",
+ "short_description": "Planeie um percurso que use cada ligação uma vez.",
+ "description": "Use cada ligação visível exatamente uma vez. Pode voltar a passar pelos pontos; os cruzamentos sem ponto não são junções. Resolva oito tabuleiros de grafos originais traçando ou tocando em grandes botões de pontos. Anule, reinicie, reveja tabuleiros anteriores e retome o seu percurso local e o progresso desbloqueado."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "pt-BR",
+ "status": "machine translation — native review pending",
+ "subtitle": "Use cada linha uma vez",
+ "keywords": "grafo,rota,quebra-cabeça de arestas,ligar pontos,trilha euleriana,lógica",
+ "short_description": "Planeje uma rota que use cada conexão uma única vez.",
+ "description": "Use cada conexão visível exatamente uma vez. Você pode revisitar pontos; cruzamentos sem ponto não são junções. Resolva oito tabuleiros de grafos originais traçando ou tocando em grandes botões de pontos. Desfaça, reinicie, revisite tabuleiros anteriores e retome sua rota local e o progresso desbloqueado."
+}

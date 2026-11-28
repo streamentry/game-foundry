@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Cuenta lo que ves",
+ "keywords": "kurodoko,visibilidad,línea de visión,blanco y negro,sombrear,lógica,números,cuadrícula,puzle",
+ "short_description": "Sombrea casillas para que cada número vea exactamente tantas blancas.",
+ "description": "Sombrea algunas casillas de negro de modo que las negras nunca compartan un lado y todas las blancas sigan conectadas. Cada casilla numerada cuenta las casillas blancas que ve en su fila y columna, incluida ella misma, y debe coincidir con su número.\n\nToca una casilla en blanco para alternar entre negra, blanca y desconocida. Las pistas numéricas son fijas, y un texto en pantalla te indica qué líneas de visión o conexiones incumplen las reglas.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

@@ -15,7 +15,26 @@ var shape: PackedVector2Array = PackedVector2Array()
 var angle_degrees: float = 0.0
 var offset: float = 0.0
 var revealed: bool = false
+## Visual separation between the two revealed parts, in pixels. Animated by reveal_split().
+var reveal_gap: float = 7.0
 var _mouse_dragging: bool = false
+
+
+## Signature moment: the two parts slide apart from a single seam to their rest gap.
+## duration 0 applies the rest gap at once (reduced motion). Visual only.
+func reveal_split(duration: float) -> void:
+    if duration <= 0.0 or not is_inside_tree():
+        set_reveal_gap(7.0)
+        return
+    set_reveal_gap(0.0)
+    var tw := create_tween()
+    tw.tween_method(set_reveal_gap, 0.0, 7.0, duration) \
+        .set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+func set_reveal_gap(value: float) -> void:
+    reveal_gap = value
+    queue_redraw()
 
 
 func set_round(points: PackedVector2Array) -> void:
@@ -74,7 +93,7 @@ func _draw() -> void:
     var evaluation: Dictionary = measure()
     if revealed and evaluation.get("valid", false):
         var normal: Vector2 = evaluation["normal"]
-        var gap: Vector2 = normal * 7.0
+        var gap: Vector2 = normal * reveal_gap
         _paint_shape(evaluation["part_a"], PART_A, gap)
         _paint_shape(evaluation["part_b"], PART_B, -gap)
         return

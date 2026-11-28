@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hant",
+ "status": "machine translation — native review pending",
+ "subtitle": "矩形邏輯謎題",
+ "keywords": "矩形,數字謎題,邏輯,網格,面積,幾何",
+ "short_description": "將網格劃分為與提示數字大小相符的矩形。",
+ "description": "將網格劃分為若干矩形。每個矩形都必須位於棋盤之內，恰好包含一個提示，並且面積等於該提示所示的格子數。解開八個原創關卡，透過點按選取矩形的角點，支援復原、重新開始、解鎖進度和本地儲存。沒有計時器。"
+}

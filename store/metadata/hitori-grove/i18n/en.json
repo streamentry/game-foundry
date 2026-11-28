@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Shade the repeated numbers",
+ "keywords": "shade,duplicates,repeated numbers,connected,logic,number,grid,puzzle",
+ "short_description": "Shade repeated numbers without breaking the board apart.",
+ "description": "Shade squares so that no number appears more than once in any row or column among the unshaded squares. Shaded squares may never touch along an edge, and all unshaded squares must stay connected as one group.\n\nTap a numbered cell to cycle shade, keep note and unmarked.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

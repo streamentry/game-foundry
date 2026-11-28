@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rätsel um Turmhöhen",
+ "keywords": "Wolkenkratzer,Türme,Höhen,Sichtbarkeit,lateinisches Quadrat,Zahlen,Logik,Gitter,Rätsel",
+ "short_description": "Setze Gebäudehöhen so, dass jeder Randhinweis stimmt.",
+ "description": "Fülle ein 4×4-Gitter mit Gebäudehöhen von 1 bis 4, ohne eine Höhe in einer Zeile oder Spalte zu wiederholen. Jede Zahl am Rand verrät, wie viele Gebäude aus dieser Richtung sichtbar sind, denn höhere Gebäude verdecken niedrigere dahinter.\n\nWähle ein Feld und gib eine Höhe von 1 bis 4 ein. „Löschen“ leert ein Feld.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

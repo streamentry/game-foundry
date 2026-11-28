@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Jede Linie genau einmal",
+ "keywords": "Graph,Route,Kantenrätsel,Punkte verbinden,Eulerweg,Logik",
+ "short_description": "Plane eine Route, die jede Verbindung genau einmal nutzt.",
+ "description": "Nutze jede sichtbare Verbindung genau einmal. Du darfst Punkte erneut besuchen; Kreuzungen ohne Punkt sind keine Knotenpunkte. Löse acht eigens entworfene Graphbretter, indem du die Route nachzeichnest oder große Punkt-Schaltflächen antippst. Mache Züge rückgängig, starte neu, kehre zu früheren Brettern zurück und setze deine lokale Route und den freigeschalteten Fortschritt fort."
+}

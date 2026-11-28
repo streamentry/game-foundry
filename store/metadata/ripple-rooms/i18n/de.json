@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zahlenräume mit Abstand",
+ "keywords": "Regionen,Abstand,Entfernung,Zahlen,Logik,Gitter,Rätsel",
+ "short_description": "Fülle unregelmäßige Räume, sodass gleiche Zahlen Abstand halten.",
+ "description": "Fülle jeden unregelmäßigen Raum mit den Zahlen 1 bis zu seiner Größe. Kommt dieselbe Zahl k zweimal in einer Zeile oder Spalte vor, müssen mindestens k Felder zwischen beiden liegen.\n\nTippe auf ein Feld und gib auf den großen Schaltflächen eine Ziffer von 1 bis 4 ein. Jedes Feld zeigt neben der Zahl den Buchstaben und die Größe seines Raums.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

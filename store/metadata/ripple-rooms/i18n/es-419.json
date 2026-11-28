@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Salas numéricas con distancia",
+ "keywords": "regiones,espaciado,distancia,números,lógica,cuadrícula,rompecabezas",
+ "short_description": "Llena salas irregulares para que los números repetidos guarden distancia.",
+ "description": "Llena cada sala irregular con los números del 1 hasta su tamaño. Si un mismo número k aparece dos veces en una fila o columna, debe haber al menos k casillas entre ambos.\n\nToca una casilla e ingresa un dígito del 1 al 4 con los botones grandes. Cada casilla muestra la letra y el tamaño de su sala junto al número.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

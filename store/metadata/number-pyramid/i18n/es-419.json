@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Suma hasta la cima",
+ "keywords": "sumas,adición,matemática,aritmética,piedras,lógica,dígitos,cuadrícula",
+ "short_description": "Reconstruye una pirámide de números a partir de unas pocas pistas.",
+ "description": "Encuentra los cuatro dígitos, del 1 al 9, de la base de una pirámide. Cada una de las seis piedras superiores es igual a la suma de las dos que tiene justo debajo, y algunas etiquetas de pista están fijas para guiarte.\n\nSelecciona una piedra de la base e ingresa un dígito; las piedras superiores muestran sus sumas a medida que avanzas.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

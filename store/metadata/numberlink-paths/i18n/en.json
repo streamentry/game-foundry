@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Connect matching pairs",
+ "keywords": "flow,connect,pairs,routes,line,logic,letters,grid,puzzle,path",
+ "short_description": "Join each lettered pair with a route that fills the whole grid.",
+ "description": "Connect each pair of matching letters with a route along the squares of a 4×4 grid. Routes may not cross or branch, and between them the two routes must cover every square.\n\nTap blank squares to cycle route A, route B and empty. Fixed endpoints are marked with circles, and each route has its own letter and colour.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Desenhe um circuito fechado",
+ "keywords": "slitherlink,cercas,arestas,linha,lógica,números,grelha,puzzle",
+ "short_description": "Desenhe um só circuito que cumpra todas as pistas de lados.",
+ "description": "Desenhe um circuito fechado ao longo das linhas da grelha, sem ramificações nem cruzamentos. Cada casa numerada indica quantos dos seus quatro lados o circuito utiliza.\n\nToque numa casa e depois num dos quatro botões grandes Cima, Direita, Baixo ou Esquerda para adicionar ou remover esse lado.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

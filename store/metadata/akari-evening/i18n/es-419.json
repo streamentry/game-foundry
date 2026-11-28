@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Ilumina cada celda libre",
+ "keywords": "luz,lámpara,bombilla,iluminar,lógica,cuadrícula,números,muros",
+ "short_description": "Coloca lámparas para iluminar todas las celdas libres sin que se vean entre sí.",
+ "description": "Coloca lámparas en un tablero de 4×4 para que cada celda libre quede iluminada, que ninguna lámpara ilumine a otra y que cada muro numerado toque exactamente esa cantidad de lámparas.\n\nToca una celda libre para alternar entre lámpara, marca de cruz y vacía; las celdas iluminadas se resaltan a medida que avanzas.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

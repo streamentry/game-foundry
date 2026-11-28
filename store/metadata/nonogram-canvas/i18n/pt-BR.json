@@ -1,0 +1,8 @@
+{
+ "lang": "pt-BR",
+ "status": "machine translation — native review pending",
+ "subtitle": "Revele a imagem",
+ "keywords": "picross,griddler,hanjie,pintura numérica,imagem,pixel,lógica,grade,quebra-cabeça",
+ "short_description": "Use as pistas de linhas e colunas para revelar uma imagem 5×5 escondida.",
+ "description": "Preencha uma grade 5×5 para que cada linha e coluna corresponda às suas pistas: cada número é um bloco de casas preenchidas consecutivas, e os blocos são separados por pelo menos uma casa vazia. Cada tabuleiro é um pequeno desenho em pixels.\n\nToque em uma casa para preenchê-la, toque de novo para riscá-la e mais uma vez para limpar. As dez linhas de pistas permanecem visíveis.\n\nSeis tabuleiros originais, cada um liberado ao resolver o anterior. Desfazer e Reiniciar estão sempre disponíveis, não há cronômetro e seu progresso é salvo neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem coleta de dados."
+}

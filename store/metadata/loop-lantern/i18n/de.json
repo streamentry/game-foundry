@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Eine geschlossene Schleife",
+ "keywords": "Slitherlink,Zäune,Kanten,Linie,Logik,Zahlen,Gitter,Rätsel",
+ "short_description": "Zeichne eine einzige Schleife, die jeden Kantenhinweis erfüllt.",
+ "description": "Zeichne eine geschlossene Schleife entlang der Gitterlinien, die sich weder verzweigt noch selbst kreuzt. Jedes nummerierte Feld verrät, wie viele seiner vier Seiten die Schleife nutzt.\n\nTippe auf ein Feld und drücke dann eine der vier großen Schaltflächen Oben, Rechts, Unten oder Links, um diese Kante hinzuzufügen oder zu entfernen.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

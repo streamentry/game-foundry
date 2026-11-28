@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pistas que se cruzan",
+ "keywords": "cruce de números,sumas,lógica,aritmética,cuadrícula,rompecabezas",
+ "short_description": "Resuelve sumas cruzadas con un inspector de celdas claro.",
+ "description": "Llena cada tramo de Kakuro con dígitos del 1 al 9 para que su total coincida con la pista; no repitas un dígito dentro de un tramo. Resuelve ocho tableros originales de 5×5 para desbloquear el siguiente. El inspector Compass muestra los totales horizontal y vertical y los dígitos posibles localmente para la celda seleccionada. Incluye deshacer, borrar, reiniciar y progreso local."
+}

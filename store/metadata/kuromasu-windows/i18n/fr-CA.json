@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Comptez ce que vous voyez",
+ "keywords": "kurodoko,visibilité,ligne de vue,noir et blanc,noircir,logique,chiffres,grille",
+ "short_description": "Noircissez des cases: chaque nombre voit autant de cases blanches.",
+ "description": "Noircissez certaines cases de façon que les cases noires ne partagent jamais un côté et que toutes les cases blanches restent reliées. Chaque case numérotée compte les cases blanches qu'elle voit dans sa ligne et sa colonne, elle-même comprise, et doit correspondre à son nombre.\n\nTouchez une case vide pour alterner entre noire, blanche et inconnue. Les indices numérotés restent fixes, et un texte à l'écran vous indique quelles lignes de vue ou quelles connexions enfreignent les règles.\n\nSix grilles originales, chacune se déverrouillant une fois la précédente résolue. Les boutons Annuler et Recommencer sont toujours accessibles, il n'y a aucun minuteur, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

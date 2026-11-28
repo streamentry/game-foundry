@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Éclairez chaque case libre",
+ "keywords": "lampe,ampoule,éclairer,logique,grille,casse-tête,chiffres",
+ "short_description": "Éclairez toutes les cases libres sans que deux lampes se voient.",
+ "description": "Placez des lampes sur une grille de 4×4 de façon que chaque case libre soit éclairée, qu'aucune lampe n'en éclaire une autre et que chaque mur numéroté touche exactement ce nombre de lampes.\n\nTouchez une case libre pour alterner entre lampe, croix de repère et case vide; les cases éclairées sont mises en évidence au fur et à mesure.\n\nSix grilles originales, chacune se déverrouillant une fois la précédente résolue. Les boutons Annuler et Recommencer sont toujours accessibles, il n'y a aucun minuteur, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

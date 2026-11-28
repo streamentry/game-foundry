@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Indizi incrociati chiari",
+ "keywords": "numeri incrociati,somme,logica,aritmetica,griglia,rompicapo",
+ "short_description": "Risolvi somme incrociate con un chiaro ispettore delle celle.",
+ "description": "Riempi ogni sequenza di Kakuro con le cifre 1–9 in modo che il totale corrisponda all'indizio; non ripetere una cifra all'interno di una sequenza. Risolvi otto tavole originali 5×5 per sbloccare la successiva. L'ispettore Compass mostra i totali in orizzontale e in verticale e le cifre localmente possibili per la cella selezionata. Sono inclusi annulla, cancella, ricomincia e progressi salvati in locale."
+}

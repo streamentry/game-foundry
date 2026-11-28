@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompecabezas de rectángulos",
+ "keywords": "rectángulo,rompecabezas numérico,lógica,cuadrícula,área,geometría",
+ "short_description": "Divide la cuadrícula en rectángulos del tamaño de cada pista.",
+ "description": "Divide la cuadrícula en rectángulos. Cada rectángulo debe quedar dentro del tablero, contener exactamente una pista y cubrir la cantidad de celdas que indica esa pista. Resuelve ocho tableros originales con selección de esquinas al tocar, deshacer, reiniciar, progresión desbloqueable y guardado local. No hay temporizador."
+}

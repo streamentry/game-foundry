@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Reliez les paires identiques",
+ "keywords": "flow,relier,paires,trajets,ligne,logique,lettres,grille,casse-tête,chemin",
+ "short_description": "Reliez chaque paire de lettres par un trajet qui remplit toute la grille.",
+ "description": "Reliez chaque paire de lettres identiques par un trajet le long des cases d'une grille 4×4. Les trajets ne peuvent ni se croiser ni bifurquer, et ensemble les deux trajets doivent couvrir toutes les cases.\n\nTouchez des cases vides pour alterner entre trajet A, trajet B et vide. Les extrémités fixes sont marquées de cercles, et chaque trajet a sa propre lettre et sa propre couleur.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

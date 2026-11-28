@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hans",
+ "status": "machine translation — native review pending",
+ "subtitle": "形状分割谜题",
+ "keywords": "形状,谜题,面积,几何,分割,视觉,逻辑,每日,估算",
+ "short_description": "将一个原创图形切开后，比较两侧面积。",
+ "description": "选择一条直线切开原创图形，然后观察两部分面积的接近程度。切割前可调整直线的位置和角度。练习模式会给出简短的方向提示；Daily Five 按 UTC 时间提供五轮挑战，并保留首次作答的成绩。随机练习和进度保存在本设备上。"
+}

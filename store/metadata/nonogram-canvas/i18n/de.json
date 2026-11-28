@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Enthülle das Bild",
+ "keywords": "Picross,Griddler,Hanjie,Malen nach Zahlen,Bild,Pixel,Logik,Gitter,Rätsel",
+ "short_description": "Enthülle mit Zeilen- und Spaltenhinweisen ein verstecktes 5×5-Bild.",
+ "description": "Fülle ein 5×5-Gitter so, dass jede Zeile und Spalte zu ihren Blockhinweisen passt: Jede Zahl ist ein Block aufeinanderfolgender gefüllter Felder, und zwischen den Blöcken liegt mindestens ein leeres Feld. Jedes Brett ist ein kleines Pixelbild.\n\nTippe auf ein Feld, um es zu füllen, tippe erneut, um es durchzustreichen, und noch einmal, um es zu leeren. Alle zehn Hinweiszeilen bleiben sichtbar.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

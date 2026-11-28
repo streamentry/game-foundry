@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "game_slug": "number-pyramid",
+  "source_commit": "5dc8efa8",
+  "source_note": "Listing master drafted from the current build's README, design notes and scripts; describes only implemented behavior.",
+  "status": "release candidate — owner review pending",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Number Pyramid: Sum Stack",
+    "subtitle": "Add your way to the top",
+    "description": "Find the four digits, 1 to 9, along the bottom of a pyramid. Each of the six stones above equals the sum of the two directly beneath it, and a few clue labels are fixed to guide you.\n\nSelect a bottom stone and enter a digit; the stones above show their sums as you go.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "keywords": "sums,addition,math,arithmetic,stones,logic,digits,grid,puzzle",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/number-pyramid/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
+  },
+  "google_play": {
+    "title": "Number Pyramid",
+    "short_description": "Rebuild a pyramid of numbers from a few scattered clues.",
+    "full_description": "Find the four digits, 1 to 9, along the bottom of a pyramid. Each of the six stones above equals the sum of the two directly beneath it, and a few clue labels are fixed to guide you.\n\nSelect a bottom stone and enter a digit; the stones above show their sums as you go.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/number-pyramid/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
+  },
+  "release_decisions": {
+    "bundle_id": "com.streamentry.numberpyramid",
+    "package_id": "com.streamentry.numberpyramid",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840300200",
+    "play_app_id": "4973902952330702322"
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

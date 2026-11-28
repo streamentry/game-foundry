@@ -6,31 +6,34 @@
   "status": "draft — not release approved",
   "source_locale": "en-US",
   "apple": {
-    "name": "One Path",
+    "name": "One Path: Graph Puzzles",
     "subtitle": "Use each line exactly once",
     "description": "Use each visible connection exactly once. You may revisit dots; crossings without a dot are not junctions. Solve eight original graph boards by tracing or tapping large dot buttons. Undo, restart, revisit earlier boards, and resume your local route and unlocked progress.",
-    "keywords": "one line,graph,route,edge puzzle,connect dots,euler trail,logic",
-    "support_url": null,
-    "privacy_policy_url": null
+    "keywords": "graph,route,edge puzzle,connect dots,euler trail,logic",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/one-path/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
   },
   "google_play": {
     "title": "One Path",
     "short_description": "Plan a route that uses every connection once.",
     "full_description": "Use each visible connection exactly once. You may revisit dots; crossings without a dot are not junctions. Solve eight original graph boards by tracing or tapping large dot buttons. Undo, restart, revisit earlier boards, and resume your local route and unlocked progress.",
-    "support_url": null,
-    "privacy_policy_url": null
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/one-path/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
   },
   "release_decisions": {
-    "bundle_id": null,
-    "package_id": null,
-    "version_name": null,
-    "version_code": null,
-    "price": "free (user-confirmed 2026-11-23; platform setting not configured)",
-    "territories": "unset",
-    "age_rating": "not completed",
-    "privacy_and_data_safety": "pending final signed-build and SDK audit plus account-owner declaration",
-    "automatic_release": "requested; not configured",
-    "audience_fit_45_plus": "unknown"
+    "bundle_id": "com.streamentry.onepath",
+    "package_id": "com.streamentry.onepath",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840300553",
+    "play_app_id": null
   },
   "keyword_status": "draft terms; no keyword-demand evidence",
   "english_review": "not yet reviewed by the account owner"

@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Révélez l'image",
+ "keywords": "picross,griddler,hanjie,coloriage magique,image,pixel,logique,grille,casse-tête",
+ "short_description": "Révélez une image 5×5 cachée grâce aux indices des lignes et colonnes.",
+ "description": "Remplissez une grille 5×5 de sorte que chaque ligne et colonne corresponde à ses indices : chaque nombre est un bloc de cases remplies consécutives, et les blocs sont séparés par au moins une case vide. Chaque grille est un petit dessin en pixels.\n\nTouchez une case pour la remplir, touchez à nouveau pour la barrer, puis encore pour l'effacer. Les dix lignes d'indices restent visibles.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

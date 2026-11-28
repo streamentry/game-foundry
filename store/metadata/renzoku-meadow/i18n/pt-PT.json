@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Números consecutivos",
+ "keywords": "consecutivos,quadrado latino,marcas nos lados,sequência,números,lógica,grelha,puzzle",
+ "short_description": "Preencha uma grelha 4×4 em que as marcas indicam vizinhos consecutivos.",
+ "description": "Preencha uma grelha 4×4 com os números de 1 a 4, de modo que cada dígito apareça uma só vez em cada linha e coluna. Um lado marcado entre duas casas significa que os seus dígitos são consecutivos, e um lado sem marca significa que não são.\n\nSelecione uma casa e introduza um dígito de 1 a 4. Setas dentro das casas apontam os lados marcados à direita e abaixo.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

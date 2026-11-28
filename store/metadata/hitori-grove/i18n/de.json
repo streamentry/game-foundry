@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Schattiere doppelte Zahlen",
+ "keywords": "schattieren,Duplikate,doppelte Zahlen,verbunden,Logik,Zahlen,Gitter,Rätsel",
+ "short_description": "Schattiere doppelte Zahlen, ohne das Brett zu zerteilen.",
+ "description": "Schattiere Felder so, dass unter den nicht schattierten Feldern keine Zahl in einer Zeile oder Spalte mehr als einmal vorkommt. Schattierte Felder dürfen sich nie an einer Kante berühren, und alle nicht schattierten Felder müssen als eine Gruppe zusammenhängen.\n\nTippe auf ein nummeriertes Feld, um zwischen schattiert, als Notiz behalten und unmarkiert zu wechseln.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

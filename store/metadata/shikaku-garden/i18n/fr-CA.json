@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Logique des rectangles",
+ "keywords": "rectangle,casse-tête chiffré,logique,grille,aire,géométrie",
+ "short_description": "Divisez la grille en rectangles de la taille indiquée par les indices.",
+ "description": "Divisez la grille en rectangles. Chaque rectangle doit rester dans la grille, contenir exactement un indice et couvrir le nombre de cases indiqué par cet indice. Résolvez huit grilles originales avec sélection des coins au toucher, annulation, recommencer, progression déverrouillée et sauvegardes locales. Il n'y a pas de minuteur."
+}

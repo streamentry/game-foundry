@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sombrea los números repetidos",
+ "keywords": "sombrear,duplicados,números repetidos,conectado,lógica,números,cuadrícula,puzle",
+ "short_description": "Sombrea los números repetidos sin dividir el tablero.",
+ "description": "Sombrea casillas de modo que ningún número aparezca más de una vez en cada fila o columna entre las casillas sin sombrear. Las casillas sombreadas nunca pueden compartir un lado, y todas las casillas sin sombrear deben seguir conectadas en un solo grupo.\n\nToca una casilla numerada para alternar entre sombreada, conservar con marca y sin marcar.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

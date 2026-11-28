@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzles de desigualdades",
+ "keywords": "desigualdade,maior que,menor que,quadrado latino,números,lógica,grelha,puzzle",
+ "short_description": "Preencha uma grelha 4×4 com 1 a 4 respeitando os sinais de desigualdade.",
+ "description": "Preencha uma grelha 4×4 com os números de 1 a 4, de modo que cada um apareça uma só vez em cada linha e coluna e que todos os sinais de maior ou menor entre células vizinhas sejam verdadeiros.\n\nToque numa célula editável e depois num dos quatro botões de dígitos grandes. Apagar e Seguinte estão sempre visíveis.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

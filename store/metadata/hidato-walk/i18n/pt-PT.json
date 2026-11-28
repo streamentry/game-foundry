@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzzles de caminho numérico",
+ "keywords": "hidoku,caminho numérico,cadeia,consecutivos,sequência,grelha,lógica,puzzle",
+ "short_description": "Coloque 1 a 16 numa cadeia em que cada número toca no seguinte.",
+ "description": "Coloque os números de 1 a 16 numa grelha 4×4, cada um exatamente uma vez, de modo que todos os pares consecutivos se toquem na horizontal, vertical ou diagonal. Os números já dados têm de ficar onde estão.\n\nToque numa célula editável e escolha um número no teclado. Apagar limpa uma célula.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

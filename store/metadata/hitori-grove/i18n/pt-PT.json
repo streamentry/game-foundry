@@ -1,0 +1,8 @@
+{
+ "lang": "pt-PT",
+ "status": "machine translation — native review pending",
+ "subtitle": "Sombreie os números repetidos",
+ "keywords": "sombrear,duplicados,números repetidos,ligado,lógica,números,grelha,puzzle",
+ "short_description": "Sombreie números repetidos sem dividir o tabuleiro.",
+ "description": "Sombreie casas de modo que nenhum número apareça mais de uma vez em qualquer linha ou coluna entre as casas não sombreadas. As casas sombreadas nunca podem partilhar um lado e todas as casas não sombreadas têm de continuar ligadas num só grupo.\n\nToque numa célula numerada para alternar entre sombreada, nota de manter e sem marca.\n\nSeis tabuleiros originais, cada um desbloqueia o seguinte depois de resolvido. Anular e Reiniciar estão sempre disponíveis, não há temporizador e o progresso é guardado neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem recolha de dados."
+}

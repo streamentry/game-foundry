@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Inseln-und-Meer-Rätsel",
+ "keywords": "Inseln,Meer,Land,verbunden,Logik,Zahlen,Gitter,Rätsel,Wasser",
+ "short_description": "Teile eine 4×4-Bucht in Meer und Inseln der richtigen Größe auf.",
+ "description": "Markiere jedes Feld einer 4×4-Bucht als Meer oder Land. Jede nummerierte Insel hat genau so viele Felder und enthält einen Hinweis, das Meer bildet ein einziges zusammenhängendes Gewässer, und kein 2×2-Block darf nur aus Meer bestehen.\n\nTippe auf ein leeres Feld, um zwischen Meer, Land und leer zu wechseln. Hinweisfelder sind fest.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

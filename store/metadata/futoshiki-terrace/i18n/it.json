@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompicapi con disuguaglianze",
+ "keywords": "disuguaglianza,maggiore di,minore di,quadrato latino,numeri,logica,griglia,rompicapo",
+ "short_description": "Riempi una griglia 4×4 con 1–4 rispettando i segni di disuguaglianza.",
+ "description": "Riempi una griglia 4×4 con i numeri da 1 a 4 in modo che ciascuno compaia una sola volta in ogni riga e colonna, e che ogni segno di maggiore o minore tra celle vicine sia rispettato.\n\nTocca una cella modificabile e poi uno dei quattro grandi pulsanti numerici. Cancella e Avanti sono sempre visibili.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

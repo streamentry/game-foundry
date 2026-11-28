@@ -1,0 +1,8 @@
+{
+ "lang": "id",
+ "status": "machine translation — native review pending",
+ "subtitle": "Pakai setiap garis sekali",
+ "keywords": "graf,rute,teka-teki sisi,hubungkan titik,jejak euler,logika",
+ "short_description": "Rencanakan rute yang menggunakan setiap sambungan sekali.",
+ "description": "Gunakan setiap sambungan yang terlihat tepat sekali. Anda boleh melewati titik yang sama lebih dari sekali; persilangan tanpa titik bukan simpul. Pecahkan delapan papan graf orisinal dengan menelusuri atau mengetuk tombol titik besar. Urungkan, mulai ulang, kunjungi kembali papan sebelumnya, dan lanjutkan rute serta kemajuan lokal Anda."
+}

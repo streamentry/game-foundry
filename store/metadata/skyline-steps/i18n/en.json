@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Tower height puzzles",
+ "keywords": "skyscrapers,towers,heights,visibility,latin square,number,logic,grid,puzzle",
+ "short_description": "Place building heights so every edge clue counts correctly.",
+ "description": "Fill a 4×4 grid with building heights 1 to 4, never repeating a height in a row or column. Each number around the edge tells how many buildings are visible from that direction, since taller buildings hide shorter ones behind them.\n\nSelect a square and enter a height from 1 to 4. Erase clears a square.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

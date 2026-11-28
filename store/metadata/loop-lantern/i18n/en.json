@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Draw one closed loop",
+ "keywords": "slitherlink,fences,edges,line,logic,number,grid,puzzle",
+ "short_description": "Draw a single loop that satisfies every edge-count clue.",
+ "description": "Draw one closed loop along the grid lines that never branches or crosses itself. Each numbered square tells you how many of its four sides the loop uses.\n\nTap a square, then press one of four large Top, Right, Bottom or Left buttons to add or remove that edge.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

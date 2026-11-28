@@ -3,13 +3,23 @@ extends Control
 const Factory=preload("res://scripts/level_factory.gd")
 const Rules=preload("res://scripts/rules.gd")
 const Progress=preload("res://scripts/progress.gd")
+const Motion=preload("res://scripts/motion.gd")
 const MODE:String="akari"
 const TITLE:String="Akari Evening"
-const PAPER:Color=Color("#FCF8EB")
-const INK:Color=Color("#534B35")
-const ACCENT:Color=Color("#A7833D")
-const SOFT:Color=Color("#F3E5BE")
-const WHITE:Color=Color("#FFFFFF")
+const SETTINGS_PATH:String="user://settings.json"
+## Palette drawn from the app icon: night navy, amber tiles, lamp gold. See DESIGN.md section 2.
+const BG:Color=Color("#F6F1E3")
+const SURFACE:Color=Color("#FFFFFF")
+const SURFACE_ALT:Color=Color("#F1DFA6")
+const INK:Color=Color("#15034C")
+const INK_MUTED:Color=Color("#4A4670")
+const ACCENT:Color=Color("#AD7B3C")
+const ACCENT_INK:Color=Color("#15034C")
+const LAMP:Color=Color("#FCD454")
+const SUCCESS:Color=Color("#1F6B45")
+const ERROR:Color=Color("#A3262E")
+const FOCUS:Color=Color("#15034C")
+const DISABLED_BG:Color=Color("#E4DCC7")
 
 var state:Dictionary={}
 var level:Dictionary={}
@@ -22,11 +32,37 @@ var progress_label:Label
 var next_button:Button
 var prev_button:Button
 var undo_button:Button
+var reduce_check:CheckButton
+var motion:=Motion.new()
 
 func _ready()->void:
     state=Progress.load_saved()
+    motion.reduced_motion=_load_reduced_motion()
     _build_ui()
     _load_level()
+
+func _load_reduced_motion()->bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):return false
+    var file:=FileAccess.open(SETTINGS_PATH,FileAccess.READ)
+    if file==null:return false
+    var parser:=JSON.new()
+    if parser.parse(file.get_as_text())!=OK:return false
+    if typeof(parser.data)!=TYPE_DICTIONARY:return false
+    var data:Dictionary=parser.data
+    var value:Variant=data.get("reduced_motion",false)
+    return typeof(value)==TYPE_BOOL and bool(value)
+
+func _save_reduced_motion(on:bool)->void:
+    var file:=FileAccess.open(SETTINGS_PATH,FileAccess.WRITE)
+    if file==null:
+        push_warning(TITLE+" could not save the reduce-motion setting.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion":on}))
+    file.close()
+
+func _on_reduce_toggled(on:bool)->void:
+    motion.reduced_motion=on
+    _save_reduced_motion(on)
 
 func _label(value:String,px:int,color:Color=INK)->Label:
     var item:=Label.new()
@@ -36,17 +72,28 @@ func _label(value:String,px:int,color:Color=INK)->Label:
     item.add_theme_color_override("font_color",color)
     return item
 
-func _style(item:Button,bg:Color,ink:Color,active:bool=false)->void:
-    var shape:=StyleBoxFlat.new()
-    shape.bg_color=bg
-    shape.border_color=ACCENT if active else Color("#C0CBC4")
-    shape.set_border_width_all(3 if active else 1)
-    shape.set_corner_radius_all(11)
-    for mode in ["normal","hover","pressed","disabled"]:
-        item.add_theme_stylebox_override(mode,shape)
+func _shape(fill:Color,edge:Color,width:int,shadow:int)->StyleBoxFlat:
+    var box:=StyleBoxFlat.new()
+    box.bg_color=fill
+    box.border_color=edge
+    box.set_border_width_all(width)
+    box.set_corner_radius_all(11)
+    if shadow>0:
+        box.shadow_size=shadow
+        box.shadow_color=Color(INK,0.18)
+    return box
+
+func _style(item:Button,bg:Color,ink:Color,active:bool=false,raised:bool=false,disabled_fill:Color=DISABLED_BG)->void:
+    var edge:Color=ACCENT if active else Color(INK,0.25)
+    var width:int=3 if active else 1
+    var shadow:int=3 if raised else 0
+    item.add_theme_stylebox_override("normal",_shape(bg,edge,width,shadow))
+    item.add_theme_stylebox_override("hover",_shape(bg.lerp(SURFACE,0.08),edge,width,shadow))
+    item.add_theme_stylebox_override("pressed",_shape(bg.lerp(INK,0.08),edge,width,0))
+    item.add_theme_stylebox_override("disabled",_shape(disabled_fill,edge,width,0))
     var focus:=StyleBoxFlat.new()
     focus.bg_color=Color.TRANSPARENT
-    focus.border_color=ACCENT
+    focus.border_color=FOCUS
     focus.set_border_width_all(3)
     focus.set_corner_radius_all(11)
     item.add_theme_stylebox_override("focus",focus)
@@ -60,7 +107,7 @@ func _button(title:String,cb:Callable,primary:bool=false)->Button:
     button.custom_minimum_size=Vector2(0,54)
     button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
     button.add_theme_font_size_override("font_size",17)
-    _style(button,ACCENT if primary else SOFT,WHITE if primary else INK)
+    _style(button,ACCENT if primary else SURFACE_ALT,ACCENT_INK if primary else INK,false,true)
     button.pressed.connect(cb)
     return button
 
@@ -71,7 +118,7 @@ func _row()->HBoxContainer:
 
 func _build_ui()->void:
     var background:=ColorRect.new()
-    background.color=PAPER
+    background.color=BG
     background.mouse_filter=Control.MOUSE_FILTER_IGNORE
     add_child(background)
     background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -87,7 +134,7 @@ func _build_ui()->void:
     var column:=VBoxContainer.new()
     margin.add_child(column)
     column.add_theme_constant_override("separation",12)
-    column.add_child(_label("AKARI EVENING / LAMPS IN THE DARK",12,ACCENT))
+    column.add_child(_label("AKARI EVENING / LAMPS IN THE DARK",12,INK_MUTED))
     column.add_child(_label("Light every open square.",28))
     column.add_child(_label("Place lamps to illuminate all white squares horizontally and vertically. Walls stop light. No two lamps may see each other; numbered walls demand that many adjacent lamps.",15))
     heading=_label("",16)
@@ -103,6 +150,15 @@ func _build_ui()->void:
     status_label=_label("",15)
     column.add_child(status_label)
     column.add_child(_label("Tap a white square: lamp → cross note → blank. Wall numbers are fixed. Cross notes are optional.",14))
+    reduce_check=CheckButton.new()
+    reduce_check.text="Reduce motion"
+    reduce_check.accessibility_name="Reduce motion"
+    reduce_check.custom_minimum_size=Vector2(0,48)
+    reduce_check.add_theme_font_size_override("font_size",17)
+    reduce_check.add_theme_color_override("font_color",INK)
+    reduce_check.set_pressed_no_signal(motion.reduced_motion)
+    reduce_check.toggled.connect(_on_reduce_toggled)
+    column.add_child(reduce_check)
     var actions:=_row()
     undo_button=_button("Undo",_undo)
     actions.add_child(undo_button)
@@ -123,7 +179,7 @@ func _new_clue(text_value:String)->Button:
     button.disabled=true
     button.custom_minimum_size=Vector2(53,53)
     button.add_theme_font_size_override("font_size",13)
-    _style(button,SOFT,INK)
+    _style(button,SURFACE_ALT,INK)
     return button
 
 func _load_level()->void:
@@ -153,11 +209,28 @@ func _load_level()->void:
             grid.add_child(item)
             cells.append(item)
     _refresh()
+    motion.stagger_in(cells)
+
+func _lit_cells()->Array:
+    var out:Array=[]
+    for p in range(cells.size()):
+        if Rules.illuminated(level,state["entries"],p):out.append(p)
+    return out
+
+func _newly_lit(before:Array)->Array:
+    var out:Array=[]
+    for p in _lit_cells():
+        if not before.has(p):out.append(cells[p])
+    return out
 
 func _tap(index:int)->void:
     if MODE=="akari" and int(Rules.blank(level)[index])==3:return
+    var cell:Button=cells[index]
+    motion.press(cell)
     history.append(state["entries"].duplicate())
     if history.size()>60:history.pop_front()
+    var was_complete:bool=Rules.complete(level,state["entries"])
+    var lit_before:Array=_lit_cells()
     var success:bool=false
     if MODE=="pipe":
         success=false
@@ -168,9 +241,16 @@ func _tap(index:int)->void:
         success=Progress.update(state,index,next)
     if not success:
         history.pop_back()
+        motion.shake(cell)
         return
     _save()
     _refresh()
+    motion.pop(cell)
+    if int(state["entries"][index])==1:
+        motion.sweep(_newly_lit(lit_before),LAMP)
+    if not was_complete and Rules.complete(level,state["entries"]):
+        motion.sweep(cells,LAMP)
+        motion.celebrate(self,grid.get_global_rect().get_center(),[ACCENT,LAMP,BG])
 
 func _undo()->void:
     if history.is_empty():return
@@ -183,18 +263,21 @@ func _restart()->void:
     state["entries"]=Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 func _next()->void:
     if not Progress.can_advance(state):return
     Progress.set_level(state,int(state["level"])+1)
     _save()
     _load_level()
+    motion.slide_swap(grid,1)
 
 func _previous()->void:
     if int(state["level"])==0:return
     Progress.set_level(state,int(state["level"])-1)
     _save()
     _load_level()
+    motion.slide_swap(grid,-1)
 
 func _pipe_mark(kind:String,orientation:int)->String:
     if kind=="E":return ["↑","→","↓","←"][orientation-1]
@@ -209,7 +292,7 @@ func _refresh()->void:
         var item:Button=cells[i]
         var value:int=int(state["entries"][i])
         var tile:String=""
-        var background:Color=WHITE
+        var background:Color=SURFACE
         var foreground:Color=INK
         var fixed:bool=false
         var highlighted:bool=false
@@ -217,7 +300,7 @@ func _refresh()->void:
             tile="■" if value==1 else ("×" if value==2 else "·")
             if value==1:
                 background=ACCENT
-                foreground=WHITE
+                foreground=SURFACE
         elif MODE=="akari":
             fixed=value==3
             if fixed:
@@ -225,32 +308,32 @@ func _refresh()->void:
                     if int(pair[0])==i:
                         tile="▣ "+str(pair[1])
                 background=INK
-                foreground=WHITE
+                foreground=SURFACE
             else:
                 tile="☀" if value==1 else ("×" if value==2 else "·")
                 if value==1:
-                    background=Color("#F4D073")
+                    background=LAMP
                 elif Rules.illuminated(level,state["entries"],i):
-                    background=SOFT
+                    background=SURFACE_ALT
         elif MODE=="pipe":
             var kind:String=str(level["types"][i])
             tile=_pipe_mark(kind,value)+"\n"+("END" if kind=="E" else ("LINE" if kind=="I" else "BEND"))
-            background=SOFT if kind=="E" else WHITE
+            background=SURFACE_ALT if kind=="E" else SURFACE
         elif MODE=="sliding":
             tile=" " if value==0 else str(value)
             if value==0:
-                background=SOFT
+                background=SURFACE_ALT
                 fixed=true
             else:
                 highlighted=false
-                background=WHITE if highlighted else SOFT
+                background=SURFACE if highlighted else SURFACE_ALT
                 fixed=not highlighted
         if value>0 and not fixed:filled+=1
         item.text=tile
         item.disabled=fixed
         item.accessibility_name="Row %d, column %d, %s"%[
             int(i/int(level["size"]))+1,i%int(level["size"])+1,tile.replace("\n"," ")]
-        _style(item,background,foreground,highlighted)
+        _style(item,background,foreground,highlighted,false,background)
     if MODE=="nonogram":
         progress_label.text="%d/25 squares marked"%filled
     elif MODE=="akari":
@@ -259,7 +342,11 @@ func _refresh()->void:
         progress_label.text="%d moves recorded. Verified minimum: %d"%[history.size(),int(level["minimum"])]
     else:
         progress_label.text="Orient all nine tiles into one route."
-    status_label.text=Rules.status(level,state["entries"])
+    var status:String=Rules.status(level,state["entries"])
+    var done:bool=Rules.complete(level,state["entries"])
+    var broken:bool=not Rules.no_collision(level,state["entries"]) or status.begins_with("A numbered")
+    status_label.text=("✓ " if done else ("⚠ " if broken else ""))+status
+    status_label.add_theme_color_override("font_color",SUCCESS if done else (ERROR if broken else INK))
     undo_button.disabled=history.is_empty()
     prev_button.disabled=int(state["level"])==0
     next_button.disabled=not Progress.can_advance(state)

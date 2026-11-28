@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompicapo logico di rettangoli",
+ "keywords": "rettangolo,rompicapo numerico,logica,griglia,area,geometria",
+ "short_description": "Dividi la griglia in rettangoli della misura indicata dagli indizi.",
+ "description": "Dividi la griglia in rettangoli. Ogni rettangolo deve restare dentro la tavola, contenere esattamente un indizio e coprire il numero di celle indicato da quell'indizio. Risolvi otto tavole originali con angoli da selezionare con un tocco, annulla, ricomincia, progressione sbloccabile e salvataggi locali. Non c'è alcun timer."
+}

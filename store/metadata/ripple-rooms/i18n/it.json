@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Stanze numeriche con distanze",
+ "keywords": "regioni,distanza,spaziatura,numeri,logica,griglia,rompicapo",
+ "short_description": "Riempi stanze irregolari: i numeri ripetuti devono restare distanti.",
+ "description": "Riempi ogni stanza irregolare con i numeri da 1 fino alla sua dimensione. Se lo stesso numero k compare due volte in una riga o colonna, tra le due devono trovarsi almeno k caselle.\n\nTocca una casella e inserisci una cifra da 1 a 4 con i grandi pulsanti. Ogni casella mostra la lettera e la dimensione della propria stanza accanto al numero.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

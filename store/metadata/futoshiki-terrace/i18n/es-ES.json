@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles de desigualdades",
+ "keywords": "desigualdad,mayor que,menor que,cuadrado latino,números,lógica,cuadrícula,puzle",
+ "short_description": "Rellena una cuadrícula de 4×4 con 1 a 4 respetando los signos de desigualdad.",
+ "description": "Rellena una cuadrícula de 4×4 con los números del 1 al 4 de modo que cada uno aparezca una vez en cada fila y columna, y todos los signos de mayor que o menor que entre casillas vecinas se cumplan.\n\nToca una casilla editable y luego uno de los cuatro botones grandes de cifras. Borrar y Siguiente están siempre visibles.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

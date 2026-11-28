@@ -3,15 +3,26 @@ extends Control
 const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/rules.gd")
 const Progress = preload("res://scripts/progress.gd")
+const Motion = preload("res://scripts/motion.gd")
 
 const MODE: String = "battleship-harbor"
 const TITLE: String = "Battleship Harbor"
-const PAPER: Color = Color("#F2F8FB")
-const INK: Color = Color("#21435B")
-const ACCENT: Color = Color("#267B9D")
-const SECONDARY: Color = Color("#92764B")
-const SOFT: Color = Color("#E0EEF3")
+const SETTINGS_PATH: String = "user://settings.json"
+## Palette follows DESIGN.md tokens (sampled from the icon's navy chart, coral ships, mint).
+const PAPER: Color = Color("#EEF4F6")
+const INK: Color = Color("#0B2545")
+const INK_MUTED: Color = Color("#3D5A73")
+const CHART: Color = Color("#0B2545")
+const ACCENT: Color = Color("#1F5F8B")
+const SECONDARY: Color = Color("#F2C879")
+const SHIP: Color = Color("#F0786F")
+const SOFT: Color = Color("#DCE8ED")
 const WHITE: Color = Color("#FFFFFF")
+const SUCCESS: Color = Color("#2E6F5E")
+const ERROR: Color = Color("#B3372F")
+const MINT: Color = Color("#6BBFBB")
+const BORDER: Color = Color("#6F8799")
+const SHADOW: Color = Color(0.04, 0.15, 0.27, 0.22)
 const CELL_SIDE: int = 53
 
 var state: Dictionary = {}
@@ -22,6 +33,10 @@ var cells: Array = []
 var top_counts: Array = []
 var right_counts: Array = []
 var grid: GridContainer
+var board_box: Control
+var motion := Motion.new()
+var reduced_motion: bool = false
+var reduce_toggle: CheckButton
 var heading: Label
 var status_label: Label
 var progress_label: Label
@@ -35,8 +50,32 @@ func _ready() -> void:
     var linked: int = _linked_level()
     if linked >= 0:
         Progress.set_level(state, linked)
+    reduced_motion = _load_reduced_motion()
+    motion.reduced_motion = reduced_motion
     _build_ui()
     _load_level()
+
+func _load_reduced_motion() -> bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return false
+    var file: FileAccess = FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return false
+    var parser: JSON = JSON.new()
+    if parser.parse(file.get_as_text()) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+        return false
+    var value: Variant = (parser.data as Dictionary).get("reduced_motion", false)
+    return typeof(value) == TYPE_BOOL and bool(value)
+
+func _set_reduced_motion(on: bool) -> void:
+    reduced_motion = on
+    motion.reduced_motion = on
+    var file: FileAccess = FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning(TITLE + " could not save the motion setting.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": on}))
+    file.close()
 
 func _linked_level() -> int:
     if not OS.has_feature("web"):
@@ -63,19 +102,28 @@ func _label(value: String, px: int, color: Color = INK, center: bool = false) ->
         item.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     return item
 
-func _style(item: Button, background: Color, foreground: Color, active: bool = false) -> void:
-    var normal := StyleBoxFlat.new()
-    normal.bg_color = background
-    normal.border_color = ACCENT if active else Color("#B5C2BE")
-    normal.set_border_width_all(3 if active else 1)
-    normal.set_corner_radius_all(9)
+func _style(item: Button, background: Color, foreground: Color, active: bool = false, raised: bool = false, focus_color: Color = INK) -> void:
+    var radius: int = 12 if raised else 10
     for mode in ["normal", "hover", "pressed", "disabled"]:
-        item.add_theme_stylebox_override(mode, normal)
+        var box := StyleBoxFlat.new()
+        box.bg_color = background
+        if mode == "hover":
+            box.bg_color = background.lightened(0.08)
+        elif mode == "pressed":
+            box.bg_color = background.darkened(0.12)
+        box.border_color = SECONDARY if active else BORDER
+        box.set_border_width_all(3 if active else 1)
+        box.set_corner_radius_all(radius)
+        if raised and mode != "disabled" and mode != "pressed":
+            box.shadow_color = SHADOW
+            box.shadow_size = 6 if mode == "hover" else 4
+            box.shadow_offset = Vector2(0, 2)
+        item.add_theme_stylebox_override(mode, box)
     var focus := StyleBoxFlat.new()
     focus.bg_color = Color.TRANSPARENT
-    focus.border_color = SECONDARY
+    focus.border_color = focus_color
     focus.set_border_width_all(3)
-    focus.set_corner_radius_all(9)
+    focus.set_corner_radius_all(radius)
     item.add_theme_stylebox_override("focus", focus)
     for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
         item.add_theme_color_override(mode, foreground)
@@ -87,7 +135,7 @@ func _button(value: String, callback: Callable, primary: bool = false) -> Button
     item.custom_minimum_size = Vector2(0, 54)
     item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     item.add_theme_font_size_override("font_size", 16)
-    _style(item, ACCENT if primary else SOFT, WHITE if primary else INK)
+    _style(item, ACCENT if primary else SOFT, WHITE if primary else INK, false, true)
     item.pressed.connect(callback)
     return item
 
@@ -123,10 +171,20 @@ func _build_ui() -> void:
     var centered := CenterContainer.new()
     centered.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     column.add_child(centered)
+    board_box = PanelContainer.new()
+    var chart_frame := StyleBoxFlat.new()
+    chart_frame.bg_color = CHART
+    chart_frame.set_corner_radius_all(16)
+    chart_frame.set_content_margin_all(10)
+    chart_frame.shadow_color = SHADOW
+    chart_frame.shadow_size = 8
+    chart_frame.shadow_offset = Vector2(0, 3)
+    board_box.add_theme_stylebox_override("panel", chart_frame)
+    centered.add_child(board_box)
     grid = GridContainer.new()
     grid.add_theme_constant_override("h_separation", 4)
     grid.add_theme_constant_override("v_separation", 4)
-    centered.add_child(grid)
+    board_box.add_child(grid)
     progress_label = _label("", 15)
     column.add_child(progress_label)
     status_label = _label("", 15)
@@ -150,6 +208,17 @@ func _build_ui() -> void:
         actions.add_child(_button("Erase", _enter.bind(0)))
     actions.add_child(_button("Restart", _restart))
     column.add_child(actions)
+    reduce_toggle = CheckButton.new()
+    reduce_toggle.text = "Reduce motion"
+    reduce_toggle.accessibility_name = "Reduce motion"
+    reduce_toggle.custom_minimum_size = Vector2(0, 48)
+    reduce_toggle.add_theme_font_size_override("font_size", 16)
+    reduce_toggle.add_theme_color_override("font_color", INK)
+    reduce_toggle.add_theme_color_override("font_hover_color", INK)
+    reduce_toggle.add_theme_color_override("font_pressed_color", INK)
+    reduce_toggle.button_pressed = reduced_motion
+    reduce_toggle.toggled.connect(_set_reduced_motion)
+    column.add_child(reduce_toggle)
     var nav := _row()
     prev_button = _button("Previous", _previous)
     next_button = _button("Next puzzle", _next, true)
@@ -160,14 +229,14 @@ func _build_ui() -> void:
     column.add_child(_label("Independent rules, no timer, no account, no ads or tracking. Mobile accessibility needs a real-device check.", 13))
 
 func _clue() -> Label:
-    var item := _label("", 14, INK, true)
+    var item := _label("", 14, PAPER, true)
     item.custom_minimum_size = Vector2(CELL_SIDE, CELL_SIDE)
     return item
 
 func _add_cell(index: int) -> void:
     var item := Button.new()
     item.custom_minimum_size = Vector2(CELL_SIDE, CELL_SIDE)
-    item.add_theme_font_size_override("font_size", 17 if MODE in ["kropki-pairs", "ripple-rooms", "battleship-harbor"] else 21)
+    item.add_theme_font_size_override("font_size", 14 if MODE == "battleship-harbor" else (17 if MODE in ["kropki-pairs", "ripple-rooms"] else 21))
     item.focus_mode = Control.FOCUS_ALL
     item.pressed.connect(_tap.bind(index))
     grid.add_child(item)
@@ -203,6 +272,7 @@ func _load_level() -> void:
         for index in range(n * n):
             _add_cell(index)
     _refresh()
+    motion.stagger_in(cells)
 
 func _tap(index: int) -> void:
     if int(Rules.blank(level)[index]) != 0:
@@ -211,15 +281,48 @@ func _tap(index: int) -> void:
         selected = index
         _refresh()
         return
+    motion.press(cells[index])
     history.append(state["entries"].duplicate())
     if history.size() > 60:
         history.pop_front()
     var next_value: int = (int(state["entries"][index]) + 1) % 3
+    var was_solved: bool = Rules.complete(level, state["entries"])
+    var done_before: Array = _done_groups()
     if not Progress.update(state, index, next_value):
         history.pop_back()
         return
     _save()
+    motion.pop(cells[index])
+    if Rules.status(level, state["entries"]).to_lower().contains("too many"):
+        motion.shake(cells[index])
+    if Rules.complete(level, state["entries"]):
+        if not was_solved:
+            motion.sweep(cells, MINT)
+            motion.celebrate(self, board_box.get_global_rect().get_center(), [ACCENT, SUCCESS, WHITE])
+    else:
+        for group in _done_groups():
+            if not done_before.has(group):
+                motion.sweep(_group_cells(group), MINT)
     _refresh()
+
+## Row and column keys ("r0".."r4", "c0".."c4") whose ship count equals the clue.
+func _done_groups() -> Array:
+    var done: Array = []
+    var counts: Dictionary = Rules.counts(state["entries"])
+    for i in range(5):
+        if int(counts["rows"][i]) == int(level["rows"][i]):
+            done.append("r%d" % i)
+        if int(counts["cols"][i]) == int(level["cols"][i]):
+            done.append("c%d" % i)
+    return done
+
+func _group_cells(group: String) -> Array:
+    var out: Array = []
+    var n: int = int(group.substr(1))
+    for k in range(5):
+        var index: int = n * 5 + k if group.begins_with("r") else k * 5 + n
+        out.append(cells[index])
+    return out
 
 func _enter(value: int) -> void:
     if MODE not in ["kropki-pairs", "ripple-rooms"]:
@@ -247,6 +350,7 @@ func _restart() -> void:
     state["entries"] = Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 func _next() -> void:
     if not Progress.can_advance(state):
@@ -254,6 +358,7 @@ func _next() -> void:
     Progress.set_level(state, int(state["level"]) + 1)
     _save()
     _load_level()
+    motion.slide_swap(board_box, 1)
 
 func _previous() -> void:
     if int(state["level"]) <= 0:
@@ -261,6 +366,7 @@ func _previous() -> void:
     Progress.set_level(state, int(state["level"]) - 1)
     _save()
     _load_level()
+    motion.slide_swap(board_box, -1)
 
 func _lookup_fixed(index: int) -> bool:
     return int(Rules.blank(level)[index]) != 0
@@ -314,7 +420,7 @@ func _cell_colors(index: int, value: int) -> Array:
             return [Color("#F7F1E3"), INK]
     if MODE == "battleship-harbor":
         if value == 1:
-            return [ACCENT, WHITE]
+            return [SHIP, INK]
         if value == 2:
             return [SOFT, INK]
     return [SOFT if _lookup_fixed(index) else WHITE, INK]
@@ -340,7 +446,7 @@ func _refresh() -> void:
         item.disabled = fixed
         item.text = _cell_caption(index, value)
         var colors: Array = _cell_colors(index, value)
-        _style(item, colors[0], colors[1], index == selected and MODE in ["kropki-pairs","ripple-rooms"])
+        _style(item, colors[0], colors[1], index == selected and MODE in ["kropki-pairs","ripple-rooms"], false, SECONDARY)
         item.accessibility_name = "Row %d, column %d, %s%s" % [
             int(index / n) + 1, index % n + 1,
             "fixed " if fixed else "editable ", item.text.replace("\n", " ")]
@@ -375,7 +481,14 @@ func _refresh() -> void:
             int(selected / 4) + 1, selected % 4 + 1, room_name]
     else:
         info_label.text = "Changes are reversible. No precision swipe is required."
-    status_label.text = Rules.status(level, state["entries"])
+    var status_text: String = Rules.status(level, state["entries"])
+    status_label.text = status_text
+    var status_color: Color = INK
+    if Rules.complete(level, state["entries"]):
+        status_color = SUCCESS
+    elif status_text.to_lower().contains("too many"):
+        status_color = ERROR
+    status_label.add_theme_color_override("font_color", status_color)
     undo_button.disabled = history.is_empty()
     next_button.disabled = not Progress.can_advance(state)
     prev_button.disabled = int(state["level"]) == 0

@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Tägliche Binärrätsel",
+ "keywords": "binär,Binairo,Logik,Zahlenrätsel,täglich,Gitter",
+ "short_description": "Löse Binärgitter mit Hinweisen und lokalem Fortschritt.",
+ "description": "Spiele ein tägliches 4×4-Takuzu oder freie Bretter in 4×4 und 6×6. Zeilen und Spalten müssen ausgeglichen sein, drei gleiche Zahlen in Folge sind verboten, und fertige Linien dürfen sich nicht doppeln. Nutze Hinweise, Rückgängig, Wiederholen und Neustart. Der Fortschritt wird lokal gespeichert."
+}

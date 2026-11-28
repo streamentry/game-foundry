@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rechteck-Logikrätsel",
+ "keywords": "Rechteck,Zahlenrätsel,Logik,Gitter,Fläche,Geometrie",
+ "short_description": "Teile das Gitter in Rechtecke in der Größe der Hinweise.",
+ "description": "Teile das Gitter in Rechtecke. Jedes Rechteck muss innerhalb des Bretts bleiben, genau einen Hinweis enthalten und so viele Felder abdecken, wie dieser Hinweis angibt. Löse acht eigens entworfene Bretter mit Auswahl der Ecken per Tippen, Rückgängig, Neustart, freischaltbarem Fortschritt und lokalem Speichern. Es gibt keinen Timer."
+}

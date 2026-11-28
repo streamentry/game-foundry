@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Klare Kreuzsummen-Hinweise",
+ "keywords": "Zahlenkreuz,Summen,Logik,Rechnen,Gitter,Rätsel",
+ "short_description": "Löse Kreuzsummen mit einem übersichtlichen Feld-Inspektor.",
+ "description": "Fülle jeden Kakuro-Abschnitt mit den Ziffern 1–9, sodass seine Summe zum Hinweis passt; innerhalb eines Abschnitts darf sich keine Ziffer wiederholen. Löse acht eigens entworfene 5×5-Bretter, um das nächste freizuschalten. Der Compass-Inspektor zeigt die Summen nach rechts und nach unten sowie die lokal möglichen Ziffern für das gewählte Feld. Rückgängig, Löschen, Neustart und lokaler Fortschritt sind enthalten."
+}

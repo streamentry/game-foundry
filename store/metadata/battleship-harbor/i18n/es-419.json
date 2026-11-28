@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Encuentra la flota oculta",
+ "keywords": "barcos,flota,naval,carta,lógica,cuadrícula,sonar,rompecabezas",
+ "short_description": "Ubica una flota oculta en una carta de 5×5 con los totales de filas y columnas.",
+ "description": "Encuentra una pequeña flota en una carta de 5×5: un barco de tres celdas, uno de dos celdas y uno de una sola celda. Ningún barco puede tocar a otro, ni siquiera en diagonal, y los totales de cada fila y columna deben coincidir.\n\nToca un cuadro para marcar un barco, tócalo de nuevo para anotar agua y otra vez para borrarlo. Los totales actuales y los objetivos permanecen visibles junto a cada fila y columna.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

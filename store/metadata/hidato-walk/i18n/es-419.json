@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompecabezas de caminos",
+ "keywords": "hidoku,camino numérico,cadena,consecutivos,secuencia,cuadrícula,lógica",
+ "short_description": "Coloca del 1 al 16 en una cadena donde cada número toque al siguiente.",
+ "description": "Coloca los números del 1 al 16 en una cuadrícula de 4×4, cada uno exactamente una vez, de modo que todo par consecutivo se toque en horizontal, vertical o diagonal. Los números ya dados deben permanecer donde están.\n\nToca una celda editable y elige un número en el teclado. Borrar vacía la celda.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

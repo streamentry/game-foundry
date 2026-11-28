@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zähle, was du siehst",
+ "keywords": "Kurodoko,Sichtweite,Sichtlinie,schwarz weiß,schattieren,Logik,Zahlen,Gitter,Rätsel",
+ "short_description": "Schattiere Felder, sodass jede Zahl genau so viele weiße Felder sieht.",
+ "description": "Schattiere einige Felder schwarz, sodass schwarze Felder nie eine Kante teilen und alle weißen Felder zusammenhängen. Jedes nummerierte Feld zählt die weißen Felder, die es in seiner Zeile und Spalte sehen kann, sich selbst eingeschlossen, und muss seiner Zahl entsprechen.\n\nTippe auf ein leeres Feld, um zwischen schwarz, weiß und unbekannt zu wechseln. Zahlenhinweise bleiben fest, und Text auf dem Bildschirm sagt dir, welche Sichtlinien oder Verbindungen die Regeln verletzen.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "game_slug": "nurikabe-bay",
+  "source_commit": "5dc8efa8",
+  "source_note": "Listing master drafted from the current build's README, design notes and scripts; describes only implemented behavior.",
+  "status": "release candidate — owner review pending",
+  "source_locale": "en-US",
+  "apple": {
+    "name": "Nurikabe Bay",
+    "subtitle": "Islands and sea puzzles",
+    "description": "Mark every square of a 4×4 bay as sea or land. Each numbered island has exactly that many squares and contains one clue, the sea forms a single connected body, and no 2×2 block may be all sea.\n\nTap a blank square to cycle sea, land and empty. Clue squares are fixed.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "keywords": "islands,sea,land,connected,logic,number,grid,puzzle,water",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/nurikabe-bay/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/"
+  },
+  "google_play": {
+    "title": "Nurikabe Bay",
+    "short_description": "Sort a 4×4 bay into sea and exactly sized islands.",
+    "full_description": "Mark every square of a 4×4 bay as sea or land. Each numbered island has exactly that many squares and contains one clue, the sea forms a single connected body, and no 2×2 block may be all sea.\n\nTap a blank square to cycle sea, land and empty. Clue squares are fixed.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection.",
+    "support_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/nurikabe-bay/",
+    "privacy_policy_url": "https://streamentry-puzzles.4rqnf2gvxf.workers.dev/privacy/",
+    "support_email": "hi@mosselora.com"
+  },
+  "release_decisions": {
+    "bundle_id": "com.streamentry.nurikabebay",
+    "package_id": "com.streamentry.nurikabebay",
+    "version_name": "1.0.0",
+    "version_code": 1,
+    "price": "free",
+    "territories": "all available",
+    "age_rating": "4+ / Everyone (no objectionable content) — owner to confirm",
+    "privacy_and_data_safety": "No data collected (offline, no SDKs) — owner to confirm in console",
+    "automatic_release": "requested",
+    "audience_fit_45_plus": "unknown",
+    "apple_id": "6840300266",
+    "play_app_id": null
+  },
+  "keyword_status": "draft terms; no keyword-demand evidence",
+  "english_review": "not yet reviewed by the account owner"
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Dibuja un solo circuito",
+ "keywords": "slitherlink,cercas,bordes,línea,lógica,números,cuadrícula,rompecabezas",
+ "short_description": "Dibuja un solo circuito que cumpla todas las pistas de bordes.",
+ "description": "Dibuja un circuito cerrado sobre las líneas de la cuadrícula que nunca se ramifique ni se cruce consigo mismo. Cada casilla numerada indica cuántos de sus cuatro lados usa el circuito.\n\nToca una casilla y luego presiona uno de los cuatro botones grandes Arriba, Derecha, Abajo o Izquierda para agregar o quitar ese borde.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

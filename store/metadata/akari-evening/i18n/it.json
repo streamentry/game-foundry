@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Illumina ogni cella libera",
+ "keywords": "luce,lampada,lampadina,illuminare,logica,griglia,rompicapo,numeri sui muri",
+ "short_description": "Metti le lampade: celle tutte illuminate, lampade che non si vedono.",
+ "description": "Posiziona le lampade su una tavola 4×4 in modo che ogni cella libera sia illuminata, che due lampade non si illuminino a vicenda e che ogni muro numerato tocchi esattamente quel numero di lampade.\n\nTocca una cella libera per passare tra lampada, croce di appunto e vuota; le celle illuminate vengono evidenziate mentre giochi.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rivela l'immagine",
+ "keywords": "picross,griddler,hanjie,disegno a numeri,immagine,pixel,logica,griglia,rompicapo",
+ "short_description": "Usa gli indizi di righe e colonne per rivelare un'immagine nascosta 5×5.",
+ "description": "Riempi una griglia 5×5 in modo che ogni riga e colonna corrisponda ai propri indizi: ogni numero è un blocco di celle piene consecutive e i blocchi sono separati da almeno una cella vuota. Ogni tavola è un piccolo disegno in pixel.\n\nTocca una cella per riempirla, toccala di nuovo per barrarla e ancora per cancellarla. Tutte e dieci le righe di indizi restano visibili.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

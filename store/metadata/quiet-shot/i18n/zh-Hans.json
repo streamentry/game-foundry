@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hans",
+ "status": "machine translation — native review pending",
+ "subtitle": "一次射击的镜面谜题",
+ "keywords": "反射,光线,镜子,瞄准,物理,谜题,空间",
+ "short_description": "只瞄准一次，预测反射路径，清除每个关卡的目标。",
+ "description": "只需瞄准并发射一次，预测光线如何经固定镜面反射，从而击中每个目标。可调整角度后重试，没有计时器。探索八个原创关卡，并将进度保存在本地。光线在所有目标被清除、射出棋盘或达到四次反射上限时停止。"
+}

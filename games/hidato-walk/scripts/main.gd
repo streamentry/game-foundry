@@ -3,12 +3,22 @@ extends Control
 const Factory = preload("res://scripts/level_factory.gd")
 const Rules = preload("res://scripts/rules.gd")
 const Progress = preload("res://scripts/progress.gd")
-const PAPER = Color("#F7F4EC")
-const INK = Color("#253E3D")
-const ACCENT = Color("#2E7071")
-const PALE = Color("#E1EDE6")
-const FIXED = Color("#D4DDD1")
-const WHITE = Color("#FFFFFF")
+const Motion = preload("res://scripts/motion.gd")
+const SETTINGS_PATH: String = "user://settings.json"
+# Tokens from DESIGN.md (palette matched to the violet and gold icon).
+const PAPER = Color("#FBF6E6")
+const SURFACE = Color("#FFFDF6")
+const SURFACE_ALT = Color("#E9DDF5")
+const INK = Color("#2B0A52")
+const INK_MUTED = Color("#5E4C7A")
+const ACCENT = Color("#4B1487")
+const ACCENT_INK = Color("#FFF8E1")
+const TRAIL = Color("#FECB38")
+const TRAIL_SOFT = Color("#FFEFB0")
+const SUCCESS = Color("#1E6B45")
+const ERROR = Color("#A3263A")
+const DISABLED_BG = Color("#E2DAEA")
+const BORDER = Color("#B9A8D0")
 
 var state: Dictionary = {}
 var level: Dictionary = {}
@@ -22,9 +32,14 @@ var feedback: Label
 var undo_button: Button
 var prev_button: Button
 var next_button: Button
+var reduce_toggle: CheckButton
+var reduced_motion: bool = false
+var motion := Motion.new()
 
 func _ready() -> void:
     state = Progress.load_saved()
+    reduced_motion = _load_settings()
+    motion.reduced_motion = reduced_motion
     var link: int = _linked_level()
     if link >= 0:
         Progress.set_level(state, link)
@@ -45,6 +60,33 @@ func _linked_level() -> int:
                 return result
     return -1
 
+func _load_settings() -> bool:
+    if not FileAccess.file_exists(SETTINGS_PATH):
+        return false
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.READ)
+    if file == null:
+        return false
+    var parser := JSON.new()
+    if parser.parse(file.get_as_text()) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+        return false
+    var value: Variant = parser.data.get("reduced_motion", false)
+    return typeof(value) == TYPE_BOOL and value
+
+func _save_settings() -> void:
+    var file := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+    if file == null:
+        push_warning("Hidato Walk could not save settings locally.")
+        return
+    file.store_string(JSON.stringify({"reduced_motion": reduced_motion}))
+    file.close()
+
+func _set_reduced_motion(on: bool) -> void:
+    reduced_motion = on
+    motion.reduced_motion = on
+    if reduce_toggle != null:
+        reduce_toggle.set_pressed_no_signal(on)
+    _save_settings()
+
 func _label(value: String, size_px: int, color: Color = INK, centered: bool = false) -> Label:
     var item := Label.new()
     item.text = value
@@ -56,22 +98,37 @@ func _label(value: String, size_px: int, color: Color = INK, centered: bool = fa
         item.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     return item
 
-func _style_button(item: Button, background: Color, foreground: Color) -> void:
-    var normal := StyleBoxFlat.new()
-    normal.bg_color = background
-    normal.border_color = Color("#BAC5BC")
-    normal.set_border_width_all(1)
-    normal.set_corner_radius_all(10)
-    for mode in ["normal", "hover", "pressed", "disabled"]:
-        item.add_theme_stylebox_override(mode, normal)
+func _box(background: Color, border: Color, border_width: int, radius: int, shadow: int) -> StyleBoxFlat:
+    var box := StyleBoxFlat.new()
+    box.bg_color = background
+    box.border_color = border
+    box.set_border_width_all(border_width)
+    box.set_corner_radius_all(radius)
+    box.shadow_size = shadow
+    box.shadow_color = Color(INK, 0.18)
+    box.shadow_offset = Vector2(0, 1)
+    return box
+
+func _style_button(item: Button, background: Color, foreground: Color, border_width: int = 1,
+        disabled_bg: Color = Color(0, 0, 0, 0), disabled_fg: Color = Color(0, 0, 0, 0)) -> void:
+    var border: Color = BORDER if border_width <= 1 else INK
+    var off_bg: Color = disabled_bg if disabled_bg.a > 0.0 else background
+    var off_fg: Color = disabled_fg if disabled_fg.a > 0.0 else foreground
+    item.add_theme_stylebox_override("normal", _box(background, border, border_width, 12, 2))
+    item.add_theme_stylebox_override("hover", _box(background.lightened(0.05), border, border_width, 12, 3))
+    item.add_theme_stylebox_override("pressed", _box(background.darkened(0.08), border, border_width, 12, 0))
+    item.add_theme_stylebox_override("disabled", _box(off_bg, border, border_width, 12, 0))
     var focus := StyleBoxFlat.new()
-    focus.bg_color = Color.TRANSPARENT
+    focus.bg_color = Color(0, 0, 0, 0)
     focus.border_color = ACCENT
     focus.set_border_width_all(3)
-    focus.set_corner_radius_all(10)
+    focus.set_corner_radius_all(12)
     item.add_theme_stylebox_override("focus", focus)
-    for mode in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
-        item.add_theme_color_override(mode, foreground)
+    item.add_theme_color_override("font_color", foreground)
+    item.add_theme_color_override("font_hover_color", foreground)
+    item.add_theme_color_override("font_pressed_color", foreground)
+    item.add_theme_color_override("font_focus_color", foreground)
+    item.add_theme_color_override("font_disabled_color", off_fg)
 
 func _button(text_value: String, callback: Callable, primary: bool = false) -> Button:
     var button := Button.new()
@@ -80,7 +137,10 @@ func _button(text_value: String, callback: Callable, primary: bool = false) -> B
     button.custom_minimum_size = Vector2(0, 54)
     button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     button.add_theme_font_size_override("font_size", 17)
-    _style_button(button, ACCENT if primary else PALE, WHITE if primary else INK)
+    if primary:
+        _style_button(button, ACCENT, ACCENT_INK, 1, DISABLED_BG, INK_MUTED)
+    else:
+        _style_button(button, SURFACE_ALT, INK, 1, DISABLED_BG, INK_MUTED)
     button.pressed.connect(callback)
     return button
 
@@ -145,6 +205,18 @@ func _build_ui() -> void:
     navigation.add_child(prev_button)
     navigation.add_child(next_button)
     column.add_child(navigation)
+    reduce_toggle = CheckButton.new()
+    reduce_toggle.text = "Reduce motion"
+    reduce_toggle.accessibility_name = "Reduce motion"
+    reduce_toggle.custom_minimum_size = Vector2(0, 48)
+    reduce_toggle.add_theme_font_size_override("font_size", 16)
+    reduce_toggle.add_theme_color_override("font_color", INK)
+    reduce_toggle.add_theme_color_override("font_hover_color", INK)
+    reduce_toggle.add_theme_color_override("font_pressed_color", INK)
+    reduce_toggle.add_theme_color_override("font_focus_color", INK)
+    reduce_toggle.set_pressed_no_signal(reduced_motion)
+    reduce_toggle.toggled.connect(_set_reduced_motion)
+    column.add_child(reduce_toggle)
     column.add_child(_button("Copy this challenge", _share))
     column.add_child(_label("A diagonal corner counts as touching. Every number from 1 through 16 belongs exactly once. No timer or forced assistance.", 13))
 
@@ -176,11 +248,13 @@ func _load_level() -> void:
         _add_cell(index)
 
     _refresh()
+    motion.stagger_in(cells)
 
 func _select(index: int) -> void:
     if int(Rules.blank(level)[index]) != 0:
         return
     selected = index
+    motion.press(cells[index])
     _refresh()
 
 func _enter(digit: int) -> void:
@@ -193,7 +267,26 @@ func _enter(digit: int) -> void:
         history.pop_back()
         return
     _save()
+    var cell: Button = cells[selected]
+    motion.pop(cell)
+    if Rules.complete(level, state["entries"]):
+        motion.sweep(_trail_order(), TRAIL)
+        motion.celebrate(self, grid.get_global_rect().get_center(), [ACCENT, SUCCESS, TRAIL])
+    elif digit > 0 and _is_conflict(Rules.status(level, state["entries"])):
+        motion.shake(cell)
     _refresh()
+
+func _is_conflict(message: String) -> bool:
+    return message.begins_with("A number is repeated") or message.ends_with("must touch, including diagonally.")
+
+## Cells in path order (the cell holding 1, then 2, ... 16) for the solve sweep.
+func _trail_order() -> Array:
+    var ordered: Array = []
+    for n in range(1, 17):
+        for id in range(16):
+            if int(state["entries"][id]) == n:
+                ordered.append(cells[id])
+    return ordered
 
 func _undo() -> void:
     if history.is_empty():
@@ -207,6 +300,7 @@ func _restart() -> void:
     state["entries"] = Rules.blank(level)
     _save()
     _refresh()
+    motion.stagger_in(cells)
 
 func _next() -> void:
     if not Progress.can_advance(state):
@@ -214,6 +308,7 @@ func _next() -> void:
     Progress.set_level(state, int(state["level"]) + 1)
     _save()
     _load_level()
+    motion.slide_swap(grid, 1)
 
 func _previous() -> void:
     if int(state["level"]) <= 0:
@@ -221,6 +316,7 @@ func _previous() -> void:
     Progress.set_level(state, int(state["level"]) - 1)
     _save()
     _load_level()
+    motion.slide_swap(grid, -1)
 
 func _cage_at(id: int) -> Dictionary:
     for cage in level.get("cages", []):
@@ -231,6 +327,7 @@ func _cage_at(id: int) -> Dictionary:
 func _refresh() -> void:
     heading.text = "PUZZLE %d OF %d  •  %s" % [
         int(state["level"]) + 1, Factory.COUNT, str(level["name"])]
+    var solved: bool = Rules.complete(level, state["entries"])
     var filled: int = 0
     for id in range(16):
         var cell: Button = cells[id]
@@ -239,18 +336,27 @@ func _refresh() -> void:
         if digit > 0:
             filled += 1
         cell.disabled = fixed
-        var background: Color = PALE if fixed else WHITE
-        var caption: String = ""
+        var background: Color = SURFACE_ALT if fixed else (TRAIL_SOFT if solved else SURFACE)
+        var border_width: int = 2 if fixed else 1
 
         if id == selected:
-            background = Color("#C4E3DD") if not fixed else FIXED
-        cell.text = caption + (str(digit) if digit > 0 else "·")
-        cell.accessibility_name = "Row %d, column %d, %s" % [
+            background = TRAIL
+            border_width = 3
+        cell.text = str(digit) if digit > 0 else "·"
+        cell.accessibility_name = "Row %d, column %d, %s%s" % [
             int(id / 4) + 1, id % 4 + 1,
-            str(digit) if digit > 0 else "empty"]
-        _style_button(cell, background, INK)
+            str(digit) if digit > 0 else "empty",
+            ", given" if fixed else ""]
+        _style_button(cell, background, INK, border_width)
     progress_label.text = "%d of 16 squares filled" % filled
-    feedback.text = Rules.status(level, state["entries"])
+    var message: String = Rules.status(level, state["entries"])
+    feedback.text = message
+    var message_color: Color = INK
+    if solved:
+        message_color = SUCCESS
+    elif _is_conflict(message):
+        message_color = ERROR
+    feedback.add_theme_color_override("font_color", message_color)
     undo_button.disabled = history.is_empty()
     prev_button.disabled = int(state["level"]) == 0
     next_button.disabled = not Progress.can_advance(state)

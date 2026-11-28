@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles de camino numérico",
+ "keywords": "hidoku,camino numérico,cadena,consecutivos,secuencia,cuadrícula,lógica,puzle",
+ "short_description": "Coloca del 1 al 16 en una cadena en la que cada número toque al siguiente.",
+ "description": "Coloca los números del 1 al 16 en una cuadrícula de 4×4, cada uno exactamente una vez, de modo que cada par de números consecutivos se toque en horizontal, vertical o diagonal. Los números ya dados deben quedarse donde están.\n\nToca una casilla editable y elige un número en el teclado. Borrar vacía la casilla.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

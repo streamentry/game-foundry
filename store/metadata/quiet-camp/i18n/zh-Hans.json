@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hans",
+ "status": "machine translation — native review pending",
+ "subtitle": "帐篷与树木谜题",
+ "keywords": "帐篷树木,逻辑谜题,网格,森林,数字谜题,离线",
+ "short_description": "放置帐篷，满足行列总数，并且彼此不能相接。",
+ "description": "每棵树旁边恰好放置一顶帐篷，满足每一行和每一列的总数，并且帐篷之间不能相接（包括斜角相接）。解开八个原创且唯一解的 5×5 和 6×6 关卡。可标记草地、撤销、重新开始，进度保存在本设备上。没有计时器，也没有分数扣罚。"
+}

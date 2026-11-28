@@ -1,0 +1,8 @@
+{
+ "lang": "it",
+ "status": "machine translation — native review pending",
+ "subtitle": "Annerisci i numeri ripetuti",
+ "keywords": "annerire,duplicati,numeri ripetuti,connesso,logica,numeri,griglia,rompicapo",
+ "short_description": "Annerisci i numeri ripetuti senza spezzare la tavola in più parti.",
+ "description": "Annerisci le caselle in modo che nessun numero compaia più di una volta in una riga o colonna tra le caselle non annerite. Le caselle annerite non possono mai toccarsi lungo un lato e tutte le caselle non annerite devono restare collegate in un unico gruppo.\n\nTocca una cella numerata per passare tra annerita, appunto di conservazione e non segnata.\n\nSei tavole originali, ciascuna si sblocca risolvendo la precedente. Annulla e Ricomincia sono sempre disponibili, non c'è alcun timer e i progressi vengono salvati su questo dispositivo. Funziona offline. Niente pubblicità, niente account, nessuna raccolta di dati."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hant",
+ "status": "machine translation — native review pending",
+ "subtitle": "每條線只走一次",
+ "keywords": "圖形,路線,邊線謎題,連點,歐拉路徑,邏輯",
+ "short_description": "規劃一條路線，使每條連線恰好經過一次。",
+ "description": "每條可見連線都只使用一次。節點可以重複經過；沒有節點的交叉點不算連接點。透過描線或點按大型節點按鈕，解開八個原創圖形關卡。可復原、重新開始、回看之前的關卡，並恢復本地路線和已解鎖進度。"
+}

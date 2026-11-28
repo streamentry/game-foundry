@@ -1,0 +1,8 @@
+{
+ "lang": "es-419",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rompecabezas consecutivos",
+ "keywords": "consecutivos,cuadrado latino,marcas de borde,secuencia,números,lógica,cuadrícula",
+ "short_description": "Llena una cuadrícula de 4×4 donde las marcas indican vecinos consecutivos.",
+ "description": "Llena una cuadrícula de 4×4 con los números del 1 al 4 para que cada dígito aparezca una vez en cada fila y columna. Un borde marcado entre dos casillas significa que sus dígitos son consecutivos, y un borde sin marca significa que no lo son.\n\nSelecciona una casilla e ingresa un dígito del 1 al 4. Las flechas dentro de las casillas señalan los bordes marcados a la derecha y debajo.\n\nSeis tableros originales; cada uno desbloquea el siguiente al resolverse. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta y sin recopilación de datos."
+}

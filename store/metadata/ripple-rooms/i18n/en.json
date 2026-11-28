@@ -1,0 +1,8 @@
+{
+ "lang": "en",
+ "status": "source",
+ "subtitle": "Number rooms with spacing",
+ "keywords": "regions,spacing,distance,number,logic,grid,puzzle",
+ "short_description": "Fill irregular rooms so repeated numbers keep their distance.",
+ "description": "Fill each irregular room with the numbers 1 up to its size. If the same number k appears twice in a row or column, at least k squares must lie between the two.\n\nTap a square and enter a digit from 1 to 4 on the large buttons. Each square shows its room letter and room size beside the number.\n\nSix original boards, each unlocking the next once solved. Undo and Restart are always available, there is no timer, and your progress saves on this device. Plays offline. No ads, no account, no data collection."
+}

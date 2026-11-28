@@ -1,0 +1,8 @@
+{
+ "lang": "zh-Hans",
+ "status": "machine translation — native review pending",
+ "subtitle": "每日二进制谜题",
+ "keywords": "二进制,逻辑,数字谜题,每日,网格",
+ "short_description": "解开二进制方格谜题，可使用提示并在本地保存进度。",
+ "description": "每天可玩一道 4×4 二进制数独谜题，也可玩自由选择的 4×4 和 6×6 棋盘。每行和每列中的数字 0 与 1 必须数量均衡，同一行中不能出现连续三个相同数字，已完成的各行、各列也不能重复。可使用提示、撤销、重做和重新开始。进度保存在本地。"
+}

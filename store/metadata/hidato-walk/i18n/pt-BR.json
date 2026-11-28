@@ -1,0 +1,8 @@
+{
+ "lang": "pt-BR",
+ "status": "machine translation — native review pending",
+ "subtitle": "Quebra-cabeças de caminho",
+ "keywords": "hidoku,caminho numérico,cadeia,consecutivos,sequência,grade,lógica",
+ "short_description": "Posicione 1 a 16 em cadeia, cada número tocando o seguinte.",
+ "description": "Posicione os números de 1 a 16 em uma grade 4×4, cada um exatamente uma vez, de modo que todo par consecutivo se toque na horizontal, vertical ou diagonal. Os números já dados devem ficar onde estão.\n\nToque em uma casa editável e escolha um número no teclado. Apagar limpa a casa.\n\nSeis tabuleiros originais, cada um liberado ao resolver o anterior. Desfazer e Reiniciar estão sempre disponíveis, não há cronômetro e seu progresso é salvo neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem coleta de dados."
+}

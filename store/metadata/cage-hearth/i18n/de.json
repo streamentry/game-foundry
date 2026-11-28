@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rechenkäfig-Rätsel",
+ "keywords": "KenKen,Calcudoku,Käfige,Rechnen,Mathe,lateinisches Quadrat,Zahlen,Rätsel,Logik",
+ "short_description": "Fülle ein 4×4-Gitter so, dass jeder Käfig sein Rechenziel erreicht.",
+ "description": "Fülle ein 4×4-Gitter mit den Ziffern 1 bis 4, sodass sich in keiner Zeile und keiner Spalte eine Ziffer wiederholt. Jeder farbige Käfig zeigt ein Ziel aus Summe, Produkt, Differenz, Quotient oder einem Einzelwert, und die Ziffern darin müssen es ergeben.\n\nTippe auf ein Feld und gib dann auf dem großen Ziffernblock eine Ziffer ein. „Löschen“ leert ein Feld.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}

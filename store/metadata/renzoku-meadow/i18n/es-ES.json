@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Puzles de números consecutivos",
+ "keywords": "consecutivos,cuadrado latino,marcas de borde,secuencia,números,lógica,cuadrícula,puzle",
+ "short_description": "Rellena una cuadrícula de 4×4 donde las marcas indican vecinos consecutivos.",
+ "description": "Rellena una cuadrícula de 4×4 con los números del 1 al 4 de modo que cada cifra aparezca una vez en cada fila y columna. Un borde marcado entre dos casillas significa que sus cifras son consecutivas, y un borde sin marcar, que no lo son.\n\nSelecciona una casilla y escribe una cifra del 1 al 4. Unas flechas dentro de las casillas señalan los bordes marcados hacia la derecha y hacia abajo.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

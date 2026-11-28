@@ -1,0 +1,8 @@
+{
+ "lang": "pt-BR",
+ "status": "machine translation — native review pending",
+ "subtitle": "Encontre a frota escondida",
+ "keywords": "batalha naval,navios,frota,naval,carta,lógica,grade,quebra-cabeça,sonar",
+ "short_description": "Ache uma frota escondida numa carta 5×5 pelos totais de linhas e colunas.",
+ "description": "Encontre uma pequena frota numa carta 5×5: um navio de três casas, um de duas casas e um de uma casa. Nenhum navio pode se tocar, nem na diagonal, e todos os totais de linhas e colunas devem bater.\n\nToque em um quadrado para marcar um navio, toque de novo para uma marca de água e mais uma vez para limpar. Os totais atuais e os objetivos ficam visíveis ao lado de cada linha e coluna.\n\nSeis tabuleiros originais, cada um liberado ao resolver o anterior. Desfazer e Reiniciar estão sempre disponíveis, não há cronômetro e seu progresso é salvo neste dispositivo. Funciona offline. Sem anúncios, sem conta, sem coleta de dados."
+}

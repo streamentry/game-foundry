@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Rellena los termómetros",
+ "keywords": "termómetros,tubos,rellenar,totales,filas,columnas,lógica,números,cuadrícula,puzle",
+ "short_description": "Rellena tubos desde el bulbo para que cuadren los totales.",
+ "description": "Rellena cada uno de los ocho termómetros de dos casillas desde su bulbo hacia su punta, nunca al revés. Los totales de filas y columnas indican cuántas casillas de cada línea están rellenas.\n\nToca un bulbo para rellenar su primer segmento, o toca una punta para rellenar ambos. Toca el mismo lugar otra vez para vaciar el tubo.\n\nSeis tableros originales, cada uno se desbloquea al resolver el anterior. Deshacer y Reiniciar siempre están disponibles, no hay temporizador y tu progreso se guarda en este dispositivo. Funciona sin conexión. Sin anuncios, sin cuenta, sin recopilación de datos."
+}

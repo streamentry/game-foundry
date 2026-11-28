@@ -1,0 +1,8 @@
+{
+ "lang": "fr",
+ "status": "machine translation — native review pending",
+ "subtitle": "Casse-têtes d'inégalités",
+ "keywords": "inégalité,plus grand que,plus petit que,carré latin,nombres,logique,grille,casse-tête",
+ "short_description": "Remplissez une grille 4×4 de 1 à 4 en respectant les signes d'inégalité.",
+ "description": "Remplissez une grille 4×4 avec les nombres de 1 à 4 de sorte que chacun apparaisse une seule fois par ligne et par colonne, tout en respectant chaque signe « plus grand que » ou « plus petit que » entre cases voisines.\n\nTouchez une case modifiable, puis l'un des quatre grands boutons de chiffre. Effacer et Suivant sont toujours visibles.\n\nSix grilles originales, chacune débloquant la suivante une fois résolue. Annuler et Recommencer sont toujours disponibles, il n'y a pas de chronomètre, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

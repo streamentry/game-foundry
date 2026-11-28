@@ -1,0 +1,8 @@
+{
+ "lang": "es-ES",
+ "status": "machine translation — native review pending",
+ "subtitle": "Despeja las pistas cruzadas",
+ "keywords": "sumas cruzadas,sumas,lógica,aritmética,cuadrícula,puzle",
+ "short_description": "Resuelve sumas cruzadas con un inspector de casillas claro.",
+ "description": "Rellena cada tramo de Kakuro con cifras del 1 al 9 para que su total coincida con la pista; no repitas ninguna cifra dentro de un tramo. Resuelve ocho tableros originales de 5×5 para desbloquear el siguiente. El inspector Compass muestra los totales horizontal y vertical y las cifras posibles a nivel local para la casilla seleccionada. Incluye deshacer, borrar, reiniciar y progreso local."
+}

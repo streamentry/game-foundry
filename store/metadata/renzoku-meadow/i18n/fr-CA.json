@@ -1,0 +1,8 @@
+{
+ "lang": "fr-CA",
+ "status": "machine translation — native review pending",
+ "subtitle": "Nombres consécutifs",
+ "keywords": "consécutifs,carré latin,marques,suite,chiffres,logique,grille,casse-tête",
+ "short_description": "Remplissez une grille de 4×4 où les marques indiquent des voisins consécutifs.",
+ "description": "Remplissez une grille de 4×4 avec les chiffres de 1 à 4 de façon que chacun apparaisse une seule fois dans chaque ligne et chaque colonne. Une arête marquée entre deux cases signifie que leurs chiffres sont consécutifs, et une arête non marquée signifie qu'ils ne le sont pas.\n\nSélectionnez une case et entrez un chiffre de 1 à 4. Des flèches dans les cases désignent les arêtes marquées à droite et en dessous.\n\nSix grilles originales, chacune se déverrouillant une fois la précédente résolue. Les boutons Annuler et Recommencer sont toujours accessibles, il n'y a aucun minuteur, et votre progression est enregistrée sur cet appareil. Fonctionne hors ligne. Sans publicité, sans compte, sans collecte de données."
+}

@@ -1,0 +1,8 @@
+{
+ "lang": "de",
+ "status": "machine translation — native review pending",
+ "subtitle": "Zahlenpfad-Rätsel",
+ "keywords": "Hidoku,Zahlenpfad,Kette,aufeinanderfolgend,Reihenfolge,Gitter,Logik,Rätsel",
+ "short_description": "Setze 1 bis 16 als Kette, in der jede Zahl die nächste berührt.",
+ "description": "Setze die Zahlen 1 bis 16 jeweils genau einmal auf ein 4×4-Gitter, sodass sich jedes aufeinanderfolgende Paar waagerecht, senkrecht oder diagonal berührt. Die bereits vorgegebenen Zahlen müssen an ihrem Platz bleiben.\n\nTippe auf ein bearbeitbares Feld und wähle auf dem Ziffernblock eine Zahl. „Löschen“ leert ein Feld.\n\nSechs eigens entworfene Rätsel, jedes wird durch das Lösen des vorherigen freigeschaltet. Rückgängig und Neustart sind jederzeit verfügbar, es gibt keinen Timer, und dein Fortschritt wird auf diesem Gerät gespeichert. Funktioniert offline. Keine Werbung, kein Konto, keine Datenerfassung."
+}
