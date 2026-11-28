@@ -430,7 +430,7 @@ internal static class CompanionSimulatorTests
                 }
             }
 
-            // (c) RainComing exactly on the days before rain at home, whatever today's weather is.
+            // (c) RainComing exactly on the dry days before rain at home (CP50: its lines assume a dry today).
             Season season = GardenSeason.For(world);
             for (int d = 0; d < 120; d++)
             {
@@ -441,8 +441,9 @@ internal static class CompanionSimulatorTests
                 bool coming = false;
                 foreach (Fact f in CompanionFacts.For(world, context))
                     if (f.Kind == FactKind.RainComing) coming = true;
-                Expect(coming == (tomorrow == Weather.Rainy),
-                    "CP18: RainComing is present exactly when tomorrow is rainy (garden " + grown + ", day " + d + ")");
+                bool wetToday = todayWeather == Weather.Rainy || todayWeather == Weather.Snowy;
+                Expect(coming == (tomorrow == Weather.Rainy && !wetToday),
+                    "CP18/CP50: RainComing is present exactly when tomorrow is rainy and today is dry (garden " + grown + ", day " + d + ")");
                 if (coming) comingDays++;
                 if (coming && todayWeather == Weather.Rainy) rainyTodayComing++;
             }

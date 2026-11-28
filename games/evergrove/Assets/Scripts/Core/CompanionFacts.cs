@@ -225,7 +225,10 @@ namespace Evergrove.Core
                 facts.Add(Make(FactKind.WeatherToday, Fact.AnyKeeper,
                     "weather:" + context.Weather, AmbientWeight, false, false, 10 * Step,
                     "weather", context.Weather.ToString()));
-            if (RiverWeather.RainComing(context.Today, world.Garden, GardenSeason.For(world)))
+            // CP50 (tour c11l): the rain-coming lines assume a dry day ("anything to dry outside, today's the
+            // day"), so the news is only told when today isn't wet already.
+            if (context.Weather != Weather.Rainy && context.Weather != Weather.Snowy &&
+                RiverWeather.RainComing(context.Today, world.Garden, GardenSeason.For(world)))
                 facts.Add(Make(FactKind.RainComing, 1, "rain-coming:" + context.Today.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
                     AmbientWeight, false, false, 10 * Step + 60, LegacyOffSlot, "1"));
             if (context.LightOn && DayLight.Remark(0, context.Phase, GardenSeason.For(world)) != null)

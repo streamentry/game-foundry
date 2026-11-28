@@ -141,13 +141,13 @@ cd games/evergrove/Tests && EVERGROVE_COMPANION_TRANSCRIPT=/Volumes/SANDISK-Data
 ### Day 23 (Snowy, Dusk)
 
 - **Mira:** I went the long way round to pass your hazel in the meadow. It was worth the extra steps.
-- **Orin:** I can see rain on the far hills. It'll reach the garden tomorrow; I've checked the gutters.
+- **Orin:** You've a good head for the old painting. Steady. That's rarer than clever.
 - **Fen:** Try a flower next to a tree. Hedgehogs like a sheltered flower to visit at dusk.
 
 ### Day 24 (Rainy, Night)
 
 - **Mira:** I saw what you did with the water. Patient hands. My grandmother would have liked you.
-- **Orin:** You could sign your name under the old painting. I would.
+- **Orin:** The river likes company. Something built beside it would suit.
 - **Fen:** Bees always find a new flower before I do. I'll be watching your cowslips in the meadow to see who comes first.
 
 ### Day 25 (Fair, Dawn)
@@ -159,13 +159,13 @@ cd games/evergrove/Tests && EVERGROVE_COMPANION_TRANSCRIPT=/Volumes/SANDISK-Data
 ### Day 26 (Fair, Morning)
 
 - **Mira:** A tree is a slow kind of letter, my grandmother said. Your hazel in the meadow will be read for years.
-- **Orin:** Put something built at the water's edge. Herons like that sort of spot, I'm told.
+- **Orin:** Good, that's the old painting done. Now sit down a minute. Work's better with a rest after.
 - **Fen:** A flower beside a tree is sheltered. The tree keeps the worst of the wind off.
 
 ### Day 27 (Snowy, Day)
 
 - **Mira:** The water's easier to listen to once the water is done. Or perhaps that's just me.
-- **Orin:** Rain upstream today. Tomorrow it's our turn. I'll get the tools under cover.
+- **Orin:** A built thing beside the water: that's a pairing worth finding.
 - **Fen:** I always smell a new flower first and look second. I did both by your cowslips in the meadow, and gladly.
 
 ### Day 28 (Rainy, Golden)
@@ -183,6 +183,6 @@ cd games/evergrove/Tests && EVERGROVE_COMPANION_TRANSCRIPT=/Volumes/SANDISK-Data
 ### Day 30 (Windy, Night)
 
 - **Mira:** My grandmother kept a jar of buttons to puzzle over. She'd have liked to see you with the water.
-- **Orin:** The river likes company. Something built beside it would suit.
+- **Orin:** Built things by the water get noticed. By herons, mostly.
 - **Fen:** A sheltered flower, beside a tree: it's cosier than it sounds.
 
