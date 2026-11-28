@@ -40,7 +40,9 @@ internal static class CompanionSimulatorTests
     // CP46: a 30-day transcript of one scripted garden, for reading the lines in context. It is written only when
     // EVERGROVE_COMPANION_TRANSCRIPT names an output path; otherwise it returns at once and adds no assertions.
     // The garden: nine things grown, two trees tended, a letter from Anh waiting on days 3 to 5, fruit given to
-    // Orin on day 8. Weather and hour cycle through every value. It is a simulation, not a played session.
+    // Orin on day 8. Weather is the garden's real forecast for each date (as the app reads it), and the hour
+    // cycles through every value. The fruit is given on the day itself, as the app does, so nothing is said early.
+    // It is a simulation, not a played session.
     private const string TranscriptEnv = "EVERGROVE_COMPANION_TRANSCRIPT";
 
     private static void WriteSampleTranscript()
@@ -49,6 +51,7 @@ internal static class CompanionSimulatorTests
         if (string.IsNullOrWhiteSpace(path)) return;
 
         const int Days = 30;
+        const int FruitDay = 7; // day 8, zero-based
         string[] names = { "Mira", "Orin", "Fen" };
         LineBank bank = LoadBank();
         WorldModel world = CompanionFactsTests.Grown(9);
@@ -56,13 +59,28 @@ internal static class CompanionSimulatorTests
         world.SolveTree(1);
         world.KeepNote("Anh", "The plums are early this year.");
         GardenMap map = MapFor(world);
-        var weathers = (Weather[])Enum.GetValues(typeof(Weather));
         var phases = (DayPhase[])Enum.GetValues(typeof(DayPhase));
+        // CP46: the app's weather is DayWeather.For(date, GardenSeason.For(world), garden), the same for every
+        // visit that day, so the transcript reads the same forecast (RainComing looks at tomorrow's).
+        Season season = GardenSeason.For(world);
+        Func<int, Weather> weatherOn = d => DayWeather.For(Start.AddDays(d), season, world.Garden);
         // The letter is in the box all along; it counts as waiting only while LettersRead is behind it (days 3 to 5).
         Func<int, CompanionContext> contextFor = d => new CompanionContext(Start.AddDays(d),
-            weather: weathers[d % weathers.Length], lightOn: true, phase: phases[d % phases.Length],
-            lettersRead: d >= 2 && d <= 4 ? 0 : 1, fruitJustGivenTo: d == 7 ? 1 : -1, map: map);
-        IReadOnlyList<SimLine> transcript = CompanionSimulator.Run(world, contextFor, Days, bank, CompanionLocale.English, null);
+            weather: weatherOn(d), lightOn: true, phase: phases[d % phases.Length],
+            lettersRead: d >= 2 && d <= 4 ? 0 : 1, fruitJustGivenTo: d == FruitDay ? 1 : -1, map: map);
+        // CP46: fruit reaches Orin the way the app does it (GiveFruit, then the thank-you), on day 8 only, so the
+        // FruitGiven fact does not exist before then. The world changes between days; memory is carried forward.
+        var transcript = new List<SimLine>();
+        CompanionMemory memory = CompanionMemory.Empty;
+        for (int d = 0; d < Days; d++)
+        {
+            if (d == FruitDay) Expect(world.GiveFruit(1), "CP46: the scripted garden has fruit for Orin on day 8");
+            int dayIndex = d;
+            IReadOnlyList<SimLine> today = CompanionSimulator.Run(world, _ => contextFor(dayIndex), 1, bank, CompanionLocale.English, memory);
+            foreach (SimLine line in today)
+                memory = memory.With(new Heard(line.Day, line.Speaker, line.Kind, line.Variant, line.Key));
+            transcript.AddRange(today);
+        }
         Expect(transcript.Count > 0, "CP46: the sample transcript says something");
 
         var text = new StringBuilder();
@@ -75,7 +93,7 @@ internal static class CompanionSimulatorTests
         for (int d = 0; d < Days; d++)
         {
             int day = CompanionContext.DayNumberOf(Start.AddDays(d));
-            text.Append("### Day ").Append(d + 1).Append(" (").Append(weathers[d % weathers.Length]).Append(", ")
+            text.Append("### Day ").Append(d + 1).Append(" (").Append(weatherOn(d)).Append(", ")
                 .Append(phases[d % phases.Length]).Append(")\n\n");
             for (int speaker = 0; speaker < names.Length; speaker++)
             {
