@@ -54,7 +54,7 @@ namespace Evergrove.UnityClient
             return int.TryParse(PlayerPrefs.GetString(LanternReadKey, ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out day) ? day : 0;
         }
 
-        // Called from the hub, beside the letterbox: a token for what the day offers now, if anything.
+        // Called from the hub, beside the menu button: a token for what the day offers now, if anything.
         private void DayRhythmTokens(Transform parent)
         {
             if (world == null || world.Mode != PlayMode.Living || !DayLightOn || titleScreen == null) return;
@@ -64,7 +64,7 @@ namespace Evergrove.UnityClient
             if (DayRhythm.Offer(phase, day) == DayOffer.DewBoard)
                 DayToken(parent, 1, "glyph-droplet", DayRhythm.DewBoardWords, rect => OpenDewBoard());
             else if (DayRhythm.LetterDue(phase, day, LanternReadOn()))
-                DayToken(parent, 1, "build-96", "A lantern letter from " + DayRhythm.LanternFrom(day) + ", waiting by the letterbox.",
+                DayToken(parent, 1, "build-96", "A lantern letter from " + DayRhythm.LanternFrom(day) + ", waiting in your garden.",
                     ShowLanternLetter);
         }
 
@@ -105,7 +105,7 @@ namespace Evergrove.UnityClient
             int day = LocalDayStamp();
             PlayerPrefs.SetString(LanternReadKey, day.ToString(CultureInfo.InvariantCulture));
             PlayerPrefs.Save();
-            RuleToast.Show(token, DayRhythm.LanternWords(day), font, Ink, Paper); // a short toast beside the letterbox
+            RuleToast.Show(token, DayRhythm.LanternWords(day), font, Ink, Paper); // a short toast beside the token
             if (token != null) token.gameObject.SetActive(false);
         }
     }

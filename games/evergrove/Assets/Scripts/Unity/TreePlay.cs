@@ -533,7 +533,7 @@ namespace Evergrove.UnityClient
             if (together && turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
             if (board != null)
             {
-                board.Lock();
+                board.Lock(); ChainCause.Show(cardRect, uiFont, gentle); // checklist 38
                 if (gentle && rewardPill.activeSelf) BloomPulse.Add(rewardPill, 0.3f, 0.25f);
                 closeAt = Time.unscaledTime + SettleClose + (SendBoard != null ? 3f : 0f); // review: time to see the letter
                 return;

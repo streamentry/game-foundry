@@ -106,7 +106,7 @@ namespace Evergrove.UnityClient
         internal void QaCloseFamily()
         {
             DismissFamily();
-            RefreshMaps(); // as a real close does: the letterbox appears
+            RefreshMaps(); // as a real close does: the hub rebuilds
         }
 
         internal void QaCloseBasket()

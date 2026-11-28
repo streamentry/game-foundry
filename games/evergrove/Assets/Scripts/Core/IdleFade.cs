@@ -3,7 +3,7 @@ using System;
 namespace Evergrove.Core
 {
     /// <summary>
-    /// Checklist 18: the corner chrome (menu, seed purse, letterbox, basket) fades back while the
+    /// Checklist 18: the corner chrome (menu, seed purse, open basket tray) fades back while the
     /// garden is left alone, so the garden fills the screen. Pure: the Unity layer supplies the
     /// seconds since the last touch and whether reduced motion is on.
     /// </summary>

@@ -13,7 +13,7 @@ namespace Evergrove.UnityClient
     public sealed partial class EvergroveApp
     {
 
-        // The seeds you have, top right of home: a sprout and a number.
+        // The seeds you have, top right of home: a sprout and a number. Read-only (checklist 11).
         private void SeedPurse()
         {
             if (titleScreen == null || world.Mode != PlayMode.Living || world.Choices.Length == 0) return;
@@ -28,7 +28,8 @@ namespace Evergrove.UnityClient
             var body = purse.AddComponent<Image>();
             MosseloraArt.Round(body, new Color(0.98f, 0.95f, 0.86f, 0.96f), 24);
             MosseloraArt.Lift(body, 2f, 0.2f);
-            SeedPurseTap(purse, body); // tap opens the seed book (EvergroveApp.Economy.cs)
+            body.raycastTarget = false; // read-only (checklist 11): the seed book opens from the corner fan
+            SeedPurseSpeech(purse); // the spoken count (EvergroveApp.Economy.cs)
             var row = purse.AddComponent<HorizontalLayoutGroup>();
             row.padding = new RectOffset(8, 12, 4, 4);
             row.spacing = 4;
@@ -46,6 +47,7 @@ namespace Evergrove.UnityClient
             iconImage.raycastTarget = false;
             Text count = Label(purse.transform, "Seed count", world.Seeds.ToString(), 20, 0, Ink, TextAnchor.MiddleLeft);
             Emphasize(count);
+            count.raycastTarget = false;
             // One line at any text size; the purse grows leftward to fit "100" at 150% (I227).
             count.horizontalOverflow = HorizontalWrapMode.Overflow;
             // Fruit from your trees sits beside the seeds once you have picked any (I229).
@@ -61,6 +63,7 @@ namespace Evergrove.UnityClient
                 purseFruit.raycastTarget = false;
                 Text fruit = Label(purse.transform, "Fruit count", world.Fruit.ToString(), 20, 0, Ink, TextAnchor.MiddleLeft);
                 Emphasize(fruit);
+                fruit.raycastTarget = false;
                 fruit.horizontalOverflow = HorizontalWrapMode.Overflow;
             }
             var fit = purse.AddComponent<ContentSizeFitter>();

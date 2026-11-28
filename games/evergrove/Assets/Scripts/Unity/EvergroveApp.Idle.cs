@@ -5,7 +5,7 @@ namespace Evergrove.UnityClient
 {
     /// <summary>
     /// Checklist 18: with no touch for 6 s on the home garden, the corner chrome (menu, seed purse,
-    /// letterbox, basket) fades to 20% so the garden fills the screen. Any touch brings it back at
+    /// open basket tray) fades to 20% so the garden fills the screen. Any touch brings it back at
     /// once. Alpha only: the faded controls keep their raycasts, so the first tap on one both wakes
     /// the chrome and performs its action. Sheets, boards, letters and visits count as in use.
     /// </summary>
@@ -15,7 +15,7 @@ namespace Evergrove.UnityClient
         private const float QaIdleSeconds = 30f;
 
         // Chrome that fades, besides the menu bar, all children of the home screen.
-        private static readonly string[] IdleHudNames = { "Hub chrome", "Seeds you have", "Letterbox", "Basket corner" }; // Hub chrome: the home menu button (tour found it unfaded)
+        private static readonly string[] IdleHudNames = { "Hub chrome", "Seeds you have", "Basket corner" }; // Hub chrome: the home menu button (tour found it unfaded)
 
         private float idleTouchAt = -1f; // Time.unscaledTime of the last touch
         private bool? idleQaOverride;    // QaIdle(): forces idle on or off for the tour; a real touch clears it

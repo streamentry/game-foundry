@@ -96,7 +96,7 @@ namespace Evergrove.UnityClient
             view.FocusFromTop = landscape ? 0.24f : 0.36f;
             // The play row and the basket live in the bottom of home: neighbours keep out of it (I218).
             view.ClearBottom = landscape ? 0f : 190f;
-            // The letterbox stands under the purse (I233): neighbours keep below it too.
+            // Neighbours keep below the corner (the letterbox stood under the purse until checklist 11; the clearance stays).
             view.ClearTop = landscape ? 0f : world.Letters.Length > 0 ? 220f : 140f; // the box's foot is ~195 pt down
             return true;
         }
@@ -221,7 +221,7 @@ namespace Evergrove.UnityClient
                     Newest = justSolved >= 0 ? i == justSolved : i == made.Length - 1 && justPlanted < 0,
                     Bloomed = world.TreeSolved(i) || world.IsHelped(i), // solved (I204), or by family (I227)
                     HoldsPuzzle = markPuzzles && !world.TreeSolved(i), // helped still holds your own first solve
-                    Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, // I255
+                    Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, Watered = ChainCause.WateredNow(world.Garden), // I255
                     Together = world.SolvedTogether(i), // I265
                     FlowerIndex = made[i] == (int)VillageChoice.Flowers ? ItemAt(i, made[i]).Index + 1 : 0, // I338
                     Crowned = world.TreeSolved(i) && ReplayBoards.Crowned(TreePuzzles.TierFor(i), Replays(i)), // I292
@@ -257,7 +257,7 @@ namespace Evergrove.UnityClient
                     Newest = justSolved >= 0 ? BoughtIndex + k == justSolved : k == justBought,
                     Bloomed = world.BoughtSolved(k),
                     HoldsPuzzle = markPuzzles && !world.BoughtSolved(k),
-                    Kind = (int)ThingPuzzle.ForNursery(kind) + 1, // I255
+                    Kind = (int)ThingPuzzle.ForNursery(kind) + 1, Watered = ChainCause.WateredNow(world.Garden), // I255
                     Together = world.SolvedTogether(BoughtIndex + k), // I265
                     FlowerIndex = Nursery.Family(kind) == VillageChoice.Flowers ? Nursery.Item(kind).Index + 1 : 0, // I338
                     Crowned = world.BoughtSolved(k) && ReplayBoards.Crowned(Nursery.Row(kind), Replays(BoughtIndex + k)), // I292

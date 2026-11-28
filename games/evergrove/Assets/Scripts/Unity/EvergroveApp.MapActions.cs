@@ -176,6 +176,9 @@ namespace Evergrove.UnityClient
         {
             int[] made = world.Choices;
             if (world.Mode != PlayMode.Living || made.Length == 0) return;
+            // Checklist 11: no resting basket control. The corner exists only while the tray is open
+            // (or a planting is held, so it can be put back); closed, the fan's Basket token opens it.
+            if (!basketOpen && heldPlanting < 0) return;
             var corner = Node("Basket corner", screen);
             var cornerRect = corner.GetComponent<RectTransform>();
             Rect safe = Screen.safeArea;
@@ -230,6 +233,13 @@ namespace Evergrove.UnityClient
                 // Shop, not plant (I213): the sprout wears the same seed chip as the
                 // purse and the prices, so the token reads "spend seeds here".
                 if (!nurseryOpen) PriceChip(bag.transform, world.Seeds.ToString(), true, true);
+                // Checklist 38: a plots puzzle solved today sent a seedling here; a small sprout says so (cosmetic).
+                if (ChainCause.SeedlingNow(world.Garden))
+                {
+                    Image sprout = MosseloraArt.Ornament(bag.transform, "A seedling from the plots", MosseloraArt.Load(TreePlay.SeedIcon),
+                        new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), new Vector2(26f, 26f), new Vector2(8f, -8f));
+                    if (sprout != null) sprout.raycastTarget = false;
+                }
                 if (nurseryOpen) NurseryTokens(row.transform);
                 else GiftTokens(row.transform);
                 for (int i = nurseryOpen ? -1 : made.Length - 1; i >= 0; i--) // your own kinds, newest first
@@ -254,50 +264,56 @@ namespace Evergrove.UnityClient
                 }
             }
             // The basket itself: open, close, or (holding a planting) put it back.
+            // Open, the tray's close control (or Put back while a planting is held). At least 48 pt.
             bool holding = heldPlanting >= 0;
-            string glyphName = holding ? MosseloraArt.IconUndo : basketOpen ? MosseloraArt.IconCancel : MosseloraArt.IconRooted;
-            Button basket = IconButton(corner.transform, holding ? "Put back" : basketOpen ? "Close basket" : "Plant more",
-                holding ? "Put back" : basketOpen ? GameLocalization.Text("close") : "Plant more", glyphName, () => {
+            string glyphName = holding ? MosseloraArt.IconUndo : MosseloraArt.IconCancel;
+            Button basket = IconButton(corner.transform, holding ? "Put back" : "Close basket",
+                holding ? "Put back" : GameLocalization.Text("close"), glyphName, () => {
                     if (heldPlanting >= 0) { PutBack(); return; }
-                    basketOpen = !basketOpen;
-                    basketKind = basketOpen ? world.Choices.Length - 1 : -1;
-                    if (!basketOpen) { nurseryOpen = false; nurseryKind = -1; }
+                    basketOpen = false;
+                    basketKind = -1;
+                    nurseryOpen = false; nurseryKind = -1;
                     RefreshMaps();
-                }, 72, holding || basketOpen ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
+                }, 72, MosseloraTheme.ForestAction,
                 false, null, false, 0, 0, true);
             var basketRect = basket.GetComponent<RectTransform>();
             basketRect.anchorMin = basketRect.anchorMax = new Vector2(0f, 0f);
             basketRect.pivot = new Vector2(0f, 0f);
             basketRect.anchoredPosition = new Vector2(10f, basketOpen ? 16f : 2f);
             basketRect.sizeDelta = new Vector2(72f, 72f);
-            if (!basketOpen && !holding)
+        }
+
+        // Checklist 11: the basket lives in the corner fan now. Its token wears the painted basket with
+        // the newest thing peeking out, and the gift ribbon when a cutting waits (both as the closed toggle did).
+        private void BasketFanCue(Button basket)
+        {
+            int[] made = world.Choices;
+            if (basket == null || made.Length == 0) return;
+            // I345 (run 3, P3): closed, it reads as a basket (the painted one) with the
+            // newest thing you grew peeking out of it, so "things to plant" says itself.
+            Transform glyph = basket.transform.Find("Icon");
+            Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
+            Sprite newest = ItemArt(made.Length - 1, made[made.Length - 1]);
+            Sprite basketArt = MosseloraArt.Load("food-basket");
+            if (glyphImage != null && basketArt != null)
             {
-                // I345 (run 3, P3): closed, it reads as a basket (the painted one) with the
-                // newest thing you grew peeking out of it, so "things to plant" says itself.
-                Transform glyph = basket.transform.Find("Icon");
-                Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
-                Sprite newest = ItemArt(made.Length - 1, made[made.Length - 1]);
-                Sprite basketArt = MosseloraArt.Load("food-basket");
-                if (glyphImage != null && basketArt != null)
-                {
-                    glyphImage.sprite = basketArt;
-                    glyphImage.color = Color.white;
-                    ((RectTransform)glyph).anchoredPosition = new Vector2(0f, -6f);
-                    Image peek = newest == null ? null : MosseloraArt.Ornament(basket.transform, "Newest thing, peeking out",
-                        newest, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f), new Vector2(34f, 34f), new Vector2(4f, 2f));
-                    if (peek != null) peek.transform.SetSiblingIndex(glyph.GetSiblingIndex()); // behind the basket's rim
-                }
-                else if (glyphImage != null && newest != null) { glyphImage.sprite = newest; glyphImage.color = Color.white; }
-                if (world.PlantingCount == 0 && gentleMotion) BloomPulse.Add(basket.gameObject, 0.8f, 0.08f);
-                // SC05: one soft mark where the top waiting thing lives. When that's a cutting, the
-                // basket wears the gift ribbon (B5's honey, never red): content waiting, never a count.
-                if (world.Gifts.Length > 0 && CompanionAttention.Mark(CompanionFacts.For(world, CompanionNow()),
-                        CompanionContext.DayNumberOf(CompanionToday()), world.Garden) == Attention.Basket)
-                {
-                    Image ribbon = MosseloraArt.Ornament(basket.transform, "A cutting is waiting", MosseloraArt.Rounded(8),
-                        new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(20f, 20f), new Vector2(-8f, -8f));
-                    if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.93f, 0.72f, 0.36f, 1f); }
-                }
+                glyphImage.sprite = basketArt;
+                glyphImage.color = Color.white;
+                ((RectTransform)glyph).anchoredPosition = new Vector2(0f, -6f);
+                Image peek = newest == null ? null : MosseloraArt.Ornament(basket.transform, "Newest thing, peeking out",
+                    newest, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f), new Vector2(34f, 34f), new Vector2(4f, 2f));
+                if (peek != null) peek.transform.SetSiblingIndex(glyph.GetSiblingIndex()); // behind the basket's rim
+            }
+            else if (glyphImage != null && newest != null) { glyphImage.sprite = newest; glyphImage.color = Color.white; }
+            if (world.PlantingCount == 0 && gentleMotion) BloomPulse.Add(basket.gameObject, 0.8f, 0.08f);
+            // SC05: one soft mark where the top waiting thing lives. When that's a cutting, the
+            // basket wears the gift ribbon (B5's honey, never red): content waiting, never a count.
+            if (world.Gifts.Length > 0 && CompanionAttention.Mark(CompanionFacts.For(world, CompanionNow()),
+                    CompanionContext.DayNumberOf(CompanionToday()), world.Garden) == Attention.Basket)
+            {
+                Image ribbon = MosseloraArt.Ornament(basket.transform, "A cutting is waiting", MosseloraArt.Rounded(8),
+                    new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(20f, 20f), new Vector2(-8f, -8f));
+                if (ribbon != null) { ribbon.preserveAspect = false; ribbon.color = new Color(0.93f, 0.72f, 0.36f, 1f); }
             }
         }
 
