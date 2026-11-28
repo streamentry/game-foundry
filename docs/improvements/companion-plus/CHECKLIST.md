@@ -59,7 +59,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 - [x] **CP27 Coverage report.** `--report` prints a markdown table of kinds × voices, with counts and average words. Done: `--report` prints a per-group markdown table (voice counts, average and longest raw line in words) with a Total row, without changing the exit code; covered by unittest for header, row and total values.
 - [x] **CP28 Checker tests.** Python unit tests for the checker's rules, in `tools/tests`. Done: added tools/tests/test_evergrove_line_bank_rules.py (27 tests, one failing and one passing example per original rule, plus the shipped en.json); no checker change.
 - [x] **CP29 Translator export.** `tools/evergrove_line_bank_export.py` writes a CSV with ID, kind, qualifier, voice, English, slots and notes, so a native speaker has context. Done: tools/evergrove_line_bank_export.py writes the 932-row translator CSV (BOM, QUOTE_ALL, ids match LineBank.LineId); tests in tools/tests/test_evergrove_line_bank_export.py check the pinned cl_f8f7c620 id, row count, unique ids and that nothing is written under Assets.
-- [ ] **CP30 Translation import check.** A tool reads a translated CSV, checks its slots against the rules, and writes a draft into `docs/improvements/review/<locale>/`, never into `Resources`.
+- [x] **CP30 Translation import check.** A tool reads a translated CSV, checks its slots against the rules, and writes a draft into `docs/improvements/review/<locale>/`, never into `Resources`. Done: `tools/evergrove_line_bank_import.py` refuses bad slots, dropped or unknown ids and Assets out-dirs, skips non-localizable rows and writes a DRAFT markdown review file; 12 tests in `tools/tests/test_evergrove_line_bank_import.py`.
 
 ### D. Localization and safety
 
