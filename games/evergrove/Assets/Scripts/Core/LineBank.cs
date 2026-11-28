@@ -124,11 +124,6 @@ namespace Evergrove.Core
                 ? (IReadOnlyList<string>)Array.AsReadOnly(list) : Array.Empty<string>();
         }
 
-        public IEnumerable<string> Voices(FactKind kind)
-        {
-            return lines.TryGetValue(kind, out var voices) ? voices.Keys : (IEnumerable<string>)Array.Empty<string>();
-        }
-
         /// <summary>A speaker's wordings for a kind: their own voice first, else anyone's.</summary>
         public IReadOnlyList<string> For(FactKind kind, int speaker)
         {

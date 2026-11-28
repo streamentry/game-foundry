@@ -81,7 +81,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 
 ### F. Process and docs
 
-- [ ] **CP43 Dead code.** Remove companion helpers nothing calls since SC06.
+- [x] **CP43 Dead code.** Remove companion helpers nothing calls since SC06. Done: removed the unused LineBank.Voices(FactKind) overload after grepping every companion member across Assets, Tests and tools; the rest are used, or are test-only APIs kept on purpose (Allot is live via Pick); tested by the full suite (5,477,400 assertions), Unity compile (0 errors), line-bank and docs checks.
 - [ ] **CP44 CI runs the checker.** `ci.yml` runs `tools/evergrove_line_bank_check.py --complete` on every PR.
 - [ ] **CP45 CI runs the checker's tests.** The Python test discovery covers CP28, and CI is shown to run it.
 - [ ] **CP46 Sample transcript.** A tool writes a 30-day transcript of one scripted garden to `docs/improvements/companion-plus/sample-transcript.md`, for reading the lines in context.
