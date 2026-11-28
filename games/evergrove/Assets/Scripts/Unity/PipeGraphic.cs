@@ -66,10 +66,10 @@ namespace Evergrove.UnityClient
             // wider water stripe along each arm; dry channels carry a
             // segmented, broken stripe. Same arm geometry and hit area.
             Color32 outer = completed ? new Color32(22, 132, 146, 255) :
-                hasWater ? (Color32)MosseloraTheme.WaterChannel :
+                hasWater ? (Color32)MosseloraTheme.WetPipe :
                 (Color32)MosseloraTheme.DryChannel;
             Color32 collar = completed ? new Color32(16, 96, 108, 255) :
-                hasWater ? new Color32(16, 86, 98, 255) :
+                hasWater ? new Color32(11, 56, 64, 255) : // a shade below WetPipe, as the old collar sat below WaterChannel
                 new Color32(122, 67, 40, 255);
             Color32 inner = hasWater ?
                 new Color32(205, 239, 240, 255) :

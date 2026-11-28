@@ -106,6 +106,40 @@ internal static class ThingStoryTests
                 "restored save gives the same caption for index " + i);
         }
 
+        // Solved together: the sentence is appended only to the marked thing, and only in a living world.
+        string plainOak = ThingStory.Line("oak", 0, 2);
+        Expect(ThingStory.Line("oak", 0, 2, true) == plainOak + " You solved it together.", "together sentence appended exactly");
+        Expect(ThingStory.Line("oak", 0, 2, false) == plainOak, "together false leaves the sentence unchanged");
+        Expect(ThingStory.Line("oak", 5, 2, true) == "" && ThingStory.Line(null, 0, 2, true) == "",
+            "together does not invent a line for invalid input");
+
+        world.SolveTree(0);
+        Expect(world.MarkTogether(0), "a solved grown thing can be marked together");
+        Expect(ThingStory.For(world, 0, "oak") ==
+            ThingStory.Line("oak", 0, 3) + " You solved it together.", "marked thing gets the together sentence");
+        Expect(ThingStory.For(world, 1, "oak") == ThingStory.Line("oak", 1, 3), "unmarked thing keeps its sentence");
+        Expect(!ThingStory.For(world, 1, "oak").Contains("together"), "no together sentence on unmarked thing");
+
+        // Puzzle-only and matched worlds stay empty even with a together mark attempt (refused there).
+        Expect(!puzzle.MarkTogether(0) && ThingStory.For(puzzle, 0, "oak") == "", "puzzle-only: no together caption");
+
+        // Reconsidering the latest choice removes the mark and the sentence with it.
+        WorldModel undo = WorldModel.New(PlayMode.Living);
+        Solve(undo);
+        Expect(undo.Choose(VillageChoice.Bridge), "undo: first choice accepted");
+        undo.SolveTree(0);
+        Expect(undo.MarkTogether(0), "undo: thing marked together");
+        Expect(ThingStory.For(undo, 0, "bridge").EndsWith(" You solved it together.", StringComparison.Ordinal),
+            "undo: sentence present before reconsider");
+        Expect(undo.ReconsiderLatestChoice(), "undo: latest choice reconsidered");
+        Expect(undo.TogetherCount == 0 && ThingStory.For(undo, 0, "bridge") == "",
+            "undo: mark and sentence gone after reconsider");
+
+        // A together mark survives a save and reload.
+        WorldModel togetherSaved = WorldModel.Restore(world.Export());
+        Expect(ThingStory.For(togetherSaved, 0, "oak") == ThingStory.For(world, 0, "oak"),
+            "together sentence survives a save/load round trip");
+
         // Unity map: the caption is used, and the family line stays as the fallback.
         string map = ReadRepoFile("games/evergrove/Assets/Scripts/Unity/GardenMapView.cs");
         Expect(map != null, "GardenMapView.cs can be found");
