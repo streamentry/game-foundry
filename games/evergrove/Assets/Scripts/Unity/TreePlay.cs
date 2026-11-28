@@ -160,7 +160,7 @@ namespace Evergrove.UnityClient
                     pips[p].gameObject.SetActive(shown);
                     if (!shown) continue;
                     pips[p].sprite = p == turn ? MosseloraArt.Rounded(8) : MosseloraArt.Ring(8);
-                    pips[p].color = p == turn ? MosseloraTheme.EarthInk : new Color(0.35f, 0.30f, 0.22f, 0.8f);
+                    pips[p].color = PipInkColour(p);
                     ((RectTransform)pips[p].transform).anchoredPosition = new Vector2((p - (players - 1) / 2f) * 12f, -8f);
                 }
             if (together && gentle) BloomPulse.Add(disc.gameObject, 0f, 0.12f);

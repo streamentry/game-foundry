@@ -11,6 +11,9 @@ namespace Evergrove.Core
     /// "Name, from the nursery." (with the puzzle and together facts once solved), and basket
     /// plantings read "Planted from your basket. It came from the name you chose after stream 3." English only; the Unity
     /// caller keeps the family line for other languages.
+    /// A living choice also says which stream its pipe shaped, right after the "since" sentence:
+    /// "Its roots hold a pipe in stream 4." (present while that board is in play) or "It held a pipe in stream 3."
+    /// (past). The shaped stream is the one after the choice's own, read from the recorded choice and round.
     /// </summary>
     public static class ThingStory
     {
@@ -53,11 +56,44 @@ namespace Evergrove.Core
         /// </summary>
         public static string Line(string name, int choiceIndex, int choicesMade, bool finished, bool together)
         {
+            return Line(name, choiceIndex, choicesMade, "", finished, together);
+        }
+
+        /// <summary>
+        /// As the finished/together overload, with <paramref name="shaped"/> (a sentence from
+        /// <see cref="ShapedLine"/>, or "") placed right after the "since" sentence. An empty
+        /// <paramref name="shaped"/> adds nothing. Still "" wherever the plain line is "".
+        /// </summary>
+        public static string Line(string name, int choiceIndex, int choicesMade, string shaped, bool finished, bool together)
+        {
             string line = Line(name, choiceIndex, choicesMade);
             if (line.Length == 0) return "";
+            if (!string.IsNullOrEmpty(shaped)) line += " " + shaped;
             if (finished) line += " You finished its puzzle.";
             if (finished && together) line += " You solved it together.";
             return line;
+        }
+
+        /// <summary>
+        /// Pure sentence saying which stream a chosen thing's pipe shaped. A ShadeTree or Flowers
+        /// roots hold a pipe; a Bridge holds one. <paramref name="current"/> is the present tense
+        /// (the shaped board is the one now in play); otherwise the past tense. "" when
+        /// <paramref name="shapedStream"/> is below 1 or the family is not a known choice.
+        /// </summary>
+        public static string ShapedLine(VillageChoice family, int shapedStream, bool current)
+        {
+            if (shapedStream < 1) return "";
+            string stream = shapedStream.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            switch (family)
+            {
+                case VillageChoice.ShadeTree:
+                case VillageChoice.Flowers:
+                    return (current ? "Its roots hold a pipe in stream " : "Its roots held a pipe in stream ") + stream + ".";
+                case VillageChoice.Bridge:
+                    return (current ? "It holds a pipe in stream " : "It held a pipe in stream ") + stream + ".";
+                default:
+                    return "";
+            }
         }
 
         /// <summary>
@@ -70,7 +106,21 @@ namespace Evergrove.Core
             if (world == null || world.Mode != PlayMode.Living) return "";
             int made = world.Choices.Length;
             if (choiceIndex < 0 || choiceIndex >= made) return "";
-            return Line(name, choiceIndex, made, world.TreeSolved(choiceIndex), world.SolvedTogether(choiceIndex));
+            return Line(name, choiceIndex, made, ShapedFor(world, choiceIndex), world.TreeSolved(choiceIndex),
+                world.SolvedTogether(choiceIndex));
+        }
+
+        /// <summary>
+        /// The shaped-stream sentence for choice <paramref name="choiceIndex"/>: choice i shapes board i+1,
+        /// which is stream i+2. Present tense while that board is the one in play. The last story choice
+        /// shapes nothing, so it gives "".
+        /// </summary>
+        private static string ShapedFor(WorldModel world, int choiceIndex)
+        {
+            if (choiceIndex < 0 || choiceIndex + 1 >= PuzzleCatalog.Count) return "";
+            int family = world.Choices[choiceIndex];
+            if (family < 0 || family > 2) return "";
+            return ShapedLine((VillageChoice)family, choiceIndex + 2, world.Round == choiceIndex + 1);
         }
 
         /// <summary>

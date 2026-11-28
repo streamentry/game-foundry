@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Evergrove.Core;
 
 /// <summary>
@@ -58,10 +59,39 @@ internal static class SeasonLookTests
         Expect(SeasonLook.DriftCount(Drift.Snow) >= 30 && SeasonLook.DriftCount(Drift.Snow) <= 60, "winter snowfall you can see");
         Expect(SeasonLook.DriftCount(Drift.Leaves) >= 16 && SeasonLook.DriftCount(Drift.Petals) >= 16, "autumn and spring drift you can see");
         Expect(SeasonLook.DriftCount(Drift.None) == 0, "summer is still");
+        // Falling pieces need a deciduous tree to fall from.
+        int holly = GardenCatalog.TreeIndexOf("holly");
+        Expect(SeasonLook.Falls(VillageChoice.ShadeTree, apple), "a deciduous tree drops its leaves");
+        Expect(SeasonLook.Falls(VillageChoice.ShadeTree, oak), "an oak drops its leaves");
+        Expect(!SeasonLook.Falls(VillageChoice.ShadeTree, holly), "an evergreen (holly) does not drop leaves");
+        Expect(SeasonLook.Falls(VillageChoice.ShadeTree, -1), "an unknown tree counts as falling");
+        Expect(!SeasonLook.Falls(VillageChoice.Flowers, sunflowers), "flowers do not fall");
+        Expect(!SeasonLook.Falls(VillageChoice.Bridge, -1), "a bridge does not fall");
+        Expect(SeasonLook.DriftCount(Drift.Petals, 0) == 0, "no falling tree, no petals");
+        Expect(SeasonLook.DriftCount(Drift.Petals, 1) == 10, "one tree drops 10 petals");
+        Expect(SeasonLook.DriftCount(Drift.Leaves, 2) == 14, "two trees drop 14 leaves");
+        Expect(SeasonLook.DriftCount(Drift.Petals, 4) == 20, "four trees reach 20");
+        Expect(SeasonLook.DriftCount(Drift.Petals, 100) == 20, "many trees stay capped at 20");
+        Expect(SeasonLook.DriftCount(Drift.Snow, 0) == 42, "snow does not need a tree");
+        Expect(SeasonLook.DriftCount(Drift.None, 5) == 0, "no drift, no pieces");
+        string mapView = Read("Assets/Scripts/Unity/GardenMapView.cs");
+        string speech = Read("Assets/Scripts/Unity/GardenMapView.Speech.cs");
+        Expect(speech.Contains("SeasonLook.Falls") && mapView.Contains("int falling = FallingTrees(items);"), "the map counts the falling trees");
+        Expect(mapView.Contains("(DriftNow == Drift.Snow || falling > 0)"), "no petals or leaves without a tree that sheds them; snow still falls");
+        Expect(mapView.Contains("DriftCount(Kind, "), "the drift is sized by the falling trees");
         // The river through the year.
         Expect(SeasonLook.River(Season.Winter) == RiverLook.IceEdged && SeasonLook.River(Season.Autumn) == RiverLook.LeavesAfloat &&
                SeasonLook.River(Season.Spring) == RiverLook.Running && SeasonLook.River(Season.Summer) == RiverLook.Sparkling,
             "the river changes with the year");
         return assertions;
+    }
+
+    private static string Read(string relative)
+    {
+        string dir = AppContext.BaseDirectory;
+        while (dir != null && !File.Exists(Path.Combine(dir, relative)))
+            dir = Path.GetDirectoryName(dir);
+        if (dir == null) throw new Exception(relative + " not found");
+        return File.ReadAllText(Path.Combine(dir, relative));
     }
 }

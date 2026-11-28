@@ -90,12 +90,19 @@ internal static class ThingStoryTests
             Expect(line.Contains(expectStream), "stream number for index " + i);
             Expect(line.StartsWith(char.ToUpperInvariant(name[0]) + name.Substring(1) + ", ", StringComparison.Ordinal),
                 "caption names the actual catalogue item for index " + i);
-            Expect(line == ThingStory.Line(name, i, 3), "For equals Line for index " + i);
-            if (since == 0) Expect(line.EndsWith("No streams have run past it yet.", StringComparison.Ordinal),
-                "newest choice has no streams since");
-            if (since == 2) Expect(line.EndsWith("Two streams have run past it since.", StringComparison.Ordinal),
-                "oldest of three has two streams since");
+            // The shaped sentence is board i+1 = stream i+2; present tense only for the board in play (round 3 = index 2).
+            string shaped = ThingStory.ShapedLine(picks[i], i + 2, i == 2);
+            Expect(line == ThingStory.Line(name, i, 3, shaped, false, false), "For equals Line for index " + i);
+            if (since == 0) Expect(line.EndsWith("No streams have run past it yet. " + shaped, StringComparison.Ordinal),
+                "newest choice has no streams since, then its shaped sentence");
+            if (since == 2) Expect(line.Contains("Two streams have run past it since. " + shaped),
+                "oldest of three has two streams since, then its shaped sentence");
         }
+        Expect(ThingStory.For(world, 0, GardenCatalog.For(world.Garden, 0, picks[0]).Name) ==
+            ThingStory.Line(GardenCatalog.For(world.Garden, 0, picks[0]).Name, 0, 3) + " Its roots held a pipe in stream 2.",
+            "first choice of three: shade tree held a pipe in stream 2 (past tense)");
+        Expect(ThingStory.For(world, 2, GardenCatalog.For(world.Garden, 2, picks[2]).Name).EndsWith(
+            " Its roots hold a pipe in stream 4.", StringComparison.Ordinal), "newest choice: present tense for the board in play");
 
         // Determinism against the saved world: the same save gives the same captions.
         WorldModel reloaded = WorldModel.Restore(world.Export());
@@ -116,9 +123,10 @@ internal static class ThingStoryTests
         world.SolveTree(0);
         Expect(world.MarkTogether(0), "a solved grown thing can be marked together");
         Expect(ThingStory.For(world, 0, "oak") ==
-            ThingStory.Line("oak", 0, 3) + " You finished its puzzle. You solved it together.",
-            "marked thing gets the finished and together sentences in order");
-        Expect(ThingStory.For(world, 1, "oak") == ThingStory.Line("oak", 1, 3), "unmarked thing keeps its sentence");
+            ThingStory.Line("oak", 0, 3) + " Its roots held a pipe in stream 2. You finished its puzzle. You solved it together.",
+            "marked thing gets the shaped, finished and together sentences in order");
+        Expect(ThingStory.For(world, 1, "oak") == ThingStory.Line("oak", 1, 3) + " It held a pipe in stream 3.",
+            "unmarked thing keeps its sentence, plus its shaped sentence");
         Expect(!ThingStory.For(world, 1, "oak").Contains("together"), "no together sentence on unmarked thing");
 
         // Pure finished/together overload: all four combinations, plus blank and out-of-range input.
@@ -138,11 +146,13 @@ internal static class ThingStoryTests
         WorldModel fresh = WorldModel.New(PlayMode.Living);
         Solve(fresh);
         Expect(fresh.Choose(VillageChoice.Bridge), "fresh: first choice accepted");
-        string bridgeLine = ThingStory.Line("bridge", 0, 1);
+        string bridgeLine = ThingStory.Line("bridge", 0, 1) + " It holds a pipe in stream 2.";
         Expect(ThingStory.For(fresh, 0, "bridge") == bridgeLine, "unsolved chosen thing: no puzzle sentence");
         Expect(fresh.SolveTree(0) > 0 && fresh.TreeSolved(0), "fresh: the chosen thing's puzzle is solved");
         Expect(ThingStory.For(fresh, 0, "bridge") == bridgeLine + " You finished its puzzle.",
             "solved chosen thing ends with the finished sentence");
+        Expect(ThingStory.For(fresh, 0, "bridge").Contains("It holds a pipe in stream 2. You finished its puzzle."),
+            "shaped sentence sits before the finished sentence");
         Expect(fresh.MarkTogether(0), "fresh: solved thing marked together");
         Expect(ThingStory.For(fresh, 0, "bridge") == bridgeLine + " You finished its puzzle. You solved it together.",
             "solved and together: both sentences, finished first");
@@ -211,6 +221,66 @@ internal static class ThingStoryTests
             "planting 1 sourced from choice 2");
         Expect(ThingStory.ForPlanting(stocked, 2, "oak") == "" && ThingStory.ForPlanting(stocked, -1, "oak") == "",
             "planting index out of range gives no caption");
+
+        // Shaped sentence: pure, all three families, both tenses, and nothing for stream 0 or an unknown family.
+        Expect(ThingStory.ShapedLine(VillageChoice.ShadeTree, 2, true) == "Its roots hold a pipe in stream 2.", "shade tree, current");
+        Expect(ThingStory.ShapedLine(VillageChoice.ShadeTree, 2, false) == "Its roots held a pipe in stream 2.", "shade tree, past");
+        Expect(ThingStory.ShapedLine(VillageChoice.Flowers, 4, true) == "Its roots hold a pipe in stream 4.", "flowers, current");
+        Expect(ThingStory.ShapedLine(VillageChoice.Flowers, 4, false) == "Its roots held a pipe in stream 4.", "flowers, past");
+        Expect(ThingStory.ShapedLine(VillageChoice.Bridge, 3, true) == "It holds a pipe in stream 3.", "bridge, current");
+        Expect(ThingStory.ShapedLine(VillageChoice.Bridge, 3, false) == "It held a pipe in stream 3.", "bridge, past");
+        Expect(ThingStory.ShapedLine(VillageChoice.Bridge, 0, true) == "" && ThingStory.ShapedLine(VillageChoice.ShadeTree, 0, false) == "",
+            "stream 0 gives no shaped sentence");
+        Expect(ThingStory.ShapedLine((VillageChoice)7, 2, true) == "" && ThingStory.ShapedLine((VillageChoice)(-1), 2, false) == "",
+            "unknown family gives no shaped sentence and does not throw");
+
+        // Shaped overload: after the since sentence, before finished and together; empty shaped adds nothing.
+        Expect(ThingStory.Line("oak", 0, 2, "It held a pipe in stream 2.", true, true) ==
+            plain + " It held a pipe in stream 2. You finished its puzzle. You solved it together.",
+            "shaped sentence sits after since and before finished and together");
+        Expect(ThingStory.Line("oak", 0, 2, "", false, false) == plain, "empty shaped sentence adds nothing");
+        Expect(ThingStory.Line(null, 0, 2, "It held a pipe in stream 2.", true, true) == "",
+            "blank name gives no line even with a shaped sentence");
+
+        // Real living world, one choice: present tense while its shaped board is in play.
+        WorldModel tense = WorldModel.New(PlayMode.Living);
+        Solve(tense);
+        Expect(tense.Choose(VillageChoice.ShadeTree), "tense: first choice accepted");
+        Expect(ThingStory.For(tense, 0, "oak") == ThingStory.Line("oak", 0, 1) + " Its roots hold a pipe in stream 2.",
+            "after choosing at board 0: present tense, stream 2");
+
+        // Solve board 1 and choose again: the first thing is now past tense; the second holds the present.
+        Solve(tense);
+        Expect(tense.Choose(VillageChoice.Bridge), "tense: second choice accepted");
+        Expect(ThingStory.For(tense, 0, "oak") == ThingStory.Line("oak", 0, 2) + " Its roots held a pipe in stream 2.",
+            "after the second choice: first thing is past tense, stream 2");
+        Expect(ThingStory.For(tense, 1, "bridge") == ThingStory.Line("bridge", 1, 2) + " It holds a pipe in stream 3.",
+            "after the second choice: bridge is present tense, stream 3");
+
+        // Reconsidering the latest choice: the earlier thing is back on the board in play, present tense again.
+        Solve(tense);
+        Expect(tense.ReconsiderLatestChoice(), "tense: latest choice reconsidered");
+        Expect(ThingStory.For(tense, 1, "bridge") == "", "reconsidered choice gives no caption");
+        Expect(ThingStory.For(tense, 0, "oak") == ThingStory.Line("oak", 0, 1) + " Its roots hold a pipe in stream 2.",
+            "after reconsidering, the first thing is present tense again");
+
+        // Full story: the last story choice shapes nothing; the one before it shapes the last board.
+        WorldModel story = WorldModel.New(PlayMode.Living);
+        int last = PuzzleCatalog.Count - 1;
+        for (int i = 0; i < PuzzleCatalog.Count; i++)
+        {
+            Solve(story);
+            Expect(story.Choose(i % 2 == 0 ? VillageChoice.Flowers : VillageChoice.Bridge), "story choice " + i + " accepted");
+        }
+        Expect(story.Completed, "story run completed");
+        Expect(ThingStory.For(story, last, "oak") == ThingStory.Line("oak", last, PuzzleCatalog.Count),
+            "last story choice shapes nothing");
+        Expect(!ThingStory.For(story, last, "oak").Contains("pipe"), "last story choice has no pipe sentence");
+        // Index last-1 is Flowers (even index), and the run is complete, so its shaped sentence is past tense.
+        Expect(ThingStory.For(story, last - 1, "oak") ==
+            ThingStory.Line("oak", last - 1, PuzzleCatalog.Count) + " Its roots held a pipe in stream " + PuzzleCatalog.Count + ".",
+            "second-to-last story choice shapes the final board, in past tense once complete");
+        Expect(ThingStory.For(story, 0, "oak").Contains("in stream 2."), "first story choice shapes stream 2");
 
         // Unity map: the caption is used, and the family line stays as the fallback.
         string map = ReadRepoFile("games/evergrove/Assets/Scripts/Unity/GardenMapView.cs");

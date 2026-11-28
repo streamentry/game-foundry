@@ -52,6 +52,32 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>
+        /// Whether a thing drops petals or leaves in autumn and spring: only a deciduous shade
+        /// tree does (evergreens keep their needles and leaves). Unknown index -1 counts as
+        /// falling, as the look does for trees.
+        /// </summary>
+        public static bool Falls(VillageChoice family, int catalogueIndex)
+        {
+            return family == VillageChoice.ShadeTree && !GardenCatalog.IsEvergreenTree(catalogueIndex);
+        }
+
+        /// <summary>
+        /// How many pieces drift, given how many deciduous trees are on the map. Petals and
+        /// leaves need a falling tree: none means none. Snow falls on every winter garden.
+        /// </summary>
+        public static int DriftCount(Drift drift, int fallingTrees)
+        {
+            switch (drift)
+            {
+                case Drift.Petals:
+                case Drift.Leaves:
+                    return fallingTrees <= 0 ? 0 : Math.Min(20, 6 + 4 * fallingTrees);
+                case Drift.Snow: return DriftCount(drift);
+                default: return 0;
+            }
+        }
+
         public static RiverLook River(Season season)
         {
             return season == Season.Winter ? RiverLook.IceEdged : season == Season.Autumn ? RiverLook.LeavesAfloat

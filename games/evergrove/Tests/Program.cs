@@ -1978,6 +1978,7 @@ internal static class Program
             assertions += EndlessRiverTests.Run();
             assertions += UndoEverywhereTests.Run();
             assertions += LongPressCaptionTests.Run();
+            assertions += MapThingWordsTests.Run();
             assertions += RestoreTrustTests.Run();
             assertions += SteppingStoneTests.Run();
             assertions += WildGrowthTests.Run();

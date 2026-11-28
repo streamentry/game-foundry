@@ -1,5 +1,7 @@
 using System;
+using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using Evergrove.Core;
 
 /// <summary>
@@ -158,7 +160,129 @@ internal static class TurnPaletteTests
         Expect(treePlay.Contains("TurnPalette.Rgb("), "TreePlay reads colours from TurnPalette");
         Expect(!treePlay.Contains("TurnSage"), "TreePlay no longer has the old TurnSage field");
 
+        // Idea 3: each seat's pip wears its own ink on the card, darkened only as far as it needs to read.
+        float[] pipCard = ParseCardFill(File.ReadAllText(ThemePath()));
+        double pipCardLum = TurnPalette.Luminance(pipCard[0], pipCard[1], pipCard[2]);
+        string pipLine = "Pip inks on CardFill (WCAG ratio, opaque; pips are never faded):";
+        for (int t = 0; t < TurnPalette.Count; t++)
+        {
+            float[] ink = TurnPalette.PipInk(t, pipCard);
+            double ratio = TurnPalette.Contrast(TurnPalette.Luminance(ink[0], ink[1], ink[2]), pipCardLum);
+            Expect(ratio >= TurnPalette.PipContrast, "pip ink " + t + " reaches 3:1 on CardFill");
+
+            pipLine += " seat " + t + " " + Rgb3(ink) + " " + ratio.ToString("0.00", CultureInfo.InvariantCulture) + ";";
+
+            // Hue: every channel pair above 0.01 keeps the seat colour's ratio.
+            float[] seat = TurnPalette.Rgb(t);
+            for (int a = 0; a < 3; a++)
+            {
+                for (int b = a + 1; b < 3; b++)
+                {
+                    if (seat[a] <= 0.01f || seat[b] <= 0.01f) continue;
+                    double want = (double)seat[a] / seat[b];
+                    double got = (double)ink[a] / ink[b];
+                    Expect(Math.Abs(got - want) < 1e-4, "pip ink " + t + " keeps the hue ratio of channels " + a + " and " + b);
+                }
+            }
+
+            // Never all-zero, on the card or on black.
+            Expect(ink[0] + ink[1] + ink[2] > 0f, "pip ink " + t + " is never all-zero");
+            float[] onBlack = TurnPalette.PipInk(t, new float[] { 0f, 0f, 0f });
+            Expect(onBlack[0] + onBlack[1] + onBlack[2] > 0f, "pip ink " + t + " is never all-zero on black");
+        }
+        Console.WriteLine(pipLine);
+
+        // A colour already at 3:1 is returned unchanged (sage on the card, and on black).
+        float[] sageInk = TurnPalette.PipInk(0, pipCard);
+        float[] sageSeat = TurnPalette.Rgb(0);
+        Expect(sageInk[0] == sageSeat[0] && sageInk[1] == sageSeat[1] && sageInk[2] == sageSeat[2],
+            "sage is already 3:1 on CardFill, so it is returned unchanged");
+        float[] sageBlack = TurnPalette.PipInk(0, new float[] { 0f, 0f, 0f });
+        Expect(sageBlack[0] == sageSeat[0] && sageBlack[1] == sageSeat[1] && sageBlack[2] == sageSeat[2],
+            "sage is already 3:1 on black, so it is returned unchanged");
+
+        // Wrap-around, like Rgb.
+        float[] pipWrap5 = TurnPalette.PipInk(5, pipCard);
+        float[] pipWrap1 = TurnPalette.PipInk(1, pipCard);
+        Expect(pipWrap5[0] == pipWrap1[0] && pipWrap5[1] == pipWrap1[1] && pipWrap5[2] == pipWrap1[2], "PipInk(5) equals PipInk(1)");
+        float[] pipWrapMinus = TurnPalette.PipInk(-1, pipCard);
+        float[] pipWrap3 = TurnPalette.PipInk(3, pipCard);
+        Expect(pipWrapMinus[0] == pipWrap3[0] && pipWrapMinus[1] == pipWrap3[1] && pipWrapMinus[2] == pipWrap3[2], "PipInk(-1) equals PipInk(3)");
+
+        // The background is not mutated, and results are fresh arrays.
+        float[] pipBefore = { pipCard[0], pipCard[1], pipCard[2] };
+        float[] pipOut = TurnPalette.PipInk(1, pipCard);
+        Expect(pipCard[0] == pipBefore[0] && pipCard[1] == pipBefore[1] && pipCard[2] == pipBefore[2], "PipInk does not mutate its background");
+        pipOut[0] = 0f;
+        Expect(TurnPalette.PipInk(1, pipCard)[0] > 0f, "PipInk returns a fresh array");
+
+        // Bad backgrounds throw ArgumentException.
+        Expect(ThrowsArgument(() => TurnPalette.PipInk(0, null)), "null background throws ArgumentException");
+        Expect(ThrowsArgument(() => TurnPalette.PipInk(0, new float[] { 1f, 1f })), "two-channel background throws");
+        Expect(ThrowsArgument(() => TurnPalette.PipInk(0, new float[] { 1f, 1f, 1f, 1f })), "four-channel background throws");
+        Expect(TurnPalette.PipContrast == 3.0, "PipContrast is 3:1");
+
+        // Source checks: TreePlay paints pips with PipInk; TableSolved no longer uses EarthInk for them.
+        Expect(treePlay.Contains("PipInk"), "TreePlay.cs paints its pips with TurnPalette.PipInk");
+        int solvedStart = turnsSource.IndexOf("private void TableSolved()", StringComparison.Ordinal);
+        int solvedEnd = turnsSource.IndexOf("Idea 5: the hint token", solvedStart < 0 ? 0 : solvedStart, StringComparison.Ordinal);
+        Expect(solvedStart >= 0 && solvedEnd > solvedStart, "TableSolved exists in TreePlay.Turns.cs");
+        string tableSolved = solvedStart >= 0 && solvedEnd > solvedStart ? turnsSource.Substring(solvedStart, solvedEnd - solvedStart) : "";
+        Expect(!tableSolved.Contains("EarthInk"), "TableSolved no longer paints pips with EarthInk");
+        Expect(tableSolved.Contains("PipInks["), "TableSolved paints pips in their own seat ink");
+
         return assertions;
+    }
+
+    private static string Rgb3(float[] c)
+    {
+        return "(" + c[0].ToString("0.000", CultureInfo.InvariantCulture) + ", " +
+            c[1].ToString("0.000", CultureInfo.InvariantCulture) + ", " +
+            c[2].ToString("0.000", CultureInfo.InvariantCulture) + ")";
+    }
+
+    private static bool ThrowsArgument(Func<float[]> call)
+    {
+        try
+        {
+            call();
+            return false;
+        }
+        catch (ArgumentException)
+        {
+            return true;
+        }
+    }
+
+    private static float[] ParseCardFill(string source)
+    {
+        Match m = Regex.Match(source, @"Color CardFill = Hex\(""#([0-9A-Fa-f]{6})""\)");
+        Expect(m.Success, "CardFill is defined in MosseloraTheme.cs");
+        string hex = m.Groups[1].Value;
+        return new float[]
+        {
+            int.Parse(hex.Substring(0, 2), NumberStyles.HexNumber) / 255f,
+            int.Parse(hex.Substring(2, 2), NumberStyles.HexNumber) / 255f,
+            int.Parse(hex.Substring(4, 2), NumberStyles.HexNumber) / 255f,
+        };
+    }
+
+    private static string ThemePath()
+    {
+        foreach (string start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
+        {
+            string dir = Path.GetFullPath(start);
+            while (dir != null)
+            {
+                foreach (string rel in new[] { "games/evergrove/Assets/Scripts/Unity", "Assets/Scripts/Unity" })
+                {
+                    string candidate = Path.Combine(dir, rel, "MosseloraTheme.cs");
+                    if (File.Exists(candidate)) return candidate;
+                }
+                dir = Path.GetDirectoryName(dir);
+            }
+        }
+        throw new Exception("TurnPaletteTests could not locate MosseloraTheme.cs.");
     }
 
     private static bool treePlayUsesTint()

@@ -303,8 +303,8 @@ namespace Evergrove.UnityClient
                 skyRect.offsetMin = skyRect.offsetMax = Vector2.zero;
                 sky.AddComponent<BirdsPass>();
             }
-            // I295: the season's own drift over home by day (petals, leaves, snow); motion only.
-            if (DriftNow != Drift.None && FirefliesMove)
+            // I295: the season's own drift over home by day (petals, leaves, snow); motion only. Petals and leaves fall only from deciduous trees on this map.
+            int falling = FallingTrees(items); if (DriftNow != Drift.None && FirefliesMove && (DriftNow == Drift.Snow || falling > 0))
             {
                 var drift = new GameObject("Season drift", typeof(RectTransform));
                 drift.transform.SetParent(host.transform, false);
@@ -312,7 +312,7 @@ namespace Evergrove.UnityClient
                 driftRect.anchorMin = Vector2.zero;
                 driftRect.anchorMax = Vector2.one;
                 driftRect.offsetMin = driftRect.offsetMax = Vector2.zero;
-                drift.AddComponent<SeasonDrift>().Kind = DriftNow;
+                var seasonDrift = drift.AddComponent<SeasonDrift>(); seasonDrift.Kind = DriftNow; seasonDrift.Falling = falling;
             }
             view.apron = teaser ? 0f : Mathf.Clamp(apron, 0f, 0.4f);
             if (view.apron > 0f && plot != null)
@@ -1121,7 +1121,7 @@ namespace Evergrove.UnityClient
                     var button = node.AddComponent<Button>();
                     button.transition = Selectable.Transition.None;
                     button.onClick.AddListener(() => { if (!PinchBusy) onItem(index); });
-                    LongPressCaption.Attach(node, string.IsNullOrEmpty(item.Caption) ? LocalizedVillage.Choice(item.Family) : item.Caption, LongPressCaption.DefaultFont);
+                    LongPressCaption.Attach(node, string.IsNullOrEmpty(item.Caption) ? LocalizedVillage.Choice(item.Family) : item.Caption, LongPressCaption.DefaultFont); SpeakMapThing(node.transform, MapThingWords.Spoken(item.Caption, LocalizedVillage.Choice(item.Family)));
                 }
                 if (held)
                 {
@@ -2106,7 +2106,7 @@ namespace Evergrove.UnityClient
         /// </summary>
         private sealed class SeasonDrift : MonoBehaviour
         {
-            public Drift Kind;
+            public Drift Kind; public int Falling; // Falling: deciduous trees on the map (petals and leaves fall only from them)
             private RectTransform[] bits;
             private float[] x0, speed, sway, phase;
             private float clock, high, wide;
@@ -2117,7 +2117,7 @@ namespace Evergrove.UnityClient
                 wide = Mathf.Max(1f, rect.rect.width);
                 high = Mathf.Max(1f, rect.rect.height);
                 var rng = new System.Random(527);
-                int count = Mathf.Max(SeasonLook.DriftCount(Kind), Kind == Drift.Snow ? DayWeather.SnowfallCount(WeatherNow) : 0); // I357: snowy days snow harder
+                int count = Mathf.Max(SeasonLook.DriftCount(Kind, Falling), Kind == Drift.Snow ? DayWeather.SnowfallCount(WeatherNow) : 0); // I357: snowy days snow harder
                 bits = new RectTransform[count];
                 x0 = new float[count]; speed = new float[count]; sway = new float[count]; phase = new float[count];
                 for (int i = 0; i < count; i++)
