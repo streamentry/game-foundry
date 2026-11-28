@@ -23,6 +23,7 @@ internal static class BoardZoomTests
         OffsetCentresTheTapAndStaysOnTheBoard();
         ZoomIsWiredIntoTheCard();
         SidewaysSplitsTheCard();
+        LandscapeNeverShrinksControls();
         TourMeasuresBothStates();
         ScanCountsOnlyReachableTargets();
         return assertions;
@@ -91,6 +92,25 @@ internal static class BoardZoomTests
         Expect(side.Contains("name == \"Tree puzzle top\"") && side.Contains("lower.Contains(\"tray\")") && side.Contains("\"Undo and redo\""),
             "the top row, trays and undo go to the panel");
         Expect(chain.Contains("TreePlay.ControlsOf(card)"), "the chain line, added at the solve, joins the panel too");
+    }
+
+    // Batch 28 tour findings, fixed: the zoom view is as big as the cells really are (the pieces board
+    // places cells outside its container), the sowing board's seven beds count as a board, the sideways
+    // panel hands its lowest controls to the board side rather than shrinking, and the family sheet
+    // scrolls its body instead of scaling its 52-56 pt controls down.
+    private static void LandscapeNeverShrinksControls()
+    {
+        string zoom = Read("Assets/Scripts/Unity/TreePlay.Zoom.cs");
+        string side = Read("Assets/Scripts/Unity/TreePlay.Sideways.cs");
+        string family = Read("Assets/Scripts/Unity/FamilySheet.cs");
+        Expect(zoom.Contains("RectTransformUtility.CalculateRelativeRectTransformBounds(grid)") &&
+               zoom.Contains("zoomBoard.anchoredPosition = -zoomCentre;"), "the zoom view frames the cells' real bounds");
+        Expect(zoom.Contains("int most = 4;"), "five or more live cells make a board");
+        Expect(side.Contains("Balance((RectTransform)boardSide, (RectTransform)panel,") &&
+               side.Contains("if (part == null || part.name == \"Tree puzzle top\") continue;"),
+            "the panel's lowest controls move under the board when the panel is too tall; the top row stays");
+        Expect(family.Contains("\"Family scroll\"") && family.Contains("bodyScroll.vertical = true;") &&
+               !family.Contains("Mathf.Max(0.75f, room / tall)"), "the family sheet scrolls; it no longer shrinks to 75%");
     }
 
     private static void TourMeasuresBothStates()

@@ -82,6 +82,27 @@ namespace Evergrove.UnityClient
                 if (layout != null && layout.ignoreLayout) continue; // the close token and spoken captions stay put
                 part.SetParent(IsControl(part.name) ? panel : boardSide, false);
             }
+            Balance((RectTransform)boardSide, (RectTransform)panel, root.rect.height - 16f - 34f); // 34: the card's padding
+        }
+
+        // When the panel is taller than the screen allows and the board side has room, its lowest
+        // controls (undo, then trays) move under the board, so the card fits without shrinking.
+        private static void Balance(RectTransform boardSide, RectTransform panel, float room)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(boardSide);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
+            float board = LayoutUtility.GetPreferredHeight(boardSide), controls = LayoutUtility.GetPreferredHeight(panel);
+            for (int i = panel.childCount - 1; i >= 0 && controls > room; i--)
+            {
+                var part = panel.GetChild(i) as RectTransform;
+                if (part == null || part.name == "Tree puzzle top") continue;
+                float tall = LayoutUtility.GetPreferredHeight(part) + 12f;
+                if (board + tall > room) continue;
+                part.SetParent(boardSide, false);
+                part.SetAsLastSibling();
+                board += tall;
+                controls -= tall;
+            }
         }
 
         private Transform Side(string name, float width, TextAnchor alignment, int top)

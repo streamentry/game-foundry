@@ -50,7 +50,7 @@ namespace Evergrove.UnityClient
                 counts[parent] = n + 1;
             }
             RectTransform best = null;
-            int most = 8;
+            int most = 4; // five or more live cells make a board (the sowing beds are seven)
             foreach (KeyValuePair<RectTransform, int> pair in counts)
                 if (pair.Value > most) { most = pair.Value; best = pair.Key; }
             if (best == null || root == null) return best;
@@ -66,26 +66,32 @@ namespace Evergrove.UnityClient
             return best;
         }
 
-        // The grid moves into a clipped view that takes its place in the card's layout.
+        private Vector2 zoomCentre; // where the cells' own centre lies in the grid, unscaled
+
+        // The grid moves into a clipped view that takes its place in the card's layout. The view is as big
+        // as the cells really are (some boards place cells outside their container's own rect).
         private void Wrap(RectTransform grid)
         {
             Transform parent = grid.parent;
             int at = grid.GetSiblingIndex();
-            Vector2 size = grid.rect.size;
+            Vector2 own = grid.rect.size;
             var view = new GameObject("Board zoom view", typeof(RectTransform));
             view.transform.SetParent(parent, false);
             view.transform.SetSiblingIndex(at);
             zoomView = (RectTransform)view.transform;
             var place = view.AddComponent<LayoutElement>();
-            place.minWidth = place.preferredWidth = size.x;
-            place.minHeight = place.preferredHeight = size.y;
             view.AddComponent<RectMask2D>();
             grid.SetParent(zoomView, false);
             var ownPlace = grid.GetComponent<LayoutElement>();
             if (ownPlace != null) ownPlace.ignoreLayout = true;
             grid.anchorMin = grid.anchorMax = grid.pivot = new Vector2(0.5f, 0.5f);
-            grid.sizeDelta = size;
-            grid.anchoredPosition = Vector2.zero;
+            grid.sizeDelta = own; // the grid keeps its size, so its cells keep their places
+            Bounds cells = RectTransformUtility.CalculateRelativeRectTransformBounds(grid);
+            zoomCentre = cells.center;
+            Vector2 size = new Vector2(Mathf.Max(own.x, cells.size.x), Mathf.Max(own.y, cells.size.y));
+            place.minWidth = place.preferredWidth = size.x;
+            place.minHeight = place.preferredHeight = size.y;
+            grid.anchoredPosition = -zoomCentre;
             zoomBoard = grid;
             zoomCells = grid.gameObject.AddComponent<CanvasGroup>();
             zoomPan = view.AddComponent<ScrollRect>();
@@ -124,7 +130,8 @@ namespace Evergrove.UnityClient
             Vector2 size = zoomView.rect.size;
             zoomBoard.localScale = new Vector3(zoomScale, zoomScale, 1f);
             zoomBoard.anchoredPosition = new Vector2(
-                BoardZoomRule.Offset(local.x, size.x, zoomScale), BoardZoomRule.Offset(local.y, size.y, zoomScale));
+                BoardZoomRule.Offset(local.x, size.x, zoomScale), BoardZoomRule.Offset(local.y, size.y, zoomScale))
+                - zoomCentre * zoomScale;
             zoomCells.interactable = zoomCells.blocksRaycasts = true;
             zoomPan.enabled = true;
             zoomCatcher.SetActive(false);
@@ -139,7 +146,7 @@ namespace Evergrove.UnityClient
             zoomPan.StopMovement();
             zoomPan.enabled = false;
             zoomBoard.localScale = Vector3.one;
-            zoomBoard.anchoredPosition = Vector2.zero;
+            zoomBoard.anchoredPosition = -zoomCentre;
             zoomCells.interactable = zoomCells.blocksRaycasts = false;
             zoomCatcher.SetActive(true);
             zoomCatcher.transform.SetAsLastSibling();

@@ -115,8 +115,26 @@ namespace Evergrove.UnityClient
                 MosseloraTheme.QuietAction, Close, true);
             EvergroveApp.PlaceBack(node.transform.Find("Close family").GetComponent<RectTransform>());
 
+            // v1 #91: the body scrolls inside the card when the screen is too short, so the card never
+            // shrinks its 52-56 pt controls below the 48 pt touch minimum (it used to scale to 75%).
+            var scrollNode = new GameObject("Family scroll", typeof(RectTransform));
+            scrollNode.transform.SetParent(node.transform, false);
+            bodyFit = scrollNode.AddComponent<LayoutElement>();
+            scrollNode.AddComponent<RectMask2D>();
             var bodyNode = new GameObject("Family body", typeof(RectTransform));
-            bodyNode.transform.SetParent(node.transform, false);
+            bodyNode.transform.SetParent(scrollNode.transform, false);
+            bodyRect = (RectTransform)bodyNode.transform;
+            bodyRect.anchorMin = new Vector2(0f, 1f);
+            bodyRect.anchorMax = new Vector2(1f, 1f);
+            bodyRect.pivot = new Vector2(0.5f, 1f);
+            bodyRect.offsetMin = bodyRect.offsetMax = Vector2.zero;
+            bodyNode.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var bodyScroll = scrollNode.AddComponent<ScrollRect>();
+            bodyScroll.horizontal = false;
+            bodyScroll.vertical = true;
+            bodyScroll.movementType = ScrollRect.MovementType.Clamped;
+            bodyScroll.viewport = (RectTransform)scrollNode.transform;
+            bodyScroll.content = bodyRect;
             rightColumn = null;
             if (wide)
             {
@@ -159,15 +177,22 @@ namespace Evergrove.UnityClient
             return node.transform;
         }
 
-        // Sideways the card can be taller than the screen: once laid out, it shrinks
-        // to fit (never below 75%), so the send token is always on screen (I215).
+        // Sideways the card can be taller than the screen (I215): the body scrolls inside it instead of
+        // the card shrinking (v1 #91), so every control keeps its full size and stays on screen.
+        private LayoutElement bodyFit;
+        private RectTransform bodyRect;
+
         private void LateUpdate()
         {
-            if (card == null) return;
+            if (card == null || bodyFit == null || bodyRect == null) return;
             var root = (RectTransform)transform;
-            float room = root.rect.height - 24f, tall = card.rect.height;
-            float scale = tall > room && tall > 1f ? Mathf.Max(0.75f, room / tall) : 1f;
-            if (Mathf.Abs(card.localScale.x - scale) > 0.001f) card.localScale = new Vector3(scale, scale, 1f);
+            float room = root.rect.height - 24f;
+            float body = LayoutUtility.GetPreferredHeight(bodyRect);
+            float shown = bodyFit.preferredHeight > 0f ? bodyFit.preferredHeight : body;
+            float rest = card.rect.height - shown; // the top row, padding and gaps
+            float fit = Mathf.Max(96f, Mathf.Min(body, room - rest));
+            if (Mathf.Abs(bodyFit.preferredHeight - fit) > 0.5f) bodyFit.preferredHeight = bodyFit.minHeight = fit;
+            if (card.localScale.x != 1f) card.localScale = Vector3.one;
         }
 
         private void Switch(bool send)
