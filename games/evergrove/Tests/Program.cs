@@ -2009,6 +2009,11 @@ internal static class Program
             assertions += LanternThingTests.Run();
             assertions += TogetherCountTests.Run();
             assertions += GardenCompareTests.Run();
+            assertions += RootedDepthTests.Run();
+            assertions += ReconsiderTruthTests.Run();
+            assertions += TurnBackTests.Run();
+            assertions += ThemeContrastTests.Run();
+            assertions += GardenFileHeaderTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

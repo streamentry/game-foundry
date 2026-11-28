@@ -342,6 +342,29 @@ namespace Evergrove.Core
             return true;
         }
 
+        /// <summary>
+        /// Vision run 20261128-1001, idea 2: a reconsidered thing takes its "solved together" and
+        /// "helped by" marks with it, so the next thing chosen at that index never inherits them.
+        /// Bought plants (BoughtBase + k) are untouched.
+        /// </summary>
+        private void ForgetGrownMarks(int item)
+        {
+            state.together = Array.FindAll(state.together, t => t != item);
+            int at = Array.IndexOf(state.helped, item);
+            if (at < 0) return;
+            var items = new int[state.helped.Length - 1];
+            var names = new string[state.helpedFrom.Length - 1];
+            for (int i = 0, n = 0; i < state.helped.Length; i++)
+            {
+                if (i == at) continue;
+                items[n] = state.helped[i];
+                names[n] = state.helpedFrom[i];
+                n++;
+            }
+            state.helped = items;
+            state.helpedFrom = names;
+        }
+
         /// <summary>One entry per item: helping again replaces the sender and moves it to newest.</summary>
         private void RecordHelp(int item, string from)
         {

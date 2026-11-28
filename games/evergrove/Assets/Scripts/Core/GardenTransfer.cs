@@ -50,6 +50,34 @@ namespace Evergrove.Core
             return ExportSnapshot(world.Export(), exportedAtUtcIso);
         }
 
+        /// <summary>
+        /// The copy the player pastes into Notes: a one-line plain-language header, then the envelope.
+        /// The header sits outside the checksummed envelope and TryImport skips it.
+        /// </summary>
+        public static string ExportForPeople(WorldModel world, string exportedAtUtcIso)
+        {
+            if (world == null) throw new ArgumentNullException("world");
+            return Header(world) + "\n" + Export(world, exportedAtUtcIso);
+        }
+
+        /// <summary>
+        /// One line that says what the text is. The name is omitted when blank or when it contains
+        /// '{' or '}', so the header never confuses the import's brace search.
+        /// </summary>
+        public static string Header(WorldModel world)
+        {
+            if (world == null) throw new ArgumentNullException("world");
+            GardenCompare.Summary summary = GardenCompare.Of(world);
+            string name = (summary.Name ?? "").Trim();
+            bool useName = name.Length > 0 && name.IndexOf('{') < 0 && name.IndexOf('}') < 0;
+            int streams = Math.Max(0, summary.Streams);
+            string streamText = streams == 1
+                ? "1 stream"
+                : streams.ToString(CultureInfo.InvariantCulture) + " streams";
+            return "Mosselora garden file: " + (useName ? name + ", " : "") + streamText +
+                " restored. Keep all of this text to bring the garden back.";
+        }
+
         internal static string ExportSnapshot(WorldSnapshot snapshot, string exportedAtUtcIso)
         {
             if (snapshot == null) throw new ArgumentNullException("snapshot");
@@ -66,8 +94,9 @@ namespace Evergrove.Core
 
         /// <summary>
         /// Import goes through the same validation as local saves. Errors are checked
-        /// in order: size, JSON syntax, envelope identity, future version, snapshot
-        /// shape, checksum, then WorldModel.TryRestore rules.
+        /// in order: empty, size, leading header (text before the first '{', at most 300
+        /// characters and no '}'; otherwise Malformed), JSON syntax, envelope identity, future
+        /// version, snapshot shape, checksum, then WorldModel.TryRestore rules.
         /// </summary>
         public static bool TryImport(string text, out WorldModel world, out GardenImportError error)
         {
@@ -84,8 +113,15 @@ namespace Evergrove.Core
                 return false;
             }
 
+            string body;
+            if (!TryStripLeadingHeader(text, out body))
+            {
+                error = GardenImportError.Malformed;
+                return false;
+            }
+
             object root;
-            if (!Parser.TryParse(text, out root))
+            if (!Parser.TryParse(body, out root))
             {
                 error = GardenImportError.Malformed;
                 return false;
@@ -188,6 +224,23 @@ namespace Evergrove.Core
                 error = GardenImportError.InvalidSnapshot;
                 return false;
             }
+            return true;
+        }
+
+        private const int MaxLeadingHeaderLength = 300;
+
+        /// <summary>
+        /// Text that already starts (after trimming) with '{' is returned unchanged. Otherwise the text
+        /// before the first '{' is a header, accepted only when it is at most 300 characters and has no '}'.
+        /// </summary>
+        private static bool TryStripLeadingHeader(string text, out string body)
+        {
+            body = text;
+            if (text.TrimStart().StartsWith("{", StringComparison.Ordinal)) return true;
+            int brace = text.IndexOf('{');
+            if (brace < 0 || brace > MaxLeadingHeaderLength) return false;
+            if (text.IndexOf('}', 0, brace) >= 0) return false;
+            body = text.Substring(brace);
             return true;
         }
 
