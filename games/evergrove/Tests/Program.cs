@@ -1999,6 +1999,10 @@ internal static class Program
             assertions += DifficultyTests.Run();
             assertions += EconomyTests.Run();
             assertions += EconomySimulationTests.Run();
+            assertions += RootedBoardsTests.Run(); // vision run 20261128-0855
+            assertions += LandmarkCauseTests.Run();
+            assertions += FlowOrderTests.Run();
+            assertions += GardenCompareTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
