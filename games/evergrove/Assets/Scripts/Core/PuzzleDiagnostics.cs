@@ -76,7 +76,7 @@ namespace Evergrove.Core
                 initiallyMisalignedTiles = misaligned,
                 startingConnectedTiles = initial.ConnectedCount,
                 startingLeaks = initial.LeakCount,
-                forcedMoveCount = null,
+                forcedMoveCount = DeductionDepth.ForcedMoves(puzzle),
                 observedMedianSeconds = null,
                 observedP90Seconds = null,
                 observedHintRate = null,

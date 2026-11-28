@@ -29,5 +29,16 @@ namespace Evergrove.Core
         {
             return players > 1 && turn > 0 && turn < players;
         }
+
+        /// <summary>The line a screen reader says about whose turn it is; never throws.</summary>
+        public static string Spoken(int turn, int players)
+        {
+            if (players <= 1) return "Playing alone.";
+            int count = players > MaxPlayers ? MaxPlayers : players;
+            int who = ((turn % count) + count) % count;
+            string[] ordinals = { "First", "Second", "Third", "Fourth" };
+            string[] counts = { "two", "three", "four" };
+            return ordinals[who] + " player's turn, of " + counts[count - 2] + ".";
+        }
     }
 }
