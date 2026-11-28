@@ -226,6 +226,50 @@ class PunctuationTests(unittest.TestCase):
         self.assertIn("FAIL en.json: FruitGiven/0 #2 double space", out)
 
 
+class SharedLineTests(unittest.TestCase):
+    """CP26: the same line (trimmed, lowercased) may not sit in two voices or two groups; one problem names both places."""
+
+    def test_same_text_in_voices_0_and_1_fires(self) -> None:
+        bank = {"FruitGiven": {"0": [DIFFERENT_A], "1": [DIFFERENT_A.upper()]}}
+        problems = checker.shared_lines("en.json", bank)
+        self.assertEqual(1, len(problems))
+        self.assertIn("en.json", problems[0])
+        self.assertIn("FruitGiven/0 #1", problems[0])
+        self.assertIn("FruitGiven/1 #1", problems[0])
+
+    def test_same_text_in_two_groups_fires(self) -> None:
+        bank = {"FruitGiven": {"0": [DIFFERENT_A]}, "WeatherToday.Rainy": {"0": [f" {DIFFERENT_A} "]}}
+        problems = checker.shared_lines("en.json", bank)
+        self.assertEqual(1, len(problems))
+        self.assertIn("FruitGiven/0 #1", problems[0])
+        self.assertIn("WeatherToday.Rainy/0 #1", problems[0])
+
+    def test_any_voice_and_a_numbered_voice_in_one_group_fires(self) -> None:
+        bank = {"FruitGiven": {"any": [DIFFERENT_A], "0": [DIFFERENT_A]}}
+        self.assertEqual(1, len(checker.shared_lines("en.json", bank)))
+
+    def test_same_text_twice_in_one_voice_is_left_to_the_exact_duplicate_rule(self) -> None:
+        bank = {"FruitGiven": {"0": [DIFFERENT_A, DIFFERENT_A]}}
+        self.assertEqual([], checker.shared_lines("en.json", bank))
+        self.assertTrue(any("duplicate" in p for p in checker.check_bank("en.json", bank, SYNTHETIC_RULES)))
+        self.assertEqual(1, len([p for p in checker.check_bank("en.json", bank, SYNTHETIC_RULES) if "duplicate" in p]))
+
+    def test_any_voice_line_shared_within_its_group_is_by_design(self) -> None:
+        bank = {"FruitGiven": {"any": [DIFFERENT_A, DIFFERENT_B]}}
+        self.assertEqual([], checker.shared_lines("en.json", bank))
+
+    def test_shared_line_is_reported_by_check_bank(self) -> None:
+        rules = {**SYNTHETIC_RULES, "kinds": {**SYNTHETIC_RULES["kinds"],
+                                              "OtherGiven": {"slots": [], "voices": {"0": None}, "min": 0, "minEach": 0}}}
+        bank = {"FruitGiven": {"0": [DIFFERENT_A]}, "OtherGiven": {"0": [DIFFERENT_A]}}
+        problems = checker.check_bank("en.json", bank, rules)
+        self.assertTrue(any("shared line" in p for p in problems), problems)
+
+    def test_distinct_lines_are_silent(self) -> None:
+        bank = {"FruitGiven": {"0": [DIFFERENT_A], "1": [DIFFERENT_B]}, "WeatherToday.Rainy": {"0": [NEAR_A]}}
+        self.assertEqual([], checker.shared_lines("en.json", bank))
+
+
 class StrictFlagTests(unittest.TestCase):
     @staticmethod
     def _run_bank(bank: dict, rules: dict, *args: str) -> tuple[int, str]:

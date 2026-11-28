@@ -8,7 +8,7 @@ run in the C# tests (Tests/LineBankTests.cs); both read games/evergrove/docs/spe
 Rules: every {slot} is one its fact kind fills; at most maxChars characters once filled with the
 longest real values; no "!"; no banned, child-unsafe or time-claim phrases; a {slot} is never a
 sentence's first word, never follows "a"/"an", and {thing} is never a verb's subject; no digits;
-no duplicates; CP25 punctuation (no double or edge spaces, a closing . ! ? or ellipsis, no mixing straight
+no duplicates; CP26 no line text shared by two voices or two groups; CP25 punctuation (no double or edge spaces, a closing . ! ? or ellipsis, no mixing straight
 and curly quotes, no space before , . ! ? ; :); at least the kind's minimum per voice (and per qualifier value, for kinds keyed
 "Kind.Value" such as "WeatherToday.Rainy"); only the voices that speak a kind.
 
@@ -115,6 +115,24 @@ def check_line(kind: str, voice: str, line: str, rules: dict) -> list[str]:
     return problems
 
 
+def shared_lines(name: str, bank: dict) -> list[str]:
+    """CP26: one problem per line text (trimmed, lowercased) that appears under two different (group, voice)
+    pairs, naming every place. The "any" voice counts as its own voice, so it can't repeat a numbered voice
+    of the same group. Repeats within one (group, voice) are left to the exact-duplicate rule."""
+    places: dict[str, list[tuple[str, str, int, str]]] = {}
+    for key, voices in bank.items():
+        for voice, lines in voices.items():
+            for i, line in enumerate(lines, 1):
+                places.setdefault(line.strip().lower(), []).append((key, voice, i, line))
+    problems = []
+    for entries in places.values():
+        if len({(key, voice) for key, voice, _, _ in entries}) < 2:
+            continue
+        where = ", ".join(f"{key}/{voice} #{i}" for key, voice, i, _ in entries)
+        problems.append(f"{name}: shared line in {where}: {entries[0][3]}")
+    return problems
+
+
 def check_bank(name: str, bank: dict, rules: dict, complete: bool = False) -> list[str]:
     """bank: {"Kind" or "Kind.Value": {voice: [lines]}}. Counts are checked for every kind present
     (all of its voices and qualifier values); with complete=True, every kind in the rules must be present."""
@@ -145,6 +163,8 @@ def check_bank(name: str, bank: dict, rules: dict, complete: bool = False) -> li
                 seen.add(low)
                 for p in check_line(kind, voice, line, rules):
                     problems.append(f"{name}: {key}/{voice} #{i} {p}: {line}")
+    # CP26: the same line may not sit in two voices or two groups (checked for the whole bank, once).
+    problems += shared_lines(name, bank)
     kinds = {k: v for k, v in rules["kinds"].items() if not v.get("pending")} if complete else {k: rules["kinds"][k] for k in present}
     for kind, spec in kinds.items():
         got = present.get(kind, {})
