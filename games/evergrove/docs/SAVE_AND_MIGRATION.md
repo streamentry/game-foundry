@@ -193,7 +193,7 @@ Settings contains a **Garden file** card (below the puzzle, never on the primary
 
 - **Copy garden file** writes `GardenTransfer.Export(world, UTC timestamp)` to `GUIUtility.systemCopyBuffer`, then shows "Garden file copied. Keep it somewhere safe."
 - **Restore from garden file** reads the system clipboard and runs `TryImport`. A failure shows one plain-language message per error (empty, not a garden file, newer version, damaged, too large). Nothing is replaced on failure.
-- A valid file is parsed into memory and waits for a second tap, **Confirm garden restore** ("This replaces your current garden."). Only then does the app replace the world and save it through `SaveWorld()` and `WorldStore`. Restore is hidden while an unreadable save blocks writes.
+- A valid file is parsed into memory and waits for a second tap, **Confirm garden restore** ("This replaces your current garden."). Only then does the app replace the world and save it through `SaveWorld()` and `WorldStore`. Restore is hidden while an unreadable save blocks writes. The confirm card also lists both gardens from real save fields (`GardenCompare.Lines`: name, streams restored, things planted and bought, days played), plus "The file's garden is smaller than this phone's." when the file has fewer streams or things. English only.
 
 The clipboard is the only transport. There is no file picker, share sheet, cloud sync or account. Ownership is not tamper-proof (see above). The dev-only QA tour step 14 copies, changes the garden, restores and asserts an exact match.
 

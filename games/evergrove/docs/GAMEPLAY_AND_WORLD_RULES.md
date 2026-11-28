@@ -65,7 +65,7 @@ This makes the existing rule inspectable; it adds no puzzle topology, simulated 
 
 | Action | Valid when | Effect | Side notes |
 | --- | --- | --- | --- |
-| `Rotate(tile)` | Not completed/solved; tile index valid and not anchored | Cycle orientation, capture previous board, recompute solved | A tap on the protected tile is rejected |
+| `Rotate(tile)` | Not completed/solved; tile index valid and not anchored | Cycle orientation, capture previous board, recompute solved | A tap on the protected tile is rejected and explained: in English and Living mode, when the current variant matches the last saved choice, `LandmarkCause.For` names the choice and the board it was made on ("Your footbridge from First Bend holds this pipe in place."); otherwise the localized generic rule |
 | `GuideOneConnection()` | Active unsolved board | Fix the first misaligned tile; increment cumulative hints | Not a multi-step automated solution |
 | `Undo()` | Current board has a previous snapshot | Pop one prior board from the ten-step history; clear staged hint | Undo does not reimburse the hint counter |
 | `Restart()` | Non-completed run | Restore `CurrentPuzzle.Initial` including fixed anchors; clear undo and staged hint | Keeps committed choices and world variant |
@@ -147,3 +147,6 @@ Changing chapter 1 to **Flowers** must change chapter 2's layout. Reloading, res
 The .NET suite checks the base 12 boards, 33 transformed puzzles' unique solutions, anchoring, replay, branch-specific save/restore, migration, gameplay and language invariants. See [build/QA](BUILD_AND_QA.md).
 
 **Missing systemic depth, if the research warrants it:** true coupled water/soil/plant dynamics; spatially local growth and resource constraints; meaningful opportunity costs; neighboring households that react to changing shared routes; independent agents whose goals influence reachable outcomes; bounded event chains; coherent rollback/migration. Define one testable game mechanic first, not a generic “AI world” infrastructure.
+
+
+**Solve bloom (vision run 20261128-0855):** with gentle motion on, the finishing bloom reaches each tile in the order water travels along the solved stream (`FlowOrder.StepsFromSpring`, 0.07 s per step), not by straight-line distance from the spring. Reduced motion shows no bloom.
