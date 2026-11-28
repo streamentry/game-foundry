@@ -69,6 +69,25 @@ namespace Evergrove.Core
             return line + ".";
         }
 
+        /// <summary>
+        /// Vision run 20261128-1901, idea 5: the keeper's line, plus one true sentence when this
+        /// garden's own choices made the item ("You chose it for this garden."). It only ever
+        /// adds a true sentence, never a negative one: a nursery copy in the garden stays silent.
+        /// </summary>
+        public static string KeeperLine(GardenItem item, WorldModel world)
+        {
+            string line = KeeperLine(item);
+            if (item == null || world == null) return line;
+            int[] choices = world.Choices;
+            int garden = world.Garden;
+            for (int i = 0; i < choices.Length; i++)
+            {
+                GardenItem made = GardenCatalog.For(garden, Math.Min(i, GardenCatalog.ChaptersPerGarden - 1), (VillageChoice)choices[i]);
+                if (made.Art == item.Art) return line + " You chose it for this garden.";
+            }
+            return line;
+        }
+
         public int Count { get { return found.Count; } }
 
         public int CountOf(VillageChoice family)

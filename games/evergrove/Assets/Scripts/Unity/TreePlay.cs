@@ -96,9 +96,9 @@ namespace Evergrove.UnityClient
         private Image[] pips;
 
         /// <summary>True when this puzzle was played taking turns (I263 records it on a solve).</summary>
-        internal bool PlayedTogether { get { return together; } }
-        /// <summary>How many take turns (1 alone).</summary>
-        internal int Players { get { return players; } }
+        internal bool PlayedTogether { get { return together && MoversNow() >= 2; } }
+        /// <summary>How many people actually took turns (1 alone, or when only one of the table moved).</summary>
+        internal int Players { get { return PlayedTogether ? Math.Min(players, MoversNow()) : 1; } }
 
         private void TogetherRow()
         {
@@ -107,7 +107,7 @@ namespace Evergrove.UnityClient
             if (top == null) return;
             Token(top, "Take turns with someone", MosseloraArt.Load(MosseloraArt.IconNeighbors), 52f,
                 MosseloraTheme.QuietAction, ToggleTogether, true);
-            togetherRow = top.GetChild(top.childCount - 1);
+            togetherRow = TableRow(top);
             // Before the hint and the seeds: close, thing, together, hint, seeds.
             togetherRow.SetSiblingIndex(Mathf.Max(0, top.childCount - 3));
             turnDiscs = new[] { togetherRow.GetComponent<Image>() };
@@ -119,7 +119,7 @@ namespace Evergrove.UnityClient
                 pip.transform.SetParent(togetherRow, false);
                 var pipRect = (RectTransform)pip.transform;
                 pipRect.anchorMin = pipRect.anchorMax = new Vector2(0.5f, 0f);
-                pipRect.sizeDelta = new Vector2(9f, 9f);
+                pipRect.sizeDelta = new Vector2(TurnPalette.PipSize(TextScale.Percent), TurnPalette.PipSize(TextScale.Percent));
                 pips[p] = pip.AddComponent<Image>();
                 pips[p].raycastTarget = false;
             }
@@ -161,7 +161,7 @@ namespace Evergrove.UnityClient
                     if (!shown) continue;
                     pips[p].sprite = p == turn ? MosseloraArt.Rounded(8) : MosseloraArt.Ring(8);
                     pips[p].color = PipInkColour(p);
-                    ((RectTransform)pips[p].transform).anchoredPosition = new Vector2((p - (players - 1) / 2f) * 12f, -8f);
+                    ((RectTransform)pips[p].transform).anchoredPosition = new Vector2((p - (players - 1) / 2f) * TurnPalette.PipSpacing(TextScale.Percent), -8f);
                 }
             if (together && gentle) BloomPulse.Add(disc.gameObject, 0f, 0.12f);
             // I302 (idea 48, help for small hands): on every turn but the first player's (often

@@ -251,6 +251,23 @@ internal static class TurnPaletteTests
         Expect(!tableSolved.Contains("EarthInk"), "TableSolved no longer paints pips with EarthInk");
         Expect(tableSolved.Contains("PipInks["), "TableSolved paints pips in their own seat ink");
 
+        // Vision run 20261128-1901, idea 4: pips and their spacing grow with the text scale.
+        Expect(TurnPalette.PipSize(100) == 9f && TurnPalette.PipSize(124) == 9f, "pips are 9 below 125%");
+        Expect(TurnPalette.PipSize(125) == 11f && TurnPalette.PipSize(149) == 11f, "pips are 11 from 125% to 149%");
+        Expect(TurnPalette.PipSize(150) == 13f && TurnPalette.PipSize(200) == 13f, "pips are 13 from 150%");
+        Expect(TurnPalette.PipSize(0) == 9f, "a zero text scale keeps the smallest pips");
+        Expect(TurnPalette.PipSpacing(100) == 12f && TurnPalette.PipSpacing(124) == 12f, "spacing is 12 below 125%");
+        Expect(TurnPalette.PipSpacing(125) == 14f && TurnPalette.PipSpacing(149) == 14f, "spacing is 14 from 125% to 149%");
+        Expect(TurnPalette.PipSpacing(150) == 16f && TurnPalette.PipSpacing(200) == 16f, "spacing is 16 from 150%");
+        Expect(TurnPalette.PipSpacing(0) == 12f, "a zero text scale keeps the tightest spacing");
+        foreach (int percent in new[] { 0, 100, 124, 125, 149, 150, 200 })
+        {
+            float size = TurnPalette.PipSize(percent);
+            float spacing = TurnPalette.PipSpacing(percent);
+            Expect(spacing > size, "spacing clears the pip at " + percent + "%");
+            Expect(3 * spacing + size <= 64f, "four pips fit in 64 points at " + percent + "%");
+        }
+
         return assertions;
     }
 

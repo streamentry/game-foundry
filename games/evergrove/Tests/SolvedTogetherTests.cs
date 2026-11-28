@@ -39,7 +39,11 @@ internal static class SolvedTogetherTests
         Expect(finish >= 0 && nextMethod > finish && treePlay.Substring(finish, nextMethod - finish).Contains("TableSolved();"),
             "Finish calls TableSolved");
         Expect(turns.Contains("private void TableSolved()"), "TableSolved is defined in TreePlay.Turns.cs");
-        Expect(turns.Contains("TakeTurns.SpokenSolved(players)"), "the solved caption is set through SpokenSolved");
+        Expect(turns.Contains("TakeTurns.SpokenSolved(Players)"), "the solved caption counts the seats that moved (vision run 20261128-1901)");
+        Expect(turns.Contains("if (!PlayedTogether) return;"), "a board one person solved alone is not celebrated as together");
+        Expect(turns.Contains("ledger.Moved(p, tracked.UndoSteps)"), "only the seats that moved light up");
+        Expect(treePlay.Contains("internal bool PlayedTogether { get { return together && MoversNow() >= 2; } }"),
+            "the garden records together only when two or more seats moved");
         Expect(turns.Contains("token.Find(\"Turn caption\")"), "the solved caption reuses the turn caption");
 
         return assertions;

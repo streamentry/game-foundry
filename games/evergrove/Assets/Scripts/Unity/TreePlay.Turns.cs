@@ -33,6 +33,20 @@ namespace Evergrove.UnityClient
         /// <summary>A board solved while playing together counts toward the rotation of the next board.</summary>
         private void TableFinished() { if (together) boardsTogether++; }
 
+        /// <summary>Vision run 20261128-1901, idea 2: how many distinct seats moved on this board so far (0 when untracked).</summary>
+        private int MoversNow() { return tracked == null ? 0 : ledger.Movers(tracked.UndoSteps); }
+
+        /// <summary>
+        /// Vision run 20261128-1901, idea 3: the token's newest child, with its long-press caption saying what a tap
+        /// will do. The caption is read when shown, so it always names the current table size.
+        /// </summary>
+        private Transform TableRow(Transform top)
+        {
+            Transform row = top.GetChild(top.childCount - 1);
+            LongPressCaption.AttachLive(row.gameObject, "Take turns with someone", () => TakeTurns.TableCaption(players), LongPressCaption.DefaultFont);
+            return row;
+        }
+
         /// <summary>The undo row tells its TreePlay which history it steps, when it is built.</summary>
         internal void Track(IBoardHistory history)
         {
@@ -150,11 +164,13 @@ namespace Evergrove.UnityClient
         /// </summary>
         private void TableSolved()
         {
-            if (!together) return;
+            // Vision run 20261128-1901, idea 2: only a board that more than one person moved on is "solved together".
+            if (!PlayedTogether) return;
             if (turnDiscs != null && turnDiscs[0] != null && gentle) BloomPulse.Add(turnDiscs[0].gameObject, 0.2f, 0.3f);
             if (pips != null)
                 for (int p = 0; p < pips.Length && p < players; p++)
                 {
+                    if (!ledger.Moved(p, tracked.UndoSteps)) continue; // only the seats that moved light up
                     pips[p].sprite = MosseloraArt.Rounded(8);
                     pips[p].color = PipInks[p % PipInks.Length];
                     if (gentle) BloomPulse.Add(pips[p].gameObject, 0.2f + 0.06f * p, 0.25f);
@@ -170,7 +186,7 @@ namespace Evergrove.UnityClient
                 caption.name = "Turn caption";
             }
             Text text = caption.GetComponent<Text>();
-            if (text != null) text.text = TakeTurns.SpokenSolved(players);
+            if (text != null) text.text = TakeTurns.SpokenSolved(Players);
         }
 
         /// <summary>Idea 5: the hint token says "Hint offered." while its offer glows. One hidden caption, reused.</summary>
