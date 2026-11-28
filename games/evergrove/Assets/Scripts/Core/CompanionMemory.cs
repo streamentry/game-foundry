@@ -35,6 +35,9 @@ namespace Evergrove.Core
         public const int KeepDays = 60;
         public const int MaxEntries = 300;
 
+        /// <summary>CP36: the PlayerPrefs key prefix; English keeps the pre-CP36 key exactly.</summary>
+        public const string StorageKeyPrefix = "evergrove:companion-heard:";
+
         private readonly Heard[] heard;
 
         public static readonly CompanionMemory Empty = new CompanionMemory(Array.Empty<Heard>());
@@ -221,6 +224,21 @@ namespace Evergrove.Core
         private static Heard Redate(Heard h, int day)
         {
             return new Heard(day, h.Speaker, h.Kind, h.Variant, h.Key);
+        }
+
+        /// <summary>
+        /// CP36: the PlayerPrefs key for one garden's memory in one language. A wording number belongs
+        /// to one language's bank, so other languages get their own key; English (or none) keeps today's.
+        /// The locale is lowercased and any character outside [a-z0-9-] becomes '-', so it cannot break the key.
+        /// </summary>
+        public static string StorageKey(int garden, string locale)
+        {
+            if (string.IsNullOrEmpty(locale) || locale.Equals(CompanionLocale.English, StringComparison.OrdinalIgnoreCase))
+                return StorageKeyPrefix + garden;
+            var safe = new StringBuilder();
+            foreach (char c in locale.ToLowerInvariant())
+                safe.Append((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' ? c : '-');
+            return StorageKeyPrefix + safe + ":" + garden;
         }
 
         /// <summary>Keys never carry the separators (a letter-writer's name could).</summary>

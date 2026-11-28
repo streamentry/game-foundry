@@ -68,7 +68,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 - [x] **CP33 A typed name is tidy.** A family name is trimmed, kept to 24 characters, and stripped of control characters and braces before it fills a slot. Done: CompanionFacts.TidyName trims, collapses spaces, drops controls and { } |, keeps 24 text elements, applied to the letter and helper name slots (keys unchanged); CompanionNameTests plus the SC01 parity still identical.
 - [x] **CP34 No slot injection.** A name like `{thing}` is filled as text, never expanded. Done: Already true; LineBank.Fill copies values in one literal pass, and NoSlotInjection() in LineBankTests covers nested slot names, lone braces, "$1", backslash and self-named values; the two rendered-text brace checks document the interaction.
 - [x] **CP35 An empty name isn't said.** A fact whose name slot is blank can't be said, so the neighbour moves to their next fact. Done: a blank {name} makes CanSay false (no bank line fills, and the English fallback is null), so the ranker gives the neighbour their next fact; the fact stays in the feed for the attention arrow; CompanionNameTests CP35 and the SC01 parity still identical.
-- [ ] **CP36 Memory per language.** Wording numbers belong to one bank, so a non-English bank keeps its own memory key; English keeps today's key.
+- [x] **CP36 Memory per language.** Wording numbers belong to one bank, so a non-English bank keeps its own memory key; English keeps today's key. Done: CompanionMemory.StorageKey gives non-English locales their own key (English keeps the old one), and the Unity callers use it; tested in CompanionMemoryTests, and the Unity compile check passes.
 
 ### E. In the app
 

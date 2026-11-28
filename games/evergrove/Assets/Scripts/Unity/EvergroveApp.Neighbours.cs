@@ -193,7 +193,6 @@ namespace Evergrove.UnityClient
         }
 
         // ---- SC02: device-local memory of what was said (PlayerPrefs; never the save or the garden file).
-        private const string CompanionMemoryKey = "evergrove:companion-heard:";
         private readonly System.Collections.Generic.Dictionary<int, string> spokenThisVisit =
             new System.Collections.Generic.Dictionary<int, string>();
         private readonly System.Collections.Generic.Dictionary<int, int> spokenVariant =
@@ -214,7 +213,7 @@ namespace Evergrove.UnityClient
 
         private CompanionMemory CompanionMemoryNow()
         {
-            return CompanionMemory.Parse(PlayerPrefs.GetString(CompanionMemoryKey + world.Garden, ""));
+            return CompanionMemory.Parse(PlayerPrefs.GetString(CompanionMemory.StorageKey(world.Garden, GameLocalization.Current), ""));
         }
 
         // Called when a conversation opens: the remark is now heard, and is theirs for this visit.
@@ -226,7 +225,7 @@ namespace Evergrove.UnityClient
             spokenVariant[villager] = variant;
             CompanionMemory memory = CompanionMemoryNow().With(
                 new Heard(CompanionContext.DayNumberOf(CompanionToday()), villager, said.Kind, variant, said.Key));
-            PlayerPrefs.SetString(CompanionMemoryKey + world.Garden, memory.Serialize());
+            PlayerPrefs.SetString(CompanionMemory.StorageKey(world.Garden, GameLocalization.Current), memory.Serialize());
         }
 
         // What the companion needs that the save doesn't hold (SC01).

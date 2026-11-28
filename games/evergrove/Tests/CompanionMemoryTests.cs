@@ -26,6 +26,7 @@ internal static class CompanionMemoryTests
         ClockMovedBack();
         CapKeepsEverSaid();
         MemoryHelpers();
+        StorageKeys();
         return assertions;
     }
 
@@ -266,5 +267,23 @@ internal static class CompanionMemoryTests
         }
         Expect(back.Serialize() == memory.Serialize(), "serialize is stable across a round trip");
         Expect(CompanionMemory.Parse(null).Count == 0 && CompanionMemory.Parse("").Count == 0, "empty text is an empty memory");
+    }
+
+    // CP36: device memory is per language, since a wording number belongs to one language's bank.
+    // English (and no locale) keeps the pre-CP36 key so existing players keep what they heard.
+    private static void StorageKeys()
+    {
+        Expect(CompanionMemory.StorageKey(3, "en") == "evergrove:companion-heard:3", "English keeps the old key exactly");
+        Expect(CompanionMemory.StorageKey(3, null) == "evergrove:companion-heard:3", "no locale keeps the old key");
+        Expect(CompanionMemory.StorageKey(3, "") == "evergrove:companion-heard:3", "an empty locale keeps the old key");
+        Expect(CompanionMemory.StorageKey(3, "EN") == "evergrove:companion-heard:3", "English is matched without case");
+        Expect(CompanionMemory.StorageKey(3, "fr") == "evergrove:companion-heard:fr:3", "French has its own key");
+        Expect(CompanionMemory.StorageKey(3, "pt-BR") == "evergrove:companion-heard:pt-br:3", "a regional locale is lowercased");
+        Expect(CompanionMemory.StorageKey(3, "Fr_BE") == "evergrove:companion-heard:fr-be:3", "an underscore becomes a dash");
+        Expect(CompanionMemory.StorageKey(3, "fr:x/../y z") == "evergrove:companion-heard:fr-x----y-z:3", "separators and spaces are replaced");
+        Expect(CompanionMemory.StorageKey(3, "fr") != CompanionMemory.StorageKey(4, "fr"), "a garden keeps its own memory per language");
+        Expect(CompanionMemory.StorageKey(3, "fr") != CompanionMemory.StorageKey(3, "en"), "French and English memories are distinct");
+        Expect(CompanionMemory.StorageKey(3, "fr") != CompanionMemory.StorageKey(3, "fr-ca"), "distinct locales give distinct keys");
+        Expect(CompanionMemory.StorageKey(3, "de") != CompanionMemory.StorageKey(3, "ja"), "two other languages do not share a key");
     }
 }
