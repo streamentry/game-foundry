@@ -32,6 +32,7 @@ internal static class CompanionSimulatorTests
         NoStarvation();
         FairSharing();
         WeatherTruth();
+        SlotTruth();
         return assertions;
     }
 
@@ -382,6 +383,106 @@ internal static class CompanionSimulatorTests
                 Expect(spokenPerWeather[i] > 0, "CP18: the simulator speaks at least one " + weathers[i] + " line; " + counts);
         Console.WriteLine("Companion simulator CP18: " + factsChecked + " weather facts, " + linesChecked + " weather lines (" + counts +
             "), " + comingDays + " rain-coming days (" + rainyTodayComing + " of them with rain today).");
+    }
+
+    // CP19: every composed line is whole and true to its fact. No brace is left, the words are tidy (not empty,
+    // no double space, no edge space), and when a bank line was spoken every slot it uses is a non-empty value
+    // of that fact that appears verbatim in the words. Three gardens over 60 days, in three scenarios: plain
+    // weather and phases; pairings found and the season's yield taken; and a visit with a letter waiting and
+    // fruit just given to a neighbour, so FruitGiven and LetterWaiting come up.
+    private static void SlotTruth()
+    {
+        const int Days = 60;
+        LineBank bank = LoadBank();
+        var weathers = (Weather[])Enum.GetValues(typeof(Weather));
+        var phases = (DayPhase[])Enum.GetValues(typeof(DayPhase));
+        var kinds = new HashSet<FactKind>();
+        var faults = new List<string>();
+        int linesChecked = 0, bankLines = 0, legacyLines = 0, letterLines = 0;
+        foreach (int grown in new[] { 3, 9, 12 })
+            for (int scenario = 0; scenario < 3; scenario++)
+            {
+                WorldModel world = CompanionFactsTests.Grown(grown);
+                world.SolveTree(0);
+                world.SolveTree(3);
+                Func<int, GardenMap, CompanionContext> contextFor = VariedContextFor;
+                if (scenario == 1)
+                {
+                    world.DiscoverPairing(Pairing.Grove);
+                    world.DiscoverPairing(Pairing.Waterside);
+                    world.TakeSeasonYield(world.PairingsFound);
+                }
+                else if (scenario == 2)
+                {
+                    const int FruitTo = 2;
+                    world = WithFruit(world, 2);
+                    Expect(world.KeepNote("Anh", "The plums are early this year."), "CP19: a letter is waiting in the box");
+                    Expect(world.GiveFruit(FruitTo), "CP19: fruit is given to a neighbour");
+                    // Fruit is "just given" on the first day only; the letter stays unread all the way through.
+                    contextFor = (d, m) => new CompanionContext(Start.AddDays(d), weather: weathers[d % weathers.Length], lightOn: true,
+                        phase: phases[d % phases.Length], fruitJustGivenTo: d == 0 ? FruitTo : -1, map: m);
+                }
+
+                GardenMap map = MapFor(world);
+                var factsByDay = new Dictionary<int, IReadOnlyList<Fact>>();
+                for (int d = 0; d < Days; d++)
+                {
+                    CompanionContext context = contextFor(d, map);
+                    factsByDay[context.DayNumber] = CompanionFacts.For(world, context);
+                }
+
+                foreach (SimLine line in Simulate(world, bank, null, contextFor, Days))
+                {
+                    linesChecked++;
+                    kinds.Add(line.Kind);
+                    string where = "garden " + grown + ", scenario " + scenario + ", day " + line.Day + ", neighbour " + line.Speaker +
+                        " (" + line.Key + "): \"" + line.Words + "\"";
+                    if (line.Words.IndexOf('{') >= 0 || line.Words.IndexOf('}') >= 0) faults.Add("brace left: " + where);
+                    if (string.IsNullOrEmpty(line.Words)) faults.Add("no words: " + where);
+                    else
+                    {
+                        if (line.Words.Contains("  ")) faults.Add("double space: " + where);
+                        if (line.Words[0] == ' ' || line.Words[line.Words.Length - 1] == ' ') faults.Add("edge space: " + where);
+                    }
+
+                    if (line.Variant < 0) { legacyLines++; continue; }
+                    Fact fact = null;
+                    if (factsByDay.TryGetValue(line.Day, out IReadOnlyList<Fact> facts))
+                        foreach (Fact f in facts)
+                            if (f.Kind == line.Kind && f.Key == line.Key && bank.For(f, line.Speaker).Count > line.Variant)
+                            {
+                                fact = f;
+                                break;
+                            }
+                    if (fact == null) { faults.Add("no fact for the line: " + where); continue; }
+
+                    bankLines++;
+                    // Compose says the letter in place of the bank line once 90 days are away (CP19: the bank line is then not spoken).
+                    if (fact.Kind == FactKind.WeatherWhileAway && !string.IsNullOrEmpty(fact.Slot("letter"))) { letterLines++; continue; }
+                    string raw = bank.For(fact, line.Speaker)[line.Variant];
+                    foreach (string slot in LineBank.SlotsIn(raw).Distinct())
+                    {
+                        string value = fact.Slot(slot);
+                        if (string.IsNullOrEmpty(value)) faults.Add("empty slot {" + slot + "}: " + where);
+                        else if (!line.Words.Contains(value)) faults.Add("slot {" + slot + "} value \"" + value + "\" not in words: " + where);
+                    }
+                }
+            }
+
+        Expect(linesChecked > 0 && bankLines > 0, "CP19: the check is not vacuous; lines " + linesChecked + ", bank lines " + bankLines);
+        Expect(kinds.Contains(FactKind.FruitGiven) && kinds.Contains(FactKind.LetterWaiting),
+            "CP19: the letter-and-fruit visit says FruitGiven and LetterWaiting lines");
+        Expect(faults.Count == 0, "CP19: " + faults.Count + " slot or wording faults: " + string.Join(" | ", faults.Take(10)));
+        Console.WriteLine("Companion simulator CP19: " + linesChecked + " lines checked (" + bankLines + " from a bank line, " +
+            legacyLines + " legacy, " + letterLines + " letter-substituted) across " + kinds.Count + " distinct kinds; 0 faults.");
+    }
+
+    private static WorldModel WithFruit(WorldModel world, int fruit)
+    {
+        WorldSnapshot snapshot = world.Export();
+        snapshot.fruit = fruit;
+        Expect(WorldModel.TryRestore(snapshot, out WorldModel restored), "CP19: a save with fruit restores");
+        return restored;
     }
 
     private static bool HadSomethingSayable(IReadOnlyList<Fact> facts, LineBank bank, int speaker)
