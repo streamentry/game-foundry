@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Evergrove.Core
 {
@@ -108,14 +109,77 @@ namespace Evergrove.Core
         /// </summary>
         public static int Score(Fact fact, int speaker, CompanionMemory memory, int day)
         {
-            int score = Score(fact, speaker, memory);
-            if (fact.Waiting && !fact.Fresh && memory != null &&
-                memory.DaysHeardBy(fact.Key, speaker, day - 1, NagDays) >= NagTimes)
-                score -= NagDamp;
-            if (!fact.Waiting && !fact.Fresh && memory != null && speaker >= 0 && speaker <= 2 &&
-                memory.KindSaidOn(fact.Kind, speaker, day - 1))
-                score -= KindCooldown;
-            return score;
+            return Score(fact, speaker, memory) - NagDampFor(fact, speaker, memory, day) - CooldownFor(fact, speaker, memory, day);
+        }
+
+        // CP10: the nag penalty Score takes (0 or NagDamp), shared with Explain.
+        private static int NagDampFor(Fact fact, int speaker, CompanionMemory memory, int day)
+        {
+            return fact.Waiting && !fact.Fresh && memory != null &&
+                memory.DaysHeardBy(fact.Key, speaker, day - 1, NagDays) >= NagTimes ? NagDamp : 0;
+        }
+
+        // CP10: the kind-cooldown penalty Score takes (0 or KindCooldown), shared with Explain.
+        private static int CooldownFor(Fact fact, int speaker, CompanionMemory memory, int day)
+        {
+            return !fact.Waiting && !fact.Fresh && memory != null && speaker >= 0 && speaker <= 2 &&
+                memory.KindSaidOn(fact.Kind, speaker, day - 1) ? KindCooldown : 0;
+        }
+
+        /// <summary>
+        /// CP10: a plain breakdown for QA logs and tests, best first, one line per fact meant for
+        /// <paramref name="speaker"/>; ineligible facts come after the eligible ones. Each line reads
+        /// "Kind Key score= base= new= own= nag= cooldown= eligible|not-eligible:reason", with the same
+        /// score and eligibility the ranker uses. Pure: no side effects.
+        /// </summary>
+        public static IReadOnlyList<string> Explain(IReadOnlyList<Fact> facts, CompanionMemory memory, int speaker, int day, int garden,
+            Func<Fact, int, bool> canSay = null, int top = 3)
+        {
+            var lines = new List<string>();
+            if (facts == null || speaker < 0 || speaker > 2 || top <= 0) return lines;
+            memory = memory ?? CompanionMemory.Empty;
+            var eligible = new List<Fact>();
+            var ineligible = new List<Fact>();
+            foreach (Fact f in facts)
+            {
+                if (f == null || !f.For(speaker)) continue;
+                if (Eligible(f, memory, day) && Sayable(f, speaker, canSay)) eligible.Add(f);
+                else ineligible.Add(f);
+            }
+            Comparison<Fact> best = (a, b) => Order(a, b, speaker, memory, day, garden);
+            eligible.Sort(best);
+            ineligible.Sort(best);
+            var ordered = new List<Fact>(eligible);
+            ordered.AddRange(ineligible);
+            for (int i = 0; i < ordered.Count && lines.Count < top; i++)
+            {
+                Fact f = ordered[i];
+                int nag = -NagDampFor(f, speaker, memory, day);
+                int cooldown = -CooldownFor(f, speaker, memory, day);
+                int added = memory.EverSaid(f.Key) ? 0 : NewWeight;
+                int own = f.Keeper == speaker ? OwnLineWeight : 0;
+                string status = i < eligible.Count ? "eligible" : "not-eligible:" + Reason(f, memory, day);
+                lines.Add(string.Format(CultureInfo.InvariantCulture,
+                    "{0} {1} score={2} base={3} new={4} own={5} nag={6} cooldown={7} {8}",
+                    f.Kind, f.Key, Score(f, speaker, memory, day), f.Weight,
+                    Signed(added), Signed(own), Signed(nag), Signed(cooldown), status));
+            }
+            return lines;
+        }
+
+        // CP10: why a fact is not eligible: said once, said within KeyDays, or no words for this voice.
+        private static string Reason(Fact fact, CompanionMemory memory, int day)
+        {
+            if (fact.Once && memory.EverSaid(fact.Key)) return "once-said";
+            if (!Eligible(fact, memory, day)) return "said-within-3-days";
+            return "cannot-say";
+        }
+
+        // CP10: "+30", "-40" or "0", as the Explain line shows them.
+        private static string Signed(int value)
+        {
+            if (value == 0) return "0";
+            return (value > 0 ? "+" : "-") + Math.Abs(value).ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>Not heard in the last <see cref="KeyDays"/> days, or still waiting, or caused just now; a once-fact, never heard.</summary>

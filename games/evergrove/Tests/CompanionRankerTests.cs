@@ -37,6 +37,7 @@ internal static class CompanionRankerTests
         GoldenHash();
         MemoryText();
         ScriptedWeek();
+        ExplainLines();
         return assertions;
     }
 
@@ -452,5 +453,78 @@ internal static class CompanionRankerTests
         foreach (var day in keysByDay) said7 += day.Count;
         Expect(said7 >= 10, "a week of visits has plenty to say: " + said7);
         Console.WriteLine("Companion ranker SC02: a scripted week said " + said7 + " remarks, none repeated within 3 days.");
+    }
+
+    // CP10: Explain is a plain breakdown of the score and eligibility the ranker itself uses.
+    private static void ExplainLines()
+    {
+        const int garden = 6, day = 300, speaker = 0;
+        Fact letter = F(FactKind.LetterWaiting, 0, "letter:Anh:1", 50, waiting: true);
+        Fact solved = F(FactKind.KindSolved, 0, "solved:Water:2", 15);
+        Fact weather = F(FactKind.WeatherToday, Fact.AnyKeeper, "weather:Rainy", 5);
+        Fact other = F(FactKind.KindSolved, 1, "solved:Mosaic:2", 15);
+        Fact grove = new Fact(FactKind.PairingFound, 0, "pairing-found:Grove", new Dictionary<string, string>(), 20, false, false, 0, true);
+        var facts = new List<Fact> { solved, letter, weather, other, grove };
+
+        IReadOnlyList<string> lines = CompanionRanker.Explain(facts, CompanionMemory.Empty, speaker, day, garden, null, 10);
+        Expect(lines.Count == 4, "CP10: one line per fact meant for the speaker (not Mosaic's): " + lines.Count);
+        Expect(lines[0] == "LetterWaiting letter:Anh:1 score=90 base=50 new=+30 own=+10 nag=0 cooldown=0 eligible",
+            "CP10: the line format: " + lines[0]);
+
+        // The first line names the fact Pick chooses, when Pick chooses one.
+        CompanionMemory[] memories = {
+            CompanionMemory.Empty,
+            CompanionMemory.Empty.With(new Heard(day - 5, 0, FactKind.KindSolved, -1, "solved:x")),
+        };
+        foreach (CompanionMemory m in memories)
+        {
+            Fact pick = CompanionRanker.Pick(facts, m, speaker, day, garden);
+            IReadOnlyList<string> l = CompanionRanker.Explain(facts, m, speaker, day, garden, null, 10);
+            Expect(pick == null || (l.Count > 0 && l[0].StartsWith(pick.Kind + " " + pick.Key + " ", StringComparison.Ordinal)),
+                "CP10: the first line is Pick's fact: " + (l.Count > 0 ? l[0] : "(none)") + " vs " + (pick == null ? "null" : pick.Key));
+            // The score shown is Score(f, speaker, memory, day).
+            foreach (Fact f in facts)
+            {
+                if (!f.For(speaker)) continue;
+                string want = " score=" + CompanionRanker.Score(f, speaker, m, day) + " ";
+                Expect(FindLine(l, f.Key).Contains(want), "CP10: the score shown matches Score for " + f.Key + ": " + FindLine(l, f.Key));
+            }
+        }
+
+        // A once-fact already said shows not-eligible:once-said, listed after the eligible lines.
+        CompanionMemory said = CompanionMemory.Empty.With(new Heard(day - 5, 0, FactKind.PairingFound, 0, grove.Key));
+        IReadOnlyList<string> afterSaid = CompanionRanker.Explain(facts, said, speaker, day, garden, null, 10);
+        Expect(FindLine(afterSaid, grove.Key) == "PairingFound pairing-found:Grove score=30 base=20 new=0 own=+10 nag=0 cooldown=0 not-eligible:once-said",
+            "CP10: a once-fact already said: " + FindLine(afterSaid, grove.Key));
+        Expect(afterSaid[afterSaid.Count - 1] == FindLine(afterSaid, grove.Key), "CP10: ineligible facts come after eligible ones");
+
+        // The nag and cooldown penalties show as negative numbers.
+        CompanionMemory nagged = CompanionMemory.Empty
+            .With(new Heard(98, 0, letter.Kind, -1, letter.Key))
+            .With(new Heard(99, 0, letter.Kind, -1, letter.Key));
+        Expect(FindLine(CompanionRanker.Explain(facts, nagged, speaker, 100, garden, null, 10), letter.Key)
+            == "LetterWaiting letter:Anh:1 score=20 base=50 new=0 own=+10 nag=-40 cooldown=0 eligible",
+            "CP10: nag damping is shown: " + FindLine(CompanionRanker.Explain(facts, nagged, speaker, 100, garden, null, 10), letter.Key));
+
+        // canSay false gives cannot-say.
+        IReadOnlyList<string> picky = CompanionRanker.Explain(facts, CompanionMemory.Empty, speaker, day, garden, (f, k) => f.Key != solved.Key, 10);
+        Expect(FindLine(picky, solved.Key).EndsWith("not-eligible:cannot-say", StringComparison.Ordinal),
+            "CP10: a fact with no words is cannot-say: " + FindLine(picky, solved.Key));
+
+        // top limits the count and keeps the best first.
+        IReadOnlyList<string> two = CompanionRanker.Explain(facts, CompanionMemory.Empty, speaker, day, garden, null, 2);
+        Expect(two.Count == 2 && two[0] == lines[0] && two[1] == lines[1], "CP10: top limits the lines, best first");
+
+        // Null facts give nothing; null memory is an empty memory; a bad speaker gives nothing.
+        Expect(CompanionRanker.Explain(null, null, speaker, day, garden).Count == 0, "CP10: null facts: empty");
+        Expect(CompanionRanker.Explain(facts, null, speaker, day, garden, null, 10).Count == 4, "CP10: null memory is an empty memory");
+        Expect(CompanionRanker.Explain(facts, null, 7, day, garden, null, 10).Count == 0, "CP10: no such neighbour: empty");
+    }
+
+    private static string FindLine(IReadOnlyList<string> lines, string key)
+    {
+        foreach (string line in lines)
+            if (line.Contains(" " + key + " score=")) return line;
+        return "(missing " + key + ")";
     }
 }
