@@ -17,7 +17,7 @@ namespace Evergrove.Core
         public static int Waiting(WorldModel world)
         {
             if (world == null || world.Mode != PlayMode.Living) return 0;
-            int open = GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved);
+            int open = GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved, world.RiverReplays);
             return Math.Max(0, open - world.WellSolved);
         }
 
@@ -57,7 +57,7 @@ namespace Evergrove.Core
         {
             if (source.well < 0 || (source.mode != "living" && source.well != 0)) return false;
             int solved = (source.treeSolved ?? Array.Empty<int>()).Length + (source.boughtSolved ?? Array.Empty<int>()).Length;
-            int open = GardenMap.ReachesFor(source.choices.Length, source.round == PuzzleCatalog.Count, solved);
+            int open = GardenMap.ReachesFor(source.choices.Length, source.round == PuzzleCatalog.Count, solved, WorldModel.RiverReplaysOf(source));
             return source.well <= open;
         }
     }

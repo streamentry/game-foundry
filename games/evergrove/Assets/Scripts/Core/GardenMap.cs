@@ -49,9 +49,26 @@ namespace Evergrove.Core
 
         public static int ReachesFor(int restored, bool completed, int puzzlesSolved)
         {
+            return ReachesFor(restored, completed, puzzlesSolved, 0);
+        }
+
+        /// <summary>
+        /// Replays of a finished garden, once nothing new is left to solve, per stretch opened (checklist 41).
+        /// Only replays count, and only after the story: the river opens by play, never by payment.
+        /// </summary>
+        public const int ReplaysPerReach = 8;
+
+        /// <summary>
+        /// Reaches of river for a garden, with the replays it has made once nothing new is left to solve
+        /// (checklist 41): the solve-based count plus one for every <see cref="ReplaysPerReach"/> replays.
+        /// Computed in long, so no input can overflow; capped only by <see cref="SafetyReachBound"/>.
+        /// </summary>
+        public static int ReachesFor(int restored, bool completed, int puzzlesSolved, int riverReplays)
+        {
             if (!completed) return ReachesFor(restored, false);
-            int open = MaxReaches + Math.Max(0, puzzlesSolved) / SolvesPerReach;
-            return open > SafetyReachBound ? SafetyReachBound : open;
+            long open = (long)MaxReaches + Math.Max(0, puzzlesSolved) / SolvesPerReach
+                + Math.Max(0, riverReplays) / ReplaysPerReach;
+            return open > SafetyReachBound ? SafetyReachBound : (int)open;
         }
 
         /// <summary>
@@ -61,6 +78,17 @@ namespace Evergrove.Core
         /// </summary>
         public static bool TowardNext(int restored, bool completed, int puzzlesSolved, out int have, out int need)
         {
+            return TowardNext(restored, completed, puzzlesSolved, 0, false, out have, out need);
+        }
+
+        /// <summary>
+        /// The same, with replays (checklist 41). When nothing new is left to solve (<paramref name="nothingNew"/>),
+        /// the drops count replays toward the next stretch, eight to a stretch; before that they count solves as
+        /// before, and replays made meanwhile still count toward the total stretches (ReachesFor).
+        /// </summary>
+        public static bool TowardNext(int restored, bool completed, int puzzlesSolved, int riverReplays, bool nothingNew,
+            out int have, out int need)
+        {
             if (!completed)
             {
                 need = StreamsPerReach;
@@ -68,9 +96,17 @@ namespace Evergrove.Core
                 return true; // the story always opens all five
             }
             int solved = Math.Max(0, puzzlesSolved);
-            need = SolvesPerReach;
-            have = solved % SolvesPerReach;
-            return ReachesFor(restored, true, solved) < SafetyReachBound;
+            if (nothingNew)
+            {
+                need = ReplaysPerReach;
+                have = Math.Max(0, riverReplays) % ReplaysPerReach;
+            }
+            else
+            {
+                need = SolvesPerReach;
+                have = solved % SolvesPerReach;
+            }
+            return ReachesFor(restored, true, solved, riverReplays) < SafetyReachBound;
         }
 
         /// <summary>

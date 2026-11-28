@@ -20,7 +20,8 @@ namespace Evergrove.UnityClient
         private void HandleBackGesture()
         {
             if (!BackKeyPressed()) return;
-            if (letterCard != null) CloseLetter();
+            if (handSheet != null) DeclineHand();
+            else if (letterCard != null) CloseLetter();
             else if (familySheet != null) familySheet.Close();
             else if (seedBookSheet != null) CloseSeedBook();
             else if (marketSheet != null) CloseMarketSheet();
@@ -112,14 +113,20 @@ namespace Evergrove.UnityClient
                     else if (showJournal) { showJournal = false; journalOpenPage = -1; almanacTab = false; familyTab = false; waysTab = false; Rebuild(); }
                     else ToggleFan(false);
                 }, 54, menuOpen || showJournal ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
+            PlaceChrome(menu, MenuCornerAnchor, new Vector2(MenuSideOffset, MenuInset)); // checklist 94 and 5: bottom corner for the hand
             if (living && world.Choices.Length > 0 && !showJournal) MarkUnreadMemory(menu, MenuSeenKey);
         }
 
+        // ---- Checklist 94: the menu button sits in the bottom-left corner, inside the safe area, within one
+        // thumb's reach in both orientations (founder decision 2026-11-28). Bottom controls keep MenuReserve
+        // clear on their left so the two never overlap.
+        internal const float MenuInset = 14f, MenuSize = 54f;
+        internal const float MenuReserve = MenuInset + MenuSize + 12f;
+
         // ---- I191: the fan menu. One corner button opens a column of round
-        // tokens under it; a tap anywhere else folds it away again.
+        // tokens over it; a tap anywhere else folds it away again.
         private GameObject fan;
-        private const float FanCell = 64f, FanGap = 12f, FanFootMargin = 12f; // a fan token, the gap, room at the foot
+        private const float FanCell = 64f, FanGap = 12f, FanFootMargin = 12f; // a fan token, the gap, room at the top
 
         private void CloseFan()
         {
@@ -164,18 +171,22 @@ namespace Evergrove.UnityClient
             var columnRect = column.GetComponent<RectTransform>();
             Rect safe = Screen.safeArea;
             float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
-            columnRect.anchorMin = columnRect.anchorMax = new Vector2(safe.xMin / w, safe.yMax / h);
-            columnRect.pivot = new Vector2(0f, 1f);
-            columnRect.anchoredPosition = new Vector2(10f, ChromeTop - 66f);
-            // Checklist 11: the fan holds more tokens now (letters, basket, seed book), so it fills top to
-            // bottom and wraps into a second column when the screen is too short (landscape): every token
-            // stays on screen, and the one used last is still first, right under the corner button.
+            // Checklist 5: a right hand's menu sits bottom-right, so the fan hangs from that side instead.
+            bool onRight = MenuOnRight;
+            columnRect.anchorMin = columnRect.anchorMax = new Vector2((onRight ? safe.xMax : safe.xMin) / w, safe.yMin / h);
+            columnRect.pivot = new Vector2(onRight ? 1f : 0f, 0f);
+            // Checklist 94: the fan opens upward from the bottom-left menu button. Its bottom-left corner sits
+            // just above the button (set below, once the button's place is known), so the token used last is
+            // first, nearest the thumb, and the rest climb toward the top of the screen.
+            // Checklist 11: the fan holds more tokens now (letters, basket, seed book), so it fills upward and
+            // wraps into a second column when the screen is too short (landscape): every token stays on
+            // screen, and the one used last is still first, right over the corner button.
             var stack = column.AddComponent<GridLayoutGroup>();
             stack.cellSize = new Vector2(FanCell, FanCell);
             stack.spacing = new Vector2(FanGap, FanGap);
-            stack.startCorner = GridLayoutGroup.Corner.UpperLeft;
+            stack.startCorner = onRight ? GridLayoutGroup.Corner.LowerRight : GridLayoutGroup.Corner.LowerLeft;
             stack.startAxis = GridLayoutGroup.Axis.Vertical;
-            stack.childAlignment = TextAnchor.UpperLeft;
+            stack.childAlignment = onRight ? TextAnchor.LowerRight : TextAnchor.LowerLeft;
             stack.constraint = GridLayoutGroup.Constraint.FixedRowCount;
             stack.constraintCount = 99; // set below, once the fan hangs from the corner button
             var fit = column.AddComponent<ContentSizeFitter>();
@@ -265,20 +276,32 @@ namespace Evergrove.UnityClient
             tokens.Add(FanToken(column.transform, "Settings", GameLocalization.Text("menu"), MosseloraArt.IconSettings,
                 () => { CloseFan(); CloseTitle(); SetMenu(true); }));
             tokens = ArrangeFan(tokens); // checklist 15: the token used last opens first, nearest the thumb
-            // Hang the fan just under the corner button it came from.
-            foreach (Button corner in canvasRoot.GetComponentsInChildren<Button>())
+            // Hang the fan just above the corner button it came from: the column's bottom-left sits one gap
+            // above the button's top-left corner (GetWorldCorners: 0 bottom-left, 1 top-left).
+            // With home open, its own corner button (the page's chrome button sits behind home, and may not
+            // have been rebuilt since the hand changed); otherwise the page's.
+            Transform cornerHost = titleScreen != null ? titleScreen.transform : (Transform)canvasRoot;
+            Button[] cornerButtons = cornerHost.GetComponentsInChildren<Button>();
+            if (System.Array.Find(cornerButtons, b => b.name == "Open menu" && b.gameObject.activeInHierarchy) == null)
+                cornerButtons = canvasRoot.GetComponentsInChildren<Button>();
+            foreach (Button corner in cornerButtons)
                 if (corner.name == "Open menu" && corner.gameObject.activeInHierarchy)
                 {
                     var corners = new Vector3[4];
                     ((RectTransform)corner.transform).GetWorldCorners(corners);
-                    columnRect.position = corners[0] + new Vector3(0f, -12f * canvasRoot.lossyScale.y, 0f);
+                    columnRect.position = corners[onRight ? 2 : 1] + new Vector3(0f, 12f * canvasRoot.lossyScale.y, 0f);
                     break;
                 }
-            // How many tokens fit down the screen from here, above the foot of the safe area.
+            // How many tokens fit up from here: below the top of the safe area, and no higher than the one-thumb
+            // band (checklist 94: a third of the screen in portrait, a quarter in landscape). A longer fan wraps
+            // into another column rather than climbing out of reach.
             var screenCorners = new Vector3[4];
             canvasRoot.GetWorldCorners(screenCorners);
-            float footMargin = safe.yMin / h * canvasRoot.rect.height + FanFootMargin;
-            float room = (columnRect.position.y - screenCorners[0].y) / Mathf.Max(0.0001f, canvasRoot.lossyScale.y) - footMargin;
+            float headMargin = (Mathf.Max(0f, Screen.height - safe.yMax) / h) * canvasRoot.rect.height + FanFootMargin;
+            float fromFoot = (screenCorners[1].y - columnRect.position.y) / Mathf.Max(0.0001f, canvasRoot.lossyScale.y);
+            bool portrait = canvasRoot.rect.height > canvasRoot.rect.width;
+            float reachTop = ThumbReach.TopOfReach(canvasRoot.rect.height, portrait);
+            float room = Mathf.Min(fromFoot - headMargin, fromFoot - reachTop);
             stack.constraintCount = FanOrder.RowsThatFit(room, FanCell, FanGap, tokens.Count);
             if (gentleMotion)
                 for (int i = 0; i < tokens.Count; i++) StartCoroutine(FanIn(tokens[i], i * 0.045f));

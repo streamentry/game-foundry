@@ -113,11 +113,13 @@ namespace Evergrove.UnityClient
             chromeBand = bandRect;
             var chromeNode = Node("Game chrome", scrollNode.transform);
             chrome = chromeNode.GetComponent<RectTransform>();
-            chrome.anchorMin = new Vector2(0f, 1f);
-            chrome.anchorMax = new Vector2(1f, 1f);
-            chrome.pivot = new Vector2(0.5f, 1f);
-            chrome.sizeDelta = new Vector2(0f, 70f);
-            chrome.anchoredPosition = new Vector2(0f, -topInset);
+            // Checklist 94: the chrome spans the safe area so the menu can sit at the bottom-left. Its top
+            // edge stays at the status-bar inset, where the top controls have always been placed.
+            chrome.anchorMin = Vector2.zero;
+            chrome.anchorMax = Vector2.one;
+            chrome.pivot = new Vector2(0.5f, 0.5f);
+            chrome.offsetMin = Vector2.zero;
+            chrome.offsetMax = new Vector2(0f, -topInset);
             // The sheet must cover the chrome when open.
             menuSheet.transform.SetAsLastSibling();
             BuildTitleScreen(canvasNode.transform);

@@ -84,7 +84,7 @@ internal static class BoardZoomTests
         string tree = Read("Assets/Scripts/Unity/TreePlay.cs");
         string side = Read("Assets/Scripts/Unity/TreePlay.Sideways.cs");
         string chain = Read("Assets/Scripts/Unity/ChainCause.cs");
-        Expect(tree.Contains("SplitSideways(root); // v1 #91"), "the card splits once settled");
+        Expect(tree.Contains("SplitSideways(root); MoveControlsToFoot(root); AttachSwipeClose(); // v1 #91, #94"), "the card splits once settled, then its controls settle to the foot (upright)");
         Expect(tree.Contains("float width = Sideways(root) ? SidewaysBoardWidth(root) :") &&
                tree.Contains("if (Sideways(root)) screenHeight += TopRowSpace;"), "sideways, the board is built for the room it really has");
         Expect(side.Contains("\"Card controls\"") && side.Contains("\"Board side\"") && side.Contains("SidePanelWidth = 260f"),

@@ -99,6 +99,7 @@ namespace Evergrove.UnityClient
 
         // Sideways there is no top safe inset, so the chrome sits a little lower
         // and the book's new-memory mark is not clipped by the screen edge (I116).
+        // The top-edge controls (purse, day tokens, sign). The menu button no longer uses it (checklist 94).
         private float ChromeTop { get { return landscape ? -12f : -6f; } }
 
         // Sideways, Undo and Hint stand in a rail right of the board, so the
@@ -315,8 +316,9 @@ namespace Evergrove.UnityClient
             rect.anchorMin = new Vector2(0f, 0f);
             rect.anchorMax = new Vector2(1f, 0f);
             rect.pivot = new Vector2(0.5f, 0f);
-            rect.sizeDelta = new Vector2(-34f, rowHeight);
-            rect.anchoredPosition = new Vector2(0f, 14f);
+            // Checklist 94: the row starts right of the bottom-left menu button, so the button is never covered.
+            rect.sizeDelta = new Vector2(-34f - MenuReserve, rowHeight);
+            rect.anchoredPosition = new Vector2(MenuReserveOffset, 14f); // checklist 5: the reserve sits on the menu's far side
             keep.transform.SetSiblingIndex(Mathf.Min(index, content.childCount - 1));
         }
     }

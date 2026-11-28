@@ -254,6 +254,8 @@ namespace Evergrove.UnityClient
             };
             gentleMotion = PlayerPrefs.GetInt(GentleMotionKey, 1) == 1;
             PipeGraphic.Animate = gentleMotion;
+            LoadHand(); // checklist 5: the hand, kept on the device
+            LongPressCaption.Shown += OnLongPressShown; // checklist 5: the question follows the first long-press
             // Default to the proven-in-code 2D art; keep the experimental
             // orthographic 3D visual opt-in until real player/device evidence.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -392,6 +394,7 @@ namespace Evergrove.UnityClient
 
         private void OnDestroy()
         {
+            LongPressCaption.Shown -= OnLongPressShown;
 #if UNITY_IOS || UNITY_ANDROID
             UnityEngine.Accessibility.AssistiveSupport.screenReaderStatusChanged -= OnScreenReaderStatusChanged;
 #endif

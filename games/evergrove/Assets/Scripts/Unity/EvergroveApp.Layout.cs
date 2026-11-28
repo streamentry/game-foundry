@@ -189,7 +189,7 @@ namespace Evergrove.UnityClient
             if (column != null)
                 column.padding = new RectOffset(17 + (int)columnLeft, 17 + (int)columnRight,
                     15 + Mathf.RoundToInt(topInset), 36);
-            if (chrome != null) chrome.anchoredPosition = new Vector2(0f, -topInset);
+            if (chrome != null) chrome.offsetMax = new Vector2(0f, -topInset); // the chrome's top edge (checklist 94)
             if (chromeBand != null)
             {
                 chromeBand.offsetMin = new Vector2(columnLeft, -104f - topInset);

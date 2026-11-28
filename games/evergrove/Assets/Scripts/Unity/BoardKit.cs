@@ -51,17 +51,19 @@ namespace Evergrove.UnityClient
         {
             if (top == null) return;
             string caption = ShowClashes ? HideCaption : ShowCaption;
+            // The lens is held by its own reference: upright, MoveControlsToFoot moves it off the top row,
+            // so looking it up from the top row later would miss it.
+            Transform lens = null;
             TreePlay.Token(top, caption, MosseloraArt.BoldRing(), 52f, LensTone(ShowClashes),
-                () => ToggleClashes(top, repaint), true);
-            Transform lens = top.Find(caption);
+                () => ToggleClashes(lens, repaint), true);
+            lens = top.Find(caption);
             Transform hint = top.Find("Hint: show the next move");
             if (lens != null && hint != null) lens.SetSiblingIndex(hint.GetSiblingIndex() + 1);
             MosseloraArt.StateMark(lens, ShowClashes, 20f);
         }
 
-        private static void ToggleClashes(Transform top, Action repaint)
+        private static void ToggleClashes(Transform lens, Action repaint)
         {
-            Transform lens = top.Find(ShowClashes ? HideCaption : ShowCaption);
             ShowClashes = !ShowClashes;
             if (lens != null)
             {

@@ -21,6 +21,9 @@ namespace Evergrove.UnityClient
 
         private bool splitSideways;
 
+        /// <summary>Checklist 5: the hand holding the phone, set by the app (EvergroveApp.Handedness.cs).</summary>
+        internal static Hand HandHolding = Hand.Unknown;
+
         /// <summary>Held sideways: the screen clearly wider than tall.</summary>
         internal static bool Sideways(RectTransform root)
         {
@@ -74,8 +77,13 @@ namespace Evergrove.UnityClient
             across.childForceExpandWidth = false;
             across.childForceExpandHeight = false;
             float boardWidth = SidewaysBoardWidth(root);
-            Transform boardSide = Side("Board side", boardWidth, TextAnchor.MiddleCenter, 0);
-            Transform panel = Side("Card controls", SidePanelWidth, TextAnchor.UpperCenter, (int)BackPlacement.Reserve - 16);
+            // Checklist 5: the control panel sits on the thumb's side. The close token stays top-right, so the
+            // top reserve always goes to whichever side is on the right.
+            bool panelRight = Handedness.PanelOnRight(HandHolding, true);
+            int reserveTop = (int)BackPlacement.Reserve - 16;
+            Transform boardSide = Side("Board side", boardWidth, TextAnchor.MiddleCenter, panelRight ? 0 : reserveTop);
+            Transform panel = Side("Card controls", SidePanelWidth, TextAnchor.UpperCenter, panelRight ? reserveTop : 0);
+            if (!panelRight) panel.SetAsFirstSibling();
             foreach (Transform part in parts)
             {
                 var layout = part.GetComponent<LayoutElement>();
