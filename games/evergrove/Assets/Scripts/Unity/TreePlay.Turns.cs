@@ -1,3 +1,4 @@
+using System.Collections;
 using Evergrove.Core;
 using UnityEngine;
 using UnityEngine.UI;
@@ -78,6 +79,50 @@ namespace Evergrove.UnityClient
             PaintTurn();
             if (together && turn != 0 && pips != null && turn < pips.Length && gentle)
                 BloomPulse.Add(pips[turn].gameObject, 0f, 0.12f);
+        }
+
+        // Idea 4: the one running colour fade on the take-turns token, so a second turn stops the first.
+        private Coroutine tintFade;
+
+        /// <summary>
+        /// Idea 4: the token eases to its next colour. Reduced motion (not gentle) or an inactive token
+        /// takes the colour at once, so nothing animates.
+        /// </summary>
+        private void TintDisc(Image disc, Color target)
+        {
+            if (!gentle || !isActiveAndEnabled || !disc.isActiveAndEnabled)
+            {
+                if (tintFade != null) StopCoroutine(tintFade);
+                tintFade = null;
+                disc.color = target;
+                return;
+            }
+            if (tintFade != null) StopCoroutine(tintFade);
+            tintFade = StartCoroutine(FadeTint(disc, disc.color, target));
+        }
+
+        private IEnumerator FadeTint(Image disc, Color from, Color to)
+        {
+            float elapsed = 0f;
+            while (elapsed < TurnPalette.FadeSeconds)
+            {
+                if (disc == null) yield break;
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / TurnPalette.FadeSeconds;
+                disc.color = Color.Lerp(from, to, TurnPalette.Ease(t));
+                yield return null;
+            }
+            if (disc != null) disc.color = to;
+            tintFade = null;
+        }
+
+        /// <summary>Idea 3: the table changed size mid-board. The turn stays with its seat if it still exists;
+        /// alone, the history is forgotten. Otherwise the turn is noted at the current undo step.</summary>
+        private void ResizeTable()
+        {
+            turn = TakeTurns.TurnAfterResize(turn, players);
+            if (players <= 1 || tracked == null) ledger.Clear();
+            else ledger.Record(tracked.UndoSteps, turn);
         }
 
         /// <summary>Idea 5: the hint token says "Hint offered." while its offer glows. One hidden caption, reused.</summary>

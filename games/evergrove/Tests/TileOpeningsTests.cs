@@ -64,6 +64,39 @@ internal static class TileOpeningsTests
         }
         Expect(TileOpenings.Words(PipeKind.Straight, 3) == "", "straight has no rotation 3");
 
+        // Long-press caption: the openings follow the action in both anchored states.
+        foreach (PipeKind kind in kinds)
+        {
+            for (int rotation = 1; rotation <= PipeRules.OrientationCount(kind); rotation++)
+            {
+                string words = TileOpenings.Words(kind, rotation);
+                string free = TileOpenings.Caption(false, kind, rotation);
+                string pinned = TileOpenings.Caption(true, kind, rotation);
+                if (words.Length > 0)
+                {
+                    Expect(free == "Turn this tile. " + words, kind + " rotation " + rotation + " free caption");
+                    Expect(pinned == "This tile stays where it is. " + words, kind + " rotation " + rotation + " pinned caption");
+                }
+                else
+                {
+                    Expect(free == "Turn this tile", kind + " rotation " + rotation + " bare free caption");
+                    Expect(pinned == "This tile stays where it is.", kind + " rotation " + rotation + " bare pinned caption");
+                }
+            }
+        }
+        Expect(TileOpenings.Caption(false, PipeKind.Corner, 1) == "Turn this tile. Opens up and right.", "corner caption pins words");
+        Expect(TileOpenings.Caption(true, PipeKind.Corner, 3) == "This tile stays where it is. Opens down and left.", "pinned corner caption pins words");
+
+        // Out-of-range rotations keep the bare captions and never throw.
+        foreach (int bad in new[] { 0, -1, 99 })
+        {
+            foreach (PipeKind kind in kinds)
+            {
+                Expect(TileOpenings.Caption(false, kind, bad) == "Turn this tile", kind + " rotation " + bad + " bare free caption");
+                Expect(TileOpenings.Caption(true, kind, bad) == "This tile stays where it is.", kind + " rotation " + bad + " bare pinned caption");
+            }
+        }
+
         // Every authored tile, in its starting orientation, has words.
         for (int p = 0; p < PuzzleCatalog.Count; p++)
         {
@@ -79,6 +112,15 @@ internal static class TileOpeningsTests
         string layout = Script("Unity/EvergroveApp.Layout.cs");
         Expect(layout.Contains("TileOpenings.Words"), "TileSpeech speaks the tile openings");
         Expect(layout.Contains("GameLocalization.Current == \"en\""), "tile openings are English-only");
+
+        // Source check (vision run 1401): the long-press caption on a water tile is read live, so it
+        // describes the tile as it is now, not as it was when the board was built.
+        string puzzleView = Script("Unity/EvergroveApp.Puzzle.cs");
+        string caption = Script("Unity/LongPressCaption.cs");
+        Expect(puzzleView.Contains("LongPressCaption.AttachLive(") && puzzleView.Contains("TileOpenings.Caption("),
+            "the water tile's caption names its openings");
+        Expect(puzzleView.Contains("world.Rotations[tappedIndex]"), "the caption reads the tile's current rotation");
+        Expect(caption.Contains("live != null ? live() : null"), "the caption's words are read when it is shown");
 
         return assertions;
     }

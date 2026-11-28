@@ -31,6 +31,7 @@ namespace Evergrove.UnityClient
         internal static event System.Action Shown;
 
         private string message;
+        private System.Func<string> live; // vision run 1401: read when shown, so a turned tile's caption is current
         private Font font;
         private PointerEventData press;
         private Vector2 origin;
@@ -48,6 +49,17 @@ namespace Evergrove.UnityClient
             var tip = node.AddComponent<LongPressCaption>();
             tip.message = message;
             tip.font = font;
+            return tip;
+        }
+
+        /// <summary>
+        /// Like Attach, but the words are read at the moment the caption is shown (a water tile's
+        /// openings change as it turns). Falls back to the fixed message when the source gives nothing.
+        /// </summary>
+        public static LongPressCaption AttachLive(GameObject node, string message, System.Func<string> source, Font font)
+        {
+            LongPressCaption tip = Attach(node, message, font);
+            if (tip != null) tip.live = source;
             return tip;
         }
 
@@ -75,7 +87,8 @@ namespace Evergrove.UnityClient
             held = -1f;
             if (font == null) return; // nothing legible to draw with: no toast, and the tap stays a tap
             if (press != null) press.eligibleForClick = false; // the hold asked a question; it did not press
-            RuleToast.Show((RectTransform)transform, message, font, MosseloraTheme.Ink, MosseloraTheme.CardFill);
+            string now = live != null ? live() : null;
+            RuleToast.Show((RectTransform)transform, string.IsNullOrWhiteSpace(now) ? message : now, font, MosseloraTheme.Ink, MosseloraTheme.CardFill);
             var shown = Shown;
             if (shown != null) shown();
         }

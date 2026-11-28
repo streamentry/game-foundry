@@ -31,6 +31,35 @@ namespace Evergrove.Core
             return new float[] { source[0], source[1], source[2] };
         }
 
+        /// <summary>How long the take-turns token takes to ease to its next colour (idea 4).</summary>
+        public const float FadeSeconds = 0.18f;
+
+        /// <summary>Smoothstep easing: 0 at or below 0, 1 at or above 1, never NaN.</summary>
+        public static float Ease(float t)
+        {
+            if (!(t > 0f)) return 0f;
+            if (t >= 1f) return 1f;
+            return t * t * (3f - 2f * t);
+        }
+
+        /// <summary>
+        /// The colour a fade shows at t in 0..1 between two RGB colours (eased). t at or below 0 is exactly
+        /// <paramref name="from"/>, at or above 1 exactly <paramref name="to"/>. Returns a fresh array.
+        /// </summary>
+        public static float[] Blend(float[] from, float[] to, float t)
+        {
+            if (!(t > 0f)) return new float[] { from[0], from[1], from[2] };
+            if (t >= 1f) return new float[] { to[0], to[1], to[2] };
+            float e = Ease(t);
+            var result = new float[3];
+            for (int i = 0; i < 3; i++)
+            {
+                float v = from[i] + (to[i] - from[i]) * e;
+                result[i] = v < 0f ? 0f : (v > 1f ? 1f : v);
+            }
+            return result;
+        }
+
         /// <summary>WCAG 2.x relative luminance of an sRGB colour.</summary>
         public static double Luminance(float r, float g, float b)
         {

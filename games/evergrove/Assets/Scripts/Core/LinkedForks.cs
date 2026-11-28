@@ -28,6 +28,28 @@ namespace Evergrove.Core
     }
 
     /// <summary>
+    /// Measurement of when the axle matters: how far neighbour-only deduction gets before it stalls, whether
+    /// one axle prune restarts it, and whether the joint deduction solves the board with no guess.
+    /// </summary>
+    public sealed class AxleMomentResult
+    {
+        public readonly int FixedBeforeStall;
+        public readonly int Cells;
+        public readonly bool AxleRestarts;
+        public readonly bool SolvedWithoutGuess;
+        public readonly bool TruthKept;
+
+        public AxleMomentResult(int fixedBeforeStall, int cells, bool axleRestarts, bool solvedWithoutGuess, bool truthKept)
+        {
+            FixedBeforeStall = fixedBeforeStall;
+            Cells = cells;
+            AxleRestarts = axleRestarts;
+            SolvedWithoutGuess = solvedWithoutGuess;
+            TruthKept = truthKept;
+        }
+    }
+
+    /// <summary>
     /// Generation, uniqueness counting and deduce-then-guess search for linked fork boards. Solver
     /// gate only: nothing in play calls this. Candidate arrays follow ForkBoards: four flags per
     /// cell, indexed by rotation relative to the cell's canonical tile. Link propagation keeps only
@@ -108,10 +130,30 @@ namespace Evergrove.Core
         {
             RequireBoard(b);
             bool[][] candidates = InitialCandidates(b);
-            if (!Deduce(b, candidates)) return false;
-            for (int i = 0; i < candidates.Length; i++)
-                if (!Holds(b.Board, candidates, i, b.Board.Solution[i])) return false;
-            return true;
+            return Deduce(b, candidates) && TruthHolds(b, candidates);
+        }
+
+        /// <summary>
+        /// Solver-gate question: does the axle matter mid-solve (aha) or only at the start (bookkeeping)?
+        /// Runs neighbour-only deduction to a fixpoint, then one axle prune, then neighbour-only deduction
+        /// again, then joint deduction. Candidate removal is monotone, so the final state is the joint
+        /// fixpoint regardless of order. TruthKept is checked on the final state: a removed truth never returns.
+        /// </summary>
+        public static AxleMomentResult AxleMoment(LinkedForkBoard b)
+        {
+            RequireBoard(b);
+            bool[][] candidates = InitialCandidates(b);
+            bool stalled = ArcFixpoint(b.Board, candidates);
+            int fixedBefore = CountFixed(candidates);
+            bool restarts = false;
+            if (stalled)
+            {
+                bool linkOk = PruneLink(b, candidates, out bool linkChanged);
+                bool arcOk = linkOk && ArcFixpoint(b.Board, candidates);
+                restarts = arcOk && linkChanged && CountFixed(candidates) > fixedBefore;
+            }
+            bool solved = Deduce(b, candidates) && CountFixed(candidates) == b.Board.CellCount;
+            return new AxleMomentResult(fixedBefore, b.Board.CellCount, restarts, solved, TruthHolds(b, candidates));
         }
 
         /// <summary>Trial orientations tried by deduce-then-guess search before its first linked answer.</summary>
@@ -196,26 +238,51 @@ namespace Evergrove.Core
         // Arc consistency and link pruning to a fixpoint. False if some cell or the link has no option left.
         private static bool Deduce(LinkedForkBoard b, bool[][] candidates)
         {
+            bool linkChanged = true;
+            while (linkChanged)
+            {
+                if (!ArcFixpoint(b.Board, candidates)) return false;
+                if (!PruneLink(b, candidates, out linkChanged)) return false;
+            }
+            return true;
+        }
+
+        // Neighbour-only arc consistency to a fixpoint, with no link. False if some cell has no orientation left.
+        private static bool ArcFixpoint(ForkBoard board, bool[][] candidates)
+        {
             bool changed = true;
             while (changed)
             {
                 changed = false;
                 for (int i = 0; i < candidates.Length; i++)
                 {
-                    int tileBase = ForkBoards.Canonical(b.Board.Solution[i]);
+                    int tileBase = ForkBoards.Canonical(board.Solution[i]);
                     for (int r = 0; r < 4; r++)
                     {
                         if (!candidates[i][r]) continue;
-                        if (Supported(b.Board, candidates, i, ForkBoards.Rotate(tileBase, r))) continue;
+                        if (Supported(board, candidates, i, ForkBoards.Rotate(tileBase, r))) continue;
                         candidates[i][r] = false;
                         changed = true;
                     }
                     if (CountTrue(candidates[i]) == 0) return false;
                 }
-                if (!PruneLink(b, candidates, out bool linkChanged)) return false;
-                if (linkChanged) changed = true;
             }
             return true;
+        }
+
+        private static bool TruthHolds(LinkedForkBoard b, bool[][] candidates)
+        {
+            for (int i = 0; i < candidates.Length; i++)
+                if (!Holds(b.Board, candidates, i, b.Board.Solution[i])) return false;
+            return true;
+        }
+
+        // Cells with exactly one orientation left.
+        private static int CountFixed(bool[][] candidates)
+        {
+            int fixedCells = 0;
+            foreach (bool[] flags in candidates) if (CountTrue(flags) == 1) fixedCells++;
+            return fixedCells;
         }
 
         // Keeps only masks for A and B that some turn count k allows on both cells at once.

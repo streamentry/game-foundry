@@ -150,7 +150,12 @@ namespace Evergrove.UnityClient
                 MosseloraArt.Lift(image, 2f, 0.14f);
                 MosseloraArt.Edge(tileNode.transform, MosseloraTheme.TileEdge, 12);
                 var tile = tileNode.AddComponent<Button>();
-                LongPressCaption.Attach(tileNode, GameLocalization.Display(puzzle.IsAnchored(index) ? "This tile stays where it is." : "Turn this tile"), font);
+                string bareCaption = GameLocalization.Display(puzzle.IsAnchored(index) ? "This tile stays where it is." : "Turn this tile");
+                // English only: the caption adds which way the tile opens now, read when it is shown (vision run 1401).
+                if (GameLocalization.Current == "en")
+                    LongPressCaption.AttachLive(tileNode, bareCaption, () => world == null || world.Completed || world.Rotations.Length != puzzle.CellCount ? null
+                        : TileOpenings.Caption(puzzle.IsAnchored(tappedIndex), puzzle.Kinds[tappedIndex], world.Rotations[tappedIndex]), font);
+                else LongPressCaption.Attach(tileNode, bareCaption, font);
                 tile.targetGraphic = image;
                 // Protected tiles stay tappable: a tap explains them without a move.
                 tile.interactable = !world.Solved;

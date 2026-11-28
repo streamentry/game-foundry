@@ -31,5 +31,22 @@ namespace Evergrove.Core
             }
             return text.Append('.').ToString();
         }
+
+        /// <summary>
+        /// Long-press caption for a water tile in English: the action, then the openings.
+        /// "Turn this tile. Opens up and right." / "This tile stays where it is. Opens left and down."
+        /// When Words is "" (invalid rotation or no port) the bare caption is returned unchanged.
+        /// </summary>
+        public static string Caption(bool anchored, PipeKind kind, int rotation)
+        {
+            string words = Words(kind, rotation);
+            if (anchored)
+                return words.Length == 0
+                    ? "This tile stays where it is."
+                    : "This tile stays where it is. " + words;
+            return words.Length == 0
+                ? "Turn this tile"
+                : "Turn this tile. " + words;
+        }
     }
 }

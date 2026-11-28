@@ -2030,6 +2030,7 @@ internal static class Program
             assertions += GardenFileHeaderTests.Run();
             assertions += OutletWordsTests.Run();
             assertions += LinkedForksTests.Run();
+            assertions += JoinTableTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
