@@ -34,6 +34,18 @@ namespace Evergrove.Core
             return boardsTogether % players;
         }
 
+        /// <summary>
+        /// Whose turn it is after the table changes size mid-board (someone joins or leaves). The turn
+        /// stays with the same seat when it still exists; otherwise it goes back to the first player.
+        /// Alone, or out of range, the first player. Never throws.
+        /// </summary>
+        public static int TurnAfterResize(int turn, int players)
+        {
+            if (players <= 1 || players > MaxPlayers) return 0;
+            if (turn >= 0 && turn < players) return turn;
+            return 0;
+        }
+
         /// <summary>I302: the hint glows as an offer on every turn but the first player's.</summary>
         public static bool OfferHint(int turn, int players)
         {

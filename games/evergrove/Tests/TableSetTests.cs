@@ -68,7 +68,7 @@ internal static class TableSetTests
         Expect(turns.Contains("TakeTurns.StartingTurn(boardsTogether, tablePlayers)"), "a new board opens on the rotated turn");
         Expect(play.Contains("private int players = tablePlayers;"), "a new board opens with the table's size");
         Expect(play.Contains("private int turn = OpeningTurn();"), "a new board's first turn comes from the table");
-        Expect(play.Contains("RememberTable();") && play.Contains("ledger.Clear(); RememberTable();"),
+        Expect(play.Contains("RememberTable();") && play.Contains("ResizeTable(); RememberTable();"),
             "ToggleTogether remembers the table");
         Expect(play.Contains("ZoomDone(); TableFinished();"), "a solved board counts toward the rotation");
         Expect(turns.Contains("ledger.Record(0, turn)"), "the undo ledger starts with the board's first turn");

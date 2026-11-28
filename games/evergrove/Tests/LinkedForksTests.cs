@@ -18,6 +18,13 @@ public static class LinkedForksTests
     private const int ExpectedNeedingGuess = 13;
     private const int ExpectedMaxGuesses = 4;
 
+    // Axle moment on seeds 0..59 (LinkedForks.AxleMoment). Median is the upper median of the sorted counts.
+    private const int ExpectedAxleFixedMin = 4;
+    private const int ExpectedAxleFixedMedian = 19;
+    private const int ExpectedAxleFixedMax = 21;
+    private const int ExpectedAxleRestarts = 55;
+    private const int ExpectedAhaBoards = 47;
+
     private static void Expect(bool ok, string message)
     {
         assertions++;
@@ -28,6 +35,8 @@ public static class LinkedForksTests
     {
         assertions = 0;
         int boards = 0, linkNeeded = 0, needingGuess = 0, maxGuesses = 0;
+        int restarts = 0, aha = 0, cells = 0;
+        var fixedCounts = new int[Seeds];
         for (int seed = 0; seed < Seeds; seed++)
         {
             LinkedForkBoard b = LinkedForks.Generate(seed);
@@ -36,6 +45,14 @@ public static class LinkedForksTests
             Expect(b != null, "a linked board is generated for seed " + seed);
             if (b == null) continue;
             boards++;
+
+            AxleMomentResult moment = LinkedForks.AxleMoment(b);
+            Expect(moment.TruthKept, "the axle moment keeps the true orientation on every board");
+            Expect(moment.FixedBeforeStall < moment.Cells, "neighbour deduction stalls before every cell is fixed");
+            cells = moment.Cells;
+            fixedCounts[boards - 1] = moment.FixedBeforeStall;
+            if (moment.AxleRestarts) restarts++;
+            if (moment.AxleRestarts && moment.SolvedWithoutGuess) aha++;
 
             Expect(b.A != b.B && !LinkedForks.Adjacent(b.Board.Size, b.A, b.B), "the linked pair is distinct and non-adjacent");
             Expect(LinkedForks.CountSolutions(b, 2) == 1, "a linked board has exactly one linked answer");
@@ -51,7 +68,17 @@ public static class LinkedForksTests
 
         Console.WriteLine("LinkedForksTests: seeds " + Seeds + ", boards " + boards +
             ", link needed " + linkNeeded + ", needing guess " + needingGuess + ", max guesses " + maxGuesses);
+        Array.Sort(fixedCounts, 0, boards);
+        int fixedMin = fixedCounts[0], fixedMedian = fixedCounts[boards / 2], fixedMax = fixedCounts[boards - 1];
+        Console.WriteLine("LinkedForks axle moment: fixed before stall min " + fixedMin + " median " + fixedMedian +
+            " max " + fixedMax + " of " + cells + ", axle restarts " + restarts + " of " + boards +
+            ", aha boards " + aha + " of " + boards);
         Expect(boards == Seeds, "every seed generates a board");
+        Expect(fixedMin == ExpectedAxleFixedMin, "minimum fixed before stall is locked");
+        Expect(fixedMedian == ExpectedAxleFixedMedian, "median fixed before stall is locked");
+        Expect(fixedMax == ExpectedAxleFixedMax, "maximum fixed before stall is locked");
+        Expect(restarts == ExpectedAxleRestarts, "axle restart count is locked");
+        Expect(aha == ExpectedAhaBoards, "aha board count is locked");
         Expect(linkNeeded == ExpectedLinkNeeded, "link-needed count is locked");
         Expect(needingGuess == ExpectedNeedingGuess, "boards needing a guess are locked");
         Expect(maxGuesses == ExpectedMaxGuesses, "maximum guesses is locked");

@@ -102,12 +102,68 @@ internal static class TurnPaletteTests
         Expect(TurnPalette.Luminance(0f, 0f, 0f) == 0.0, "black has luminance 0");
         Expect(TurnPalette.Contrast(0.2, 0.7) == TurnPalette.Contrast(0.7, 0.2), "contrast is symmetric");
 
+        // Idea 4: the fade. Blend endpoints are exact, t clamps, and each channel moves monotonically
+        // toward its target across every ordered pair of turn colours.
+        string[] colourNames = { "sage", "honey", "sky", "rose" };
+        for (int i = 0; i < TurnPalette.Count; i++)
+        {
+            for (int j = 0; j < TurnPalette.Count; j++)
+            {
+                if (i == j) continue;
+                float[] from = TurnPalette.Rgb(i);
+                float[] to = TurnPalette.Rgb(j);
+                float[] at0 = TurnPalette.Blend(from, to, 0f);
+                float[] at1 = TurnPalette.Blend(from, to, 1f);
+                string pair = colourNames[i] + " to " + colourNames[j];
+                Expect(at0[0] == from[0] && at0[1] == from[1] && at0[2] == from[2], pair + " starts exactly at from");
+                Expect(at1[0] == to[0] && at1[1] == to[1] && at1[2] == to[2], pair + " ends exactly at to");
+                Expect(TurnPalette.Blend(from, to, -0.5f)[0] == from[0], pair + " clamps t below 0 to from");
+                Expect(TurnPalette.Blend(from, to, 3f)[2] == to[2], pair + " clamps t above 1 to to");
+
+                float[] previous = TurnPalette.Blend(from, to, 0f);
+                for (int step = 1; step <= 20; step++)
+                {
+                    float[] now = TurnPalette.Blend(from, to, step * 0.05f);
+                    for (int c = 0; c < 3; c++)
+                    {
+                        bool up = to[c] >= from[c];
+                        Expect(up ? now[c] >= previous[c] - 1e-6f : now[c] <= previous[c] + 1e-6f,
+                            pair + " channel " + c + " moves monotonically at step " + step);
+                        Expect(now[c] >= 0f && now[c] <= 1f, pair + " channel " + c + " stays in 0..1");
+                    }
+                    previous = now;
+                }
+            }
+        }
+        Expect(TurnPalette.Ease(0.5f) == 0.5f, "smoothstep is symmetric at one half");
+        Expect(TurnPalette.Ease(float.NaN) == 0f, "easing NaN gives the start");
+
+        // The fade length is short: long enough to see, short enough not to lag.
+        Expect(TurnPalette.FadeSeconds >= 0.1f && TurnPalette.FadeSeconds <= 0.3f, "FadeSeconds is between 0.1 and 0.3");
+
+        // Source check: TintDisc assigns the target at once under reduced motion (not gentle), before any fade starts.
+        string turnsSource = Script("Unity/TreePlay.Turns.cs");
+        int tint = turnsSource.IndexOf("private void TintDisc(", StringComparison.Ordinal);
+        Expect(tint >= 0, "TintDisc exists in TreePlay.Turns.cs");
+        string body = tint >= 0 ? turnsSource.Substring(tint, Math.Min(600, turnsSource.Length - tint)) : "";
+        int gate = body.IndexOf("if (!gentle", StringComparison.Ordinal);
+        int instant = body.IndexOf("disc.color = target;", StringComparison.Ordinal);
+        int fade = body.IndexOf("StartCoroutine(", StringComparison.Ordinal);
+        Expect(gate >= 0 && instant > gate && fade > instant,
+            "TintDisc sets the target at once when not gentle, before it starts a fade");
+        Expect(treePlayUsesTint(), "PaintTurn tints the token through TintDisc");
+
         // Source check: TreePlay uses the palette and not the removed fields.
         string treePlay = Script("Unity/TreePlay.cs");
         Expect(treePlay.Contains("TurnPalette.Rgb("), "TreePlay reads colours from TurnPalette");
         Expect(!treePlay.Contains("TurnSage"), "TreePlay no longer has the old TurnSage field");
 
         return assertions;
+    }
+
+    private static bool treePlayUsesTint()
+    {
+        return Script("Unity/TreePlay.cs").Contains("TintDisc(disc, !together");
     }
 
     private static string Script(string relative)

@@ -192,3 +192,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - A board that opens on someone else's turn says so to a screen reader ("Second player starts, of three.") and pulses their pip once (`TakeTurns.SpokenStart`). Tests: `StarterTurnTests`. VoiceOver/TalkBack and tour: not run.
 - Turn colours checked under colour-vision simulation (item 92): **finding, fixed**: lowest pair was 1.22:1 under protanopia; honey and rose adjusted, now ≥ 1.36:1 under all four. Tests: `TurnPaletteTests`. On-screen look: not checked.
 - The hint's offer on a co-player's turn is spoken ("Hint offered.", `TakeTurns.SpokenHint`, item 93). Tests: `StarterTurnTests`. VoiceOver/TalkBack: not run.
+
+## Vision run 20261128-1401 (outside the v1 checklist)
+
+- Axle moment measured: `LinkedForks.AxleMoment` (not wired). Seeds 0–59: neighbour-only deduction fixes median 19 of 25 cells before stalling; the axle restarts it on 55 of 60 boards; 47 then solve with no guess. Tests: `LinkedForksTests`.
+- A seat added or removed mid-board keeps the current turn when that seat still exists, and undo still hands turns back (`TakeTurns.TurnAfterResize`). Tests: `JoinTableTests`, `TurnBackTests`, `TableSetTests`. Tour and device: not run.
+- The take-turns token eases between turn colours over 0.18 s; instant with motion off (`TurnPalette.Blend`). Tests: `TurnPaletteTests`. On-screen look: not checked.
+- Holding a water tile says which way it opens now, English only (`TileOpenings.Caption`, `LongPressCaption.AttachLive`). Tests: `TileOpeningsTests`. Tour at 150% text: not run.
+- Dropped: the season letter naming the stream that turned it (the save cannot tell a stream from a nursery solve, or when the story ended).

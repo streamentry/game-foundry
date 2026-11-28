@@ -80,7 +80,8 @@ internal static class TurnBackTests
         Expect(kit.Split(new[] { "TurnToStep()" }, StringSplitOptions.None).Length == 3, "undo and redo both hand the turn back");
         Expect(turns.Contains("internal void TurnToStep()") && turns.Contains("ledger.Record(tracked.UndoSteps, turn)"), "TreePlay looks the turn up by step");
         Expect(play.Contains("play.FlipTurn(); play.NoteTurn();"), "every passed turn is noted");
-        Expect(play.Contains("turn = 0; ledger.Clear();"), "changing the number of players clears the notes");
+        Expect(play.Contains("ResizeTable(); RememberTable();") && turns.Contains("ledger.Record(tracked.UndoSteps, turn)"),
+            "changing the number of players keeps the seat's turn and notes it at the current step (vision run 1401)");
     }
 
     private static string Folder()

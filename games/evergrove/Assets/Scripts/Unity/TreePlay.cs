@@ -131,7 +131,7 @@ namespace Evergrove.UnityClient
         {
             if (solved) return;
             players = TakeTurns.NextPlayers(players);
-            turn = 0; ledger.Clear(); RememberTable();
+            ResizeTable(); RememberTable();
             PaintTurn();
         }
 
@@ -148,7 +148,7 @@ namespace Evergrove.UnityClient
             Image disc = turnDiscs != null && turnDiscs.Length > 0 ? turnDiscs[0] : null;
             if (disc == null) return;
             SpeakTurn(disc.transform);
-            disc.color = !together ? MosseloraTheme.QuietAction : TurnColours[turn % TurnColours.Length];
+            TintDisc(disc, !together ? MosseloraTheme.QuietAction : TurnColours[turn % TurnColours.Length]);
             // Shape as well as colour (I268): with two, the two people swap sides on honey's
             // turn; with more, the pips below say whose turn it is by position.
             Transform icon = disc.transform.Find("Icon");
