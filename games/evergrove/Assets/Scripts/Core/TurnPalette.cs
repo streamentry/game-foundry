@@ -10,12 +10,17 @@ namespace Evergrove.Core
     {
         public const int Count = 4;
 
+        // Honey and rose were darkened or lightened from the first proposal (honey 0.97,0.87,0.60
+        // -> 1.00,0.91,0.62; rose 0.84,0.56,0.60 -> 0.56,0.37,0.40) because under protanopia rose
+        // sat at 1.22:1 against sage and honey at 1.25:1 against sky. These two colours are the
+        // fewest changes that lift every pair under Normal, protanopia, deuteranopia and tritanopia
+        // to at least 1.36:1 (smallest pair now 1.365:1, honey-sky under protanopia).
         private static readonly float[][] Colours =
         {
             new float[] { 0.42f, 0.57f, 0.43f }, // sage
-            new float[] { 0.97f, 0.87f, 0.60f }, // honey
+            new float[] { 1.00f, 0.91f, 0.62f }, // honey
             new float[] { 0.64f, 0.77f, 0.91f }, // sky
-            new float[] { 0.84f, 0.56f, 0.60f }, // rose
+            new float[] { 0.56f, 0.37f, 0.40f }, // rose
         };
 
         /// <summary>RGB in 0..1 for a turn index; wraps around. Returns a fresh copy.</summary>

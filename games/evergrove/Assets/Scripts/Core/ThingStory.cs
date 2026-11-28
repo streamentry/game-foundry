@@ -6,7 +6,9 @@ namespace Evergrove.Core
     /// The caption for a grown thing the player chose: "Quince tree, chosen after stream 3.
     /// Four streams have run past it since." When the thing was solved together, the caption
     /// ends with " You solved it together." Counted in streams (choices), never in days or
-    /// clock time, so every number is a fact the save already holds. English only; the Unity
+    /// clock time, so every number is a fact the save already holds. Nursery plants read
+    /// "Name, from the nursery." (with the puzzle and together facts once solved), and basket
+    /// plantings read "Planted from your basket. It came from the name you chose after stream 3." English only; the Unity
     /// caller keeps the family line for other languages.
     /// </summary>
     public static class ThingStory
@@ -53,6 +55,60 @@ namespace Evergrove.Core
             int made = world.Choices.Length;
             if (choiceIndex < 0 || choiceIndex >= made) return "";
             return Line(name, choiceIndex, made, world.SolvedTogether(choiceIndex));
+        }
+
+        /// <summary>
+        /// Pure sentence for a nursery plant. "" for a blank name. "You grew it from its puzzle." needs
+        /// <paramref name="grown"/>; "You solved it together." needs both <paramref name="grown"/> and
+        /// <paramref name="together"/> (a together mark alone adds nothing).
+        /// </summary>
+        public static string NurseryLine(string name, bool grown, bool together)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return "";
+            string line = Capitalise(name.Trim()) + ", from the nursery.";
+            if (grown) line += " You grew it from its puzzle.";
+            if (grown && together) line += " You solved it together.";
+            return line;
+        }
+
+        /// <summary>
+        /// Truthful wrapper for a bought plant k. "" when the world is null or k is outside the bought
+        /// pairs or the garden is not Living. Together is read only from the recorded marks.
+        /// </summary>
+        public static string ForNursery(WorldModel world, int k, string name)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return "";
+            if (k < 0 || k >= world.Bought.Length / 2) return "";
+            bool grown = world.BoughtSolved(k);
+            bool together = grown && world.SolvedTogether(WorldModel.BoughtBase + k);
+            return NurseryLine(name, grown, together);
+        }
+
+        /// <summary>
+        /// Pure sentence for a basket planting of choice <paramref name="sourceChoiceIndex"/>.
+        /// Returns "" for a blank name or an index outside 0 .. choicesMade - 1. The name is used as given, trimmed.
+        /// </summary>
+        public static string PlantingLine(string sourceName, int sourceChoiceIndex, int choicesMade)
+        {
+            if (string.IsNullOrWhiteSpace(sourceName)) return "";
+            if (sourceChoiceIndex < 0 || sourceChoiceIndex >= choicesMade) return "";
+            return "Planted from your basket. It came from the " + sourceName.Trim() + " you chose after stream " +
+                (sourceChoiceIndex + 1) + ".";
+        }
+
+        /// <summary>
+        /// Truthful wrapper for basket planting k (a pair in world.Plantings). "" when k is out of range
+        /// or the recorded source is not a chosen thing.
+        /// </summary>
+        public static string ForPlanting(WorldModel world, int k, string sourceName)
+        {
+            if (world == null || world.Mode != PlayMode.Living) return "";
+            int[] planted = world.Plantings;
+            if (k < 0 || k * 2 + 1 >= planted.Length) return "";
+            int source = planted[k * 2];
+            int made = world.Choices.Length;
+            if (source < 0 || source >= made) return "";
+            return PlantingLine(sourceName, source, made);
         }
 
         private static string Since(int count)

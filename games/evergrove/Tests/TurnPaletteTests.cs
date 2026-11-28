@@ -37,6 +37,45 @@ internal static class TurnPaletteTests
             }
         }
 
+        // Colour-vision separation: every pair under Normal, protanopia, deuteranopia and tritanopia
+        // (Machado 2009, severity 1.0). Rows are pairs, columns are vision types; the minimum is locked.
+        ColourVision.Vision[] visions =
+        {
+            ColourVision.Vision.Normal, ColourVision.Vision.Protanopia,
+            ColourVision.Vision.Deuteranopia, ColourVision.Vision.Tritanopia,
+        };
+        const double MeasuredMinUnderVision = 1.3648;
+        double minUnderVision = double.MaxValue;
+        string minPair = "";
+        Console.WriteLine("TurnPalette contrast under vision (WCAG ratio):");
+        Console.WriteLine("  pair         Normal  Protan  Deutan  Tritan");
+        for (int i = 0; i < TurnPalette.Count; i++)
+        {
+            for (int j = i + 1; j < TurnPalette.Count; j++)
+            {
+                float[] fa = TurnPalette.Rgb(i);
+                float[] fb = TurnPalette.Rgb(j);
+                double[] a = { fa[0], fa[1], fa[2] };
+                double[] b = { fb[0], fb[1], fb[2] };
+                string row = "  " + i + "-" + j + "         ";
+                foreach (ColourVision.Vision v in visions)
+                {
+                    double ratio = ColourVision.ContrastUnder(v, a, b);
+                    row += ratio.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture) + "   ";
+                    Expect(ratio >= 1.36, "turn colours " + i + " and " + j + " keep 1.36 under " + v);
+                    if (ratio < minUnderVision)
+                    {
+                        minUnderVision = ratio;
+                        minPair = i + "-" + j + " " + v;
+                    }
+                }
+                Console.WriteLine(row);
+            }
+        }
+        Console.WriteLine("  minimum " + minUnderVision.ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture) + " (" + minPair + ")");
+        Expect(Math.Abs(minUnderVision - MeasuredMinUnderVision) < 0.005,
+            "measured minimum under vision is locked at " + MeasuredMinUnderVision);
+
         // Hue families: sage green, honey warm, sky blue, rose red.
         float[] sage = TurnPalette.Rgb(0);
         Expect(sage[1] > sage[0] && sage[1] > sage[2], "sage is green-led");
