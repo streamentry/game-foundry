@@ -51,7 +51,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 ### C. Line bank tooling
 
 - [x] **CP21 Stable line IDs.** `LineBank.LineId(kind, voice, text)` gives a short, stable ID. A test checks they are unique across `en.json`. Done: `LineBank.LineId` (FNV-1a over group|voice|text, "cl_" plus 8 hex digits) and `LineBank.All()` added; LineBankTests pins one value and checks all 932 shipped English lines have unique IDs.
-- [ ] **CP22 Near-duplicates.** The checker flags two lines in one kind and voice that share most of their words.
+- [x] **CP22 Near-duplicates.** The checker flags two lines in one kind and voice that share most of their words. Done: checker prints near-duplicate (Jaccard >= 0.75, same group and voice) as warnings, failing only with --strict; 1 warning on the real bank; unit tests in tools/tests/test_evergrove_line_bank_check.py.
 - [ ] **CP23 Opening-word variety.** The checker warns when more than 5 of a voice's lines in one kind start with the same word.
 - [ ] **CP24 Readable length.** The checker refuses lines over 28 words (readable at 150% text).
 - [ ] **CP25 Punctuation hygiene.** The checker refuses double spaces, leading or trailing spaces, mixed straight and curly quotes, and lines without closing punctuation.

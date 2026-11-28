@@ -11,8 +11,12 @@ sentence's first word, never follows "a"/"an", and {thing} is never a verb's sub
 no duplicates; at least the kind's minimum per voice (and per qualifier value, for kinds keyed
 "Kind.Value" such as "WeatherToday.Rainy"); only the voices that speak a kind.
 
-Usage: tools/evergrove_line_bank_check.py [--review] [--complete]
-Exit 0 when every line passes, 1 otherwise. Never calls a network service.
+Warnings (printed as "warning: ...") do not fail the run. Near-duplicates: two lines in one group
+and voice whose word sets have Jaccard similarity >= 0.75 (CP22).
+
+Usage: tools/evergrove_line_bank_check.py [--review] [--complete] [--strict]
+Exit 0 when every line passes, 1 otherwise. --strict turns warnings into problems.
+Never calls a network service.
 """
 from __future__ import annotations
 
@@ -28,6 +32,9 @@ RULES = GAME / "docs" / "specs" / "companion-line-rules.json"
 BANKS = GAME / "Assets" / "Resources" / "Evergrove" / "Lines"
 REVIEW = ROOT / "docs" / "improvements" / "review"
 SLOT = re.compile(r"\{([^{}]*)\}")
+# CP22: a slot such as {thing} stays one token; other punctuation is dropped; stop words are kept.
+TOKEN = re.compile(r"\{[^{}]*\}|[^\W_]+(?:'[^\W_]+)*")
+NEAR_DUPLICATE = 0.75
 
 
 def word_hit(text: str, phrase: str) -> bool:
@@ -125,6 +132,31 @@ def check_bank(name: str, bank: dict, rules: dict, complete: bool = False) -> li
     return problems
 
 
+def tokens(line: str) -> set[str]:
+    return set(TOKEN.findall(line.lower()))
+
+
+def near_duplicates(name: str, bank: dict) -> list[str]:
+    """CP22: warnings for line pairs in one group and voice with Jaccard similarity >= NEAR_DUPLICATE.
+    Exact duplicates (same text ignoring case and edge spaces) are already problems, so they are skipped."""
+    warnings = []
+    for key, voices in bank.items():
+        for voice, lines in voices.items():
+            sets = [tokens(line) for line in lines]
+            for i, first in enumerate(sets):
+                for j in range(i + 1, len(sets)):
+                    second = sets[j]
+                    if not first or not second:
+                        continue
+                    if lines[i].strip().lower() == lines[j].strip().lower():
+                        continue
+                    similarity = len(first & second) / len(first | second)
+                    if similarity >= NEAR_DUPLICATE:
+                        warnings.append(f"{name}: {key}/{voice} #{i + 1} and #{j + 1} are near-duplicates "
+                                        f"(Jaccard {similarity:.2f}): {lines[i]} / {lines[j]}")
+    return warnings
+
+
 VOICE_HEADING = re.compile(r"^##\s+.*\(voice\s+(\d|any)\)(?:\s*·\s*(\w+))?\s*$")
 ITEM = re.compile(r"^\d+\.\s+(.*\S)\s*$")
 
@@ -153,9 +185,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--review", action="store_true", help="also check docs/improvements/review drafts")
     parser.add_argument("--complete", action="store_true", help="the English bank must cover every kind in the rules")
+    parser.add_argument("--strict", action="store_true", help="treat warnings (near-duplicates) as problems")
     args = parser.parse_args()
     rules = json.loads(RULES.read_text(encoding="utf-8"))
     problems: list[str] = []
+    warnings: list[str] = []
     counted = 0
     for bank_path in sorted(BANKS.glob("*.json")):
         try:
@@ -167,6 +201,7 @@ def main() -> int:
             problems.append(f"{bank_path.name}: not an object")
             continue
         problems += check_bank(bank_path.name, bank, rules, args.complete and bank_path.name == "en.json")
+        warnings += near_duplicates(bank_path.name, bank)
         if bank_path.name != "en.json":
             # SC06: another language may only use slots that need no translation.
             for key, voices in bank.items():
@@ -180,10 +215,16 @@ def main() -> int:
         for review in sorted(REVIEW.glob("companion-lines-*.md")):
             _, bank = parse_review(review)
             problems += check_bank(review.name, bank, rules)
+            warnings += near_duplicates(review.name, bank)
             counted += sum(len(v) for voices in bank.values() for v in voices.values())
+    if args.strict:
+        problems += warnings
+        warnings = []
     for p in problems:
         print("FAIL " + p)
-    print(f"Companion line bank: {counted} lines checked, {len(problems)} problems.")
+    for w in warnings:
+        print("warning: " + w)
+    print(f"Companion line bank: {counted} lines checked, {len(problems)} problems, {len(warnings)} warnings.")
     return 1 if problems else 0
 
 
