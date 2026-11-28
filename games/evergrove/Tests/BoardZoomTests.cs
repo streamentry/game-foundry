@@ -106,6 +106,9 @@ internal static class BoardZoomTests
         Expect(zoom.Contains("RectTransformUtility.CalculateRelativeRectTransformBounds(grid)") &&
                zoom.Contains("zoomBoard.anchoredPosition = -zoomCentre;"), "the zoom view frames the cells' real bounds");
         Expect(zoom.Contains("int most = 4;"), "five or more live cells make a board");
+        Expect(zoom.Contains("zoomView.anchoredPosition = grid.anchoredPosition;") && zoom.Contains("zoomView.sizeDelta = grid.sizeDelta;") &&
+               zoom.Contains("LayoutRebuilder.ForceRebuildLayoutImmediate(grid);"),
+            "the view takes the grid's own place (beds have no layout group) and measures cells after they are laid out");
         Expect(side.Contains("Balance((RectTransform)boardSide, (RectTransform)panel,") &&
                side.Contains("if (part == null || part.name == \"Tree puzzle top\") continue;"),
             "the panel's lowest controls move under the board when the panel is too tall; the top row stays");

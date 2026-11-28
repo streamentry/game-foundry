@@ -79,6 +79,13 @@ namespace Evergrove.UnityClient
             view.transform.SetParent(parent, false);
             view.transform.SetSiblingIndex(at);
             zoomView = (RectTransform)view.transform;
+            // The view takes the grid's own place: most boards sit in a bed placed by hand (no layout
+            // group), where a LayoutElement alone would leave the view at Unity's default 100 x 100.
+            zoomView.anchorMin = grid.anchorMin;
+            zoomView.anchorMax = grid.anchorMax;
+            zoomView.pivot = grid.pivot;
+            zoomView.anchoredPosition = grid.anchoredPosition;
+            zoomView.sizeDelta = grid.sizeDelta;
             var place = view.AddComponent<LayoutElement>();
             view.AddComponent<RectMask2D>();
             grid.SetParent(zoomView, false);
@@ -86,11 +93,13 @@ namespace Evergrove.UnityClient
             if (ownPlace != null) ownPlace.ignoreLayout = true;
             grid.anchorMin = grid.anchorMax = grid.pivot = new Vector2(0.5f, 0.5f);
             grid.sizeDelta = own; // the grid keeps its size, so its cells keep their places
+            LayoutRebuilder.ForceRebuildLayoutImmediate(grid); // cells laid out in their new frame before measuring
             Bounds cells = RectTransformUtility.CalculateRelativeRectTransformBounds(grid);
             zoomCentre = cells.center;
             Vector2 size = new Vector2(Mathf.Max(own.x, cells.size.x), Mathf.Max(own.y, cells.size.y));
             place.minWidth = place.preferredWidth = size.x;
             place.minHeight = place.preferredHeight = size.y;
+            if (zoomView.anchorMin == zoomView.anchorMax) zoomView.sizeDelta = size; // placed by hand: size it directly
             grid.anchoredPosition = -zoomCentre;
             zoomBoard = grid;
             zoomCells = grid.gameObject.AddComponent<CanvasGroup>();
