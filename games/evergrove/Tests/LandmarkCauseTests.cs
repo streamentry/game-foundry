@@ -41,19 +41,65 @@ internal static class LandmarkCauseTests
         Expect(LandmarkCause.For(fresh) == LocalizedVillage.EnvironmentalRule(fresh), "fresh world uses the generic line");
         Expect(LandmarkCause.For(null) == "", "null world gives an empty line");
 
-        // Living world after each first choice on board 0.
+        // Item-named sentences: the three families, board suffix stripped, blank and null items.
+        Expect(LandmarkCause.Line(VillageChoice.ShadeTree, "First Bend", "quince tree") ==
+            "This pipe is rooted in place by your quince tree from First Bend.", "item tree sentence");
+        Expect(LandmarkCause.Line(VillageChoice.Bridge, "First Bend", "stepping stones") ==
+            "This pipe is held in place by your stepping stones from First Bend.", "item bridge sentence");
+        Expect(LandmarkCause.Line(VillageChoice.Flowers, "First Bend", "lavender") ==
+            "This pipe is kept in place by your lavender from First Bend.", "item flowers sentence");
+        Expect(LandmarkCause.Line(VillageChoice.ShadeTree, "Copper Run · Bridge foundation", "quince tree") ==
+            "This pipe is rooted in place by your quince tree from Copper Run.", "item sentence drops the board suffix");
+        Expect(LandmarkCause.Line(VillageChoice.Flowers, null, "lavender") ==
+            "This pipe is kept in place by your lavender.", "item sentence omits a null board");
+        Expect(LandmarkCause.Line(VillageChoice.Flowers, "First Bend", "  lavender ") ==
+            "This pipe is kept in place by your lavender from First Bend.", "item name is trimmed");
+        Expect(LandmarkCause.Line(VillageChoice.ShadeTree, "First Bend", null) ==
+            LandmarkCause.Line(VillageChoice.ShadeTree, "First Bend"), "null item falls back to the two-argument line");
+        Expect(LandmarkCause.Line(VillageChoice.Bridge, "First Bend", "   ") ==
+            LandmarkCause.Line(VillageChoice.Bridge, "First Bend"), "blank item falls back to the two-argument line");
+        bool rejectedFamily = false;
+        try { LandmarkCause.Line((VillageChoice)9, "First Bend", "lavender"); }
+        catch (ArgumentOutOfRangeException) { rejectedFamily = true; }
+        Expect(rejectedFamily, "unknown family throws for an item sentence");
+
+        // Specific is empty whenever For would use the generic line.
+        Expect(LandmarkCause.Specific(null) == "", "Specific is empty for a null world");
+        Expect(LandmarkCause.Specific(WorldModel.New(PlayMode.Living)) == "", "Specific is empty for a fresh world");
+        WorldModel specificPuzzle = WorldModel.New(PlayMode.PuzzleOnly);
+        Solve(specificPuzzle);
+        Expect(LandmarkCause.Specific(specificPuzzle) == "", "Specific is empty in puzzle-only mode");
+        int[] specificSchedule = new int[WorldModel.ScheduleLength];
+        Array.Fill(specificSchedule, 1);
+        WorldModel specificMatched = WorldModel.NewMatched(specificSchedule);
+        Solve(specificMatched);
+        Expect(LandmarkCause.Specific(specificMatched) == "", "Specific is empty in matched mode");
+
+        // A completed garden never shows the cause.
+        WorldModel finished = WorldModel.New(PlayMode.Living);
+        while (!finished.Completed)
+        {
+            Solve(finished);
+            Expect(finished.Choose(VillageChoice.ShadeTree), "finishing choice is accepted");
+        }
+        Expect(LandmarkCause.Specific(finished) == "", "Specific is empty for a completed garden");
+        Expect(LandmarkCause.For(finished) == LocalizedVillage.EnvironmentalRule(finished), "completed garden uses the generic line");
+
+        // Living world after each first choice on board 0. The item is the one the catalogue gives
+        // for this garden's first chapter and family.
         VillageChoice[] choices = { VillageChoice.ShadeTree, VillageChoice.Bridge, VillageChoice.Flowers };
-        string[] nouns = { "shade tree", "footbridge", "wildflowers" };
         for (int i = 0; i < choices.Length; i++)
         {
             WorldModel world = WorldModel.New(PlayMode.Living);
             Solve(world);
             Expect(world.Choose(choices[i]), "choice " + choices[i] + " is accepted after board 0");
+            string item = GardenCatalog.For(world.Garden, 0, choices[i]).Name;
             string line = LandmarkCause.For(world);
-            Expect(line.Contains(nouns[i]), "cause names " + nouns[i]);
+            Expect(line.Contains(item), "cause names the catalogue item " + item);
             Expect(line.Contains("First Bend"), "cause names the board where the choice was made");
             Expect(line != LocalizedVillage.EnvironmentalRule(world), "cause differs from the generic line");
-            Expect(line == LandmarkCause.Line(choices[i], PuzzleCatalog.Get(0).Name), "cause equals Line for board 0");
+            Expect(line == LandmarkCause.Line(choices[i], PuzzleCatalog.Get(0).Name, item), "cause equals the item-named Line for board 0");
+            Expect(LandmarkCause.Specific(world) == line, "Specific equals For when the cause is proven");
         }
 
         // Puzzle-only and matched worlds never record choices, so the generic line stays.
@@ -95,6 +141,20 @@ internal static class LandmarkCauseTests
             foreach (VillageChoice choice in choices)
                 Expect(LandmarkCause.Line(choice, name).Length < 80,
                     "line under 80 characters for board " + name);
+        }
+        for (int i = 0; i < PuzzleCatalog.Count; i++)
+        {
+            string name = PuzzleCatalog.Get(i).Name;
+            foreach (VillageChoice choice in choices)
+            {
+                int count = GardenCatalog.CountOf(choice);
+                for (int item = 0; item < count; item++)
+                {
+                    string noun = GardenCatalog.Get(choice, item).Name;
+                    Expect(LandmarkCause.Line(choice, name, noun).Length < 80,
+                        "item line under 80 characters for " + noun + " on " + name);
+                }
+            }
         }
 
         // Unity tap path calls the truthful wrapper.

@@ -216,3 +216,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Take-turns pips wear their seat's ink, ≥ 3:1 on the card (`TurnPalette.PipInk`). Tests: `TurnPaletteTests`. On-screen look: not checked.
 - Spring petals and autumn leaves drift only from deciduous trees on the map, 10 to 20 pieces (`SeasonLook.Falls`, `DriftCount`). Tests: `SeasonLookTests`. On-screen look: not checked.
 - Map things tell a screen reader their story instead of "On the map" (`MapThingWords`, `GardenMapView.Speech.cs`). Tests: `MapThingWordsTests`. VoiceOver/TalkBack: not run.
+
+## Vision run 20261128-1701 (outside the v1 checklist)
+
+- Axle chapter drawn by work level: `LinkedForkChapter.DrawByLevel(12, 240)` gives work 4,4,6,8,9,…,15,17, largest step 2 (not wired). Tests: `LinkedForkChapterTests`.
+- The protected pipe names the thing the choice grew ("This pipe is rooted in place by your quince tree from …", `LandmarkCause.Specific`), Living mode and English only. Tests: `LandmarkCauseTests`, `ReconsiderTruthTests`. Tour and device: not run.
+- Take-turns screen-reader lines name the seat by its pip colour ("Honey's turn, second of three.", `TurnPalette.Name`). Tests: `SpokenTurnTests`, `StarterTurnTests`, `TurnPaletteTests`. VoiceOver/TalkBack: not run.
+- The autumn river on the map shows leaves afloat only when a deciduous tree is on the map (`SeasonLook.River(season, fallingTrees)`). Tests: `SeasonLookTests`. On-screen look: not checked.
+- Holding the protected pipe says why it stays, then its openings (`TileOpenings.Caption` with a cause). Tests: `TileOpeningsTests`. Tour and device: not run.

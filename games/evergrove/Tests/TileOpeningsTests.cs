@@ -87,6 +87,35 @@ internal static class TileOpeningsTests
         Expect(TileOpenings.Caption(false, PipeKind.Corner, 1) == "Turn this tile. Opens up and right.", "corner caption pins words");
         Expect(TileOpenings.Caption(true, PipeKind.Corner, 3) == "This tile stays where it is. Opens down and left.", "pinned corner caption pins words");
 
+        // Cause sentence: replaces the bare phrase when anchored, then adds the openings.
+        string cause = "This pipe is kept in place by your lavender from First Bend.";
+        Expect(TileOpenings.Caption(true, PipeKind.Corner, 1, cause) ==
+            cause + " Opens up and right.", "anchored cause replaces the bare phrase and keeps the openings");
+        Expect(TileOpenings.Caption(true, PipeKind.Straight, 2, cause) ==
+            cause + " Opens right and left.", "anchored straight cause pins its openings");
+
+        // Cause is ignored when the tile is free.
+        Expect(TileOpenings.Caption(false, PipeKind.Corner, 1, cause) ==
+            TileOpenings.Caption(false, PipeKind.Corner, 1), "free tile ignores the cause");
+
+        // Blank or null cause gives the old caption exactly.
+        foreach (string blank in new[] { null, "", "   " })
+        {
+            Expect(TileOpenings.Caption(true, PipeKind.Corner, 1, blank) ==
+                TileOpenings.Caption(true, PipeKind.Corner, 1), "blank cause keeps the bare pinned caption");
+        }
+
+        // A missing full stop is supplied; an existing one is not doubled.
+        Expect(TileOpenings.Caption(true, PipeKind.Corner, 1, "  This pipe is held in place by your footbridge  ") ==
+            "This pipe is held in place by your footbridge. Opens up and right.", "full stop added and text trimmed");
+        Expect(TileOpenings.Caption(true, PipeKind.Corner, 1, "Held fast!") == "Held fast! Opens up and right.",
+            "exclamation mark is kept without a full stop");
+        Expect(TileOpenings.Caption(true, PipeKind.Corner, 1, "Held fast.") == "Held fast. Opens up and right.",
+            "existing full stop is not doubled");
+
+        // Invalid rotation with a cause returns just the cause sentence.
+        Expect(TileOpenings.Caption(true, PipeKind.Corner, 9, cause) == cause, "invalid rotation returns only the cause");
+
         // Out-of-range rotations keep the bare captions and never throw.
         foreach (int bad in new[] { 0, -1, 99 })
         {
@@ -120,6 +149,7 @@ internal static class TileOpeningsTests
         Expect(puzzleView.Contains("LongPressCaption.AttachLive(") && puzzleView.Contains("TileOpenings.Caption("),
             "the water tile's caption names its openings");
         Expect(puzzleView.Contains("world.Rotations[tappedIndex]"), "the caption reads the tile's current rotation");
+        Expect(puzzleView.Contains("LandmarkCause.Specific(world)"), "a protected tile's caption names the proven village choice");
         Expect(caption.Contains("live != null ? live() : null"), "the caption's words are read when it is shown");
 
         return assertions;

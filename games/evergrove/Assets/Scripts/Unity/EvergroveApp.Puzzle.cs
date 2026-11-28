@@ -154,7 +154,7 @@ namespace Evergrove.UnityClient
                 // English only: the caption adds which way the tile opens now, read when it is shown (vision run 1401).
                 if (GameLocalization.Current == "en")
                     LongPressCaption.AttachLive(tileNode, bareCaption, () => world == null || world.Completed || world.Rotations.Length != puzzle.CellCount ? null
-                        : TileOpenings.Caption(puzzle.IsAnchored(tappedIndex), puzzle.Kinds[tappedIndex], world.Rotations[tappedIndex]), font);
+                        : TileOpenings.Caption(puzzle.IsAnchored(tappedIndex), puzzle.Kinds[tappedIndex], world.Rotations[tappedIndex], LandmarkCause.Specific(world)), font);
                 else LongPressCaption.Attach(tileNode, bareCaption, font);
                 tile.targetGraphic = image;
                 // Protected tiles stay tappable: a tap explains them without a move.

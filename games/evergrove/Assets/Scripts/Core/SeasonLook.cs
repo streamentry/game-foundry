@@ -83,5 +83,16 @@ namespace Evergrove.Core
             return season == Season.Winter ? RiverLook.IceEdged : season == Season.Autumn ? RiverLook.LeavesAfloat
                 : season == Season.Summer ? RiverLook.Sparkling : RiverLook.Running;
         }
+
+        /// <summary>
+        /// The river through the year, given how many deciduous trees are on the map. Leaves ride
+        /// the river only when a tree on the map drops them (vision run 20261128-1701 idea 4),
+        /// matching the drift rule: no falling tree, no leaves afloat.
+        /// </summary>
+        public static RiverLook River(Season season, int fallingTrees)
+        {
+            if (season == Season.Autumn && fallingTrees <= 0) return RiverLook.Running;
+            return River(season);
+        }
     }
 }

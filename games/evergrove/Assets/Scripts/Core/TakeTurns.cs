@@ -52,29 +52,47 @@ namespace Evergrove.Core
             return players > 1 && turn > 0 && turn < players;
         }
 
-        /// <summary>The line a screen reader says about whose turn it is; never throws.</summary>
+        /// <summary>
+        /// The line a screen reader says about whose turn it is, named by the seat's pip colour, e.g.
+        /// "Honey's turn, second of three." Alone, "Playing alone."; never throws.
+        /// Vision run 20261128-1701 idea 3: the seat is named by its pip colour.
+        /// </summary>
         public static string Spoken(int turn, int players)
         {
             if (players <= 1) return "Playing alone.";
             int count = players > MaxPlayers ? MaxPlayers : players;
             int who = ((turn % count) + count) % count;
-            string[] ordinals = { "First", "Second", "Third", "Fourth" };
-            string[] counts = { "two", "three", "four" };
-            return ordinals[who] + " player's turn, of " + counts[count - 2] + ".";
+            return Capitalised(TurnPalette.Name(who)) + "'s turn, " + Ordinal(who) + " of " + CountWord(count) + ".";
         }
 
         /// <summary>
         /// The line a screen reader says when a board opens with someone other than the first player
-        /// starting it, before any move: "Second player starts, of three." Alone, the plain line; never throws.
+        /// starting it, before any move: "Honey starts, second of three." Alone, the plain line; never throws.
+        /// Vision run 20261128-1701 idea 3: the seat is named by its pip colour.
         /// </summary>
         public static string SpokenStart(int turn, int players)
         {
             if (players <= 1) return Spoken(turn, players);
             int count = players > MaxPlayers ? MaxPlayers : players;
             int who = ((turn % count) + count) % count;
-            string[] ordinals = { "First", "Second", "Third", "Fourth" };
+            return Capitalised(TurnPalette.Name(who)) + " starts, " + Ordinal(who) + " of " + CountWord(count) + ".";
+        }
+
+        private static string Ordinal(int who)
+        {
+            string[] ordinals = { "first", "second", "third", "fourth" };
+            return ordinals[who];
+        }
+
+        private static string CountWord(int count)
+        {
             string[] counts = { "two", "three", "four" };
-            return ordinals[who] + " player starts, of " + counts[count - 2] + ".";
+            return counts[count - 2];
+        }
+
+        private static string Capitalised(string word)
+        {
+            return char.ToUpperInvariant(word[0]) + word.Substring(1);
         }
 
         /// <summary>The line a screen reader says about the hint offer: said exactly when the offer glows.</summary>
