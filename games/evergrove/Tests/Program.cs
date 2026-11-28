@@ -1957,6 +1957,8 @@ internal static class Program
             assertions += LazyStretchTests.Run(); // checklist 50
             assertions += RiverReplayTests.Run(); // checklist 41
             assertions += ThumbReachTests.Run(); // checklist 94
+            assertions += ThingActionsTests.Run(); // checklist 13
+            assertions += HandednessTests.Run(); // checklist 5
             assertions += FileSizeTests.Run();
             assertions += RiverTravelTests.Run();
             assertions += ColourCueTests.Run();
