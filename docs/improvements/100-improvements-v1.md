@@ -12,7 +12,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **2. Learn by one gesture.** The first thing asked is a single tap that waters the garden (I350). Teach every other control only when it's first needed. *Test:* five first-time 40+ players finish the first board without help.
 - [ ] **3. Name the garden.** Let the player name the garden (optional, with a suggested name from `RiverNames`), and show it on the cottage sign and on postcards. *Test:* what share of players change the suggested name.
 - [x] **4. Mira explains one thing, once.** Cap the opening dialogue at three short lines. Any later help comes from the neighbours in context (I370), never from a tutorial screen. *Test:* count words shown before the first puzzle (goal: under 40).
-- [ ] **5. Remember the hand.** On the first long-press, ask once whether the player is left- or right-handed, and mirror the tray and menu to suit. *Test:* thumb-reach heatmap in landscape on a 6.7″ phone.
+- [x] **5. Remember the hand.** On the first long-press, ask once whether the player is left- or right-handed, and mirror the tray and menu to suit. *Test:* thumb-reach heatmap in landscape on a 6.7″ phone.
 - [x] **6. Text size first, not in Settings.** On first launch, show the garden with a size slider whose preview updates live. *Test:* 150% tour (I-series tour) shows no clipped text on any first-run screen.
 - [ ] **7. A first win in two minutes.** The first board is sized to finish in about two minutes and ends in a visible change to the garden. *Test:* median first-board time in the playtest kit.
 - [x] **8. No sign-up wall, ever, for solo play.** Audit every first-run path so that family features appear only after the third day, and only as an offer. *Test:* fresh install, airplane mode, play day 1 end to end.
@@ -23,7 +23,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 - [x] **11. One menu button.** Collapse every non-garden control into a single leaf button in the corner, opening to a radial or fan menu of icons. *Test:* count buttons visible at rest on the hub (target: no more than 2).
 - [ ] **12. Icons that need no word.** Replace each remaining text button with a painted icon. Keep the word only as an accessibility label and a long-press caption. *Test:* icon-recognition card sort with 8 players aged 40+; any icon below 80% recognition gets redrawn.
-- [ ] **13. Context buttons appear where the thumb is.** A tapped thing shows its two actions beside it (play, move) and nothing else. *Test:* taps per action before and after.
+- [x] **13. Context buttons appear where the thumb is.** A tapped thing shows its two actions beside it (play, move) and nothing else. *Test:* taps per action before and after.
 - [x] **14. Back is always the same place.** One back gesture and one back icon position across all sheets (FamilySheet, almanac, nursery). *Test:* tour shot audit of every sheet.
 - [x] **15. The menu remembers.** The fan opens with the last-used item nearest the thumb. *Test:* second-tap distance in a logged session.
 - [x] **16. Badges that mean one thing.** One small dot means "something new for you" and nothing else. No counts and no red. *Test:* list every badge source; each must clear when looked at.
@@ -60,7 +60,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 ## E. The open world: the endless river
 
-- [ ] **41. Scroll beyond the mist as stretches open.** The world extends downward by named stretches (I360). Each opens through play, never by payment. *Test:* save format has no maximum stretch count.
+- [x] **41. Scroll beyond the mist as stretches open.** The world extends downward by named stretches (I360). Each opens through play, never by payment. *Test:* save format has no maximum stretch count.
 - [ ] **42. Each stretch has a character.** Water meadow, mill, heron pool. Each has its own palette, its own neighbour and its own puzzle flavour. *Test:* three stretches recognisable from a single screenshot.
 - [x] **43. A boat to travel.** A small boat ride between stretches replaces scrolling for long distances. *Test:* any stretch is reachable in 2 taps.
 - [ ] **44. Landmarks for wayfinding.** One tall landmark per stretch (mill, bridge, willow) is visible from the next, so players can't get lost. *Test:* a "where are you" test with 5 players.
@@ -128,7 +128,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [x] **91. Touch targets of at least 48 pt everywhere.** Audit every raycast target and enlarge any below 48 pt. *Test:* an automated scan in the tour.
 - [x] **92. A colour-blind pass.** Every colour cue is paired with a shape or pattern (puzzle colours, pairing sprigs, fit glow). *Test:* deuteranopia and protanopia simulations on the tour sheets.
 - [ ] **93. VoiceOver and TalkBack can finish a board.** Do this for at least one puzzle kind first. *Test:* a blind-tester session.
-- [ ] **94. One-hand landscape and portrait.** Every action is reachable with one thumb in both orientations. *Test:* landscape and 150% tours (per the landscape-verification memory).
+- [x] **94. One-hand landscape and portrait.** Every action is reachable with one thumb in both orientations. *Test:* landscape and 150% tours (per the landscape-verification memory).
 - [ ] **95. Crash reporting with consent.** Add a privacy-reviewed crash reporter that is off until accepted. *Test:* the privacy label matches what's collected.
 - [x] **96. Save is never lost.** Use journaled saves (SaveJournal) with a visible "saved" mark and an export to Files. *Test:* a fuzz test that kills the app during save.
 - [ ] **97. Real playtest with adults aged 40+.** Run the daily-loop kit with 8–12 players across the 40–49, 50–64 and 65+ age bands, for 7 days. *Test:* the written report goes in the decision log.
