@@ -71,13 +71,13 @@ namespace Evergrove.UnityClient
                     }
                 }
                 // Checklist 42: the neighbour of the stretch the hub is showing stands in that stretch, on free land
-                // near its middle. The evening and golden-hour spots below still take precedence over it.
+                // nearest the middle of the view. The evening and golden-hour spots below still take precedence over it.
                 int shownStretch = fromTitle ? GardenMapView.StretchShown : 0;
                 if (shownStretch >= 1 && StretchCharacter.Neighbour(StretchCharacter.KindOf(shownStretch)) == villager)
                 {
                     var taken = new System.Collections.Generic.HashSet<int>(cells);
                     foreach (PlacedThing t in Pairings.Things(world, map)) taken.Add(t.Cell);
-                    int standAt = StretchCharacter.StandCell(map, shownStretch, taken.Contains);
+                    int standAt = StretchCharacter.StandCell(map, shownStretch, taken.Contains, GardenMapView.ViewRow); // in view, not just mid-stretch
                     if (standAt >= 0) at = point(standAt);
                 }
                 // I402: in the golden hour they sit by the shady seat, if the garden has one.

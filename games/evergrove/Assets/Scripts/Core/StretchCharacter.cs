@@ -29,9 +29,38 @@ namespace Evergrove.Core
         /// </summary>
         public static StretchKind KindOf(int reach)
         {
-            int index = Math.Max(0, reach) % 3;
-            return (StretchKind)index;
+            return ByName[Math.Max(0, reach) % ByName.Length];
         }
+
+        // One kind per river name (RiverNames, in its order), chosen by what the name says: a mill, ford or
+        // falls is the mill's; a pool, run or water of birds and otters is the heron pool's; banks, beds and
+        // bends are the water meadow's. Later laps reuse the names, so the kinds follow them.
+        private static readonly StretchKind[] ByName =
+        {
+            StretchKind.WaterMeadow, // Cottage Reach
+            StretchKind.WaterMeadow, // Willow Bend
+            StretchKind.HeronPool,   // Heron Pool
+            StretchKind.Mill,        // Mill Stream
+            StretchKind.HeronPool,   // Kingfisher Run
+            StretchKind.WaterMeadow, // Alder Reach
+            StretchKind.HeronPool,   // Otter Bend
+            StretchKind.Mill,        // Old Ford
+            StretchKind.WaterMeadow, // Cress Beds
+            StretchKind.HeronPool,   // Moorhen Pool
+            StretchKind.WaterMeadow, // Lily Reach
+            StretchKind.WaterMeadow, // Bramble Bend
+            StretchKind.HeronPool,   // Swan Water
+            StretchKind.Mill,        // Larch Run (timber for the mill)
+            StretchKind.WaterMeadow, // Wren Hollow
+            StretchKind.WaterMeadow, // Bluebell Bank
+            StretchKind.Mill,        // Dipper Falls
+            StretchKind.WaterMeadow, // Long Meadow
+            StretchKind.HeronPool,   // Lantern Pool
+            StretchKind.Mill,        // Far Reach
+        };
+
+        /// <summary>How many river names the kinds follow (RiverNames' list, one kind each).</summary>
+        public static int NamedKinds { get { return ByName.Length; } }
 
         /// <summary>The neighbour who stands in a stretch of this kind: Mira (0), Orin (1) or Fen (2).</summary>
         public static int Neighbour(StretchKind kind)
@@ -69,12 +98,13 @@ namespace Evergrove.Core
         /// the stretch (its middle row first), and never a cell <paramref name="taken"/> reports. Returns -1
         /// when the stretch has no free land.
         /// </summary>
-        public static int StandCell(GardenMap map, int reach, Func<int, bool> taken)
+        public static int StandCell(GardenMap map, int reach, Func<int, bool> taken, int nearRow = -1)
         {
             if (map == null || map.ReachRows <= 0 || reach < 0 || reach >= map.Reaches) return -1;
             int top = reach * map.ReachRows;
             int bottom = Math.Min(map.Rows, top + map.ReachRows);
-            int middleRow = top + map.ReachRows / 2;
+            // Nearest the row asked for (the middle of the view) when it lies in the stretch, else its middle row.
+            int middleRow = nearRow >= top && nearRow < bottom ? nearRow : top + map.ReachRows / 2;
             int middleColumn = map.Columns / 2;
             int best = -1;
             int bestScore = int.MaxValue;

@@ -14,6 +14,8 @@ namespace Evergrove.UnityClient
     {
         // The stretch the hub shows, set by Layout just before the neighbours are placed (static, as LanternsNext is).
         internal static int StretchShown;
+        /// <summary>The map row at the middle of the view (checklist 42: where a stretch's neighbour stands).</summary>
+        internal static int ViewRow = -1;
 
         // The stretch whose middle is nearest the middle of the window, from the scroll position in use.
         private int StretchInView(float reachHeight)
@@ -22,6 +24,7 @@ namespace Evergrove.UnityClient
             float travel = Mathf.Max(0f, land.sizeDelta.y - window.rect.height);
             float down = keep.x >= 0f ? keep.y : scroll != null ? scroll.normalizedPosition.y : 1f;
             float centre = (1f - down) * travel + window.rect.height / 2f;
+            ViewRow = map != null && map.ReachRows > 0 ? Mathf.Clamp((int)(centre / (reachHeight / map.ReachRows)), 0, map.Rows - 1) : -1;
             return Mathf.Clamp((int)(centre / reachHeight), 0, reaches - 1);
         }
 

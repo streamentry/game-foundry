@@ -8,13 +8,13 @@ namespace Evergrove.UnityClient
     /// <summary>
     /// Checklist 42, tour shots: three stretches open at once, the whole-river lookout, one shot where three
     /// stretches are visible (32-three-stretches.png), then each of the first three stretches with its neighbour
-    /// standing in it (32-stretch-1.png and 32-stretch-2.png). Logs MOSSELORA_STRETCH <reach> <kind> neighbour <name>.
+    /// standing in it (32-stretch-2.png, Heron Pool with Orin, and 32-stretch-3.png, Mill Stream with Fen). Logs MOSSELORA_STRETCH <reach> <kind> neighbour <name>.
     /// The river length, the lookout and the clock are put back at the end. Part of the dev QA tour
     /// (DevQaTour.cs); the same guard applies.
     /// </summary>
     public sealed partial class DevQaTour
     {
-        private const int StretchTourRiver = 6, StretchesShown = 3;
+        private const int StretchTourRiver = 6, StretchesShown = 4;
 
         private IEnumerator StretchShots()
         {
@@ -38,7 +38,7 @@ namespace Evergrove.UnityClient
                 app.QaTravel(reach);
                 yield return new WaitForSecondsRealtime(1.5f);
                 yield return new WaitForEndOfFrame();
-                if (reach >= 1) SavePng("32-stretch-" + reach + ".png");
+                if (reach >= 2) SavePng("32-stretch-" + reach + ".png"); // 2: Heron Pool (Orin), 3: Mill Stream (Fen)
                 StretchStand(reach);
                 app.QaShowHub(false);
             }

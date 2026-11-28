@@ -22,6 +22,7 @@ internal static class StretchCharacterTests
     {
         assertions = 0;
         KindsCycleInOrder();
+        StandCellPrefersTheView();
         EachKindHasItsOwnNeighbour();
         FlavourIsWhatTheNeighbourKeeps();
         FlavoursDoNotOverlap();
@@ -35,14 +36,45 @@ internal static class StretchCharacterTests
         return assertions;
     }
 
+    // A stretch's character follows its name (RiverNames): mills, fords and falls are mills; pools and runs
+    // of birds and otters are heron pools; the rest are water meadows. Later laps reuse the names.
     private static void KindsCycleInOrder()
     {
-        Expect(StretchCharacter.KindOf(0) == StretchKind.WaterMeadow, "reach 0 is the water meadow (home's stretch)");
-        Expect(StretchCharacter.KindOf(1) == StretchKind.Mill, "reach 1 is the mill");
-        Expect(StretchCharacter.KindOf(2) == StretchKind.HeronPool, "reach 2 is the heron pool");
-        for (int reach = 0; reach < 30; reach++)
-            Expect(StretchCharacter.KindOf(reach + 3) == StretchCharacter.KindOf(reach), "the kinds repeat every three stretches at " + reach);
+        Expect(StretchCharacter.NamedKinds == 20, "one kind for each of the twenty river names");
+        for (int reach = 0; reach < StretchCharacter.NamedKinds; reach++)
+        {
+            string name = RiverNames.For(reach);
+            StretchKind kind = StretchCharacter.KindOf(reach);
+            if (name.Contains("Mill") || name.Contains("Ford") || name.Contains("Falls"))
+                Expect(kind == StretchKind.Mill, name + " is a mill stretch");
+            if (name.Contains("Pool") || name.Contains("Heron") || name.Contains("Kingfisher") || name.Contains("Swan") || name.Contains("Otter"))
+                Expect(kind == StretchKind.HeronPool, name + " is a heron pool stretch");
+            if (name.Contains("Meadow") || name.Contains("Bank") || name.Contains("Beds"))
+                Expect(kind == StretchKind.WaterMeadow, name + " is a water meadow stretch");
+        }
+        for (int reach = 0; reach < 60; reach++)
+            Expect(StretchCharacter.KindOf(reach + StretchCharacter.NamedKinds) == StretchCharacter.KindOf(reach),
+                "the kinds follow the names round on later laps at " + reach);
+        Expect(StretchCharacter.KindOf(0) == StretchKind.WaterMeadow, "home's stretch is the water meadow");
         Expect(StretchCharacter.KindOf(-4) == StretchKind.WaterMeadow, "a negative reach keeps to the first kind");
+        // The tour's three-stretch view (stretches 1 to 3) shows all three characters side by side.
+        var three = new System.Collections.Generic.HashSet<StretchKind> { StretchCharacter.KindOf(1), StretchCharacter.KindOf(2), StretchCharacter.KindOf(3) };
+        Expect(three.Count == 3, "stretches 1, 2 and 3 are three different characters");
+        int[] counts = new int[3];
+        for (int reach = 0; reach < StretchCharacter.NamedKinds; reach++) counts[(int)StretchCharacter.KindOf(reach)]++;
+        Expect(counts[0] > 0 && counts[1] > 0 && counts[2] > 0, "every character appears along the river");
+    }
+
+    // The neighbour stands nearest the middle of the view, within the stretch, when that row is in the stretch.
+    private static void StandCellPrefersTheView()
+    {
+        GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 4);
+        int mid = StretchCharacter.StandCell(map, 2, null);
+        int low = StretchCharacter.StandCell(map, 2, null, 2 * map.ReachRows + map.ReachRows - 2);
+        Expect(mid >= 0 && low >= 0, "both find land");
+        Expect(low / map.Columns > mid / map.Columns, "asked for a lower row, the neighbour stands lower");
+        int outside = StretchCharacter.StandCell(map, 2, null, 0);
+        Expect(outside == mid, "a row outside the stretch falls back to its middle");
     }
 
     private static void EachKindHasItsOwnNeighbour()
@@ -143,8 +175,8 @@ internal static class StretchCharacterTests
         string neighbours = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Neighbours.cs");
         Expect(neighbours.Contains("StretchCharacter.Neighbour(StretchCharacter.KindOf(shownStretch)) == villager"),
             "the neighbour of the shown stretch is the one placed in it");
-        Expect(neighbours.Contains("StretchCharacter.StandCell(map, shownStretch, taken.Contains)"),
-            "the neighbour stands on the stretch's free land (StretchCharacter.StandCell)");
+        Expect(neighbours.Contains("StretchCharacter.StandCell(map, shownStretch, taken.Contains, GardenMapView.ViewRow)"),
+            "the neighbour stands on the stretch's free land nearest the middle of the view (StandCell with ViewRow)");
         Expect(neighbours.IndexOf("StretchCharacter.StandCell", StringComparison.Ordinal) <
                neighbours.IndexOf("// I402: in the golden hour", StringComparison.Ordinal),
             "the stretch spot comes before the golden-hour and evening spots, which keep precedence");
