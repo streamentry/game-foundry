@@ -23,6 +23,23 @@ internal static class SeasonLookTests
         Expect(SeasonLook.For(Season.Summer, VillageChoice.ShadeTree, -1) == ThingLook.Full, "trees in full leaf in summer");
         Expect(SeasonLook.For(Season.Autumn, VillageChoice.ShadeTree, -1) == ThingLook.Turning, "trees turn in autumn");
         Expect(SeasonLook.For(Season.Winter, VillageChoice.ShadeTree, -1) == ThingLook.Resting, "trees rest in winter");
+        // Evergreens keep their green; deciduous trees still change.
+        foreach (string name in new[] { "holly", "yew", "Scots pine" })
+            foreach (Season s in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
+                Expect(SeasonLook.For(s, VillageChoice.ShadeTree, GardenCatalog.TreeIndexOf(name)) == ThingLook.Full, name + " stays green: " + s);
+        int apple = GardenCatalog.TreeIndexOf("apple tree");
+        int oak = GardenCatalog.TreeIndexOf("oak");
+        Expect(apple >= 0 && oak >= 0, "apple tree and oak are in the catalogue");
+        Expect(SeasonLook.For(Season.Spring, VillageChoice.ShadeTree, apple) == ThingLook.Blossom && SeasonLook.For(Season.Autumn, VillageChoice.ShadeTree, apple) == ThingLook.Turning
+            && SeasonLook.For(Season.Winter, VillageChoice.ShadeTree, apple) == ThingLook.Resting && SeasonLook.For(Season.Summer, VillageChoice.ShadeTree, apple) == ThingLook.Full, "apple tree changes with the year");
+        Expect(SeasonLook.For(Season.Spring, VillageChoice.ShadeTree, oak) == ThingLook.Blossom && SeasonLook.For(Season.Autumn, VillageChoice.ShadeTree, oak) == ThingLook.Turning
+            && SeasonLook.For(Season.Winter, VillageChoice.ShadeTree, oak) == ThingLook.Resting && SeasonLook.For(Season.Summer, VillageChoice.ShadeTree, oak) == ThingLook.Full, "oak changes with the year");
+        int evergreens = 0;
+        for (int i = 0; i < GardenCatalog.TreeCount; i++)
+            if (GardenCatalog.IsEvergreenTree(i)) evergreens++;
+        Expect(evergreens == 10, "exactly 10 evergreen trees, found " + evergreens);
+        Expect(!GardenCatalog.IsEvergreenTree(-1) && !GardenCatalog.IsEvergreenTree(1000), "no evergreen at -1 or 1000");
+        Expect(GardenCatalog.TreeIndexOf("no such tree") == -1, "an unknown tree name has no index");
         // Built things never change with the season (they only gather snow).
         foreach (Season s in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
             Expect(SeasonLook.For(s, VillageChoice.Bridge, -1) == ThingLook.Full, "built things stay as built: " + s);

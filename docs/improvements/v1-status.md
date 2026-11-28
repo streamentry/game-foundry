@@ -200,3 +200,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - The take-turns token eases between turn colours over 0.18 s; instant with motion off (`TurnPalette.Blend`). Tests: `TurnPaletteTests`. On-screen look: not checked.
 - Holding a water tile says which way it opens now, English only (`TileOpenings.Caption`, `LongPressCaption.AttachLive`). Tests: `TileOpeningsTests`. Tour at 150% text: not run.
 - Dropped: the season letter naming the stream that turned it (the save cannot tell a stream from a nursery solve, or when the story ended).
+
+## Vision run 20261128-1502 (outside the v1 checklist)
+
+- Axle chapter drawn: `LinkedForkChapter.Draw` (not wired) spaces 12 of the 47 guess-free axle boards by work after the stall: 4,4,4,4,4,6,6,6,8,8,9,17. Real curve, thin firm end. Tests: `LinkedForkChapterTests`.
+- A chosen thing's caption says "You finished its puzzle." once its puzzle is solved, before the together sentence (`ThingStory`). Tests: `ThingStoryTests`. Tour and device: not run.
+- A board solved while taking turns fills and pulses every seat's pip and says "Solved together, all three of you." (`TakeTurns.SpokenSolved`, `TreePlay.TableSolved`). Tests: `SolvedTogetherTests`. Tour, VoiceOver/TalkBack: not run.
+- A thing's water board tells a screen reader how far the water reaches ("Water reaches 5 of 9 pipes.", `WaterReachWords`), English only. Tests: `WaterReachWordsTests`. VoiceOver/TalkBack: not run.
+- Ten evergreen trees stay in full leaf all year on the garden map (`GardenCatalog.IsEvergreenTree`, `SeasonLook`). Tests: `SeasonLookTests`. On-screen look: not checked.

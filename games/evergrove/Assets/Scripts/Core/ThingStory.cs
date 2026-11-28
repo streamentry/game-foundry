@@ -4,8 +4,9 @@ namespace Evergrove.Core
 {
     /// <summary>
     /// The caption for a grown thing the player chose: "Quince tree, chosen after stream 3.
-    /// Four streams have run past it since." When the thing was solved together, the caption
-    /// ends with " You solved it together." Counted in streams (choices), never in days or
+    /// Four streams have run past it since." When its puzzle was finished, the caption adds
+    /// " You finished its puzzle."; when it was also solved together, the caption ends with
+    /// " You solved it together." Counted in streams (choices), never in days or
     /// clock time, so every number is a fact the save already holds. Nursery plants read
     /// "Name, from the nursery." (with the puzzle and together facts once solved), and basket
     /// plantings read "Planted from your basket. It came from the name you chose after stream 3." English only; the Unity
@@ -45,16 +46,31 @@ namespace Evergrove.Core
         }
 
         /// <summary>
+        /// As <see cref="Line(string, int, int)"/>, plus " You finished its puzzle." when
+        /// <paramref name="finished"/> is true, and " You solved it together." only when
+        /// <paramref name="finished"/> and <paramref name="together"/> are both true (a together
+        /// mark alone adds nothing). Still "" wherever the plain line is "".
+        /// </summary>
+        public static string Line(string name, int choiceIndex, int choicesMade, bool finished, bool together)
+        {
+            string line = Line(name, choiceIndex, choicesMade);
+            if (line.Length == 0) return "";
+            if (finished) line += " You finished its puzzle.";
+            if (finished && together) line += " You solved it together.";
+            return line;
+        }
+
+        /// <summary>
         /// Truthful wrapper for the app. Only a living world's recorded choices can be described;
-        /// puzzle-only, matched, missing or out-of-range choices give "". The together sentence
-        /// comes only from the world's recorded "solved together" marks.
+        /// puzzle-only, matched, missing or out-of-range choices give "". The finished and together
+        /// sentences come only from the world's recorded puzzle solves and "solved together" marks.
         /// </summary>
         public static string For(WorldModel world, int choiceIndex, string name)
         {
             if (world == null || world.Mode != PlayMode.Living) return "";
             int made = world.Choices.Length;
             if (choiceIndex < 0 || choiceIndex >= made) return "";
-            return Line(name, choiceIndex, made, world.SolvedTogether(choiceIndex));
+            return Line(name, choiceIndex, made, world.TreeSolved(choiceIndex), world.SolvedTogether(choiceIndex));
         }
 
         /// <summary>

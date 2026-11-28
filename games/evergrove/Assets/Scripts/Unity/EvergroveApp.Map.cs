@@ -235,7 +235,7 @@ namespace Evergrove.UnityClient
                     HoldsPuzzle = markPuzzles && !world.TreeSolved(i), // helped still holds your own first solve
                     Kind = (int)ThingPuzzle.ForStory(i, (VillageChoice)Mathf.Clamp(made[i], 0, 2)) + 1, Watered = ChainCause.WateredNow(world.Garden), // I255
                     Together = world.SolvedTogether(i), // I265
-                    FlowerIndex = made[i] == (int)VillageChoice.Flowers ? ItemAt(i, made[i]).Index + 1 : 0, // I338
+                    FlowerIndex = made[i] == (int)VillageChoice.Flowers || made[i] == (int)VillageChoice.ShadeTree ? ItemAt(i, made[i]).Index + 1 : 0, // I338
                     Crowned = world.TreeSolved(i) && ReplayBoards.Crowned(TreePuzzles.TierFor(i), Replays(i)), // I292
                     Grown = world.TreeSolved(i) ? ReplayBoards.Maturity(TreePuzzles.TierFor(i), Replays(i)) : 1f, // I300
                     BloomNow = i == justSolved && gentleMotion
@@ -252,6 +252,7 @@ namespace Evergrove.UnityClient
                     Index = PlantingIndex + k,
                     Caption = englishOnly ? ThingStory.ForPlanting(world, k, ItemAt(source, made[source]).Name) : null,
                     Family = (VillageChoice)Mathf.Clamp(made[source], 0, 2),
+                    FlowerIndex = made[source] == (int)VillageChoice.ShadeTree ? ItemAt(source, made[source]).Index + 1 : 0, // I338: a planted tree keeps its evergreen look
                     Newest = k == justPlanted
                 });
             }
@@ -273,7 +274,7 @@ namespace Evergrove.UnityClient
                     HoldsPuzzle = markPuzzles && !world.BoughtSolved(k),
                     Kind = (int)ThingPuzzle.ForNursery(kind) + 1, Watered = ChainCause.WateredNow(world.Garden), // I255
                     Together = world.SolvedTogether(BoughtIndex + k), // I265
-                    FlowerIndex = Nursery.Family(kind) == VillageChoice.Flowers ? Nursery.Item(kind).Index + 1 : 0, // I338
+                    FlowerIndex = Nursery.Family(kind) == VillageChoice.Flowers || Nursery.Family(kind) == VillageChoice.ShadeTree ? Nursery.Item(kind).Index + 1 : 0, // I338
                     Crowned = world.BoughtSolved(k) && ReplayBoards.Crowned(Nursery.Row(kind), Replays(BoughtIndex + k)), // I292
                     Grown = world.BoughtSolved(k) ? ReplayBoards.Maturity(Nursery.Row(kind), Replays(BoughtIndex + k)) : 1f, // I300
                     BloomNow = BoughtIndex + k == justSolved && gentleMotion

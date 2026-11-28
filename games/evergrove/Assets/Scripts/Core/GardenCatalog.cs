@@ -130,6 +130,25 @@ namespace Evergrove.Core
             return found.ToArray();
         }
 
+        // Evergreens keep their leaves through the year (SeasonLook: they stay Full in every season).
+        private static readonly string[] EvergreenTrees = {
+            "olive tree", "lemon tree", "orange tree", "juniper", "Scots pine",
+            "cedar", "cypress", "yew", "holly", "bay laurel"
+        };
+
+        /// <summary>A tree's catalogue index by its name; -1 if there is no such tree.</summary>
+        public static int TreeIndexOf(string name)
+        {
+            return name == null ? -1 : Array.IndexOf(Trees, name);
+        }
+
+        /// <summary>True for a tree catalogue index that is an evergreen; false for anything else, including -1.</summary>
+        public static bool IsEvergreenTree(int treeIndex)
+        {
+            if (treeIndex < 0 || treeIndex >= Trees.Length) return false;
+            return Array.IndexOf(EvergreenTrees, Trees[treeIndex]) >= 0;
+        }
+
         public const int TreeCount = 50;
         public const int FlowerCount = 50;
         public const int BuildCount = 100;
