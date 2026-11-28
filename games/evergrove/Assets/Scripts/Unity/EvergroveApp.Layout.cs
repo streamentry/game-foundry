@@ -35,6 +35,12 @@ namespace Evergrove.UnityClient
             int column = index % puzzle.Size + 1;
             string label = GameLocalization.Text(insight.Flowing[index] ? "sr_tile_wet" : "sr_tile_dry",
                 row, column, kind);
+            // TileOpenings is English copy, so other locales keep the localized label unchanged.
+            if (GameLocalization.Current == "en")
+            {
+                string opens = TileOpenings.Words(puzzle.Kinds[index], world.Rotations[index]);
+                if (opens.Length > 0) label += " " + opens;
+            }
             bool protectedTile = puzzle.IsAnchored(index);
             // The landmark sentence already says the pipe is protected and cannot rotate.
             if (protectedTile) label += " " + LocalizedVillage.EnvironmentalRule(world);

@@ -15,8 +15,27 @@ namespace Evergrove.UnityClient
         private readonly TurnLedger ledger = new TurnLedger();
         private IBoardHistory tracked;
 
+        // Session memory only, never saved (no PlayerPrefs, no names): the table's size, set by the token,
+        // and how many boards were finished while playing together, so the next board's first move rotates.
+        private static int tablePlayers = 1;
+        private static int boardsTogether;
+
+        /// <summary>A new board opens with the table's size and whoever starts it this time.</summary>
+        private static int OpeningTurn() { return TakeTurns.StartingTurn(boardsTogether, tablePlayers); }
+
+        /// <summary>Setting the token to alone ends the table; the next table starts fresh.</summary>
+        private void RememberTable() { tablePlayers = players; boardsTogether = 0; }
+
+        /// <summary>A board solved while playing together counts toward the rotation of the next board.</summary>
+        private void TableFinished() { if (together) boardsTogether++; }
+
         /// <summary>The undo row tells its TreePlay which history it steps, when it is built.</summary>
-        internal void Track(IBoardHistory history) { tracked = history; ledger.Clear(); }
+        internal void Track(IBoardHistory history)
+        {
+            tracked = history;
+            ledger.Clear();
+            ledger.Record(0, turn); // the board's first turn, which may not be the first player's
+        }
 
         /// <summary>After a move passes the turn, note whose turn it is at this undo step.</summary>
         private void NoteTurn()

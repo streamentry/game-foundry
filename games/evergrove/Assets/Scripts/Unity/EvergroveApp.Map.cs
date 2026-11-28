@@ -221,12 +221,14 @@ namespace Evergrove.UnityClient
             int[] planted = world.Plantings;
             int[] cells = map.Layout(made, world.Placements, Occupied());
             var items = new System.Collections.Generic.List<GardenMapView.Placed>();
+            bool englishOnly = GameLocalization.Current == "en"; // ThingStory is English copy
             for (int i = 0; i < made.Length; i++)
                 items.Add(new GardenMapView.Placed
                 {
                     Art = ItemArt(i, made[i]),
                     Cell = cells[i],
                     Index = i,
+                    Caption = englishOnly ? ThingStory.For(world, i, ItemAt(i, made[i]).Name) : null,
                     Family = (VillageChoice)Mathf.Clamp(made[i], 0, 2),
                     Newest = justSolved >= 0 ? i == justSolved : i == made.Length - 1 && justPlanted < 0,
                     Bloomed = world.TreeSolved(i) || world.IsHelped(i), // solved (I204), or by family (I227)

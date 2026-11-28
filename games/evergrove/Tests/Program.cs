@@ -2021,6 +2021,11 @@ internal static class Program
             assertions += ReconsiderTruthTests.Run();
             assertions += TurnBackTests.Run();
             assertions += ThemeContrastTests.Run();
+            assertions += ForkBoardsTests.Run();
+            assertions += ThingStoryTests.Run();
+            assertions += TableSetTests.Run();
+            assertions += ColourVisionTests.Run();
+            assertions += TileOpeningsTests.Run();
             assertions += GardenFileHeaderTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();

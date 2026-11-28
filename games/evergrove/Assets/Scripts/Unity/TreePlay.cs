@@ -88,9 +88,9 @@ namespace Evergrove.UnityClient
         // ---- I264/I303: play together on one device, taking turns; no names stored. Colours come from TurnPalette.
         private static readonly Color[] TurnColours = { TurnColour(0), TurnColour(1), TurnColour(2), TurnColour(3) };
         private static Color TurnColour(int t) { float[] c = TurnPalette.Rgb(t); return new Color(c[0], c[1], c[2], 1f); }
-        private int players = 1;
+        private int players = tablePlayers;
         private bool together { get { return players > 1; } }
-        private int turn;
+        private int turn = OpeningTurn();
         private Image[] turnDiscs;
         private Transform togetherRow;
         private Image[] pips;
@@ -131,7 +131,7 @@ namespace Evergrove.UnityClient
         {
             if (solved) return;
             players = TakeTurns.NextPlayers(players);
-            turn = 0; ledger.Clear();
+            turn = 0; ledger.Clear(); RememberTable();
             PaintTurn();
         }
 
@@ -523,7 +523,7 @@ namespace Evergrove.UnityClient
         // Solved, whatever the kind: record it, show the seeds, bloom, close soon.
         private void Finish()
         {
-            solved = true; ZoomDone(); // v1 #91: a solved board shows whole
+            solved = true; ZoomDone(); TableFinished(); // v1 #91: a solved board shows whole
             int earned = onSolved != null ? onSolved() : 0;
             if (gentle && Flourish != null) RiseFlourish();
             SettleIntoThing();

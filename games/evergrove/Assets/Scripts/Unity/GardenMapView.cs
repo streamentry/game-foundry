@@ -33,7 +33,7 @@ namespace Evergrove.UnityClient
             public bool Together;        // I265: solved taking turns: two small discs, sage and honey
             public bool Crowned;         // I292: a replay solved at the deepest tier: a second, outer ring
             public float Grown;          // I300: drawn this much larger as replays deepen it (0 or 1: its own size)
-            public bool Watered; public int FlowerIndex;      // I338: a flower's catalogue index + 1 (0: not a flower or unknown). Watered: checklist 38's day mark
+            public bool Watered; public int FlowerIndex; public string Caption; // I338: a flower's catalogue index + 1 (0: not a flower or unknown). Watered: checklist 38's day mark. Caption: ThingStory long-press line (null: family label)
         }
 
         private static float HeightInCells(VillageChoice family)
@@ -1121,7 +1121,7 @@ namespace Evergrove.UnityClient
                     var button = node.AddComponent<Button>();
                     button.transition = Selectable.Transition.None;
                     button.onClick.AddListener(() => { if (!PinchBusy) onItem(index); });
-                    LongPressCaption.Attach(node, LocalizedVillage.Choice(item.Family), LongPressCaption.DefaultFont);
+                    LongPressCaption.Attach(node, string.IsNullOrEmpty(item.Caption) ? LocalizedVillage.Choice(item.Family) : item.Caption, LongPressCaption.DefaultFont);
                 }
                 if (held)
                 {
