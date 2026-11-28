@@ -66,6 +66,68 @@ class NearDuplicateTests(unittest.TestCase):
         self.assertEqual([], checker.near_duplicates("en.json", bank))
 
 
+class OpeningWordTests(unittest.TestCase):
+    """CP23: more than 5 lines in one group and voice starting with the same word warns."""
+
+    def test_fires_at_six_lines_starting_the(self) -> None:
+        lines = [f"The river carries message {i} down." for i in range(6)]
+        bank = {"FruitGiven": {"0": lines}}
+        warnings = checker.opening_words("en.json", bank)
+        self.assertEqual(1, len(warnings))
+        self.assertIn("en.json", warnings[0])
+        self.assertIn("FruitGiven/0", warnings[0])
+        self.assertIn("'the'", warnings[0])
+        self.assertIn("6", warnings[0])
+
+    def test_silent_at_five_lines_starting_the(self) -> None:
+        lines = [f"The river carries message {i} down." for i in range(5)]
+        bank = {"FruitGiven": {"0": lines}}
+        self.assertEqual([], checker.opening_words("en.json", bank))
+
+    def test_case_insensitive(self) -> None:
+        lines = [
+            "The river carries message one.",
+            "the river carries message two.",
+            "THE river carries message three.",
+            "The river carries message four.",
+            "tHe river carries message five.",
+            "the river carries message six.",
+        ]
+        bank = {"FruitGiven": {"0": lines}}
+        warnings = checker.opening_words("en.json", bank)
+        self.assertEqual(1, len(warnings))
+        self.assertIn("'the'", warnings[0])
+
+    def test_punctuation_insensitive(self) -> None:
+        lines = [
+            '"The river carries message one.',
+            "'The river carries message two.",
+            "(The river carries message three.",
+            "“The river carries message four.",
+            "The river carries message five.",
+            "...the river carries message six.",
+        ]
+        bank = {"FruitGiven": {"0": lines}}
+        warnings = checker.opening_words("en.json", bank)
+        self.assertEqual(1, len(warnings))
+        self.assertIn("'the'", warnings[0])
+
+    def test_slot_counts_as_its_own_token(self) -> None:
+        lines = [f"{{thing}} sits by the river, number {i}." for i in range(6)]
+        bank = {"FruitGiven": {"0": lines}}
+        warnings = checker.opening_words("en.json", bank)
+        self.assertEqual(1, len(warnings))
+        self.assertIn("'{thing}'", warnings[0])
+
+    def test_counts_only_within_one_group_and_voice(self) -> None:
+        the_lines = [f"The river carries message {i}." for i in range(5)]
+        bank = {
+            "FruitGiven": {"0": the_lines, "1": the_lines[:1]},
+            "WeatherToday.Rainy": {"0": the_lines[:1]},
+        }
+        self.assertEqual([], checker.opening_words("en.json", bank))
+
+
 class StrictFlagTests(unittest.TestCase):
     def _run_main(self, bank: dict, *args: str) -> tuple[int, str]:
         with tempfile.TemporaryDirectory() as tmp:

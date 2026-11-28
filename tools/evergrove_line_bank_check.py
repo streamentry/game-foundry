@@ -12,7 +12,8 @@ no duplicates; at least the kind's minimum per voice (and per qualifier value, f
 "Kind.Value" such as "WeatherToday.Rainy"); only the voices that speak a kind.
 
 Warnings (printed as "warning: ...") do not fail the run. Near-duplicates: two lines in one group
-and voice whose word sets have Jaccard similarity >= 0.75 (CP22).
+and voice whose word sets have Jaccard similarity >= 0.75 (CP22). More than 5 lines in one group and
+voice starting with the same word also warns (CP23).
 
 Usage: tools/evergrove_line_bank_check.py [--review] [--complete] [--strict]
 Exit 0 when every line passes, 1 otherwise. --strict turns warnings into problems.
@@ -157,6 +158,29 @@ def near_duplicates(name: str, bank: dict) -> list[str]:
     return warnings
 
 
+OPENING_WORD_MAX = 5
+
+
+def opening_words(name: str, bank: dict) -> list[str]:
+    """CP23: warn when more than OPENING_WORD_MAX lines in one group and voice start with the same word.
+    The first token is lowercased, so quotes and punctuation before it are ignored; a {slot} is its own token."""
+    warnings = []
+    for key, voices in bank.items():
+        for voice, lines in voices.items():
+            counts: dict[str, int] = {}
+            for line in lines:
+                first = TOKEN.search(line.strip())
+                if first is None:
+                    continue
+                word = first.group(0).lower()
+                counts[word] = counts.get(word, 0) + 1
+            for word, count in counts.items():
+                if count > OPENING_WORD_MAX:
+                    warnings.append(f"{name}: {key}/{voice} has {count} lines starting with {word!r} "
+                                    f"(max {OPENING_WORD_MAX})")
+    return warnings
+
+
 VOICE_HEADING = re.compile(r"^##\s+.*\(voice\s+(\d|any)\)(?:\s*·\s*(\w+))?\s*$")
 ITEM = re.compile(r"^\d+\.\s+(.*\S)\s*$")
 
@@ -202,6 +226,7 @@ def main() -> int:
             continue
         problems += check_bank(bank_path.name, bank, rules, args.complete and bank_path.name == "en.json")
         warnings += near_duplicates(bank_path.name, bank)
+        warnings += opening_words(bank_path.name, bank)
         if bank_path.name != "en.json":
             # SC06: another language may only use slots that need no translation.
             for key, voices in bank.items():
@@ -216,6 +241,7 @@ def main() -> int:
             _, bank = parse_review(review)
             problems += check_bank(review.name, bank, rules)
             warnings += near_duplicates(review.name, bank)
+            warnings += opening_words(review.name, bank)
             counted += sum(len(v) for voices in bank.values() for v in voices.values())
     if args.strict:
         problems += warnings
