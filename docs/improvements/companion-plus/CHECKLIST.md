@@ -97,7 +97,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 Follow-ups, in order:
 
 1. ~~Founder review of the 20 checker warnings and the "once the water is done" echo line.~~ Done 2026-11-28 at the founder's request: 45 lines rewritten, and the bank now passes `--complete --strict` with 0 warnings.
-2. Tour weather redraw: scripted days don't redraw the weather, so snow shows in fair-day shots (the rain-coming fact itself is fixed in d37a4aa9).
+2. ~~Tour weather redraw.~~ Done 2026-11-28. The tour did redraw the weather each day. The flakes in fair-day shots are the winter drift: the scripted garden is in winter, and snow drifts over home every winter daytime (I295). The real fault was a hot day in the winter script, which the game never draws. Now `DayWeather.Possible` (tested in WeatherTests) keeps the script to weather the season can have, and the tour logs `MOSSELORA_COMPANION_DAY` with the weather, season, hour and drift for each day. Tour c13l: 196 shots, `MOSSELORA_QA_TOUR_DONE`, no faults.
 3. `ConfirmedReset` doesn't save the new garden until its first action, so a fresh garden not yet saved reverts to garden 0 on relaunch (CP41 note).
 4. Weekly letter: still later.
 5. Native-speaker banks: none exist yet; the translator export and import tools are ready for them.

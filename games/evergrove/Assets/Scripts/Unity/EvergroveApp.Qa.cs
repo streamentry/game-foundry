@@ -229,6 +229,19 @@ namespace Evergrove.UnityClient
             Debug.Log("MOSSELORA_COMPANION day " + day + " " + who + ": " + QaNeighborSays(villager));
             Debug.Log("MOSSELORA_COMPANION_WHY day " + day + " " + who + ": " + QaCompanionExplain(villager));
         }
+        // Smart companion tour: one scripted day (offset, weather, hour), logged with the season and its drift.
+        // Winter snow drifts by day whatever the weather (I295), so the log says why a fair winter shot shows flakes.
+        internal void QaCompanionDay(int day, Weather weather, int hour)
+        {
+            Season season = GardenSeason.For(world);
+            if (!DayWeather.Possible(weather, season))
+                Debug.LogError("MOSSELORA_QA_FAULT companion day " + (day + 1) + ": " + weather + " never happens in " + season);
+            QaSetDay(day);
+            QaSetWeather((int)weather);
+            QaSetClock(hour);
+            Drift drift = GardenSeason.DriftOf(season, DayLightOn ? DayLight.PhaseAt(hour, 0) : DayPhase.Day);
+            Debug.Log("MOSSELORA_COMPANION_DAY day " + (day + 1) + " weather=" + weather + " season=" + season + " hour=" + hour + " drift=" + drift);
+        }
         internal void QaSetWeather(int weather) { qaWeather = weather; } // I353 tour: -1 is the real day's
         internal void QaRainbow(bool on) { qaRainbow = on; } // I364 tour
         internal void QaCloseNotesAsk() { CloseNotesAsk(); }

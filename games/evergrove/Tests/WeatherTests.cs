@@ -19,6 +19,10 @@ internal static class WeatherTests
 
     public static int Run()
     {
+        Expect(!DayWeather.Possible(Weather.Hot, Season.Winter), "no hot day in winter");
+        Expect(DayWeather.Possible(Weather.Snowy, Season.Winter), "snowy days in winter");
+        Expect(!DayWeather.Possible(Weather.Snowy, Season.Autumn), "no snow in autumn");
+        Expect(DayWeather.Possible(Weather.Fair, Season.Spring) && DayWeather.Possible(Weather.Fair, Season.Winter), "fair days in every season");
         var start = new DateTime(2026, 1, 1);
         foreach (Season season in new[] { Season.Spring, Season.Summer, Season.Autumn, Season.Winter })
         {
@@ -37,6 +41,10 @@ internal static class WeatherTests
             Expect(counts.TryGetValue(Weather.Windy, out int wind) && wind >= 15, season + ": some windy days (" + wind + ")");
             if (season == Season.Winter) Expect(counts.TryGetValue(Weather.Snowy, out int snow) && snow >= 40, "winter snows (" + snow + ")");
             if (season == Season.Summer) Expect(counts.TryGetValue(Weather.Hot, out int hot) && hot >= 30, "summer has hot days (" + hot + ")");
+            // Tour weather fix: Possible says which weather a season can draw, so a scripted tour week
+            // never shows a day the game can't have (a hot day in winter).
+            foreach (Weather w in new[] { Weather.Fair, Weather.Rainy, Weather.Windy, Weather.Hot, Weather.Snowy })
+                Expect(DayWeather.Possible(w, season) == counts.ContainsKey(w), season + ": Possible(" + w + ") matches a year of days");
         }
         // Days vary: a week is rarely all one weather.
         var week = new HashSet<Weather>();
