@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -35,6 +36,8 @@ internal static class LineBankTests
         FactsFillTheirSlots(rules);
         int shipped = ShippedBanks(rules);
         EnglishSpeaks(rules);
+        CountsReadRight(rules); // CP32
+        WordsForSmallCounts(); // CP32
         int drafts = ReviewDrafts(rules);
         Console.WriteLine("Line bank SC03/SC04: " + shipped + " shipped lines and " + drafts + " draft lines pass every rule.");
         return assertions;
@@ -254,6 +257,127 @@ internal static class LineBankTests
             Expect(rules.Kinds.ContainsKey(kind.ToString()), "every fact kind has rules (reviewed lines, or pending review): " + kind);
         if (pending.Count > 0) Console.WriteLine("Line bank: awaiting reviewed lines (fixed sentence meanwhile): " + string.Join(", ", pending));
         Expect(pending.Count == 0, "every fact kind on main has a reviewed English bank: " + string.Join(", ", pending));
+    }
+
+    // CP32: counts read right. A count slot is only read where the facts can make that value, so each
+    // group's values come from the fact code, and CountFactsAreReal checks them against real facts:
+    //  - WishProgress {have}/{need}: a wish is said only while 0 < have < need (a granted wish is not
+    //    said), so have is 1..need-1; need is 5 (Mira), 2 (Orin) or 6 (Fen). 0 and 11 never occur.
+    //  - KindSolved and NewestThing {count}: said only once solved or made (count >= 1), so 1, 2 and 11.
+    //    0 never occurs. (No shipped line uses {count} yet.)
+    //  - WeatherWhileAway {days}: DayWeather.WhileAway says nothing under two days, so 2 and up. 0 and 1 never occur.
+    private static readonly string[] CountSlotNames = { "have", "need", "count", "days" };
+    private static readonly string[] CountKinds = { "WishProgress", "KindSolved", "NewestThing", "WeatherWhileAway" };
+    private static readonly string CountPluralNouns = "trees|stretches|kinds|things|days|puzzles|plots|beds|flowers|visitors|letters|gifts|seeds|steps|times|weeks|pieces|tiles";
+
+    // "1 things", "one trees", "0 trees" and "two has" (a number with a singular verb) read wrong.
+    private static readonly Regex CountReadsWrongRx = new Regex(
+        @"\b(1|one)\s+(" + CountPluralNouns + @")\b" +
+        @"|\b0\s+[a-z]" +
+        @"|\b(two|three|four|five|six|seven|eight|nine|ten|(?!1\b)\d+)\s+has\b",
+        RegexOptions.IgnoreCase);
+
+    private static int[] ProducibleCounts(string kind, int voice)
+    {
+        switch (kind)
+        {
+            case "WishProgress": return Enumerable.Range(1, NeighbourWish.For(WorldModel.New(PlayMode.Living), voice).Need - 1).ToArray();
+            case "KindSolved":
+            case "NewestThing": return new[] { 1, 2, 11 };
+            default: return new[] { 2, 11 }; // WeatherWhileAway
+        }
+    }
+
+    private static Dictionary<string, string> CountSlotsFor(Rules rules, string kind, int voice, int count)
+    {
+        var slots = new Dictionary<string, string>();
+        foreach (string slot in rules.Kinds[kind].Slots) slots[slot] = rules.Longest[slot];
+        // The same formats the facts use: small counts as words for a wish, digits for the rest.
+        if (kind == "WishProgress")
+        {
+            slots["have"] = CompanionFacts.Words(count);
+            slots["need"] = CompanionFacts.Words(NeighbourWish.For(WorldModel.New(PlayMode.Living), voice).Need);
+        }
+        else if (kind == "WeatherWhileAway") slots["days"] = count.ToString(CultureInfo.InvariantCulture);
+        else slots["count"] = count.ToString(CultureInfo.InvariantCulture);
+        return slots;
+    }
+
+    private static void CountsReadRight(Rules rules)
+    {
+        LineBank en = LineBank.Parse(File.ReadAllText(Path.Combine(Root(), "games/evergrove/Assets/Resources/Evergrove/Lines/en.json")));
+        // Any group that uses a count slot must be one of the groups checked here.
+        foreach (string group in en.Keys)
+            foreach (string voice in en.Voices(group))
+                foreach (string line in en.Lines(group, voice))
+                    if (LineBank.SlotsIn(line).Any(s => CountSlotNames.Contains(s)))
+                        Expect(CountKinds.Contains(group), "a count slot is only used by a checked group: " + group + " " + line);
+        // The checker itself must catch the bad readings, or the pass below would prove nothing.
+        Expect(CountReadsWrongRx.IsMatch("I saw 1 things today."), "the checker catches \"1 things\"");
+        Expect(CountReadsWrongRx.IsMatch("Just one trees now."), "the checker catches \"one trees\"");
+        Expect(CountReadsWrongRx.IsMatch("I counted 0 trees."), "the checker catches \"0 trees\"");
+        Expect(CountReadsWrongRx.IsMatch("Two has come along."), "the checker catches \"two has\"");
+        Expect(!CountReadsWrongRx.IsMatch("One has come. One of the five trees, and 1 tree."), "the checker passes \"one has\" and \"1 tree\"");
+        int checkedLines = 0;
+        foreach (string kind in CountKinds)
+            foreach (string voice in rules.Kinds[kind].Voices.Keys)
+            {
+                int speaker = int.Parse(voice, CultureInfo.InvariantCulture);
+                IReadOnlyList<string> lines = en.Lines(kind, voice);
+                Expect(lines.Count > 0, kind + " has lines in voice " + voice);
+                foreach (int count in ProducibleCounts(kind, speaker))
+                    foreach (string line in lines)
+                    {
+                        string text = LineBank.Fill(line, CountSlotsFor(rules, kind, speaker, count));
+                        Expect(text != null, kind + "/" + voice + " fills every slot at " + count + ": " + line);
+                        Expect(!CountReadsWrongRx.IsMatch(text), kind + "/" + voice + " reads right at " + count + ": " + text);
+                        checkedLines++;
+                    }
+            }
+        Expect(checkedLines > 0, "some count lines were checked");
+        CountFactsAreReal();
+    }
+
+    // CP32: the values above are what the real facts make: no count of 0, a wish only in 1..need-1, days from 2.
+    private static void CountFactsAreReal()
+    {
+        GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 2);
+        int seen = 0;
+        foreach (WorldModel world in CompanionFactsTests.Saves())
+            foreach (CompanionContext context in CompanionFactsTests.Contexts(map))
+                foreach (Fact fact in CompanionFacts.For(world, context))
+                {
+                    switch (fact.Kind)
+                    {
+                        case FactKind.KindSolved:
+                        case FactKind.NewestThing:
+                            Expect(fact.IntSlot("count") >= 1, fact + " counts at least one");
+                            break;
+                        case FactKind.WeatherWhileAway:
+                            Expect(fact.IntSlot("days") >= 2, fact + " is at least two days away");
+                            break;
+                        case FactKind.WishProgress:
+                            int need = NeighbourWish.For(world, fact.Keeper).Need;
+                            Expect(Enumerable.Range(1, need - 1).Any(n => CompanionFacts.Words(n) == fact.Slot("have")) &&
+                                fact.Slot("need") == CompanionFacts.Words(need), fact + " has 1..need-1 of its wish");
+                            break;
+                        default:
+                            continue;
+                    }
+                    seen++;
+                }
+        Expect(seen > 0, "the constructed saves make counted facts");
+    }
+
+    // CP32: the small-number helper reads as words for 0..10 and digits above, never "1" where "one" belongs.
+    private static void WordsForSmallCounts()
+    {
+        string[] words = { "no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" };
+        for (int n = 0; n <= 10; n++)
+            Expect(CompanionFacts.Words(n) == words[n], "Words(" + n + ") is \"" + words[n] + "\"");
+        for (int n = 11; n <= 20; n++)
+            Expect(CompanionFacts.Words(n) == n.ToString(CultureInfo.InvariantCulture), "Words(" + n + ") is digits");
+        Expect(CompanionFacts.Words(1) != "1", "Words(1) is a word, not a digit");
     }
 
     private static IEnumerable<WorldModel> KindsSaves()
