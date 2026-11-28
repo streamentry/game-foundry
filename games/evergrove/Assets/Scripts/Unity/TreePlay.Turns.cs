@@ -16,6 +16,9 @@ namespace Evergrove.UnityClient
         private readonly TurnLedger ledger = new TurnLedger();
         private IBoardHistory tracked;
 
+        // Vision run 20261128-1801, idea 3: true only while the paint that undo or redo causes is speaking.
+        private bool handedBack;
+
         // Session memory only, never saved (no PlayerPrefs, no names): the table's size, set by the token,
         // and how many boards were finished while playing together, so the next board's first move rotates.
         private static int tablePlayers = 1;
@@ -49,16 +52,20 @@ namespace Evergrove.UnityClient
         {
             if (!together || solved || tracked == null) return;
             turn = ledger.At(tracked.UndoSteps) % players;
-            PaintTurn();
+            handedBack = true;
+            try { PaintTurn(); }
+            finally { handedBack = false; }
         }
 
         private void SpeakTurn(Transform token)
         {
             // Before any move on this board, the starter is announced ("Second player starts, of three.").
             bool noMoveYet = tracked == null || tracked.UndoSteps == 0;
-            string words = together && turn != 0 && noMoveYet
-                ? TakeTurns.SpokenStart(turn, players)
-                : TakeTurns.Spoken(turn, players);
+            string words = together && handedBack
+                ? TakeTurns.SpokenBack(turn, players)
+                : together && turn != 0 && noMoveYet
+                    ? TakeTurns.SpokenStart(turn, players)
+                    : TakeTurns.Spoken(turn, players);
             Transform caption = token.Find("Turn caption");
             if (caption == null)
             {

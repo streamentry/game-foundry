@@ -73,6 +73,37 @@ internal static class ColourVisionTests
                 "WetPipe and DryChannel contrast is at least 1.5:1 under " + v + ", was " +
                 contrast.ToString("0.000", CultureInfo.InvariantCulture));
         }
+
+        // Vision run 20261128-1801 idea 4: the protected tile is told by its frame for every eye.
+        // Finding (2026-11-28, Machado 2009 severity 1.0): LandmarkFrame #4A3524 on AnchoredTile
+        // #F1DEB6 measures 8.61:1 at its lowest (deuteranopia; normal 8.69, protan 8.80, tritan 8.67).
+        // The AnchoredTile fill stays distinct from the other tile states: lowest distance 0.105
+        // (tritanopia, AnchoredTile vs DryTile); the other pairs are 0.148 to 0.252.
+        double[] frame = theme["LandmarkFrame"];
+        double[] anchored = theme["AnchoredTile"];
+        double[] dryTile = theme["DryTile"];
+        double[] wetTile = theme["WetTile"];
+        double[] solvedTile = theme["SolvedTile"];
+        foreach (ColourVision.Vision v in AllVisions())
+        {
+            double frameContrast = ColourVision.ContrastUnder(v, frame, anchored);
+            Expect(frameContrast >= 4.5,
+                "LandmarkFrame on AnchoredTile is at least 4.5:1 under " + v + ", was " +
+                frameContrast.ToString("0.000", CultureInfo.InvariantCulture));
+
+            double[] simAnchored = ColourVision.Simulate(anchored[0], anchored[1], anchored[2], v);
+            foreach (KeyValuePair<string, double[]> other in new[] {
+                new KeyValuePair<string, double[]>("DryTile", dryTile),
+                new KeyValuePair<string, double[]>("WetTile", wetTile),
+                new KeyValuePair<string, double[]>("SolvedTile", solvedTile) })
+            {
+                double[] simOther = ColourVision.Simulate(other.Value[0], other.Value[1], other.Value[2], v);
+                double fillDistance = Distance(simAnchored, simOther);
+                Expect(fillDistance >= 0.08,
+                    "AnchoredTile and " + other.Key + " stay distinct under " + v + ", distance " +
+                    fillDistance.ToString("0.000", CultureInfo.InvariantCulture));
+            }
+        }
         return assertions;
     }
 
@@ -106,8 +137,10 @@ internal static class ColourVisionTests
                 int.Parse(hex.Substring(4, 2), NumberStyles.HexNumber) / 255.0,
             };
         }
-        Expect(colours.ContainsKey("WaterChannel") && colours.ContainsKey("DryChannel") && colours.ContainsKey("WetPipe"),
-            "WaterChannel, WetPipe and DryChannel parsed from MosseloraTheme.cs");
+        Expect(colours.ContainsKey("WaterChannel") && colours.ContainsKey("DryChannel") && colours.ContainsKey("WetPipe") &&
+               colours.ContainsKey("LandmarkFrame") && colours.ContainsKey("AnchoredTile") &&
+               colours.ContainsKey("DryTile") && colours.ContainsKey("WetTile") && colours.ContainsKey("SolvedTile"),
+            "WaterChannel, WetPipe, DryChannel, LandmarkFrame, AnchoredTile, DryTile, WetTile and SolvedTile parsed from MosseloraTheme.cs");
         return colours;
     }
 

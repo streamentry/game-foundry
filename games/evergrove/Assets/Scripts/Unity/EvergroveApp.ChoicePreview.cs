@@ -102,8 +102,10 @@ namespace Evergrove.UnityClient
                     GameLocalization.Text("stream", choicePreview.WorldAfter.Round + 1, PuzzleCatalog.Count),
                     15, 0, Ink, TextAnchor.MiddleCenter));
                 BuildPreviewAnchor(nextStream.transform, choicePreview);
+                // Vision run 20261128-1801 idea 2: the preview uses the same words the board will use,
+                // so the named cause here matches the protected pipe after confirmation.
                 Label(nextStream.transform, "Next stream preview rule",
-                    LocalizedVillage.EnvironmentalRule(choicePreview.WorldAfter),
+                    LandmarkCause.For(choicePreview.WorldAfter),
                     16, 0, Ink, TextAnchor.MiddleCenter);
             }
 

@@ -23,6 +23,11 @@ internal static class LinkedForkChapterTests
     private const int ExpectedByLevelLargestStep = 2;
     private static readonly int[] ExpectedByLevelSeeds = { 5, 7, 0, 19, 4, 128, 70, 55, 51, 213, 111, 3 };
     private static readonly int[] ExpectedByLevelWork = { 4, 4, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17 };
+    private static readonly int[][] ExpectedReach =
+    {
+        new[] { 2, 48, 302 }, new[] { 3, 62, 355 }, new[] { 4, 51, 338 }, new[] { 5, 25, 163 },
+        new[] { 6, 9, 58 }, new[] { 7, 1, 8 }, new[] { 8, 1, 8 },
+    };
     private static int assertions;
 
     private static void Expect(bool ok, string message)
@@ -177,7 +182,45 @@ internal static class LinkedForkChapterTests
         Expect(SameInts(byLevel, ExpectedByLevelSeeds), "locked by-level chapter seeds");
         Expect(SameInts(byLevelWork, ExpectedByLevelWork), "locked by-level chapter work sequence");
         Expect(byLevelStep == ExpectedByLevelLargestStep, "locked by-level largest step");
+
+        // Reach against work (vision run 20261128-1801): does a board whose A and B sit further apart cost more work?
+        Expect(LinkedForkChapter.WorkByReach(0).Length == 0, "reach of zero seeds is empty");
+        Expect(LinkedForkChapter.WorkByReach(-1).Length == 0, "reach of a negative limit is empty");
+        int[][] reach = LinkedForkChapter.WorkByReach(WideLimit);
+        int[][] reachAgain = LinkedForkChapter.WorkByReach(WideLimit);
+        Expect(SameRows(reach, reachAgain), "reach is deterministic");
+        int reachBoards = 0;
+        for (int i = 0; i < reach.Length; i++)
+        {
+            Expect(reach[i].Length == 3, "reach row has distance, boards and work");
+            Expect(reach[i][0] >= 2, "reach distance is at least two (A and B are non-adjacent)");
+            Expect(reach[i][1] > 0, "reach row has at least one board");
+            if (i > 0) Expect(reach[i][0] > reach[i - 1][0], "reach rows ascend by distance");
+            reachBoards += reach[i][1];
+        }
+        Expect(reachBoards == ExpectedWideQualifying, "reach boards sum to the wide qualifying count");
+        Expect(LinkedForkChapter.DrawByLevel(1000, WideLimit).Length == reachBoards,
+            "by-level draw of 1000 returns every qualifying seed");
+        // Finding (vision run 20261128-1801): mean work by reach is mixed, not a clear rise. Distances 2 to 4 hold 161
+        // boards with means 6.29, 5.73, 6.63; distances 5 and 6 (25 and 9 boards) mean 6.52 and 6.44. The only boards at
+        // reach 7 and 8 are single boards with work 8 (mean 8.00), which is too few to call a trend.
+        Console.WriteLine("LinkedForkChapter reach: rows " + JoinRows(reach));
+        Expect(SameRows(reach, ExpectedReach), "locked work by reach rows");
         return assertions;
+    }
+
+    private static bool SameRows(int[][] a, int[][] b)
+    {
+        if (a.Length != b.Length) return false;
+        for (int i = 0; i < a.Length; i++) if (!SameInts(a[i], b[i])) return false;
+        return true;
+    }
+
+    private static string JoinRows(int[][] rows)
+    {
+        var parts = new List<string>();
+        foreach (int[] row in rows) parts.Add(Join(row));
+        return string.Join(" ", parts);
     }
 
     private static bool SameInts(int[] a, int[] b)
