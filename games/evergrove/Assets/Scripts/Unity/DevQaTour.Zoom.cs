@@ -8,7 +8,8 @@ namespace Evergrove.UnityClient
     /// <summary>
     /// Checklist 91, the zoom: the densest boards open whole (cells resting, the picture takes the tap),
     /// then zoom in on the centre, where every cell is at least 48 pt. The touch scan runs at each shot
-    /// (DevQaTour.Touch.cs), so both states are measured. Part of the dev QA tour; the same guard applies.
+    /// (DevQaTour.Touch.cs), so both states are measured. Each card is closed before the next opens.
+    /// Part of the dev QA tour; the same guard applies.
     /// </summary>
     public sealed partial class DevQaTour
     {
@@ -30,6 +31,10 @@ namespace Evergrove.UnityClient
                 SavePng("28-zoom-" + name + "-in.png");
                 app.QaZoomTreePlay(false);
                 for (int f = 0; f < 2; f++) yield return null;
+                // Close the card (its own close button), then forget it: an open card would sit behind the hub
+                // and pollute the reach audit (DevQaTour.Reach.cs) and every later tour step.
+                Press("Close tree puzzle");
+                for (int f = 0; f < 4; f++) yield return null;
                 app.QaEndTreePlay();
                 for (int f = 0; f < 4; f++) yield return null;
             }

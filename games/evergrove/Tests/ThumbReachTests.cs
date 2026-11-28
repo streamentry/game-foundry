@@ -118,8 +118,9 @@ internal static class ThumbReachTests
         Expect(menu.Contains("columnRect.pivot = new Vector2(onRight ? 1f : 0f, 0f);"), "the fan's pivot is its bottom corner on the menu's side");
         Expect(menu.Contains("columnRect.position = corners[onRight ? 2 : 1] + new Vector3(0f, 12f * canvasRoot.lossyScale.y, 0f);"),
             "the fan hangs one gap above the button's top corner on the menu's side");
-        Expect(menu.Contains("float room = (screenCorners[1].y - columnRect.position.y)"),
-            "the room is measured from the fan's foot up to the top of the screen");
+        Expect(menu.Contains("float fromFoot = (screenCorners[1].y - columnRect.position.y)") &&
+               menu.Contains("float room = Mathf.Min(fromFoot - headMargin, fromFoot - reachTop);"),
+            "the room is measured from the fan's foot up to the top of the screen, then limited to the one-thumb band");
         int arrange = menu.IndexOf("tokens = ArrangeFan(tokens);", StringComparison.Ordinal);
         int rows = menu.IndexOf("stack.constraintCount = FanOrder.RowsThatFit(room, FanCell, FanGap, tokens.Count);", StringComparison.Ordinal);
         Expect(arrange > 0 && rows > arrange, "the fan is ordered before its rows are fitted");
@@ -135,9 +136,11 @@ internal static class ThumbReachTests
             "ReachShots is a DevQaTour partial");
         Expect(tour.Contains("app.QaShowHub(true);") && tour.Contains("WaitForSecondsRealtime(0.4f)"),
             "the hub is shown and settled first");
-        Expect(tour.Contains("LogReach(\"hub\"") && tour.Contains("LogReach(\"fan\"") &&
-               tour.Contains("Debug.Log(\"MOSSELORA_REACH \" + scope + \" \" + control.name + \" \" + (reachable ? \"reachable\" : \"out\"));"),
-            "every hub and fan control is logged as MOSSELORA_REACH reachable or out");
+        Expect(tour.Contains("LogReach(\"hub\"") && tour.Contains("LogReach(\"fan\"") && tour.Contains("LogReach(\"card\""),
+            "the hub, the fan and the puzzle card are logged");
+        Expect(tour.Contains("Debug.Log(\"MOSSELORA_REACH \" + scope + \" \" + control.name + \" \" + status);") &&
+               tour.Contains("status = \"swipe\";") && tour.Contains("status = \"out\";"),
+            "every control is logged as MOSSELORA_REACH reachable, out or swipe");
         Expect(tour.Contains("Debug.Log(\"MOSSELORA_REACH summary out \" + missed);"), "the summary is logged");
         Expect(tour.Contains("SavePng(\"29-reach-hub.png\")") && tour.Contains("SavePng(\"29-reach-fan.png\")"),
             "the tour saves the hub and the fan");

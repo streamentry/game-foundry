@@ -26,6 +26,17 @@ namespace Evergrove.Core
         public const float LandscapeSideShare = 0.45f;
 
         /// <summary>
+        /// Checklist 94: how far down from the top of a screen of this height the one-thumb band begins
+        /// (points, y down): a third of the height in portrait, a quarter in landscape. A height that is
+        /// not a positive finite number gives 0, so nothing is cut off. Pure.
+        /// </summary>
+        public static float TopOfReach(float height, bool portrait)
+        {
+            if (!(height > 0f) || float.IsInfinity(height)) return 0f;
+            return height * (portrait ? PortraitTopShare : LandscapeTopShare);
+        }
+
+        /// <summary>
         /// True when a target centred at (x, y) on a width x height screen is reachable one-handed.
         /// A centre off the screen, or a screen with no usable size, is never reachable.
         /// </summary>

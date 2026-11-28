@@ -114,6 +114,7 @@ namespace Evergrove.UnityClient
                 
                 MosseloraTheme.QuietAction, Close, true);
             EvergroveApp.PlaceBack(node.transform.Find("Close family").GetComponent<RectTransform>());
+            SwipeToClose.Attach(node.GetComponent<RectTransform>(), Close, !ReducedMotion()); // checklist 94
 
             // v1 #91: the body scrolls inside the card when the screen is too short, so the card never
             // shrinks its 52-56 pt controls below the 48 pt touch minimum (it used to scale to 75%).

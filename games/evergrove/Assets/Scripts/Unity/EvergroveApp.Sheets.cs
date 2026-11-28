@@ -292,6 +292,8 @@ namespace Evergrove.UnityClient
             Button button = IconButton(panel, name, GameLocalization.Text("close"), MosseloraArt.IconCancel,
                 () => close(), 56, MosseloraTheme.QuietAction); // 56: BackPlacement.Size, enforced by PlaceBack
             PlaceBack(button.GetComponent<RectTransform>());
+            // Checklist 94: a downward swipe on the sheet closes it, with the same action as the button.
+            SwipeToClose.Attach(panel.GetComponent<RectTransform>(), close, gentleMotion);
             // After the paper grain, before the pages: read first, drawn clear of the pages.
             button.transform.SetSiblingIndex(Mathf.Min(1, panel.childCount - 1));
         }

@@ -286,11 +286,16 @@ namespace Evergrove.UnityClient
                     columnRect.position = corners[onRight ? 2 : 1] + new Vector3(0f, 12f * canvasRoot.lossyScale.y, 0f);
                     break;
                 }
-            // How many tokens fit up the screen from here, below the top of the safe area.
+            // How many tokens fit up from here: below the top of the safe area, and no higher than the one-thumb
+            // band (checklist 94: a third of the screen in portrait, a quarter in landscape). A longer fan wraps
+            // into another column rather than climbing out of reach.
             var screenCorners = new Vector3[4];
             canvasRoot.GetWorldCorners(screenCorners);
             float headMargin = (Mathf.Max(0f, Screen.height - safe.yMax) / h) * canvasRoot.rect.height + FanFootMargin;
-            float room = (screenCorners[1].y - columnRect.position.y) / Mathf.Max(0.0001f, canvasRoot.lossyScale.y) - headMargin;
+            float fromFoot = (screenCorners[1].y - columnRect.position.y) / Mathf.Max(0.0001f, canvasRoot.lossyScale.y);
+            bool portrait = canvasRoot.rect.height > canvasRoot.rect.width;
+            float reachTop = ThumbReach.TopOfReach(canvasRoot.rect.height, portrait);
+            float room = Mathf.Min(fromFoot - headMargin, fromFoot - reachTop);
             stack.constraintCount = FanOrder.RowsThatFit(room, FanCell, FanGap, tokens.Count);
             if (gentleMotion)
                 for (int i = 0; i < tokens.Count; i++) StartCoroutine(FanIn(tokens[i], i * 0.045f));
