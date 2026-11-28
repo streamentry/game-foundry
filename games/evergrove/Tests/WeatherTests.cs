@@ -65,6 +65,22 @@ internal static class WeatherTests
         Expect(DayWeather.Rain(Weather.Rainy) && !DayWeather.Rain(Weather.Fair), "rain falls on rainy days");
         Expect(DayWeather.WindStrength(Weather.Windy) > DayWeather.WindStrength(Weather.Fair), "wind blows harder on windy days");
         Expect(DayWeather.SnowfallCount(Weather.Snowy) > SeasonLook.DriftCount(Drift.Snow), "snowy days snow harder than winter's usual");
+        // Founder, 2026-11-28: falling snow is weather, so with the weather shown it falls only on a snowy day.
+        // Snow still lies all winter (SeasonLook.SnowLying); petals and leaves drift whatever the sky.
+        foreach (Weather w in new[] { Weather.Fair, Weather.Rainy, Weather.Windy, Weather.Hot, Weather.Snowy })
+        {
+            foreach (DayPhase phase in new[] { DayPhase.Dawn, DayPhase.Morning, DayPhase.Day, DayPhase.Golden })
+            {
+                Expect(GardenSeason.DriftOf(Season.Winter, phase, w) == (w == Weather.Snowy ? Drift.Snow : Drift.None),
+                    "winter snow falls only on a snowy day (" + w + ", " + phase + ")");
+                Expect(GardenSeason.DriftOf(Season.Spring, phase, w) == Drift.Petals, "spring petals whatever the sky (" + w + ")");
+                Expect(GardenSeason.DriftOf(Season.Autumn, phase, w) == Drift.Leaves, "autumn leaves whatever the sky (" + w + ")");
+                Expect(GardenSeason.DriftOf(Season.Summer, phase, w) == Drift.None, "summer is still (" + w + ")");
+            }
+            foreach (DayPhase phase in new[] { DayPhase.Dusk, DayPhase.Night })
+                Expect(GardenSeason.DriftOf(Season.Winter, phase, w) == Drift.None, "nothing drifts in the dark (" + w + ")");
+        }
+        Expect(SeasonLook.SnowLying(Season.Winter) > 0f, "snow still lies on a fair winter day");
         // I358: each neighbour notices the weather in their own way: Mira through the trees,
         // Orin by what's built, Fen by the flowers. Calm, true, and different from each other.
         foreach (Weather w in new[] { Weather.Rainy, Weather.Windy, Weather.Hot, Weather.Snowy })

@@ -180,8 +180,10 @@ namespace Evergrove.UnityClient
                 ? DayLight.Dew(visitPhase, GardenSeason.For(garden)) : Dew.None; // I366
             // I295: the season's drift by day; it follows the season even with the light switch off.
             bool living = garden != null && garden.Mode == PlayMode.Living;
-            GardenMapView.DriftNow = living ? GardenSeason.DriftOf(GardenSeason.For(garden),
-                DayLightOn ? DayLight.PhaseAt(hour, minute) : DayPhase.Day) : Drift.None;
+            // Founder 2026-11-28: with the weather shown, winter snow falls only on a snowy day.
+            GardenMapView.DriftNow = !living ? Drift.None : DayLightOn
+                ? GardenSeason.DriftOf(GardenSeason.For(garden), DayLight.PhaseAt(hour, minute), TodayWeather(garden))
+                : GardenSeason.DriftOf(GardenSeason.For(garden), DayPhase.Day);
         }
 
         // A painted picture in a token keeps its colours (not tinted like a glyph).

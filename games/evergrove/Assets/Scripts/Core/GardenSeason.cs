@@ -72,5 +72,17 @@ namespace Evergrove.Core
             return season == Season.Spring ? Drift.Petals : season == Season.Autumn ? Drift.Leaves
                 : season == Season.Winter ? Drift.Snow : Drift.None;
         }
+
+        /// <summary>
+        /// The drift with the day's weather shown (founder, 2026-11-28): falling snow is weather, so in
+        /// winter it falls only on a snowy day; a fair winter day keeps the lying snow and no flakes.
+        /// Petals and leaves drift whatever the sky. With the light off no weather is shown, so the
+        /// two-argument rule above, which follows the season alone, still applies there.
+        /// </summary>
+        public static Drift DriftOf(Season season, DayPhase phase, Weather weather)
+        {
+            Drift drift = DriftOf(season, phase);
+            return drift == Drift.Snow && weather != Weather.Snowy ? Drift.None : drift;
+        }
     }
 }

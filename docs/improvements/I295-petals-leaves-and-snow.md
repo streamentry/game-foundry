@@ -23,3 +23,9 @@ Summer is still, and its evenings have the fireflies (I279). There are 10 to 18 
 ## Result
 
 The seasons now move. To check with players: whether the drift is calming or distracting, and whether it gets in the way of reading the map.
+
+## Change, 2026-11-28 (founder)
+
+Falling snow is weather, so with the day's weather shown it now falls only on a snowy winter day. On a fair, rainy or windy winter day the snow still lies on the ground (and keeps its footprints), but no flakes fall. Before this, a fair winter day showed flakes while a neighbour might say "Upstream it's raining today". Petals and leaves still drift whatever the sky. With the light off no weather is shown, so winter keeps its light snowfall there.
+
+- `GardenSeason.DriftOf(Season, DayPhase, Weather)` gives the drift with the weather shown. `ApplyDayLight` uses it when the light is on, and the two-argument rule when it is off. Tested in `WeatherTests` (red first, then green).
