@@ -66,6 +66,10 @@ def check_line(kind: str, voice: str, line: str, rules: dict) -> list[str]:
     filled = SLOT.sub(lambda m: rules["longest"].get(m.group(1), m.group(0)), line)
     if len(filled) > rules["maxChars"]:
         problems.append(f"{len(filled)} chars filled with the longest values (max {rules['maxChars']})")
+    # CP24: readable at 150% text; counted after filling, the same as the character limit.
+    words = len(filled.split())
+    if words > rules["maxWords"]:
+        problems.append(f"{words} words filled with the longest values (max {rules['maxWords']})")
     if "!" in line:
         problems.append("exclamation mark")
     if re.search(r"\d", line):

@@ -242,6 +242,7 @@ internal static class LineBankTests
                     string text = en.Speak(fact, speaker, world.Garden, context.DayNumber, CompanionMemory.Empty, out int variant);
                     Expect(text != null && variant >= 0 && !text.Contains("{") && !text.Contains("}"), "English speaks " + fact + ": " + text);
                     Expect(text.Length <= rules.MaxChars, "within " + rules.MaxChars + " characters: " + text);
+                    Expect(text.Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Length <= rules.MaxWords, "within " + rules.MaxWords + " words: " + text);
                     spoken.Add(fact.Kind);
                 }
         foreach (var kind in rules.Kinds)
@@ -387,7 +388,7 @@ internal static class LineBankTests
 
     private sealed class Rules
     {
-        public int MaxChars;
+        public int MaxChars, MaxWords;
         public Dictionary<string, KindRule> Kinds;
         public Dictionary<string, string> Longest;
         public List<string> Banned, ChildSafe, TimeClaims, SubjectVerbs;
@@ -414,6 +415,7 @@ internal static class LineBankTests
             }
             return new Rules {
                 MaxChars = r.GetProperty("maxChars").GetInt32(),
+                MaxWords = r.GetProperty("maxWords").GetInt32(), // CP24: readable length
                 Kinds = kinds,
                 Longest = r.GetProperty("longest").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()),
                 Banned = List(r.GetProperty("banned")), ChildSafe = List(r.GetProperty("childSafe")),
@@ -437,6 +439,8 @@ internal static class LineBankTests
                 if (!rule.Slots.Contains(slot)) problems.Add("slot {" + slot + "} not filled by " + kind);
             string filled = Regex.Replace(line, @"\{([^{}]*)\}", m => Longest.TryGetValue(m.Groups[1].Value, out string v) ? v : m.Value);
             if (filled.Length > MaxChars) problems.Add(filled.Length + " chars when filled");
+            int words = filled.Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Length; // CP24
+            if (words > MaxWords) problems.Add(words + " words when filled (max " + MaxWords + ")");
             if (line.Contains("!")) problems.Add("exclamation mark");
             if (Regex.IsMatch(line, @"\d")) problems.Add("a number");
             string lower = filled.ToLowerInvariant();

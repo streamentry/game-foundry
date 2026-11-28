@@ -1,4 +1,4 @@
-"""Offline tests for the Mosselora companion line bank checker (CP22 near-duplicates).
+"""Offline tests for the Mosselora companion line bank checker (CP22 near-duplicates, CP24 length).
 
 Uses synthetic banks and rules in temporary directories; never reads the shipped bank.
 """
@@ -24,6 +24,7 @@ _spec.loader.exec_module(checker)
 
 SYNTHETIC_RULES = {
     "maxChars": 200,
+    "maxWords": 28,
     "longest": {"thing": "a fern"},
     "banned": [],
     "childSafe": [],
@@ -128,14 +129,43 @@ class OpeningWordTests(unittest.TestCase):
         self.assertEqual([], checker.opening_words("en.json", bank))
 
 
+class ReadableLengthTests(unittest.TestCase):
+    """CP24: a line over maxWords words, once filled with the longest values, is a problem."""
+
+    def _rules(self, max_words: int) -> dict:
+        return {**SYNTHETIC_RULES, "maxWords": max_words}
+
+    def test_line_over_the_word_limit_is_a_problem(self) -> None:
+        problems = checker.check_line("FruitGiven", "0", "One two three four five six.", self._rules(5))
+        self.assertEqual(1, len(problems))
+        self.assertIn("6 words", problems[0])
+        self.assertIn("max 5", problems[0])
+
+    def test_line_at_the_word_limit_passes(self) -> None:
+        self.assertEqual([], checker.check_line("FruitGiven", "0", "One two three four five.", self._rules(5)))
+
+    def test_slots_count_their_longest_words(self) -> None:
+        # Raw: "I see {thing} now." is 4 words; filled with "a fern" it is 5, so a limit of 4 refuses it.
+        problems = checker.check_line("FruitGiven", "0", "I see {thing} now.", self._rules(4))
+        self.assertTrue(any("5 words" in p for p in problems), problems)
+
+    def test_main_exits_nonzero_for_a_long_line(self) -> None:
+        bank = {"FruitGiven": {"0": [DIFFERENT_A, "One two three four five six."]}}
+        code, out = StrictFlagTests._run_bank(bank, {**SYNTHETIC_RULES, "maxWords": 5})
+        self.assertEqual(1, code)
+        self.assertIn("FAIL en.json: FruitGiven/0 #2", out)
+        self.assertIn("6 words", out)
+
+
 class StrictFlagTests(unittest.TestCase):
-    def _run_main(self, bank: dict, *args: str) -> tuple[int, str]:
+    @staticmethod
+    def _run_bank(bank: dict, rules: dict, *args: str) -> tuple[int, str]:
         with tempfile.TemporaryDirectory() as tmp:
             banks = Path(tmp) / "Lines"
             banks.mkdir()
             (banks / "en.json").write_text(json.dumps(bank), encoding="utf-8")
             rules_path = Path(tmp) / "rules.json"
-            rules_path.write_text(json.dumps(SYNTHETIC_RULES), encoding="utf-8")
+            rules_path.write_text(json.dumps(rules), encoding="utf-8")
             out = io.StringIO()
             with patch.object(checker, "BANKS", banks), \
                     patch.object(checker, "RULES", rules_path), \
@@ -144,6 +174,9 @@ class StrictFlagTests(unittest.TestCase):
                     contextlib.redirect_stdout(out):
                 code = checker.main()
             return code, out.getvalue()
+
+    def _run_main(self, bank: dict, *args: str) -> tuple[int, str]:
+        return self._run_bank(bank, SYNTHETIC_RULES, *args)
 
     def test_warning_does_not_fail_by_default(self) -> None:
         bank = {"FruitGiven": {"0": [NEAR_A, NEAR_B]}}
