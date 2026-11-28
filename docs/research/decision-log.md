@@ -1099,3 +1099,21 @@ The batch 30 reach audit found these out of one-thumb reach in portrait: every s
 | The puzzle card's top-row controls in portrait | They move to a row at the card's foot, beside undo. The thing's picture and the seed pill stay at the top |
 
 The fan stops growing into the out-of-reach top third and wraps into another column instead; that is an engineering fix, not a design call.
+
+## 2026-11-28 — Mosselora Day-7 retention threshold, declared before any launch data (founder; v1 item 98)
+
+Declared before launch, with no player data in existence, so the result cannot be fitted to it afterwards.
+
+| Day-7 retention of the first launch cohort | Decision |
+| --- | --- |
+| **15% or more** | Continue: keep building on the current game |
+| **8% up to (not including) 15%** | Iterate: one more cycle focused on the first week, then measure a new cohort against the same bar |
+| **Under 8%** | Stop or pivot: do not invest further in this design without new evidence |
+
+- **Definition:** of new players who open the app on day 0, the share who open it again on day 7 (calendar days, the player's local time), counted per launch cohort.
+- **Minimum cohort:** at least 200 new players before the bar is read. A smaller cohort is reported, not decided on.
+- **Counted per store and age band where available,** following the AGENTS.md rule not to generalise across bands.
+- **Source of the numbers:** the founder chose this bar, 2026-11-28. No external benchmark is cited, and none is claimed; the bar is a declared decision rule, not an industry figure.
+- **Not yet measurable:** the game has no install attribution or retention instrumentation yet. Item 95, crash reporting with consent, and the store-release items must land first, with privacy disclosure.
+
+Other founder calls the same day: item 75, recipes, is gift or display only, with no economy change; item 42 gives each stretch one of the existing three neighbours (Mira, Orin or Fen), with no new characters.
