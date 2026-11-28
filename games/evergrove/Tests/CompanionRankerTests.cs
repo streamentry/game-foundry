@@ -29,6 +29,7 @@ internal static class CompanionRankerTests
         Repeats();
         Visits();
         Sharing();
+        OrderIndependence();
         Variants();
         GoldenHash();
         MemoryText();
@@ -150,6 +151,84 @@ internal static class CompanionRankerTests
         var only = new List<Fact> { F(FactKind.WeatherToday, -1, "weather:Hot", 5) };
         Fact[] picky = CompanionRanker.Allot(only, CompanionMemory.Empty, day, 1, (f, k) => k == 2);
         Expect(picky[0] == null && picky[1] == null && picky[2] != null, "canSay is respected");
+    }
+
+    // CP05: the choice must not depend on the order of the fact list. Each list is shuffled 50 times
+    // with one fixed-seed Random; Allot and Pick must name the same Fact.Key per neighbour as the
+    // unshuffled list, with an empty memory and with a few remarks already heard.
+    private static void OrderIndependence()
+    {
+        GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 2);
+        var lists = new List<KeyValuePair<string, List<Fact>>>();
+        var contextsGrown = new[] { 3, 9, GardenCatalog.ChaptersPerGarden }; // CP05: 12 chapters is the most a garden has
+        foreach (int grown in contextsGrown)
+        {
+            WorldModel world = CompanionFactsTests.Grown(grown);
+            int index = 0;
+            foreach (CompanionContext context in CompanionFactsTests.Contexts(map))
+            {
+                index++;
+                lists.Add(new KeyValuePair<string, List<Fact>>("grown " + grown + " context " + index + " day " + context.DayNumber + " garden " + world.Garden,
+                    new List<Fact>(CompanionFacts.For(world, context))));
+            }
+        }
+        lists.Add(new KeyValuePair<string, List<Fact>>("hand-made, anyone-facts and equal weights", new List<Fact> {
+            F(FactKind.WeatherToday, Fact.AnyKeeper, "weather:Rainy", 5),
+            F(FactKind.Hour, Fact.AnyKeeper, "hour:Dusk", 5),
+            F(FactKind.KindSolved, 0, "solved:Water:1", 15),
+            F(FactKind.KindSolved, 1, "solved:Mosaic:2", 15),
+            F(FactKind.KindSolved, 1, "solved:Pairs:3", 15),
+            F(FactKind.NewestThing, 2, "newest:3:4", 15),
+            F(FactKind.NewestThing, 2, "newest:5:6", 15),
+        }));
+
+        const int day = 9100, garden = 5;
+        var rng = new Random(2026);
+        foreach (KeyValuePair<string, List<Fact>> list in lists)
+        {
+            List<Fact> facts = list.Value;
+            // A few remarks already heard: the first, third and fifth facts, by different voices.
+            CompanionMemory heard = CompanionMemory.Empty;
+            for (int i = 0; i < facts.Count && i < 5; i += 2)
+                heard = heard.With(new Heard(day - 1, i % 3, facts[i].Kind, -1, facts[i].Key));
+            foreach (CompanionMemory memory in new[] { CompanionMemory.Empty, heard })
+            {
+                Fact[] baseline = CompanionRanker.Allot(facts, memory, day, garden);
+                Fact[] baselinePicks = new Fact[3];
+                for (int k = 0; k < 3; k++) baselinePicks[k] = CompanionRanker.Pick(facts, memory, k, day, garden);
+                for (int shuffle = 0; shuffle < 50; shuffle++)
+                {
+                    List<Fact> shuffled = Shuffled(facts, rng);
+                    Fact[] said = CompanionRanker.Allot(shuffled, memory, day, garden);
+                    for (int k = 0; k < 3; k++)
+                    {
+                        Expect(KeyOf(said[k]) == KeyOf(baseline[k]),
+                            "Allot order-independent for neighbour " + k + " (" + list.Key + ", shuffle " + shuffle + "): "
+                            + KeyOf(said[k]) + " vs " + KeyOf(baseline[k]));
+                        Expect(KeyOf(CompanionRanker.Pick(shuffled, memory, k, day, garden)) == KeyOf(baselinePicks[k]),
+                            "Pick order-independent for speaker " + k + " (" + list.Key + ", shuffle " + shuffle + ")");
+                    }
+                }
+            }
+        }
+    }
+
+    private static List<Fact> Shuffled(List<Fact> facts, Random rng)
+    {
+        var copy = new List<Fact>(facts);
+        for (int i = copy.Count - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            Fact swap = copy[i];
+            copy[i] = copy[j];
+            copy[j] = swap;
+        }
+        return copy;
+    }
+
+    private static string KeyOf(Fact fact)
+    {
+        return fact == null ? null : fact.Key;
     }
 
     private static void Variants()
