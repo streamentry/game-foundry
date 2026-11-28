@@ -1049,7 +1049,7 @@ No model runs on the phone; nothing is generated at runtime.
 **Never claim** from this work: that the companion improves wellbeing, memory, connection or loneliness; that adults 40+ remember or like the remarks; that it works in other languages.
 
 
-## 2026-11-28: Mosselora v1 design calls for items 11, 38 and 91 (founder)
+## 2026-11-28 — Mosselora v1 design calls for items 11, 38 and 91 (founder)
 
 The founder chose the recommended option in each case, so the checklist items that were waiting can be built:
 
