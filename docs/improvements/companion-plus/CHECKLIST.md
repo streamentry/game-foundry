@@ -24,7 +24,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 
 ### A. Memory and ranker robustness
 
-- [ ] **CP01 Corrupt memory never throws.** `CompanionMemory.Parse` skips malformed rows. A fuzz test over 1,000 random strings must never throw.
+- [x] **CP01 Corrupt memory never throws.** `CompanionMemory.Parse` skips malformed rows. A fuzz test over 1,000 random strings must never throw. Done: Already true; test added (CompanionMemoryTests: 1,000 seeded fuzz strings never throw, garbage rows dropped, valid row kept, round trip).
 - [ ] **CP02 Clock moved back.** A remark dated after today (the device clock was changed) is treated as said today, not dropped and not blocking forever. Once-facts stay said.
 - [ ] **CP03 Pruning keeps what was said.** Over `MaxEntries`, drop older repeats of a key before any key's only entry, so `EverSaid` survives the cap.
 - [ ] **CP04 Golden hash.** Pin `CompanionRanker.Hash` outputs for fixed inputs, so a refactor can't silently reshuffle tours.
