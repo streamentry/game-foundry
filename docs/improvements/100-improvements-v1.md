@@ -132,7 +132,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 - [ ] **95. Crash reporting with consent.** Add a privacy-reviewed crash reporter that is off until accepted. *Test:* the privacy label matches what's collected.
 - [x] **96. Save is never lost.** Use journaled saves (SaveJournal) with a visible "saved" mark and an export to Files. *Test:* a fuzz test that kills the app during save.
 - [ ] **97. Real playtest with adults aged 40+.** Run the daily-loop kit with 8–12 players across the 40–49, 50–64 and 65+ age bands, for 7 days. *Test:* the written report goes in the decision log.
-- [ ] **98. Set the Day-7 threshold before launch.** Write down the retention number that would mean "continue" or "stop" before any data exists. *Test:* the number is in the decision log, dated.
+- [x] **98. Set the Day-7 threshold before launch.** Write down the retention number that would mean "continue" or "stop" before any data exists. *Test:* the number is in the decision log, dated.
 - [ ] **99. Store-ready checks.** Check Apple 4.3 uniqueness, the privacy disclosure, the age rating with family play, screenshots of real play, and an English (US) listing. *Test:* `docs/store-publishing-workflow.md` checklist all ticked; submission only with explicit authorization.
 - [ ] **100. Delete what didn't earn its place.** After the playtest, remove any feature that no player used or understood, following the AGENTS.md delete-before-optimise rule. *Test:* a list of removed features with the evidence for each.
 
