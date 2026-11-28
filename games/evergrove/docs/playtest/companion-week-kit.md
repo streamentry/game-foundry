@@ -18,6 +18,7 @@ The spec's assumption, stated plainly so it can fail: *players feel "noticed and
 - A development build from `main` with SC01–SC06 merged, on the participant's own iPhone (TestFlight or a cable install). Record the commit hash.
 - English only. Other languages keep their story lines, unchanged, so they can't test the companion.
 - The research diary on, as in the [measurement decision](../specs/proposals/measurement-decision-2026-11-24.md): local open dates only.
+- How the companion chooses and words its remarks, with every constant: [companion architecture](../specs/companion-architecture.md).
 - What a neighbour said is kept only on the phone (`evergrove:companion-heard:<garden>` in PlayerPrefs). No build exports it yet (see Limits).
 
 ## Day 1: a 20-minute session, observed, uncoached
