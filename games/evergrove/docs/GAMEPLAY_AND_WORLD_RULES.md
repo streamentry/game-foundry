@@ -161,4 +161,10 @@ The .NET suite checks the base 12 boards, 33 transformed puzzles' unique solutio
 
 **Undo hands the turn back (vision run 20261128-1001):** while taking turns, undo and redo set the turn to whoever's it was at that undo step (`TurnLedger`, session-only, never saved). Not every recorded step passes the turn (lifting a piece, a reshuffle, a multi-step hint), so the turn is looked up by step, not stepped back once per undo. Changing the number of players clears the ledger.
 
+**Forked streams and depth (vision run 20261128-1101):** `ForkBoards` (not wired into play) builds 5×5 boards whose answer is a branching stream: a spanning tree with three-way fork tiles, no four-way tiles, at least three forks, one unique answer. For seeds 0–99, 100 boards were made (4–9 forks, median 6). Arc-consistency deduction fully solves 86 of them; 14 need guessing (1 guess: 2 boards, 2–5: 11, 6: 1). Forks are the first measured mechanic that sometimes breaks local forcing.
+
+**The table stays set (vision run 20261128-1101):** the take-turns player count carries from one board to the next for the rest of the app session (a static field, never saved). After each board finished together, the next board starts on the next person round the table (`TakeTurns.StartingTurn`), and the undo ledger records that starting turn. Setting the token back to alone ends the table.
+
+**Tile openings and thing captions (vision run 20261128-1101):** in English, each puzzle tile's screen-reader label adds which way it opens (`TileOpenings.Words`: "Opens up and right."). Holding a chosen thing on the garden map shows `ThingStory` ("Quince tree, chosen after stream 3. Four streams have run past it since."), in Living mode only; plantings, bought things, visited gardens and other languages keep the family label.
+
 **Reconsidering takes the thing's marks with it (vision run 20261128-1001):** `ReconsiderLatestChoice` now also removes the reconsidered thing's "solved together" and "helped by" marks. Before, they stayed on that index: the next thing chosen inherited them, and a save written in between failed validation on reload.

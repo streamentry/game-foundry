@@ -169,3 +169,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Undo and redo hand the turn back by step (`TurnLedger`, items 39 and 48). Tests: `TurnBackTests`. Tour and device: not run.
 - Pipe channels and ink proven against every tile and panel they sit on (`ThemeContrastTests`, item 92). No colour changed.
 - Copied garden file starts with a plain header line; import accepts it or not (`GardenTransfer.ExportForPeople`). Tests: `GardenFileHeaderTests`. Tour and device: not run.
+
+## Vision run 20261128-1101 (outside the v1 checklist)
+
+- Forked streams measured: `ForkBoards` (5×5, three-way forks, not wired) yields 100/100 unique boards; 14 of 100 need guessing after deduction, the first mechanic to break local forcing. Tests: `ForkBoardsTests`.
+- Holding a chosen thing on the map tells its story in streams ("chosen after stream 3…"), Living mode and English only (`ThingStory`). Tests: `ThingStoryTests`. Tour and device: not run.
+- Take turns keeps the table's size across boards for the session and rotates who starts (`TakeTurns.StartingTurn`, never saved). Tests: `TableSetTests`. Tour and device: not run.
+- Water vs dry channel colour check under three colour-vision simulations (`ColourVision`, item 92): **finding, not fixed**: contrast 1.00–1.22:1, hue-only difference. Tests: `ColourVisionTests` (locks today's distance). Art review needed.
+- Screen-reader tile labels say which way each pipe opens, English only (`TileOpenings`, item 93). Tests: `TileOpeningsTests`. VoiceOver/TalkBack: not run.
