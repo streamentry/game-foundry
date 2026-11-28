@@ -382,12 +382,8 @@ namespace Evergrove.UnityClient
                 // I310: Nan left a lantern by the cottage (it glows at night below).
                 app.QaLantern();
                 // I299: the cottage's summary, what's waiting at a glance (and who left lanterns).
-                app.OpenCottage();
-                for (int f = 0; f < 6; f++) yield return null;
-                yield return new WaitForSecondsRealtime(0.3f);
-                yield return new WaitForEndOfFrame();
-                SavePng("17j5-cottage.png");
-                app.CloseCottage();
+                // DevQaTour.Cottage.cs: 17j5-cottage*.png, every line. Stepped inline so the pump in Start still catches its errors.
+                for (IEnumerator shots = CottageShots(); shots.MoveNext();) yield return shots.Current;
                 for (int f = 0; f < 4; f++) yield return null;
                 // I319: the lookout, the whole river at once.
                 app.QaQuiet(true, true);
