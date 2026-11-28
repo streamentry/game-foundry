@@ -20,6 +20,9 @@ internal static class LinkedForkChapterTests
     private static readonly int[] ExpectedWideWork = { 4, 4, 4, 4, 4, 6, 6, 6, 8, 8, 9, 17 };
     private static readonly int[] ExpectedSeeds = { 5, 15, 24, 35, 46, 2, 11, 37, 20, 47, 4, 3 };
     private static readonly int[] ExpectedWork = { 4, 4, 4, 4, 4, 6, 6, 6, 8, 8, 9, 17 };
+    private const int ExpectedByLevelLargestStep = 2;
+    private static readonly int[] ExpectedByLevelSeeds = { 5, 7, 0, 19, 4, 128, 70, 55, 51, 213, 111, 3 };
+    private static readonly int[] ExpectedByLevelWork = { 4, 4, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17 };
     private static int assertions;
 
     private static void Expect(bool ok, string message)
@@ -139,6 +142,41 @@ internal static class LinkedForkChapterTests
         Expect(SameInts(wide, ExpectedWideSeeds), "locked wide chapter seeds");
         Expect(SameInts(wideWork, ExpectedWideWork), "locked wide chapter work sequence");
         Expect(wideStep == ExpectedWideLargestStep, "locked wide largest step (the 9 to 17 cliff is still there)");
+
+        // Drawn by work level (vision run 20261128-1701): the 240-seed range has 11 work levels, so the 12-board draw
+        // takes every level once and then one extra board from the gentlest level, which closes the 9 to 17 cliff.
+        int[] byLevel = LinkedForkChapter.DrawByLevel(Length, WideLimit);
+        Expect(byLevel.Length == Length, "by-level draw returns 12 seeds");
+        var byLevelWork = new int[byLevel.Length];
+        var byLevelSeen = new HashSet<int>();
+        for (int i = 0; i < byLevel.Length; i++)
+        {
+            Expect(byLevel[i] >= 0 && byLevel[i] < WideLimit, "by-level seed is in range");
+            Expect(byLevelSeen.Add(byLevel[i]), "by-level seeds are distinct");
+            byLevelWork[i] = LinkedForkChapter.Work(byLevel[i]);
+            if (i > 0) Expect(byLevelWork[i] >= byLevelWork[i - 1], "by-level work is non-decreasing along the chapter");
+        }
+        int byLevelStep = LinkedForkChapter.LargestStep(byLevel);
+        Console.WriteLine("LinkedForkChapter by level: limit " + WideLimit + " seeds " + Join(byLevel) + " work " + Join(byLevelWork) +
+            "; largest step " + byLevelStep);
+        Expect(byLevelWork[0] == 4, "the by-level chapter opens on the gentlest level");
+        Expect(byLevelWork[byLevelWork.Length - 1] == 17, "the by-level chapter closes on the firmest level");
+        Expect(byLevelStep <= 2, "the by-level chapter has no step larger than 2");
+        Expect(LinkedForkChapter.DrawByLevel(0, WideLimit).Length == 0, "by-level zero length gives empty");
+        Expect(LinkedForkChapter.DrawByLevel(Length, 0).Length == 0, "by-level zero seed limit gives empty");
+
+        int[] threeLevels = LinkedForkChapter.DrawByLevel(3, WideLimit);
+        Expect(threeLevels.Length == 3, "by-level draw of three returns three seeds");
+        int threeFirst = LinkedForkChapter.Work(threeLevels[0]);
+        int threeMiddle = LinkedForkChapter.Work(threeLevels[1]);
+        int threeLast = LinkedForkChapter.Work(threeLevels[2]);
+        Expect(threeFirst == 4, "three-board by-level draw opens on work 4");
+        Expect(threeMiddle > 4 && threeMiddle < 17, "three-board by-level draw has a middle level");
+        Expect(threeLast == 17, "three-board by-level draw closes on work 17");
+
+        Expect(SameInts(byLevel, ExpectedByLevelSeeds), "locked by-level chapter seeds");
+        Expect(SameInts(byLevelWork, ExpectedByLevelWork), "locked by-level chapter work sequence");
+        Expect(byLevelStep == ExpectedByLevelLargestStep, "locked by-level largest step");
         return assertions;
     }
 

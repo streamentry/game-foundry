@@ -83,6 +83,18 @@ internal static class SeasonLookTests
         Expect(SeasonLook.River(Season.Winter) == RiverLook.IceEdged && SeasonLook.River(Season.Autumn) == RiverLook.LeavesAfloat &&
                SeasonLook.River(Season.Spring) == RiverLook.Running && SeasonLook.River(Season.Summer) == RiverLook.Sparkling,
             "the river changes with the year");
+        // Leaves ride the river only when a deciduous tree on the map drops them.
+        Expect(SeasonLook.River(Season.Autumn, 0) == RiverLook.Running && SeasonLook.River(Season.Autumn, -1) == RiverLook.Running,
+            "autumn with no falling tree keeps the river running");
+        Expect(SeasonLook.River(Season.Autumn, 1) == RiverLook.LeavesAfloat && SeasonLook.River(Season.Autumn, 5) == RiverLook.LeavesAfloat,
+            "autumn with a falling tree carries leaves");
+        foreach (Season s in new[] { Season.Spring, Season.Summer, Season.Winter })
+            Expect(SeasonLook.River(s, 0) == SeasonLook.River(s) && SeasonLook.River(s, 3) == SeasonLook.River(s),
+                "the river is unchanged by trees outside autumn: " + s);
+        // The one-argument overload is unchanged for every season.
+        Expect(SeasonLook.River(Season.Spring) == RiverLook.Running && SeasonLook.River(Season.Summer) == RiverLook.Sparkling
+            && SeasonLook.River(Season.Autumn) == RiverLook.LeavesAfloat && SeasonLook.River(Season.Winter) == RiverLook.IceEdged,
+            "the one-argument river is unchanged");
         return assertions;
     }
 

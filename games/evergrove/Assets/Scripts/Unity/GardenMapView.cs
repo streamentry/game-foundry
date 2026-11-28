@@ -792,7 +792,7 @@ namespace Evergrove.UnityClient
                 nodes.Add(roofRect);
             }
             // I342: the river through the year, drawn on the real water cells (a few, never all).
-            RiverLook riverLook = SeasonLook.River(SeasonNow);
+            RiverLook riverLook = SeasonLook.River(SeasonNow, FallingTrees(items));
             if (riverLook != RiverLook.Running)
             {
                 int drawn = 0;

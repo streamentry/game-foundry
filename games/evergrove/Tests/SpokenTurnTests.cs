@@ -27,23 +27,39 @@ internal static class SpokenTurnTests
         Expect(TakeTurns.Spoken(0, -2) == "Playing alone.", "negative players is playing alone");
 
         // Every turn for two to four players.
-        string[] ordinals = { "First", "Second", "Third", "Fourth" };
+        string[] names = { "Sage", "Honey", "Sky", "Rose" };
+        string[] ordinals = { "first", "second", "third", "fourth" };
         string[] counts = { "two", "three", "four" };
         for (int players = 2; players <= 4; players++)
         {
             for (int turn = 0; turn < players; turn++)
             {
-                string expected = ordinals[turn] + " player's turn, of " + counts[players - 2] + ".";
+                string expected = names[turn] + "'s turn, " + ordinals[turn] + " of " + counts[players - 2] + ".";
                 Expect(TakeTurns.Spoken(turn, players) == expected,
                     "turn " + turn + " of " + players + " is \"" + expected + "\"");
             }
         }
-        Expect(TakeTurns.Spoken(1, 3) == "Second player's turn, of three.", "the example line reads as written");
+        Expect(TakeTurns.Spoken(1, 3) == "Honey's turn, second of three.", "the example line reads as written");
+        Expect(TakeTurns.Spoken(0, 2) == "Sage's turn, first of two.", "turn 0 of two is sage, first of two");
+        Expect(TakeTurns.Spoken(3, 4) == "Rose's turn, fourth of four.", "turn 3 of four is rose, fourth of four");
 
-        // Wrap-around, including negative turns.
+        // Wrap-around, including negative turns and turns at or past the count, never throwing.
         Expect(TakeTurns.Spoken(2, 2) == TakeTurns.Spoken(0, 2), "turn 2 of two wraps to the first player");
-        Expect(TakeTurns.Spoken(-1, 3) == "Third player's turn, of three.", "turn -1 of three is the third player");
-        Expect(TakeTurns.Spoken(0, 9) == "First player's turn, of four.", "more than four players clamps to four");
+        Expect(TakeTurns.Spoken(-1, 3) == "Sky's turn, third of three.", "turn -1 of three is the third player");
+        Expect(TakeTurns.Spoken(-4, 4) == TakeTurns.Spoken(0, 4), "turn -4 of four wraps to the first player");
+        Expect(TakeTurns.Spoken(int.MinValue, 4).Length > 0, "the smallest turn does not throw");
+        Expect(TakeTurns.Spoken(int.MaxValue, 4).Length > 0, "the largest turn does not throw");
+        for (int players = 2; players <= 4; players++)
+        {
+            for (int turn = -9; turn <= 9; turn++)
+            {
+                int who = ((turn % players) + players) % players;
+                Expect(TakeTurns.Spoken(turn, players) == TakeTurns.Spoken(who, players),
+                    "turn " + turn + " of " + players + " wraps to seat " + who);
+            }
+        }
+        Expect(TakeTurns.Spoken(0, 9) == "Sage's turn, first of four.", "more than four players clamps to four");
+        Expect(TakeTurns.Spoken(3, 9) == "Rose's turn, fourth of four.", "a turn of three in a huge table is rose");
 
         // Every line is short enough for a caption.
         for (int players = -1; players <= 9; players++)

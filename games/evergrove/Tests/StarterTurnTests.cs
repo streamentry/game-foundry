@@ -21,7 +21,8 @@ internal static class StarterTurnTests
     {
         assertions = 0;
 
-        string[] ordinals = { "First", "Second", "Third", "Fourth" };
+        string[] names = { "Sage", "Honey", "Sky", "Rose" };
+        string[] ordinals = { "first", "second", "third", "fourth" };
         string[] counts = { "two", "three", "four" };
 
         // The starter line for every table of two to four, every starting turn.
@@ -29,12 +30,12 @@ internal static class StarterTurnTests
         {
             for (int turn = 0; turn < players; turn++)
             {
-                string expected = ordinals[turn] + " player starts, of " + counts[players - 2] + ".";
+                string expected = names[turn] + " starts, " + ordinals[turn] + " of " + counts[players - 2] + ".";
                 Expect(TakeTurns.SpokenStart(turn, players) == expected,
                     "start " + turn + " of " + players + " is \"" + expected + "\"");
             }
         }
-        Expect(TakeTurns.SpokenStart(1, 3) == "Second player starts, of three.", "the example line reads as written");
+        Expect(TakeTurns.SpokenStart(1, 3) == "Honey starts, second of three.", "the example line reads as written");
 
         // Alone, or a player count that cannot be a table: the plain alone line.
         Expect(TakeTurns.SpokenStart(0, 1) == "Playing alone.", "one player is playing alone");
@@ -43,12 +44,12 @@ internal static class StarterTurnTests
         Expect(TakeTurns.SpokenStart(2, -1) == "Playing alone.", "negative players is playing alone");
 
         // More than four players clamps to four; odd turns wrap round the table, never throw.
-        Expect(TakeTurns.SpokenStart(0, 9) == "First player starts, of four.", "more than four players clamps to four");
-        Expect(TakeTurns.SpokenStart(-1, 3) == "Third player starts, of three.", "turn -1 of three is the third player");
+        Expect(TakeTurns.SpokenStart(0, 9) == "Sage starts, first of four.", "more than four players clamps to four");
+        Expect(TakeTurns.SpokenStart(-1, 3) == "Sky starts, third of three.", "turn -1 of three is the third player");
         Expect(TakeTurns.SpokenStart(-5, 2) == TakeTurns.SpokenStart(1, 2), "a negative turn wraps without throwing");
         Expect(TakeTurns.SpokenStart(int.MinValue, 4).Length > 0, "the smallest turn does not throw");
         Expect(TakeTurns.SpokenStart(int.MaxValue, 4).Length > 0, "the largest turn does not throw");
-        Expect(TakeTurns.SpokenStart(0, int.MaxValue) == "First player starts, of four.", "a huge table clamps to four");
+        Expect(TakeTurns.SpokenStart(0, int.MaxValue) == "Sage starts, first of four.", "a huge table clamps to four");
         Expect(TakeTurns.SpokenStart(0, int.MinValue) == "Playing alone.", "a huge negative table is playing alone");
 
         // Every starter line is short enough for a caption.

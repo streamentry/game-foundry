@@ -73,7 +73,7 @@ internal static class ReconsiderTruthTests
         bool distinct = !Mentions(bItem, aItem) && !Mentions(aItem, bItem);
 
         // Before the swap: the save names A's item in the lantern letter and the landmark line names A.
-        Expect(LandmarkCause.For(world) == LandmarkCause.Line(a, board), tag + ": landmark names A before swap");
+        Expect(LandmarkCause.For(world) == LandmarkCause.Line(a, board, aItem), tag + ": landmark names A before swap");
         foreach (int day in days)
             Expect(Mentions(DayRhythm.LanternWords(day, world), aItem), tag + ": lantern names A before swap on " + day);
 
@@ -96,8 +96,8 @@ internal static class ReconsiderTruthTests
 
         // Landmark: exactly the line for B, and no A wording.
         string landmark = LandmarkCause.For(world);
-        Expect(landmark == LandmarkCause.Line(b, board), tag + ": landmark names B after swap (exact line, so no A wording)");
-        Expect(landmark != LandmarkCause.Line(a, board), tag + ": landmark differs from the A line");
+        Expect(landmark == LandmarkCause.Line(b, board, bItem), tag + ": landmark names B after swap (exact line, so no A wording)");
+        Expect(landmark != LandmarkCause.Line(a, board, aItem), tag + ": landmark differs from the A line");
 
         // Lantern: names B's item, never A's (when the names are distinct).
         foreach (int day in days)

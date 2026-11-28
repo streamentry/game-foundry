@@ -31,6 +31,18 @@ namespace Evergrove.Core
             return new float[] { source[0], source[1], source[2] };
         }
 
+        private static readonly string[] Names = { "sage", "honey", "sky", "rose" };
+
+        /// <summary>
+        /// The palette's own paint names, so a seat can be called by the colour its pip shows. Wraps like
+        /// <see cref="Rgb"/>: the same index gives the same colour. Never throws.
+        /// </summary>
+        public static string Name(int turn)
+        {
+            int index = ((turn % Count) + Count) % Count;
+            return Names[index];
+        }
+
         /// <summary>WCAG 1.4.11 non-text contrast a seat's pip must reach on the card it sits on.</summary>
         public const double PipContrast = 3.0;
 

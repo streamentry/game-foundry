@@ -7,6 +7,8 @@ namespace Evergrove.Core
     /// The sentence is shown only when the saved state proves the link: a live,
     /// unfinished garden whose current board variant matches the most recent
     /// choice. Other states, and every non-English locale, keep the generic line.
+    /// When proven, the sentence names the specific tree, flower or building the
+    /// choice grew in this garden (GardenCatalog); otherwise it names the family.
     /// </summary>
     public static class LandmarkCause
     {
@@ -34,27 +36,66 @@ namespace Evergrove.Core
         }
 
         /// <summary>
-        /// Truthful wrapper for the app. Returns the specific cause only when the saved
+        /// Pure sentence naming the specific item (for example "quince tree" or "lavender").
+        /// A blank <paramref name="itemName"/> falls back to <see cref="Line(VillageChoice, string)"/>.
+        /// Passive voice, so plural and mass names read correctly.
+        /// </summary>
+        public static string Line(VillageChoice choice, string boardName, string itemName)
+        {
+            if (string.IsNullOrWhiteSpace(itemName)) return Line(choice, boardName);
+            string board = BoardOnly(boardName);
+            string from = board.Length == 0 ? "" : " from " + board;
+            string item = itemName.Trim();
+            switch (choice)
+            {
+                case VillageChoice.ShadeTree:
+                    return "This pipe is rooted in place by your " + item + from + ".";
+                case VillageChoice.Bridge:
+                    return "This pipe is held in place by your " + item + from + ".";
+                case VillageChoice.Flowers:
+                    return "This pipe is kept in place by your " + item + from + ".";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(choice));
+            }
+        }
+
+        /// <summary>
+        /// The proven, item-named line, or "" when the saved state does not prove the cause
+        /// (null world, fresh or puzzle-only or matched worlds, completed gardens, a board
+        /// variant that does not match the last choice, or a non-English locale).
+        /// </summary>
+        public static string Specific(WorldModel world)
+        {
+            if (world == null) return "";
+            if (world.Completed || world.Mode != PlayMode.Living) return "";
+
+            int[] choices = world.Choices;
+            if (choices.Length == 0) return "";
+
+            int last = choices.Length - 1;
+            int chosen = choices[last];
+            if (chosen < 0 || chosen > 2) return "";
+            if (world.BoardVariant != chosen + 1) return "";
+            if (GameLocalization.Current != GameLocalization.Fallback) return "";
+
+            // Choose() records choice i while Round == i (board i just solved); Advance() then
+            // applies that choice's variant to board i + 1. So the cause lives on board i.
+            var choice = (VillageChoice)chosen;
+            string board = PuzzleCatalog.Get(last).Name;
+            if (world.Garden < 0 || last >= GardenCatalog.ChaptersPerGarden)
+                return Line(choice, board);
+            return Line(choice, board, GardenCatalog.For(world.Garden, last, choice).Name);
+        }
+
+        /// <summary>
+        /// Truthful wrapper for the app. Returns the specific, item-named cause when the saved
         /// board variant proves it; otherwise the generic environmental line.
         /// </summary>
         public static string For(WorldModel world)
         {
             if (world == null) return "";
-            string generic = LocalizedVillage.EnvironmentalRule(world);
-            if (world.Completed || world.Mode != PlayMode.Living) return generic;
-
-            int[] choices = world.Choices;
-            if (choices.Length == 0) return generic;
-
-            int last = choices.Length - 1;
-            int chosen = choices[last];
-            if (chosen < 0 || chosen > 2) return generic;
-            if (world.BoardVariant != chosen + 1) return generic;
-            if (GameLocalization.Current != GameLocalization.Fallback) return generic;
-
-            // Choose() records choice i while Round == i (board i just solved); Advance() then
-            // applies that choice's variant to board i + 1. So the cause lives on board i.
-            return Line((VillageChoice)chosen, PuzzleCatalog.Get(last).Name);
+            string specific = Specific(world);
+            return specific.Length > 0 ? specific : LocalizedVillage.EnvironmentalRule(world);
         }
 
         private static string BoardOnly(string boardName)

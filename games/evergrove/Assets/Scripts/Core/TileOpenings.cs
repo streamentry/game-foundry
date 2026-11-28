@@ -48,5 +48,21 @@ namespace Evergrove.Core
                 ? "Turn this tile"
                 : "Turn this tile. " + words;
         }
+
+        /// <summary>
+        /// Caption that, when anchored and <paramref name="cause"/> is non-blank, replaces the bare
+        /// "This tile stays where it is." with the cause sentence (for example the village choice
+        /// that keeps the pipe in place), then adds the openings. A missing final punctuation mark
+        /// is supplied. Otherwise identical to the three-argument Caption.
+        /// </summary>
+        public static string Caption(bool anchored, PipeKind kind, int rotation, string cause)
+        {
+            if (!anchored || string.IsNullOrWhiteSpace(cause)) return Caption(anchored, kind, rotation);
+            string sentence = cause.Trim();
+            char end = sentence[sentence.Length - 1];
+            if (end != '.' && end != '!' && end != '?') sentence += ".";
+            string words = Words(kind, rotation);
+            return words.Length == 0 ? sentence : sentence + " " + words;
+        }
     }
 }

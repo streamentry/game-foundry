@@ -99,6 +99,26 @@ internal static class TurnPaletteTests
         float[] three = TurnPalette.Rgb(3);
         Expect(minusOne[0] == three[0] && minusOne[1] == three[1] && minusOne[2] == three[2], "Rgb(-1) equals Rgb(3)");
 
+        // Paint names: each seat is named by the colour its pip shows, and wraps like Rgb.
+        Expect(TurnPalette.Name(0) == "sage", "seat 0 is sage");
+        Expect(TurnPalette.Name(1) == "honey", "seat 1 is honey");
+        Expect(TurnPalette.Name(2) == "sky", "seat 2 is sky");
+        Expect(TurnPalette.Name(3) == "rose", "seat 3 is rose");
+        Expect(TurnPalette.Name(4) == "sage", "Name(4) wraps to sage");
+        Expect(TurnPalette.Name(-1) == "rose", "Name(-1) wraps to rose");
+        Expect(TurnPalette.Name(5) == "honey", "Name(5) wraps to honey");
+        Expect(TurnPalette.Name(int.MinValue).Length > 0, "the smallest turn names a colour without throwing");
+        Expect(TurnPalette.Name(int.MaxValue).Length > 0, "the largest turn names a colour without throwing");
+        for (int turn = -9; turn <= 9; turn++)
+        {
+            int index = ((turn % TurnPalette.Count) + TurnPalette.Count) % TurnPalette.Count;
+            float[] named = TurnPalette.Rgb(turn);
+            float[] byIndex = TurnPalette.Rgb(index);
+            Expect(TurnPalette.Name(turn) == TurnPalette.Name(index), "Name(" + turn + ") matches its index " + index);
+            Expect(named[0] == byIndex[0] && named[1] == byIndex[1] && named[2] == byIndex[2],
+                "Name(" + turn + ") names the same index Rgb uses");
+        }
+
         // Luminance and contrast.
         Expect(Math.Abs(TurnPalette.Luminance(1f, 1f, 1f) - 1.0) < 1e-9, "white has luminance 1");
         Expect(TurnPalette.Luminance(0f, 0f, 0f) == 0.0, "black has luminance 0");
