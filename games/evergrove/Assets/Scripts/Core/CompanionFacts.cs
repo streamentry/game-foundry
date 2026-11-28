@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 
 namespace Evergrove.Core
 {
@@ -135,11 +136,12 @@ namespace Evergrove.Core
         public CompanionContext(DateTime today, DateTime? lastSeen = null, int lettersRead = 0,
             Weather weather = Weather.Fair, bool lightOn = false, DayPhase phase = DayPhase.Day,
             int fruitJustGivenTo = -1, int togetherKeeper = -1, PuzzleKind togetherKind = PuzzleKind.Water,
-            GardenMap map = null, int[] hourCounts = null, int togetherPlayers = 2)
+            GardenMap map = null, int[] hourCounts = null, int togetherPlayers = 2, DateTime? localNow = null)
         {
             TogetherPlayers = togetherPlayers;
             HourCounts = hourCounts == null ? null : Array.AsReadOnly((int[])hourCounts.Clone());
             Today = today.Date;
+            LocalNow = localNow;
             LastSeen = lastSeen;
             LettersRead = Math.Max(0, lettersRead);
             Weather = weather;
@@ -151,12 +153,31 @@ namespace Evergrove.Core
             Map = map;
         }
 
-        /// <summary>Days since 2000-01-01 for the local date: the ranker's and memory's day number.</summary>
-        public int DayNumber { get { return DayNumberOf(Today); } }
+        /// <summary>CP42: the local clock time the companion's day is read from, or null when the date is the day.
+        /// Facts never read this: weather, season, rain coming and the last visit use <see cref="Today"/>.</summary>
+        public DateTime? LocalNow { get; }
+
+        /// <summary>CP42: the companion's day turns at this hour, so a 00:30 visit still belongs to the evening before.</summary>
+        public const int DayTurnsAtHour = 4;
+
+        /// <summary>Days since 2000-01-01 for the companion's day: the ranker's and memory's day number.</summary>
+        public int DayNumber { get { return LocalNow.HasValue ? CompanionDayOf(LocalNow.Value) : DayNumberOf(Today); } }
 
         public static int DayNumberOf(DateTime date)
         {
             return (int)(date.Date - new DateTime(2000, 1, 1)).TotalDays;
+        }
+
+        /// <summary>CP42: the companion's day for a local clock time: the date, once it has turned at <see cref="DayTurnsAtHour"/>.</summary>
+        public static int CompanionDayOf(DateTime localNow)
+        {
+            return DayNumberOf((localNow - TimeSpan.FromHours(DayTurnsAtHour)).Date);
+        }
+
+        /// <summary>CP39: the calendar date of a day number (the inverse of <see cref="DayNumberOf"/>), for the playtest export.</summary>
+        public static DateTime DateOfDay(int dayNumber)
+        {
+            return new DateTime(2000, 1, 1).AddDays(dayNumber);
         }
     }
 
@@ -207,7 +228,10 @@ namespace Evergrove.Core
                 facts.Add(Make(FactKind.WeatherToday, Fact.AnyKeeper,
                     "weather:" + context.Weather, AmbientWeight, false, false, 10 * Step,
                     "weather", context.Weather.ToString()));
-            if (RiverWeather.RainComing(context.Today, world.Garden, GardenSeason.For(world)))
+            // CP50 (tour c11l): the rain-coming lines assume a dry day ("anything to dry outside, today's the
+            // day"), so the news is only told when today isn't wet already.
+            if (context.Weather != Weather.Rainy && context.Weather != Weather.Snowy &&
+                RiverWeather.RainComing(context.Today, world.Garden, GardenSeason.For(world)))
                 facts.Add(Make(FactKind.RainComing, 1, "rain-coming:" + context.Today.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
                     AmbientWeight, false, false, 10 * Step + 60, LegacyOffSlot, "1"));
             if (context.LightOn && DayLight.Remark(0, context.Phase, GardenSeason.For(world)) != null)
@@ -246,8 +270,9 @@ namespace Evergrove.Core
             string[] mail = world.Letters;
             if (mail.Length == 0 || context.LettersRead >= mail.Length) return;
             string name = world.LetterFrom[mail.Length - 1];
+            // CP33: the slot holds the tidy name; the key keeps the typed one (memory stores keys).
             facts.Add(Make(FactKind.LetterWaiting, 1, "letter:" + name + ":" + mail.Length, WaitingWeight, true, false,
-                3 * Step, "name", name));
+                3 * Step, "name", TidyName(name)));
         }
 
         private static void Gifts(WorldModel world, int v, List<Fact> facts)
@@ -272,7 +297,7 @@ namespace Evergrove.Core
             if (item >= made.Length || world.TreeSolved(item)) return;
             PuzzleKind kind = ThingPuzzle.ForStory(item, (VillageChoice)Math.Max(0, Math.Min(2, made[item])));
             facts.Add(Make(FactKind.HelpedBy, NeighbourNotice.OwnerOf(kind), "helped:" + item, WaitingWeight, true, false,
-                5 * Step, "name", world.HelpedBy(item), "puzzle", kind.ToString(), "work", WorkOf(kind), "item", Num(item)));
+                5 * Step, "name", TidyName(world.HelpedBy(item)), "puzzle", kind.ToString(), "work", WorkOf(kind), "item", Num(item)));
         }
 
         private static void Arrival(WorldModel world, int v, List<Fact> facts)
@@ -408,6 +433,12 @@ namespace Evergrove.Core
                             "pairing", p.ToString(), LegacyOffSlot, "1")));
         }
 
+        /// <summary>CP13: the kinds said once for good. <see cref="Once"/> marks exactly these; memory keeps them past its window.</summary>
+        public static bool IsOnceKind(FactKind kind)
+        {
+            return kind == FactKind.WishProgress || kind == FactKind.SeasonTurned || kind == FactKind.YieldGiven || kind == FactKind.PairingFound;
+        }
+
         private static Fact Once(Fact f)
         {
             return new Fact(f.Kind, f.Keeper, f.Key, f.Slots, f.Weight, f.Waiting, f.Fresh, f.LegacyOrder, true);
@@ -481,6 +512,105 @@ namespace Evergrove.Core
             return map.DistanceToWater(cell) <= 1 ? "by the creek"
                 : row <= 3 && column >= 5 ? "by the cottage"
                 : row >= map.Rows - 4 ? "down the valley" : "in the meadow";
+        }
+
+        /// <summary>The most text elements a typed name keeps in a slot (CP33).</summary>
+        public const int MaxNameElements = 24;
+
+        /// <summary>
+        /// CP33: a typed name for a {name} slot. Trims; control characters and { } | are dropped; whitespace
+        /// runs (tabs and newlines too) become one space, so "a|b\nc" is "ab c" and "Bà\tNội" is "Bà Nội".
+        /// Keeps at most <see cref="MaxNameElements"/> text elements, so an emoji or accent is never split,
+        /// with no ellipsis. Null or nothing left is "".
+        /// </summary>
+        public static string TidyName(string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return "";
+            var sb = new StringBuilder(raw.Length);
+            bool gap = false;
+            foreach (char c in raw)
+            {
+                if (c == '{' || c == '}' || c == '|') continue;
+                if (char.IsWhiteSpace(c)) { gap = true; continue; }
+                if (char.IsControl(c)) continue;
+                if (gap && sb.Length > 0) sb.Append(' ');
+                gap = false;
+                sb.Append(c);
+            }
+            string text = sb.ToString();
+            var info = new StringInfo(text);
+            if (info.LengthInTextElements > MaxNameElements)
+                text = info.SubstringByTextElements(0, MaxNameElements).TrimEnd();
+            return text;
+        }
+
+        /// <summary>
+        /// CP37: a pure fingerprint of every input <see cref="For"/> reads, so a cached fact list is never stale.
+        /// Equal signatures mean equal facts. Free text is length-prefixed, so no value can imitate another.
+        /// The Unity side appends Time.frameCount. Hour counts are the whole vector, not a sum: two different
+        /// vectors can share a total.
+        /// </summary>
+        public static string Signature(WorldModel world, CompanionContext context)
+        {
+            var sb = new StringBuilder();
+            if (world == null) sb.Append("no-world;");
+            else
+            {
+                // PuzzlesSolved and NewestSolvedThing cover the solves (they only grow); the rest are the arrays For reads.
+                sb.Append("w:").Append((int)world.Mode).Append(';').Append(world.Garden).Append(';')
+                  .Append(world.Round).Append(';').Append(world.Completed ? 1 : 0).Append(';')
+                  .Append(world.PuzzlesSolved).Append(';').Append(world.NewestSolvedThing).Append(';')
+                  .Append(world.PairingsFound).Append(';').Append(world.YieldTaken).Append(';')
+                  .Append(world.LastFruitTo).Append(';')
+                  .Append(world.FruitGivenTo(0)).Append(',').Append(world.FruitGivenTo(1)).Append(',')
+                  .Append(world.FruitGivenTo(2)).Append(';');
+                Ints(sb, world.Choices);
+                Ints(sb, world.Placements);
+                Ints(sb, world.Gifts);
+                Ints(sb, world.Bought);
+                Ints(sb, world.Helped);
+                Texts(sb, world.Letters);
+                Texts(sb, world.LetterFrom);
+                Texts(sb, world.HelpedFrom);
+                Text(sb, world.GardenName);
+            }
+            if (context == null) sb.Append("no-context;");
+            else
+            {
+                sb.Append("c:").Append(CompanionContext.DayNumberOf(context.Today)).Append(';')
+                  .Append("d:").Append(context.DayNumber).Append(';') // CP42: the companion's day turns at 4 a.m.
+                  .Append(context.LastSeen.HasValue ? CompanionContext.DayNumberOf(context.LastSeen.Value) : -1).Append(';')
+                  .Append(context.LettersRead).Append(';').Append((int)context.Weather).Append(';')
+                  .Append(context.LightOn ? 1 : 0).Append(';').Append((int)context.Phase).Append(';')
+                  .Append(context.FruitJustGivenTo).Append(';').Append(context.TogetherKeeper).Append(';')
+                  .Append((int)context.TogetherKind).Append(';').Append(context.TogetherPlayers).Append(';');
+                if (context.Map == null) sb.Append("no-map;");
+                else sb.Append(context.Map.Rows).Append(',').Append(context.Map.Columns).Append(',')
+                    .Append(context.Map.Reaches).Append(';');
+                if (context.HourCounts == null) sb.Append("no-hours;");
+                else Ints(sb, context.HourCounts);
+            }
+            return sb.ToString();
+        }
+
+        private static void Ints(StringBuilder sb, IReadOnlyList<int> values)
+        {
+            sb.Append('[').Append(values.Count);
+            foreach (int v in values) sb.Append(',').Append(v);
+            sb.Append("];");
+        }
+
+        private static void Texts(StringBuilder sb, IReadOnlyList<string> values)
+        {
+            sb.Append('[').Append(values.Count).Append(';');
+            foreach (string v in values) Text(sb, v);
+            sb.Append("];");
+        }
+
+        private static void Text(StringBuilder sb, string value)
+        {
+            if (value == null) sb.Append("-;");
+            else sb.Append(value.Length).Append(':').Append(value).Append(';');
         }
 
         private static string Num(int n)

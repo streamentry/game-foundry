@@ -37,6 +37,15 @@ namespace Evergrove.Core
             return Weather.Fair;
         }
 
+        /// <summary>Whether the season ever draws this weather (snow only in winter, heat only in summer).
+        /// A scripted tour day must pass it, so no shot shows a day the game can't have.</summary>
+        public static bool Possible(Weather weather, Season season)
+        {
+            int w = (int)weather;
+            int[] chances = Chances[Math.Max(0, Math.Min(3, (int)season))];
+            return w >= 0 && w < chances.Length && chances[w] > 0;
+        }
+
         /// <summary>A neighbour's true word about the day, or null on a fair day (nothing to say).</summary>
         public static string Remark(Weather weather)
         {

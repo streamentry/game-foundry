@@ -309,8 +309,8 @@ namespace Evergrove.UnityClient
             if (world.PlantingCount == 0 && gentleMotion) BloomPulse.Add(basket.gameObject, 0.8f, 0.08f);
             // SC05: one soft mark where the top waiting thing lives. When that's a cutting, the
             // basket wears the gift ribbon (B5's honey, never red): content waiting, never a count.
-            if (world.Gifts.Length > 0 && CompanionAttention.Mark(CompanionFacts.For(world, CompanionNow()),
-                    CompanionContext.DayNumberOf(CompanionToday()), world.Garden) == Attention.Basket)
+            if (world.Gifts.Length > 0 && CompanionAttention.Mark(CompanionFactsNow(),
+                    CompanionDayNow(), world.Garden) == Attention.Basket)
             {
                 Image ribbon = MosseloraArt.Ornament(basket.transform, "A cutting is waiting", MosseloraArt.Rounded(8),
                     new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(20f, 20f), new Vector2(-8f, -8f));

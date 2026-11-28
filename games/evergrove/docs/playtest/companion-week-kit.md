@@ -13,12 +13,21 @@ The spec's assumption, stated plainly so it can fail: *players feel "noticed and
 - 5 to 10 adults who already play casual games on their own phone, split across bands **40–49, 50–64 and 65+**. Report each band separately; never pool to "40+".
 - Optional: 2 or 3 families with a child aged 7+ who plays alongside, under the [family co-play protocol](family-coplay-session.md) (consent, no child data). Children are co-players, never interviewed alone.
 
+## Pre-checks before recruiting
+
+Do these as a team, once, before the first participant. Record the outcome in the decision log with the other `TO PREDECLARE` items. They are not yet run for this kit.
+
+1. **Read the sample transcript aloud.** [sample-transcript.md](../../../../docs/improvements/companion-plus/sample-transcript.md) (CP46) is one scripted garden over 30 days, 188 lines, in context. Read it aloud as a team and note every line that would feel like pressure or being watched, or that reads wrongly, with its day number. Fix wording through the [writing guide](../specs/companion-writing-guide.md) and the checker, not by editing the kit.
+2. **Run the build's QA tour and read the why-log.** The dev tour prints `MOSSELORA_COMPANION_WHY` lines: for each neighbour and day, the top three candidate facts and why each was or wasn't chosen (kind, score, base, new, own, nag, cooldown, eligible or the reason). Use it to check that a waiting fact that has been nagging drops out of the top slot. The tour is a separate run (CP50); this kit does not count it as done.
+
 ## Build
 
-- A development build from `main` with SC01–SC06 merged, on the participant's own iPhone (TestFlight or a cable install). Record the commit hash.
+- A development build from `feat/mosselora-companion-50` (CP01–CP48 and SC01–SC07 included), on the participant's own iPhone (TestFlight or a cable install). SC04 and earlier are already on `main`; the companion branch is not yet merged, so build from the branch or from `main` after the merge.
+- **Build commit:** `3c6576fd` (the last code-bearing commit when this kit was updated; the CP49 commit is docs only). Re-check the hash at build time and record the exact one here: `_to record at build_`.
 - English only. Other languages keep their story lines, unchanged, so they can't test the companion.
 - The research diary on, as in the [measurement decision](../specs/proposals/measurement-decision-2026-11-24.md): local open dates only.
-- What a neighbour said is kept only on the phone (`evergrove:companion-heard:<garden>` in PlayerPrefs). No build exports it yet (see Limits).
+- How the companion chooses and words its remarks, with every constant: [companion architecture](../specs/companion-architecture.md).
+- What a neighbour said is kept only on the phone (`evergrove:companion-heard:<garden>` in PlayerPrefs). A development-only control copies a readable summary to the clipboard (see Day 7, step 4a). Nothing else exports it.
 
 ## Day 1: a 20-minute session, observed, uncoached
 
@@ -46,8 +55,13 @@ Ask in this order and write the answers down verbatim. Don't show the game until
 2. For each remark recalled: "Who said it?" and "Was it true of your garden?"
 3. "Did any of them repeat themselves? Which?"
 4. "Did anything they said feel like pressure, or like being watched?" (for example the hour you usually come, or a letter waiting)
+4a. **Recall check, only with consent.** Ask: "Would you like to check what the phone recorded? You can say no, and we'll skip this." If yes, the participant (not the researcher) opens the development build's research controls, taps **Copy what the neighbours said**, and pastes the text into the session notes under the participant code. Nothing else leaves the phone: the control only fills the clipboard. Do not show the text to the participant before question 5. The control is hidden while the facilitator's participant view is on, so end that view first (holding the wordmark brings the facilitator controls back, and the participant view ends from there) before handing over the phone. Not yet tested on a device.
 5. Show the old-versus-new card (below) and ask: "Which of each pair would you rather hear?"
 6. "What would you change about the neighbours?"
+
+**Using the check (step 4a).** The pasted text has one line per remark heard: date, neighbour and kind, under a header. Match each remark the participant recalled in Q1 and Q2 against it: the same neighbour, a date in the week, and a kind that is true of their garden. A match supports recall of the gist and speaker. It does not check wording, and it isn't proof of reading: the phone records each remark when it is shown, not whether it was read. Record matches and mismatches in the results table, not in the repository.
+
+**By design, it shows kinds, not exact words.** A kind is the internal fact type (for example `RainComing` or `NewArrival`), and a neighbour's name is one of the three characters (Mira, Orin or Fen; "someone" if unknown). The player's own name is not in it, and neither are the lines. So the check can confirm gist and speaker, never the exact wording. Keep the pasted text with the session notes, not in git.
 
 **Old-versus-new card.** Print five pairs, in mixed order. Each pair has one old fixed sentence (the pre-SC03 wording, from `CompanionSpeech.Legacy`) and one bank line for the same fact, for example:
 
@@ -57,7 +71,7 @@ Don't say which is which.
 
 ## Results, by band, with denominators
 
-Use [results-template.md](results-template.md). Count a remark as **recalled** when the participant gives its gist and its speaker, or gist plus a detail that matches a fact kind true of their garden.
+Use [results-template.md](results-template.md). Count a remark as **recalled** when the participant gives its gist and its speaker, or gist plus a detail that matches a fact kind true of their garden. Where step 4a was done, its match can support the count; it never replaces the participant's own recall.
 
 | Question | Suggested threshold (argue before recruiting) | The spec's stop rule |
 | --- | --- | --- |
@@ -71,9 +85,8 @@ Use [results-template.md](results-template.md). Count a remark as **recalled** w
 
 ## Limits, said plainly
 
-- **Recall can't yet be checked against what was actually said.** The heard-list lives only in PlayerPrefs on the phone. A dev-only "what the neighbours said this week" export, with the participant's consent and nothing leaving the phone without it, is a follow-up. Until then, judge recall by the fact kinds true of that garden.
-- **A waiting thing takes that neighbour's remark on every visit until it's acted on** (a cutting in the basket, an unread letter). The spec intends this, but it may read as nagging. Q3 and Q4 are where it would show.
+- **Recall is checked only where the participant agrees, and only by kinds.** The export (step 4a) shows date, neighbour and kind, not wording, and only for participants who consent. Without it, judge recall by the fact kinds true of that garden.
+- **A waiting thing can repeat, but less often.** Since CP07, a waiting fact (a cutting in the basket, an unread letter) that a neighbour has mentioned on two of the last three days (yesterday and the two before) loses 40 points for that neighbour. Other facts take the slot, and it returns when the window clears. It is a penalty, not a ban, so a waiting thing can still be picked when nothing else scores higher. The constants are `NagDays` 3, `NagTimes` 2 and `NagDamp` 40 in `Core/CompanionRanker.cs`. They are hand-set tunables, not validated; if this study is to test them, predeclare them as `TO PREDECLARE` like the thresholds above. Q3 and Q4 still watch for nagging.
 - One week can't show whether variety lasts. The bank has 20 wordings per kind and voice, and the 14-day rule means a remark heard daily won't repeat its wording within the study week.
-- `RainComing` (v1, checklist 48) speaks one fixed sentence until its drafted lines are reviewed.
 
 **Status:** not run. `age fit not validated`.

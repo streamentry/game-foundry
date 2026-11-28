@@ -35,6 +35,9 @@ namespace Evergrove.Core
         public const int KeepDays = 60;
         public const int MaxEntries = 300;
 
+        /// <summary>CP36: the PlayerPrefs key prefix; English keeps the pre-CP36 key exactly.</summary>
+        public const string StorageKeyPrefix = "evergrove:companion-heard:";
+
         private readonly Heard[] heard;
 
         public static readonly CompanionMemory Empty = new CompanionMemory(Array.Empty<Heard>());
@@ -50,10 +53,47 @@ namespace Evergrove.Core
         {
             var kept = new List<Heard>(heard.Length + 1);
             foreach (Heard h in heard)
-                if (said.Day - h.Day < KeepDays && h.Day <= said.Day) kept.Add(h);
+            {
+                // CP13: news said once stays said: its key outlives KeepDays, or it would be said again.
+                if (said.Day - h.Day >= KeepDays && !CompanionFacts.IsOnceKind(h.Kind)) continue;
+                // CP02: a remark dated after this one means the clock moved back; keep it, heard today.
+                kept.Add(h.Day > said.Day ? Redate(h, said.Day) : h);
+            }
             kept.Add(said);
-            int skip = Math.Max(0, kept.Count - MaxEntries);
-            return new CompanionMemory(kept.GetRange(skip, kept.Count - skip).ToArray());
+            return new CompanionMemory(Capped(kept));
+        }
+
+        /// <summary>
+        /// CP03: over <see cref="MaxEntries"/>, first drop the oldest older repeats (a key with a newer
+        /// entry still kept), so a key's only record survives; only if still over, drop the oldest remaining.
+        /// Order is kept, oldest first. O(n).
+        /// </summary>
+        private static Heard[] Capped(List<Heard> list)
+        {
+            int excess = list.Count - MaxEntries;
+            if (excess <= 0) return list.ToArray();
+
+            var newest = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < list.Count; i++) newest[list[i].Key] = i;
+
+            var drop = new bool[list.Count];
+            for (int i = 0; i < list.Count && excess > 0; i++)
+            {
+                if (newest[list[i].Key] == i) continue;
+                drop[i] = true;
+                excess--;
+            }
+            for (int i = 0; i < list.Count && excess > 0; i++)
+            {
+                if (drop[i]) continue;
+                drop[i] = true;
+                excess--;
+            }
+
+            var kept = new List<Heard>(MaxEntries);
+            for (int i = 0; i < list.Count; i++)
+                if (!drop[i]) kept.Add(list[i]);
+            return kept.ToArray();
         }
 
         /// <summary>The key was heard within the last <paramref name="days"/> days, today included.</summary>
@@ -61,7 +101,7 @@ namespace Evergrove.Core
         {
             string clean = Clean(key);
             foreach (Heard h in heard)
-                if (h.Key == clean && today - h.Day >= 0 && today - h.Day < days) return true;
+                if (h.Key == clean && Age(h.Day, today) < days) return true;
             return false;
         }
 
@@ -77,8 +117,20 @@ namespace Evergrove.Core
         public bool VariantWithin(FactKind kind, int speaker, int variant, int today, int days)
         {
             foreach (Heard h in heard)
-                if (h.Kind == kind && h.Speaker == speaker && h.Variant == variant && today - h.Day >= 0 && today - h.Day < days)
+                if (h.Kind == kind && h.Speaker == speaker && h.Variant == variant && Age(h.Day, today) < days)
                     return true;
+            return false;
+        }
+
+        /// <summary>
+        /// CP12: this key was heard within the last <paramref name="days"/> days with no wording to vary
+        /// (a fixed sentence, variant -1): saying it again would repeat the same words.
+        /// </summary>
+        public bool UnvariedWithin(string key, int today, int days)
+        {
+            string clean = Clean(key);
+            foreach (Heard h in heard)
+                if (h.Key == clean && h.Variant < 0 && Age(h.Day, today) < days) return true;
             return false;
         }
 
@@ -89,6 +141,39 @@ namespace Evergrove.Core
             foreach (Heard h in heard)
                 if (h.Kind == kind && h.Speaker == speaker && h.Variant == variant && h.Day > last) last = h.Day;
             return last;
+        }
+
+        // CP06: read-only helpers for the companion's turn-taking and cooldown rules.
+
+        /// <summary>The last day this speaker said anything, or int.MinValue if they never have.</summary>
+        public int LastSpoke(int speaker)
+        {
+            int last = int.MinValue;
+            foreach (Heard h in heard)
+                if (h.Speaker == speaker && h.Day > last) last = h.Day;
+            return last;
+        }
+
+        /// <summary>
+        /// How many distinct days within the last <paramref name="days"/> days (today included) this speaker
+        /// said the key. Two remarks on one day count once; a future-dated remark counts as today.
+        /// </summary>
+        public int DaysHeardBy(string key, int speaker, int today, int days)
+        {
+            string clean = Clean(key);
+            var seen = new HashSet<int>();
+            foreach (Heard h in heard)
+                if (h.Key == clean && h.Speaker == speaker && Age(h.Day, today) < days)
+                    seen.Add(Math.Min(h.Day, today));
+            return seen.Count;
+        }
+
+        /// <summary>This speaker said a remark of this kind on exactly this day.</summary>
+        public bool KindSaidOn(FactKind kind, int speaker, int day)
+        {
+            foreach (Heard h in heard)
+                if (h.Kind == kind && h.Speaker == speaker && h.Day == day) return true;
+            return false;
         }
 
         // ---- PlayerPrefs text: one remark per line, "day|speaker|kind|variant|key".
@@ -124,8 +209,76 @@ namespace Evergrove.Core
                     continue;
                 list.Add(new Heard(day, speaker, kind, variant, parts[4]));
             }
-            int skip = Math.Max(0, list.Count - MaxEntries);
-            return new CompanionMemory(list.GetRange(skip, list.Count - skip).ToArray());
+            return new CompanionMemory(Capped(list));
+        }
+
+        /// <summary>
+        /// Days since heard. CP02: a remark dated after today (the clock moved back) is age 0, heard today,
+        /// never a negative age that falls outside a window.
+        /// </summary>
+        private static int Age(int heardDay, int today)
+        {
+            return Math.Max(0, today - heardDay);
+        }
+
+        private static Heard Redate(Heard h, int day)
+        {
+            return new Heard(day, h.Speaker, h.Kind, h.Variant, h.Key);
+        }
+
+        /// <summary>
+        /// CP36: the PlayerPrefs key for one garden's memory in one language. A wording number belongs
+        /// to one language's bank, so other languages get their own key; English (or none) keeps today's.
+        /// The locale is lowercased and any character outside [a-z0-9-] becomes '-', so it cannot break the key.
+        /// </summary>
+        public static string StorageKey(int garden, string locale)
+        {
+            if (string.IsNullOrEmpty(locale) || locale.Equals(CompanionLocale.English, StringComparison.OrdinalIgnoreCase))
+                return StorageKeyPrefix + garden;
+            var safe = new StringBuilder();
+            foreach (char c in locale.ToLowerInvariant())
+                safe.Append((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' ? c : '-');
+            return StorageKeyPrefix + safe + ":" + garden;
+        }
+
+        /// <summary>
+        /// CP41: every PlayerPrefs key one garden's memory can live under: English first, then each other
+        /// locale once. Forgetting a garden (a reset) deletes all of them, so no language keeps old remarks.
+        /// </summary>
+        public static IReadOnlyList<string> StorageKeysFor(int garden, IEnumerable<string> locales)
+        {
+            var keys = new List<string> { StorageKey(garden, CompanionLocale.English) };
+            var seen = new HashSet<string>(StringComparer.Ordinal) { keys[0] };
+            if (locales == null) return keys.AsReadOnly();
+            foreach (string locale in locales)
+            {
+                if (string.IsNullOrEmpty(locale)) continue;
+                string key = StorageKey(garden, locale);
+                if (seen.Add(key)) keys.Add(key);
+            }
+            return keys.AsReadOnly();
+        }
+
+        /// <summary>
+        /// CP39: the playtest export, one line per remark, oldest first: "date · who · kind". Deliberately has
+        /// no key and no wording (a key can carry a family member's typed name), so a participant can paste it.
+        /// <paramref name="dateOfDay"/> turns a day number into a date; without it the day number is written.
+        /// </summary>
+        public string ToReadable(IReadOnlyList<string> speakerNames, Func<int, DateTime> dateOfDay = null)
+        {
+            var text = new StringBuilder("What the neighbours said (this phone only)");
+            if (heard.Length == 0) return text.Append("\nNothing yet.").ToString();
+            foreach (Heard h in heard)
+            {
+                string when = dateOfDay != null
+                    ? dateOfDay(h.Day).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    : "day " + h.Day.ToString(CultureInfo.InvariantCulture);
+                bool known = speakerNames != null && h.Speaker >= 0 && h.Speaker < speakerNames.Count
+                    && !string.IsNullOrEmpty(speakerNames[h.Speaker]);
+                string who = known ? speakerNames[h.Speaker] : "someone";
+                text.Append('\n').Append(when).Append(" · ").Append(who).Append(" · ").Append(h.Kind.ToString());
+            }
+            return text.ToString();
         }
 
         /// <summary>Keys never carry the separators (a letter-writer's name could).</summary>

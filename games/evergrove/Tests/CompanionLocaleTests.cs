@@ -23,7 +23,49 @@ internal static class CompanionLocaleTests
         assertions = 0;
         NoBankMeansUnchanged();
         AReviewedBankSpeaks();
+        ATranslatorMakesASlotSayable();
         return assertions;
+    }
+
+    // CP31: a translator for slot values. Without one nothing changes; with one a translated slot is sayable,
+    // a slot it cannot translate is not, and English ignores it.
+    private static void ATranslatorMakesASlotSayable()
+    {
+        LineBank fr = LineBank.Parse("{\"NewestThing\": {\"0\": [\"Votre {thing} {where}.\"]}}");
+        Fact newest = new Fact(FactKind.NewestThing, 0, "newest:3:1", new Dictionary<string, string> { { "thing", "quince tree" }, { "where", "by the creek" } }, 0, false, false, 0);
+        var seen = new List<string>();
+        CompanionLocale.SlotTranslator translate = (slot, value) =>
+        {
+            seen.Add(slot + "=" + value);
+            if (slot == "thing" && value == "quince tree") return "cognassier";
+            if (slot == "where" && value == "by the creek") return "près du ruisseau";
+            return null;
+        };
+
+        Expect(!CompanionLocale.CanSay("fr", fr, newest, 0), "without a translator the slot is not sayable");
+        Expect(CompanionLocale.CanSay("fr", fr, newest, 0, translate), "with a translator the slots are sayable");
+        Expect(CompanionLocale.Words("fr", fr, newest, 0, 1, 1, null, -1, out _, translate) == "Votre cognassier près du ruisseau.",
+            "translated slots fill the French line");
+        Expect(seen.Contains("thing=quince tree") && seen.Contains("where=by the creek"), "the translator sees the English values");
+        Expect(newest.Slot("thing") == "quince tree" && newest.Slot("where") == "by the creek", "the fact is not mutated");
+        Expect(CompanionLocale.Words("fr", fr, newest, 0, 1, 1, null, -1, out _) == null, "no translator, still silent");
+
+        CompanionLocale.SlotTranslator noWhere = (slot, value) => slot == "thing" ? "cognassier" : null;
+        Expect(!CompanionLocale.CanSay("fr", fr, newest, 0, noWhere), "a slot the translator returns null for is not sayable");
+        Expect(CompanionLocale.Words("fr", fr, newest, 0, 1, 1, null, -1, out _, noWhere) == null, "and no words are said");
+
+        CompanionLocale.SlotTranslator empty = (slot, value) => "";
+        Expect(!CompanionLocale.CanSay("fr", fr, newest, 0, empty), "an empty translation is not a translation");
+
+        var fruit = new Fact(FactKind.FruitGiven, 0, "fruit:0:1", new Dictionary<string, string>(), 15, false, false, 0);
+        LineBank both = LineBank.Parse("{\"FruitGiven\": {\"0\": [\"Merci pour les fruits.\"]}, \"NewestThing\": {\"0\": [\"Votre {thing} {where}.\"]}}");
+        Expect(CompanionLocale.Words("en", LineBank.Empty, newest, 0, 1, 1, null, -1, out int enVariant, translate) ==
+            CompanionLocale.Words("en", LineBank.Empty, newest, 0, 1, 1, null, -1, out int enVariantNone) && enVariant == enVariantNone,
+            "English ignores the translator (same words with and without)");
+        Expect(CompanionLocale.Words("en", both, fruit, 0, 1, 1, null, -1, out _, translate) == CompanionLocale.Words("en", both, fruit, 0, 1, 1, null, -1, out _),
+            "English with a bank ignores the translator");
+        Expect(CompanionLocale.CanSay("en", both, newest, 0, translate) == CompanionLocale.CanSay("en", both, newest, 0),
+            "English CanSay ignores the translator");
     }
 
     // Every shipped language except English has no bank today: the companion stays silent there,

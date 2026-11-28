@@ -908,17 +908,15 @@ namespace Evergrove.UnityClient
             for (int kind = 0; kind < Nursery.Kinds; kind++)
                 if (Nursery.Family(kind) == VillageChoice.ShadeTree) { week.ReceiveNeighbourCutting(kind); break; }
             app.QaReplaceWorld(week);
-            Weather[] weekWeather = { Weather.Rainy, Weather.Fair, Weather.Windy, Weather.Fair, Weather.Snowy, Weather.Fair, Weather.Hot, Weather.Fair };
+            Weather[] weekWeather = { Weather.Rainy, Weather.Fair, Weather.Windy, Weather.Fair, Weather.Snowy, Weather.Fair, Weather.Rainy, Weather.Fair }; // winter: no hot day
             string[] who = { "mira", "orin", "fen" };
             for (int day = 0; day < 8; day++)
             {
-                app.QaSetDay(day);
-                app.QaSetWeather((int)weekWeather[day]);
-                app.QaSetClock(day % 2 == 0 ? 18 : 13);
+                app.QaCompanionDay(day, weekWeather[day], day % 2 == 0 ? 18 : 13); // logs weather, season and drift
                 if (day == 2) week.SolveTree(2); // something new mid-week
                 for (int v = 0; v < 3; v++)
                 {
-                    Debug.Log("MOSSELORA_COMPANION day " + (day + 1) + " " + who[v] + ": " + app.QaNeighborSays(v));
+                    app.QaLogCompanion(day + 1, who[v], v); // CP40: said, then why
                     app.QaTalk(v);
                     for (int f = 0; f < 4; f++) yield return null;
                     if (day == 7)

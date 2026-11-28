@@ -22,6 +22,8 @@ jobs:
         run: bash -n tools/evergrove_unity_local_preflight.sh
       - name: Validate Evergrove handbook and source links
         run: python3 tools/check_evergrove_docs.py
+      - name: Companion line bank
+        run: python3 tools/evergrove_line_bank_check.py --complete --strict
       - name: Apple Ads API dry-run (no credentials, no network)
         run: python3 tools/fetch_apple_popularity.py --month 2026-10 --dry-run > /dev/null
       - name: Public catalog scanner dry-run (no network)

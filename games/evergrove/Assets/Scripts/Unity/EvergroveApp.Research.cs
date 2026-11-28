@@ -43,6 +43,9 @@ namespace Evergrove.UnityClient
                 if (matchedScheduleCopied)
                     Label(content, "Schedule copied", "Copied privately", 12, 43, Moss, TextAnchor.MiddleCenter);
             }
+            // CP39: the playtest export of what the neighbours said. It only fills the clipboard; nothing is sent.
+            Button(content, "Copy neighbours said", "Copy what the neighbours said", CopyNeighbourSays, 48);
+
             if (!WorldStore.RecoveryBlocked)
             {
                 Button(content, "Matched control entry",
@@ -216,6 +219,14 @@ namespace Evergrove.UnityClient
                 WorldModel.ScheduleFromChoices(world.Choices));
             matchedScheduleCopied = true;
             Rebuild();
+        }
+
+        // CP39: the neighbours' names, in the order their speaker indices use (Mira 0, Orin 1, Fen 2).
+        private static readonly string[] NeighbourNames = { "Mira", "Orin", "Fen" };
+
+        private void CopyNeighbourSays()
+        {
+            GUIUtility.systemCopyBuffer = CompanionMemoryNow().ToReadable(NeighbourNames, CompanionContext.DateOfDay);
         }
 
         private void BuildMatchedEntry()

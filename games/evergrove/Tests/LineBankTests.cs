@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -28,12 +29,16 @@ internal static class LineBankTests
         Rules rules = Rules.Load();
         Loader();
         Filling();
+        NoSlotInjection(); // CP34
         Wording();
+        LineIds();
         RulesCatchBadLines(rules);
         LongestIsLongest(rules);
         FactsFillTheirSlots(rules);
         int shipped = ShippedBanks(rules);
         EnglishSpeaks(rules);
+        CountsReadRight(rules); // CP32
+        WordsForSmallCounts(); // CP32
         int drafts = ReviewDrafts(rules);
         Console.WriteLine("Line bank SC03/SC04: " + shipped + " shipped lines and " + drafts + " draft lines pass every rule.");
         return assertions;
@@ -91,6 +96,22 @@ internal static class LineBankTests
         Expect(string.Join(",", LineBank.SlotsIn("{a} and {b}, {a}")) == "a,b,a", "slots listed in order");
     }
 
+    // CP34: a slot value is text. Fill copies it in one left-to-right pass and never rescans it, so a value
+    // that looks like a slot, or a regex replacement pattern such as "$1" or "\", reaches the line as typed.
+    private static void NoSlotInjection()
+    {
+        var nested = new Dictionary<string, string> { { "name", "{thing}" }, { "thing", "quince tree" } };
+        Expect(LineBank.Fill("A letter from {name} about the {thing}.", nested) == "A letter from {thing} about the quince tree.",
+            "a value that looks like a slot is kept literally, and the later slot still fills");
+        Expect(LineBank.Fill("A {x} B", new Dictionary<string, string> { { "x", "{" } }) == "A { B", "a lone { in a value is text");
+        Expect(LineBank.Fill("A {x} B", new Dictionary<string, string> { { "x", "}" } }) == "A } B", "a lone } in a value is text");
+        Expect(LineBank.Fill("A {x} B", new Dictionary<string, string> { { "x", "$1" } }) == "A $1 B", "$1 is not a regex group");
+        Expect(LineBank.Fill("A {x} B", new Dictionary<string, string> { { "x", "\\" } }) == "A \\ B", "a backslash is text");
+        Expect(LineBank.Fill("A {name} B", new Dictionary<string, string> { { "name", "{name}" } }) == "A {name} B",
+            "a value equal to its own slot name is text");
+        Expect(LineBank.Fill("{x}{x}", new Dictionary<string, string> { { "x", "$&" } }) == "$&$&", "a repeated value stays literal");
+    }
+
     private static void Wording()
     {
         var lines = new List<string>();
@@ -114,6 +135,26 @@ internal static class LineBankTests
         Expect(slotted.Speak(fruit, 1, 7, 2000, memory, out _) == null, "a line whose slot the fact lacks never shows");
     }
 
+    // CP21: every line has a stable ID for translators and analytics; it is a pure hash of group, voice and text.
+    private static void LineIds()
+    {
+        // The pinned value is FNV-1a over the UTF-16 code units of "FruitGiven|0|Thank you, Crème.", computed in Python.
+        Expect(LineBank.LineId("FruitGiven", 0, "Thank you, Crème.") == "cl_f8f7c620", "the line ID is FNV-1a over UTF-16 code units");
+        Expect(LineBank.LineId("FruitGiven", 0, "Thank you, Crème.") == LineBank.LineId("FruitGiven", 0, "Thank you, Crème."), "the line ID is deterministic");
+        Expect(LineBank.LineId("FruitGiven", 0, "Thank you.") != LineBank.LineId("FruitGiven", 0, "Thank you!"), "changing one character changes the ID");
+
+        LineBank en = LineBank.Parse(File.ReadAllText(Path.Combine(Root(), "games/evergrove/Assets/Resources/Evergrove/Lines/en.json")));
+        var ids = new HashSet<string>();
+        int total = 0;
+        foreach (var line in en.All())
+        {
+            total++;
+            Expect(ids.Add(LineBank.LineId(line.Group, line.Voice, line.Text)), "a line ID is unique: " + line.Group + " " + line.Text);
+        }
+        Expect(total > 0 && ids.Count == total, "every shipped English line has an ID");
+        Console.WriteLine("Line IDs: " + total + " shipped English lines, " + ids.Count + " unique IDs.");
+    }
+
     // Each rule must catch a line that breaks it, or a passing bank proves nothing.
     private static void RulesCatchBadLines(Rules rules)
     {
@@ -121,6 +162,8 @@ internal static class LineBankTests
             { "Thank you!", "exclamation" },
             { "I missed you, and the fruit.", "banned" },
             { "Come back soon for more fruit.", "banned" },
+            { "Keep your streaks going.", "banned" }, // CP28: a plural still counts
+            { "Don\u2019t forget the fruit.", "banned" }, // CP28: a curly apostrophe still counts
             { "Fruit keeps your brain young.", "banned" },
             { "That's three days in a row.", "time" },
             { "I ate it yesterday.", "time" },
@@ -219,8 +262,12 @@ internal static class LineBankTests
                         continue;
                     }
                     string text = en.Speak(fact, speaker, world.Garden, context.DayNumber, CompanionMemory.Empty, out int variant);
+                    // CP34: this brace check holds only because no slot value here contains a brace; a typed name
+                    // is tidied of { } by CP33, and other values come from game data. A value with a brace would be
+                    // filled correctly by LineBank.Fill yet flagged here, so keep brace-bearing values out of slots.
                     Expect(text != null && variant >= 0 && !text.Contains("{") && !text.Contains("}"), "English speaks " + fact + ": " + text);
                     Expect(text.Length <= rules.MaxChars, "within " + rules.MaxChars + " characters: " + text);
+                    Expect(text.Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Length <= rules.MaxWords, "within " + rules.MaxWords + " words: " + text);
                     spoken.Add(fact.Kind);
                 }
         foreach (var kind in rules.Kinds)
@@ -230,6 +277,127 @@ internal static class LineBankTests
             Expect(rules.Kinds.ContainsKey(kind.ToString()), "every fact kind has rules (reviewed lines, or pending review): " + kind);
         if (pending.Count > 0) Console.WriteLine("Line bank: awaiting reviewed lines (fixed sentence meanwhile): " + string.Join(", ", pending));
         Expect(pending.Count == 0, "every fact kind on main has a reviewed English bank: " + string.Join(", ", pending));
+    }
+
+    // CP32: counts read right. A count slot is only read where the facts can make that value, so each
+    // group's values come from the fact code, and CountFactsAreReal checks them against real facts:
+    //  - WishProgress {have}/{need}: a wish is said only while 0 < have < need (a granted wish is not
+    //    said), so have is 1..need-1; need is 5 (Mira), 2 (Orin) or 6 (Fen). 0 and 11 never occur.
+    //  - KindSolved and NewestThing {count}: said only once solved or made (count >= 1), so 1, 2 and 11.
+    //    0 never occurs. (No shipped line uses {count} yet.)
+    //  - WeatherWhileAway {days}: DayWeather.WhileAway says nothing under two days, so 2 and up. 0 and 1 never occur.
+    private static readonly string[] CountSlotNames = { "have", "need", "count", "days" };
+    private static readonly string[] CountKinds = { "WishProgress", "KindSolved", "NewestThing", "WeatherWhileAway" };
+    private static readonly string CountPluralNouns = "trees|stretches|kinds|things|days|puzzles|plots|beds|flowers|visitors|letters|gifts|seeds|steps|times|weeks|pieces|tiles";
+
+    // "1 things", "one trees", "0 trees" and "two has" (a number with a singular verb) read wrong.
+    private static readonly Regex CountReadsWrongRx = new Regex(
+        @"\b(1|one)\s+(" + CountPluralNouns + @")\b" +
+        @"|\b0\s+[a-z]" +
+        @"|\b(two|three|four|five|six|seven|eight|nine|ten|(?!1\b)\d+)\s+has\b",
+        RegexOptions.IgnoreCase);
+
+    private static int[] ProducibleCounts(string kind, int voice)
+    {
+        switch (kind)
+        {
+            case "WishProgress": return Enumerable.Range(1, NeighbourWish.For(WorldModel.New(PlayMode.Living), voice).Need - 1).ToArray();
+            case "KindSolved":
+            case "NewestThing": return new[] { 1, 2, 11 };
+            default: return new[] { 2, 11 }; // WeatherWhileAway
+        }
+    }
+
+    private static Dictionary<string, string> CountSlotsFor(Rules rules, string kind, int voice, int count)
+    {
+        var slots = new Dictionary<string, string>();
+        foreach (string slot in rules.Kinds[kind].Slots) slots[slot] = rules.Longest[slot];
+        // The same formats the facts use: small counts as words for a wish, digits for the rest.
+        if (kind == "WishProgress")
+        {
+            slots["have"] = CompanionFacts.Words(count);
+            slots["need"] = CompanionFacts.Words(NeighbourWish.For(WorldModel.New(PlayMode.Living), voice).Need);
+        }
+        else if (kind == "WeatherWhileAway") slots["days"] = count.ToString(CultureInfo.InvariantCulture);
+        else slots["count"] = count.ToString(CultureInfo.InvariantCulture);
+        return slots;
+    }
+
+    private static void CountsReadRight(Rules rules)
+    {
+        LineBank en = LineBank.Parse(File.ReadAllText(Path.Combine(Root(), "games/evergrove/Assets/Resources/Evergrove/Lines/en.json")));
+        // Any group that uses a count slot must be one of the groups checked here.
+        foreach (string group in en.Keys)
+            foreach (string voice in en.Voices(group))
+                foreach (string line in en.Lines(group, voice))
+                    if (LineBank.SlotsIn(line).Any(s => CountSlotNames.Contains(s)))
+                        Expect(CountKinds.Contains(group), "a count slot is only used by a checked group: " + group + " " + line);
+        // The checker itself must catch the bad readings, or the pass below would prove nothing.
+        Expect(CountReadsWrongRx.IsMatch("I saw 1 things today."), "the checker catches \"1 things\"");
+        Expect(CountReadsWrongRx.IsMatch("Just one trees now."), "the checker catches \"one trees\"");
+        Expect(CountReadsWrongRx.IsMatch("I counted 0 trees."), "the checker catches \"0 trees\"");
+        Expect(CountReadsWrongRx.IsMatch("Two has come along."), "the checker catches \"two has\"");
+        Expect(!CountReadsWrongRx.IsMatch("One has come. One of the five trees, and 1 tree."), "the checker passes \"one has\" and \"1 tree\"");
+        int checkedLines = 0;
+        foreach (string kind in CountKinds)
+            foreach (string voice in rules.Kinds[kind].Voices.Keys)
+            {
+                int speaker = int.Parse(voice, CultureInfo.InvariantCulture);
+                IReadOnlyList<string> lines = en.Lines(kind, voice);
+                Expect(lines.Count > 0, kind + " has lines in voice " + voice);
+                foreach (int count in ProducibleCounts(kind, speaker))
+                    foreach (string line in lines)
+                    {
+                        string text = LineBank.Fill(line, CountSlotsFor(rules, kind, speaker, count));
+                        Expect(text != null, kind + "/" + voice + " fills every slot at " + count + ": " + line);
+                        Expect(!CountReadsWrongRx.IsMatch(text), kind + "/" + voice + " reads right at " + count + ": " + text);
+                        checkedLines++;
+                    }
+            }
+        Expect(checkedLines > 0, "some count lines were checked");
+        CountFactsAreReal();
+    }
+
+    // CP32: the values above are what the real facts make: no count of 0, a wish only in 1..need-1, days from 2.
+    private static void CountFactsAreReal()
+    {
+        GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 2);
+        int seen = 0;
+        foreach (WorldModel world in CompanionFactsTests.Saves())
+            foreach (CompanionContext context in CompanionFactsTests.Contexts(map))
+                foreach (Fact fact in CompanionFacts.For(world, context))
+                {
+                    switch (fact.Kind)
+                    {
+                        case FactKind.KindSolved:
+                        case FactKind.NewestThing:
+                            Expect(fact.IntSlot("count") >= 1, fact + " counts at least one");
+                            break;
+                        case FactKind.WeatherWhileAway:
+                            Expect(fact.IntSlot("days") >= 2, fact + " is at least two days away");
+                            break;
+                        case FactKind.WishProgress:
+                            int need = NeighbourWish.For(world, fact.Keeper).Need;
+                            Expect(Enumerable.Range(1, need - 1).Any(n => CompanionFacts.Words(n) == fact.Slot("have")) &&
+                                fact.Slot("need") == CompanionFacts.Words(need), fact + " has 1..need-1 of its wish");
+                            break;
+                        default:
+                            continue;
+                    }
+                    seen++;
+                }
+        Expect(seen > 0, "the constructed saves make counted facts");
+    }
+
+    // CP32: the small-number helper reads as words for 0..10 and digits above, never "1" where "one" belongs.
+    private static void WordsForSmallCounts()
+    {
+        string[] words = { "no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" };
+        for (int n = 0; n <= 10; n++)
+            Expect(CompanionFacts.Words(n) == words[n], "Words(" + n + ") is \"" + words[n] + "\"");
+        for (int n = 11; n <= 20; n++)
+            Expect(CompanionFacts.Words(n) == n.ToString(CultureInfo.InvariantCulture), "Words(" + n + ") is digits");
+        Expect(CompanionFacts.Words(1) != "1", "Words(1) is a word, not a digit");
     }
 
     private static IEnumerable<WorldModel> KindsSaves()
@@ -366,7 +534,7 @@ internal static class LineBankTests
 
     private sealed class Rules
     {
-        public int MaxChars;
+        public int MaxChars, MaxWords;
         public Dictionary<string, KindRule> Kinds;
         public Dictionary<string, string> Longest;
         public List<string> Banned, ChildSafe, TimeClaims, SubjectVerbs;
@@ -393,6 +561,7 @@ internal static class LineBankTests
             }
             return new Rules {
                 MaxChars = r.GetProperty("maxChars").GetInt32(),
+                MaxWords = r.GetProperty("maxWords").GetInt32(), // CP24: readable length
                 Kinds = kinds,
                 Longest = r.GetProperty("longest").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()),
                 Banned = List(r.GetProperty("banned")), ChildSafe = List(r.GetProperty("childSafe")),
@@ -402,7 +571,10 @@ internal static class LineBankTests
 
         private static bool Hit(string text, string phrase)
         {
-            return Regex.IsMatch(text, "(?<![a-z])" + Regex.Escape(phrase) + "(?![a-z])");
+            // CP28: curly apostrophes read as straight ones, and a plain plural still counts ("streaks").
+            text = text.Replace('\u2019', '\'').Replace('\u2018', '\'');
+            phrase = phrase.Replace('\u2019', '\'').Replace('\u2018', '\'');
+            return Regex.IsMatch(text, "(?<![a-z])" + Regex.Escape(phrase) + "(?:e?s)?(?![a-z])");
         }
 
         public List<string> Check(string kind, string line)
@@ -416,6 +588,8 @@ internal static class LineBankTests
                 if (!rule.Slots.Contains(slot)) problems.Add("slot {" + slot + "} not filled by " + kind);
             string filled = Regex.Replace(line, @"\{([^{}]*)\}", m => Longest.TryGetValue(m.Groups[1].Value, out string v) ? v : m.Value);
             if (filled.Length > MaxChars) problems.Add(filled.Length + " chars when filled");
+            int words = filled.Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Length; // CP24
+            if (words > MaxWords) problems.Add(words + " words when filled (max " + MaxWords + ")");
             if (line.Contains("!")) problems.Add("exclamation mark");
             if (Regex.IsMatch(line, @"\d")) problems.Add("a number");
             string lower = filled.ToLowerInvariant();

@@ -67,6 +67,21 @@ namespace Evergrove.Core
             }
         }
 
+        /// <summary>
+        /// CP21: every line as (group, voice, index, text). Group is the bank key, voice is 0, 1, 2 or -1 for
+        /// "any", index is the wording's position in its list. Read-only; the bank is immutable.
+        /// </summary>
+        public IEnumerable<(string Group, int Voice, int Index, string Text)> All()
+        {
+            foreach (string group in Keys)
+                foreach (string voice in Voices(group))
+                {
+                    IReadOnlyList<string> list = Lines(group, voice);
+                    int number = voice == AnyVoice ? -1 : int.Parse(voice, CultureInfo.InvariantCulture);
+                    for (int i = 0; i < list.Count; i++) yield return (group, number, i, list[i]);
+                }
+        }
+
         /// <summary>The wordings under a bank key ("WeatherToday.Rainy") in a voice; empty when none.</summary>
         public IReadOnlyList<string> Lines(string key, string voice)
         {
@@ -109,11 +124,6 @@ namespace Evergrove.Core
                 ? (IReadOnlyList<string>)Array.AsReadOnly(list) : Array.Empty<string>();
         }
 
-        public IEnumerable<string> Voices(FactKind kind)
-        {
-            return lines.TryGetValue(kind, out var voices) ? voices.Keys : (IEnumerable<string>)Array.Empty<string>();
-        }
-
         /// <summary>A speaker's wordings for a kind: their own voice first, else anyone's.</summary>
         public IReadOnlyList<string> For(FactKind kind, int speaker)
         {
@@ -147,6 +157,20 @@ namespace Evergrove.Core
             if (text == null) return null;
             variant = chosen;
             return text;
+        }
+
+        // CP21: the translator/analytics ID of a line's text; memory still stores variant indices, not these.
+        /// <summary>FNV-1a (32-bit) over the UTF-16 code units of "group|voice|text", as "cl_" + 8 hex digits.</summary>
+        public static string LineId(string group, int voice, string text)
+        {
+            string key = (group ?? "") + "|" + voice.ToString(CultureInfo.InvariantCulture) + "|" + (text ?? "");
+            uint h = 2166136261;
+            foreach (char c in key)
+            {
+                h ^= c;
+                h *= 16777619;
+            }
+            return "cl_" + h.ToString("x8", CultureInfo.InvariantCulture);
         }
 
         /// <summary>Replaces every {slot}; null if any is missing or empty (a line never shows a brace).</summary>

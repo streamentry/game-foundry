@@ -179,7 +179,7 @@ namespace Evergrove.UnityClient
                 spokenVariant.TryGetValue(villager, out int kept) ? kept : -1;
             // SC06: English falls back to today's sentence; another language speaks only its reviewed bank.
             return CompanionLocale.Words(GameLocalization.Current, LineBankNow(), pick, villager, world.Garden,
-                CompanionContext.DayNumberOf(CompanionToday()), CompanionMemoryNow(), keep, out variant);
+                CompanionDayNow(), CompanionMemoryNow(), keep, out variant); // CP42: the companion's day
         }
 
         // SC03: one bank per locale (Resources/Evergrove/Lines/<locale>.json), kept apart from
@@ -203,28 +203,46 @@ namespace Evergrove.UnityClient
         }
 
         // ---- SC02: device-local memory of what was said (PlayerPrefs; never the save or the garden file).
-        private const string CompanionMemoryKey = "evergrove:companion-heard:";
         private readonly System.Collections.Generic.Dictionary<int, string> spokenThisVisit =
             new System.Collections.Generic.Dictionary<int, string>();
         private readonly System.Collections.Generic.Dictionary<int, int> spokenVariant =
             new System.Collections.Generic.Dictionary<int, int>(); // SC03: the wording said this visit
         private int visitGarden = int.MinValue;
+        private int visitDay = int.MinValue; // CP42: the companion's day the visit lock belongs to
 
         private Fact CompanionPick(int villager)
         {
             // SC06: a language without a reviewed bank keeps the story's own lines (LocalizedVillage), as before.
             if (world == null || world.Mode != PlayMode.Living || !CompanionLocale.Speaks(GameLocalization.Current, LineBankNow())) return null;
-            if (visitGarden != world.Garden) { spokenThisVisit.Clear(); spokenVariant.Clear(); visitGarden = world.Garden; }
+            // CP42: the visit lock is kept for the companion's day, which turns at 4 a.m., not the calendar day.
             CompanionContext context = CompanionNow();
+            if (visitGarden != world.Garden || visitDay != context.DayNumber) { spokenThisVisit.Clear(); spokenVariant.Clear(); visitGarden = world.Garden; visitDay = context.DayNumber; }
             spokenThisVisit.TryGetValue(villager, out string spoken);
-            return CompanionRanker.Pick(CompanionFacts.For(world, context), CompanionMemoryNow(), villager,
-                context.DayNumber, world.Garden, spoken,
-                (fact, who) => CompanionLocale.CanSay(GameLocalization.Current, LineBankNow(), fact, who)); // SC04/SC06
+            return CompanionRanker.Pick(CompanionFactsNow(), CompanionMemoryNow(), villager,
+                context.DayNumber, world.Garden, spoken, CompanionCanSay); // SC04/SC06
         }
+
+        // CP40: the sayable check the pick and the QA explain share, so the log reads the same rule.
+        private bool CompanionCanSay(Fact fact, int who)
+        {
+            return CompanionLocale.CanSay(GameLocalization.Current, LineBankNow(), fact, who);
+        }
+
+        // CP38: the parsed memory is reused while its storage key and raw PlayerPrefs string are unchanged.
+        // CompanionMemory is immutable, so sharing the instance is safe. A redraw asks for it several times.
+        private CompanionMemory companionMemory;
+        private string companionMemoryKey;
+        private string companionMemoryRaw;
 
         private CompanionMemory CompanionMemoryNow()
         {
-            return CompanionMemory.Parse(PlayerPrefs.GetString(CompanionMemoryKey + world.Garden, ""));
+            string key = CompanionMemory.StorageKey(world.Garden, GameLocalization.Current);
+            string raw = PlayerPrefs.GetString(key, "");
+            if (companionMemory != null && key == companionMemoryKey && raw == companionMemoryRaw) return companionMemory;
+            companionMemory = CompanionMemory.Parse(raw);
+            companionMemoryKey = key;
+            companionMemoryRaw = raw;
+            return companionMemory;
         }
 
         // Called when a conversation opens: the remark is now heard, and is theirs for this visit.
@@ -235,15 +253,54 @@ namespace Evergrove.UnityClient
             spokenThisVisit[villager] = said.Key;
             spokenVariant[villager] = variant;
             CompanionMemory memory = CompanionMemoryNow().With(
-                new Heard(CompanionContext.DayNumberOf(CompanionToday()), villager, said.Kind, variant, said.Key));
-            PlayerPrefs.SetString(CompanionMemoryKey + world.Garden, memory.Serialize());
+                new Heard(CompanionDayNow(), villager, said.Kind, variant, said.Key)); // CP42
+            string key = CompanionMemory.StorageKey(world.Garden, GameLocalization.Current);
+            string raw = memory.Serialize();
+            PlayerPrefs.SetString(key, raw);
+            // CP38: the next read hits the cache rather than re-parsing what was just written.
+            companionMemory = memory;
+            companionMemoryKey = key;
+            companionMemoryRaw = raw;
+        }
+
+        // CP41: a reset forgets this garden's companion memory in every language, and the visit state
+        // and parsed-memory cache that would otherwise still remember it.
+        private void ForgetCompanion(int garden)
+        {
+            var locales = new System.Collections.Generic.List<string>();
+            foreach (GameLanguage language in GameLocalization.Available) locales.Add(language.Code);
+            foreach (string key in CompanionMemory.StorageKeysFor(garden, locales)) PlayerPrefs.DeleteKey(key);
+            PlayerPrefs.Save();
+            companionMemory = null;
+            companionMemoryKey = null;
+            companionMemoryRaw = null;
+            spokenThisVisit.Clear();
+            spokenVariant.Clear();
+        }
+
+        // CP37: the fact list, built once per rebuild. A redraw asks for it 6-8 times (CompanionPick runs
+        // once per neighbour), so the last list is kept while its signature and the frame are unchanged.
+        // The signature covers every input For reads, so a stale list cannot be served.
+        private System.Collections.Generic.IReadOnlyList<Fact> companionFacts;
+        private string companionFactsKey;
+
+        private System.Collections.Generic.IReadOnlyList<Fact> CompanionFactsNow()
+        {
+            CompanionContext context = CompanionNow();
+            string key = CompanionFacts.Signature(world, context) + "#" + Time.frameCount;
+            if (companionFacts == null || key != companionFactsKey)
+            {
+                companionFacts = CompanionFacts.For(world, context);
+                companionFactsKey = key;
+            }
+            return companionFacts;
         }
 
         // What the companion needs that the save doesn't hold (SC01).
         private CompanionContext CompanionNow()
         {
             bool living = world != null && world.Mode == PlayMode.Living;
-            return new CompanionContext(CompanionToday(),
+            return new CompanionContext(CompanionToday(), localNow: CompanionClock(), // CP42: facts read the date, the companion the clock
                 lastSeen: sinceSeen,
                 lettersRead: PlayerPrefs.GetInt(LettersReadKey, 0),
                 weather: TodayWeather(world),

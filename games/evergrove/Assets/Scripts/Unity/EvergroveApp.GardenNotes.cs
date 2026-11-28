@@ -144,7 +144,7 @@ namespace Evergrove.UnityClient
                 if (seen.Length == 8 && DateTime.TryParseExact(seen, "yyyyMMdd", CultureInfo.InvariantCulture,
                         DateTimeStyles.None, out DateTime last))
                     sinceSeen = last;
-                spokenThisVisit.Clear(); spokenVariant.Clear(); // SC02: a new day is a new visit
+                // SC02/CP42: a new visit's lock clears on the companion's day (CompanionPick), not the calendar day here.
                 PlayerPrefs.SetString(key, today);
                 // I419: the hour of each day's first return, counted on this device only.
                 int[] hours = HourCounts();

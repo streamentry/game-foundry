@@ -27,11 +27,17 @@ internal static class CompanionRankerTests
         assertions = 0;
         Weights();
         Repeats();
+        NagDamping();
+        KindCooldown();
+        SpeakersTakeTurns();
         Visits();
         Sharing();
+        OrderIndependence();
         Variants();
+        GoldenHash();
         MemoryText();
         ScriptedWeek();
+        ExplainLines();
         return assertions;
     }
 
@@ -47,7 +53,7 @@ internal static class CompanionRankerTests
         Expect(CompanionRanker.Pick(facts, null, 1, day, garden).Key == "letter:Anh:1", "no memory is an empty memory");
         Expect(CompanionRanker.Score(facts[2], 1, CompanionMemory.Empty) == 50 + 30 + 10, "waiting + new + own line");
         Expect(CompanionRanker.Score(facts[2], 0, CompanionMemory.Empty) == 50 + 30, "no own-line bonus for another voice");
-        CompanionMemory heard = CompanionMemory.Empty.With(new Heard(day - 5, 1, FactKind.KindSolved, -1, "solved:Mosaic:2"));
+        CompanionMemory heard = CompanionMemory.Empty.With(new Heard(day - 5, 1, FactKind.KindSolved, 0, "solved:Mosaic:2"));
         Expect(CompanionRanker.Score(facts[1], 1, heard) == 15 + 10, "heard before: no 'new' weight");
         Expect(CompanionRanker.Pick(new List<Fact>(), CompanionMemory.Empty, 0, day, garden) == null, "no facts: none (the story speaks)");
         Expect(CompanionRanker.Pick(facts, CompanionMemory.Empty, 0, day, garden) == null, "only Orin's facts: Mira has none");
@@ -75,15 +81,29 @@ internal static class CompanionRankerTests
         Fact solved = F(FactKind.KindSolved, 0, "solved:Water:3", 15);
         Fact letter = F(FactKind.LetterWaiting, 1, "letter:Ruth:2", 50, waiting: true);
         var facts = new List<Fact> { solved, letter };
+        // CP12: these were said in a varied wording (variant 0); a fixed sentence has its own rule below.
         CompanionMemory memory = CompanionMemory.Empty
-            .With(new Heard(100, 0, FactKind.KindSolved, -1, solved.Key))
-            .With(new Heard(100, 1, FactKind.LetterWaiting, -1, letter.Key));
+            .With(new Heard(100, 0, FactKind.KindSolved, 0, solved.Key))
+            .With(new Heard(100, 1, FactKind.LetterWaiting, 0, letter.Key));
         for (int day = 100; day < 103; day++)
             Expect(CompanionRanker.Pick(facts, memory, 0, day, garden) == null, "not again within 3 days (day " + day + ")");
         Expect(CompanionRanker.Pick(facts, memory, 0, 103, garden) == solved, "said again on the fourth day, if still true");
         Expect(CompanionRanker.Pick(facts, memory, 1, 101, garden) == letter, "a letter still waiting may be mentioned again");
         Expect(!CompanionRanker.Eligible(solved, memory, 102) && CompanionRanker.Eligible(solved, memory, 103), "the 3-day window");
-        Expect(CompanionRanker.Eligible(solved, memory, 99), "a clock set back doesn't hide anything");
+        // CP02: a clock set back counts the remark as heard today: blocked for the window, not forever.
+        Expect(!CompanionRanker.Eligible(solved, memory, 99), "a clock set back: heard today, so not again yet");
+        Expect(CompanionRanker.Eligible(solved, memory, 103), "a clock set back: eligible again once the window passes");
+        // CP12: a fixed sentence (no wording to vary) is not said again within VariantDays, whatever the window.
+        CompanionMemory fixedSaid = CompanionMemory.Empty.With(new Heard(100, 0, FactKind.KindSolved, -1, solved.Key));
+        Expect(CompanionRanker.Pick(facts, fixedSaid, 0, 103, garden) == null, "a fixed sentence is not repeated on day 3");
+        Expect(CompanionRanker.Pick(facts, fixedSaid, 0, 113, garden) == null, "a fixed sentence is not repeated on day 13");
+        Expect(CompanionRanker.Pick(facts, fixedSaid, 0, 114, garden) == solved, "a fixed sentence may return after VariantDays");
+        // CP12: a waiting or fresh fact is still said in its fixed sentence: a letter left unread isn't hidden for two weeks.
+        CompanionMemory letterFixed = CompanionMemory.Empty.With(new Heard(100, 1, FactKind.LetterWaiting, -1, letter.Key));
+        Expect(CompanionRanker.Eligible(letter, letterFixed, 101), "a waiting fact in a fixed sentence stays eligible");
+        Fact thanks = F(FactKind.FruitGiven, 0, "fruit:0:1", 15, fresh: true);
+        CompanionMemory thanksFixed = CompanionMemory.Empty.With(new Heard(100, 0, FactKind.FruitGiven, -1, thanks.Key));
+        Expect(CompanionRanker.Eligible(thanks, thanksFixed, 102), "a fresh fact in a fixed sentence stays eligible");
         // SC04: once-facts (a season turned, a pairing found) are said once, then never again.
         Fact grove = new Fact(FactKind.PairingFound, 0, "pairing-found:Grove", new Dictionary<string, string>(), 20, false, false, 0, true);
         Expect(CompanionRanker.Pick(new List<Fact> { grove }, CompanionMemory.Empty, 0, 200, garden) == grove, "a once-fact, never heard: said");
@@ -94,6 +114,118 @@ internal static class CompanionRankerTests
             "but it stays their remark for the rest of the visit");
     }
 
+    // CP07: a waiting fact one neighbour said on two of the last three days is damped for that neighbour
+    // (still eligible, so something else can be said); after a gap it comes back.
+    private static void NagDamping()
+    {
+        const int garden = 6;
+        Fact waiting = F(FactKind.LetterWaiting, 0, "letter:Anh:1", 50, waiting: true);
+        Fact other = F(FactKind.KindSolved, 0, "solved:Water:2", 15);
+        var facts = new List<Fact> { waiting, other };
+
+        // (a) nothing heard: the waiting letter outranks the rest.
+        Expect(CompanionRanker.Pick(facts, CompanionMemory.Empty, 0, 100, garden) == waiting,
+            "CP07: a waiting fact comes first when nothing has been heard");
+
+        // (b) said on days 98 and 99: two of the last three days, so it steps back for the other fact.
+        CompanionMemory nagged = CompanionMemory.Empty
+            .With(new Heard(98, 0, waiting.Kind, 0, waiting.Key))
+            .With(new Heard(99, 0, waiting.Kind, 0, waiting.Key));
+        Expect(CompanionRanker.Pick(facts, nagged, 0, 100, garden) == other,
+            "CP07: said on two of the last three days, the waiting fact steps back");
+        Expect(CompanionRanker.Score(waiting, 0, nagged, 100) == 50 + 10 - CompanionRanker.NagDamp,
+            "CP07: damped by NagDamp, with no 'new' weight since it was heard");
+        Expect(CompanionRanker.Eligible(waiting, nagged, 100), "CP07: damped, not removed: still eligible");
+
+        // (c) the other fact heard on day 100 too: on day 102 the window is 99..101, so only day 99 counts.
+        CompanionMemory again = nagged.With(new Heard(100, 0, other.Kind, 0, other.Key));
+        Expect(CompanionRanker.Pick(facts, again, 0, 102, garden) == waiting,
+            "CP07: after a gap of days, the waiting fact comes back");
+
+        // (d) a fresh waiting fact (something just done for them) is never damped.
+        Fact fresh = F(FactKind.LetterWaiting, 0, "letter:Ruth:2", 50, waiting: true, fresh: true);
+        CompanionMemory nagFresh = CompanionMemory.Empty
+            .With(new Heard(98, 0, fresh.Kind, 0, fresh.Key))
+            .With(new Heard(99, 0, fresh.Kind, 0, fresh.Key));
+        Expect(CompanionRanker.Score(fresh, 0, nagFresh, 100) == 50 + 10,
+            "CP07: fresh, heard twice: no damping applied");
+        Expect(CompanionRanker.Pick(new List<Fact> { fresh, other }, nagFresh, 0, 100, garden) == fresh,
+            "CP07: a fresh waiting fact is still said first");
+
+        // (e) another neighbour's history does not damp speaker 0.
+        CompanionMemory others = CompanionMemory.Empty
+            .With(new Heard(98, 1, waiting.Kind, 0, waiting.Key))
+            .With(new Heard(99, 1, waiting.Kind, 0, waiting.Key));
+        Expect(CompanionRanker.Score(waiting, 0, others, 100) == 50 + 10,
+            "CP07: undamped for speaker 0 when only speaker 1 heard it");
+        Expect(CompanionRanker.Pick(facts, others, 0, 100, garden) == waiting,
+            "CP07: speaker 0 still says the waiting fact");
+    }
+
+    // CP09: a neighbour who used the same fact kind yesterday takes KindCooldown (a penalty, not a ban).
+    // Waiting and fresh facts are exempt; a remark of that kind two days back does not count.
+    private static void KindCooldown()
+    {
+        const int garden = 8, day = 100;
+        Fact solved = F(FactKind.KindSolved, 0, "solved:a", 20);
+        Fact newest = F(FactKind.NewestThing, 0, "newest:b", 12);
+        var facts = new List<Fact> { solved, newest };
+
+        // (a) nothing heard: the stronger fact wins.
+        Expect(CompanionRanker.Pick(facts, CompanionMemory.Empty, 0, day, garden) == solved,
+            "CP09: with nothing heard, the stronger fact is said");
+
+        // (b) yesterday, speaker 0 used the same kind (another key): 20 + 30 - 15 = 35 < 12 + 30 = 42.
+        CompanionMemory yesterday = CompanionMemory.Empty.With(new Heard(day - 1, 0, FactKind.KindSolved, 0, "solved:z"));
+        Expect(CompanionRanker.Pick(facts, yesterday, 0, day, garden) == newest,
+            "CP09: used the same kind yesterday, the other kind is said");
+
+        // (c) same memory, only the penalised fact exists: still said (a penalty, not a ban).
+        Expect(CompanionRanker.Pick(new List<Fact> { solved }, yesterday, 0, day, garden) == solved,
+            "CP09: if it is all they have, they still say it");
+
+        // (d) a waiting fact of the same kind is not penalised: 50 + 30 > 42.
+        Fact waiting = F(FactKind.KindSolved, 0, "solved:w", 20, waiting: true);
+        Expect(CompanionRanker.Pick(new List<Fact> { waiting, newest }, yesterday, 0, day, garden) == waiting,
+            "CP09: a waiting fact of the same kind is not penalised");
+
+        // (e) the same kind two days back (day 98) is not yesterday: no penalty.
+        CompanionMemory twoDaysBack = CompanionMemory.Empty.With(new Heard(day - 2, 0, FactKind.KindSolved, 0, "solved:z"));
+        Expect(CompanionRanker.Pick(facts, twoDaysBack, 0, day, garden) == solved,
+            "CP09: a remark of that kind on day 98 does not penalise day 100");
+    }
+
+    // CP08: an anyone-fact goes to the neighbour who spoke longest ago (LastSpoke, int.MinValue if never);
+    // the hash of (garden, day, key#neighbour) only breaks an equal LastSpoke.
+    private static void SpeakersTakeTurns()
+    {
+        const int garden = 4, day = 100;
+        Fact weather = F(FactKind.WeatherToday, Fact.AnyKeeper, "weather:Rainy", 5);
+        var facts = new List<Fact> { weather };
+
+        // (a) nobody has spoken: the same neighbour as before CP08 (the lowest hash, here 0).
+        Fact[] empty = CompanionRanker.Allot(facts, CompanionMemory.Empty, day, garden);
+        Expect(empty[0] == weather && empty[1] == null && empty[2] == null, "CP08: empty memory keeps the hash choice");
+        Expect(CompanionRanker.Allot(facts, null, day, garden)[0] == weather, "CP08: null memory is an empty memory");
+
+        // (b) 0 spoke on day 99, 1 on day 98, 2 on day 97: the longest silent, 2, takes it though the hash prefers 0.
+        // Added oldest first: With() redates older entries to a newer remark's day (CP02).
+        CompanionMemory turns = CompanionMemory.Empty
+            .With(new Heard(97, 2, FactKind.KindSolved, 0, "solved:Pairs:3"))
+            .With(new Heard(98, 1, FactKind.KindSolved, 0, "solved:Mosaic:2"))
+            .With(new Heard(99, 0, FactKind.KindSolved, 0, "solved:Water:1"));
+        Fact[] oldest = CompanionRanker.Allot(facts, turns, day, garden);
+        Expect(oldest[2] == weather && oldest[0] == null && oldest[1] == null, "CP08: the neighbour who spoke longest ago gets it");
+        Expect(CompanionRanker.Pick(facts, turns, 2, day, garden) == weather && CompanionRanker.Pick(facts, turns, 0, day, garden) == null,
+            "CP08: Pick agrees with Allot");
+
+        // (c) 2 spoke on day 99; 0 and 1 never: never 2, and between 0 and 1 the hash decides (here 0).
+        CompanionMemory recent = CompanionMemory.Empty.With(new Heard(99, 2, FactKind.KindSolved, 0, "solved:Pairs:3"));
+        int hashed = CompanionRanker.Hash(garden, day, weather.Key + "#0") <= CompanionRanker.Hash(garden, day, weather.Key + "#1") ? 0 : 1;
+        Fact[] never = CompanionRanker.Allot(facts, recent, day, garden);
+        Expect(never[hashed] == weather && never[2] == null, "CP08: a neighbour who spoke recently waits; the hash picks between the silent ones");
+    }
+
     private static void Visits()
     {
         const int day = 500, garden = 3;
@@ -102,7 +234,7 @@ internal static class CompanionRankerTests
         var facts = new List<Fact> { weather, newest };
         Fact first = CompanionRanker.Pick(facts, CompanionMemory.Empty, 0, day, garden);
         Expect(first != null, "Mira has something to say");
-        CompanionMemory memory = CompanionMemory.Empty.With(new Heard(day, 0, first.Kind, -1, first.Key));
+        CompanionMemory memory = CompanionMemory.Empty.With(new Heard(day, 0, first.Kind, 0, first.Key));
         Expect(CompanionRanker.Pick(facts, memory, 0, day, garden, first.Key) == first, "the same remark for the rest of the visit");
         var withFruit = new List<Fact>(facts) { F(FactKind.FruitGiven, 0, "fruit:0:1", 65, fresh: true) };
         Expect(CompanionRanker.Pick(withFruit, memory, 0, day, garden, first.Key).Kind == FactKind.FruitGiven,
@@ -149,6 +281,84 @@ internal static class CompanionRankerTests
         Expect(picky[0] == null && picky[1] == null && picky[2] != null, "canSay is respected");
     }
 
+    // CP05: the choice must not depend on the order of the fact list. Each list is shuffled 50 times
+    // with one fixed-seed Random; Allot and Pick must name the same Fact.Key per neighbour as the
+    // unshuffled list, with an empty memory and with a few remarks already heard.
+    private static void OrderIndependence()
+    {
+        GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 2);
+        var lists = new List<KeyValuePair<string, List<Fact>>>();
+        var contextsGrown = new[] { 3, 9, GardenCatalog.ChaptersPerGarden }; // CP05: 12 chapters is the most a garden has
+        foreach (int grown in contextsGrown)
+        {
+            WorldModel world = CompanionFactsTests.Grown(grown);
+            int index = 0;
+            foreach (CompanionContext context in CompanionFactsTests.Contexts(map))
+            {
+                index++;
+                lists.Add(new KeyValuePair<string, List<Fact>>("grown " + grown + " context " + index + " day " + context.DayNumber + " garden " + world.Garden,
+                    new List<Fact>(CompanionFacts.For(world, context))));
+            }
+        }
+        lists.Add(new KeyValuePair<string, List<Fact>>("hand-made, anyone-facts and equal weights", new List<Fact> {
+            F(FactKind.WeatherToday, Fact.AnyKeeper, "weather:Rainy", 5),
+            F(FactKind.Hour, Fact.AnyKeeper, "hour:Dusk", 5),
+            F(FactKind.KindSolved, 0, "solved:Water:1", 15),
+            F(FactKind.KindSolved, 1, "solved:Mosaic:2", 15),
+            F(FactKind.KindSolved, 1, "solved:Pairs:3", 15),
+            F(FactKind.NewestThing, 2, "newest:3:4", 15),
+            F(FactKind.NewestThing, 2, "newest:5:6", 15),
+        }));
+
+        const int day = 9100, garden = 5;
+        var rng = new Random(2026);
+        foreach (KeyValuePair<string, List<Fact>> list in lists)
+        {
+            List<Fact> facts = list.Value;
+            // A few remarks already heard: the first, third and fifth facts, by different voices.
+            CompanionMemory heard = CompanionMemory.Empty;
+            for (int i = 0; i < facts.Count && i < 5; i += 2)
+                heard = heard.With(new Heard(day - 1, i % 3, facts[i].Kind, 0, facts[i].Key));
+            foreach (CompanionMemory memory in new[] { CompanionMemory.Empty, heard })
+            {
+                Fact[] baseline = CompanionRanker.Allot(facts, memory, day, garden);
+                Fact[] baselinePicks = new Fact[3];
+                for (int k = 0; k < 3; k++) baselinePicks[k] = CompanionRanker.Pick(facts, memory, k, day, garden);
+                for (int shuffle = 0; shuffle < 50; shuffle++)
+                {
+                    List<Fact> shuffled = Shuffled(facts, rng);
+                    Fact[] said = CompanionRanker.Allot(shuffled, memory, day, garden);
+                    for (int k = 0; k < 3; k++)
+                    {
+                        Expect(KeyOf(said[k]) == KeyOf(baseline[k]),
+                            "Allot order-independent for neighbour " + k + " (" + list.Key + ", shuffle " + shuffle + "): "
+                            + KeyOf(said[k]) + " vs " + KeyOf(baseline[k]));
+                        Expect(KeyOf(CompanionRanker.Pick(shuffled, memory, k, day, garden)) == KeyOf(baselinePicks[k]),
+                            "Pick order-independent for speaker " + k + " (" + list.Key + ", shuffle " + shuffle + ")");
+                    }
+                }
+            }
+        }
+    }
+
+    private static List<Fact> Shuffled(List<Fact> facts, Random rng)
+    {
+        var copy = new List<Fact>(facts);
+        for (int i = copy.Count - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            Fact swap = copy[i];
+            copy[i] = copy[j];
+            copy[j] = swap;
+        }
+        return copy;
+    }
+
+    private static string KeyOf(Fact fact)
+    {
+        return fact == null ? null : fact.Key;
+    }
+
     private static void Variants()
     {
         const int garden = 4;
@@ -176,11 +386,28 @@ internal static class CompanionRankerTests
         Expect(CompanionRanker.Variant(FactKind.FruitGiven, 1, 0, garden, 13, "d", three) == -1, "no wordings: -1");
     }
 
+    // CP04: golden values for Hash (FNV-1a over UTF-16 code units of "garden|day|key"). Expected values
+    // were computed independently in Python from the same algorithm, so a refactor that changes the
+    // hash (and so reshuffles every tour) fails here. Null key hashes as "".
+    private static void GoldenHash()
+    {
+        Expect(CompanionRanker.Hash(0, 0, "") == 0x982B0665u, "golden: (0,0,\"\")");
+        Expect(CompanionRanker.Hash(1, 9800, "fruit:0:1") == 0x6DB2F08Cu, "golden: (1,9800,fruit:0:1)");
+        Expect(CompanionRanker.Hash(-3, 12345, "letter:Anh:1") == 0x11806A24u, "golden: (-3,12345,letter:Anh:1)");
+        Expect(CompanionRanker.Hash(7, 1, null) == 0x23955933u, "golden: (7,1,null)");
+        // "Gärten" written with an escape so the source encoding can't change the input.
+        Expect(CompanionRanker.Hash(2, 500, "pairing-found:Gärten") == 0x95D39275u, "golden: non-ASCII key");
+        Expect(CompanionRanker.Hash(4, 77, new string('q', 200)) == 0x0DC9388Du, "golden: 200-char key");
+        // Variant with an empty memory is Hash % count: 7 wordings, start at 4.
+        Expect(CompanionRanker.Variant(FactKind.FruitGiven, 0, 7, 2, 9800, "fruit:0:1", CompanionMemory.Empty) == 4,
+            "golden: Variant with empty memory starts at hash % count");
+    }
+
     private static void MemoryText()
     {
         CompanionMemory m = CompanionMemory.Empty
             .With(new Heard(200, 0, FactKind.Hour, 3, "hour:Dusk"))
-            .With(new Heard(201, 1, FactKind.LetterWaiting, -1, "letter:A|B\nC:1"));
+            .With(new Heard(201, 1, FactKind.LetterWaiting, 0, "letter:A|B\nC:1"));
         CompanionMemory back = CompanionMemory.Parse(m.Serialize());
         Expect(back.Count == 2 && back.Serialize() == m.Serialize(), "memory round-trips through PlayerPrefs text");
         Expect(back.EverSaid("letter:A|B\nC:1") && back.SaidWithin("letter:A|B\nC:1", 202, 3), "separators in a key are made safe");
@@ -228,7 +455,7 @@ internal static class CompanionRankerTests
                 for (int back = 1; back <= 2 && d - back >= 0; back++)
                     if (!said.Waiting) Expect(!keysByDay[d - back].Contains(said.Key), "no repeat within 3 days: " + said.Key);
                 keysByDay[d].Add(said.Key);
-                memory = memory.With(new Heard(day, k, said.Kind, -1, said.Key));
+                memory = memory.With(new Heard(day, k, said.Kind, 0, said.Key));
             }
             if (d == 0) Expect(keysByDay[0].Contains("letter:Anh:1"), "the waiting letter is mentioned on the first day");
             if (d == 3) Expect(!keysByDay[3].Contains("letter:Anh:1"), "a read letter is not");
@@ -238,5 +465,78 @@ internal static class CompanionRankerTests
         foreach (var day in keysByDay) said7 += day.Count;
         Expect(said7 >= 10, "a week of visits has plenty to say: " + said7);
         Console.WriteLine("Companion ranker SC02: a scripted week said " + said7 + " remarks, none repeated within 3 days.");
+    }
+
+    // CP10: Explain is a plain breakdown of the score and eligibility the ranker itself uses.
+    private static void ExplainLines()
+    {
+        const int garden = 6, day = 300, speaker = 0;
+        Fact letter = F(FactKind.LetterWaiting, 0, "letter:Anh:1", 50, waiting: true);
+        Fact solved = F(FactKind.KindSolved, 0, "solved:Water:2", 15);
+        Fact weather = F(FactKind.WeatherToday, Fact.AnyKeeper, "weather:Rainy", 5);
+        Fact other = F(FactKind.KindSolved, 1, "solved:Mosaic:2", 15);
+        Fact grove = new Fact(FactKind.PairingFound, 0, "pairing-found:Grove", new Dictionary<string, string>(), 20, false, false, 0, true);
+        var facts = new List<Fact> { solved, letter, weather, other, grove };
+
+        IReadOnlyList<string> lines = CompanionRanker.Explain(facts, CompanionMemory.Empty, speaker, day, garden, null, 10);
+        Expect(lines.Count == 4, "CP10: one line per fact meant for the speaker (not Mosaic's): " + lines.Count);
+        Expect(lines[0] == "LetterWaiting letter:Anh:1 score=90 base=50 new=+30 own=+10 nag=0 cooldown=0 eligible",
+            "CP10: the line format: " + lines[0]);
+
+        // The first line names the fact Pick chooses, when Pick chooses one.
+        CompanionMemory[] memories = {
+            CompanionMemory.Empty,
+            CompanionMemory.Empty.With(new Heard(day - 5, 0, FactKind.KindSolved, 0, "solved:x")),
+        };
+        foreach (CompanionMemory m in memories)
+        {
+            Fact pick = CompanionRanker.Pick(facts, m, speaker, day, garden);
+            IReadOnlyList<string> l = CompanionRanker.Explain(facts, m, speaker, day, garden, null, 10);
+            Expect(pick == null || (l.Count > 0 && l[0].StartsWith(pick.Kind + " " + pick.Key + " ", StringComparison.Ordinal)),
+                "CP10: the first line is Pick's fact: " + (l.Count > 0 ? l[0] : "(none)") + " vs " + (pick == null ? "null" : pick.Key));
+            // The score shown is Score(f, speaker, memory, day).
+            foreach (Fact f in facts)
+            {
+                if (!f.For(speaker)) continue;
+                string want = " score=" + CompanionRanker.Score(f, speaker, m, day) + " ";
+                Expect(FindLine(l, f.Key).Contains(want), "CP10: the score shown matches Score for " + f.Key + ": " + FindLine(l, f.Key));
+            }
+        }
+
+        // A once-fact already said shows not-eligible:once-said, listed after the eligible lines.
+        CompanionMemory said = CompanionMemory.Empty.With(new Heard(day - 5, 0, FactKind.PairingFound, 0, grove.Key));
+        IReadOnlyList<string> afterSaid = CompanionRanker.Explain(facts, said, speaker, day, garden, null, 10);
+        Expect(FindLine(afterSaid, grove.Key) == "PairingFound pairing-found:Grove score=30 base=20 new=0 own=+10 nag=0 cooldown=0 not-eligible:once-said",
+            "CP10: a once-fact already said: " + FindLine(afterSaid, grove.Key));
+        Expect(afterSaid[afterSaid.Count - 1] == FindLine(afterSaid, grove.Key), "CP10: ineligible facts come after eligible ones");
+
+        // The nag and cooldown penalties show as negative numbers.
+        CompanionMemory nagged = CompanionMemory.Empty
+            .With(new Heard(98, 0, letter.Kind, 0, letter.Key))
+            .With(new Heard(99, 0, letter.Kind, 0, letter.Key));
+        Expect(FindLine(CompanionRanker.Explain(facts, nagged, speaker, 100, garden, null, 10), letter.Key)
+            == "LetterWaiting letter:Anh:1 score=20 base=50 new=0 own=+10 nag=-40 cooldown=0 eligible",
+            "CP10: nag damping is shown: " + FindLine(CompanionRanker.Explain(facts, nagged, speaker, 100, garden, null, 10), letter.Key));
+
+        // canSay false gives cannot-say.
+        IReadOnlyList<string> picky = CompanionRanker.Explain(facts, CompanionMemory.Empty, speaker, day, garden, (f, k) => f.Key != solved.Key, 10);
+        Expect(FindLine(picky, solved.Key).EndsWith("not-eligible:cannot-say", StringComparison.Ordinal),
+            "CP10: a fact with no words is cannot-say: " + FindLine(picky, solved.Key));
+
+        // top limits the count and keeps the best first.
+        IReadOnlyList<string> two = CompanionRanker.Explain(facts, CompanionMemory.Empty, speaker, day, garden, null, 2);
+        Expect(two.Count == 2 && two[0] == lines[0] && two[1] == lines[1], "CP10: top limits the lines, best first");
+
+        // Null facts give nothing; null memory is an empty memory; a bad speaker gives nothing.
+        Expect(CompanionRanker.Explain(null, null, speaker, day, garden).Count == 0, "CP10: null facts: empty");
+        Expect(CompanionRanker.Explain(facts, null, speaker, day, garden, null, 10).Count == 4, "CP10: null memory is an empty memory");
+        Expect(CompanionRanker.Explain(facts, null, 7, day, garden, null, 10).Count == 0, "CP10: no such neighbour: empty");
+    }
+
+    private static string FindLine(IReadOnlyList<string> lines, string key)
+    {
+        foreach (string line in lines)
+            if (line.Contains(" " + key + " score=")) return line;
+        return "(missing " + key + ")";
     }
 }

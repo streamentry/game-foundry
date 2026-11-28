@@ -22,7 +22,7 @@ namespace Evergrove.UnityClient
         private bool SpeakLessSilences(int villager)
         {
             if (!SpeakLessOn || world == null) return false;
-            int day = CompanionContext.DayNumberOf(CompanionToday());
+            int day = CompanionDayNow(); // CP42
             return !QuietRemarks.Keep(day, villager, world.PuzzlesSolved);
         }
 
