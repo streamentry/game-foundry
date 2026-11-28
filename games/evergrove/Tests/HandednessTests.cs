@@ -36,7 +36,21 @@ internal static class HandednessTests
         TourCalledFromTheMainTour();
         HeatmapToolMatchesTheReachModel();
         RegisteredInTheSuite();
+        RightHandHeatmapFixes();
         return assertions;
+    }
+
+    // The 6.7-inch landscape heatmap (batch 31) found, for a right hand: the fan hung from the page's
+    // hidden left-corner button and ran off the screen, and the right-corner menu sat on home's Play token.
+    private static void RightHandHeatmapFixes()
+    {
+        string menu = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Menu.cs");
+        string hub = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Hub.cs");
+        Expect(menu.Contains("Transform cornerHost = titleScreen != null ? titleScreen.transform : (Transform)canvasRoot;"),
+            "with home open, the fan hangs from home's own corner button");
+        Expect(hub.Contains("if (MenuOnRight && Screen.width > Screen.height)") &&
+               hub.Contains("token.GetComponent<HorizontalLayoutGroup>().padding.right = (int)MenuReserve;"),
+            "sideways with the menu on the right, home's play token keeps clear of it");
     }
 
     private static void MenuCornerPerHand()

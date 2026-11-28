@@ -64,8 +64,8 @@ internal static class ThingActionsTests
     private static void MapAsksForTheActionsOnlyOnTheHub()
     {
         string map = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.Map.cs");
-        Expect(Regex.IsMatch(map, @"\(land,\s*point\)\s*=>\s*\{[^}]*ThingActionsOnMap\(land,\s*point\);[^}]*return NeighborsOnMap\(land,\s*point,\s*map,\s*true\);"),
-            "the hub's decorate places the thing actions, but returns only the neighbours");
+        Expect(Regex.IsMatch(map, @"\(land,\s*point\)\s*=>\s*\{[^}]*var standing = NeighborsOnMap\(land,\s*point,\s*map,\s*true\);[^}]*ThingActionsOnMap\(land,\s*point\);[^}]*return standing;"),
+            "the hub's decorate places the thing actions after the neighbours (drawn on top), and returns only the neighbours");
         // The map treats what decorate returns as people (footprints, stepping off signs): the tokens stay out
         // of that list and replace their own previous row each layout instead.
         string app = ReadEvergrove("Assets/Scripts/Unity/EvergroveApp.ThingActions.cs");

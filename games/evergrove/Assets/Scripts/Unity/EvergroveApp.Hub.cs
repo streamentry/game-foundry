@@ -186,6 +186,10 @@ namespace Evergrove.UnityClient
                 if (!world.Completed && GameLocalization.Current == "en")
                     NextStreamLine(stack.transform, world.CurrentPuzzle.Name, false);
                 Transform token = CenteredRowIn(stack.transform, "Play row");
+                // Checklist 5: sideways, home's column sits at the right edge; with the menu in the right corner
+                // the play token keeps clear of it.
+                if (MenuOnRight && Screen.width > Screen.height)
+                    token.GetComponent<HorizontalLayoutGroup>().padding.right = (int)MenuReserve;
                 // I351 (run 3, P9): after the story, the big arrow plays what's waiting, whose picture
                 // peeks from the token. SC05: the ranker picks it (family help first, then a new
                 // arrival), else the newest thing still holding its first puzzle, as before.

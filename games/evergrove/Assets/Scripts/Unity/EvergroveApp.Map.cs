@@ -59,8 +59,9 @@ namespace Evergrove.UnityClient
                     // Neighbours stand on the map; the held thing's Play and Move tokens sit beside it
                     // (checklist 13). The tokens are not returned with the neighbours: the map treats what
                     // it is given as people (footprints in snow, stepping off signs), so they manage themselves.
-                    ThingActionsOnMap(land, point);
-                    return NeighborsOnMap(land, point, map, true);
+                    var standing = NeighborsOnMap(land, point, map, true);
+                    ThingActionsOnMap(land, point); // after the neighbours, so the tokens draw over (and take taps before) them
+                    return standing;
                 },
                 0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;

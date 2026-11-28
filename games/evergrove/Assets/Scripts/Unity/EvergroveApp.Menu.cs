@@ -278,7 +278,13 @@ namespace Evergrove.UnityClient
             tokens = ArrangeFan(tokens); // checklist 15: the token used last opens first, nearest the thumb
             // Hang the fan just above the corner button it came from: the column's bottom-left sits one gap
             // above the button's top-left corner (GetWorldCorners: 0 bottom-left, 1 top-left).
-            foreach (Button corner in canvasRoot.GetComponentsInChildren<Button>())
+            // With home open, its own corner button (the page's chrome button sits behind home, and may not
+            // have been rebuilt since the hand changed); otherwise the page's.
+            Transform cornerHost = titleScreen != null ? titleScreen.transform : (Transform)canvasRoot;
+            Button[] cornerButtons = cornerHost.GetComponentsInChildren<Button>();
+            if (System.Array.Find(cornerButtons, b => b.name == "Open menu" && b.gameObject.activeInHierarchy) == null)
+                cornerButtons = canvasRoot.GetComponentsInChildren<Button>();
+            foreach (Button corner in cornerButtons)
                 if (corner.name == "Open menu" && corner.gameObject.activeInHierarchy)
                 {
                     var corners = new Vector3[4];
