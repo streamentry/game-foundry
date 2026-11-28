@@ -4,7 +4,8 @@ namespace Evergrove.Core
 {
     /// <summary>
     /// The caption for a grown thing the player chose: "Quince tree, chosen after stream 3.
-    /// Four streams have run past it since." Counted in streams (choices), never in days or
+    /// Four streams have run past it since." When the thing was solved together, the caption
+    /// ends with " You solved it together." Counted in streams (choices), never in days or
     /// clock time, so every number is a fact the save already holds. English only; the Unity
     /// caller keeps the family line for other languages.
     /// </summary>
@@ -31,15 +32,27 @@ namespace Evergrove.Core
         }
 
         /// <summary>
+        /// As <see cref="Line(string, int, int)"/>, plus " You solved it together." when
+        /// <paramref name="together"/> is true. Still "" wherever the plain line is "".
+        /// </summary>
+        public static string Line(string name, int choiceIndex, int choicesMade, bool together)
+        {
+            string line = Line(name, choiceIndex, choicesMade);
+            if (line.Length == 0 || !together) return line;
+            return line + " You solved it together.";
+        }
+
+        /// <summary>
         /// Truthful wrapper for the app. Only a living world's recorded choices can be described;
-        /// puzzle-only, matched, missing or out-of-range choices give "".
+        /// puzzle-only, matched, missing or out-of-range choices give "". The together sentence
+        /// comes only from the world's recorded "solved together" marks.
         /// </summary>
         public static string For(WorldModel world, int choiceIndex, string name)
         {
             if (world == null || world.Mode != PlayMode.Living) return "";
             int made = world.Choices.Length;
             if (choiceIndex < 0 || choiceIndex >= made) return "";
-            return Line(name, choiceIndex, made);
+            return Line(name, choiceIndex, made, world.SolvedTogether(choiceIndex));
         }
 
         private static string Since(int count)

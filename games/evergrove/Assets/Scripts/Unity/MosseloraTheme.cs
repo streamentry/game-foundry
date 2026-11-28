@@ -23,6 +23,8 @@ namespace Evergrove.UnityClient
         public static readonly Color DryChannel = Hex("#9C5A38");
         /// <summary>Spring-connected teal channel; #18717F passes 3:1 on every tile state.</summary>
         public static readonly Color WaterChannel = Hex("#18717F");
+        /// <summary>Wet pipe outer channel on the board; darker WaterChannel hue. Its lightness differs from DryChannel under all colour-vision simulations (v1 #92).</summary>
+        public static readonly Color WetPipe = Hex("#104953");
         public static readonly Color DryTile = Hex("#F4ECDA");
         public static readonly Color WetTile = Hex("#E1F0EC");
         public static readonly Color SolvedTile = Hex("#E4F5EF"); // sunlit water, brighter than wet (I132)

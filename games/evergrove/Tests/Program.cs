@@ -2026,6 +2026,7 @@ internal static class Program
             assertions += ColourVisionTests.Run();
             assertions += TileOpeningsTests.Run();
             assertions += GardenFileHeaderTests.Run();
+            assertions += OutletWordsTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");
