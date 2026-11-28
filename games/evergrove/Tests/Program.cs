@@ -1939,6 +1939,7 @@ internal static class Program
             assertions += CompanionAttentionTests.Run();
             assertions += CompanionLocaleTests.Run();
             assertions += CompanionSimulatorTests.Run(); // CP11
+            assertions += CompanionFuzzTests.Run(); // CP16
             assertions += RiverGrowsTests.Run();
             assertions += FamilyParcelTests.Run();
             assertions += FamilyHelpTests.Run();
