@@ -37,7 +37,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 
 ### B. Simulation and properties
 
-- [ ] **CP11 Simulator.** A pure `CompanionSimulator` runs N days of visits over a world and returns a transcript (day, speaker, kind, key, variant, words).
+- [x] **CP11 Simulator.** A pure `CompanionSimulator` runs N days of visits over a world and returns a transcript (day, speaker, kind, key, variant, words). Done: `CompanionSimulator.Run` mirrors the app visit (ranker + locale words, one tap per neighbour per day) and is tested for completeness, determinism, read-only world and memory.
 - [ ] **CP12 No repeated wording.** In a 30-day simulation, no neighbour repeats the same words within 14 days.
 - [ ] **CP13 Once is once.** Over 120 simulated days, no once-fact is said twice.
 - [ ] **CP14 No starvation.** When a neighbour has something true to say, they say a companion line on at least 80% of simulated days.
