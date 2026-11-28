@@ -142,6 +142,8 @@ internal static class LineBankTests
             { "Thank you!", "exclamation" },
             { "I missed you, and the fruit.", "banned" },
             { "Come back soon for more fruit.", "banned" },
+            { "Keep your streaks going.", "banned" }, // CP28: a plural still counts
+            { "Don\u2019t forget the fruit.", "banned" }, // CP28: a curly apostrophe still counts
             { "Fruit keeps your brain young.", "banned" },
             { "That's three days in a row.", "time" },
             { "I ate it yesterday.", "time" },
@@ -425,7 +427,10 @@ internal static class LineBankTests
 
         private static bool Hit(string text, string phrase)
         {
-            return Regex.IsMatch(text, "(?<![a-z])" + Regex.Escape(phrase) + "(?![a-z])");
+            // CP28: curly apostrophes read as straight ones, and a plain plural still counts ("streaks").
+            text = text.Replace('\u2019', '\'').Replace('\u2018', '\'');
+            phrase = phrase.Replace('\u2019', '\'').Replace('\u2018', '\'');
+            return Regex.IsMatch(text, "(?<![a-z])" + Regex.Escape(phrase) + "(?:e?s)?(?![a-z])");
         }
 
         public List<string> Check(string kind, string line)

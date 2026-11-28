@@ -50,7 +50,11 @@ SPACE_BEFORE_PUNCTUATION = re.compile(r"\s[,.!?;:]")
 
 
 def word_hit(text: str, phrase: str) -> bool:
-    return re.search(r"(?<![a-z])" + re.escape(phrase) + r"(?![a-z])", text) is not None
+    # CP28: curly apostrophes read as straight ones ("don’t forget"), and a plain plural still
+    # counts ("streaks" for "streak").
+    text = text.replace("\u2019", "'").replace("\u2018", "'")
+    phrase = phrase.replace("\u2019", "'").replace("\u2018", "'")
+    return re.search(r"(?<![a-z])" + re.escape(phrase) + r"(?:e?s)?(?![a-z])", text) is not None
 
 
 def split_key(key: str) -> tuple[str, str | None]:

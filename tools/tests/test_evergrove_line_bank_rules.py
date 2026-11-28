@@ -123,6 +123,16 @@ class BannedPhraseTests(unittest.TestCase):
         problems = checker.check_line("FruitGiven", "0", "Keep your streak going.", REAL_RULES)
         self.assertIn("banned phrase: 'streak'", problems)
 
+    def test_plural_of_a_banned_word_is_refused(self) -> None:
+        # CP28: "streaks" counts as "streak".
+        problems = checker.check_line("FruitGiven", "0", "Keep your streaks going.", REAL_RULES)
+        self.assertIn("banned phrase: 'streak'", problems)
+
+    def test_curly_apostrophe_does_not_slip_past_a_ban(self) -> None:
+        # CP28: "don\u2019t forget" counts as "don't forget".
+        problems = checker.check_line("FruitGiven", "0", "Don\u2019t forget the fruit.", REAL_RULES)
+        self.assertTrue(any("don't forget" in p for p in problems), problems)
+
     def test_word_containing_a_phrase_is_not_refused(self) -> None:
         # word_hit requires word boundaries: "missedly" is not "missed you"; "stress" is not "stressed".
         self.assertEqual([], checker.check_line("FruitGiven", "0", "The fruit is stressed-free.", REAL_RULES))
