@@ -83,7 +83,9 @@ internal static class CompanionRankerTests
         Expect(CompanionRanker.Pick(facts, memory, 0, 103, garden) == solved, "said again on the fourth day, if still true");
         Expect(CompanionRanker.Pick(facts, memory, 1, 101, garden) == letter, "a letter still waiting may be mentioned again");
         Expect(!CompanionRanker.Eligible(solved, memory, 102) && CompanionRanker.Eligible(solved, memory, 103), "the 3-day window");
-        Expect(CompanionRanker.Eligible(solved, memory, 99), "a clock set back doesn't hide anything");
+        // CP02: a clock set back counts the remark as heard today: blocked for the window, not forever.
+        Expect(!CompanionRanker.Eligible(solved, memory, 99), "a clock set back: heard today, so not again yet");
+        Expect(CompanionRanker.Eligible(solved, memory, 103), "a clock set back: eligible again once the window passes");
         // SC04: once-facts (a season turned, a pairing found) are said once, then never again.
         Fact grove = new Fact(FactKind.PairingFound, 0, "pairing-found:Grove", new Dictionary<string, string>(), 20, false, false, 0, true);
         Expect(CompanionRanker.Pick(new List<Fact> { grove }, CompanionMemory.Empty, 0, 200, garden) == grove, "a once-fact, never heard: said");

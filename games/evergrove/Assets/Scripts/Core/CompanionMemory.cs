@@ -50,7 +50,11 @@ namespace Evergrove.Core
         {
             var kept = new List<Heard>(heard.Length + 1);
             foreach (Heard h in heard)
-                if (said.Day - h.Day < KeepDays && h.Day <= said.Day) kept.Add(h);
+            {
+                if (said.Day - h.Day >= KeepDays) continue;
+                // CP02: a remark dated after this one means the clock moved back; keep it, heard today.
+                kept.Add(h.Day > said.Day ? Redate(h, said.Day) : h);
+            }
             kept.Add(said);
             int skip = Math.Max(0, kept.Count - MaxEntries);
             return new CompanionMemory(kept.GetRange(skip, kept.Count - skip).ToArray());
@@ -61,7 +65,7 @@ namespace Evergrove.Core
         {
             string clean = Clean(key);
             foreach (Heard h in heard)
-                if (h.Key == clean && today - h.Day >= 0 && today - h.Day < days) return true;
+                if (h.Key == clean && Age(h.Day, today) < days) return true;
             return false;
         }
 
@@ -77,7 +81,7 @@ namespace Evergrove.Core
         public bool VariantWithin(FactKind kind, int speaker, int variant, int today, int days)
         {
             foreach (Heard h in heard)
-                if (h.Kind == kind && h.Speaker == speaker && h.Variant == variant && today - h.Day >= 0 && today - h.Day < days)
+                if (h.Kind == kind && h.Speaker == speaker && h.Variant == variant && Age(h.Day, today) < days)
                     return true;
             return false;
         }
@@ -126,6 +130,20 @@ namespace Evergrove.Core
             }
             int skip = Math.Max(0, list.Count - MaxEntries);
             return new CompanionMemory(list.GetRange(skip, list.Count - skip).ToArray());
+        }
+
+        /// <summary>
+        /// Days since heard. CP02: a remark dated after today (the clock moved back) is age 0, heard today,
+        /// never a negative age that falls outside a window.
+        /// </summary>
+        private static int Age(int heardDay, int today)
+        {
+            return Math.Max(0, today - heardDay);
+        }
+
+        private static Heard Redate(Heard h, int day)
+        {
+            return new Heard(day, h.Speaker, h.Kind, h.Variant, h.Key);
         }
 
         /// <summary>Keys never carry the separators (a letter-writer's name could).</summary>

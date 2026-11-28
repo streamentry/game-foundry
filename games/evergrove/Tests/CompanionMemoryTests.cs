@@ -23,7 +23,39 @@ internal static class CompanionMemoryTests
         FuzzNeverThrows();
         KeepsValidRowsAmongGarbage();
         RoundTrip();
+        ClockMovedBack();
         return assertions;
+    }
+
+    // CP02: a device clock moved back must not forget what was heard "in the future", nor let a
+    // once-fact be said again. Future-dated remarks count as heard today (age 0).
+    private static void ClockMovedBack()
+    {
+        const string key = "solved:Mosaic:2";
+        CompanionMemory future = CompanionMemory.Empty.With(new Heard(100, 0, FactKind.KindSolved, 2, key));
+
+        // (a) An entry dated after the new remark is kept, and re-dated to the remark's day.
+        CompanionMemory both = future.With(new Heard(90, 1, FactKind.Hour, 0, "hour:dawn"));
+        Expect(both.Count == 2, "a future-dated entry is kept when the clock moved back");
+        Expect(both.EverSaid(key), "the future-dated key is still remembered");
+        foreach (Heard h in both.Entries)
+            if (h.Key == key) Expect(h.Day == 90, "the future-dated entry is re-dated to the day it is heard now");
+
+        // (b) Within a window, a remark dated in the future counts as heard today.
+        Expect(future.SaidWithin(key, 90, 3), "a remark dated 100 is heard today when today is 90");
+        Expect(future.VariantWithin(FactKind.KindSolved, 0, 2, 90, 14), "a future-dated wording counts as heard today");
+        Expect(!future.SaidWithin("other:key", 90, 3), "an unrelated key is still not heard");
+
+        // (c) A once-fact heard on day 100 is not eligible again on day 90.
+        var once = new Fact(FactKind.PairingFound, 0, "pairing-found:Grove", new Dictionary<string, string>(), 20, false, false, 0, true);
+        CompanionMemory heardOnce = CompanionMemory.Empty.With(new Heard(100, 0, FactKind.PairingFound, 0, once.Key));
+        Expect(!CompanionRanker.Eligible(once, heardOnce, 90), "a once-fact heard on day 100 is not said again on day 90");
+
+        // KeepDays pruning still drops genuinely old entries.
+        CompanionMemory old = CompanionMemory.Empty
+            .With(new Heard(0, 0, FactKind.Hour, 0, "hour:old"))
+            .With(new Heard(CompanionMemory.KeepDays, 0, FactKind.Hour, 0, "hour:new"));
+        Expect(!old.EverSaid("hour:old") && old.EverSaid("hour:new"), "entries older than KeepDays are still pruned");
     }
 
     private static readonly string[] Pieces = {
