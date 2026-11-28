@@ -134,10 +134,11 @@ namespace Evergrove.Core
         public CompanionContext(DateTime today, DateTime? lastSeen = null, int lettersRead = 0,
             Weather weather = Weather.Fair, bool lightOn = false, DayPhase phase = DayPhase.Day,
             int fruitJustGivenTo = -1, int togetherKeeper = -1, PuzzleKind togetherKind = PuzzleKind.Water,
-            GardenMap map = null, int[] hourCounts = null)
+            GardenMap map = null, int[] hourCounts = null, DateTime? localNow = null)
         {
             HourCounts = hourCounts == null ? null : Array.AsReadOnly((int[])hourCounts.Clone());
             Today = today.Date;
+            LocalNow = localNow;
             LastSeen = lastSeen;
             LettersRead = Math.Max(0, lettersRead);
             Weather = weather;
@@ -149,12 +150,25 @@ namespace Evergrove.Core
             Map = map;
         }
 
-        /// <summary>Days since 2000-01-01 for the local date: the ranker's and memory's day number.</summary>
-        public int DayNumber { get { return DayNumberOf(Today); } }
+        /// <summary>CP42: the local clock time the companion's day is read from, or null when the date is the day.
+        /// Facts never read this: weather, season, rain coming and the last visit use <see cref="Today"/>.</summary>
+        public DateTime? LocalNow { get; }
+
+        /// <summary>CP42: the companion's day turns at this hour, so a 00:30 visit still belongs to the evening before.</summary>
+        public const int DayTurnsAtHour = 4;
+
+        /// <summary>Days since 2000-01-01 for the companion's day: the ranker's and memory's day number.</summary>
+        public int DayNumber { get { return LocalNow.HasValue ? CompanionDayOf(LocalNow.Value) : DayNumberOf(Today); } }
 
         public static int DayNumberOf(DateTime date)
         {
             return (int)(date.Date - new DateTime(2000, 1, 1)).TotalDays;
+        }
+
+        /// <summary>CP42: the companion's day for a local clock time: the date, once it has turned at <see cref="DayTurnsAtHour"/>.</summary>
+        public static int CompanionDayOf(DateTime localNow)
+        {
+            return DayNumberOf((localNow - TimeSpan.FromHours(DayTurnsAtHour)).Date);
         }
 
         /// <summary>CP39: the calendar date of a day number (the inverse of <see cref="DayNumberOf"/>), for the playtest export.</summary>
@@ -558,6 +572,7 @@ namespace Evergrove.Core
             else
             {
                 sb.Append("c:").Append(CompanionContext.DayNumberOf(context.Today)).Append(';')
+                  .Append("d:").Append(context.DayNumber).Append(';') // CP42: the companion's day turns at 4 a.m.
                   .Append(context.LastSeen.HasValue ? CompanionContext.DayNumberOf(context.LastSeen.Value) : -1).Append(';')
                   .Append(context.LettersRead).Append(';').Append((int)context.Weather).Append(';')
                   .Append(context.LightOn ? 1 : 0).Append(';').Append((int)context.Phase).Append(';')

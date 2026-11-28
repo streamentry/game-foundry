@@ -1937,6 +1937,7 @@ internal static class Program
             assertions += CompanionSignatureTests.Run(); // CP37
             assertions += CompanionRankerTests.Run();
             assertions += CompanionMemoryTests.Run(); // CP01
+            assertions += CompanionDayTests.Run(); // CP42
             assertions += LineBankTests.Run();
             assertions += CompanionAttentionTests.Run();
             assertions += CompanionLocaleTests.Run();

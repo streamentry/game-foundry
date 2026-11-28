@@ -221,7 +221,7 @@ namespace Evergrove.UnityClient
                 // peeks from the token. SC05: the ranker picks it (family help first, then a new
                 // arrival), else the newest thing still holding its first puzzle, as before.
                 CompanionAttention.Target arrow = CompanionAttention.ArrowTarget(world, CompanionFactsNow(),
-                    CompanionContext.DayNumberOf(CompanionToday()));
+                    CompanionDayNow()); // CP42
                 int waitingBought = arrow.Bought, waitingThing = arrow.Thing;
                 Button playToken = IconButton(token, "Play", world.Completed ? GameLocalization.Text("continue")
                         : world.CurrentPuzzle.Name, MosseloraArt.IconContinue, () => {

@@ -96,7 +96,7 @@ namespace Evergrove.UnityClient
             }
             if (nearest != null) cottageLines.Add(CottageItem.Wish);
             foreach (CottageItem item in CompanionAttention.CottageOrder(cottageLines, CompanionFactsNow(),
-                         CompanionContext.DayNumberOf(CompanionToday()), world.Garden))
+                         CompanionDayNow(), world.Garden))
                 switch (item)
                 {
                     case CottageItem.Yield:

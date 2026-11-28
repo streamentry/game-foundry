@@ -105,6 +105,10 @@ namespace Evergrove.UnityClient
         // The companion's local day (SC02): today, or the tour's scripted day.
         private DateTime CompanionToday() { return DateTime.Now.Date.AddDays(qaDayOffset); }
 
+        // CP42: the companion's day turns at 4 a.m. The clock keeps the time; the tour's whole-day offset still moves it one day per scripted day.
+        private DateTime CompanionClock() { return DateTime.Now.AddDays(qaDayOffset); }
+        private int CompanionDayNow() { return CompanionContext.CompanionDayOf(CompanionClock()); }
+
         private void Now(out int hour, out int minute)
         {
             DateTime now = DateTime.Now;
