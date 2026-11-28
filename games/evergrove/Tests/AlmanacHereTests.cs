@@ -85,6 +85,33 @@ internal static class AlmanacHereTests
         Almanac.KeeperLine(anyItem, world);
         Expect(Snapshot(world) == before, "the overload leaves the world snapshot byte-identical");
 
+        // Vision run 20261128-2001, idea 5: a chosen item whose puzzle was solved together gains the
+        // second sentence; the same item without the mark keeps the first sentence only.
+        WorldModel together = WorldModel.New(PlayMode.Living);
+        Solve(together);
+        Expect(together.Choose(VillageChoice.ShadeTree), "together: the ShadeTree choice is accepted");
+        together.SolveTree(0);
+        string unmarked = Almanac.KeeperLine(chosenItem, together);
+        Expect(unmarked == Almanac.KeeperLine(chosenItem) + Chosen,
+            "a chosen item without a together mark ends with the first sentence only");
+        Expect(!unmarked.Contains("solved its puzzle together"), "no together sentence before the mark");
+
+        Expect(together.MarkTogether(0), "together: the chosen thing's puzzle is marked together");
+        string marked = Almanac.KeeperLine(chosenItem, together);
+        Expect(marked == Almanac.KeeperLine(chosenItem) + Chosen + " You solved its puzzle together.",
+            "after MarkTogether the line ends with both sentences");
+
+        GardenItem otherFamily = GardenCatalog.For(together.Garden, 0, VillageChoice.Bridge);
+        Expect(!Almanac.KeeperLine(otherFamily, together).Contains("You chose it"),
+            "an unchosen item in the marked world gains no sentence");
+        Expect(!Almanac.KeeperLine(otherFamily, together).Contains("solved its puzzle together"),
+            "an unchosen item in the marked world gains no together sentence");
+
+        string beforeMarked = Snapshot(together);
+        Almanac.KeeperLine(chosenItem, together);
+        Almanac.KeeperLine(otherFamily, together);
+        Expect(Snapshot(together) == beforeMarked, "reading the marked line leaves the save byte-identical");
+
         Console.WriteLine("Evergrove almanac here tests: " + assertions + " assertions.");
         return assertions;
     }

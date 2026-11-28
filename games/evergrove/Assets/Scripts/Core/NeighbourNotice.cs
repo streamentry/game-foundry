@@ -148,12 +148,20 @@ namespace Evergrove.Core
         // save doesn't record which, so the line claims neither).
         internal static string Arrival(int villager, string name)
         {
+            bool plural = ItemWords.Plural(name);
             switch (villager)
             {
-                case 0: return "A " + name + ", new in the garden. Give it a season and it will shade the whole bank.";
-                case 1: return "That new " + name + ": I would like to see how it is joined.";
-                default: return "A new " + name + "! The bees will find it by noon.";
+                case 0: return Capital(ItemWords.WithArticle(name)) + ", new in the garden. Give it a season and it will shade the whole bank.";
+                case 1: return plural
+                    ? "Those new " + name + ": I would like to see how they are joined."
+                    : "That new " + name + ": I would like to see how it is joined.";
+                default: return "New " + name + "! The bees will find " + (plural ? "them" : "it") + " by noon.";
             }
+        }
+
+        private static string Capital(string text)
+        {
+            return string.IsNullOrEmpty(text) ? text : char.ToUpperInvariant(text[0]) + text.Substring(1);
         }
 
         // I250: the season the new stretch brought, said once, plainly (seasons turn by tending).
@@ -291,9 +299,11 @@ namespace Evergrove.Core
         {
             switch (villager)
             {
-                case 0: return "Someone sent you a " + name + " cutting. It's waiting in your basket for a good spot.";
-                case 1: return "There's a " + name + " in your basket, sent with care. Shall we find it a place?";
-                default: return "A " + name + " cutting came for you! It's waiting in your basket.";
+                case 0: return "Someone sent you " + ItemWords.WithArticle(name) + " cutting. It's waiting in your basket for a good spot.";
+                case 1: return ItemWords.Plural(name)
+                    ? "There are " + name + " in your basket, sent with care. Shall we find them a place?"
+                    : "There's " + ItemWords.WithArticle(name) + " in your basket, sent with care. Shall we find it a place?";
+                default: return "Cuttings of " + name + " came for you! They're waiting in your basket.";
             }
         }
 
