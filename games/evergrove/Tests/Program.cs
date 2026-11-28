@@ -1954,6 +1954,7 @@ internal static class Program
             assertions += MenuFoldTests.Run(); // checklist 11
             assertions += PuzzleChainTests.Run(); // checklist 38
             assertions += BoardZoomTests.Run(); // checklist 91
+            assertions += LazyStretchTests.Run(); // checklist 50
             assertions += FileSizeTests.Run();
             assertions += RiverTravelTests.Run();
             assertions += ColourCueTests.Run();
