@@ -156,6 +156,12 @@ namespace Evergrove.Core
         {
             return (int)(date.Date - new DateTime(2000, 1, 1)).TotalDays;
         }
+
+        /// <summary>CP39: the calendar date of a day number (the inverse of <see cref="DayNumberOf"/>), for the playtest export.</summary>
+        public static DateTime DateOfDay(int dayNumber)
+        {
+            return new DateTime(2000, 1, 1).AddDays(dayNumber);
+        }
     }
 
     /// <summary>

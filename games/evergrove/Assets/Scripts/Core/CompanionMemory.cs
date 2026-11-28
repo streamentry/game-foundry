@@ -241,6 +241,28 @@ namespace Evergrove.Core
             return StorageKeyPrefix + safe + ":" + garden;
         }
 
+        /// <summary>
+        /// CP39: the playtest export, one line per remark, oldest first: "date · who · kind". Deliberately has
+        /// no key and no wording (a key can carry a family member's typed name), so a participant can paste it.
+        /// <paramref name="dateOfDay"/> turns a day number into a date; without it the day number is written.
+        /// </summary>
+        public string ToReadable(IReadOnlyList<string> speakerNames, Func<int, DateTime> dateOfDay = null)
+        {
+            var text = new StringBuilder("What the neighbours said (this phone only)");
+            if (heard.Length == 0) return text.Append("\nNothing yet.").ToString();
+            foreach (Heard h in heard)
+            {
+                string when = dateOfDay != null
+                    ? dateOfDay(h.Day).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    : "day " + h.Day.ToString(CultureInfo.InvariantCulture);
+                bool known = speakerNames != null && h.Speaker >= 0 && h.Speaker < speakerNames.Count
+                    && !string.IsNullOrEmpty(speakerNames[h.Speaker]);
+                string who = known ? speakerNames[h.Speaker] : "someone";
+                text.Append('\n').Append(when).Append(" · ").Append(who).Append(" · ").Append(h.Kind.ToString());
+            }
+            return text.ToString();
+        }
+
         /// <summary>Keys never carry the separators (a letter-writer's name could).</summary>
         internal static string Clean(string key)
         {

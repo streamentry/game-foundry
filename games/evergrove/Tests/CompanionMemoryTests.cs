@@ -27,7 +27,48 @@ internal static class CompanionMemoryTests
         CapKeepsEverSaid();
         MemoryHelpers();
         StorageKeys();
+        ToReadableExport();
         return assertions;
+    }
+
+    // CP39: the playtest export is what a participant may paste: date, who, what kind. Never a key or words.
+    private static void ToReadableExport()
+    {
+        string[] names = { "Mira", "Orin", "Fen" };
+
+        // Empty memory: the header and "Nothing yet.".
+        string none = CompanionMemory.Empty.ToReadable(names, CompanionContext.DateOfDay);
+        Expect(none == "What the neighbours said (this phone only)\nNothing yet.", "an empty memory exports the header and 'Nothing yet.'");
+
+        // Two entries, oldest first, with names and kinds; day 10 is 2000-01-11 and day 11 is 2000-01-12.
+        CompanionMemory two = CompanionMemory.Empty
+            .With(new Heard(10, 0, FactKind.Hour, 0, "hour:dawn"))
+            .With(new Heard(11, 2, FactKind.LetterWaiting, -1, "letter:Anh:1"));
+        string text = two.ToReadable(names, CompanionContext.DateOfDay);
+        Expect(text == "What the neighbours said (this phone only)\n" +
+            "2000-01-11 · Mira · Hour\n" +
+            "2000-01-12 · Fen · LetterWaiting",
+            "two entries export in order with date, speaker and kind");
+
+        // No date function: the day number stands in for the date.
+        Expect(two.ToReadable(names).Contains("day 10 · Mira · Hour"), "without a date function the day number is written");
+
+        // An unknown speaker index is 'someone'.
+        CompanionMemory unknown = CompanionMemory.Empty.With(new Heard(10, 7, FactKind.Hour, 0, "hour:dawn"));
+        Expect(unknown.ToReadable(names, CompanionContext.DateOfDay).Contains("2000-01-11 · someone · Hour"),
+            "an unknown speaker index prints 'someone'");
+
+        // The entry keys never appear in the export.
+        CompanionMemory keyed = CompanionMemory.Empty.With(new Heard(10, 1, FactKind.LetterWaiting, -1, "letter:Anh:1"));
+        string exported = keyed.ToReadable(names, CompanionContext.DateOfDay);
+        Expect(!exported.Contains("letter:Anh:1") && !exported.Contains("Anh"), "the export never contains an entry key");
+        Expect(!exported.Contains("hour:dawn"), "the export never contains a key of another entry");
+
+        // DateOfDay is the inverse of DayNumberOf, on the day.
+        DateTime day = new DateTime(2031, 6, 15, 23, 40, 0);
+        Expect(CompanionContext.DateOfDay(CompanionContext.DayNumberOf(day)) == new DateTime(2031, 6, 15),
+            "DateOfDay round-trips DayNumberOf to the same calendar day");
+        Expect(CompanionContext.DateOfDay(0) == new DateTime(2000, 1, 1), "day 0 is 2000-01-01");
     }
 
     // CP06: read-only helpers used by CP07-CP09 (who spoke last, how many days a key was heard, a kind on a day).
