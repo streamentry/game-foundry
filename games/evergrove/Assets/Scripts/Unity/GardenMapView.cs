@@ -17,7 +17,7 @@ namespace Evergrove.UnityClient
     /// there. The item "in hand" wears a soft ring and bobs. Placement rules and
     /// saving live outside (GardenMap, WorldModel); this only shows and reports taps.
     /// </summary>
-    internal sealed class GardenMapView : MonoBehaviour
+    internal sealed partial class GardenMapView : MonoBehaviour
     {
         public struct Placed
         {
@@ -656,13 +656,13 @@ namespace Evergrove.UnityClient
             land.sizeDelta = new Vector2(width, height);
             foreach (RectTransform old in nodes) if (old != null) Destroy(old.gameObject);
             nodes.Clear();
-            var order = new List<Placed>(items);
+            var order = new List<Placed>(items); order.RemoveAll(placed => !NearCell(placed.Cell) && !placed.Newest && placed.Index != inHand); // checklist 50: built near the window; the newest and the one in hand always, for the focus
             order.Sort((a, b) => a.Cell / map.Columns != b.Cell / map.Columns
                 ? (a.Cell / map.Columns).CompareTo(b.Cell / map.Columns)
                 : a.Cell.CompareTo(b.Cell));
             // I296: from dusk to dawn, lamplight spills from each cottage door (painted top right
             // of every reach): two soft warm discs, over the evening shade.
-            for (int reach = 0; LampLit && reach < reaches; reach++)
+            for (int reach = FirstReach(); LampLit && reach < EndReach(reaches); reach++)
             {
                 // Every other reach is the painting mirrored top to bottom (I192), door and all.
                 float down = reach % 2 == 0 ? reach * reachHeight + reachHeight * 0.148f : (reach + 1) * reachHeight - reachHeight * 0.148f;
@@ -749,7 +749,7 @@ namespace Evergrove.UnityClient
             for (int c = 0, seen = 0; MistNow && c < map.CellCount; c++)
             {
                 if (map.At(c) != GardenMap.Water) continue;
-                if (seen++ % mistStride != 0) continue;
+                if (seen++ % mistStride != 0 || !NearCell(c)) continue; // checklist 50: counted over the whole river, built near the window
                 var mist = new GameObject("Morning mist", typeof(RectTransform));
                 mist.transform.SetParent(land, false);
                 var mistRect = (RectTransform)mist.transform;
@@ -764,7 +764,7 @@ namespace Evergrove.UnityClient
                 nodes.Add(mistRect);
             }
             // I410: on cold evenings the cottage fire is lit: a wisp of smoke from the chimney.
-            if (SmokeNow)
+            if (SmokeNow && NearReach(0)) // checklist 50: the chimney is on the top stretch
             {
                 var smoke = new GameObject("Chimney smoke", typeof(RectTransform));
                 smoke.transform.SetParent(land, false);
@@ -776,7 +776,7 @@ namespace Evergrove.UnityClient
                 nodes.Add(smokeRect);
             }
             // I338: snow on every cottage roof in winter (top right of each reach; mirrored ones too).
-            for (int reach = 0; SeasonLook.SnowCaps(SeasonNow) && reach < reaches; reach++)
+            for (int reach = FirstReach(); SeasonLook.SnowCaps(SeasonNow) && reach < EndReach(reaches); reach++)
             {
                 float roofDown = reach % 2 == 0 ? reach * reachHeight + reachHeight * 0.075f : (reach + 1) * reachHeight - reachHeight * 0.075f;
                 var roof = new GameObject("Snow on the roof", typeof(RectTransform));
@@ -799,7 +799,7 @@ namespace Evergrove.UnityClient
                 for (int c = 0; c < map.CellCount && drawn < 70; c++)
                 {
                     if (map.At(c) != GardenMap.Water || (c * 7) % (riverLook == RiverLook.IceEdged ? 2 : 3) != 0) continue;
-                    int col = c % map.Columns, row = c / map.Columns;
+                    int col = c % map.Columns, row = c / map.Columns; if (!NearCell(c)) { drawn++; continue; } // checklist 50: counted as drawn, built near the window
                     var mark = new GameObject(riverLook.ToString(), typeof(RectTransform));
                     mark.transform.SetParent(land, false);
                     var markRect = (RectTransform)mark.transform;
@@ -834,7 +834,7 @@ namespace Evergrove.UnityClient
             }
             // I360: a painted plank at the head of each stretch, with its name.
             Sprite plank = SignFont != null ? MosseloraArt.Load(MosseloraArt.StreamSign) : null;
-            for (int reach = 0; plank != null && reach < reaches; reach++)
+            for (int reach = FirstReach(); plank != null && reach < EndReach(reaches); reach++)
             {
                 var sign = new GameObject("River name " + RiverNames.For(reach), typeof(RectTransform));
                 sign.transform.SetParent(land, false);
@@ -867,7 +867,7 @@ namespace Evergrove.UnityClient
             }
             // I310 (idea 43, leaving a light for another): lanterns family left stand along the
             // path below your cottage door, the newest nearest; lit after dusk.
-            for (int l = 0; l < Mathf.Min(lanterns, 3); l++)
+            for (int l = 0; l < Mathf.Min(lanterns, 3) && NearReach(0); l++) // checklist 50: they stand on the top stretch
             {
                 var lantern = new GameObject("A lantern left by family", typeof(RectTransform));
                 lantern.transform.SetParent(land, false);
@@ -904,7 +904,7 @@ namespace Evergrove.UnityClient
             int[] tuftCells = meadow;
             for (int t = 0; tuftCells != null && t < tuftCells.Length; t++)
             {
-                int cell = tuftCells[t];
+                int cell = tuftCells[t]; if (!NearCell(cell)) continue; // checklist 50
                 if (cell < 0 || cell >= map.CellCount) continue;
                 Sprite wild = MosseloraArt.Load("flower-" + ((cell * 7 + 3) % 50).ToString("00"));
                 if (wild == null) continue;
@@ -929,7 +929,7 @@ namespace Evergrove.UnityClient
             Sprite sprig = pairLinks != null ? MosseloraArt.Load(MosseloraArt.Sprig) : null;
             for (int l = 0; sprig != null && l + 1 < pairLinks.Length; l += 2)
             {
-                int a = pairLinks[l], b = pairLinks[l + 1];
+                int a = pairLinks[l], b = pairLinks[l + 1]; if (!NearCell(a) && !NearCell(b)) continue; // checklist 50: a sprig with an end in view
                 if (a < 0 || b < 0 || a >= map.CellCount || b >= map.CellCount) continue;
                 Vector2 pa = new Vector2((a % map.Columns + 0.5f) * cellW, -(a / map.Columns + 0.85f) * cellH);
                 Vector2 pb = new Vector2((b % map.Columns + 0.5f) * cellW, -(b / map.Columns + 0.85f) * cellH);
@@ -948,7 +948,7 @@ namespace Evergrove.UnityClient
                 nodes.Add(linkRect);
             }
             // I430: a small lantern by the shady seat; lit from dusk, when the neighbours have sat there.
-            if (seatLantern >= 0 && seatLantern < map.CellCount)
+            if (seatLantern >= 0 && seatLantern < map.CellCount && NearCell(seatLantern))
             {
                 var seatLamp = new GameObject("A lantern by the seat", typeof(RectTransform));
                 seatLamp.transform.SetParent(land, false);
@@ -979,7 +979,7 @@ namespace Evergrove.UnityClient
             // I374: the visitors good neighbours bring.
             for (int k = 0; creatureCells != null && k < creatureCells.Length; k++)
             {
-                int cell = creatureCells[k];
+                int cell = creatureCells[k]; if (!NearCell(cell)) continue; // checklist 50
                 if (cell < 0 || cell >= map.CellCount) continue;
                 var creature = new GameObject(k == 0 ? "A heron, fishing" : k == 1 ? "A hedgehog, snuffling" : k == 2 ? "An owl, watching" : "A kingfisher, perched", typeof(RectTransform));
                 creature.transform.SetParent(land, false);
@@ -995,11 +995,11 @@ namespace Evergrove.UnityClient
                 creatureRect.localScale = Vector3.one * Mathf.Clamp(cellW / 30f, 1f, 2.4f);
                 nodes.Add(creatureRect);
             }
-            GardenNightCreatures.Place(land, nodes, map, cellW, cellH, nightCells); // checklist 49: moths and frogs, evening only
+            GardenNightCreatures.Place(land, nodes, map, cellW, cellH, nightCells, NearCell); // checklist 49: moths and frogs, evening only; checklist 50: near the window
             // I372: where the thing in hand would make a new good neighbour, a soft green glow.
             for (int sp = 0; pairSpots != null && sp < pairSpots.Length; sp++)
             {
-                int cell = pairSpots[sp];
+                int cell = pairSpots[sp]; if (!NearCell(cell)) continue; // checklist 50
                 if (cell < 0 || cell >= map.CellCount) continue;
                 var spot = new GameObject("Would make good neighbours", typeof(RectTransform));
                 spot.transform.SetParent(land, false);
@@ -1021,7 +1021,7 @@ namespace Evergrove.UnityClient
                 for (int g = 0; g < 36; g++)
                 {
                     int cell = rng.Next(map.CellCount);
-                    if (!map.IsLand(cell)) continue;
+                    if (!map.IsLand(cell)) continue; if (!NearCell(cell)) { rng.NextDouble(); rng.NextDouble(); continue; } // checklist 50: the same draws as a built glint, so the rest stay put
                     var glint = new GameObject(DewNow == Dew.Frost ? "Frost" : "Dew", typeof(RectTransform));
                     glint.transform.SetParent(land, false);
                     var glintRect = (RectTransform)glint.transform;
@@ -1261,7 +1261,7 @@ namespace Evergrove.UnityClient
             }
             if (keep.x >= 0f)
             {
-                scroll.StopMovement();
+                if (!windowing) scroll.StopMovement(); // checklist 50: a window change keeps a fling going
                 scroll.normalizedPosition = keep;
                 KeepClear(standing);
                 return;

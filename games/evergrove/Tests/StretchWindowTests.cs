@@ -98,8 +98,8 @@ internal static class StretchWindowTests
         Expect(window.Contains("internal static bool Enabled = true;"), "the window is on in play");
         Expect(window.Contains("StretchWindowRule.Range(top, bottom, stretchHeight, stretches, out first, out last);") &&
                window.Contains("StretchWindowRule.Keep("), "the component follows the pure rule");
-        Expect(window.Contains("if (first == lastFirst && last == lastLast && land.childCount == lastChildren"),
-            "work is done only when the range or the land's children change, not every frame");
+        Expect(window.Contains("if (first == lastFirst && last == lastLast && painting.childCount == lastPaintings"),
+            "work is done only when the range or the painting's children change, not every frame");
         Expect(window.Contains("rect.rect.height > stretchHeight * 2f"), "layers spanning the river stay live");
         Expect(hub.Contains("if (qaLongRiver > 0) reaches = qaLongRiver;") && hub.Contains("private int qaLongRiver;"),
             "only the tour lengthens the river; 0 in play");

@@ -5,10 +5,10 @@ namespace Evergrove.UnityClient
 {
     /// <summary>
     /// Checklist 50: keeps only the river stretches on screen, plus one either side, live
-    /// (StretchWindowRule). Everything on the land (each stretch's painting, things, visitors, signs,
-    /// neighbours, shadows) further away is set inactive, and comes back as the view nears it. Large
+    /// (StretchWindowRule). The map view builds only the things on that window (GardenMapView.SetWindow),
+    /// so nothing further away exists; each stretch's painting outside it is set inactive here. Large
     /// layers that span the whole river (the painting's frame, washes, the misty land below) stay live.
-    /// Work is done only when the range on screen or the land's children change, never every frame.
+    /// Work is done only when the range on screen or the painting's children change, never every frame.
     /// </summary>
     internal sealed class StretchWindow : MonoBehaviour
     {
@@ -16,8 +16,9 @@ namespace Evergrove.UnityClient
         internal static bool Enabled = true;
 
         private RectTransform viewport, land, painting;
+        private GardenMapView view;
         private int stretches;
-        private int lastFirst = -1, lastLast = -1, lastChildren = -1, lastPaintings = -1;
+        private int lastFirst = -1, lastLast = -1, lastPaintings = -1;
         private bool lastEnabled = true;
         private readonly Vector3[] corners = new Vector3[4];
 
@@ -30,6 +31,9 @@ namespace Evergrove.UnityClient
             window.land = land;
             window.painting = painting;
             window.stretches = stretches;
+            window.view = viewport.GetComponent<GardenMapView>();
+            // The first layout builds only the top of the river; the window follows the view from then on.
+            if (Enabled && window.view != null) window.view.PresetWindow(0, StretchWindowRule.Margin);
         }
 
         /// <summary>How many things on the land are live now (the tour logs it).</summary>
@@ -48,13 +52,13 @@ namespace Evergrove.UnityClient
             if (!(stretchHeight > 1f)) return;
             viewport.GetWorldCorners(corners);
             float top = Depth(corners[1]), bottom = Depth(corners[0]);
-            int first = 0, last = stretches;
+            int first = 0, last = int.MaxValue;
             if (Enabled) StretchWindowRule.Range(top, bottom, stretchHeight, stretches, out first, out last);
-            if (first == lastFirst && last == lastLast && land.childCount == lastChildren &&
-                painting.childCount == lastPaintings && Enabled == lastEnabled) return;
+            if (first == lastFirst && last == lastLast && painting.childCount == lastPaintings && Enabled == lastEnabled) return;
             lastFirst = first; lastLast = last; lastEnabled = Enabled;
-            lastChildren = land.childCount; lastPaintings = painting.childCount;
-            Apply(land, stretchHeight, first, last);
+            lastPaintings = painting.childCount;
+            // The map builds the things in the window (relaid out only when it changes), then the paintings follow it.
+            if (view != null) view.SetWindow(first, last);
             Apply(painting, stretchHeight, first, last);
         }
 
