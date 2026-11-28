@@ -61,7 +61,7 @@ namespace Evergrove.UnityClient
         private static void BuildLine(RectTransform card, string cause, Sprite sprite, Font font, bool gentle)
         {
             var node = new GameObject("Chain cause", typeof(RectTransform), typeof(CanvasGroup), typeof(LayoutElement));
-            node.transform.SetParent(card, false);
+            node.transform.SetParent(TreePlay.ControlsOf(card), false); // v1 #91: sideways, in the control panel
             node.GetComponent<LayoutElement>().ignoreLayout = true;
             var rect = (RectTransform)node.transform;
             rect.anchorMin = new Vector2(0f, 0f);

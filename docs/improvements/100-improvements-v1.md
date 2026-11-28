@@ -125,7 +125,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 
 ## J. Accessibility, trust and proof
 
-- [ ] **91. Touch targets of at least 48 pt everywhere.** Audit every raycast target and enlarge any below 48 pt. *Test:* an automated scan in the tour.
+- [x] **91. Touch targets of at least 48 pt everywhere.** Audit every raycast target and enlarge any below 48 pt. *Test:* an automated scan in the tour.
 - [x] **92. A colour-blind pass.** Every colour cue is paired with a shape or pattern (puzzle colours, pairing sprigs, fit glow). *Test:* deuteranopia and protanopia simulations on the tour sheets.
 - [ ] **93. VoiceOver and TalkBack can finish a board.** Do this for at least one puzzle kind first. *Test:* a blind-tester session.
 - [ ] **94. One-hand landscape and portrait.** Every action is reachable with one thumb in both orientations. *Test:* landscape and 150% tours (per the landscape-verification memory).

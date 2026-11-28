@@ -13,7 +13,7 @@ namespace Evergrove.UnityClient
     /// Kept apart from EvergroveApp's story board on purpose (no hints, undo or
     /// chapter state), so other puzzle kinds can live beside it later.
     /// </summary>
-    internal sealed class TreePlay : MonoBehaviour
+    internal sealed partial class TreePlay : MonoBehaviour
     {
         public const string SeedIcon = "glyph-sprout";
 
@@ -408,10 +408,10 @@ namespace Evergrove.UnityClient
 
             // Width: the screen less a gutter, never wider than a comfortable card.
             float screenWidth = root.rect.width > 1f ? root.rect.width : 390f;
-            float screenHeight = root.rect.height > 1f ? root.rect.height : 844f;
+            float screenHeight = root.rect.height > 1f ? root.rect.height : 844f; if (Sideways(root)) screenHeight += TopRowSpace; // v1 #91: the top row moves beside the board
             // The card is about its width plus 100 pt tall: sideways, the height decides (I204).
-            float width = Mathf.Min(screenWidth - 28f, 440f, screenHeight - 112f);
-            cardRect.sizeDelta = new Vector2(width, 0f);
+            float width = Sideways(root) ? SidewaysBoardWidth(root) : Mathf.Min(screenWidth - 28f, 440f, screenHeight - 112f);
+            cardRect.sizeDelta = new Vector2(Sideways(root) ? SidewaysCardWidth(width) : width, 0f);
             StartCoroutine(KeepCardOnScreen(root));
 
             // Top row: close token, the thing itself, the seeds it pays.
@@ -524,7 +524,7 @@ namespace Evergrove.UnityClient
         // Solved, whatever the kind: record it, show the seeds, bloom, close soon.
         private void Finish()
         {
-            solved = true;
+            solved = true; ZoomDone(); // v1 #91: a solved board shows whole
             int earned = onSolved != null ? onSolved() : 0;
             if (gentle && Flourish != null) RiseFlourish();
             SettleIntoThing();
@@ -729,11 +729,11 @@ namespace Evergrove.UnityClient
         {
             yield return null;
             yield return null; // after the leaves chooser attaches (EvergroveApp.Difficulty.cs)
-            if (cardRect == null || root == null) yield break;
+            if (cardRect == null || root == null) yield break; SplitSideways(root); // v1 #91: board left, controls right
             Canvas.ForceUpdateCanvases();
             float room = root.rect.height - 16f;
             float tall = cardRect.rect.height;
-            cardRect.localScale = tall > room && tall > 1f ? Vector3.one * Mathf.Max(0.6f, room / tall) : Vector3.one;
+            cardRect.localScale = tall > room && tall > 1f ? Vector3.one * Mathf.Max(0.6f, room / tall) : Vector3.one; InstallZoom(); // v1 #91
         }
 
         private void BuildPairs(Transform card, float width, float screenHeight, Font font)
