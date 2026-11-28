@@ -22,9 +22,12 @@ namespace Evergrove.Core
                     string since = DayWeather.SinceSentence(fact.Slot("weather"), fact.IntSlot("days"));
                     return fact.Slot("welcome") == null ? since : fact.Slot("welcome") + " " + since; // I420
                 case FactKind.LetterWaiting:
+                    // CP35: a blank name gives no sentence ("from  ."); the letter stays in the box unsaid.
+                    if (string.IsNullOrEmpty(fact.Slot("name"))) return null;
                     return "There's a letter in your box from " + fact.Slot("name") + ". I saw the flag go up this morning.";
                 case FactKind.GiftWaiting: return NeighbourNotice.Waiting(speaker, fact.Slot("thing"));
                 case FactKind.HelpedBy:
+                    if (string.IsNullOrEmpty(fact.Slot("name"))) return null; // CP35: no " came by" without a name
                     return fact.Slot("name") + " came by and " + NeighbourNotice.HelpedWith(fact.EnumSlot<PuzzleKind>("puzzle")) +
                         " Look how it blooms.";
                 case FactKind.NewArrival: return NeighbourNotice.Arrival(speaker, fact.Slot("thing"));

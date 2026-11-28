@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Evergrove.Core
 {
@@ -38,11 +39,15 @@ namespace Evergrove.Core
         public static bool CanSay(string locale, LineBank bank, Fact fact, int speaker, SlotTranslator translate = null)
         {
             if (fact == null) return false;
-            if (locale == English) return CompanionSpeech.Legacy(fact, speaker) != null || (bank != null && bank.CanSay(fact, speaker));
+            // CP35: English may say a line whose slots all have values (a blank name fills none) or fall back to today's sentence.
+            if (locale == English) return CompanionSpeech.Legacy(fact, speaker) != null || (bank != null && bank.For(fact, speaker).Any(line => HasValues(fact, line)));
             if (bank == null || !bank.CanSay(fact, speaker)) return false;
             foreach (string line in bank.For(fact, speaker))
+            {
+                if (!HasValues(fact, line)) return false; // CP35: a blank name is not sayable in any language
                 foreach (string slot in LineBank.SlotsIn(line))
                     if (!IsLocalized(slot) && !IsTranslated(fact, slot, translate)) return false;
+            }
             return true;
         }
 
@@ -67,6 +72,14 @@ namespace Evergrove.Core
         {
             foreach (string s in LocalizedSlots) if (s == slot) return true;
             return false;
+        }
+
+        /// <summary>CP35: every {slot} the line uses has a non-empty value in the fact (a name that tidies to "" is none).</summary>
+        private static bool HasValues(Fact fact, string line)
+        {
+            foreach (string slot in LineBank.SlotsIn(line))
+                if (string.IsNullOrEmpty(fact.Slot(slot))) return false;
+            return true;
         }
 
         /// <summary>CP31: the slot has a non-empty translation of the fact's English value.</summary>
