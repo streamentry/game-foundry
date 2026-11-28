@@ -184,3 +184,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - A thing solved together says so in its map caption ("You solved it together."), from the save's together marks only. Tests: `ThingStoryTests`. Tour and device: not run.
 - Wet pipe channels darkened to `WetPipe` #104953 (item 92): wet vs dry ≥ 1.54:1 under all four colour-vision simulations (was 1.00–1.22:1). Tests: `ColourVisionTests`, `ThemeContrastTests`. On-screen look: not checked.
 - The spring's screen-reader label names the outlets, English only (`OutletWords`, item 93). Tests: `OutletWordsTests`. VoiceOver/TalkBack: not run.
+
+## Vision run 20261128-1301 (outside the v1 checklist)
+
+- Linked gates measured: `LinkedForks` (5×5, two non-adjacent tiles on one axle, not wired) yields 60/60 boards that are ambiguous without the axle and unique with it; 13 of 60 need a guess after link-aware deduction (at most 4). Tests: `LinkedForksTests`.
+- Nursery plants and basket plantings tell a true story on long press ("Lavender, from the nursery. You grew it from its puzzle."), Living mode and English only (`ThingStory`). Tests: `ThingStoryTests`. Tour and device: not run.
+- A board that opens on someone else's turn says so to a screen reader ("Second player starts, of three.") and pulses their pip once (`TakeTurns.SpokenStart`). Tests: `StarterTurnTests`. VoiceOver/TalkBack and tour: not run.
+- Turn colours checked under colour-vision simulation (item 92): **finding, fixed**: lowest pair was 1.22:1 under protanopia; honey and rose adjusted, now ≥ 1.36:1 under all four. Tests: `TurnPaletteTests`. On-screen look: not checked.
+- The hint's offer on a co-player's turn is spoken ("Hint offered.", `TakeTurns.SpokenHint`, item 93). Tests: `StarterTurnTests`. VoiceOver/TalkBack: not run.

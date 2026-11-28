@@ -123,7 +123,7 @@ namespace Evergrove.UnityClient
                 pips[p] = pip.AddComponent<Image>();
                 pips[p].raycastTarget = false;
             }
-            PaintTurn();
+            OpenTurn();
         }
 
         // Alone, two, three, four, then alone again (I303).

@@ -2014,6 +2014,7 @@ internal static class Program
             assertions += DeductionDepthTests.Run();
             assertions += TurnPaletteTests.Run();
             assertions += SpokenTurnTests.Run();
+            assertions += StarterTurnTests.Run();
             assertions += LanternThingTests.Run();
             assertions += TogetherCountTests.Run();
             assertions += GardenCompareTests.Run();
@@ -2028,6 +2029,7 @@ internal static class Program
             assertions += TileOpeningsTests.Run();
             assertions += GardenFileHeaderTests.Run();
             assertions += OutletWordsTests.Run();
+            assertions += LinkedForksTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

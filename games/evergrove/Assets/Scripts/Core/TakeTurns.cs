@@ -50,5 +50,25 @@ namespace Evergrove.Core
             string[] counts = { "two", "three", "four" };
             return ordinals[who] + " player's turn, of " + counts[count - 2] + ".";
         }
+
+        /// <summary>
+        /// The line a screen reader says when a board opens with someone other than the first player
+        /// starting it, before any move: "Second player starts, of three." Alone, the plain line; never throws.
+        /// </summary>
+        public static string SpokenStart(int turn, int players)
+        {
+            if (players <= 1) return Spoken(turn, players);
+            int count = players > MaxPlayers ? MaxPlayers : players;
+            int who = ((turn % count) + count) % count;
+            string[] ordinals = { "First", "Second", "Third", "Fourth" };
+            string[] counts = { "two", "three", "four" };
+            return ordinals[who] + " player starts, of " + counts[count - 2] + ".";
+        }
+
+        /// <summary>The line a screen reader says about the hint offer: said exactly when the offer glows.</summary>
+        public static string SpokenHint(int turn, int players)
+        {
+            return OfferHint(turn, players) ? "Hint offered." : "";
+        }
     }
 }

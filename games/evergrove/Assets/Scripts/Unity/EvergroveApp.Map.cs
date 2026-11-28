@@ -250,6 +250,7 @@ namespace Evergrove.UnityClient
                     Art = ItemArt(source, made[source]),
                     Cell = planted[k * 2 + 1],
                     Index = PlantingIndex + k,
+                    Caption = englishOnly ? ThingStory.ForPlanting(world, k, ItemAt(source, made[source]).Name) : null,
                     Family = (VillageChoice)Mathf.Clamp(made[source], 0, 2),
                     Newest = k == justPlanted
                 });
@@ -265,6 +266,7 @@ namespace Evergrove.UnityClient
                     Art = MosseloraArt.Load(Nursery.Item(kind).Art),
                     Cell = bought[k * 2 + 1],
                     Index = BoughtIndex + k,
+                    Caption = englishOnly ? ThingStory.ForNursery(world, k, Nursery.Item(kind).Name) : null,
                     Family = Nursery.Family(kind),
                     Newest = justSolved >= 0 ? BoughtIndex + k == justSolved : k == justBought,
                     Bloomed = world.BoughtSolved(k),

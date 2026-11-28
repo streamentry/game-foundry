@@ -140,6 +140,51 @@ internal static class ThingStoryTests
         Expect(ThingStory.For(togetherSaved, 0, "oak") == ThingStory.For(world, 0, "oak"),
             "together sentence survives a save/load round trip");
 
+        // Nursery plants: the pure sentence, with each clause only where its fact holds.
+        Expect(ThingStory.NurseryLine("quince tree", false, false) == "Quince tree, from the nursery.", "nursery, not grown");
+        Expect(ThingStory.NurseryLine("quince tree", true, false) ==
+            "Quince tree, from the nursery. You grew it from its puzzle.", "nursery, grown");
+        Expect(ThingStory.NurseryLine("quince tree", true, true) ==
+            "Quince tree, from the nursery. You grew it from its puzzle. You solved it together.", "nursery, grown and together");
+        Expect(ThingStory.NurseryLine("quince tree", false, true) == "Quince tree, from the nursery.",
+            "together without grown adds no clause");
+        Expect(ThingStory.NurseryLine(null, true, true) == "" && ThingStory.NurseryLine("  ", false, false) == "",
+            "blank nursery name gives no line");
+
+        // Basket plantings: exact sentence, blank and out-of-range give "".
+        Expect(ThingStory.PlantingLine("quince tree", 2, 3) ==
+            "Planted from your basket. It came from the quince tree you chose after stream 3.", "planting line");
+        Expect(ThingStory.PlantingLine(" oak ", 0, 1) ==
+            "Planted from your basket. It came from the oak you chose after stream 1.", "planting name trimmed");
+        Expect(ThingStory.PlantingLine("", 0, 1) == "" && ThingStory.PlantingLine(null, 0, 1) == "",
+            "blank planting name gives no line");
+        Expect(ThingStory.PlantingLine("oak", -1, 1) == "" && ThingStory.PlantingLine("oak", 1, 1) == "",
+            "planting index out of range gives no line");
+
+        // ForNursery / ForPlanting on a real living save with bought and planted things.
+        Expect(ThingStory.ForNursery(null, 0, "oak") == "" && ThingStory.ForPlanting(null, 0, "oak") == "",
+            "null world gives no nursery or planting caption");
+        WorldSnapshot shelf = world.Export();
+        shelf.bought = new[] { 0, 40, 1, 41 };
+        shelf.boughtSolved = new[] { 0 };
+        shelf.together = new[] { WorldModel.BoughtBase + 0 };
+        shelf.plantings = new[] { 0, 42, 2, 43 };
+        Expect(WorldModel.TryRestore(shelf, out WorldModel stocked), "snapshot with bought and planted things restores");
+        string nurseryName = Nursery.Item(0).Name;
+        Expect(ThingStory.ForNursery(stocked, 0, nurseryName) ==
+            ThingStory.NurseryLine(nurseryName, true, true), "solved together bought plant gets the full line");
+        Expect(ThingStory.ForNursery(stocked, 1, Nursery.Item(1).Name) ==
+            ThingStory.NurseryLine(Nursery.Item(1).Name, false, false), "unsolved bought plant gets the plain line");
+        Expect(ThingStory.ForNursery(stocked, 2, nurseryName) == "" && ThingStory.ForNursery(stocked, -1, nurseryName) == "",
+            "bought index out of range gives no caption");
+        Expect(ThingStory.ForPlanting(stocked, 0, "quince tree") ==
+            ThingStory.PlantingLine("quince tree", 0, 3), "planting 0 sourced from choice 0");
+        Expect(ThingStory.ForPlanting(stocked, 1, "scots pine") ==
+            "Planted from your basket. It came from the scots pine you chose after stream 3.",
+            "planting 1 sourced from choice 2");
+        Expect(ThingStory.ForPlanting(stocked, 2, "oak") == "" && ThingStory.ForPlanting(stocked, -1, "oak") == "",
+            "planting index out of range gives no caption");
+
         // Unity map: the caption is used, and the family line stays as the fallback.
         string map = ReadRepoFile("games/evergrove/Assets/Scripts/Unity/GardenMapView.cs");
         Expect(map != null, "GardenMapView.cs can be found");

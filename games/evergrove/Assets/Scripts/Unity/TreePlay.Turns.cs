@@ -53,7 +53,11 @@ namespace Evergrove.UnityClient
 
         private void SpeakTurn(Transform token)
         {
-            string words = TakeTurns.Spoken(turn, players);
+            // Before any move on this board, the starter is announced ("Second player starts, of three.").
+            bool noMoveYet = tracked == null || tracked.UndoSteps == 0;
+            string words = together && turn != 0 && noMoveYet
+                ? TakeTurns.SpokenStart(turn, players)
+                : TakeTurns.Spoken(turn, players);
             Transform caption = token.Find("Turn caption");
             if (caption == null)
             {
@@ -64,6 +68,31 @@ namespace Evergrove.UnityClient
             }
             Text text = caption.GetComponent<Text>();
             if (text != null) text.text = words;
+            if (hintToken != null) SpeakHint(hintToken.transform); // idea 5: the offer is spoken with the turn
+        }
+
+        /// <summary>Idea 3: the token is painted, and a board that opens with someone other than the first
+        /// player gives the starter's pip one soft pulse (gentle motion only).</summary>
+        private void OpenTurn()
+        {
+            PaintTurn();
+            if (together && turn != 0 && pips != null && turn < pips.Length && gentle)
+                BloomPulse.Add(pips[turn].gameObject, 0f, 0.12f);
+        }
+
+        /// <summary>Idea 5: the hint token says "Hint offered." while its offer glows. One hidden caption, reused.</summary>
+        private void SpeakHint(Transform token)
+        {
+            Transform caption = token.Find("Hint offer caption");
+            if (caption == null)
+            {
+                if (uiFont == null) return; // the card isn't built yet; the next PaintTurn makes it
+                Hidden(token, "", uiFont);
+                caption = token.GetChild(token.childCount - 1);
+                caption.name = "Hint offer caption";
+            }
+            Text text = caption.GetComponent<Text>();
+            if (text != null) text.text = TakeTurns.SpokenHint(turn, players);
         }
     }
 }
