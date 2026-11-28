@@ -21,6 +21,10 @@ namespace Evergrove.Core
         public const int VariantDays = 14;
         public const int NewWeight = 30;
         public const int OwnLineWeight = 10;
+        // CP07: a waiting fact said on NagTimes of the last NagDays days loses NagDamp for that neighbour.
+        public const int NagDays = 3;
+        public const int NagTimes = 2;
+        public const int NagDamp = 40;
 
         /// <summary>
         /// The fact <paramref name="speaker"/> mentions, or null. <paramref name="canSay"/> says whether
@@ -55,7 +59,7 @@ namespace Evergrove.Core
             {
                 int who = k;
                 chosen[k] = Best(facts, memory, k, day, garden, canSay, f => f.Keeper == who);
-                best[k] = chosen[k] != null ? Score(chosen[k], k, memory) : int.MinValue;
+                best[k] = chosen[k] != null ? Score(chosen[k], k, memory, day) : int.MinValue;
             }
             // Anyone-facts, strongest first, each to one neighbour with nothing better.
             var shared = new List<Fact>();
@@ -69,13 +73,13 @@ namespace Evergrove.Core
                 uint toHash = 0;
                 for (int k = 0; k < 3; k++)
                 {
-                    if (given[k] || !Sayable(f, k, canSay) || Score(f, k, memory) <= best[k]) continue;
+                    if (given[k] || !Sayable(f, k, canSay) || Score(f, k, memory, day) <= best[k]) continue;
                     uint h = Hash(garden, day, f.Key + "#" + k);
                     if (to < 0 || h < toHash) { to = k; toHash = h; }
                 }
                 if (to < 0) continue;
                 chosen[to] = f;
-                best[to] = Score(f, to, memory);
+                best[to] = Score(f, to, memory, day);
                 given[to] = true;
             }
             return chosen;
@@ -87,6 +91,20 @@ namespace Evergrove.Core
             int score = fact.Weight;
             if (memory == null || !memory.EverSaid(fact.Key)) score += NewWeight;
             if (fact.Keeper == speaker) score += OwnLineWeight;
+            return score;
+        }
+
+        /// <summary>
+        /// CP07: the weight as <see cref="Score(Fact, int, CompanionMemory)"/>, less <see cref="NagDamp"/> when a
+        /// waiting fact (not fresh) was said on <see cref="NagTimes"/> of the <see cref="NagDays"/> days before
+        /// today. Yesterday is the window's end: today's repeats are the visit lock's job.
+        /// </summary>
+        public static int Score(Fact fact, int speaker, CompanionMemory memory, int day)
+        {
+            int score = Score(fact, speaker, memory);
+            if (fact.Waiting && !fact.Fresh && memory != null &&
+                memory.DaysHeardBy(fact.Key, speaker, day - 1, NagDays) >= NagTimes)
+                score -= NagDamp;
             return score;
         }
 
@@ -145,7 +163,7 @@ namespace Evergrove.Core
         // Higher score first; then the lower hash of (garden, day, key).
         private static int Order(Fact a, Fact b, int speaker, CompanionMemory memory, int day, int garden)
         {
-            int sa = Score(a, speaker, memory), sb = Score(b, speaker, memory);
+            int sa = Score(a, speaker, memory, day), sb = Score(b, speaker, memory, day);
             if (sa != sb) return sb.CompareTo(sa);
             int byHash = Hash(garden, day, a.Key).CompareTo(Hash(garden, day, b.Key));
             if (byHash != 0) return byHash;

@@ -27,6 +27,7 @@ internal static class CompanionRankerTests
         assertions = 0;
         Weights();
         Repeats();
+        NagDamping();
         Visits();
         Sharing();
         OrderIndependence();
@@ -96,6 +97,54 @@ internal static class CompanionRankerTests
             Expect(CompanionRanker.Pick(new List<Fact> { grove }, heardGrove, 0, day, garden) == null, "heard once, not again (day " + day + ")");
         Expect(CompanionRanker.Pick(new List<Fact> { grove }, heardGrove, 0, 200, garden, grove.Key) == grove,
             "but it stays their remark for the rest of the visit");
+    }
+
+    // CP07: a waiting fact one neighbour said on two of the last three days is damped for that neighbour
+    // (still eligible, so something else can be said); after a gap it comes back.
+    private static void NagDamping()
+    {
+        const int garden = 6;
+        Fact waiting = F(FactKind.LetterWaiting, 0, "letter:Anh:1", 50, waiting: true);
+        Fact other = F(FactKind.KindSolved, 0, "solved:Water:2", 15);
+        var facts = new List<Fact> { waiting, other };
+
+        // (a) nothing heard: the waiting letter outranks the rest.
+        Expect(CompanionRanker.Pick(facts, CompanionMemory.Empty, 0, 100, garden) == waiting,
+            "CP07: a waiting fact comes first when nothing has been heard");
+
+        // (b) said on days 98 and 99: two of the last three days, so it steps back for the other fact.
+        CompanionMemory nagged = CompanionMemory.Empty
+            .With(new Heard(98, 0, waiting.Kind, -1, waiting.Key))
+            .With(new Heard(99, 0, waiting.Kind, -1, waiting.Key));
+        Expect(CompanionRanker.Pick(facts, nagged, 0, 100, garden) == other,
+            "CP07: said on two of the last three days, the waiting fact steps back");
+        Expect(CompanionRanker.Score(waiting, 0, nagged, 100) == 50 + 10 - CompanionRanker.NagDamp,
+            "CP07: damped by NagDamp, with no 'new' weight since it was heard");
+        Expect(CompanionRanker.Eligible(waiting, nagged, 100), "CP07: damped, not removed: still eligible");
+
+        // (c) the other fact heard on day 100 too: on day 102 the window is 99..101, so only day 99 counts.
+        CompanionMemory again = nagged.With(new Heard(100, 0, other.Kind, -1, other.Key));
+        Expect(CompanionRanker.Pick(facts, again, 0, 102, garden) == waiting,
+            "CP07: after a gap of days, the waiting fact comes back");
+
+        // (d) a fresh waiting fact (something just done for them) is never damped.
+        Fact fresh = F(FactKind.LetterWaiting, 0, "letter:Ruth:2", 50, waiting: true, fresh: true);
+        CompanionMemory nagFresh = CompanionMemory.Empty
+            .With(new Heard(98, 0, fresh.Kind, -1, fresh.Key))
+            .With(new Heard(99, 0, fresh.Kind, -1, fresh.Key));
+        Expect(CompanionRanker.Score(fresh, 0, nagFresh, 100) == 50 + 10,
+            "CP07: fresh, heard twice: no damping applied");
+        Expect(CompanionRanker.Pick(new List<Fact> { fresh, other }, nagFresh, 0, 100, garden) == fresh,
+            "CP07: a fresh waiting fact is still said first");
+
+        // (e) another neighbour's history does not damp speaker 0.
+        CompanionMemory others = CompanionMemory.Empty
+            .With(new Heard(98, 1, waiting.Kind, -1, waiting.Key))
+            .With(new Heard(99, 1, waiting.Kind, -1, waiting.Key));
+        Expect(CompanionRanker.Score(waiting, 0, others, 100) == 50 + 10,
+            "CP07: undamped for speaker 0 when only speaker 1 heard it");
+        Expect(CompanionRanker.Pick(facts, others, 0, 100, garden) == waiting,
+            "CP07: speaker 0 still says the waiting fact");
     }
 
     private static void Visits()
