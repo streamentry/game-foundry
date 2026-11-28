@@ -56,8 +56,40 @@ namespace Evergrove.Core
                 kept.Add(h.Day > said.Day ? Redate(h, said.Day) : h);
             }
             kept.Add(said);
-            int skip = Math.Max(0, kept.Count - MaxEntries);
-            return new CompanionMemory(kept.GetRange(skip, kept.Count - skip).ToArray());
+            return new CompanionMemory(Capped(kept));
+        }
+
+        /// <summary>
+        /// CP03: over <see cref="MaxEntries"/>, first drop the oldest older repeats (a key with a newer
+        /// entry still kept), so a key's only record survives; only if still over, drop the oldest remaining.
+        /// Order is kept, oldest first. O(n).
+        /// </summary>
+        private static Heard[] Capped(List<Heard> list)
+        {
+            int excess = list.Count - MaxEntries;
+            if (excess <= 0) return list.ToArray();
+
+            var newest = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < list.Count; i++) newest[list[i].Key] = i;
+
+            var drop = new bool[list.Count];
+            for (int i = 0; i < list.Count && excess > 0; i++)
+            {
+                if (newest[list[i].Key] == i) continue;
+                drop[i] = true;
+                excess--;
+            }
+            for (int i = 0; i < list.Count && excess > 0; i++)
+            {
+                if (drop[i]) continue;
+                drop[i] = true;
+                excess--;
+            }
+
+            var kept = new List<Heard>(MaxEntries);
+            for (int i = 0; i < list.Count; i++)
+                if (!drop[i]) kept.Add(list[i]);
+            return kept.ToArray();
         }
 
         /// <summary>The key was heard within the last <paramref name="days"/> days, today included.</summary>
@@ -128,8 +160,7 @@ namespace Evergrove.Core
                     continue;
                 list.Add(new Heard(day, speaker, kind, variant, parts[4]));
             }
-            int skip = Math.Max(0, list.Count - MaxEntries);
-            return new CompanionMemory(list.GetRange(skip, list.Count - skip).ToArray());
+            return new CompanionMemory(Capped(list));
         }
 
         /// <summary>

@@ -26,7 +26,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 
 - [x] **CP01 Corrupt memory never throws.** `CompanionMemory.Parse` skips malformed rows. A fuzz test over 1,000 random strings must never throw. Done: Already true; test added (CompanionMemoryTests: 1,000 seeded fuzz strings never throw, garbage rows dropped, valid row kept, round trip).
 - [x] **CP02 Clock moved back.** A remark dated after today (the device clock was changed) is treated as said today, not dropped and not blocking forever. Once-facts stay said. Done: a future-dated remark is kept, re-dated to today, and counts as age 0 in the windows; tested in CompanionMemoryTests (clock-back) and CompanionRankerTests.
-- [ ] **CP03 Pruning keeps what was said.** Over `MaxEntries`, drop older repeats of a key before any key's only entry, so `EverSaid` survives the cap.
+- [x] **CP03 Pruning keeps what was said.** Over `MaxEntries`, drop older repeats of a key before any key's only entry, so `EverSaid` survives the cap. Done: the cap drops older repeats first, then the oldest remaining, in With and Parse; tests cover a once-fact under 400 repeats, 350 distinct keys, and a capped round trip.
 - [ ] **CP04 Golden hash.** Pin `CompanionRanker.Hash` outputs for fixed inputs, so a refactor can't silently reshuffle tours.
 - [ ] **CP05 Order independence.** `Allot` and `Pick` give the same result for a shuffled fact list.
 - [ ] **CP06 Memory helpers.** `LastSpoke(speaker)` and `HeardBy(key, speaker, day, days)` on `CompanionMemory`, with tests (used by CP07–CP09).

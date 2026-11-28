@@ -24,7 +24,38 @@ internal static class CompanionMemoryTests
         KeepsValidRowsAmongGarbage();
         RoundTrip();
         ClockMovedBack();
+        CapKeepsEverSaid();
         return assertions;
+    }
+
+    // CP03: over MaxEntries, older repeats of a key go first, so a once-fact's only record survives the cap.
+    private static void CapKeepsEverSaid()
+    {
+        // (a) One once-fact, then 400 repeats of another key: the once-fact is still remembered.
+        CompanionMemory repeats = CompanionMemory.Empty.With(new Heard(1, 0, FactKind.Hour, 0, "once:A"));
+        for (int i = 0; i < 400; i++)
+            repeats = repeats.With(new Heard(10, 0, FactKind.Hour, 0, "repeat"));
+        Expect(repeats.Count <= CompanionMemory.MaxEntries, "the cap holds after 400 repeats");
+        Expect(repeats.Count == CompanionMemory.MaxEntries, "the cap is filled, not overshot");
+        Expect(repeats.EverSaid("once:A"), "a once-fact survives the cap when only repeats are dropped");
+        Expect(repeats.EverSaid("repeat"), "the newest repeat is kept");
+
+        // (b) More than MaxEntries distinct keys: the oldest go, the newest are kept.
+        CompanionMemory distinct = CompanionMemory.Empty;
+        for (int i = 0; i < 350; i++)
+            distinct = distinct.With(new Heard(10, 0, FactKind.Hour, 0, "distinct:" + i));
+        Expect(distinct.Count == CompanionMemory.MaxEntries, "distinct keys are capped at MaxEntries");
+        Expect(distinct.EverSaid("distinct:349"), "the newest distinct key is kept");
+        Expect(distinct.EverSaid("distinct:50"), "the 300th-newest distinct key is kept");
+        Expect(!distinct.EverSaid("distinct:0"), "the oldest distinct key is dropped when all keys are distinct");
+
+        // (c) A capped memory still round-trips through Serialize and Parse, in the same order.
+        CompanionMemory back = CompanionMemory.Parse(repeats.Serialize());
+        Expect(back.Count == repeats.Count, "a capped memory round-trips to the same count");
+        List<Heard> before = new List<Heard>(repeats.Entries);
+        List<Heard> after = new List<Heard>(back.Entries);
+        for (int i = 0; i < before.Count; i++)
+            Expect(after[i].Key == before[i].Key && after[i].Day == before[i].Day, "a capped memory round-trips in order");
     }
 
     // CP02: a device clock moved back must not forget what was heard "in the future", nor let a
