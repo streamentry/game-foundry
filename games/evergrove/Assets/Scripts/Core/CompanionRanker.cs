@@ -25,6 +25,8 @@ namespace Evergrove.Core
         public const int NagDays = 3;
         public const int NagTimes = 2;
         public const int NagDamp = 40;
+        // CP09: a neighbour who used the same fact kind yesterday loses KindCooldown (a penalty, not a ban).
+        public const int KindCooldown = 15;
 
         /// <summary>
         /// The fact <paramref name="speaker"/> mentions, or null. <paramref name="canSay"/> says whether
@@ -101,6 +103,8 @@ namespace Evergrove.Core
         /// CP07: the weight as <see cref="Score(Fact, int, CompanionMemory)"/>, less <see cref="NagDamp"/> when a
         /// waiting fact (not fresh) was said on <see cref="NagTimes"/> of the <see cref="NagDays"/> days before
         /// today. Yesterday is the window's end: today's repeats are the visit lock's job.
+        /// CP09: less <see cref="KindCooldown"/> when this neighbour used the same kind yesterday (waiting and
+        /// fresh facts exempt).
         /// </summary>
         public static int Score(Fact fact, int speaker, CompanionMemory memory, int day)
         {
@@ -108,6 +112,9 @@ namespace Evergrove.Core
             if (fact.Waiting && !fact.Fresh && memory != null &&
                 memory.DaysHeardBy(fact.Key, speaker, day - 1, NagDays) >= NagTimes)
                 score -= NagDamp;
+            if (!fact.Waiting && !fact.Fresh && memory != null && speaker >= 0 && speaker <= 2 &&
+                memory.KindSaidOn(fact.Kind, speaker, day - 1))
+                score -= KindCooldown;
             return score;
         }
 

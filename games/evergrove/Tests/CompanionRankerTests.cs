@@ -28,6 +28,7 @@ internal static class CompanionRankerTests
         Weights();
         Repeats();
         NagDamping();
+        KindCooldown();
         SpeakersTakeTurns();
         Visits();
         Sharing();
@@ -146,6 +147,39 @@ internal static class CompanionRankerTests
             "CP07: undamped for speaker 0 when only speaker 1 heard it");
         Expect(CompanionRanker.Pick(facts, others, 0, 100, garden) == waiting,
             "CP07: speaker 0 still says the waiting fact");
+    }
+
+    // CP09: a neighbour who used the same fact kind yesterday takes KindCooldown (a penalty, not a ban).
+    // Waiting and fresh facts are exempt; a remark of that kind two days back does not count.
+    private static void KindCooldown()
+    {
+        const int garden = 8, day = 100;
+        Fact solved = F(FactKind.KindSolved, 0, "solved:a", 20);
+        Fact newest = F(FactKind.NewestThing, 0, "newest:b", 12);
+        var facts = new List<Fact> { solved, newest };
+
+        // (a) nothing heard: the stronger fact wins.
+        Expect(CompanionRanker.Pick(facts, CompanionMemory.Empty, 0, day, garden) == solved,
+            "CP09: with nothing heard, the stronger fact is said");
+
+        // (b) yesterday, speaker 0 used the same kind (another key): 20 + 30 - 15 = 35 < 12 + 30 = 42.
+        CompanionMemory yesterday = CompanionMemory.Empty.With(new Heard(day - 1, 0, FactKind.KindSolved, -1, "solved:z"));
+        Expect(CompanionRanker.Pick(facts, yesterday, 0, day, garden) == newest,
+            "CP09: used the same kind yesterday, the other kind is said");
+
+        // (c) same memory, only the penalised fact exists: still said (a penalty, not a ban).
+        Expect(CompanionRanker.Pick(new List<Fact> { solved }, yesterday, 0, day, garden) == solved,
+            "CP09: if it is all they have, they still say it");
+
+        // (d) a waiting fact of the same kind is not penalised: 50 + 30 > 42.
+        Fact waiting = F(FactKind.KindSolved, 0, "solved:w", 20, waiting: true);
+        Expect(CompanionRanker.Pick(new List<Fact> { waiting, newest }, yesterday, 0, day, garden) == waiting,
+            "CP09: a waiting fact of the same kind is not penalised");
+
+        // (e) the same kind two days back (day 98) is not yesterday: no penalty.
+        CompanionMemory twoDaysBack = CompanionMemory.Empty.With(new Heard(day - 2, 0, FactKind.KindSolved, -1, "solved:z"));
+        Expect(CompanionRanker.Pick(facts, twoDaysBack, 0, day, garden) == solved,
+            "CP09: a remark of that kind on day 98 does not penalise day 100");
     }
 
     // CP08: an anyone-fact goes to the neighbour who spoke longest ago (LastSpoke, int.MinValue if never);
