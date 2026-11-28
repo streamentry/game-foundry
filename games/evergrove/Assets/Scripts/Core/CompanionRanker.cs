@@ -171,7 +171,7 @@ namespace Evergrove.Core
         private static string Reason(Fact fact, CompanionMemory memory, int day)
         {
             if (fact.Once && memory.EverSaid(fact.Key)) return "once-said";
-            if (memory.UnvariedWithin(fact.Key, day, VariantDays)) return "same-words-within-14-days";
+            if (!fact.Waiting && !fact.Fresh && memory.UnvariedWithin(fact.Key, day, VariantDays)) return "same-words-within-14-days";
             if (!Eligible(fact, memory, day)) return "said-within-3-days";
             return "cannot-say";
         }
@@ -188,9 +188,10 @@ namespace Evergrove.Core
         {
             if (memory == null) return true;
             if (fact.Once && memory.EverSaid(fact.Key)) return false; // SC04: said once is said
+            if (fact.Waiting || fact.Fresh) return true; // still waiting, or caused just now: always worth saying
             // CP12: a fixed sentence has no other wording to step to, so it waits VariantDays, not KeyDays.
             if (memory.UnvariedWithin(fact.Key, day, VariantDays)) return false;
-            return fact.Waiting || fact.Fresh || !memory.SaidWithin(fact.Key, day, KeyDays);
+            return !memory.SaidWithin(fact.Key, day, KeyDays);
         }
 
         /// <summary>

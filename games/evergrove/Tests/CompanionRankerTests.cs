@@ -98,6 +98,12 @@ internal static class CompanionRankerTests
         Expect(CompanionRanker.Pick(facts, fixedSaid, 0, 103, garden) == null, "a fixed sentence is not repeated on day 3");
         Expect(CompanionRanker.Pick(facts, fixedSaid, 0, 113, garden) == null, "a fixed sentence is not repeated on day 13");
         Expect(CompanionRanker.Pick(facts, fixedSaid, 0, 114, garden) == solved, "a fixed sentence may return after VariantDays");
+        // CP12: a waiting or fresh fact is still said in its fixed sentence: a letter left unread isn't hidden for two weeks.
+        CompanionMemory letterFixed = CompanionMemory.Empty.With(new Heard(100, 1, FactKind.LetterWaiting, -1, letter.Key));
+        Expect(CompanionRanker.Eligible(letter, letterFixed, 101), "a waiting fact in a fixed sentence stays eligible");
+        Fact thanks = F(FactKind.FruitGiven, 0, "fruit:0:1", 15, fresh: true);
+        CompanionMemory thanksFixed = CompanionMemory.Empty.With(new Heard(100, 0, FactKind.FruitGiven, -1, thanks.Key));
+        Expect(CompanionRanker.Eligible(thanks, thanksFixed, 102), "a fresh fact in a fixed sentence stays eligible");
         // SC04: once-facts (a season turned, a pairing found) are said once, then never again.
         Fact grove = new Fact(FactKind.PairingFound, 0, "pairing-found:Grove", new Dictionary<string, string>(), 20, false, false, 0, true);
         Expect(CompanionRanker.Pick(new List<Fact> { grove }, CompanionMemory.Empty, 0, 200, garden) == grove, "a once-fact, never heard: said");
