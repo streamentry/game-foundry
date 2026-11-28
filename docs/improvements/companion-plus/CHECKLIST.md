@@ -46,7 +46,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 - [x] **CP17 The feed is pure.** Calling `For` twice gives equal lists and leaves the world's save unchanged. Done: CompanionFuzzTests FeedIsPure checks 100 seeded cases for equal feeds and unchanged save and memory text after For, Allot and the simulator; LetterNamesStayClean refuses sender names with '|' or a newline. No Core fault found, Core unchanged.
 - [x] **CP18 Weather truth.** Weather facts and weather-qualified lines only appear for the day's actual weather. Done: already true; CompanionSimulatorTests.WeatherTruth checks facts' weather slot and key, simulated lines against their own WeatherToday group, and RainComing exactly on days before rain at home.
 - [x] **CP19 Slot truth.** Every composed line in a simulation has no `{` left, and every slot it used is a non-empty value of its fact. Done: SlotTruth checks 1600 simulated lines over 60 days (3 gardens, 3 scenarios including a letter waiting and fruit given; 13 kinds) for no brace, tidy words, and every bank-line slot a non-empty verbatim value; 0 faults, no Core change.
-- [ ] **CP20 Performance budget.** Facts plus allotment for a large garden stay under 2 ms on average in Release.
+- [x] **CP20 Performance budget.** Facts plus allotment for a large garden stay under 2 ms on average in Release. Done: CompanionPerfTests times 200 iterations of facts plus allotment on the largest garden (median 236.9 us, p95 380.1 us in Release); the median is asserted under 2 ms and the assertion is skipped with EVERGROVE_SKIP_TIMING=1.
 
 ### C. Line bank tooling
 
