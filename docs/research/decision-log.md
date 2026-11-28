@@ -1068,3 +1068,34 @@ The founder chose the recommended option in each case, so the checklist items th
 | Audience fit | `age fit not validated`. Zoom, a side panel and fewer resting buttons are aimed at reach and readability for adults 40+ |
 | Falsification | 40+ players can't find the letterbox or basket in the fan, or zooming a board costs more taps than it saves |
 | Stop | Either of those in a playtest reverts that change |
+
+## 2026-11-28 — Mosselora v1 design calls for items 41, 94, 13 and 5 (founder)
+
+The founder chose the recommended option in each case:
+
+| Item | Question | Decision |
+| --- | --- | --- |
+| 41 | The river stops at about 58 stretches, because stretches come from distinct first solves | Once there is nothing new left to solve, replays slowly open the river (one stretch per N replays, about 8). It still opens through play, never payment, and the economy is unchanged |
+| 94 | The menu button sits top-left, out of one-thumb reach on a large phone held upright | Move it to a bottom corner, with its fan opening upward. The top of the screen keeps only read-only things (the seed count) |
+| 13 | A tapped thing's play token appears at the bottom of the screen | A tapped thing shows Play and Move tokens (52 pt) right beside it, and the bottom play token goes |
+| 5 | Remember the hand | Ask once, on the first long-press, whether the player is left- or right-handed; mirror the corner menu, fan and trays. It can be changed in settings |
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Source audit (the solve-derived stretch count), the simulator reach of the top-left menu, and the current tap path for a thing. No player evidence |
+| Owner | Founder, 2026-11-28 |
+| Delete | 13 removes the bottom play token; 94 moves a control rather than adding one |
+| Audience fit | `age fit not validated`. Reach and handedness are aimed at one-handed use by adults 40+ |
+| Falsification | 40+ players miss the moved menu, or the beside-the-thing tokens get in the way of planting |
+| Stop | Either of those in a playtest reverts that change |
+
+## 2026-11-28 — Mosselora v1 item 94 follow-up: closing and the puzzle card's controls (founder)
+
+The batch 30 reach audit found these out of one-thumb reach in portrait: every sheet's close button (top-right, and iOS has no back gesture), the puzzle card's top row (hint, take turns, send), and the fan's last token. The founder chose:
+
+| Question | Decision |
+| --- | --- |
+| How should closing become reachable? | Any sheet or card also closes with a downward swipe anywhere on it, as iOS sheets do. The top-right button stays the one visual back position |
+| The puzzle card's top-row controls in portrait | They move to a row at the card's foot, beside undo. The thing's picture and the seed pill stay at the top |
+
+The fan stops growing into the out-of-reach top third and wraps into another column instead; that is an engineering fix, not a design call.

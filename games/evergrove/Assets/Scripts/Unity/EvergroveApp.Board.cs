@@ -247,13 +247,13 @@ namespace Evergrove.UnityClient
             return content.rect.yMax - content.InverseTransformPoint(edge).y;
         }
 
-        // How far the floating menu button reaches into the scrolling viewport.
+        // How far the top header band reaches into the scrolling viewport. The menu button now sits at the
+        // bottom-left (checklist 94), so the band is what the top of a page must clear.
         private float ChromeClearance()
         {
-            if (chrome == null || chrome.childCount == 0 || scroll.viewport == null) return 0f;
-            var menu = (chrome.Find("Open menu") ?? chrome.GetChild(0)) as RectTransform;
-            if (menu == null) return 0f;
-            Vector3 bottom = menu.TransformPoint(new Vector3(menu.rect.center.x, menu.rect.yMin, 0f));
+            if (chromeBand == null || !chromeBand.gameObject.activeInHierarchy || scroll.viewport == null) return 0f;
+            RectTransform band = chromeBand;
+            Vector3 bottom = band.TransformPoint(new Vector3(band.rect.center.x, band.rect.yMin, 0f));
             float reach = scroll.viewport.rect.yMax - scroll.viewport.InverseTransformPoint(bottom).y;
             return Mathf.Clamp(reach, 0f, 160f);
         }

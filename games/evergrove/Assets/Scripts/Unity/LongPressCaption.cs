@@ -25,6 +25,11 @@ namespace Evergrove.UnityClient
         /// </summary>
         public static Font DefaultFont;
 
+        /// <summary>
+        /// Raised each time a caption is shown (checklist 5: the hand question waits for the first long-press).
+        /// </summary>
+        internal static event System.Action Shown;
+
         private string message;
         private Font font;
         private PointerEventData press;
@@ -71,6 +76,8 @@ namespace Evergrove.UnityClient
             if (font == null) return; // nothing legible to draw with: no toast, and the tap stays a tap
             if (press != null) press.eligibleForClick = false; // the hold asked a question; it did not press
             RuleToast.Show((RectTransform)transform, message, font, MosseloraTheme.Ink, MosseloraTheme.CardFill);
+            var shown = Shown;
+            if (shown != null) shown();
         }
 
         private void Cancel()

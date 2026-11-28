@@ -165,44 +165,14 @@ namespace Evergrove.UnityClient
                 KeeperLine(stack.transform, "Last memory", hubRecall);
             if (worldHome)
             {
-                // I204: a thing you've grown, picked up, holds its own puzzle: the big
-                // token becomes that thing, and plays its puzzle.
+                // I204, checklist 13: a thing you've grown, picked up, holds its own puzzle. Its Play and
+                // Move tokens sit beside it on the map (ThingActions.cs), so no bottom play token here.
                 int held = world.Mode == PlayMode.Living && mapInHand >= 0 && mapInHand < world.Choices.Length
                     ? mapInHand : -1;
                 int heldPlant = world.Mode == PlayMode.Living && heldBought >= 0 && heldBought < world.BoughtCount
                     ? heldBought : -1;
                 if (held >= 0 || heldPlant >= 0)
                 {
-                    Transform heldRow = CenteredRowIn(stack.transform, "Play row");
-                    int heldKind = heldPlant >= 0 ? world.Bought[heldPlant * 2] : -1;
-                    string heldName = heldPlant >= 0 ? Nursery.Item(heldKind).Name : ItemAt(held, world.Choices[held]).Name;
-                    Button thing = IconButton(heldRow, "Play its puzzle", heldName,
-                        MosseloraArt.IconContinue, () => { if (heldPlant >= 0) OpenBoughtPlay(heldPlant); else OpenTreePlay(held); },
-                        96, MosseloraTheme.WaterAction, false, null, false, 0, 0, true);
-                    Transform glyph = thing.transform.Find("Icon");
-                    Image glyphImage = glyph != null ? glyph.GetComponent<Image>() : null;
-                    Sprite heldArt = heldPlant >= 0 ? MosseloraArt.Load(Nursery.Item(heldKind).Art)
-                        : ItemArt(held, world.Choices[held]);
-                    if (glyphImage != null && heldArt != null)
-                    {
-                        glyphImage.sprite = heldArt;
-                        glyphImage.color = Color.white;
-                        var glyphSize = glyph.GetComponent<LayoutElement>();
-                        glyphSize.minWidth = glyphSize.preferredWidth = 64f;
-                        glyphSize.minHeight = glyphSize.preferredHeight = 64f;
-                        // A small round "play" mark on the token's lower right.
-                        Image disc = MosseloraArt.Ornament(thing.transform, "Plays", MosseloraArt.Rounded(16),
-                            new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(34f, 34f), new Vector2(-4f, 4f));
-                        if (disc != null)
-                        {
-                            disc.preserveAspect = false;
-                            disc.color = MosseloraTheme.WaterAction;
-                            Image playMark = MosseloraArt.Ornament(disc.transform, "Play mark", MosseloraArt.Load(MosseloraArt.IconContinue),
-                                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(20f, 20f), Vector2.zero);
-                            if (playMark != null) playMark.color = Color.white;
-                        }
-                    }
-                    if (gentleMotion) BloomPulse.Add(thing.gameObject, 0.2f, 0.06f);
                     SeedPurse();
                     DayRhythmTokens(titleScreen.transform); // checklist 54
                     if (world.Mode == PlayMode.Living) BasketControls(titleScreen.transform, stack.transform);
@@ -216,6 +186,10 @@ namespace Evergrove.UnityClient
                 if (!world.Completed && GameLocalization.Current == "en")
                     NextStreamLine(stack.transform, world.CurrentPuzzle.Name, false);
                 Transform token = CenteredRowIn(stack.transform, "Play row");
+                // Checklist 5: sideways, home's column sits at the right edge; with the menu in the right corner
+                // the play token keeps clear of it.
+                if (MenuOnRight && Screen.width > Screen.height)
+                    token.GetComponent<HorizontalLayoutGroup>().padding.right = (int)(MenuReserve * 2f); // the row centres: twice the reserve moves the token a whole reserve left
                 // I351 (run 3, P9): after the story, the big arrow plays what's waiting, whose picture
                 // peeks from the token. SC05: the ranker picks it (family help first, then a new
                 // arrival), else the newest thing still holding its first puzzle, as before.
@@ -342,24 +316,22 @@ namespace Evergrove.UnityClient
             window.anchorMin = new Vector2(0f, windowBase + shift);
         }
 
-        // The hub wears the same two wooden buttons as the game, in the same
-        // corners: the menu (left) and, once there are memories, the book (right).
-        // Each steps off the hub straight into what it opens (I83).
+        // The hub's one wooden menu button (checklist 94: bottom-left, one thumb's reach). It opens the
+        // fan of everything else; the book token and the other controls live in the fan (I191).
         private void HubChrome()
         {
             var bar = Node("Hub chrome", titleScreen.transform);
             var rect = bar.GetComponent<RectTransform>();
             Rect safe = Screen.safeArea;
             float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
-            rect.anchorMin = new Vector2(safe.xMin / w, safe.yMax / h);
-            rect.anchorMax = new Vector2(safe.xMax / w, safe.yMax / h);
-            rect.pivot = new Vector2(0.5f, 1f);
-            rect.sizeDelta = new Vector2(0f, 70f);
+            rect.anchorMin = new Vector2(safe.xMin / w, safe.yMin / h);
+            rect.anchorMax = new Vector2(safe.xMax / w, safe.yMin / h);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = new Vector2(0f, MenuSize + MenuInset + 2f);
             rect.anchoredPosition = Vector2.zero;
-            // One button (I191): it opens the fan of everything else.
             Button menu = IconButton(bar.transform, "Open menu", GameLocalization.Text("menu"),
                 MosseloraArt.IconMenu, () => ToggleFan(true), 54, MosseloraTheme.QuietAction);
-            PlaceChrome(menu, new Vector2(0f, 1f), new Vector2(10f, ChromeTop));
+            PlaceChrome(menu, MenuCornerAnchor, new Vector2(MenuSideOffset, MenuInset));
             if (world.Mode == PlayMode.Living && world.Choices.Length > 0) MarkUnreadMemory(menu, MenuSeenKey);
             MenuLetterCue(menu); // checklist 11: the letter's arrival and unread dot live on the menu button
             MenuGiftCue(menu); // checklist 11 (B5b): a cutting waiting in the folded basket
@@ -430,7 +402,7 @@ namespace Evergrove.UnityClient
         private GardenMap LoadGardenMap()
         {
             // After the story the river keeps opening as you tend your things (I220).
-            int reaches = GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved);
+            int reaches = GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved, world.RiverReplays);
             if (qaLongRiver > 0) reaches = qaLongRiver; // checklist 50 tour only: a long river to scroll; 0 in play
             if (gardenMap != null && gardenMap.Reaches == reaches) return gardenMap;
             var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
@@ -444,7 +416,7 @@ namespace Evergrove.UnityClient
         private Sprite NextSeasonPlot()
         {
             if (world.Mode != PlayMode.Living || !world.Completed) return null;
-            if (!GardenMap.TowardNext(world.Choices.Length, true, world.PuzzlesSolved, out int have, out int need)) return null;
+            if (!world.TowardNextStretch(out int have, out int need)) return null; // checklist 41: replays count once nothing new is left
             Season next = GardenSeason.AfterStory(world.PuzzlesSolved + (need - have));
             int art = next == Season.Spring ? 3 : next == Season.Autumn ? 1 : next == Season.Winter ? 2 : 0;
             return MosseloraArt.Load(PaintedVillage.MapFor(art));

@@ -152,6 +152,8 @@ namespace Evergrove.UnityClient
                     Rebuild();
                 }, SettingToken, DayLightOn ? MosseloraTheme.ForestAction : MosseloraTheme.QuietAction,
                 false, null, false, 0, 0, true, stateOn: DayLightOn);
+            // Checklist 5: the hand, changeable any time; it mirrors the menu, the trays and the sideways panel.
+            HandSettingButton(row.transform);
             // Garden notes (I277): one switch in plain sight, and the hour when it's on.
             if (GardenNotes.Supported && world.Mode == PlayMode.Living)
             {

@@ -293,8 +293,8 @@ namespace Evergrove.Core
         {
             if (!world.Completed) return;
             int all = world.PuzzlesSolved;
-            int reaches = GardenMap.ReachesFor(world.Choices.Length, true, all);
-            if (GardenMap.TowardNext(world.Choices.Length, true, all, out int have, out int need) && have == need - 1)
+            int reaches = GardenMap.ReachesFor(world.Choices.Length, true, all, world.RiverReplays);
+            if (world.TowardNextStretch(out int have, out int need) && have == need - 1)
                 facts.Add(Make(FactKind.RiverClose, 0, "mist:" + reaches, RareWeight, false, false, 7 * Step));
             else if (have == 0 && reaches > GardenMap.MaxReaches)
             {

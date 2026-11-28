@@ -54,7 +54,15 @@ namespace Evergrove.UnityClient
             GardenMapView view = GardenMapView.Build(window, plot, map, hubItems, zoom > 0f ? zoom : landscape ? 1f : 1.3f, OnMapLand, OnMapItem,
                 heldDecor >= 0 ? DecorIndex + heldDecor : heldBought >= 0 ? BoughtIndex + heldBought : heldPlanting >= 0 ? PlantingIndex + heldPlanting : mapInHand,
                 (justPlanted >= 0 || justBought >= 0) && gentleMotion,
-                GreenedShare(0), -1f, (land, point) => NeighborsOnMap(land, point, map, true),
+                GreenedShare(0), -1f, (land, point) =>
+                {
+                    // Neighbours stand on the map; the held thing's Play and Move tokens sit beside it
+                    // (checklist 13). The tokens are not returned with the neighbours: the map treats what
+                    // it is given as people (footprints in snow, stepping off signs), so they manage themselves.
+                    var standing = NeighborsOnMap(land, point, map, true);
+                    ThingActionsOnMap(land, point); // after the neighbours, so the tokens draw over (and take taps before) them
+                    return standing;
+                },
                 0.22f, RiverGoesOn(map), NextSeasonPlot());
             hubMapView = view;
             celebrateKeeper = -1; // I424: once
@@ -95,7 +103,8 @@ namespace Evergrove.UnityClient
             // Sideways the window is short, so what you made sits higher still (I197).
             view.FocusFromTop = landscape ? 0.24f : 0.36f;
             // The play row and the basket live in the bottom of home: neighbours keep out of it (I218).
-            view.ClearBottom = landscape ? 0f : 190f;
+            // Sideways the menu button sits at the bottom-left over the garden, so the map keeps clear of it (checklist 94).
+            view.ClearBottom = landscape ? MenuInset + MenuSize + 12f : 190f;
             // Neighbours keep below the corner (the letterbox stood under the purse until checklist 11; the clearance stays).
             view.ClearTop = landscape ? 0f : world.Letters.Length > 0 ? 220f : 140f; // the box's foot is ~195 pt down
             return true;
@@ -180,10 +189,10 @@ namespace Evergrove.UnityClient
         private void RiverDrops(GardenMapView view, bool swell)
         {
             if (view == null || world.Mode != PlayMode.Living) return;
-            if (GardenMap.TowardNext(world.Choices.Length, world.Completed, world.PuzzlesSolved, out int have, out int need))
+            if (world.TowardNextStretch(out int have, out int need))
                 view.ShowDrops(have, need, swell);
         }
-        private int OpenReaches() { return GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved); }
+        private int OpenReaches() { return GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved, world.RiverReplays); }
 
         // Everything standing on the map besides your story things: plantings, then bought plants.
         private int[] Occupied()

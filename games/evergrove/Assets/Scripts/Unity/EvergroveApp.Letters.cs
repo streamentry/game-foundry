@@ -158,6 +158,7 @@ namespace Evergrove.UnityClient
                 MosseloraArt.IconCancel, CloseLetter, 56, // 56: BackPlacement.Size, enforced by PlaceBack
                 MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             PlaceBack(closeLetter.GetComponent<RectTransform>());
+            SwipeToClose.Attach(paperRect, CloseLetter, gentleMotion); // checklist 94
             // Write back (I235): the family card opens with "Dear <name>," begun.
             if (world.Mode == PlayMode.Living)
             {

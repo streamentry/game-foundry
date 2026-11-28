@@ -106,6 +106,9 @@ namespace Evergrove.Core
         // (yyyymmdd, 0 none) the daily replay cap counts for, and replays paid on that day.
         public int payDay;
         public int replaysPaid;
+        // Optional, additive (checklist 41; absent in older JSON, not written while 0). Total replays made
+        // while every owned thing was already solved: each eight open one more stretch of river. Never decreases.
+        public int riverReplays;
         // Optional, additive (items 74 and 79; absent in older JSON, not written while 0). The local day
         // (yyyymmdd) the market's daily caps count for, and what was sold to the stall and traded that day.
         public int marketStamp;
@@ -205,69 +208,6 @@ namespace Evergrove.Core
             return first ? FirstReward[t] : ReplayReward[t];
         }
 
-        // ---- v1 #80: the first solves of a day pay fully; later replays pay less, then nothing.
-        // Play stays open and farming stays pointless. First solves never count toward the cap.
-        public const int FullReplaysPerDay = 3;
-        public const int SmallReplaysPerDay = 5;
-        public const int SmallReplayReward = 1;
-        /// <summary>Upper bound of the replay counter in a save; past the paid replays it only needs to stay here.</summary>
-        public const int MaxReplaysPaid = 1000;
-        private const int MinPayDay = 19000101;
-        private const int MaxPayDay = 99991231;
-
-        /// <summary>
-        /// What the next replay of a tier pays on <paramref name="day"/>, without changing anything. Day 0 (or less)
-        /// is the uncapped replay reward of old saves.
-        /// </summary>
-        public int ReplayRewardOn(int tier, int day)
-        {
-            if (day <= 0) return TreeReward(tier, false);
-            return ReplayPay(tier, day > state.payDay ? 0 : state.replaysPaid);
-        }
-
-        /// <summary>The replay pay after <paramref name="paidSoFar"/> paid replays on one day.</summary>
-        private static int ReplayPay(int tier, int paidSoFar)
-        {
-            if (paidSoFar < FullReplaysPerDay) return TreeReward(tier, false);
-            return paidSoFar < FullReplaysPerDay + SmallReplaysPerDay ? SmallReplayReward : 0;
-        }
-
-        /// <summary>
-        /// Pays one replay against the day's cap and counts it. Day 0 pays uncapped, as before.
-        /// <paramref name="full"/> is true when this replay is one of the day's full-paid replays (v1 #80: fruit follows them).
-        /// </summary>
-        private int PayReplay(int tier, int day, out bool full)
-        {
-            if (day <= 0) { full = true; return TreeReward(tier, false); }
-            // Only a later day starts a fresh count: setting the clock back counts against the
-            // latest day already paid, so switching between two dates cannot reset the cap.
-            if (day > state.payDay)
-            {
-                state.payDay = day;
-                state.replaysPaid = 0;
-            }
-            full = state.replaysPaid < FullReplaysPerDay;
-            int reward = ReplayPay(tier, state.replaysPaid);
-            state.replaysPaid = Math.Min(MaxReplaysPaid, state.replaysPaid + 1);
-            return reward;
-        }
-
-        /// <summary>
-        /// Credits a solve: the first solve pays in full, a replay pays under the day's cap. Fruit comes with the
-        /// first solve and with each full-paid replay (v1 #80), so a tree cannot be farmed past the daily cap;
-        /// <paramref name="shadeTree"/> says whether the solved thing is a ShadeTree.
-        /// </summary>
-        private int CreditSolve(int tier, bool first, int day, bool shadeTree)
-        {
-            int reward;
-            bool full = true;
-            if (first) reward = TreeReward(tier, true);
-            else reward = PayReplay(tier, day, out full);
-            ChangeSeeds(reward, first ? SeedReason.FirstSolve : SeedReason.Replay);
-            if (shadeTree && (first || full)) PickFruit();
-            return reward;
-        }
-
         /// <summary>
         /// Records a solved puzzle of grown thing <paramref name="item"/> and returns the seeds earned.
         /// <paramref name="day"/> is the local calendar day (yyyymmdd) for the replay cap; 0 keeps the uncapped reward.
@@ -283,7 +223,7 @@ namespace Evergrove.Core
                 next[next.Length - 1] = item;
                 state.treeSolved = next;
             }
-            return CreditSolve(TreePuzzles.TierFor(item), first, day, state.choices[item] == (int)VillageChoice.ShadeTree);
+            return CreditSolveCounted(TreePuzzles.TierFor(item), first, day, state.choices[item] == (int)VillageChoice.ShadeTree);
         }
 
         // ---- I205: the nursery. Bought plants are never removed, so indices stay put.
@@ -351,7 +291,7 @@ namespace Evergrove.Core
                 next[next.Length - 1] = k;
                 state.boughtSolved = next;
             }
-            return CreditSolve(Nursery.Row(state.bought[k * 2]), first, day, Nursery.Family(state.bought[k * 2]) == VillageChoice.ShadeTree);
+            return CreditSolveCounted(Nursery.Row(state.bought[k * 2]), first, day, Nursery.Family(state.bought[k * 2]) == VillageChoice.ShadeTree);
         }
 
         /// <summary>Plants one more of choice <paramref name="source"/>'s item on a cell (the map checks the land).</summary>
@@ -501,7 +441,7 @@ namespace Evergrove.Core
                 previous = Array.Empty<int>(), choices = Array.Empty<int>(),
                 variantSchedule = (int[])schedule.Clone(), history = Array.Empty<int>(),
                 garden = 0, placements = Array.Empty<int>(), plantings = Array.Empty<int>(),
-                seeds = 0, treeSolved = Array.Empty<int>(), ledger = Array.Empty<int>(), payDay = 0, replaysPaid = 0,
+                seeds = 0, treeSolved = Array.Empty<int>(), ledger = Array.Empty<int>(), payDay = 0, replaysPaid = 0, riverReplays = 0,
                 marketStamp = 0, fruitSold = 0, jamSold = 0, tradesDone = 0, recipes = 0, larderShelves = 0, gardenName = "",
                 bought = Array.Empty<int>(), boughtSolved = Array.Empty<int>(),
                 gifts = Array.Empty<int>(), parcelIds = Array.Empty<string>(),
@@ -531,7 +471,7 @@ namespace Evergrove.Core
                 helped = (int[])state.helped.Clone(), helpedFrom = (string[])state.helpedFrom.Clone(),
                 fruit = state.fruit, fruitGiven = (int[])state.fruitGiven.Clone(), lastFruitTo = state.lastFruitTo,
                 together = (int[])state.together.Clone(), lanterns = (string[])state.lanterns.Clone(), jam = state.jam, letterStamps = (int[])state.letterStamps.Clone(), decor = (int[])state.decor.Clone(), well = state.well, pairings = state.pairings, yields = state.yields,
-                ledger = (int[])state.ledger.Clone(), payDay = state.payDay, replaysPaid = state.replaysPaid,
+                ledger = (int[])state.ledger.Clone(), payDay = state.payDay, replaysPaid = state.replaysPaid, riverReplays = state.riverReplays,
                 marketStamp = state.marketStamp, fruitSold = state.fruitSold, jamSold = state.jamSold, tradesDone = state.tradesDone,
                 daysPlayed = state.daysPlayed, lastPlayedDay = state.lastPlayedDay,
                 recipes = state.recipes, larderShelves = state.larderShelves, gardenName = state.gardenName
@@ -687,7 +627,7 @@ namespace Evergrove.Core
                 helped = helped, helpedFrom = helpedFrom,
                 fruit = source.fruit, fruitGiven = fruitGiven, lastFruitTo = source.lastFruitTo,
                 together = together, lanterns = lanterns, jam = source.jam, letterStamps = letterStamps, decor = decor, well = source.well, pairings = source.pairings, yields = source.yields,
-                ledger = ledger, payDay = source.payDay, replaysPaid = source.replaysPaid,
+                ledger = ledger, payDay = source.payDay, replaysPaid = source.replaysPaid, riverReplays = RiverReplaysOf(source),
                 marketStamp = source.marketStamp, fruitSold = source.fruitSold, jamSold = source.jamSold, tradesDone = source.tradesDone,
                 daysPlayed = source.daysPlayed, lastPlayedDay = source.lastPlayedDay,
                 recipes = source.recipes, larderShelves = source.larderShelves, gardenName = gardenName

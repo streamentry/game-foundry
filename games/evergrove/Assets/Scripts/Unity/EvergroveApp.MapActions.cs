@@ -186,8 +186,9 @@ namespace Evergrove.UnityClient
             cornerRect.anchorMin = new Vector2(safe.xMin / w, safe.yMin / h);
             cornerRect.anchorMax = new Vector2(safe.xMax / w, safe.yMin / h);
             cornerRect.pivot = new Vector2(0.5f, 0f);
-            cornerRect.sizeDelta = new Vector2(0f, basketOpen ? 104f : 76f);
-            cornerRect.anchoredPosition = new Vector2(0f, 10f);
+            // Checklist 94: the corner starts right of the bottom-left menu button, so the two never overlap.
+            cornerRect.sizeDelta = new Vector2(-MenuReserve, basketOpen ? 104f : 76f);
+            cornerRect.anchoredPosition = new Vector2(MenuReserveOffset, 10f); // checklist 5: mirrors with the menu
             if (basketOpen)
             {
                 stack.gameObject.SetActive(false);

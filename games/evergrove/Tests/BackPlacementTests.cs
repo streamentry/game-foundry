@@ -23,7 +23,7 @@ internal static class BackPlacementTests
     private static readonly string[] SheetSites =
     {
         "Close seed book", "Close the stall", "Close naming", "Close dates", "Close deeper boards",
-        "Close menu", "Close journal", "Close travel", "Close river map",
+        "Close menu", "Close journal", "Close travel", "Close river map", "Close hand",
     };
 
     // Card and panel sites: each builds its own token and places it with BackPlacement.
@@ -58,7 +58,7 @@ internal static class BackPlacementTests
     // The one back gesture, top layer first. Each name is that layer's own close method.
     private static readonly string[] BackOrder =
     {
-        "CloseLetter()", "familySheet.Close()", "CloseSeedBook()", "CloseMarketSheet()",
+        "DeclineHand()", "CloseLetter()", "familySheet.Close()", "CloseSeedBook()", "CloseMarketSheet()",
         "CloseNameSheet()", "CloseDatesSheet()", "CloseWeeklyBoardSheet()", "CloseTravelSheet()", "CloseRiverMap()", "SetMenu(false)",
         "CloseJournal()", "CloseChoicePreview()", "openCard.Close()",
     };
