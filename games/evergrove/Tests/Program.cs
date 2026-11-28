@@ -580,7 +580,7 @@ internal static class Program
             }
             Expect(taps == profile.minimumClockwiseTaps,
                 "independent clockwise tap count matches metadata");
-            Expect(profile.forcedMoveCount == null && profile.observedMedianSeconds == null &&
+            Expect(profile.forcedMoveCount != null && profile.observedMedianSeconds == null &&
                 profile.observedP90Seconds == null && profile.observedHintRate == null &&
                 profile.humanReviewer == null, "not-yet-observed human and logic metrics remain null");
             Expect((profile.anchoredTile.HasValue) == (profile.variant != 0),
@@ -2010,7 +2010,17 @@ internal static class Program
             assertions += RootedBoardsTests.Run(); // vision run 20261128-0855
             assertions += LandmarkCauseTests.Run();
             assertions += FlowOrderTests.Run();
+            assertions += DeductionDepthTests.Run();
+            assertions += TurnPaletteTests.Run();
+            assertions += SpokenTurnTests.Run();
+            assertions += LanternThingTests.Run();
+            assertions += TogetherCountTests.Run();
             assertions += GardenCompareTests.Run();
+            assertions += RootedDepthTests.Run();
+            assertions += ReconsiderTruthTests.Run();
+            assertions += TurnBackTests.Run();
+            assertions += ThemeContrastTests.Run();
+            assertions += GardenFileHeaderTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

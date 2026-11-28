@@ -105,7 +105,7 @@ namespace Evergrove.UnityClient
             int day = LocalDayStamp();
             PlayerPrefs.SetString(LanternReadKey, day.ToString(CultureInfo.InvariantCulture));
             PlayerPrefs.Save();
-            RuleToast.Show(token, DayRhythm.LanternWords(day), font, Ink, Paper); // a short toast beside the token
+            RuleToast.Show(token, DayRhythm.LanternWords(day, world), font, Ink, Paper); // a short toast beside the token
             if (token != null) token.gameObject.SetActive(false);
         }
     }

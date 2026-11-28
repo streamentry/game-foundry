@@ -174,6 +174,7 @@ namespace Evergrove.UnityClient
                 group.childForceExpandWidth = group.childForceExpandHeight = false;
 
                 var ui = new UndoRow(history, changed);
+                card.GetComponentInParent<TreePlay>()?.Track(history);
                 Sprite glyph = MosseloraArt.Load(MosseloraArt.IconUndo);
                 TreePlay.Token(row.transform, "Undo", glyph, UndoRowHeight, ui.tone, () => ui.DoUndo(), true);
 
@@ -222,14 +223,24 @@ namespace Evergrove.UnityClient
                 if (icon != null) icon.GetComponent<Image>().color = on ? Color.white : new Color(1f, 1f, 1f, 0.4f);
             }
 
+            // Undo and redo hand the turn back with the history (taking turns). A board not on a TreePlay has no owner.
             private void DoUndo()
             {
-                if (history.Undo()) changed();
+                if (!history.Undo()) return;
+                changed();
+                Owner()?.TurnToStep();
             }
 
             private void DoRedo()
             {
-                if (history.Redo()) changed();
+                if (!history.Redo()) return;
+                changed();
+                Owner()?.TurnToStep();
+            }
+
+            private TreePlay Owner()
+            {
+                return undoToken == null ? null : undoToken.GetComponentInParent<TreePlay>();
             }
         }
 

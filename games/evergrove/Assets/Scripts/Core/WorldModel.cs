@@ -900,7 +900,7 @@ namespace Evergrove.Core
                 if (state.plantings[i] < trimmed.Length) { stillOurs.Add(state.plantings[i]); stillOurs.Add(state.plantings[i + 1]); }
             state.plantings = stillOurs.ToArray();
             // A reconsidered thing's puzzle is no longer solved; seeds earned stay.
-            state.treeSolved = Array.FindAll(state.treeSolved, item => item < trimmed.Length);
+            state.treeSolved = Array.FindAll(state.treeSolved, item => item < trimmed.Length); ForgetGrownMarks(trimmed.Length);
             state.round = previousChapter;
             state.boardVariant = state.lastSolvedVariant;
             state.rotations = (int[])CurrentPuzzle.Solution.Clone();

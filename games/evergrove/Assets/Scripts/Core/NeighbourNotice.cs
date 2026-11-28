@@ -174,6 +174,44 @@ namespace Evergrove.Core
         /// </summary>
         public static string TogetherLine(PuzzleKind kind)
         {
+            return TogetherLine(kind, 2);
+        }
+
+        /// <summary>
+        /// The same line for the number of people who took turns (1 to <see cref="TakeTurns.MaxPlayers"/>).
+        /// Two, or any count outside 3 to 4, keeps the two-player line; three and four get their own
+        /// group lines so the keeper never says "two" to a family of three or four.
+        /// </summary>
+        public static string TogetherLine(PuzzleKind kind, int players)
+        {
+            if (players == 3) return GroupTogetherLine(kind, "three");
+            if (players == 4) return GroupTogetherLine(kind, "four");
+            return TwoTogetherLine(kind);
+        }
+
+        private static string GroupTogetherLine(PuzzleKind kind, string count)
+        {
+            string line;
+            switch (kind)
+            {
+                case PuzzleKind.Water: line = "The {n} of you freed the water together. It ran glad all the way down."; break;
+                case PuzzleKind.StreamPath: line = "You led the stream together, turn by turn, {n} of you. I heard every set of footsteps."; break;
+                case PuzzleKind.Nonogram: line = "The {n} of you planted that bed by the numbers together. Neat rows, many hands."; break;
+                case PuzzleKind.Mosaic: line = "The {n} of you mended one of the old paintings together. Every set of eyes found more."; break;
+                case PuzzleKind.Plots: line = "The {n} of you staked those plots together. Good work goes faster with company."; break;
+                case PuzzleKind.Mahjong: line = "The {n} of you cleared the garden tiles together, a few each. That's how we played them."; break;
+                case PuzzleKind.Pairs: line = "The {n} of you matched the flower beds together. My bees approve."; break;
+                case PuzzleKind.Sowing: line = "The {n} of you sowed those beds into the basket together, turn about. Seeds go further shared."; break;
+                case PuzzleKind.Sums: line = "The {n} of you worked those seed sums out together. Many heads, one ledger."; break;
+                case PuzzleKind.Pieces: line = "The {n} of you fitted the garden pieces together, a piece each. Not a gap left."; break;
+                case PuzzleKind.Doorstep: line = "The {n} of you drew that doorstep pattern together. Every part matches, as it should."; break;
+                default: line = "The {n} of you sowed the seed squares together, turn about. Not one plant repeated."; break;
+            }
+            return line.Replace("{n}", count);
+        }
+
+        private static string TwoTogetherLine(PuzzleKind kind)
+        {
             switch (kind)
             {
                 case PuzzleKind.Water: return "The two of you freed the water together. It ran twice as glad.";

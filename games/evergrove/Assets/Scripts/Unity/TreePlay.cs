@@ -85,14 +85,9 @@ namespace Evergrove.UnityClient
 
         internal bool Gentle { get { return gentle; } }
 
-        // ---- I264: play together on one device, taking turns. Two soft colours, no names
-        // (nothing about who is playing is stored, least of all a child's).
-        private static readonly Color TurnSage = new Color(0.55f, 0.72f, 0.55f, 1f);
-        private static readonly Color TurnHoney = new Color(0.93f, 0.76f, 0.40f, 1f);
-        // I303: a third and fourth colour for bigger tables, kept apart in hue and lightness.
-        private static readonly Color TurnSky = new Color(0.56f, 0.70f, 0.86f, 1f);
-        private static readonly Color TurnRose = new Color(0.86f, 0.58f, 0.62f, 1f);
-        private static readonly Color[] TurnColours = { TurnSage, TurnHoney, TurnSky, TurnRose };
+        // ---- I264/I303: play together on one device, taking turns; no names stored. Colours come from TurnPalette.
+        private static readonly Color[] TurnColours = { TurnColour(0), TurnColour(1), TurnColour(2), TurnColour(3) };
+        private static Color TurnColour(int t) { float[] c = TurnPalette.Rgb(t); return new Color(c[0], c[1], c[2], 1f); }
         private int players = 1;
         private bool together { get { return players > 1; } }
         private int turn;
@@ -102,6 +97,8 @@ namespace Evergrove.UnityClient
 
         /// <summary>True when this puzzle was played taking turns (I263 records it on a solve).</summary>
         internal bool PlayedTogether { get { return together; } }
+        /// <summary>How many take turns (1 alone).</summary>
+        internal int Players { get { return players; } }
 
         private void TogetherRow()
         {
@@ -134,7 +131,7 @@ namespace Evergrove.UnityClient
         {
             if (solved) return;
             players = TakeTurns.NextPlayers(players);
-            turn = 0;
+            turn = 0; ledger.Clear();
             PaintTurn();
         }
 
@@ -150,6 +147,7 @@ namespace Evergrove.UnityClient
             // Playing alone: a quiet token. Together: the token wears whose turn it is.
             Image disc = turnDiscs != null && turnDiscs.Length > 0 ? turnDiscs[0] : null;
             if (disc == null) return;
+            SpeakTurn(disc.transform);
             disc.color = !together ? MosseloraTheme.QuietAction : TurnColours[turn % TurnColours.Length];
             // Shape as well as colour (I268): with two, the two people swap sides on honey's
             // turn; with more, the pips below say whose turn it is by position.
@@ -177,6 +175,7 @@ namespace Evergrove.UnityClient
                 if (offer && gentle) Breathe.Add(hintToken);
             }
         }
+
 
         private float ClassicRule(Transform card)
         {
@@ -379,7 +378,7 @@ namespace Evergrove.UnityClient
             play.Build(rect, art, name, reward, font);
             // Take turns (I264): every move flips whose turn it is.
             Action inner = play.onTurn;
-            play.onTurn = () => { inner?.Invoke(); play.FlipTurn(); };
+            play.onTurn = () => { inner?.Invoke(); play.FlipTurn(); play.NoteTurn(); };
             play.TogetherRow();
             return play;
         }

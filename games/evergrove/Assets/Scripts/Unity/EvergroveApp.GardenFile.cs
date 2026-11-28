@@ -60,7 +60,7 @@ namespace Evergrove.UnityClient
         private void CopyGardenFile()
         {
             string stamp = DateTime.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture);
-            GUIUtility.systemCopyBuffer = GardenTransfer.Export(world, stamp);
+            GUIUtility.systemCopyBuffer = GardenTransfer.ExportForPeople(world, stamp);
             gardenRestoreConfirm = false;
             pendingGardenRestore = null;
             SetGardenNotice("garden_copied", false);
