@@ -72,7 +72,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 
 ### E. In the app
 
-- [ ] **CP37 Facts once per rebuild.** The app computes the fact list once per frame, not once per neighbour. Done: CompanionFacts.Signature (pure; every input For reads, Time.frameCount appended on the Unity side) keys a per-frame cache behind CompanionFactsNow, tested in CompanionSignatureTests; four call sites moved to it; Unity compile 0 errors.
+- [x] **CP37 Facts once per rebuild.** The app computes the fact list once per frame, not once per neighbour. Done: CompanionFacts.Signature (pure; every input For reads, Time.frameCount appended on the Unity side) keys a per-frame cache behind CompanionFactsNow, tested in CompanionSignatureTests; four call sites moved to it; Unity compile 0 errors.
 - [x] **CP38 Memory parsed once.** The app reuses the parsed memory while the stored string hasn't changed. Done: CompanionMemoryNow caches the parsed memory keyed by storage key and raw PlayerPrefs string, and CompanionHeard refreshes the cache after writing; no other code writes or clears the key (CP41 adds the garden reset). Unity compile 0 errors; C# suite passes (Unity glue only, so no new unit test).
 - [x] **CP39 What the neighbours said, for a playtest.** `CompanionMemory.ToReadable(...)` plus a development-only control that copies it to the clipboard. Nothing leaves the phone unless the participant pastes it. Done: ToReadable exports date, speaker and kind only (no keys or words), with a dev-only clipboard control; tested in CompanionMemoryTests and Unity compile check.
 - [x] **CP40 QA log explains.** In development builds, the `MOSSELORA_COMPANION` log adds the top three candidates from `Explain`. Done: the QA tour logs a MOSSELORA_COMPANION_WHY line with the top three candidates, using a shared CompanionCanSay; verified by the Unity compile check and the C# suite only, not by a tour (CP50 runs one).
@@ -88,4 +88,18 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 - [x] **CP47 Architecture page.** One page on the feed, ranker, bank and locale, with every constant and where it lives. Done: [companion-architecture.md](../../../games/evergrove/docs/specs/companion-architecture.md) has the pipeline, every companion constant with its file, the rules, tests, tools and QA logs; it is doc-only, checked by the docs checker and the line bank checker.
 - [x] **CP48 Writing guide.** How to write a line: voices, qualifiers, slots, banned words and how to run the checker, drawn from the rules file. No new lines. Done: [companion-writing-guide.md](../../../games/evergrove/docs/specs/companion-writing-guide.md) covers voices, house rules, slots and qualifiers, checks and the translator flow, all derived from the rules file and checker; lists the 20 checker warnings and one unflagged odd line for the founder; linked from the architecture page; `--complete` 0 problems, docs check passes; no lines changed.
 - [x] **CP49 Playtest kit update.** Add the export (CP39), the nag damping (CP07) and the transcript pre-check (CP46). Done: the week kit records build commit 3c6576fd, adds a consent-only day-7 step 4a (participant copies the CP39 export; kinds, not words), updates the nag limit with the CP07 constants as unvalidated tunables, lists the CP46 transcript read and QA why-log as pre-recruit checks (not yet run), and drops the RainComing limit since its lines shipped in SC04; docs checker passes, line bank 0 problems.
-- [ ] **CP50 Decision log and final check.** A decision-log entry, then tests, docs checks, a Unity build and the three tour layouts.
+- [x] **CP50 Decision log and final check.** A decision-log entry, then tests, docs checks, a Unity build and the three tour layouts. Done: entry [2026-11-28 — Mosselora companion plus](../../research/decision-log.md) written; C# suite 5,477,201 assertions passing, 162 Python tests OK, line bank 0 problems (20 warnings), docs check passes, Unity c12 0 errors, tours c12p/c12l/c12x all reached MOSSELORA_QA_TOUR_DONE (tour runs from the lead session, not re-run here).
+
+## Result
+
+**50 of 50 done** (CP01–CP50), each committed on its own. Tests: C# suite 5,477,201 assertions passing; 162 Python tests; line bank `--complete` 0 problems, 20 warnings.
+
+Follow-ups, in order:
+
+1. Founder review of the 20 checker warnings, and the echo line "The water's easier to listen to once {work} is done." (`en.json` line 89), which reads awkwardly when the work is water.
+2. Tour weather redraw: scripted days don't redraw the weather, so snow shows in fair-day shots (the rain-coming fact itself is fixed in d37a4aa9).
+3. `ConfirmedReset` doesn't save the new garden until its first action, so a fresh garden not yet saved reverts to garden 0 on relaunch (CP41 note).
+4. Weekly letter: still later.
+5. Native-speaker banks: none exist yet; the translator export and import tools are ready for them.
+
+**Age fit not validated.** No item has been seen by adults 40+ or tested on a physical device.

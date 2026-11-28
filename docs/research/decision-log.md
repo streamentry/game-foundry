@@ -1048,3 +1048,37 @@ No model runs on the phone; nothing is generated at runtime.
 
 **Never claim** from this work: that the companion improves wellbeing, memory, connection or loneliness; that adults 40+ remember or like the remarks; that it works in other languages.
 
+
+## 2026-11-28 — Mosselora companion plus (CP01–CP50)
+
+**Decision (founder goal):** make the neighbours' remarks steadier, easier to check and safer to localize, without adding a single player-facing line. The 50 items are in [CHECKLIST.md](../improvements/companion-plus/CHECKLIST.md), built on the SC01–SC07 spec. No line in `en.json` changed during this work.
+
+**Built** (one small commit per item, from `1bb95374` to `d37a4aa9`):
+
+- **Ranker robustness and pacing (CP01–CP10, CP42):** a remark dated after today (clock moved back) counts as today; the memory cap drops repeats before a fact's only entry, so once-facts survive it; a waiting fact said on two of the last three days loses weight for that neighbour (nag damping, CP07); anyone-facts go to the neighbour who spoke longest ago; a kind isn't repeated the next day unless waiting; fixed sentences wait 14 days; the companion's day turns at 4 a.m.; corrupt memory never throws; a golden-hash test pins the shuffle.
+- **Simulator and property tests (CP11–CP20):** a pure simulator runs 30- and 120-day gardens. Tests check no wording repeats within 14 days, no once-fact is said twice, a remark on at least 80% of days, a fair share of shared remarks, fuzzed feeds over 500 worlds, weather and slot truth, and a 2 ms budget in Release.
+- **Checker rules and tools (CP21–CP30, CP44–CP45):** stable line IDs; near-duplicate, opening-word, punctuation and 28-word checks; no line shared across voices or kinds; a coverage report; a translator export and an import check (drafts go to `docs/improvements/review/`, never `Resources`); the checker runs in CI with `--complete`.
+- **Locale safety (CP31–CP36):** an optional slot translator (nothing changes without one); count wording checked for one and many; typed names tidied; blank names never said; slot values can't inject slots; each non-English bank keeps its own memory key.
+- **In the app (CP37–CP41):** facts computed once per frame; memory parsed once and cached; a development-only export copies kinds and dates, never words or keys; the QA log lists the top three candidates (`MOSSELORA_COMPANION_WHY`); a new garden forgets the old garden's memory.
+- **Process and docs (CP43, CP47–CP49):** dead helpers removed; [architecture page](../../games/evergrove/docs/specs/companion-architecture.md) and [writing guide](../../games/evergrove/docs/specs/companion-writing-guide.md) added; the playtest kit updated.
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Pure C# tests (5,477,201 assertions, passing); 162 Python tests; line bank 932 lines, 0 problems, 20 warnings. Unity build c12 with 0 `error CS` and `Info.plist` present; simulator tours c12p (portrait), c12l (landscape) and c12x (150% text) all reached `MOSSELORA_QA_TOUR_DONE`. No physical device; no adult 40+; no family pair; no non-English bank exists |
+| Owner | Founder, through the SC01–SC07 goal and the companion-plus checklist. Founder review of the 20 checker warnings and one echo line is still pending |
+| Delete | No runtime model, backend, account or network. The export leaves the phone only when a participant pastes it. Machine translations are never shipped; English is the only bank |
+| User value | Neighbours who don't repeat themselves, don't nag about a waiting fact, and take turns; a home screen and QA log that explain a choice; a safer path for a translated bank |
+| Audience fit | Unknown: `age fit not validated` |
+| Falsification | The companion week kit (CP49): 5–10 adults 40+ per age band for a week. Do they notice repetition or nagging? Does the CP46 transcript read as natural in context? |
+| Stop | Testers call the neighbours repetitive within the week, or find a remark pushy; then change the nag constants (unvalidated tunables) or drop that kind |
+| Evidence | Test output above; tour logs (24 `MOSSELORA_COMPANION_WHY` lines per tour); the week kit's day-7 notes, verbatim, when run |
+
+**Findings for the founder (no line changed here):**
+
+- The checker reports 20 warnings, none blocking. One near-duplicate: VisitorCame voice 2, #4 and #14 (Jaccard 0.77): "Your flower beside the tree has a visitor at dusk: a hedgehog." and "Your flower beside the tree has a prickly friend. A hedgehog, at dusk." The other 19 are opening-word clusters (for example VisitorCame/2 with eight lines starting "a", RainComing/1 with eight starting "rain").
+- "The water's easier to listen to once {work} is done." (`en.json` line 89) reads "…once the water is done." when the work is water. The echo is awkward; a founder call.
+- In the tour's rain-coming card shown in falling snow, the fact is fixed (commit `d37a4aa9`: rain-coming only on a dry day). The snow left in the 21-week shots is the tour not redrawing the weather between scripted days (the log shows the day was Fair). This is a tour follow-up, not a companion fault.
+
+**Not verified:** a physical device; adults 40+ (age fit not validated); non-English banks (none exist); the development-only export button, tapped by hand; the playtest feel of the nag constants.
+
+**Never claim** from this work: that the companion improves wellbeing, memory, connection or loneliness; that adults 40+ notice or like the remarks; that it works in another language; that the nag constants are right.
