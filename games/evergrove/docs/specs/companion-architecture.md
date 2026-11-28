@@ -4,6 +4,8 @@ For an engineer joining the project. This page says how the neighbours choose an
 
 Paths below are under `games/evergrove/Assets/Scripts/` unless marked otherwise. Pure rules are in `Core/` and have no UnityEngine references. Glue is in `Unity/`.
 
+For writing and checking the lines (voices, slots, banned words, the checker), see [companion-writing-guide.md](companion-writing-guide.md).
+
 ## 1. Pipeline
 
 ```
