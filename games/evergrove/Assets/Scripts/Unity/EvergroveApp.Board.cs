@@ -144,7 +144,7 @@ namespace Evergrove.UnityClient
             {
                 // Explains the landmark in the status line only: no move, no undo
                 // entry, no save. The next real action redraws the progress text.
-                string landmark = LocalizedVillage.EnvironmentalRule(world);
+                string landmark = LandmarkCause.For(world);
                 if (feedbackText != null && landmark.Length > 0) CjkLineBreakFixer.SetText(feedbackText, landmark);
                 // A gentle "this one stays" shake of the rooted pipe: felt, not scolded.
                 if (gentleMotion && tileArtwork != null && index < tileArtwork.Length)

@@ -146,3 +146,10 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Core suite (`dotnet run --project games/evergrove/Tests/Evergrove.Core.Tests.csproj --configuration Release`, exit 0): "Evergrove C# tests passed: 1765932 assertions". The three READY-TO-TICK test groups run inside this suite and passed with it.
 - `python3 tools/check_evergrove_docs.py`: "Evergrove documentation contract: 12 documents, 145 verified local links, 12 puzzles, v4 saves, 30 language choices, 127 keys."
 - Not run: the Unity editor, tours, and any device. No class above depends on them except where stated.
+
+## Vision run 20261128-0855 (outside the v1 checklist)
+
+- Protected pipe names its cause: `LandmarkCause` (Living mode, English, truth-guarded like the journal). Tests: `LandmarkCauseTests`. Tour and device: not run.
+- Solve bloom follows the real stream: `FlowOrder`. Tests: `FlowOrderTests` (all 12 boards and 33 variants). Tour and device: not run.
+- Restore card compares both gardens: `GardenCompare`. Tests: `GardenCompareTests`. Tour and device: not run.
+- Root-stone solver gate (depth proposal C1, gate K5), not wired: `RootedBoards`. 200/200 unique 4x4 boards for one and for two roots. Tests: `RootedBoardsTests`.
