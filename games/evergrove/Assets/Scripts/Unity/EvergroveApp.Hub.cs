@@ -189,7 +189,7 @@ namespace Evergrove.UnityClient
                 // Checklist 5: sideways, home's column sits at the right edge; with the menu in the right corner
                 // the play token keeps clear of it.
                 if (MenuOnRight && Screen.width > Screen.height)
-                    token.GetComponent<HorizontalLayoutGroup>().padding.right = (int)MenuReserve;
+                    token.GetComponent<HorizontalLayoutGroup>().padding.right = (int)(MenuReserve * 2f); // the row centres: twice the reserve moves the token a whole reserve left
                 // I351 (run 3, P9): after the story, the big arrow plays what's waiting, whose picture
                 // peeks from the token. SC05: the ranker picks it (family help first, then a new
                 // arrival), else the newest thing still holding its first puzzle, as before.

@@ -49,7 +49,7 @@ internal static class HandednessTests
         Expect(menu.Contains("Transform cornerHost = titleScreen != null ? titleScreen.transform : (Transform)canvasRoot;"),
             "with home open, the fan hangs from home's own corner button");
         Expect(hub.Contains("if (MenuOnRight && Screen.width > Screen.height)") &&
-               hub.Contains("token.GetComponent<HorizontalLayoutGroup>().padding.right = (int)MenuReserve;"),
+               hub.Contains("token.GetComponent<HorizontalLayoutGroup>().padding.right = (int)(MenuReserve * 2f);"),
             "sideways with the menu on the right, home's play token keeps clear of it");
     }
 
