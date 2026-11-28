@@ -147,7 +147,11 @@ namespace Evergrove.Core
         {
             int sa = Score(a, speaker, memory), sb = Score(b, speaker, memory);
             if (sa != sb) return sb.CompareTo(sa);
-            return Hash(garden, day, a.Key).CompareTo(Hash(garden, day, b.Key));
+            int byHash = Hash(garden, day, a.Key).CompareTo(Hash(garden, day, b.Key));
+            if (byHash != 0) return byHash;
+            // CP05: two keys with the same hash still order the same way, whatever the list order.
+            int byKey = string.CompareOrdinal(a.Key, b.Key);
+            return byKey != 0 ? byKey : a.Kind.CompareTo(b.Kind);
         }
 
         private static bool Sayable(Fact f, int speaker, Func<Fact, int, bool> canSay)
