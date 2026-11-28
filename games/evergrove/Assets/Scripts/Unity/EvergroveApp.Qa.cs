@@ -276,6 +276,13 @@ namespace Evergrove.UnityClient
                 world.Open(text);
         }
 
+        // I299 (fit): the cottage shots carry a name, so the tour shows the card's title line too.
+        internal void QaGardenName(string name)
+        {
+            if (!qaInMemoryOnly) return;
+            world.SetGardenName(name);
+        }
+
         internal void QaQuiet(bool on, bool wholeRiver = false)
         {
             if (on) EnterQuiet(wholeRiver); else ExitQuiet();
