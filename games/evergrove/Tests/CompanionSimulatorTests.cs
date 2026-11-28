@@ -437,6 +437,8 @@ internal static class CompanionSimulatorTests
                     kinds.Add(line.Kind);
                     string where = "garden " + grown + ", scenario " + scenario + ", day " + line.Day + ", neighbour " + line.Speaker +
                         " (" + line.Key + "): \"" + line.Words + "\"";
+                    // CP34: a brace in the words is flagged even when it came from a slot value (LineBank.Fill keeps
+                    // it as text); CP33 strips braces from typed names, so this only trips on a template slot left unfilled.
                     if (line.Words.IndexOf('{') >= 0 || line.Words.IndexOf('}') >= 0) faults.Add("brace left: " + where);
                     if (string.IsNullOrEmpty(line.Words)) faults.Add("no words: " + where);
                     else

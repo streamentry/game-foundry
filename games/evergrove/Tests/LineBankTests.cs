@@ -29,6 +29,7 @@ internal static class LineBankTests
         Rules rules = Rules.Load();
         Loader();
         Filling();
+        NoSlotInjection(); // CP34
         Wording();
         LineIds();
         RulesCatchBadLines(rules);
@@ -93,6 +94,22 @@ internal static class LineBankTests
         Expect(LineBank.Fill("Your {empty}.", slots) == null, "an empty slot refuses the line");
         Expect(LineBank.Fill("Your {thing.", slots) == null && LineBank.Fill("Your }thing.", slots) == null, "stray braces refuse the line");
         Expect(string.Join(",", LineBank.SlotsIn("{a} and {b}, {a}")) == "a,b,a", "slots listed in order");
+    }
+
+    // CP34: a slot value is text. Fill copies it in one left-to-right pass and never rescans it, so a value
+    // that looks like a slot, or a regex replacement pattern such as "$1" or "\", reaches the line as typed.
+    private static void NoSlotInjection()
+    {
+        var nested = new Dictionary<string, string> { { "name", "{thing}" }, { "thing", "quince tree" } };
+        Expect(LineBank.Fill("A letter from {name} about the {thing}.", nested) == "A letter from {thing} about the quince tree.",
+            "a value that looks like a slot is kept literally, and the later slot still fills");
+        Expect(LineBank.Fill("A {x} B", new Dictionary<string, string> { { "x", "{" } }) == "A { B", "a lone { in a value is text");
+        Expect(LineBank.Fill("A {x} B", new Dictionary<string, string> { { "x", "}" } }) == "A } B", "a lone } in a value is text");
+        Expect(LineBank.Fill("A {x} B", new Dictionary<string, string> { { "x", "$1" } }) == "A $1 B", "$1 is not a regex group");
+        Expect(LineBank.Fill("A {x} B", new Dictionary<string, string> { { "x", "\\" } }) == "A \\ B", "a backslash is text");
+        Expect(LineBank.Fill("A {name} B", new Dictionary<string, string> { { "name", "{name}" } }) == "A {name} B",
+            "a value equal to its own slot name is text");
+        Expect(LineBank.Fill("{x}{x}", new Dictionary<string, string> { { "x", "$&" } }) == "$&$&", "a repeated value stays literal");
     }
 
     private static void Wording()
@@ -245,6 +262,9 @@ internal static class LineBankTests
                         continue;
                     }
                     string text = en.Speak(fact, speaker, world.Garden, context.DayNumber, CompanionMemory.Empty, out int variant);
+                    // CP34: this brace check holds only because no slot value here contains a brace; a typed name
+                    // is tidied of { } by CP33, and other values come from game data. A value with a brace would be
+                    // filled correctly by LineBank.Fill yet flagged here, so keep brace-bearing values out of slots.
                     Expect(text != null && variant >= 0 && !text.Contains("{") && !text.Contains("}"), "English speaks " + fact + ": " + text);
                     Expect(text.Length <= rules.MaxChars, "within " + rules.MaxChars + " characters: " + text);
                     Expect(text.Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Length <= rules.MaxWords, "within " + rules.MaxWords + " words: " + text);
