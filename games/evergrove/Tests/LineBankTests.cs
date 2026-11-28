@@ -29,6 +29,7 @@ internal static class LineBankTests
         Loader();
         Filling();
         Wording();
+        LineIds();
         RulesCatchBadLines(rules);
         LongestIsLongest(rules);
         FactsFillTheirSlots(rules);
@@ -112,6 +113,26 @@ internal static class LineBankTests
         Expect(bank.Speak(fruit, 0, 7, 2000, memory, out int none) == null && none == -1, "no lines in Mira's voice: none (today's sentence)");
         LineBank slotted = LineBank.Parse("{\"FruitGiven\": {\"1\": [\"For {thing}.\"]}}");
         Expect(slotted.Speak(fruit, 1, 7, 2000, memory, out _) == null, "a line whose slot the fact lacks never shows");
+    }
+
+    // CP21: every line has a stable ID for translators and analytics; it is a pure hash of group, voice and text.
+    private static void LineIds()
+    {
+        // The pinned value is FNV-1a over the UTF-16 code units of "FruitGiven|0|Thank you, Crème.", computed in Python.
+        Expect(LineBank.LineId("FruitGiven", 0, "Thank you, Crème.") == "cl_f8f7c620", "the line ID is FNV-1a over UTF-16 code units");
+        Expect(LineBank.LineId("FruitGiven", 0, "Thank you, Crème.") == LineBank.LineId("FruitGiven", 0, "Thank you, Crème."), "the line ID is deterministic");
+        Expect(LineBank.LineId("FruitGiven", 0, "Thank you.") != LineBank.LineId("FruitGiven", 0, "Thank you!"), "changing one character changes the ID");
+
+        LineBank en = LineBank.Parse(File.ReadAllText(Path.Combine(Root(), "games/evergrove/Assets/Resources/Evergrove/Lines/en.json")));
+        var ids = new HashSet<string>();
+        int total = 0;
+        foreach (var line in en.All())
+        {
+            total++;
+            Expect(ids.Add(LineBank.LineId(line.Group, line.Voice, line.Text)), "a line ID is unique: " + line.Group + " " + line.Text);
+        }
+        Expect(total > 0 && ids.Count == total, "every shipped English line has an ID");
+        Console.WriteLine("Line IDs: " + total + " shipped English lines, " + ids.Count + " unique IDs.");
     }
 
     // Each rule must catch a line that breaks it, or a passing bank proves nothing.
