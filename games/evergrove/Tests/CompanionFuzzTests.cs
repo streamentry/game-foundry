@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Evergrove.Core;
 
 /// <summary>
@@ -50,7 +52,95 @@ internal static class CompanionFuzzTests
         Expect(facts > 0, "the fuzz produced facts to check");
 
         FreshAndPuzzleOnlyFeeds(map);
+        FeedIsPure();
+        LetterNamesStayClean();
         return assertions;
+    }
+
+    // CP17: the feed, the ranker and the simulator only read the save. Same input gives the same feed,
+    // and the save text (GardenTransfer.Export) and the memory text are unchanged afterwards.
+    private const string Stamp = "2026-11-28T00:00:00Z";
+
+    private static void FeedIsPure()
+    {
+        var rng = new Random(Seed + 17);
+        GardenMap map = GardenMap.River(10, 15, CompanionFactsTests.Mask(), 2);
+        LineBank bank = LoadBank();
+        for (int i = 0; i < 100; i++)
+        {
+            WorldModel world = RandomWorld(rng, i);
+            CompanionContext context = RandomContext(rng, map);
+            var days = new CompanionContext[3];
+            for (int d = 0; d < days.Length; d++) days[d] = RandomContext(rng, map);
+
+            string saveBefore = GardenTransfer.Export(world, Stamp);
+            IReadOnlyList<Fact> first = CompanionFacts.For(world, context);
+            IReadOnlyList<Fact> second = CompanionFacts.For(world, context);
+            SameFeed(first, second, "case " + i + ": For twice");
+
+            // Memory that already heard some of the feed, so the ranker and simulator read real history.
+            CompanionMemory memory = CompanionMemory.Empty;
+            for (int f = 0; f < first.Count && f < 3; f++)
+                memory = memory.With(new Heard(context.DayNumber - 1, f % 3, first[f].Kind, 0, first[f].Key));
+            string memoryBefore = memory.Serialize();
+
+            CompanionRanker.Allot(first, memory, context.DayNumber, world.Garden);
+            CompanionSimulator.Run(world, d => days[d], 3, bank, CompanionLocale.English, memory);
+
+            Expect(GardenTransfer.Export(world, Stamp) == saveBefore, "case " + i + ": the save is unchanged after the feed, ranker and simulator");
+            Expect(memory.Serialize() == memoryBefore, "case " + i + ": the memory is unchanged after the ranker and simulator");
+            SameFeed(first, CompanionFacts.For(world, context), "case " + i + ": the feed after the ranker and simulator");
+        }
+    }
+
+    private static void SameFeed(IReadOnlyList<Fact> a, IReadOnlyList<Fact> b, string where)
+    {
+        Expect(a.Count == b.Count, where + ": same number of facts");
+        for (int i = 0; i < a.Count; i++)
+        {
+            Fact x = a[i], y = b[i];
+            Expect(x.Kind == y.Kind && x.Keeper == y.Keeper && x.Key == y.Key && x.Weight == y.Weight &&
+                x.Waiting == y.Waiting && x.Fresh == y.Fresh && x.Once == y.Once && x.LegacyOrder == y.LegacyOrder,
+                where + ": fact " + i + " matches: " + x);
+            Expect(x.Slots.Count == y.Slots.Count, where + ": fact " + i + " has the same slots: " + x);
+            foreach (KeyValuePair<string, string> slot in x.Slots)
+                Expect(y.Slots.TryGetValue(slot.Key, out string value) && value == slot.Value,
+                    where + ": fact " + i + " slot " + slot.Key + " matches: " + x);
+        }
+    }
+
+    // CP17 gap: a letter sender with '|' or a newline. Names come from the save (letterFrom) and from
+    // KeepNote/SendParcel, both through FamilyParcel.ValidName, which allows no '|' and no newline.
+    // A forged save must be refused, so no key can carry a separator.
+    private static void LetterNamesStayClean()
+    {
+        var world = WorldModel.New(PlayMode.Living);
+        Expect(!world.KeepNote("Anh|Ruth", "A note."), "CP17: a sender name with '|' is refused");
+        Expect(!world.KeepNote("Anh\nRuth", "A note."), "CP17: a sender name with a newline is refused");
+        Expect(world.Letters.Length == 0, "CP17: refused names leave the letterbox empty");
+
+        Expect(world.KeepNote("Anh", "A note."), "CP17: a plain name is kept");
+        WorldSnapshot snapshot = world.Export();
+        snapshot.letterFrom[0] = "Anh|Ruth";
+        Expect(!WorldModel.TryRestore(snapshot, out WorldModel _), "CP17: a save with '|' in a sender name is refused");
+        snapshot.letterFrom[0] = "Anh\nRuth";
+        Expect(!WorldModel.TryRestore(snapshot, out WorldModel _), "CP17: a save with a newline in a sender name is refused");
+
+        CompanionContext today = new CompanionContext(new DateTime(2026, 11, 28));
+        IReadOnlyList<Fact> feed = CompanionFacts.For(world, today);
+        foreach (Fact f in feed)
+            Expect(f.Key.IndexOf('|') < 0 && f.Key.IndexOf('\n') < 0, "CP17: key has no separator: " + f.Key);
+        Expect(feed.Any(f => f.Kind == FactKind.LetterWaiting && f.Key == "letter:Anh:1"),
+            "CP17: a plain sender's letter gives the key letter:Anh:1");
+    }
+
+    private static LineBank LoadBank()
+    {
+        string dir = AppContext.BaseDirectory;
+        while (dir != null && !File.Exists(Path.Combine(dir, "Assets/Resources/Evergrove/Lines/en.json")))
+            dir = Path.GetDirectoryName(dir);
+        if (dir == null) throw new Exception("Companion fuzz test failed: en.json not found");
+        return LineBank.Parse(File.ReadAllText(Path.Combine(dir, "Assets/Resources/Evergrove/Lines/en.json")));
     }
 
     // Named regression cases, one per Core fault found by the fuzz (none so far).
