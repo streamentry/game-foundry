@@ -1933,6 +1933,7 @@ internal static class Program
             assertions += PairingTests.Run();
             assertions += NoticeTests.Run();
             assertions += CompanionFactsTests.Run();
+            assertions += CompanionNameTests.Run();
             assertions += CompanionRankerTests.Run();
             assertions += CompanionMemoryTests.Run(); // CP01
             assertions += LineBankTests.Run();

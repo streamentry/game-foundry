@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 
 namespace Evergrove.Core
 {
@@ -243,8 +244,9 @@ namespace Evergrove.Core
             string[] mail = world.Letters;
             if (mail.Length == 0 || context.LettersRead >= mail.Length) return;
             string name = world.LetterFrom[mail.Length - 1];
+            // CP33: the slot holds the tidy name; the key keeps the typed one (memory stores keys).
             facts.Add(Make(FactKind.LetterWaiting, 1, "letter:" + name + ":" + mail.Length, WaitingWeight, true, false,
-                3 * Step, "name", name));
+                3 * Step, "name", TidyName(name)));
         }
 
         private static void Gifts(WorldModel world, int v, List<Fact> facts)
@@ -269,7 +271,7 @@ namespace Evergrove.Core
             if (item >= made.Length || world.TreeSolved(item)) return;
             PuzzleKind kind = ThingPuzzle.ForStory(item, (VillageChoice)Math.Max(0, Math.Min(2, made[item])));
             facts.Add(Make(FactKind.HelpedBy, NeighbourNotice.OwnerOf(kind), "helped:" + item, WaitingWeight, true, false,
-                5 * Step, "name", world.HelpedBy(item), "puzzle", kind.ToString(), "work", WorkOf(kind), "item", Num(item)));
+                5 * Step, "name", TidyName(world.HelpedBy(item)), "puzzle", kind.ToString(), "work", WorkOf(kind), "item", Num(item)));
         }
 
         private static void Arrival(WorldModel world, int v, List<Fact> facts)
@@ -484,6 +486,36 @@ namespace Evergrove.Core
             return map.DistanceToWater(cell) <= 1 ? "by the creek"
                 : row <= 3 && column >= 5 ? "by the cottage"
                 : row >= map.Rows - 4 ? "down the valley" : "in the meadow";
+        }
+
+        /// <summary>The most text elements a typed name keeps in a slot (CP33).</summary>
+        public const int MaxNameElements = 24;
+
+        /// <summary>
+        /// CP33: a typed name for a {name} slot. Trims; control characters and { } | are dropped; whitespace
+        /// runs (tabs and newlines too) become one space, so "a|b\nc" is "ab c" and "Bà\tNội" is "Bà Nội".
+        /// Keeps at most <see cref="MaxNameElements"/> text elements, so an emoji or accent is never split,
+        /// with no ellipsis. Null or nothing left is "".
+        /// </summary>
+        public static string TidyName(string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return "";
+            var sb = new StringBuilder(raw.Length);
+            bool gap = false;
+            foreach (char c in raw)
+            {
+                if (c == '{' || c == '}' || c == '|') continue;
+                if (char.IsWhiteSpace(c)) { gap = true; continue; }
+                if (char.IsControl(c)) continue;
+                if (gap && sb.Length > 0) sb.Append(' ');
+                gap = false;
+                sb.Append(c);
+            }
+            string text = sb.ToString();
+            var info = new StringInfo(text);
+            if (info.LengthInTextElements > MaxNameElements)
+                text = info.SubstringByTextElements(0, MaxNameElements).TrimEnd();
+            return text;
         }
 
         private static string Num(int n)
