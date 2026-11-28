@@ -45,6 +45,7 @@ internal static class TouchTargetTests
         ["EvergroveApp.Name.cs"] = new[] { "name text field: height from NameField layout (verify in tour)" },
         ["FamilySheet.cs"] = new[] { "text field: height from the Field helper's callers (48f)" },
         ["GardenNightCreatures.cs"] = new[] { "night creature (GardenCreature): its 48 x 48 tap area is asserted in GardenCreature.cs" },
+        ["TreePlay.Zoom.cs"] = new[] { "board zoom picture (ZoomTap): covers the whole board view, which is far over 48 pt (v1 #91)" },
         ["GardenMapView.cs"] = new[]
         {
             "map item Button: size from the item's art rect (verify in tour)",
@@ -83,11 +84,11 @@ internal static class TouchTargetTests
         },
     };
 
-    private static readonly string[] ClickHandlerClasses = { "GardenCreature", "MapTap", "TapCatcher" };
+    private static readonly string[] ClickHandlerClasses = { "GardenCreature", "MapTap", "TapCatcher", "ZoomTap" };
 
     private static readonly Regex BuilderCall = new Regex(@"(?<![A-Za-z_])(IconButton|Button|Token)\(");
     private static readonly Regex RawBuilder =
-        new Regex(@"AddComponent<(Button|InputField|Toggle|TapCatcher|MapTap|GardenCreature)>\(");
+        new Regex(@"AddComponent<(Button|InputField|Toggle|TapCatcher|MapTap|GardenCreature|ZoomTap)>\(");
     private static readonly Regex ClickClass = new Regex(@"class\s+(\w+)[^{;]*IPointerClickHandler");
 
     public static int Run()
