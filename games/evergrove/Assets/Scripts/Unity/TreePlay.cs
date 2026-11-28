@@ -729,7 +729,7 @@ namespace Evergrove.UnityClient
         {
             yield return null;
             yield return null; // after the leaves chooser attaches (EvergroveApp.Difficulty.cs)
-            if (cardRect == null || root == null) yield break; SplitSideways(root); // v1 #91: board left, controls right
+            if (cardRect == null || root == null) yield break; SplitSideways(root); MoveControlsToFoot(root); AttachSwipeClose(); // v1 #91, #94
             Canvas.ForceUpdateCanvases();
             float room = root.rect.height - 16f;
             float tall = cardRect.rect.height;

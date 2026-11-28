@@ -1959,6 +1959,8 @@ internal static class Program
             assertions += ThumbReachTests.Run(); // checklist 94
             assertions += ThingActionsTests.Run(); // checklist 13
             assertions += HandednessTests.Run(); // checklist 5
+            assertions += SwipeCloseTests.Run(); // checklist 94 (swipe to close)
+            assertions += CardFootTests.Run(); // checklist 94 (card foot, fan reach)
             assertions += FileSizeTests.Run();
             assertions += RiverTravelTests.Run();
             assertions += ColourCueTests.Run();
