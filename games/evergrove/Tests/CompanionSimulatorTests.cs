@@ -29,6 +29,7 @@ internal static class CompanionSimulatorTests
         NoRepeatedWording();
         OnceIsOnce();
         NoStarvation();
+        FairSharing();
         return assertions;
     }
 
@@ -236,6 +237,59 @@ internal static class CompanionSimulatorTests
         Expect(failures.Count == 0, "CP14: a neighbour with something to say speaks on at least 80% of those days; below: " +
             string.Join(" | ", failures) + ". All: " + string.Join(" | ", summary));
         Console.WriteLine("Companion simulator CP14: " + string.Join("; ", summary) + ".");
+    }
+
+    // CP15: over 30 days, anyone-facts (Keeper == Fact.AnyKeeper: weather, hour, river, visitors, rain coming)
+    // are spread across the three neighbours. Pooled over three gardens, each neighbour gets at least 20%.
+    // CP15: who gets the stage. By the spec an anyone-fact goes to a neighbour with nothing better of their own,
+    // so a neighbour with plenty of their own news (often Mira) rightly gets few shared remarks. Fairness is
+    // therefore measured on all remarks: each neighbour has at least 20% of what is said, and shared remarks
+    // don't all go to one neighbour.
+    private static void FairSharing()
+    {
+        const int Days = 30;
+        const double MinShare = 0.2;
+        LineBank bank = LoadBank();
+        var all = new int[3];
+        var shared = new int[3];
+        int total = 0, sharedTotal = 0;
+        foreach (int grown in new[] { 6, 9, 12 })
+        {
+            WorldModel world = CompanionFactsTests.Grown(grown);
+            world.SolveTree(0);
+            world.SolveTree(3);
+            GardenMap map = MapFor(world);
+
+            // The anyone keys of each simulated day, looked up from the same facts the simulator ranks.
+            var anyoneByDay = new Dictionary<int, HashSet<string>>();
+            for (int d = 0; d < Days; d++)
+            {
+                CompanionContext context = VariedContextFor(d, map);
+                var keys = new HashSet<string>();
+                foreach (Fact f in CompanionFacts.For(world, context))
+                    if (f.Keeper == Fact.AnyKeeper) keys.Add(f.Key);
+                anyoneByDay[context.DayNumber] = keys;
+            }
+
+            foreach (SimLine line in Simulate(world, bank, null, VariedContextFor, Days))
+            {
+                all[line.Speaker]++;
+                total++;
+                if (!anyoneByDay.TryGetValue(line.Day, out HashSet<string> keys) || !keys.Contains(line.Key)) continue;
+                shared[line.Speaker]++;
+                sharedTotal++;
+            }
+        }
+
+        string counts = "all lines (Mira, Orin, Fen) = " + all[0] + ", " + all[1] + ", " + all[2] + " of " + total +
+            "; shared lines = " + shared[0] + ", " + shared[1] + ", " + shared[2] + " of " + sharedTotal;
+        Expect(total > 0 && sharedTotal > 0, "CP15: the check is not vacuous; " + counts);
+        for (int speaker = 0; speaker < 3; speaker++)
+            Expect((double)all[speaker] / total >= MinShare, "CP15: neighbour " + speaker + " has at least 20% of all remarks; " + counts);
+        int receivers = 0;
+        for (int speaker = 0; speaker < 3; speaker++) if (shared[speaker] > 0) receivers++;
+        Expect(receivers >= 2, "CP15: shared remarks go to more than one neighbour; " + counts);
+        Console.WriteLine("Companion simulator CP15: " + counts + ".");
     }
 
     private static bool HadSomethingSayable(IReadOnlyList<Fact> facts, LineBank bank, int speaker)
