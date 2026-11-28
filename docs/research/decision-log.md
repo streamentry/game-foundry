@@ -1128,6 +1128,7 @@ The fan stops growing into the out-of-reach top third and wraps into another col
 
 - The checker reports 20 warnings, none blocking. One near-duplicate: VisitorCame voice 2, #4 and #14 (Jaccard 0.77): "Your flower beside the tree has a visitor at dusk: a hedgehog." and "Your flower beside the tree has a prickly friend. A hedgehog, at dusk." The other 19 are opening-word clusters (for example VisitorCame/2 with eight lines starting "a", RainComing/1 with eight starting "rain").
 - "The water's easier to listen to once {work} is done." (`en.json` line 89) reads "…once the water is done." when the work is water. The echo is awkward; a founder call.
+- **Resolved 2026-11-28 (founder request):** all 20 warnings and the water echo line were fixed by rewriting 45 English lines (mostly by reordering sentences; no new facts). The water line now opens "Birdsong is easier to listen to…". The bank passes `--complete --strict` with 0 warnings. The founder still has to read the new wording on a device.
 - In the tour's rain-coming card shown in falling snow, the fact is fixed (commit `d37a4aa9`: rain-coming only on a dry day). The snow left in the 21-week shots is the tour not redrawing the weather between scripted days (the log shows the day was Fair). This is a tour follow-up, not a companion fault.
 
 **Not verified:** a physical device; adults 40+ (age fit not validated); non-English banks (none exist); the development-only export button, tapped by hand; the playtest feel of the nag constants.

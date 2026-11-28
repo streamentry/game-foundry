@@ -96,7 +96,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 
 Follow-ups, in order:
 
-1. Founder review of the 20 checker warnings, and the echo line "The water's easier to listen to once {work} is done." (`en.json` line 89), which reads awkwardly when the work is water.
+1. ~~Founder review of the 20 checker warnings and the "once the water is done" echo line.~~ Done 2026-11-28 at the founder's request: 45 lines rewritten, and the bank now passes `--complete --strict` with 0 warnings.
 2. Tour weather redraw: scripted days don't redraw the weather, so snow shows in fair-day shots (the rain-coming fact itself is fixed in d37a4aa9).
 3. `ConfirmedReset` doesn't save the new garden until its first action, so a fresh garden not yet saved reverts to garden 0 on relaunch (CP41 note).
 4. Weekly letter: still later.

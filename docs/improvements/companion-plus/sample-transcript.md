@@ -56,8 +56,8 @@ cd games/evergrove/Tests && EVERGROVE_COMPANION_TRANSCRIPT=/Volumes/SANDISK-Data
 
 ### Day 9 (Windy, Day)
 
-- **Mira:** The water's easier to listen to once the water is done. Or perhaps that's just me.
-- **Orin:** Rain upstream today. If you've anything to dry outside, today's the day.
+- **Mira:** Birdsong is easier to listen to once the water is done. Or perhaps that's just me.
+- **Orin:** Upstream it's raining today. If you've anything to dry outside, today's the day.
 - **Fen:** Windy today. I've staked the tallest stems so they don't snap.
 
 ### Day 10 (Rainy, Golden)
@@ -75,7 +75,7 @@ cd games/evergrove/Tests && EVERGROVE_COMPANION_TRANSCRIPT=/Volumes/SANDISK-Data
 ### Day 12 (Snowy, Night)
 
 - **Mira:** Well, look at that: the water, all done. I'll put the kettle on.
-- **Orin:** Thank you. Better than any tool I own, and I own a lot of tools.
+- **Orin:** Better than any tool I own, and I own a lot of tools. Thank you.
 - **Fen:** Butterflies taste with their feet. Imagine landing on your cowslips in the meadow and tasting it all at once.
 
 ### Day 13 (Snowy, Dawn)
@@ -140,7 +140,7 @@ cd games/evergrove/Tests && EVERGROVE_COMPANION_TRANSCRIPT=/Volumes/SANDISK-Data
 
 ### Day 23 (Snowy, Dusk)
 
-- **Mira:** I went the long way round to pass your hazel in the meadow. It was worth the extra steps.
+- **Mira:** It was worth the long way round to pass your hazel in the meadow. I didn't mind the extra steps.
 - **Orin:** You've a good head for the old painting. Steady. That's rarer than clever.
 - **Fen:** Try a flower next to a tree. Hedgehogs like a sheltered flower to visit at dusk.
 
@@ -164,7 +164,7 @@ cd games/evergrove/Tests && EVERGROVE_COMPANION_TRANSCRIPT=/Volumes/SANDISK-Data
 
 ### Day 27 (Snowy, Day)
 
-- **Mira:** The water's easier to listen to once the water is done. Or perhaps that's just me.
+- **Mira:** Birdsong is easier to listen to once the water is done. Or perhaps that's just me.
 - **Orin:** A built thing beside the water: that's a pairing worth finding.
 - **Fen:** I always smell a new flower first and look second. I did both by your cowslips in the meadow, and gladly.
 

@@ -116,24 +116,15 @@ The C# tests read the same rules file (`Tests/LineBankTests.cs`). Run them after
 3. `python3 tools/evergrove_line_bank_import.py --locale fr --csv PATH.csv` checks each row against the English bank. It refuses a changed English text, a bad slot, or a dropped `name`. It writes a DRAFT to `docs/improvements/review/fr/companion-lines-draft.md`. It never writes a JSON bank, and it refuses any out-dir under `games/evergrove/Assets`.
 4. A native speaker reviews the draft. Only after that review may a bank go into Resources. Until then the language uses the fallback.
 
-## 5. Warnings to decide today
+## 5. Warnings
 
-The checker prints 20 warnings for `en.json` and no problems. They do not fail the run. The founder decides each one. The lines below are unchanged pending the founder's review.
+The checker prints no warnings for `en.json` (`--complete --strict` passes). On 2026-11-28 the founder asked for the 20 earlier warnings and one odd line to be fixed, and 45 lines were rewritten without changing what they say:
 
-1. **Near-duplicate, VisitorCame voice 2 (Fen), #4 and #14.** Both lines say a hedgehog comes at dusk, with a flower by a tree. Jaccard 0.77. Keep one, or make the second say something new.
-2. **Opening-word clusters (19 warnings, more than 5 lines in a group and voice start with the same word).**
-   - NewestThing: voice 0 and voice 2 start with "I" (6 each); voice 1 with "I" (8).
-   - GiftWaiting: voice 0 "your" (6) and "the" (6); voice 2 "your" (8).
-   - FruitGiven: "Thank" in voices 0 (7), 1 (7), 2 (9).
-   - SolvedTogether voice 2: "You" (8).
-   - NewArrival: voice 1 "A" (6); voice 2 "A" (8) and "Your" (7).
-   - RiverClose voice 0: "The" (8).
-   - VisitorCame: voice 0 "An" (6); voices 1 and 2 "A" (8 each).
-   - WeatherWhileAway voice 0: "Since" (6).
-   - RainComing voice 1: "Rain" (8).
+1. **Near-duplicate, VisitorCame voice 2 (Fen), #4 and #14.** #14 now reads "Someone prickly comes calling at dusk: a hedgehog, by your flower beside the tree."
+2. **Opening-word clusters (19).** Lines were reordered so no group and voice has more than 5 lines starting with the same word ("I", "Thank", "A", "Your", "The", "Rain" and others). Usually the second sentence now comes first, or "Thank you" moves to the end.
+3. **Reads oddly, not flagged.** KindSolved, voice 0 (Mira), line 18 used to say "The water's easier to listen to once {work} is done.", which reads "…once the water is done." when the work is water. It now says "Birdsong is easier to listen to once {work} is done. Or perhaps that's just me." The checker can't catch this kind of clash, because it checks slots and not their values. When a line names a thing that a `{work}` value could also name (water, stream, beds, tiles), read it with each value in `CompanionFacts.WorkOf`.
 
-   The rule is a warning only (CP23). Decide whether a cluster is a voice habit or a repetition the player will hear.
-3. **Reads oddly, not flagged.** KindSolved, voice 0 (Mira), line 18: "The water's easier to listen to once {work} is done. Or perhaps that's just me." When `{work}` is "the water", it reads "…once the water is done." The checker passes it, because the rule checks slots, not values. Founder to decide: a rewrite, or accept it. The line is unchanged.
+A new warning does not fail the run, but read it before you ship. Clear it unless it is a deliberate voice habit.
 
 ## 6. Not verified
 
