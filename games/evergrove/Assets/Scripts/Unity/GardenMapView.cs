@@ -92,7 +92,7 @@ namespace Evergrove.UnityClient
             // every other one mirrored so the creek runs on without a seam.
             int reaches = map != null ? Mathf.Max(1, map.Reaches) : 1;
             view.reaches = reaches; StretchWindow.Attach(hostRect, landRect, plotRect, reaches); // checklist 50
-            if (reaches == 1) ground.sprite = plot;
+            if (reaches == 1) { ground.sprite = plot; PaintStretch(plotRect, 0); } // checklist 42: one stretch, painted for its kind
             else
             {
                 ground.color = new Color(1f, 1f, 1f, 0f); // still catches taps
@@ -102,7 +102,7 @@ namespace Evergrove.UnityClient
                     var copyRect = copy.rectTransform;
                     copyRect.anchorMin = new Vector2(0f, 1f - (reach + 1f) / reaches);
                     copyRect.anchorMax = new Vector2(1f, 1f - reach / (float)reaches);
-                    copyRect.offsetMin = copyRect.offsetMax = Vector2.zero;
+                    copyRect.offsetMin = copyRect.offsetMax = Vector2.zero; PaintStretch(copyRect, reach); // checklist 42
                 }
             }
             ground.raycastTarget = onLand != null;
@@ -862,7 +862,7 @@ namespace Evergrove.UnityClient
                 label.resizeTextMinSize = 10;
                 label.resizeTextMaxSize = 15;
                 label.raycastTarget = false;
-                label.text = RiverNames.For(reach);
+                label.text = RiverNames.For(reach); FlavourMarks(signRect, reach, signW); // checklist 42
                 nodes.Add(signRect);
             }
             // I310 (idea 43, leaving a light for another): lanterns family left stand along the
@@ -1250,7 +1250,7 @@ namespace Evergrove.UnityClient
                 if (held || (inHand < 0 && item.Newest)) { focus = at; focused = true; }
             }
             // Others standing on the map (neighbours, I181), laid out with it.
-            List<RectTransform> standing = null;
+            List<RectTransform> standing = null; StretchShown = StretchInView(reachHeight); // checklist 42
             if (decorate != null)
             {
                 standing = decorate(land, cell =>
