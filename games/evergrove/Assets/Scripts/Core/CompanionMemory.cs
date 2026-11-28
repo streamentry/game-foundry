@@ -127,6 +127,39 @@ namespace Evergrove.Core
             return last;
         }
 
+        // CP06: read-only helpers for the companion's turn-taking and cooldown rules.
+
+        /// <summary>The last day this speaker said anything, or int.MinValue if they never have.</summary>
+        public int LastSpoke(int speaker)
+        {
+            int last = int.MinValue;
+            foreach (Heard h in heard)
+                if (h.Speaker == speaker && h.Day > last) last = h.Day;
+            return last;
+        }
+
+        /// <summary>
+        /// How many distinct days within the last <paramref name="days"/> days (today included) this speaker
+        /// said the key. Two remarks on one day count once; a future-dated remark counts as today.
+        /// </summary>
+        public int DaysHeardBy(string key, int speaker, int today, int days)
+        {
+            string clean = Clean(key);
+            var seen = new HashSet<int>();
+            foreach (Heard h in heard)
+                if (h.Key == clean && h.Speaker == speaker && Age(h.Day, today) < days)
+                    seen.Add(Math.Min(h.Day, today));
+            return seen.Count;
+        }
+
+        /// <summary>This speaker said a remark of this kind on exactly this day.</summary>
+        public bool KindSaidOn(FactKind kind, int speaker, int day)
+        {
+            foreach (Heard h in heard)
+                if (h.Kind == kind && h.Speaker == speaker && h.Day == day) return true;
+            return false;
+        }
+
         // ---- PlayerPrefs text: one remark per line, "day|speaker|kind|variant|key".
         public string Serialize()
         {

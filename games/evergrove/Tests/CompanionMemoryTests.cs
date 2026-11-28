@@ -25,7 +25,77 @@ internal static class CompanionMemoryTests
         RoundTrip();
         ClockMovedBack();
         CapKeepsEverSaid();
+        MemoryHelpers();
         return assertions;
+    }
+
+    // CP06: read-only helpers used by CP07-CP09 (who spoke last, how many days a key was heard, a kind on a day).
+    private static void MemoryHelpers()
+    {
+        // Empty memory: nothing has been said.
+        CompanionMemory empty = CompanionMemory.Empty;
+        Expect(empty.LastSpoke(0) == int.MinValue, "an empty memory has never heard anyone speak");
+        Expect(empty.DaysHeardBy("key:x", 0, 10, 3) == 0, "an empty memory has no days heard");
+        Expect(!empty.KindSaidOn(FactKind.Hour, 0, 5), "an empty memory has no kind said on any day");
+
+        // Window edges with today = 10 and days = 3: days 10, 9 and 8 count; day 7 does not.
+        const string key = "solved:Mosaic:2";
+        CompanionMemory memory = CompanionMemory.Empty
+            .With(new Heard(7, 0, FactKind.KindSolved, 2, key))
+            .With(new Heard(8, 0, FactKind.KindSolved, 2, key))
+            .With(new Heard(9, 0, FactKind.KindSolved, 2, key))
+            .With(new Heard(10, 0, FactKind.KindSolved, 2, key));
+        Expect(memory.DaysHeardBy(key, 0, 10, 3) == 3, "days=3 counts today, today-1 and today-2 only");
+        Expect(memory.DaysHeardBy(key, 0, 10, 4) == 4, "days=4 also counts today-3");
+        Expect(memory.DaysHeardBy(key, 0, 10, 0) == 0, "days=0 counts nothing");
+
+        // Two remarks of one key on the same day count once; distinct days count separately.
+        CompanionMemory twice = CompanionMemory.Empty
+            .With(new Heard(9, 1, FactKind.Hour, 0, "hour:dawn"))
+            .With(new Heard(9, 1, FactKind.Hour, 0, "hour:dawn"))
+            .With(new Heard(10, 1, FactKind.Hour, 0, "hour:dawn"));
+        Expect(twice.DaysHeardBy("hour:dawn", 1, 10, 3) == 2, "two remarks on one day count as one day");
+
+        // Another speaker's remarks, or another key, are ignored.
+        CompanionMemory mixed = CompanionMemory.Empty
+            .With(new Heard(9, 1, FactKind.Hour, 0, "hour:dawn"))
+            .With(new Heard(10, 1, FactKind.Hour, 0, "hour:dawn"))
+            .With(new Heard(10, 2, FactKind.Hour, 0, "hour:dawn"))
+            .With(new Heard(10, 0, FactKind.Hour, 0, "hour:other"));
+        Expect(mixed.DaysHeardBy("hour:dawn", 0, 10, 3) == 0, "another speaker's remarks are not counted");
+        Expect(mixed.DaysHeardBy("hour:dawn", 2, 10, 3) == 1, "only the named speaker's days are counted");
+        Expect(mixed.DaysHeardBy("hour:other", 1, 10, 3) == 0, "a key said by another speaker is not counted");
+
+        // The key is cleaned like the other lookups: a separator in the query matches the stored key.
+        CompanionMemory piped = CompanionMemory.Empty.With(new Heard(10, 0, FactKind.Hour, 0, "letter|Orin"));
+        Expect(piped.DaysHeardBy("letter|Orin", 0, 10, 3) == 1, "the queried key is cleaned before matching");
+
+        // A future-dated remark is heard today (age 0), so it does not add a second day.
+        CompanionMemory future = CompanionMemory.Empty
+            .With(new Heard(12, 0, FactKind.Hour, 0, "hour:dawn"))
+            .With(new Heard(10, 0, FactKind.Hour, 0, "hour:dawn"));
+        Expect(future.DaysHeardBy("hour:dawn", 0, 10, 3) == 1, "a future-dated remark counts as today, once");
+
+        // LastSpoke: the latest day per speaker, or MinValue for a speaker who never spoke.
+        CompanionMemory spoke = CompanionMemory.Empty
+            .With(new Heard(3, 0, FactKind.Hour, 0, "hour:a"))
+            .With(new Heard(5, 0, FactKind.Hour, 0, "hour:c"))
+            .With(new Heard(9, 0, FactKind.Hour, 0, "hour:b"))
+            .With(new Heard(20, 1, FactKind.Hour, 0, "hour:d"));
+        Expect(spoke.LastSpoke(0) == 9, "LastSpoke is the latest day this speaker said anything");
+        Expect(spoke.LastSpoke(1) == 20, "LastSpoke is per speaker");
+        Expect(spoke.LastSpoke(2) == int.MinValue, "a speaker who never spoke gives int.MinValue");
+
+        // KindSaidOn: the kind, by this speaker, on exactly this day.
+        CompanionMemory kinds = CompanionMemory.Empty
+            .With(new Heard(4, 0, FactKind.Hour, 0, "hour:dawn"))
+            .With(new Heard(5, 0, FactKind.KindSolved, 2, key))
+            .With(new Heard(6, 1, FactKind.Hour, 0, "hour:dusk"));
+        Expect(kinds.KindSaidOn(FactKind.Hour, 0, 4), "a kind said on that day is found");
+        Expect(!kinds.KindSaidOn(FactKind.Hour, 0, 5), "a kind said on another day is not found");
+        Expect(kinds.KindSaidOn(FactKind.KindSolved, 0, 5), "a second kind on its day is found");
+        Expect(!kinds.KindSaidOn(FactKind.KindSolved, 1, 5), "another speaker's kind on that day is not found");
+        Expect(kinds.KindSaidOn(FactKind.Hour, 1, 6) && !kinds.KindSaidOn(FactKind.Hour, 0, 6), "KindSaidOn is per speaker");
     }
 
     // CP03: over MaxEntries, older repeats of a key go first, so a once-fact's only record survives the cap.
