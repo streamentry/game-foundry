@@ -224,3 +224,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - Take-turns screen-reader lines name the seat by its pip colour ("Honey's turn, second of three.", `TurnPalette.Name`). Tests: `SpokenTurnTests`, `StarterTurnTests`, `TurnPaletteTests`. VoiceOver/TalkBack: not run.
 - The autumn river on the map shows leaves afloat only when a deciduous tree is on the map (`SeasonLook.River(season, fallingTrees)`). Tests: `SeasonLookTests`. On-screen look: not checked.
 - Holding the protected pipe says why it stays, then its openings (`TileOpenings.Caption` with a cause). Tests: `TileOpeningsTests`. Tour and device: not run.
+
+## Vision run 20261128-1801 (outside the v1 checklist)
+
+- Axle reach measured: `LinkedForkChapter.WorkByReach(240)` (not wired). Mean work stays 5.7–6.6 at reach 2–6; reach is not a difficulty dial. Tests: `LinkedForkChapterTests`.
+- The choice preview names the item the choice will root in the next stream, in the board's own words (`LandmarkCause.For(WorldAfter)`), English only. Tests: `PreviewCauseTests`. Tour and device: not run.
+- Undo or redo while taking turns is spoken as a hand-back ("Back to Honey, second of three.", `TakeTurns.SpokenBack`). Tests: `SpokenTurnTests`. VoiceOver/TalkBack: not run.
+- The protected tile checked under colour-vision simulation: frame ≥ 8.6:1 on its tile, fill differs from dry/wet/solved tiles (lowest 0.105, tritanopia). No colour change. Tests: `ColourVisionTests`. On-screen look: not checked.
+- The restore card says when the file matches this phone's garden on name, streams, things and days (`GardenCompare.SameLine`). Tests: `GardenCompareTests`. Tour and device: not run.

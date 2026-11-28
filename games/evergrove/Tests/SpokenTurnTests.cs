@@ -43,6 +43,31 @@ internal static class SpokenTurnTests
         Expect(TakeTurns.Spoken(0, 2) == "Sage's turn, first of two.", "turn 0 of two is sage, first of two");
         Expect(TakeTurns.Spoken(3, 4) == "Rose's turn, fourth of four.", "turn 3 of four is rose, fourth of four");
 
+        // Idea 3 (vision run 20261128-1801): undo or redo hands the turn back in words.
+        Expect(TakeTurns.SpokenBack(1, 3) == "Back to Honey, second of three.", "the handback example reads as written");
+        Expect(TakeTurns.SpokenBack(0, 2) == "Back to Sage, first of two.", "handback to sage of two");
+        Expect(TakeTurns.SpokenBack(3, 4) == "Back to Rose, fourth of four.", "handback to rose of four");
+        Expect(TakeTurns.SpokenBack(2, 1) == TakeTurns.Spoken(2, 1), "alone, handback is the plain line");
+        Expect(TakeTurns.SpokenBack(0, 0) == TakeTurns.Spoken(0, 0), "zero players, handback is the plain line");
+        Expect(TakeTurns.SpokenBack(-1, 3) == "Back to Sky, third of three.", "handback turn -1 of three is sky");
+        Expect(TakeTurns.SpokenBack(int.MinValue, 4).Length > 0, "handback with the smallest turn does not throw");
+        Expect(TakeTurns.SpokenBack(int.MaxValue, 4) == "Back to Rose, fourth of four.", "handback with the largest turn wraps to rose");
+        Expect(TakeTurns.SpokenBack(0, 9) == "Back to Sage, first of four.", "handback clamps a huge table to four");
+        for (int players = 2; players <= 4; players++)
+        {
+            for (int turn = 0; turn <= 7; turn++)
+            {
+                string spoken = TakeTurns.Spoken(turn, players);
+                string marker = "'s turn, ";
+                int cut = spoken.IndexOf(marker, StringComparison.Ordinal);
+                Expect(cut > 0, "spoken line has a turn marker");
+                string name = spoken.Substring(0, cut);
+                string rest = spoken.Substring(cut + marker.Length);
+                Expect(TakeTurns.SpokenBack(turn, players) == "Back to " + name + ", " + rest,
+                    "handback " + turn + " of " + players + " matches the spoken name and ordinal");
+            }
+        }
+
         // Wrap-around, including negative turns and turns at or past the count, never throwing.
         Expect(TakeTurns.Spoken(2, 2) == TakeTurns.Spoken(0, 2), "turn 2 of two wraps to the first player");
         Expect(TakeTurns.Spoken(-1, 3) == "Sky's turn, third of three.", "turn -1 of three is the third player");

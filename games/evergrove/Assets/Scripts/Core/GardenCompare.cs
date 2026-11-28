@@ -20,6 +20,8 @@ namespace Evergrove.Core
 
         public const string SmallerLine = "The file's garden is smaller than this phone's.";
 
+        public const string SameLine = "The file matches this phone's garden: same name, streams, things and days.";
+
         private const string Separator = " · ";
 
         /// <summary>The facts of one world; a null world gives an empty summary.</summary>
@@ -48,8 +50,9 @@ namespace Evergrove.Core
         }
 
         /// <summary>
-        /// The restore card lines: this phone, then the file. A third line warns when the file's garden
-        /// has fewer streams or fewer things than this phone's.
+        /// The restore card lines: this phone, then the file. A third line either warns when the file's garden
+        /// has fewer streams or fewer things than this phone's, or confirms it matches this phone's garden
+        /// (same name, streams, things and days, with at least one stream). Never both.
         /// </summary>
         public static string[] Lines(WorldModel current, WorldModel incoming)
         {
@@ -58,7 +61,22 @@ namespace Evergrove.Core
             var lines = new List<string> { Line("On this phone", now), Line("In the file", file) };
             if (file.Streams < now.Streams || file.Things < now.Things)
                 lines.Add(SmallerLine);
+            else if (IsSameGarden(now, file))
+                lines.Add(SameLine);
             return lines.ToArray();
+        }
+
+        /// <summary>True when both gardens have a stream and agree on name (trimmed, ordinal), streams, things and days.</summary>
+        private static bool IsSameGarden(Summary a, Summary b)
+        {
+            return a.Streams >= 1 && b.Streams >= 1 &&
+                   string.Equals(NameKey(a), NameKey(b), StringComparison.Ordinal) &&
+                   a.Streams == b.Streams && a.Things == b.Things && a.Days == b.Days;
+        }
+
+        private static string NameKey(Summary s)
+        {
+            return (s.Name ?? "").Trim();
         }
 
         private static string Count(int n, string singular, string plural)

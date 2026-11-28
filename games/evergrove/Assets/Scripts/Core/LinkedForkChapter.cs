@@ -13,6 +13,8 @@ namespace Evergrove.Core
     /// run 20261128-1601) finds the same work curve and the same 9 to 17 cliff: 197 boards qualify and 15 sit at work 10 to 15, but most of the ranking is work 4, so spacing by rank still steps from the 9s straight to the lone 17.
     /// Drawing by work level (<see cref="DrawByLevel"/>) fills that cliff: DrawByLevel(12, 240) gives works
     /// 4,4,6,8,9,10,11,12,13,14,15,17 with a largest step of 2 (vision run 20261128-1701). Nothing in the game reads these seeds.
+    /// Reach does not set difficulty (vision run 20261128-1801): <see cref="WorkByReach"/> over 240 seeds gives mean work
+    /// 6.29, 5.73, 6.63, 6.52, 6.44 at reach 2 to 6 (flat, mixed), and only single boards at reach 7 and 8 (both work 8).
     /// </summary>
     public static class LinkedForkChapter
     {
@@ -112,6 +114,36 @@ namespace Evergrove.Core
 
             var result = new int[picked.Count];
             for (int i = 0; i < picked.Count; i++) result[i] = picked[i].Key;
+            return result;
+        }
+
+        /// <summary>
+        /// Reach of the axle against work, over the same qualifying seeds as <see cref="Draw"/> and
+        /// <see cref="DrawByLevel"/> (seeds 0 to <paramref name="seedLimit"/> - 1). Reach is the Manhattan distance
+        /// between cells A and B on their board. Returns one row <c>{distance, boards, totalWork}</c> per distance
+        /// present, ascending by distance; the mean work of a row is totalWork / boards. Empty when seedLimit is not
+        /// positive. Deterministic; the inputs are not changed.
+        /// </summary>
+        public static int[][] WorkByReach(int seedLimit)
+        {
+            if (seedLimit <= 0) return Array.Empty<int[]>();
+
+            var reach = new SortedDictionary<int, (int Boards, int TotalWork)>();
+            foreach (KeyValuePair<int, int> entry in Qualifying(seedLimit))
+            {
+                LinkedForkBoard board = LinkedForks.Generate(entry.Key);
+                int edge = board.Board.Size;
+                int distance = Math.Abs(board.A / edge - board.B / edge) + Math.Abs(board.A % edge - board.B % edge);
+                reach.TryGetValue(distance, out (int Boards, int TotalWork) tally);
+                reach[distance] = (tally.Boards + 1, tally.TotalWork + entry.Value);
+            }
+
+            var result = new int[reach.Count][];
+            int row = 0;
+            foreach (KeyValuePair<int, (int Boards, int TotalWork)> kv in reach)
+            {
+                result[row++] = new[] { kv.Key, kv.Value.Boards, kv.Value.TotalWork };
+            }
             return result;
         }
 

@@ -2042,6 +2042,7 @@ internal static class Program
             assertions += LinkedForkChapterTests.Run();
             assertions += SolvedTogetherTests.Run();
             assertions += WaterReachWordsTests.Run();
+            assertions += PreviewCauseTests.Run();
             PlacementSaveTests();
             IndicVisualOrderTests();
             Console.WriteLine("Evergrove C# tests passed: " + assertions + " assertions");

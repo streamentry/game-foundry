@@ -82,6 +82,41 @@ internal static class GardenCompareTests
         Expect(bigger.Length == 2, "a bigger file gives no third line");
         Expect(Array.IndexOf(bigger, GardenCompare.SmallerLine) < 0, "bigger file has no smaller warning");
 
+        // Two identically built gardens (one solved board, the same committed choice) match: the same-garden line.
+        WorldModel matchA = WorldModel.New(PlayMode.Living);
+        WorldModel matchB = WorldModel.New(PlayMode.Living);
+        Solve(matchA);
+        Solve(matchB);
+        Expect(matchA.Choose(VillageChoice.Flowers) && matchB.Choose(VillageChoice.Flowers),
+            "both matching gardens record the same choice");
+        string[] matched = GardenCompare.Lines(matchA, matchB);
+        Expect(matched.Length == 3, "a matching file gives a third line");
+        Expect(matched[2] == GardenCompare.SameLine, "third line is the same-garden line");
+        Expect(Array.IndexOf(matched, GardenCompare.SmallerLine) < 0, "matching file has no smaller warning");
+
+        // Same pair, one renamed: the names differ, so no same-garden line.
+        Expect(matchB.SetGardenName("Quiet Corner"), "rename the file garden");
+        string[] renamed = GardenCompare.Lines(matchA, matchB);
+        Expect(renamed.Length == 2, "a renamed file gives two lines");
+        Expect(Array.IndexOf(renamed, GardenCompare.SameLine) < 0, "a renamed file is not the same garden");
+
+        // Names that differ only by surrounding spaces still match (SetGardenName cleans both to one name).
+        WorldModel spacedA = WorldModel.New(PlayMode.Living);
+        WorldModel spacedB = WorldModel.New(PlayMode.Living);
+        Solve(spacedA);
+        Solve(spacedB);
+        Expect(spacedA.Choose(VillageChoice.Flowers) && spacedB.Choose(VillageChoice.Flowers),
+            "both spaced gardens record the same choice");
+        Expect(spacedA.SetGardenName("  Quiet Corner "), "a padded name for the spaced phone garden");
+        Expect(spacedB.SetGardenName("Quiet Corner"), "a plain name for the spaced file garden");
+        string[] spaced = GardenCompare.Lines(spacedA, spacedB);
+        Expect(spaced.Length == 3 && spaced[2] == GardenCompare.SameLine,
+            "names differing only by surrounding spaces still match");
+
+        // A played phone against a fresh file is smaller, never the same garden.
+        string[] smallerNotSame = GardenCompare.Lines(played, WorldModel.New(PlayMode.Living));
+        Expect(Array.IndexOf(smallerNotSame, GardenCompare.SameLine) < 0, "a smaller file is never the same garden");
+
         // Lines does not mutate either world.
         int choicesBefore = played.Choices.Length;
         int daysBefore = played.DaysPlayed;

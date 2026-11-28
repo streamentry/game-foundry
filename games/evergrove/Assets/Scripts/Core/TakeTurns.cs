@@ -78,6 +78,19 @@ namespace Evergrove.Core
             return Capitalised(TurnPalette.Name(who)) + " starts, " + Ordinal(who) + " of " + CountWord(count) + ".";
         }
 
+        /// <summary>
+        /// Vision run 20261128-1801, idea 3: the line a screen reader says when undo or redo hands the turn
+        /// back while playing together, e.g. "Back to Honey, second of three." Alone, exactly what
+        /// <see cref="Spoken"/> says. Same colour name, ordinal, count and wrapping as Spoken; never throws.
+        /// </summary>
+        public static string SpokenBack(int turn, int players)
+        {
+            if (players <= 1) return Spoken(turn, players);
+            int count = players > MaxPlayers ? MaxPlayers : players;
+            int who = ((turn % count) + count) % count;
+            return "Back to " + Capitalised(TurnPalette.Name(who)) + ", " + Ordinal(who) + " of " + CountWord(count) + ".";
+        }
+
         private static string Ordinal(int who)
         {
             string[] ordinals = { "first", "second", "third", "fourth" };
