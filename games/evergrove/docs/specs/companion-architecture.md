@@ -179,7 +179,7 @@ Sample transcript (CP46), 30 simulated days written to a file. It is not a playe
 cd games/evergrove/Tests && EVERGROVE_COMPANION_TRANSCRIPT=<absolute path to .md> DOTNET_CLI_HOME=/Volumes/SSD/dotnet-home /Volumes/SSD/dotnet/dotnet run -c Release
 ```
 
-**Line bank checker (`tools/evergrove_line_bank_check.py`).** `--complete` (every non-pending kind must have English lines; CI runs it, CP44), `--strict` (warnings count as problems), `--review` (also the drafts in `docs/improvements/review/`), `--report` (coverage table). Python tests: `python3 -m unittest discover -s tools/tests` (CP45).
+**Line bank checker (`tools/evergrove_line_bank_check.py`).** `--complete` (every non-pending kind must have English lines, CP44), `--strict` (warnings count as problems; CI runs `--complete --strict`), `--review` (also the drafts in `docs/improvements/review/`), `--report` (coverage table). Python tests: `python3 -m unittest discover -s tools/tests` (CP45).
 
 **Translators.** `tools/evergrove_line_bank_export.py --out PATH.csv` writes the rows. `tools/evergrove_line_bank_import.py --locale fr --csv PATH.csv` checks the filled rows and writes a DRAFT review file, never a bank.
 

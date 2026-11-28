@@ -12,7 +12,7 @@ no duplicates; CP26 no line text shared by two voices or two groups; CP25 punctu
 and curly quotes, no space before , . ! ? ; :); at least the kind's minimum per voice (and per qualifier value, for kinds keyed
 "Kind.Value" such as "WeatherToday.Rainy"); only the voices that speak a kind.
 
-Warnings (printed as "warning: ...") do not fail the run. Near-duplicates: two lines in one group
+Warnings (printed as "warning: ...") do not fail the run unless --strict is given (CI passes it). Near-duplicates: two lines in one group
 and voice whose word sets have Jaccard similarity >= 0.75 (CP22). More than 5 lines in one group and
 voice starting with the same word also warns (CP23).
 

@@ -81,13 +81,13 @@ Why the qualifiers exist: the game knows the true facts, such as "it is raining"
 Run from the worktree root.
 
 ```sh
-# Shipped bank: every rule, and every kind in the rules file present (CI runs this)
+# Shipped bank: every rule, and every kind in the rules file present
 python3 tools/evergrove_line_bank_check.py --complete
 
 # Draft review files in docs/improvements/review/ (before the founder approves them)
 python3 tools/evergrove_line_bank_check.py --review
 
-# Warnings count as failures (use when you want a clean run)
+# Warnings count as failures (CI runs this, so a new warning fails the build)
 python3 tools/evergrove_line_bank_check.py --complete --strict
 
 # Coverage table after the checks: lines per voice, average and longest words
@@ -124,7 +124,7 @@ The checker prints no warnings for `en.json` (`--complete --strict` passes). On 
 2. **Opening-word clusters (19).** Lines were reordered so no group and voice has more than 5 lines starting with the same word ("I", "Thank", "A", "Your", "The", "Rain" and others). Usually the second sentence now comes first, or "Thank you" moves to the end.
 3. **Reads oddly, not flagged.** KindSolved, voice 0 (Mira), line 18 used to say "The water's easier to listen to once {work} is done.", which reads "…once the water is done." when the work is water. It now says "Birdsong is easier to listen to once {work} is done. Or perhaps that's just me." The checker can't catch this kind of clash, because it checks slots and not their values. When a line names a thing that a `{work}` value could also name (water, stream, beds, tiles), read it with each value in `CompanionFacts.WorkOf`.
 
-A new warning does not fail the run, but read it before you ship. Clear it unless it is a deliberate voice habit.
+CI runs `--complete --strict` (since 2026-11-28, at the founder's request), so a new warning fails the build. Clear it by rewording the line. If a cluster really is a deliberate voice habit, change the threshold in the checker with a test and a note here; don't drop `--strict`.
 
 ## 6. Not verified
 
