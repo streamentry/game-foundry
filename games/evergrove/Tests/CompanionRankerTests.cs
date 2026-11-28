@@ -28,6 +28,7 @@ internal static class CompanionRankerTests
         Weights();
         Repeats();
         NagDamping();
+        SpeakersTakeTurns();
         Visits();
         Sharing();
         OrderIndependence();
@@ -145,6 +146,37 @@ internal static class CompanionRankerTests
             "CP07: undamped for speaker 0 when only speaker 1 heard it");
         Expect(CompanionRanker.Pick(facts, others, 0, 100, garden) == waiting,
             "CP07: speaker 0 still says the waiting fact");
+    }
+
+    // CP08: an anyone-fact goes to the neighbour who spoke longest ago (LastSpoke, int.MinValue if never);
+    // the hash of (garden, day, key#neighbour) only breaks an equal LastSpoke.
+    private static void SpeakersTakeTurns()
+    {
+        const int garden = 4, day = 100;
+        Fact weather = F(FactKind.WeatherToday, Fact.AnyKeeper, "weather:Rainy", 5);
+        var facts = new List<Fact> { weather };
+
+        // (a) nobody has spoken: the same neighbour as before CP08 (the lowest hash, here 0).
+        Fact[] empty = CompanionRanker.Allot(facts, CompanionMemory.Empty, day, garden);
+        Expect(empty[0] == weather && empty[1] == null && empty[2] == null, "CP08: empty memory keeps the hash choice");
+        Expect(CompanionRanker.Allot(facts, null, day, garden)[0] == weather, "CP08: null memory is an empty memory");
+
+        // (b) 0 spoke on day 99, 1 on day 98, 2 on day 97: the longest silent, 2, takes it though the hash prefers 0.
+        // Added oldest first: With() redates older entries to a newer remark's day (CP02).
+        CompanionMemory turns = CompanionMemory.Empty
+            .With(new Heard(97, 2, FactKind.KindSolved, -1, "solved:Pairs:3"))
+            .With(new Heard(98, 1, FactKind.KindSolved, -1, "solved:Mosaic:2"))
+            .With(new Heard(99, 0, FactKind.KindSolved, -1, "solved:Water:1"));
+        Fact[] oldest = CompanionRanker.Allot(facts, turns, day, garden);
+        Expect(oldest[2] == weather && oldest[0] == null && oldest[1] == null, "CP08: the neighbour who spoke longest ago gets it");
+        Expect(CompanionRanker.Pick(facts, turns, 2, day, garden) == weather && CompanionRanker.Pick(facts, turns, 0, day, garden) == null,
+            "CP08: Pick agrees with Allot");
+
+        // (c) 2 spoke on day 99; 0 and 1 never: never 2, and between 0 and 1 the hash decides (here 0).
+        CompanionMemory recent = CompanionMemory.Empty.With(new Heard(99, 2, FactKind.KindSolved, -1, "solved:Pairs:3"));
+        int hashed = CompanionRanker.Hash(garden, day, weather.Key + "#0") <= CompanionRanker.Hash(garden, day, weather.Key + "#1") ? 0 : 1;
+        Fact[] never = CompanionRanker.Allot(facts, recent, day, garden);
+        Expect(never[hashed] == weather && never[2] == null, "CP08: a neighbour who spoke recently waits; the hash picks between the silent ones");
     }
 
     private static void Visits()

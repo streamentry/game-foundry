@@ -61,7 +61,7 @@ namespace Evergrove.Core
                 chosen[k] = Best(facts, memory, k, day, garden, canSay, f => f.Keeper == who);
                 best[k] = chosen[k] != null ? Score(chosen[k], k, memory, day) : int.MinValue;
             }
-            // Anyone-facts, strongest first, each to one neighbour with nothing better.
+            // Anyone-facts, strongest first, each to one neighbour with nothing better (CP08: the one silent longest).
             var shared = new List<Fact>();
             foreach (Fact f in facts)
                 if (f.Keeper == Fact.AnyKeeper && Eligible(f, memory, day)) shared.Add(f);
@@ -70,12 +70,15 @@ namespace Evergrove.Core
             foreach (Fact f in shared)
             {
                 int to = -1;
+                int toSpoke = 0;
                 uint toHash = 0;
                 for (int k = 0; k < 3; k++)
                 {
                     if (given[k] || !Sayable(f, k, canSay) || Score(f, k, memory, day) <= best[k]) continue;
+                    // CP08: whoever spoke longest ago (never: int.MinValue) first; the hash only breaks a tie.
+                    int spoke = memory.LastSpoke(k);
                     uint h = Hash(garden, day, f.Key + "#" + k);
-                    if (to < 0 || h < toHash) { to = k; toHash = h; }
+                    if (to < 0 || spoke < toSpoke || (spoke == toSpoke && h < toHash)) { to = k; toSpoke = spoke; toHash = h; }
                 }
                 if (to < 0) continue;
                 chosen[to] = f;
