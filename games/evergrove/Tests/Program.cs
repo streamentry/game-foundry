@@ -1951,6 +1951,8 @@ internal static class Program
             assertions += NeighbourWalkTests.Run(); // checklist 24
             assertions += FanOrderTests.Run(); // checklist 15
             assertions += StretchWindowTests.Run(); // checklist 50
+            assertions += MenuFoldTests.Run(); // checklist 11
+            assertions += PuzzleChainTests.Run(); // checklist 38
             assertions += FileSizeTests.Run();
             assertions += RiverTravelTests.Run();
             assertions += ColourCueTests.Run();
