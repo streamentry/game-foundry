@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Evergrove.Core;
 
@@ -30,6 +31,7 @@ internal static class CompanionSimulatorTests
         OnceIsOnce();
         NoStarvation();
         FairSharing();
+        WeatherTruth();
         return assertions;
     }
 
@@ -290,6 +292,96 @@ internal static class CompanionSimulatorTests
         for (int speaker = 0; speaker < 3; speaker++) if (shared[speaker] > 0) receivers++;
         Expect(receivers >= 2, "CP15: shared remarks go to more than one neighbour; " + counts);
         Console.WriteLine("Companion simulator CP15: " + counts + ".");
+    }
+
+    // CP18: weather is true to the day. (a) every WeatherToday fact carries the context's own weather in its
+    // slot and its key, and a fair day has none. (b) every WeatherToday line the simulator speaks is one of
+    // the WeatherToday.<weather> bank group's lines for that voice (own voice, else any), and never a line of
+    // another weather's group. (c) RainComing promises only that tomorrow is rainy at home (rain on the hills
+    // upstream today, reaching the garden by tomorrow; see RiverWeather.Tomorrow). So it is present exactly on
+    // the day before rain, whatever today's sky is: a rainy today keeps it, because the claim is about tomorrow
+    // and the hills, not about today's garden. Tomorrow is read from DayWeather directly, not from RiverWeather.
+    private static void WeatherTruth()
+    {
+        const int Days = 60;
+        LineBank bank = LoadBank();
+        var weathers = (Weather[])Enum.GetValues(typeof(Weather));
+        var phases = (DayPhase[])Enum.GetValues(typeof(DayPhase));
+        var spokenPerWeather = new int[weathers.Length];
+        int factsChecked = 0, linesChecked = 0, comingDays = 0, rainyTodayComing = 0;
+        foreach (int grown in new[] { 3, 6, 9, 12 })
+        {
+            WorldModel world = CompanionFactsTests.Grown(grown);
+            world.SolveTree(0);
+            world.SolveTree(3);
+            GardenMap map = MapFor(world);
+
+            // (a) every weather, several phases: the facts for that weather say that weather and only that.
+            foreach (Weather w in weathers)
+                for (int d = 0; d < phases.Length; d++)
+                {
+                    var context = new CompanionContext(Start.AddDays(d), weather: w, lightOn: true, phase: phases[d], map: map);
+                    foreach (Fact f in CompanionFacts.For(world, context))
+                    {
+                        if (f.Kind != FactKind.WeatherToday) continue;
+                        factsChecked++;
+                        Expect(w != Weather.Fair, "CP18: a fair day has no WeatherToday fact (garden " + grown + ")");
+                        Expect(f.Slot("weather") == w.ToString(), "CP18: WeatherToday's weather slot is " + w + ", not " + f.Slot("weather"));
+                        Expect(f.Key.Contains(w.ToString()), "CP18: WeatherToday's key names " + w + ": " + f.Key);
+                    }
+                }
+
+            // (b) the simulator's words for weather come from that weather's own bank group.
+            foreach (Weather w in weathers)
+            {
+                IReadOnlyList<SimLine> transcript = Simulate(world, bank, null,
+                    (d, m) => new CompanionContext(Start.AddDays(d), weather: w, lightOn: true, phase: phases[d % phases.Length], map: m),
+                    Days);
+                foreach (SimLine line in transcript)
+                {
+                    if (line.Kind != FactKind.WeatherToday) continue;
+                    linesChecked++;
+                    spokenPerWeather[(int)w]++;
+                    Expect(line.Key == "weather:" + w, "CP18: a " + w + " day's weather line has key weather:" + w + ", not " + line.Key);
+                    IReadOnlyList<string> own = bank.Lines("WeatherToday." + w, line.Speaker.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    IReadOnlyList<string> group = own.Count > 0 ? own : bank.Lines("WeatherToday." + w, LineBank.AnyVoice);
+                    Expect(group.Contains(line.Words), "CP18: \"" + line.Words + "\" is not a WeatherToday." + w + " line for neighbour " + line.Speaker);
+                    foreach (Weather other in weathers)
+                    {
+                        if (other == w) continue;
+                        foreach (string voice in bank.Voices("WeatherToday." + other))
+                            Expect(!bank.Lines("WeatherToday." + other, voice).Contains(line.Words),
+                                "CP18: a " + w + " day says \"" + line.Words + "\", which is in the " + other + " group");
+                    }
+                }
+            }
+
+            // (c) RainComing exactly on the days before rain at home, whatever today's weather is.
+            Season season = GardenSeason.For(world);
+            for (int d = 0; d < 120; d++)
+            {
+                DateTime today = Start.AddDays(d);
+                Weather todayWeather = DayWeather.For(today, season, world.Garden);
+                Weather tomorrow = DayWeather.For(today.AddDays(1), season, world.Garden);
+                var context = new CompanionContext(today, weather: todayWeather, lightOn: true, map: map);
+                bool coming = false;
+                foreach (Fact f in CompanionFacts.For(world, context))
+                    if (f.Kind == FactKind.RainComing) coming = true;
+                Expect(coming == (tomorrow == Weather.Rainy),
+                    "CP18: RainComing is present exactly when tomorrow is rainy (garden " + grown + ", day " + d + ")");
+                if (coming) comingDays++;
+                if (coming && todayWeather == Weather.Rainy) rainyTodayComing++;
+            }
+        }
+
+        string counts = "lines per weather (Fair, Rainy, Windy, Hot, Snowy) = " + string.Join(", ", spokenPerWeather);
+        Expect(factsChecked > 0 && linesChecked > 0 && comingDays > 0,
+            "CP18: the check is not vacuous; facts " + factsChecked + ", lines " + linesChecked + ", coming days " + comingDays);
+        for (int i = 0; i < weathers.Length; i++)
+            if (weathers[i] != Weather.Fair)
+                Expect(spokenPerWeather[i] > 0, "CP18: the simulator speaks at least one " + weathers[i] + " line; " + counts);
+        Console.WriteLine("Companion simulator CP18: " + factsChecked + " weather facts, " + linesChecked + " weather lines (" + counts +
+            "), " + comingDays + " rain-coming days (" + rainyTodayComing + " of them with rain today).");
     }
 
     private static bool HadSomethingSayable(IReadOnlyList<Fact> facts, LineBank bank, int speaker)

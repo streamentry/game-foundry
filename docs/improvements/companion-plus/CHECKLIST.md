@@ -44,7 +44,7 @@ Status: `[ ]` to do, `[x]` done (commit noted).
 - [x] **CP15 Fair sharing.** Each neighbour has at least 20% of all remarks over 30 simulated days, and shared remarks reach more than one neighbour. Done: the first measure (each gets 20% of *shared* remarks) contradicted the spec, where a shared remark goes to whoever has nothing better of their own; Mira usually has her own news. Measured: all remarks 90/88/90 of 268; shared 2/23/24 of 49.
 - [x] **CP16 Fuzz the feed.** `CompanionFacts.For` never throws across 500 seeded random worlds and contexts. Done: CompanionFuzzTests (seed 1609) runs 500 random worlds/contexts, asserts no throw, keeper/key/weight/Once invariants; no Core fault found, so no code changed.
 - [x] **CP17 The feed is pure.** Calling `For` twice gives equal lists and leaves the world's save unchanged. Done: CompanionFuzzTests FeedIsPure checks 100 seeded cases for equal feeds and unchanged save and memory text after For, Allot and the simulator; LetterNamesStayClean refuses sender names with '|' or a newline. No Core fault found, Core unchanged.
-- [ ] **CP18 Weather truth.** Weather facts and weather-qualified lines only appear for the day's actual weather.
+- [x] **CP18 Weather truth.** Weather facts and weather-qualified lines only appear for the day's actual weather. Done: already true; CompanionSimulatorTests.WeatherTruth checks facts' weather slot and key, simulated lines against their own WeatherToday group, and RainComing exactly on days before rain at home.
 - [ ] **CP19 Slot truth.** Every composed line in a simulation has no `{` left, and every slot it used is a non-empty value of its fact.
 - [ ] **CP20 Performance budget.** Facts plus allotment for a large garden stay under 2 ms on average in Release.
 
