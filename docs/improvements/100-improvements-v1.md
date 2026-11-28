@@ -61,7 +61,7 @@ Each item has three parts: **what to change**, why it matters, and *Test*, the c
 ## E. The open world: the endless river
 
 - [x] **41. Scroll beyond the mist as stretches open.** The world extends downward by named stretches (I360). Each opens through play, never by payment. *Test:* save format has no maximum stretch count.
-- [ ] **42. Each stretch has a character.** Water meadow, mill, heron pool. Each has its own palette, its own neighbour and its own puzzle flavour. *Test:* three stretches recognisable from a single screenshot.
+- [x] **42. Each stretch has a character.** Water meadow, mill, heron pool. Each has its own palette, its own neighbour and its own puzzle flavour. *Test:* three stretches recognisable from a single screenshot.
 - [x] **43. A boat to travel.** A small boat ride between stretches replaces scrolling for long distances. *Test:* any stretch is reachable in 2 taps.
 - [ ] **44. Landmarks for wayfinding.** One tall landmark per stretch (mill, bridge, willow) is visible from the next, so players can't get lost. *Test:* a "where are you" test with 5 players.
 - [x] **45. A river map.** A painted scroll map of opened stretches, with your family's gardens pinned on it. *Test:* the map opens from the menu with one tap.
