@@ -1048,3 +1048,23 @@ No model runs on the phone; nothing is generated at runtime.
 
 **Never claim** from this work: that the companion improves wellbeing, memory, connection or loneliness; that adults 40+ remember or like the remarks; that it works in other languages.
 
+
+## 2026-11-28: Mosselora v1 design calls for items 11, 38 and 91 (founder)
+
+The founder chose the recommended option in each case, so the checklist items that were waiting can be built:
+
+| Item | Question | Decision |
+| --- | --- | --- |
+| 91 | 9×9 boards can't fit 48 pt cells on a phone | Pinch or tap to zoom a region of a dense board so cells reach 48 pt, with a clear way back; the whole board stays visible by default |
+| 91 | The landscape puzzle card is scaled to fit, so its controls fall to 29–45 pt | Redesign landscape: the board on the left, controls and trays in a full-height panel on the right at full size |
+| 38 | What "a stream path waters the plots" and "plots feed the nursery" do in play | Visible only: a short on-screen cause and a small cosmetic change. No new seeds and no free nursery stock; the economy spec is unchanged |
+| 11 | Fold hub controls into the corner fan | The letterbox and the basket move into the fan; the seed count stays visible as a read-only label, not a button. The hub at rest shows at most two controls (menu and play) |
+
+| Preflight | Answer |
+| --- | --- |
+| Truth | Simulator touch scan (batch 23 log) for 91; source audit for 38; the hub's resting controls counted for 11. No player evidence |
+| Owner | Founder, 2026-11-28 |
+| Delete | 38 adds no economy change; 11 removes resting buttons rather than adding any |
+| Audience fit | `age fit not validated`. Zoom, a side panel and fewer resting buttons are aimed at reach and readability for adults 40+ |
+| Falsification | 40+ players can't find the letterbox or basket in the fan, or zooming a board costs more taps than it saves |
+| Stop | Either of those in a playtest reverts that change |
