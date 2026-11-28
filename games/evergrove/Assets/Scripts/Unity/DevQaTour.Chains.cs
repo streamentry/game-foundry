@@ -27,6 +27,9 @@ namespace Evergrove.UnityClient
 
         private IEnumerator ChainBoard(int item, PuzzleKind kind, string shot)
         {
+            // A thing's puzzle opens from home (OpenTreePlay needs the hub on screen).
+            app.QaShowHub(true);
+            for (int f = 0; f < 8; f++) yield return null;
             app.QaOpenTreePlay(item);
             for (int f = 0; f < 8; f++) yield return null;
             yield return new WaitForSecondsRealtime(0.4f);
@@ -47,6 +50,7 @@ namespace Evergrove.UnityClient
                 Debug.Log("MOSSELORA_CHAIN " + kind + " none");
             app.QaEndTreePlay();
             for (int f = 0; f < 4; f++) yield return null;
+            app.QaShowHub(false);
         }
     }
 }
