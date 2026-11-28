@@ -423,6 +423,7 @@ namespace Evergrove.UnityClient
 
         // ---- E3 (I176): the open garden map.
         private GardenMap gardenMap;
+        private int qaLongRiver; // checklist 50 tour; read by shipping code, so declared outside the dev-only block
 
         // The endless river (I192): one reach of the painting per three streams
         // restored, all of them once the garden is finished.
@@ -430,6 +431,7 @@ namespace Evergrove.UnityClient
         {
             // After the story the river keeps opening as you tend your things (I220).
             int reaches = GardenMap.ReachesFor(world.Choices.Length, world.Completed, world.PuzzlesSolved);
+            if (qaLongRiver > 0) reaches = qaLongRiver; // checklist 50 tour only: a long river to scroll; 0 in play
             if (gardenMap != null && gardenMap.Reaches == reaches) return gardenMap;
             var mask = Resources.Load<TextAsset>("Evergrove/garden-map-mask");
             if (mask == null) return null;

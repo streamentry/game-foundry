@@ -33,13 +33,38 @@ namespace Evergrove.UnityClient
 
         private GameObject FanToken(Transform parent, string name, string caption, string icon, Action action)
         {
-            Button token = IconButton(parent, name, caption, icon, action, 64, MosseloraTheme.QuietAction,
-                false, null, false, 0, 0, true);
+            // Checklist 15: the fan remembers the token used, so it opens nearest the thumb next time.
+            Button token = IconButton(parent, name, caption, icon, () => { RememberFanToken(name); action(); }, 64,
+                MosseloraTheme.QuietAction, false, null, false, 0, 0, true);
             var size = token.GetComponent<LayoutElement>();
             if (size == null) size = token.gameObject.AddComponent<LayoutElement>();
             size.minHeight = size.preferredHeight = 64f;
             size.flexibleHeight = 0f;
             return token.gameObject;
+        }
+
+        // ---- Checklist 15: the menu remembers. The last fan token used, kept on this device only.
+        private const string FanLastKey = "evergrove:fan-last";
+
+        private static void RememberFanToken(string name)
+        {
+            PlayerPrefs.SetString(FanLastKey, name);
+            PlayerPrefs.Save();
+        }
+
+        // The fan's tokens with the remembered one first (FanOrder): the column's sibling order and the
+        // returned list (which the fade-in follows) both put it right under the corner button.
+        private static System.Collections.Generic.List<GameObject> ArrangeFan(System.Collections.Generic.List<GameObject> tokens)
+        {
+            var names = new System.Collections.Generic.List<string>();
+            foreach (GameObject token in tokens) names.Add(token.name);
+            System.Collections.Generic.List<string> order = FanOrder.Arrange(names, PlayerPrefs.GetString(FanLastKey, ""));
+            var arranged = new System.Collections.Generic.List<GameObject>();
+            foreach (string name in order)
+                foreach (GameObject token in tokens)
+                    if (token.name == name && !arranged.Contains(token)) { arranged.Add(token); break; }
+            for (int i = 0; i < arranged.Count; i++) arranged[i].transform.SetSiblingIndex(i);
+            return arranged;
         }
 
         private void OpenBook(bool almanac)

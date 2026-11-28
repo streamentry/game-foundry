@@ -1949,6 +1949,8 @@ internal static class Program
             assertions += ReplyChipsTests.Run(); // checklist 81
             assertions += SunShadowTests.Run(); // checklist 22
             assertions += NeighbourWalkTests.Run(); // checklist 24
+            assertions += FanOrderTests.Run(); // checklist 15
+            assertions += StretchWindowTests.Run(); // checklist 50
             assertions += FileSizeTests.Run();
             assertions += RiverTravelTests.Run();
             assertions += ColourCueTests.Run();
