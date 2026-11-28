@@ -9,7 +9,8 @@ namespace Evergrove.Core
     /// joint deduction solves the board with no guess and keeps the true orientation. Qualifying seeds are
     /// ranked by work, the number of cells the axle still has to settle after neighbour deduction stalls,
     /// so a chapter reads from gentle to firm. A first draw that took the twelve lowest-work seeds was flat (all
-    /// work 4); spacing the draw across the ranking is what gives the chapter a curve. Nothing in the game reads these seeds.
+    /// work 4); spacing the draw across the ranking is what gives the chapter a curve. A wide draw over 240 seeds (vision
+    /// run 20261128-1601) finds the same work curve and the same 9 to 17 cliff: 197 boards qualify and 15 sit at work 10 to 15, but most of the ranking is work 4, so spacing by rank still steps from the 9s straight to the lone 17. Drawing by work level, not rank, is the next thing to try. Nothing in the game reads these seeds.
     /// </summary>
     public static class LinkedForkChapter
     {
@@ -60,6 +61,26 @@ namespace Evergrove.Core
             if (board == null) throw new InvalidOperationException("No linked fork board for seed " + seed + ".");
             AxleMomentResult moment = LinkedForks.AxleMoment(board);
             return moment.Cells - moment.FixedBeforeStall;
+        }
+
+        /// <summary>
+        /// Largest increase in <see cref="Work"/> between consecutive seeds in the given order. A decrease counts
+        /// as 0. Returns 0 for null or fewer than two seeds. Throws when a seed has no linked board. The input is not changed.
+        /// </summary>
+        public static int LargestStep(int[] seeds)
+        {
+            if (seeds == null || seeds.Length < 2) return 0;
+
+            int largest = 0;
+            int previous = Work(seeds[0]);
+            for (int i = 1; i < seeds.Length; i++)
+            {
+                int current = Work(seeds[i]);
+                int step = current - previous;
+                if (step > largest) largest = step;
+                previous = current;
+            }
+            return largest;
         }
     }
 }

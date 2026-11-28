@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Evergrove.Core;
 
 /// <summary>
@@ -12,6 +13,11 @@ internal static class LinkedForkChapterTests
     private const int Seeds = 60;
     private const int Length = 12;
     private const int ExpectedQualifying = 47;
+    private const int WideLimit = 240;
+    private const int ExpectedWideQualifying = 197;
+    private const int ExpectedWideLargestStep = 8;
+    private static readonly int[] ExpectedWideSeeds = { 5, 52, 118, 162, 218, 54, 154, 207, 67, 159, 133, 3 };
+    private static readonly int[] ExpectedWideWork = { 4, 4, 4, 4, 4, 6, 6, 6, 8, 8, 9, 17 };
     private static readonly int[] ExpectedSeeds = { 5, 15, 24, 35, 46, 2, 11, 37, 20, 47, 4, 3 };
     private static readonly int[] ExpectedWork = { 4, 4, 4, 4, 4, 6, 6, 6, 8, 8, 9, 17 };
     private static int assertions;
@@ -87,6 +93,52 @@ internal static class LinkedForkChapterTests
         Expect(SameInts(chapter, ExpectedSeeds), "locked chapter seeds");
         Expect(SameInts(works, ExpectedWork), "locked chapter work sequence");
         Expect(qualifying == ExpectedQualifying, "locked qualifying count");
+
+        // Idea 1 (vision run 20261128-1601): does a wider seed range fill the firm end? The 60-seed chapter jumps
+        // from work 9 to 17 at its last board. A wide draw shows whether qualifying boards exist between them.
+        var wideWatch = Stopwatch.StartNew();
+        int[] wide = LinkedForkChapter.Draw(Length, WideLimit);
+        int[] wideRanked = LinkedForkChapter.Draw(int.MaxValue, WideLimit);
+        wideWatch.Stop();
+        var wideWork = new int[wide.Length];
+        var wideSeen = new HashSet<int>();
+        for (int i = 0; i < wide.Length; i++)
+        {
+            Expect(wide[i] >= 0 && wide[i] < WideLimit, "wide chapter seed is in range");
+            Expect(wideSeen.Add(wide[i]), "wide chapter seeds are distinct");
+            wideWork[i] = LinkedForkChapter.Work(wide[i]);
+            if (i > 0) Expect(wideWork[i] >= wideWork[i - 1], "wide work is non-decreasing along the chapter");
+        }
+
+        int wideMin = int.MaxValue, wideMax = int.MinValue;
+        var wideSpread = new SortedDictionary<int, int>();
+        foreach (int seed in wideRanked)
+        {
+            int w = LinkedForkChapter.Work(seed);
+            wideMin = Math.Min(wideMin, w);
+            wideMax = Math.Max(wideMax, w);
+            wideSpread[w] = wideSpread.TryGetValue(w, out int c) ? c + 1 : 1;
+        }
+        var wideParts = new List<string>();
+        foreach (var kv in wideSpread) wideParts.Add(kv.Key + "x" + kv.Value);
+        int wideStep = LinkedForkChapter.LargestStep(wide);
+        string verdict = wideStep <= 4 ? "filled" : "still a cliff";
+        Console.WriteLine("LinkedForkChapter wide: limit " + WideLimit + " seeds " + Join(wide) + " work " + Join(wideWork) +
+            " qualifying " + wideRanked.Length + " of " + WideLimit + "; spread " + string.Join(" ", wideParts) +
+            "; largest step " + wideStep + " (" + verdict + ")");
+        Console.WriteLine("LinkedForkChapter wide: two draws took " + wideWatch.ElapsedMilliseconds + " ms");
+        Expect(wideWork[0] == wideMin, "the wide chapter opens on the gentlest qualifying board");
+        Expect(wideWork[wideWork.Length - 1] == wideMax, "the wide chapter closes on the firmest qualifying board");
+
+        Expect(LinkedForkChapter.LargestStep(null) == 0, "largest step of null is 0");
+        Expect(LinkedForkChapter.LargestStep(new[] { 5 }) == 0, "largest step of one seed is 0");
+        Expect(LinkedForkChapter.LargestStep(new[] { 3, 5 }) == 0, "a decreasing pair (work 17 to 4) has no step");
+        Expect(LinkedForkChapter.LargestStep(new[] { 5, 3 }) == 13, "an increasing pair (work 4 to 17) steps by 13");
+        Expect(LinkedForkChapter.LargestStep(chapter) == 8, "largest step of the 60-seed chapter is 8");
+        Expect(wideRanked.Length == ExpectedWideQualifying, "locked wide qualifying count");
+        Expect(SameInts(wide, ExpectedWideSeeds), "locked wide chapter seeds");
+        Expect(SameInts(wideWork, ExpectedWideWork), "locked wide chapter work sequence");
+        Expect(wideStep == ExpectedWideLargestStep, "locked wide largest step (the 9 to 17 cliff is still there)");
         return assertions;
     }
 

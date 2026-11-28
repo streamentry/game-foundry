@@ -31,6 +31,46 @@ namespace Evergrove.Core
             return new float[] { source[0], source[1], source[2] };
         }
 
+        /// <summary>WCAG 1.4.11 non-text contrast a seat's pip must reach on the card it sits on.</summary>
+        public const double PipContrast = 3.0;
+
+        // The smallest brightness factor PipInk will try; below this a pip would read as black.
+        private const double MinPipFactor = 0.2;
+
+        /// <summary>
+        /// A seat's pip ink on a background: the seat's colour, darkened (all channels scaled together,
+        /// so its hue holds) in steps of 0.02 until its contrast against the background reaches
+        /// <see cref="PipContrast"/>. A colour already that dark is returned as a copy, unchanged. The
+        /// darkening stops at 0.2 of the colour at the very worst. Wraps like <see cref="Rgb"/>.
+        /// Throws ArgumentException for a null background or one that is not three channels.
+        /// Returns a fresh array and never mutates <paramref name="background"/>.
+        /// </summary>
+        public static float[] PipInk(int turn, float[] background)
+        {
+            if (background == null) throw new ArgumentException("background is required", "background");
+            if (background.Length != 3) throw new ArgumentException("background needs three channels", "background");
+            double backgroundLuminance = Luminance(background[0], background[1], background[2]);
+            float[] start = Rgb(turn);
+            if (Contrast(Luminance(start[0], start[1], start[2]), backgroundLuminance) >= PipContrast) return start;
+            for (int step = 1; step <= 40; step++)
+            {
+                double factor = Math.Max(MinPipFactor, 1.0 - 0.02 * step);
+                float[] scaled = Scale(start, factor);
+                if (Contrast(Luminance(scaled[0], scaled[1], scaled[2]), backgroundLuminance) >= PipContrast) return scaled;
+            }
+            return Scale(start, MinPipFactor);
+        }
+
+        private static float[] Scale(float[] colour, double factor)
+        {
+            return new float[]
+            {
+                (float)(colour[0] * factor),
+                (float)(colour[1] * factor),
+                (float)(colour[2] * factor),
+            };
+        }
+
         /// <summary>How long the take-turns token takes to ease to its next colour (idea 4).</summary>
         public const float FadeSeconds = 0.18f;
 

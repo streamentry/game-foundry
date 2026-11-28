@@ -208,3 +208,11 @@ Quick PARTIAL fixes worth doing alongside: 82 (use the spec's 5 morning visits),
 - A board solved while taking turns fills and pulses every seat's pip and says "Solved together, all three of you." (`TakeTurns.SpokenSolved`, `TreePlay.TableSolved`). Tests: `SolvedTogetherTests`. Tour, VoiceOver/TalkBack: not run.
 - A thing's water board tells a screen reader how far the water reaches ("Water reaches 5 of 9 pipes.", `WaterReachWords`), English only. Tests: `WaterReachWordsTests`. VoiceOver/TalkBack: not run.
 - Ten evergreen trees stay in full leaf all year on the garden map (`GardenCatalog.IsEvergreenTree`, `SeasonLook`). Tests: `SeasonLookTests`. On-screen look: not checked.
+
+## Vision run 20261128-1601 (outside the v1 checklist)
+
+- Axle chapter widened to 240 seeds: `LinkedForkChapter.LargestStep` (not wired). 197 boards qualify, 15 at work 10–15, but the drawn chapter keeps the 9→17 step; drawing by work level is the next try. Tests: `LinkedForkChapterTests`.
+- A chosen thing's caption says which stream its choice shaped ("Its roots held a pipe in stream 4.", `ThingStory.ShapedLine`), Living mode and English only. Tests: `ThingStoryTests`. Tour and device: not run.
+- Take-turns pips wear their seat's ink, ≥ 3:1 on the card (`TurnPalette.PipInk`). Tests: `TurnPaletteTests`. On-screen look: not checked.
+- Spring petals and autumn leaves drift only from deciduous trees on the map, 10 to 20 pieces (`SeasonLook.Falls`, `DriftCount`). Tests: `SeasonLookTests`. On-screen look: not checked.
+- Map things tell a screen reader their story instead of "On the map" (`MapThingWords`, `GardenMapView.Speech.cs`). Tests: `MapThingWordsTests`. VoiceOver/TalkBack: not run.

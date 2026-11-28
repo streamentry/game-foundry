@@ -125,6 +125,18 @@ namespace Evergrove.UnityClient
             else ledger.Record(tracked.UndoSteps, turn);
         }
 
+        // Idea 3: each seat's pip wears its own ink on the card (TurnPalette.PipInk darkens only as far as it must read).
+        private static readonly float[] CardFillRgb = { MosseloraTheme.CardFill.r, MosseloraTheme.CardFill.g, MosseloraTheme.CardFill.b };
+        private static readonly Color[] PipInks = { PipInk(0), PipInk(1), PipInk(2), PipInk(3) };
+        private static Color PipInk(int t) { float[] c = TurnPalette.PipInk(t, CardFillRgb); return new Color(c[0], c[1], c[2], 1f); }
+
+        /// <summary>A seat's pip colour: its own ink, always opaque so every pip holds 3:1 on the card. Whose turn
+        /// it is shows by shape (filled, not ringed), never by fading the others.</summary>
+        private static Color PipInkColour(int p)
+        {
+            return PipInks[p % PipInks.Length];
+        }
+
         /// <summary>
         /// Idea 3: a board solved while playing together. The filled pips show everyone lit, the disc
         /// pulses as before, and the turn caption says "Solved together, ...". Nothing repaints after this.
@@ -137,7 +149,7 @@ namespace Evergrove.UnityClient
                 for (int p = 0; p < pips.Length && p < players; p++)
                 {
                     pips[p].sprite = MosseloraArt.Rounded(8);
-                    pips[p].color = MosseloraTheme.EarthInk;
+                    pips[p].color = PipInks[p % PipInks.Length];
                     if (gentle) BloomPulse.Add(pips[p].gameObject, 0.2f + 0.06f * p, 0.25f);
                 }
             if (turnDiscs == null || turnDiscs.Length == 0 || turnDiscs[0] == null) return;
