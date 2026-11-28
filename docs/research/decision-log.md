@@ -1088,3 +1088,14 @@ The founder chose the recommended option in each case:
 | Audience fit | `age fit not validated`. Reach and handedness are aimed at one-handed use by adults 40+ |
 | Falsification | 40+ players miss the moved menu, or the beside-the-thing tokens get in the way of planting |
 | Stop | Either of those in a playtest reverts that change |
+
+## 2026-11-28 — Mosselora v1 item 94 follow-up: closing and the puzzle card's controls (founder)
+
+The batch 30 reach audit found these out of one-thumb reach in portrait: every sheet's close button (top-right, and iOS has no back gesture), the puzzle card's top row (hint, take turns, send), and the fan's last token. The founder chose:
+
+| Question | Decision |
+| --- | --- |
+| How should closing become reachable? | Any sheet or card also closes with a downward swipe anywhere on it, as iOS sheets do. The top-right button stays the one visual back position |
+| The puzzle card's top-row controls in portrait | They move to a row at the card's foot, beside undo. The thing's picture and the seed pill stay at the top |
+
+The fan stops growing into the out-of-reach top third and wraps into another column instead; that is an engineering fix, not a design call.
